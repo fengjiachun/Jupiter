@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<configuration scan="false">
+    <!-- 标准输出 -->
+    <appender name="STD_OUT" class="ch.qos.logback.core.ConsoleAppender">
+        <layout class="ch.qos.logback.classic.PatternLayout">
+            <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} %-5level [%thread] [%logger{0}] - %msg%n</pattern>
+        </layout>
+    </appender>
+
+    <appender name="ASYNC_STD_OUT" class="ch.qos.logback.classic.AsyncAppender">
+        <!-- 如果队列元素超过容量80%，丢掉新日志 -->
+        <queueSize>512</queueSize>
+        <appender-ref ref="STD_OUT" />
+    </appender>
+
+    <root level="INFO">
+        <appender-ref ref="ASYNC_STD_OUT" />
+    </root>
+</configuration>
