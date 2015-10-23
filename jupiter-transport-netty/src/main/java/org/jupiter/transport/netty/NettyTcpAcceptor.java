@@ -28,8 +28,6 @@ public abstract class NettyTcpAcceptor extends NettyAcceptor {
 
     private static final InternalLogger logger = InternalLoggerFactory.getInstance(NettyTcpAcceptor.class);
 
-    private static final boolean SUPPORT_NATIVE_ET = NativeSupport.supportNativeET();
-
     private final boolean nativeEt; // Use native epoll ET
     private final NettyConfig.NettyTCPConfigGroup configGroup = new NettyConfig.NettyTCPConfigGroup();
 
@@ -169,7 +167,7 @@ public abstract class NettyTcpAcceptor extends NettyAcceptor {
     }
 
     public boolean isNativeEt() {
-        return nativeEt && SUPPORT_NATIVE_ET;
+        return nativeEt && NativeSupport.isSupportNativeET();
     }
 
     @Override

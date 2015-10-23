@@ -19,8 +19,6 @@ import java.util.concurrent.ThreadFactory;
  */
 public abstract class NettyTcpConnector extends NettyConnector {
 
-    private static final boolean SUPPORT_NATIVE_ET = NativeSupport.supportNativeET();
-
     private final boolean nativeEt; // Use native epoll ET
     private final NettyConfig.NettyTCPConfigGroup.ChildConfig childConfig = new NettyConfig.NettyTCPConfigGroup.ChildConfig();
 
@@ -104,6 +102,6 @@ public abstract class NettyTcpConnector extends NettyConnector {
     }
 
     public boolean isNativeEt() {
-        return nativeEt && SUPPORT_NATIVE_ET;
+        return nativeEt && NativeSupport.isSupportNativeET();
     }
 }

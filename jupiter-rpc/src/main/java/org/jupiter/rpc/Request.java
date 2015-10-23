@@ -7,6 +7,8 @@ import java.util.concurrent.atomic.AtomicLong;
 import static org.jupiter.rpc.Status.*;
 
 /**
+ * Consumer请求数据
+ *
  * jupiter
  * org.jupiter.rpc
  *

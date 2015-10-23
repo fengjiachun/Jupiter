@@ -33,7 +33,7 @@ public class DefaultRoundDispatcher extends AbstractDispatcher {
         final Request request = new Request();
         request.message(message);
         // 在业务线程里序列化, 减轻IO线程负担
-        request.bytes(SerializerHolder.getSerializer().writeObject(message));
+        request.bytes(SerializerHolder.serializer().writeObject(message));
         final List<ConsumerHook> _hooks = getHooks();
         final InvokeFuture invokeFuture = new DefaultInvokeFuture(jChannel, request, getTimeoutMills())
                 .hooks(_hooks)

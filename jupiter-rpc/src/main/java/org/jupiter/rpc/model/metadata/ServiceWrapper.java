@@ -6,6 +6,8 @@ import java.util.concurrent.Executor;
 import static org.jupiter.common.util.Preconditions.checkNotNull;
 
 /**
+ * Wrapper provider object and service metadata
+ *
  * jupiter
  * org.jupiter.rpc.model.metadata
  *

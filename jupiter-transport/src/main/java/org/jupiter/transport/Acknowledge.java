@@ -16,7 +16,7 @@ public class Acknowledge {
         this.sequence = sequence;
     }
 
-    private long sequence;
+    private long sequence; // ACK序号
 
     public long sequence() {
         return sequence;

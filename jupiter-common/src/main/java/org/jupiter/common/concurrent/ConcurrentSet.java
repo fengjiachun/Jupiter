@@ -7,6 +7,12 @@ import java.util.AbstractSet;
 import java.util.Iterator;
 import java.util.concurrent.ConcurrentMap;
 
+/**
+ * jupiter
+ * org.jupiter.common.concurrent
+ *
+ * @author jiachun.fjc
+ */
 public final class ConcurrentSet<E> extends AbstractSet<E> implements Serializable {
 
     private static final long serialVersionUID = -6761513279741915432L;
@@ -25,6 +31,7 @@ public final class ConcurrentSet<E> extends AbstractSet<E> implements Serializab
         return map.size();
     }
 
+    @SuppressWarnings("SuspiciousMethodCalls")
     @Override
     public boolean contains(Object o) {
         return map.containsKey(o);

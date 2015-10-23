@@ -8,6 +8,8 @@ import static org.jupiter.rpc.Status.OK;
 import static org.jupiter.rpc.Status.parse;
 
 /**
+ * Provider响应数据
+ *
  * jupiter
  * org.jupiter.rpc
  *

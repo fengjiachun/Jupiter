@@ -3,6 +3,8 @@ package org.jupiter.rpc.channel;
 import java.util.EventListener;
 
 /**
+ * Listener for channel
+ *
  * jupiter
  * org.jupiter.rpc.channel
  *

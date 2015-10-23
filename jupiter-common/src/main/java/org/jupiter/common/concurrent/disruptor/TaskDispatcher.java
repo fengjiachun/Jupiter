@@ -48,14 +48,13 @@ import static org.jupiter.common.concurrent.disruptor.WaitStrategyType.*;
  *
  * @author jiachun.fjc
  */
-@SuppressWarnings("all")
 public class TaskDispatcher implements Dispatcher<Runnable>, Executor {
 
     private static final EventFactory<MessageEvent<Runnable>> eventFactory = new EventFactory<MessageEvent<Runnable>>() {
 
         @Override
         public MessageEvent<Runnable> newInstance() {
-            return new MessageEvent<Runnable>();
+            return new MessageEvent<>();
         }
     };
 
@@ -66,6 +65,7 @@ public class TaskDispatcher implements Dispatcher<Runnable>, Executor {
         this(numWorkers, "task.dispatcher", BUFFER_SIZE, 0, BLOCKING_WAIT);
     }
 
+    @SuppressWarnings("unchecked")
     public TaskDispatcher(int numWorkers, String threadFactoryName, int bufSize, int numReserveWorkers, WaitStrategyType waitStrategyType) {
         if (bufSize < 0) {
             throw new IllegalArgumentException("bufSize must be larger than 0");
@@ -115,12 +115,12 @@ public class TaskDispatcher implements Dispatcher<Runnable>, Executor {
         numWorkers = Math.min(Math.abs(numWorkers), MAX_NUM_WORKERS);
         Disruptor<MessageEvent<Runnable>> dr;
         if (numWorkers == 1) {
-            dr = new Disruptor<MessageEvent<Runnable>>(
+            dr = new Disruptor<>(
                     eventFactory, bufSize, Executors.newSingleThreadExecutor(tFactory), ProducerType.MULTI, waitStrategy);
             dr.handleExceptionsWith(new IgnoreExceptionHandler()); // ignore exception
             dr.handleEventsWith(new TaskHandler());
         } else {
-            dr = new Disruptor<MessageEvent<Runnable>>(
+            dr = new Disruptor<>(
                     eventFactory, bufSize, Executors.newCachedThreadPool(tFactory), ProducerType.MULTI, waitStrategy);
             dr.handleExceptionsWith(new IgnoreExceptionHandler()); // ignore exception
             WorkHandler<MessageEvent<Runnable>>[] handlers = new TaskHandler[numWorkers];
@@ -151,6 +151,7 @@ public class TaskDispatcher implements Dispatcher<Runnable>, Executor {
         }
     }
 
+    @SuppressWarnings("NullableProblems")
     @Override
     public void execute(Runnable message) {
         if (!dispatch(message)) {

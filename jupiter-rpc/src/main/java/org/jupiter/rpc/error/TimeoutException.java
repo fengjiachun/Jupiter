@@ -5,7 +5,7 @@ import org.jupiter.rpc.Status;
 import java.net.SocketAddress;
 
 /**
- * For efficiency this exception will not have a stack trace.
+ * 调用超时会抛出此异常, 通常在客户端抛出
  *
  * jupiter
  * org.jupiter.rpc.error

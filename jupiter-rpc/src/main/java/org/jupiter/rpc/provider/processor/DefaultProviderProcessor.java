@@ -58,7 +58,7 @@ public class DefaultProviderProcessor extends AbstractProviderProcessor {
             requestSizes.update(bytes.length);
 
             // 反序列化
-            MessageWrapper msg = SerializerHolder.getSerializer().readObject(bytes, MessageWrapper.class);
+            MessageWrapper msg = SerializerHolder.serializer().readObject(bytes, MessageWrapper.class);
             request.message(msg);
             request.bytes(null);
         } catch (Exception e) {

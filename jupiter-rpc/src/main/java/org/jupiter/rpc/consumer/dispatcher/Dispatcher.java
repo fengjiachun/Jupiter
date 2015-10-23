@@ -8,6 +8,8 @@ import org.jupiter.rpc.consumer.future.InvokeFuture;
 import java.util.List;
 
 /**
+ * Dispatcher for consumer
+ *
  * jupiter
  * org.jupiter.rpc.consumer.dispatcher
  *

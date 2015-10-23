@@ -39,7 +39,7 @@ public abstract class AbstractProviderProcessor implements ProviderProcessor {
         Response response = new Response(request.invokeId());
         response.status(SERVICE_ERROR.value());
         try {
-            response.bytes(SerializerHolder.getSerializer().writeObject(result));
+            response.bytes(SerializerHolder.serializer().writeObject(result));
         } finally {
             RecycleUtil.recycle(result);
         }

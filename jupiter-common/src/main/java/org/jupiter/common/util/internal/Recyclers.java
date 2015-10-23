@@ -31,7 +31,7 @@ public abstract class Recyclers<T> {
 
         @Override
         protected Stack<T> initialValue() {
-            return new Stack<T>(Recyclers.this, Thread.currentThread(), maxCapacity);
+            return new Stack<>(Recyclers.this, Thread.currentThread(), maxCapacity);
         }
     };
 
@@ -115,7 +115,7 @@ public abstract class Recyclers<T> {
 
                 @Override
                 protected Map<Stack<?>, WeakOrderQueue> initialValue() {
-                    return new WeakHashMap<Stack<?>, WeakOrderQueue>();
+                    return new WeakHashMap<>();
                 }
             };
 
@@ -144,7 +144,7 @@ public abstract class Recyclers<T> {
         @SuppressWarnings("SynchronizationOnLocalVariableOrMethodParameter")
         WeakOrderQueue(Stack<?> stack, Thread thread) {
             head = tail = new Link();
-            owner = new WeakReference<Thread>(thread);
+            owner = new WeakReference<>(thread);
             synchronized (stack) {
                 next = stack.head;
                 stack.head = this;
@@ -368,7 +368,7 @@ public abstract class Recyclers<T> {
         }
 
         DefaultHandle<T> newHandle() {
-            return new DefaultHandle<T>(this);
+            return new DefaultHandle<>(this);
         }
     }
 }

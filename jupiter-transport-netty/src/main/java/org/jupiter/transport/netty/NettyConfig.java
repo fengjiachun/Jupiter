@@ -10,6 +10,8 @@ import java.util.Collections;
 import java.util.List;
 
 /**
+ * Config for netty
+ *
  * jupiter
  * org.jupiter.transport.netty
  *

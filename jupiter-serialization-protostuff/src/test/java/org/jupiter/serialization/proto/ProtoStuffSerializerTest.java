@@ -23,7 +23,7 @@ public class ProtoStuffSerializerTest {
 
     @Test
     public void testSerializer() {
-        Serializer serializer = SerializerHolder.getSerializer();
+        Serializer serializer = SerializerHolder.serializer();
         ResultWrapper wrapper = ResultWrapper.getInstance();
         wrapper.setResult("test");
         byte[] bytes = serializer.writeObject(wrapper);
@@ -123,7 +123,7 @@ interface SerializerInterface {
 class SerializerObj implements SerializerInterface {
 
     String str;
-    List<String> list = new ArrayList<String>();
+    List<String> list = new ArrayList<>();
 
     public SerializerObj() { // 反序列化时不会被调用
         list.add("test");

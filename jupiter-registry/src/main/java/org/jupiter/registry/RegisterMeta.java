@@ -1,7 +1,7 @@
 package org.jupiter.registry;
 
 /**
- * ConfigServer注册信息
+ * ConfigServer注册元信息
  *
  * 注意: 不要轻易修改成员变量, 否则将影响hashCode和equals, RegisterMeta需要经常放入List, Map等容器中
  *

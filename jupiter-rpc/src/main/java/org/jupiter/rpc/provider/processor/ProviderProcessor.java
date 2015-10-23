@@ -12,7 +12,13 @@ import org.jupiter.rpc.provider.LookupService;
  */
 public interface ProviderProcessor extends LookupService {
 
+    /**
+     * 处理正常请求
+     */
     void handleRequest(JChannel ch, Request request) throws Exception;
 
+    /**
+     * 处理异常
+     */
     void handleException(JChannel ch, Request request, Throwable cause);
 }

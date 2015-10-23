@@ -18,7 +18,7 @@ import static org.jupiter.common.util.Preconditions.checkNotNull;
 public final class Lists {
 
     public static <E> ArrayList<E> newArrayList() {
-        return new ArrayList<E>();
+        return new ArrayList<>();
     }
 
     @SuppressWarnings("unchecked")
@@ -26,7 +26,7 @@ public final class Lists {
         checkNotNull(elements);
         // Avoid integer overflow when a large array is passed in
         int capacity = computeArrayListCapacity(elements.length);
-        ArrayList<E> list = new ArrayList<E>(capacity);
+        ArrayList<E> list = new ArrayList<>(capacity);
         Collections.addAll(list, elements);
         return list;
     }
@@ -39,7 +39,7 @@ public final class Lists {
 
     public static <E> ArrayList<E> newArrayListWithCapacity(int initialArraySize) {
         checkArgument(initialArraySize >= 0);
-        return new ArrayList<E>(initialArraySize);
+        return new ArrayList<>(initialArraySize);
     }
 
     /**

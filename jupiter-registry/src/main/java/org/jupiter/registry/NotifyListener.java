@@ -3,6 +3,8 @@ package org.jupiter.registry;
 import java.util.List;
 
 /**
+ * 服务订阅者的监听器
+ *
  * jupiter
  * org.jupiter.registry
  *

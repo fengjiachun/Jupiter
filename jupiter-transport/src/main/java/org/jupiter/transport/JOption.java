@@ -17,7 +17,7 @@ public final class JOption<T> extends AbstractConstant<JOption<T>> {
 
         @Override
         protected JOption<Object> newConstant(int id, String name) {
-            return new JOption<Object>(id, name);
+            return new JOption<>(id, name);
         }
     };
 

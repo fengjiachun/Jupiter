@@ -5,6 +5,8 @@ import io.netty.buffer.Unpooled;
 import org.jupiter.transport.JProtocolHeader;
 
 /**
+ * 心跳
+ *
  * jupiter
  * org.jupiter.transport.netty
  *

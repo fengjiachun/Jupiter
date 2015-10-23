@@ -14,10 +14,19 @@ public interface RegistryService {
 
     void init(Object... args);
 
+    /**
+     * 注册服务
+     */
     void register(RegisterMeta meta);
 
+    /**
+     * 取消注册服务
+     */
     void unregister(RegisterMeta meta);
 
+    /**
+     * 订阅服务
+     */
     void subscribe(ServiceMeta serviceMeta, NotifyListener listener);
 
     /**

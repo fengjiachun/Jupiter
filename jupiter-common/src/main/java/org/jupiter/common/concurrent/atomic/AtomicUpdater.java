@@ -24,7 +24,7 @@ public final class AtomicUpdater {
     public static <U, W> AtomicReferenceFieldUpdater<U, W> newAtomicReferenceFieldUpdater(
             Class<U> tClass, Class<W> vClass, String fieldName) {
         try {
-            return new UnsafeAtomicReferenceFieldUpdater<U, W>(UnsafeAccess.UNSAFE, tClass, fieldName);
+            return new UnsafeAtomicReferenceFieldUpdater<>(UnsafeAccess.UNSAFE, tClass, fieldName);
         } catch (Throwable t) {
             return AtomicReferenceFieldUpdater.newUpdater(tClass, vClass, fieldName);
         }
@@ -38,7 +38,7 @@ public final class AtomicUpdater {
      */
     public static <T> AtomicIntegerFieldUpdater<T> newAtomicIntegerFieldUpdater(Class<T> tClass, String fieldName) {
         try {
-            return new UnsafeAtomicIntegerFieldUpdater<T>(UnsafeAccess.UNSAFE, tClass, fieldName);
+            return new UnsafeAtomicIntegerFieldUpdater<>(UnsafeAccess.UNSAFE, tClass, fieldName);
         } catch (Throwable t) {
             return AtomicIntegerFieldUpdater.newUpdater(tClass, fieldName);
         }
@@ -52,7 +52,7 @@ public final class AtomicUpdater {
      */
     public static <T> AtomicLongFieldUpdater<T> newAtomicLongFieldUpdater(Class<T> tClass, String fieldName) {
         try {
-            return new UnsafeAtomicLongFieldUpdater<T>(UnsafeAccess.UNSAFE, tClass, fieldName);
+            return new UnsafeAtomicLongFieldUpdater<>(UnsafeAccess.UNSAFE, tClass, fieldName);
         } catch (Throwable t) {
             return AtomicLongFieldUpdater.newUpdater(tClass, fieldName);
         }

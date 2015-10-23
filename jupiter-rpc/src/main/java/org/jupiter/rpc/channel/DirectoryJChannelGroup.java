@@ -21,7 +21,7 @@ public class DirectoryJChannelGroup {
 
         CopyOnWriteArrayList<JChannelGroup> groupList = groups.get(_directory);
         if (groupList == null) {
-            CopyOnWriteArrayList<JChannelGroup> newGroupList = new CopyOnWriteArrayList<JChannelGroup>();
+            CopyOnWriteArrayList<JChannelGroup> newGroupList = new CopyOnWriteArrayList<>();
             groupList = groups.putIfAbsent(_directory, newGroupList);
             if (groupList == null) {
                 groupList = newGroupList;

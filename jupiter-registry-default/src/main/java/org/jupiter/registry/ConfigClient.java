@@ -46,6 +46,8 @@ import static org.jupiter.transport.error.Signals.ILLEGAL_MAGIC;
 import static org.jupiter.transport.error.Signals.ILLEGAL_SIGN;
 
 /**
+ * 注册中心客户端
+ *
  * jupiter
  * org.jupiter.registry
  *
@@ -58,9 +60,9 @@ public class ConfigClient extends NettyTcpConnector {
     // 没收到对端ack确认, 需要重发的消息
     private final ConcurrentMap<Long, MessageNonAck> messagesNonAck = Maps.newConcurrentHashMap();
     // Consumer订阅信息
-    private final ConcurrentSet<ServiceMeta> subscribeSet = new ConcurrentSet<ServiceMeta>();
+    private final ConcurrentSet<ServiceMeta> subscribeSet = new ConcurrentSet<>();
     // Provider注册信息
-    private final ConcurrentSet<RegisterMeta> registerMetaSet = new ConcurrentSet<RegisterMeta>();
+    private final ConcurrentSet<RegisterMeta> registerMetaSet = new ConcurrentSet<>();
 
     // handlers
     private final ConnectorIdleStateTrigger idleStateTrigger = new ConnectorIdleStateTrigger();
@@ -244,7 +246,7 @@ public class ConfigClient extends NettyTcpConnector {
                             byte[] bytes = new byte[header.bodyLength()];
                             in.readBytes(bytes);
 
-                            Message msg = SerializerHolder.getSerializer().readObject(bytes, Message.class);
+                            Message msg = SerializerHolder.serializer().readObject(bytes, Message.class);
                             msg.sign(header.sign());
                             out.add(msg);
 
@@ -256,7 +258,7 @@ public class ConfigClient extends NettyTcpConnector {
                             byte[] bytes = new byte[header.bodyLength()];
                             in.readBytes(bytes);
 
-                            Acknowledge ack = SerializerHolder.getSerializer().readObject(bytes, Acknowledge.class);
+                            Acknowledge ack = SerializerHolder.serializer().readObject(bytes, Acknowledge.class);
                             out.add(ack);
                             break;
                         }
@@ -287,7 +289,7 @@ public class ConfigClient extends NettyTcpConnector {
 
         @Override
         protected void encode(ChannelHandlerContext ctx, Message msg, ByteBuf out) throws Exception {
-            byte[] bytes = SerializerHolder.getSerializer().writeObject(msg);
+            byte[] bytes = SerializerHolder.serializer().writeObject(msg);
             out.writeShort(MAGIC)
                     .writeByte(msg.sign())
                     .writeByte(0)

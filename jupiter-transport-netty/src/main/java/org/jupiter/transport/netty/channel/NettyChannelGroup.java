@@ -38,7 +38,7 @@ public class NettyChannelGroup implements JChannelGroup {
         ELEMENTS_OFFSET = offset;
     }
 
-    private final CopyOnWriteArrayList<NettyChannel> channels = new CopyOnWriteArrayList<NettyChannel>();
+    private final CopyOnWriteArrayList<NettyChannel> channels = new CopyOnWriteArrayList<>();
 
     private final ChannelFutureListener remover = new ChannelFutureListener() {
 

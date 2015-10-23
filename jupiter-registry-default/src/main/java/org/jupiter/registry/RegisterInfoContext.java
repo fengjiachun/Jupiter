@@ -9,6 +9,8 @@ import static org.jupiter.registry.RegisterMeta.Address;
 import static org.jupiter.registry.RegisterMeta.ServiceMeta;
 
 /**
+ * 注册服务的全局信息
+ *
  * jupiter
  * org.jupiter.registry
  *
@@ -38,7 +40,7 @@ public class RegisterInfoContext {
     public ConcurrentSet<ServiceMeta> getServiceMeta(Address address) {
         ConcurrentSet<ServiceMeta> serviceMetaSet = globalServiceMetaMap.get(address);
         if (serviceMetaSet == null) {
-            ConcurrentSet<ServiceMeta> newServiceMetaSet = new ConcurrentSet<ServiceMeta>();
+            ConcurrentSet<ServiceMeta> newServiceMetaSet = new ConcurrentSet<>();
             serviceMetaSet = globalServiceMetaMap.putIfAbsent(address, newServiceMetaSet);
             if (serviceMetaSet == null) {
                 serviceMetaSet = newServiceMetaSet;

@@ -1,6 +1,10 @@
 package org.jupiter.rpc.error;
 
 /**
+ * 请求内容反序列化失败时抛出此异常
+ *
+ * For efficiency this exception will not have a stack trace.
+ *
  * jupiter
  * org.jupiter.rpc.error
  *

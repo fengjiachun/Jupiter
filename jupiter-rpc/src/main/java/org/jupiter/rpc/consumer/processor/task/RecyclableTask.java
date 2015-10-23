@@ -8,6 +8,8 @@ import org.jupiter.rpc.model.metadata.ResultWrapper;
 import org.jupiter.serialization.SerializerHolder;
 
 /**
+ * 可回收的Task, 减少小对象的分配以及回收(help gc)
+ *
  * jupiter
  * org.jupiter.rpc.consumer.processor.task
  *
@@ -22,7 +24,7 @@ public class RecyclableTask implements Runnable {
     public void run() {
         try {
             // 业务线程里反序列化, 减轻IO线程负担
-            response.result(SerializerHolder.getSerializer().readObject(response.bytes(), ResultWrapper.class));
+            response.result(SerializerHolder.serializer().readObject(response.bytes(), ResultWrapper.class));
             response.bytes(null);
             DefaultInvokeFuture.received(jChannel, response);
         } finally {

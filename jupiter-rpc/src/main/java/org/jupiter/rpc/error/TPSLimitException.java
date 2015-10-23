@@ -1,7 +1,9 @@
 package org.jupiter.rpc.error;
 
 /**
- * 服务端限流
+ * 服务端限流时抛出磁异常
+ *
+ * For efficiency this exception will not have a stack trace.
  *
  * jupiter
  * org.jupiter.rpc.error

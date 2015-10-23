@@ -1,6 +1,8 @@
 package org.jupiter.rpc.error;
 
 /**
+ * 未找到对应服务是抛出此异常
+ *
  * For efficiency this exception will not have a stack trace.
  *
  * jupiter

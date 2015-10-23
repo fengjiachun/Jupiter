@@ -22,7 +22,7 @@ import static org.jupiter.registry.RegisterMeta.*;
  */
 public abstract class AbstractRegistryService implements RegistryService {
 
-    private final LinkedBlockingQueue<RegisterMeta> queue = new LinkedBlockingQueue<RegisterMeta>(1204);
+    private final LinkedBlockingQueue<RegisterMeta> queue = new LinkedBlockingQueue<>(1204);
     private final ExecutorService executor =
             Executors.newSingleThreadExecutor(new NamedThreadFactory("registry.executor"));
     private final AtomicBoolean shutdown = new AtomicBoolean(false);
@@ -75,7 +75,7 @@ public abstract class AbstractRegistryService implements RegistryService {
     public void subscribe(ServiceMeta serviceMeta, NotifyListener listener) {
         CopyOnWriteArrayList<NotifyListener> listenerList = subscribeListeners.get(serviceMeta);
         if (listenerList == null) {
-            CopyOnWriteArrayList<NotifyListener> newListenerList = new CopyOnWriteArrayList<NotifyListener>();
+            CopyOnWriteArrayList<NotifyListener> newListenerList = new CopyOnWriteArrayList<>();
             listenerList = subscribeListeners.putIfAbsent(serviceMeta, newListenerList);
             if (listenerList == null) {
                 listenerList = newListenerList;
@@ -106,7 +106,7 @@ public abstract class AbstractRegistryService implements RegistryService {
         synchronized (registries) {
             Pair<Long, List<RegisterMeta>> oldData = registries.get(serviceMeta);
             if (oldData == null || (oldData.getKey() < version)) {
-                registries.put(serviceMeta, new Pair<Long, List<RegisterMeta>>(version, registerMetaList));
+                registries.put(serviceMeta, new Pair<>(version, registerMetaList));
                 notify = true;
             }
         }

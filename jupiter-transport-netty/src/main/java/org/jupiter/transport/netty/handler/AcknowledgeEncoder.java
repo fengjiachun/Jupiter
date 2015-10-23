@@ -11,6 +11,8 @@ import static org.jupiter.transport.JProtocolHeader.ACK;
 import static org.jupiter.transport.JProtocolHeader.MAGIC;
 
 /**
+ * ACK encoder
+ *
  * jupiter
  * org.jupiter.transport.netty.handler
  *
@@ -21,7 +23,7 @@ public class AcknowledgeEncoder extends MessageToByteEncoder<Acknowledge> {
 
     @Override
     protected void encode(ChannelHandlerContext ctx, Acknowledge ack, ByteBuf out) throws Exception {
-        byte[] bytes = SerializerHolder.getSerializer().writeObject(ack);
+        byte[] bytes = SerializerHolder.serializer().writeObject(ack);
         out.writeShort(MAGIC)
                 .writeByte(ACK)
                 .writeByte(0)

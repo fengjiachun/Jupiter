@@ -46,7 +46,7 @@ public class DefaultBroadcastDispatcher extends AbstractDispatcher {
             final Request request = new Request();
             request.message(message);
             // 在业务线程里序列化, 减轻IO线程负担
-            request.bytes(SerializerHolder.getSerializer().writeObject(message));
+            request.bytes(SerializerHolder.serializer().writeObject(message));
             final List<ConsumerHook> _hooks = getHooks();
             final JListener _listener = getListener();
             for (Object obj : jChannels) {

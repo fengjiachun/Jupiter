@@ -3,6 +3,8 @@ package org.jupiter.registry;
 import java.util.concurrent.atomic.AtomicLong;
 
 /**
+ * 带版本号的配置信息
+ *
  * jupiter
  * org.jupiter.registry
  *
@@ -11,7 +13,7 @@ import java.util.concurrent.atomic.AtomicLong;
 public class ConfigWithVersion<T> {
 
     public static <T> ConfigWithVersion<T> newInstance() {
-        return new ConfigWithVersion<T>();
+        return new ConfigWithVersion<>();
     }
 
     private ConfigWithVersion() {}

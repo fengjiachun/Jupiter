@@ -3,6 +3,10 @@ package org.jupiter.rpc.error;
 import java.net.SocketAddress;
 
 /**
+ * 远程调用异常
+ *
+ * For efficiency this exception will not have a stack trace.
+ *
  * jupiter
  * org.jupiter.rpc.error
  *

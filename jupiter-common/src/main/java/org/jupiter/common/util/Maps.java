@@ -16,35 +16,35 @@ import java.util.concurrent.ConcurrentMap;
 public final class Maps {
 
     public static <K, V> HashMap<K, V> newHashMap() {
-        return new HashMap<K, V>();
+        return new HashMap<>();
     }
 
     public static <K, V> HashMap<K, V> newHashMapWithExpectedSize(int expectedSize) {
-        return new HashMap<K, V>(capacity(expectedSize));
+        return new HashMap<>(capacity(expectedSize));
     }
 
     public static <K, V> IdentityHashMap<K, V> newIdentityHashMap() {
-        return new IdentityHashMap<K, V>();
+        return new IdentityHashMap<>();
     }
 
     public static <K, V> IdentityHashMap<K, V> newIdentityHashMapWithExpectedSize(int expectedSize) {
-        return new IdentityHashMap<K, V>(capacity(expectedSize));
+        return new IdentityHashMap<>(capacity(expectedSize));
     }
 
     public static <K, V> LinkedHashMap<K, V> newLinkedHashMap() {
-        return new LinkedHashMap<K, V>();
+        return new LinkedHashMap<>();
     }
 
     public static <K extends Comparable, V> TreeMap<K, V> newTreeMap() {
-        return new TreeMap<K, V>();
+        return new TreeMap<>();
     }
 
     public static <K, V> ConcurrentMap<K, V> newConcurrentHashMap() {
-        return new ConcurrentHashMap<K, V>();
+        return new ConcurrentHashMap<>();
     }
 
     public static <K, V> ConcurrentMap<K, V> newConcurrentHashMap(int initialCapacity) {
-        return new ConcurrentHashMap<K, V>(initialCapacity);
+        return new ConcurrentHashMap<>(initialCapacity);
     }
 
     private static int capacity(int expectedSize) {

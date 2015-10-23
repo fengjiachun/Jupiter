@@ -22,15 +22,15 @@ public class ThreadPoolExecutorFactory implements ExecutorFactory {
         if (args.length > 0 && args[0] instanceof WorkQueueType) {
             switch ((WorkQueueType) args[0]) {
                 case LINKED_BLOCKING_QUEUE:
-                    workQueue = new LinkedBlockingQueue<Runnable>(PROCESSOR_WORKER_QUEUE_CAPACITY);
+                    workQueue = new LinkedBlockingQueue<>(PROCESSOR_WORKER_QUEUE_CAPACITY);
                     break;
                 case ARRAY_BLOCKING_QUEUE:
-                    workQueue = new ArrayBlockingQueue<Runnable>(PROCESSOR_WORKER_QUEUE_CAPACITY);
+                    workQueue = new ArrayBlockingQueue<>(PROCESSOR_WORKER_QUEUE_CAPACITY);
                     break;
             }
         }
         if (workQueue == null) {
-            workQueue = new LinkedBlockingQueue<Runnable>(PROCESSOR_WORKER_QUEUE_CAPACITY);
+            workQueue = new LinkedBlockingQueue<>(PROCESSOR_WORKER_QUEUE_CAPACITY);
         }
 
         return new ThreadPoolExecutor(

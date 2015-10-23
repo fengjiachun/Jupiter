@@ -8,6 +8,8 @@ import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 
 /**
+ * 同步调用
+ *
  * jupiter
  * org.jupiter.rpc.consumer.invoker
  *

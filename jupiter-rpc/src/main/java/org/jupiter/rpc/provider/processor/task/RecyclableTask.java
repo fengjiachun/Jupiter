@@ -32,6 +32,8 @@ import static org.jupiter.common.util.StackTraceUtil.stackTrace;
 import static org.jupiter.rpc.Status.*;
 
 /**
+ * 可回收的Task, 减少小对象的分配以及回收(help gc)
+ *
  * jupiter
  * org.jupiter.rpc.provider.processor.task
  *
@@ -75,7 +77,7 @@ public class RecyclableTask implements RejectedRunnable {
             response.status(OK.value());
             try {
                 // 在业务线程里序列化, 减轻IO线程负担
-                response.bytes(SerializerHolder.getSerializer().writeObject(result));
+                response.bytes(SerializerHolder.serializer().writeObject(result));
             } finally {
                 RecycleUtil.recycle(result);
             }
@@ -133,7 +135,7 @@ public class RecyclableTask implements RejectedRunnable {
             response.status(status.value());
             try {
                 // 在业务线程里序列化, 减轻IO线程负担
-                response.bytes(SerializerHolder.getSerializer().writeObject(result));
+                response.bytes(SerializerHolder.serializer().writeObject(result));
             } finally {
                 RecycleUtil.recycle(result);
             }

@@ -28,7 +28,7 @@ public final class NativeSupport {
     /**
      * The native socket transport for Linux using JNI
      */
-    public static boolean supportNativeET() {
+    public static boolean isSupportNativeET() {
         return SUPPORT_NATIVE_ET;
     }
 }

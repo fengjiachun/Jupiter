@@ -46,6 +46,7 @@ import static org.jupiter.transport.error.Signals.ILLEGAL_MAGIC;
 import static org.jupiter.transport.error.Signals.ILLEGAL_SIGN;
 
 /**
+ * 注册中心服务端
  * jupiter
  * org.jupiter.registry
  *
@@ -124,6 +125,7 @@ public class ConfigServer extends NettyTcpAcceptor {
         return boot.bind(address);
     }
 
+    // 添加指定机器指定服务, 然后全量发布到所有客户端
     private void handlePublish(RegisterMeta meta, Channel channel) {
         attachPublishEventOnChannel(meta, channel);
 
@@ -141,7 +143,7 @@ public class ConfigServer extends NettyTcpAcceptor {
                 msg.setVersion(config.newVersion()); // 版本号+1
                 List<RegisterMeta> registerMetaList = Lists.newArrayList(config.getConfig().values());
                 // 每次发布服务都是当前meta的全量信息
-                msg.data(new Pair<ServiceMeta, List<RegisterMeta>>(serviceMeta, registerMetaList));
+                msg.data(new Pair<>(serviceMeta, registerMetaList));
 
                 subscriberChannels.writeAndFlush(msg, new ChannelMatcher() {
 
@@ -160,6 +162,7 @@ public class ConfigServer extends NettyTcpAcceptor {
         }
     }
 
+    // 删除指定机器指定服务, 然后全量发布到所有客户端
     private void handleUnPublish(RegisterMeta meta, Channel channel) {
         attachUnPublishEventOnChannel(meta, channel);
 
@@ -182,7 +185,7 @@ public class ConfigServer extends NettyTcpAcceptor {
                 msg.setVersion(config.newVersion()); // 版本号+1
                 List<RegisterMeta> registerMetaList = Lists.newArrayList(config.getConfig().values());
                 // 每次发布服务都是当前meta的全量信息
-                msg.data(new Pair<ServiceMeta, List<RegisterMeta>>(serviceMeta, registerMetaList));
+                msg.data(new Pair<>(serviceMeta, registerMetaList));
 
                 subscriberChannels.writeAndFlush(msg, new ChannelMatcher() {
 
@@ -201,6 +204,7 @@ public class ConfigServer extends NettyTcpAcceptor {
         }
     }
 
+    // 订阅服务
     private void handleSubscribe(ServiceMeta serviceMeta, Channel channel) {
         attachSubscribeEventOnChannel(serviceMeta, channel);
 
@@ -216,7 +220,7 @@ public class ConfigServer extends NettyTcpAcceptor {
         msg.setVersion(config.getVersion()); // 版本号
         List<RegisterMeta> registerMetaList = Lists.newArrayList(config.getConfig().values());
         // 每次发布服务都是当前meta的全量信息
-        msg.data(new Pair<ServiceMeta, List<RegisterMeta>>(serviceMeta, registerMetaList));
+        msg.data(new Pair<>(serviceMeta, registerMetaList));
 
         MessageNonAck msgNonAck = new MessageNonAck(serviceMeta, msg, channel);
         // 收到ack后会移除当前key(参见handleAcknowledge), 否则超时超时重发
@@ -224,6 +228,7 @@ public class ConfigServer extends NettyTcpAcceptor {
         channel.writeAndFlush(msg);
     }
 
+    // 处理ack
     private void handleAcknowledge(Acknowledge ack, Channel channel) {
         messagesNonAck.remove(key(ack.sequence(), channel));
     }
@@ -232,11 +237,12 @@ public class ConfigServer extends NettyTcpAcceptor {
         return String.valueOf(sequence) + '-' + channel.id().asShortText();
     }
 
+    // 在channel打标记(发布过的服务)
     private static boolean attachPublishEventOnChannel(RegisterMeta meta, Channel channel) {
         Attribute<ConcurrentSet<RegisterMeta>> attr = channel.attr(PUBLISH_KEY);
         ConcurrentSet<RegisterMeta> registerMetaSet = attr.get();
         if (registerMetaSet == null) {
-            ConcurrentSet<RegisterMeta> newRegisterMetaSet = new ConcurrentSet<RegisterMeta>();
+            ConcurrentSet<RegisterMeta> newRegisterMetaSet = new ConcurrentSet<>();
             registerMetaSet = attr.setIfAbsent(newRegisterMetaSet);
             if (registerMetaSet == null) {
                 registerMetaSet = newRegisterMetaSet;
@@ -246,11 +252,12 @@ public class ConfigServer extends NettyTcpAcceptor {
         return registerMetaSet.add(meta);
     }
 
+    // 取消在channel的标记(发布过的服务)
     private static boolean attachUnPublishEventOnChannel(RegisterMeta meta, Channel channel) {
         Attribute<ConcurrentSet<RegisterMeta>> attr = channel.attr(PUBLISH_KEY);
         ConcurrentSet<RegisterMeta> registerMetaSet = attr.get();
         if (registerMetaSet == null) {
-            ConcurrentSet<RegisterMeta> newRegisterMetaSet = new ConcurrentSet<RegisterMeta>();
+            ConcurrentSet<RegisterMeta> newRegisterMetaSet = new ConcurrentSet<>();
             registerMetaSet = attr.setIfAbsent(newRegisterMetaSet);
             if (registerMetaSet == null) {
                 registerMetaSet = newRegisterMetaSet;
@@ -260,11 +267,12 @@ public class ConfigServer extends NettyTcpAcceptor {
         return registerMetaSet.remove(meta);
     }
 
+    // 在channel打标记(订阅过的服务)
     private static boolean attachSubscribeEventOnChannel(ServiceMeta serviceMeta, Channel channel) {
         Attribute<ConcurrentSet<ServiceMeta>> attr = channel.attr(SUBSCRIBE_KEY);
         ConcurrentSet<ServiceMeta> serviceMetaSet = attr.get();
         if (serviceMetaSet == null) {
-            ConcurrentSet<ServiceMeta> newServiceMetaSet = new ConcurrentSet<ServiceMeta>();
+            ConcurrentSet<ServiceMeta> newServiceMetaSet = new ConcurrentSet<>();
             serviceMetaSet = attr.setIfAbsent(newServiceMetaSet);
             if (serviceMetaSet == null) {
                 serviceMetaSet = newServiceMetaSet;
@@ -274,6 +282,7 @@ public class ConfigServer extends NettyTcpAcceptor {
         return serviceMetaSet.add(serviceMeta);
     }
 
+    // 检查channel上的标记(是否订阅过指定的服务)
     private static boolean isChannelSubscribeOnServiceMeta(ServiceMeta serviceMeta, Channel channel) {
         ConcurrentSet<ServiceMeta> serviceMetaSet = channel.attr(SUBSCRIBE_KEY).get();
 
@@ -349,7 +358,7 @@ public class ConfigServer extends NettyTcpAcceptor {
                             byte[] bytes = new byte[header.bodyLength()];
                             in.readBytes(bytes);
 
-                            Message msg = SerializerHolder.getSerializer().readObject(bytes, Message.class);
+                            Message msg = SerializerHolder.serializer().readObject(bytes, Message.class);
                             msg.sign(header.sign());
                             out.add(msg);
 
@@ -361,7 +370,7 @@ public class ConfigServer extends NettyTcpAcceptor {
                             byte[] bytes = new byte[header.bodyLength()];
                             in.readBytes(bytes);
 
-                            Acknowledge ack = SerializerHolder.getSerializer().readObject(bytes, Acknowledge.class);
+                            Acknowledge ack = SerializerHolder.serializer().readObject(bytes, Acknowledge.class);
                             out.add(ack);
                             break;
                         }
@@ -391,7 +400,7 @@ public class ConfigServer extends NettyTcpAcceptor {
 
         @Override
         protected void encode(ChannelHandlerContext ctx, Message msg, ByteBuf out) throws Exception {
-            byte[] bytes = SerializerHolder.getSerializer().writeObject(msg);
+            byte[] bytes = SerializerHolder.serializer().writeObject(msg);
             out.writeShort(MAGIC)
                     .writeByte(msg.sign())
                     .writeByte(0)

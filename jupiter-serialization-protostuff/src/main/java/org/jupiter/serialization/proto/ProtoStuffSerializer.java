@@ -17,7 +17,6 @@ import java.util.concurrent.ConcurrentMap;
  *
  * @author jiachun.fjc
  */
-@SuppressWarnings("unchecked")
 public class ProtoStuffSerializer implements Serializer {
 
     private static ConcurrentMap<Class<?>, Schema<?>> schemaCache = Maps.newConcurrentHashMap();
@@ -39,6 +38,7 @@ public class ProtoStuffSerializer implements Serializer {
                 "protostuff.runtime.always_use_sun_reflection_factory", String.valueOf(ALWAYS_USE_SUN_REFLECTION_FACTORY));
     }
 
+    @SuppressWarnings("unchecked")
     @Override
     public <T> byte[] writeObject(T obj) {
         Schema<T> schema = getSchema((Class<T>) obj.getClass());
@@ -60,6 +60,7 @@ public class ProtoStuffSerializer implements Serializer {
         return msg;
     }
 
+    @SuppressWarnings("unchecked")
     private <T> Schema<T> getSchema(Class<T> clazz) {
         Schema<T> schema = (Schema<T>) schemaCache.get(clazz);
         if (schema == null) {
