@@ -39,6 +39,8 @@ public class JProtocolHeader {
     public static final byte UN_PUBLISH_SERVICE = 66;
     /** 订阅服务 */
     public static final byte SUBSCRIBE_SERVICE = 67;
+    /** 通知下线 */
+    public static final byte OFFLINE_NOTICE = 68;
 
     /** ============================================================================================================= */
 

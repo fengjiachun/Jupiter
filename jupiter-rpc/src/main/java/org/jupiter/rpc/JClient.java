@@ -1,6 +1,7 @@
 package org.jupiter.rpc;
 
 import org.jupiter.registry.NotifyListener;
+import org.jupiter.registry.OfflineListener;
 import org.jupiter.registry.RegisterMeta;
 import org.jupiter.registry.Registry;
 import org.jupiter.rpc.channel.JChannel;
@@ -29,5 +30,13 @@ public interface JClient extends Registry {
 
     Collection<RegisterMeta> lookup(Directory directory);
 
+    /**
+     * 订阅服务
+     */
     void subscribe(Directory directory, NotifyListener listener);
+
+    /**
+     * 订阅provider下线通知
+     */
+    void subscribe(UnresolvedAddress address, OfflineListener listener);
 }

@@ -3,6 +3,7 @@ package org.jupiter.rpc;
 import org.jupiter.common.util.JServiceLoader;
 import org.jupiter.common.util.Maps;
 import org.jupiter.registry.NotifyListener;
+import org.jupiter.registry.OfflineListener;
 import org.jupiter.registry.RegisterMeta;
 import org.jupiter.registry.RegistryService;
 import org.jupiter.rpc.channel.DirectoryJChannelGroup;
@@ -87,26 +88,33 @@ public abstract class AbstractJClient implements JClient {
 
     @Override
     public Collection<RegisterMeta> lookup(Directory directory) {
-        ServiceMeta serviceMeta = castDirectory2ServiceMeta(directory);
+        ServiceMeta serviceMeta = cast2ServiceMeta(directory);
 
         return registryService.lookup(serviceMeta);
     }
 
     @Override
     public void subscribe(Directory directory, NotifyListener listener) {
-        ServiceMeta serviceMeta = castDirectory2ServiceMeta(directory);
+        registryService.subscribe(cast2ServiceMeta(directory), listener);
+    }
 
-        registryService.subscribe(serviceMeta, listener);
+    @Override
+    public void subscribe(UnresolvedAddress address, OfflineListener listener) {
+        registryService.subscribe(cast2Address(address), listener);
     }
 
     protected abstract JChannelGroup newChannelGroup(UnresolvedAddress address);
 
-    private static ServiceMeta castDirectory2ServiceMeta(Directory directory) {
+    private static ServiceMeta cast2ServiceMeta(Directory directory) {
         ServiceMeta serviceMeta = new ServiceMeta();
         serviceMeta.setGroup(checkNotNull(directory.getGroup(), "group"));
         serviceMeta.setVersion(checkNotNull(directory.getVersion(), "version"));
         serviceMeta.setServiceProviderName(checkNotNull(directory.getServiceProviderName(), "serviceProviderName"));
 
         return serviceMeta;
+    }
+
+    private static Address cast2Address(UnresolvedAddress address) {
+        return new Address(address.getHost(), address.getPort());
     }
 }

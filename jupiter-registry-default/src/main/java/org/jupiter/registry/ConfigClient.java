@@ -242,7 +242,8 @@ public class ConfigClient extends NettyTcpConnector {
                     checkpoint(State.BODY);
                 case BODY:
                     switch (header.sign()) {
-                        case PUBLISH_SERVICE: {
+                        case PUBLISH_SERVICE:
+                        case OFFLINE_NOTICE: {
                             byte[] bytes = new byte[header.bodyLength()];
                             in.readBytes(bytes);
 
@@ -315,6 +316,12 @@ public class ConfigClient extends NettyTcpConnector {
                         Pair<ServiceMeta, List<RegisterMeta>> data = (Pair<ServiceMeta, List<RegisterMeta>>) obj.data();
 
                         registryService.notify(data.getKey(), data.getValue(), obj.getVersion());
+
+                        break;
+                    case OFFLINE_NOTICE:
+                        Address address = (Address) obj.data();
+
+                        registryService.offline(address);
 
                         break;
                 }

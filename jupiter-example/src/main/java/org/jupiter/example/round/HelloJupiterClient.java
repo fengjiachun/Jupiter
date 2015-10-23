@@ -2,11 +2,14 @@ package org.jupiter.example.round;
 
 import org.jupiter.example.ServiceTest;
 import org.jupiter.registry.NotifyListener;
+import org.jupiter.registry.OfflineListener;
 import org.jupiter.registry.RegisterMeta;
 import org.jupiter.rpc.Directory;
 import org.jupiter.rpc.UnresolvedAddress;
+import org.jupiter.rpc.channel.JChannelGroup;
 import org.jupiter.rpc.consumer.ProxyFactory;
 import org.jupiter.rpc.model.metadata.ServiceMetadata;
+import org.jupiter.transport.JConnectionManager;
 import org.jupiter.transport.netty.NettyConnector;
 import org.jupiter.transport.netty.JNettyTcpConnector;
 
@@ -34,8 +37,19 @@ public class HelloJupiterClient {
             public void notify(List<RegisterMeta> registerMetaList) {
                 for (RegisterMeta meta : registerMetaList) {
                     UnresolvedAddress address = new UnresolvedAddress(meta.getHost(), meta.getPort());
-                    connector.connect(address);
-                    connector.addGroup(directory, connector.group(address));
+
+                    JChannelGroup group = connector.group(address);
+                    if (group.isEmpty()) {
+                        JConnectionManager.manage(connector.connect(address));
+                        connector.subscribe(address, new OfflineListener() {
+
+                            @Override
+                            public void offline(RegisterMeta.Address address) {
+                                JConnectionManager.cancelReconnect(new UnresolvedAddress(address.getHost(), address.getPort()));
+                            }
+                        });
+                    }
+                    connector.addGroup(directory, group);
                     System.out.println(meta);
                 }
                 latch.countDown();

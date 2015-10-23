@@ -233,6 +233,14 @@ public class ConfigServer extends NettyTcpAcceptor {
         messagesNonAck.remove(key(ack.sequence(), channel));
     }
 
+    // 发布Provider下线的通告
+    private void handleOfflineNotice(Address address) {
+        Message msg = new Message();
+        msg.sign(OFFLINE_NOTICE);
+        msg.data(address);
+        subscriberChannels.writeAndFlush(msg);
+    }
+
     private static String key(long sequence, Channel channel) {
         return String.valueOf(sequence) + '-' + channel.id().asShortText();
     }
@@ -354,7 +362,8 @@ public class ConfigServer extends NettyTcpAcceptor {
                             break;
                         case PUBLISH_SERVICE:
                         case UN_PUBLISH_SERVICE:
-                        case SUBSCRIBE_SERVICE: {
+                        case SUBSCRIBE_SERVICE:
+                        case OFFLINE_NOTICE: {
                             byte[] bytes = new byte[header.bodyLength()];
                             in.readBytes(bytes);
 
@@ -448,6 +457,10 @@ public class ConfigServer extends NettyTcpAcceptor {
                         handleSubscribe((ServiceMeta) obj.data(), channel);
 
                         break;
+                    case OFFLINE_NOTICE:
+                        handleOfflineNotice((Address) obj.data());
+
+                        break;
                 }
             } else if (msg instanceof Acknowledge) {
                 handleAcknowledge((Acknowledge) msg, channel);
@@ -470,9 +483,16 @@ public class ConfigServer extends NettyTcpAcceptor {
                 return;
             }
 
+            Address address = null;
             for (RegisterMeta meta : registerMetaSet) {
+                if (address == null) {
+                    address = meta.getAddress();
+                }
                 handleUnPublish(meta, channel);
             }
+
+            // 通知所有订阅者对应机器下线
+            handleOfflineNotice(address);
         }
 
         @Override

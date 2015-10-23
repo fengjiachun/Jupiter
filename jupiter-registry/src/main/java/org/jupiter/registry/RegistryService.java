@@ -30,6 +30,11 @@ public interface RegistryService {
     void subscribe(ServiceMeta serviceMeta, NotifyListener listener);
 
     /**
+     * 订阅provider下线通知
+     */
+    void subscribe(Address address, OfflineListener listener);
+
+    /**
      * 本地查找服务
      */
     Collection<RegisterMeta> lookup(ServiceMeta serviceMeta);

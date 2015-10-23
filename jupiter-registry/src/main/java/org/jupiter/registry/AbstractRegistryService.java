@@ -28,8 +28,8 @@ public abstract class AbstractRegistryService implements RegistryService {
     private final AtomicBoolean shutdown = new AtomicBoolean(false);
 
     private final Map<ServiceMeta, Pair<Long, List<RegisterMeta>>> registries = Maps.newHashMap();
-    private final ConcurrentMap<ServiceMeta, CopyOnWriteArrayList<NotifyListener>> subscribeListeners =
-            Maps.newConcurrentHashMap();
+    private final ConcurrentMap<ServiceMeta, CopyOnWriteArrayList<NotifyListener>> subscribeListeners = Maps.newConcurrentHashMap();
+    private final ConcurrentMap<Address, CopyOnWriteArrayList<OfflineListener>> offlineListeners = Maps.newConcurrentHashMap();
 
     public AbstractRegistryService() {
         executor.execute(new Runnable() {
@@ -73,17 +73,30 @@ public abstract class AbstractRegistryService implements RegistryService {
 
     @Override
     public void subscribe(ServiceMeta serviceMeta, NotifyListener listener) {
-        CopyOnWriteArrayList<NotifyListener> listenerList = subscribeListeners.get(serviceMeta);
-        if (listenerList == null) {
-            CopyOnWriteArrayList<NotifyListener> newListenerList = new CopyOnWriteArrayList<>();
-            listenerList = subscribeListeners.putIfAbsent(serviceMeta, newListenerList);
-            if (listenerList == null) {
-                listenerList = newListenerList;
+        CopyOnWriteArrayList<NotifyListener> listeners = subscribeListeners.get(serviceMeta);
+        if (listeners == null) {
+            CopyOnWriteArrayList<NotifyListener> newListeners = new CopyOnWriteArrayList<>();
+            listeners = subscribeListeners.putIfAbsent(serviceMeta, newListeners);
+            if (listeners == null) {
+                listeners = newListeners;
             }
         }
-        listenerList.add(listener);
+        listeners.add(listener);
 
         doSubscribe(serviceMeta);
+    }
+
+    @Override
+    public void subscribe(Address address, OfflineListener listener) {
+        CopyOnWriteArrayList<OfflineListener> listeners = offlineListeners.get(address);
+        if (listeners == null) {
+            CopyOnWriteArrayList<OfflineListener> newListeners = new CopyOnWriteArrayList<>();
+            listeners = offlineListeners.putIfAbsent(address, newListeners);
+            if (listeners == null) {
+                listeners = newListeners;
+            }
+        }
+        listeners.add(listener);
     }
 
     @Override
@@ -100,6 +113,7 @@ public abstract class AbstractRegistryService implements RegistryService {
         return Collections.emptyList();
     }
 
+    // 通知新的服务
     protected void notify(ServiceMeta serviceMeta, List<RegisterMeta> registerMetaList, long version) {
         boolean notify = false;
 
@@ -117,6 +131,16 @@ public abstract class AbstractRegistryService implements RegistryService {
                 for (NotifyListener l : listeners) {
                     l.notify(registerMetaList);
                 }
+            }
+        }
+    }
+
+    // 通知对应地址的机器下线
+    protected void offline(Address address) {
+        CopyOnWriteArrayList<OfflineListener> listeners = offlineListeners.get(address);
+        if (listeners != null) {
+            for (OfflineListener l : listeners) {
+                l.offline(address);
             }
         }
     }
