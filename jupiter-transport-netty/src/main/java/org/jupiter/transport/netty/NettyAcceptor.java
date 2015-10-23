@@ -107,10 +107,6 @@ public abstract class NettyAcceptor extends AbstractJServer implements JAcceptor
         }
     }
 
-    public abstract void setIoRatio(int bossIoRatio, int workerIoRatio);
-
-    protected abstract EventLoopGroup initEventLoopGroup(int nThreads, ThreadFactory tFactory);
-
     protected ServerBootstrap bootstrap() {
         return bootstrap;
     }
@@ -122,4 +118,8 @@ public abstract class NettyAcceptor extends AbstractJServer implements JAcceptor
     protected EventLoopGroup worker() {
         return worker;
     }
+
+    public abstract void setIoRatio(int bossIoRatio, int workerIoRatio);
+
+    protected abstract EventLoopGroup initEventLoopGroup(int nThreads, ThreadFactory tFactory);
 }

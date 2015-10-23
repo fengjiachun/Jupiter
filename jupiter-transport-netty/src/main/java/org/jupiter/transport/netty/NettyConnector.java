@@ -79,6 +79,14 @@ public abstract class NettyConnector extends AbstractJClient implements JConnect
         return new NettyChannelGroup(address);
     }
 
+    public Bootstrap bootstrap() {
+        return bootstrap;
+    }
+
+    public EventLoopGroup worker() {
+        return worker;
+    }
+
     protected void setOptions() {
         JConfig child = config();
 
@@ -103,12 +111,4 @@ public abstract class NettyConnector extends AbstractJClient implements JConnect
     public abstract void setIoRatio(int workerIoRatio);
 
     protected abstract EventLoopGroup initEventLoopGroup(int nThreads, ThreadFactory tFactory);
-
-    public Bootstrap bootstrap() {
-        return bootstrap;
-    }
-
-    public EventLoopGroup worker() {
-        return worker;
-    }
 }
