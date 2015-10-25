@@ -9,17 +9,24 @@ import io.netty.util.HashedWheelTimer;
 import io.netty.util.concurrent.DefaultThreadFactory;
 import io.netty.util.internal.PlatformDependent;
 import org.jupiter.common.concurrent.NamedThreadFactory;
+import org.jupiter.common.util.internal.UnsafeAccess;
+import org.jupiter.registry.NotifyListener;
+import org.jupiter.registry.OfflineListener;
+import org.jupiter.registry.RegisterMeta;
 import org.jupiter.rpc.AbstractJClient;
+import org.jupiter.rpc.Directory;
 import org.jupiter.rpc.UnresolvedAddress;
 import org.jupiter.rpc.channel.JChannelGroup;
-import org.jupiter.transport.JConnection;
-import org.jupiter.transport.JConfig;
-import org.jupiter.transport.JConnector;
-import org.jupiter.transport.JOption;
+import org.jupiter.transport.*;
 import org.jupiter.transport.netty.channel.NettyChannelGroup;
 
+import java.util.List;
 import java.util.concurrent.ThreadFactory;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.locks.Condition;
+import java.util.concurrent.locks.ReentrantLock;
 
+import static java.util.concurrent.TimeUnit.MILLISECONDS;
 import static org.jupiter.common.util.JConstants.AVAILABLE_PROCESSORS;
 
 /**
@@ -32,6 +39,10 @@ public abstract class NettyConnector extends AbstractJClient implements JConnect
 
     protected final Protocol protocol;
     protected final HashedWheelTimer timer = new HashedWheelTimer(new NamedThreadFactory("connector.timer"));
+
+    private final ReentrantLock lock = new ReentrantLock();
+    private final Condition notifyCondition = lock.newCondition();
+    private final AtomicBoolean signalNeeded = new AtomicBoolean(false);
 
     private Bootstrap bootstrap;
     private EventLoopGroup worker;
@@ -67,6 +78,65 @@ public abstract class NettyConnector extends AbstractJClient implements JConnect
     @Override
     public Protocol protocol() {
         return protocol;
+    }
+
+    @Override
+    public void manageConnection(final Directory directory) {
+
+        subscribe(directory, new NotifyListener() {
+
+            @Override
+            public void notify(List<RegisterMeta> registerMetaList) {
+                for (RegisterMeta meta : registerMetaList) {
+                    UnresolvedAddress address = new UnresolvedAddress(meta.getHost(), meta.getPort());
+                    JChannelGroup group = group(address);
+                    if (group.isEmpty()) {
+                        JConnection connection = connect(address);
+                        JConnectionManager.manage(connection);
+
+                        subscribe(address, new OfflineListener() {
+
+                            @Override
+                            public void offline(RegisterMeta.Address address) {
+                                JConnectionManager.cancelReconnect(UnresolvedAddress.cast(address));
+                            }
+                        });
+                    }
+
+                    addGroup(directory, group);
+
+                    if (signalNeeded.getAndSet(false)) {
+                        ReentrantLock _look = lock;
+                        _look.lock();
+                        try {
+                            notifyCondition.signalAll();
+                        } finally {
+                            _look.unlock();
+                        }
+                    }
+                }
+            }
+        });
+    }
+
+    @Override
+    public void waitForAvailable(Directory directory, long timeoutMillis) {
+        if (isDirectoryAvailable(directory)) {
+            return;
+        }
+
+        ReentrantLock _look = lock;
+        _look.lock();
+        try {
+            while (!isDirectoryAvailable(directory)) {
+                signalNeeded.getAndSet(true);
+                notifyCondition.await(timeoutMillis, MILLISECONDS);
+            }
+        } catch (InterruptedException e) {
+            UnsafeAccess.UNSAFE.throwException(e);
+        } finally {
+            _look.unlock();
+        }
     }
 
     @Override

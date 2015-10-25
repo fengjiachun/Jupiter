@@ -26,6 +26,8 @@ public interface JClient extends Registry {
 
     CopyOnWriteArrayList<JChannelGroup> directory(Directory directory);
 
+    boolean isDirectoryAvailable(Directory directory);
+
     JChannel select(Directory directory);
 
     Collection<RegisterMeta> lookup(Directory directory);

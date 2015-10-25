@@ -70,6 +70,17 @@ public abstract class AbstractJClient implements JClient {
     }
 
     @Override
+    public boolean isDirectoryAvailable(Directory directory) {
+        CopyOnWriteArrayList<JChannelGroup> groups = directory(directory);
+        for (JChannelGroup g : groups) {
+            if (!g.isEmpty()) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    @Override
     public JChannel select(Directory directory) {
         CopyOnWriteArrayList<JChannelGroup> groupList = directory(directory);
         JChannelGroup group = loadBalance.select(groupList);

@@ -1,5 +1,6 @@
 package org.jupiter.transport;
 
+import org.jupiter.rpc.Directory;
 import org.jupiter.rpc.UnresolvedAddress;
 
 /**
@@ -19,6 +20,16 @@ public interface JConnector<C> extends Transporter {
      * Connect to the remote peer.
      */
     C connect(UnresolvedAddress remoteAddress, boolean async);
+
+    /**
+     * Sets auto manage the connections
+     */
+    void manageConnection(Directory directory);
+
+    /**
+     * Wait until the connections is available
+     */
+    void waitForAvailable(Directory directory, long timeoutMillis);
 
     /**
      * Server options [parent, child]

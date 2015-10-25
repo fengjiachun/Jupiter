@@ -1,5 +1,7 @@
 package org.jupiter.rpc;
 
+import org.jupiter.registry.RegisterMeta;
+
 import static org.jupiter.common.util.Preconditions.checkArgument;
 import static org.jupiter.common.util.Preconditions.checkNotNull;
 
@@ -13,6 +15,10 @@ public class UnresolvedAddress {
 
     private final String host;
     private final int port;
+
+    public static UnresolvedAddress cast(RegisterMeta.Address address) {
+        return new UnresolvedAddress(address.getHost(), address.getPort());
+    }
 
     public UnresolvedAddress(String host, int port) {
         checkNotNull(host, "host can't be null");

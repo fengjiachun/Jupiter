@@ -11,10 +11,13 @@ import org.jupiter.rpc.channel.JChannelGroup;
 
 import java.lang.reflect.Field;
 import java.util.concurrent.CopyOnWriteArrayList;
-import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.LockSupport;
+import java.util.concurrent.locks.ReentrantLock;
 
+import static java.util.concurrent.TimeUnit.MILLISECONDS;
 import static org.jupiter.common.util.JConstants.DEFAULT_WARM_UP;
 import static org.jupiter.common.util.JConstants.DEFAULT_WEIGHT;
 
@@ -55,6 +58,10 @@ public class NettyChannelGroup implements JChannelGroup {
     private volatile int warmUp = DEFAULT_WARM_UP; // Warm up time
     private volatile long timestamps = SystemClock.millisClock().now();
 
+    private final ReentrantLock lock = new ReentrantLock();
+    private final Condition notifyCondition = lock.newCondition();
+    private final AtomicBoolean signalNeeded = new AtomicBoolean(false);
+
     public NettyChannelGroup(UnresolvedAddress address) {
         this.address = address;
     }
@@ -79,7 +86,7 @@ public class NettyChannelGroup implements JChannelGroup {
             if (array.length == 0) {
                 if (attempts++ < 3) {
                     int timeout = 100 << attempts;
-                    LockSupport.parkNanos(TimeUnit.MILLISECONDS.toNanos(timeout));
+                    LockSupport.parkNanos(MILLISECONDS.toNanos(timeout));
                     continue;
                 }
                 throw new IllegalStateException("no channel");
@@ -105,6 +112,16 @@ public class NettyChannelGroup implements JChannelGroup {
         boolean added = channel instanceof NettyChannel && channels.add((NettyChannel) channel);
         if (added) {
             ((NettyChannel) channel).channel().closeFuture().addListener(remover);
+
+            if (signalNeeded.getAndSet(false)) {
+                ReentrantLock _look = lock;
+                _look.lock();
+                try {
+                    notifyCondition.signalAll();
+                } finally {
+                    _look.unlock();
+                }
+            }
         }
         return added;
     }
@@ -117,6 +134,24 @@ public class NettyChannelGroup implements JChannelGroup {
     @Override
     public int size() {
         return channels.size();
+    }
+
+    @Override
+    public void waitForAvailable(long timeoutMillis) {
+        if (channels.isEmpty()) {
+            ReentrantLock _look = lock;
+            _look.lock();
+            try {
+                while (channels.isEmpty()) {
+                    signalNeeded.getAndSet(true);
+                    notifyCondition.await(timeoutMillis, MILLISECONDS);
+                }
+            } catch (InterruptedException e) {
+                UnsafeAccess.UNSAFE.throwException(e);
+            } finally {
+                _look.unlock();
+            }
+        }
     }
 
     @Override

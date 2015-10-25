@@ -42,6 +42,8 @@ public interface JChannelGroup {
      */
     int size();
 
+    void waitForAvailable(long timeoutMillis);
+
     void setWeight(int weight);
 
     int getWeight();
