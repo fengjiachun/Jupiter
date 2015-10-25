@@ -24,12 +24,12 @@ public interface JConnector<C> extends Transporter {
     /**
      * Sets auto manage the connections
      */
-    void manageConnection(Directory directory);
+    ConnectionManagement manageConnections(Directory directory);
 
     /**
      * Wait until the connections is available
      */
-    void waitForAvailable(Directory directory, long timeoutMillis);
+    void waitForAvailable(ConnectionManagement connectionManagement, long timeoutMillis);
 
     /**
      * Server options [parent, child]
@@ -40,4 +40,9 @@ public interface JConnector<C> extends Transporter {
      * Shutdown the server
      */
     void shutdownGracefully();
+
+    interface ConnectionManagement {
+
+        Directory directory();
+    }
 }

@@ -4,6 +4,7 @@ import org.jupiter.example.ServiceTest;
 import org.jupiter.rpc.Directory;
 import org.jupiter.rpc.consumer.ProxyFactory;
 import org.jupiter.rpc.model.metadata.ServiceMetadata;
+import org.jupiter.transport.JConnector;
 import org.jupiter.transport.netty.JNettyTcpConnector;
 import org.jupiter.transport.netty.NettyConnector;
 
@@ -22,9 +23,9 @@ public class HelloJupiterClient {
         // 连接ConfigServer
         connector.initRegistryService("127.0.0.1", 20001);
         // 自动管理可用连接
-        connector.manageConnection(directory);
+        JConnector.ConnectionManagement management = connector.manageConnections(directory);
         // 等待连接可用
-        connector.waitForAvailable(directory, 3000);
+        connector.waitForAvailable(management, 3000);
 
         ServiceTest service = ProxyFactory
                 .create()

@@ -81,7 +81,7 @@ public abstract class NettyConnector extends AbstractJClient implements JConnect
     }
 
     @Override
-    public void manageConnection(final Directory directory) {
+    public ConnectionManagement manageConnections(final Directory directory) {
 
         subscribe(directory, new NotifyListener() {
 
@@ -117,10 +117,20 @@ public abstract class NettyConnector extends AbstractJClient implements JConnect
                 }
             }
         });
+
+        return new ConnectionManagement() {
+
+            @Override
+            public Directory directory() {
+                return directory;
+            }
+        };
     }
 
     @Override
-    public void waitForAvailable(Directory directory, long timeoutMillis) {
+    public void waitForAvailable(ConnectionManagement management, long timeoutMillis) {
+        Directory directory = management.directory();
+
         if (isDirectoryAvailable(directory)) {
             return;
         }
