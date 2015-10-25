@@ -81,7 +81,7 @@ public abstract class NettyConnector extends AbstractJClient implements JConnect
     }
 
     @Override
-    public ConnectionManagement manageConnections(final Directory directory) {
+    public ConnectionManager manageConnections(final Directory directory) {
 
         subscribe(directory, new NotifyListener() {
 
@@ -118,40 +118,33 @@ public abstract class NettyConnector extends AbstractJClient implements JConnect
             }
         });
 
-        return new ConnectionManagement() {
+        return new ConnectionManager() {
 
             @Override
-            public Directory directory() {
-                return directory;
-            }
-        };
-    }
+            public void waitForAvailable(long timeoutMillis) {
+                if (isDirectoryAvailable(directory)) {
+                    return;
+                }
 
-    @Override
-    public void waitForAvailable(ConnectionManagement management, long timeoutMillis) {
-        Directory directory = management.directory();
+                long start = System.nanoTime();
+                final ReentrantLock _look = lock;
+                _look.lock();
+                try {
+                    while (!isDirectoryAvailable(directory)) {
+                        signalNeeded.getAndSet(true);
+                        notifyCondition.await(timeoutMillis, MILLISECONDS);
 
-        if (isDirectoryAvailable(directory)) {
-            return;
-        }
-
-        long start = System.nanoTime();
-        final ReentrantLock _look = lock;
-        _look.lock();
-        try {
-            while (!isDirectoryAvailable(directory)) {
-                signalNeeded.getAndSet(true);
-                notifyCondition.await(timeoutMillis, MILLISECONDS);
-
-                if (isDirectoryAvailable(directory) || (System.nanoTime() - start) > MILLISECONDS.toNanos(timeoutMillis)) {
-                    break;
+                        if (isDirectoryAvailable(directory) || (System.nanoTime() - start) > MILLISECONDS.toNanos(timeoutMillis)) {
+                            break;
+                        }
+                    }
+                } catch (InterruptedException e) {
+                    UnsafeAccess.UNSAFE.throwException(e);
+                } finally {
+                    _look.unlock();
                 }
             }
-        } catch (InterruptedException e) {
-            UnsafeAccess.UNSAFE.throwException(e);
-        } finally {
-            _look.unlock();
-        }
+        };
     }
 
     @Override

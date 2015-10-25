@@ -23,9 +23,9 @@ public class HelloJupiterClient {
         // 连接ConfigServer
         connector.initRegistryService("127.0.0.1", 20001);
         // 自动管理可用连接
-        JConnector.ConnectionManagement management = connector.manageConnections(directory);
+        JConnector.ConnectionManager manager = connector.manageConnections(directory);
         // 等待连接可用
-        connector.waitForAvailable(management, 3000);
+        manager.waitForAvailable(3000);
 
         ServiceTest service = ProxyFactory
                 .create()
