@@ -40,10 +40,6 @@ public abstract class NettyConnector extends AbstractJClient implements JConnect
     protected final Protocol protocol;
     protected final HashedWheelTimer timer = new HashedWheelTimer(new NamedThreadFactory("connector.timer"));
 
-    private final ReentrantLock lock = new ReentrantLock();
-    private final Condition notifyCondition = lock.newCondition();
-    private final AtomicBoolean signalNeeded = new AtomicBoolean(false);
-
     private Bootstrap bootstrap;
     private EventLoopGroup worker;
     private int nWorkers;
@@ -83,42 +79,49 @@ public abstract class NettyConnector extends AbstractJClient implements JConnect
     @Override
     public ConnectionManager manageConnections(final Directory directory) {
 
-        subscribe(directory, new NotifyListener() {
+        ConnectionManager manager = new ConnectionManager() {
+
+            private final ReentrantLock lock = new ReentrantLock();
+            private final Condition notifyCondition = lock.newCondition();
+            private final AtomicBoolean signalNeeded = new AtomicBoolean(false);
 
             @Override
-            public void notify(List<RegisterMeta> registerMetaList) {
-                for (RegisterMeta meta : registerMetaList) {
-                    UnresolvedAddress address = new UnresolvedAddress(meta.getHost(), meta.getPort());
-                    JChannelGroup group = group(address);
-                    if (group.isEmpty()) {
-                        JConnection connection = connect(address);
-                        JConnectionManager.manage(connection);
+            public void start() {
+                subscribe(directory, new NotifyListener() {
 
-                        subscribe(address, new OfflineListener() {
+                    @Override
+                    public void notify(List<RegisterMeta> registerMetaList) {
+                        for (RegisterMeta meta : registerMetaList) {
+                            UnresolvedAddress address = new UnresolvedAddress(meta.getHost(), meta.getPort());
+                            JChannelGroup group = group(address);
+                            if (group.isEmpty()) {
+                                JConnection connection = connect(address);
+                                JConnectionManager.manage(connection);
 
-                            @Override
-                            public void offline(RegisterMeta.Address address) {
-                                JConnectionManager.cancelReconnect(UnresolvedAddress.cast(address));
+                                subscribe(address, new OfflineListener() {
+
+                                    @Override
+                                    public void offline(RegisterMeta.Address address) {
+                                        JConnectionManager.cancelReconnect(UnresolvedAddress.cast(address));
+                                    }
+                                });
                             }
-                        });
-                    }
 
-                    addGroup(directory, group);
+                            addGroup(directory, group);
+                        }
 
-                    if (signalNeeded.getAndSet(false)) {
-                        ReentrantLock _look = lock;
-                        _look.lock();
-                        try {
-                            notifyCondition.signalAll();
-                        } finally {
-                            _look.unlock();
+                        if (!registerMetaList.isEmpty() && signalNeeded.getAndSet(false)) {
+                            ReentrantLock _look = lock;
+                            _look.lock();
+                            try {
+                                notifyCondition.signalAll();
+                            } finally {
+                                _look.unlock();
+                            }
                         }
                     }
-                }
+                });
             }
-        });
-
-        return new ConnectionManager() {
 
             @Override
             public void waitForAvailable(long timeoutMillis) {
@@ -145,6 +148,10 @@ public abstract class NettyConnector extends AbstractJClient implements JConnect
                 }
             }
         };
+
+        manager.start();
+
+        return manager;
     }
 
     @Override

@@ -38,6 +38,8 @@ public interface JConnector<C> extends Transporter {
 
     interface ConnectionManager {
 
+        void start();
+
         /**
          * Wait until the connections is available
          */
