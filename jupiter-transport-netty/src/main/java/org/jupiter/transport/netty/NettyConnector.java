@@ -125,12 +125,17 @@ public abstract class NettyConnector extends AbstractJClient implements JConnect
             return;
         }
 
-        ReentrantLock _look = lock;
+        long start = System.nanoTime();
+        final ReentrantLock _look = lock;
         _look.lock();
         try {
             while (!isDirectoryAvailable(directory)) {
                 signalNeeded.getAndSet(true);
                 notifyCondition.await(timeoutMillis, MILLISECONDS);
+
+                if (isDirectoryAvailable(directory) || (System.nanoTime() - start) > MILLISECONDS.toNanos(timeoutMillis)) {
+                    break;
+                }
             }
         } catch (InterruptedException e) {
             UnsafeAccess.UNSAFE.throwException(e);

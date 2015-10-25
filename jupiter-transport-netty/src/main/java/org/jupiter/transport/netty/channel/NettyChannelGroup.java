@@ -139,12 +139,17 @@ public class NettyChannelGroup implements JChannelGroup {
     @Override
     public void waitForAvailable(long timeoutMillis) {
         if (channels.isEmpty()) {
-            ReentrantLock _look = lock;
+            long start = System.nanoTime();
+            final ReentrantLock _look = lock;
             _look.lock();
             try {
                 while (channels.isEmpty()) {
                     signalNeeded.getAndSet(true);
                     notifyCondition.await(timeoutMillis, MILLISECONDS);
+
+                    if (!channels.isEmpty() || (System.nanoTime() - start) > MILLISECONDS.toNanos(timeoutMillis)) {
+                        break;
+                    }
                 }
             } catch (InterruptedException e) {
                 UnsafeAccess.UNSAFE.throwException(e);
