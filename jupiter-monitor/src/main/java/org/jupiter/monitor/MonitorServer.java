@@ -133,6 +133,7 @@ public class MonitorServer extends NettyTcpAcceptor {
                                 ctx.writeAndFlush("Wrong args denied" + NEWLINE).addListener(CLOSE);
                             }
                         }
+
                         break;
                     case QUIT:
                         ctx.writeAndFlush("Bye bye!" + NEWLINE).addListener(CLOSE);
