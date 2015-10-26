@@ -56,8 +56,8 @@ public class ConfigServer extends NettyTcpAcceptor {
 
     private static final InternalLogger logger = InternalLoggerFactory.getInstance(ConfigServer.class);
 
-    private static final AttributeKey<ConcurrentSet<ServiceMeta>> S_SUBSCRIBE_KEY = AttributeKey.valueOf("Subscribed");
-    private static final AttributeKey<ConcurrentSet<RegisterMeta>> S_PUBLISH_KEY = AttributeKey.valueOf("Published");
+    private static final AttributeKey<ConcurrentSet<ServiceMeta>> S_SUBSCRIBE_KEY = AttributeKey.valueOf("S_Subscribed");
+    private static final AttributeKey<ConcurrentSet<RegisterMeta>> S_PUBLISH_KEY = AttributeKey.valueOf("S_Published");
 
     // 注册信息
     private final RegisterInfoContext registerInfoContext = new RegisterInfoContext();
