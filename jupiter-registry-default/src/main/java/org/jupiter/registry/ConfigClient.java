@@ -370,7 +370,7 @@ public class ConfigClient extends NettyTcpConnector {
         public void channelActive(ChannelHandlerContext ctx) throws Exception {
             Channel ch = (channel = ctx.channel());
 
-            ConcurrentSet<ServiceMeta> subscribedSet = channel.attr(SUBSCRIBE_KEY).get();
+            ConcurrentSet<ServiceMeta> subscribedSet = ch.attr(SUBSCRIBE_KEY).get();
             if (subscribedSet != null) {
                 // 重新订阅
                 for (ServiceMeta serviceMeta : subscribeSet) {
@@ -389,7 +389,7 @@ public class ConfigClient extends NettyTcpConnector {
                 }
             }
 
-            ConcurrentSet<RegisterMeta> publishedSet = channel.attr(PUBLISH_KEY).get();
+            ConcurrentSet<RegisterMeta> publishedSet = ch.attr(PUBLISH_KEY).get();
             if (publishedSet != null) {
                 // 重新发布服务
                 for (RegisterMeta meta : registerMetaSet) {
