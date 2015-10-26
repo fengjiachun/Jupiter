@@ -251,8 +251,6 @@ public class ConfigClient extends NettyTcpConnector {
                             msg.sign(header.sign());
                             out.add(msg);
 
-                            logger.info("[{}], on channel {}.", msg, ch);
-
                             break;
                         }
                         case ACK: {
@@ -317,11 +315,15 @@ public class ConfigClient extends NettyTcpConnector {
 
                         registryService.notify(data.getKey(), data.getValue(), obj.getVersion());
 
+                        logger.info("Publish {}, version: {}.", data.getKey(), obj.getVersion());
+
                         break;
                     case OFFLINE_NOTICE:
                         Address address = (Address) obj.data();
 
                         registryService.offline(address);
+
+                        logger.info("Offline notice on {}.", address);
 
                         break;
                 }

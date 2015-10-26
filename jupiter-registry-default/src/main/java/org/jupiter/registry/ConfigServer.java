@@ -127,6 +127,9 @@ public class ConfigServer extends NettyTcpAcceptor {
 
     // 添加指定机器指定服务, 然后全量发布到所有客户端
     private void handlePublish(RegisterMeta meta, Channel channel) {
+
+        logger.info("Publish {} on channel{}.", meta, channel);
+
         attachPublishEventOnChannel(meta, channel);
 
         final ServiceMeta serviceMeta = meta.getServiceMeta();
@@ -164,6 +167,9 @@ public class ConfigServer extends NettyTcpAcceptor {
 
     // 删除指定机器指定服务, 然后全量发布到所有客户端
     private void handleUnPublish(RegisterMeta meta, Channel channel) {
+
+        logger.info("Cancel publish {} on channel{}.", meta, channel);
+
         attachUnPublishEventOnChannel(meta, channel);
 
         final ServiceMeta serviceMeta = meta.getServiceMeta();
@@ -206,6 +212,9 @@ public class ConfigServer extends NettyTcpAcceptor {
 
     // 订阅服务
     private void handleSubscribe(ServiceMeta serviceMeta, Channel channel) {
+
+        logger.info("Subscribe {} on channel{}.", serviceMeta, channel);
+
         attachSubscribeEventOnChannel(serviceMeta, channel);
 
         subscriberChannels.add(channel);
@@ -235,6 +244,9 @@ public class ConfigServer extends NettyTcpAcceptor {
 
     // 发布Provider下线的通告
     private void handleOfflineNotice(Address address) {
+
+        logger.info("OfflineNotice on {}.", address);
+
         Message msg = new Message();
         msg.sign(OFFLINE_NOTICE);
         msg.data(address);
@@ -370,8 +382,6 @@ public class ConfigServer extends NettyTcpAcceptor {
                             Message msg = SerializerHolder.serializer().readObject(bytes, Message.class);
                             msg.sign(header.sign());
                             out.add(msg);
-
-                            logger.info("[{}], on channel {}.", msg, ch);
 
                             break;
                         }
