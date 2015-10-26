@@ -155,7 +155,7 @@ public class ConfigClient extends NettyTcpConnector {
         msg.data(serviceMeta);
 
         Channel ch = channel;
-        // 与MessageHandler#channelActive()中的write有一个竞争
+        // 与MessageHandler#channelActive()中的write有竞争
         if (attachSubscribeEventOnChannel(serviceMeta, ch)) {
             ch.writeAndFlush(msg);
 
@@ -172,7 +172,7 @@ public class ConfigClient extends NettyTcpConnector {
         msg.data(meta);
 
         Channel ch = channel;
-        // 与MessageHandler#channelActive()中的write有一个竞争
+        // 与MessageHandler#channelActive()中的write有竞争
         if (attachPublishEventOnChannel(meta, ch)) {
             ch.writeAndFlush(msg);
 
@@ -380,7 +380,7 @@ public class ConfigClient extends NettyTcpConnector {
 
             // 重新订阅
             for (ServiceMeta serviceMeta : subscribeSet) {
-                // 与doSubscribe()中的write有一个竞争
+                // 与doSubscribe()中的write有竞争
                 if (!attachSubscribeEventOnChannel(serviceMeta, ch)) {
                     continue;
                 }
@@ -397,7 +397,7 @@ public class ConfigClient extends NettyTcpConnector {
 
             // 重新发布服务
             for (RegisterMeta meta : registerMetaSet) {
-                // 与doRegister()中的write有一个竞争
+                // 与doRegister()中的write有竞争
                 if (!attachPublishEventOnChannel(meta, ch)) {
                     continue;
                 }
