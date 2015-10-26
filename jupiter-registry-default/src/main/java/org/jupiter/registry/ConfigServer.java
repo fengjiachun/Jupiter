@@ -486,8 +486,7 @@ public class ConfigServer extends NettyTcpAcceptor {
             Channel channel = ctx.channel();
 
             // 取消之前发布的所有服务
-            Attribute<ConcurrentSet<RegisterMeta>> attr = channel.attr(PUBLISH_KEY);
-            ConcurrentSet<RegisterMeta> registerMetaSet = attr.get();
+            ConcurrentSet<RegisterMeta> registerMetaSet = channel.attr(PUBLISH_KEY).get();
 
             if (registerMetaSet == null) {
                 return;

@@ -6,10 +6,7 @@ import io.netty.channel.*;
 import io.netty.channel.socket.nio.NioSocketChannel;
 import io.netty.handler.codec.MessageToByteEncoder;
 import io.netty.handler.codec.ReplayingDecoder;
-import io.netty.util.ReferenceCountUtil;
-import io.netty.util.Timeout;
-import io.netty.util.Timer;
-import io.netty.util.TimerTask;
+import io.netty.util.*;
 import org.jupiter.common.concurrent.ConcurrentSet;
 import org.jupiter.common.util.Maps;
 import org.jupiter.common.util.Pair;
@@ -56,6 +53,9 @@ import static org.jupiter.transport.error.Signals.ILLEGAL_SIGN;
 public class ConfigClient extends NettyTcpConnector {
 
     private static final InternalLogger logger = InternalLoggerFactory.getInstance(ConfigClient.class);
+
+    private static final AttributeKey<ConcurrentSet<ServiceMeta>> SUBSCRIBE_KEY = AttributeKey.valueOf("subscribeKey");
+    private static final AttributeKey<ConcurrentSet<RegisterMeta>> PUBLISH_KEY = AttributeKey.valueOf("publishKey");
 
     // 没收到对端ack确认, 需要重发的消息
     private final ConcurrentMap<Long, MessageNonAck> messagesNonAck = Maps.newConcurrentHashMap();
@@ -188,6 +188,36 @@ public class ConfigClient extends NettyTcpConnector {
 
     private void handleAcknowledge(Acknowledge ack) {
         messagesNonAck.remove(ack.sequence());
+    }
+
+    // 在channel打标记(发布过的服务)
+    private static boolean attachPublishEventOnChannel(RegisterMeta meta, Channel channel) {
+        Attribute<ConcurrentSet<RegisterMeta>> attr = channel.attr(PUBLISH_KEY);
+        ConcurrentSet<RegisterMeta> registerMetaSet = attr.get();
+        if (registerMetaSet == null) {
+            ConcurrentSet<RegisterMeta> newRegisterMetaSet = new ConcurrentSet<>();
+            registerMetaSet = attr.setIfAbsent(newRegisterMetaSet);
+            if (registerMetaSet == null) {
+                registerMetaSet = newRegisterMetaSet;
+            }
+        }
+
+        return registerMetaSet.add(meta);
+    }
+
+    // 在channel打标记(订阅过的服务)
+    private static boolean attachSubscribeEventOnChannel(ServiceMeta serviceMeta, Channel channel) {
+        Attribute<ConcurrentSet<ServiceMeta>> attr = channel.attr(SUBSCRIBE_KEY);
+        ConcurrentSet<ServiceMeta> serviceMetaSet = attr.get();
+        if (serviceMetaSet == null) {
+            ConcurrentSet<ServiceMeta> newServiceMetaSet = new ConcurrentSet<>();
+            serviceMetaSet = attr.setIfAbsent(newServiceMetaSet);
+            if (serviceMetaSet == null) {
+                serviceMetaSet = newServiceMetaSet;
+            }
+        }
+
+        return serviceMetaSet.add(serviceMeta);
     }
 
     static class MessageNonAck {
@@ -340,28 +370,42 @@ public class ConfigClient extends NettyTcpConnector {
         public void channelActive(ChannelHandlerContext ctx) throws Exception {
             Channel ch = (channel = ctx.channel());
 
-            // 重新订阅
-            for (ServiceMeta serviceMeta : subscribeSet) {
-                Message msg = new Message();
-                msg.sign(SUBSCRIBE_SERVICE);
-                msg.data(serviceMeta);
+            ConcurrentSet<ServiceMeta> subscribedSet = channel.attr(SUBSCRIBE_KEY).get();
+            if (subscribedSet != null) {
+                // 重新订阅
+                for (ServiceMeta serviceMeta : subscribeSet) {
+                    if (subscribedSet.contains(serviceMeta)) {
+                        continue;
+                    }
 
-                ch.writeAndFlush(msg);
+                    Message msg = new Message();
+                    msg.sign(SUBSCRIBE_SERVICE);
+                    msg.data(serviceMeta);
 
-                MessageNonAck msgNonAck = new MessageNonAck(msg, ch);
-                messagesNonAck.put(msgNonAck.id, msgNonAck);
+                    ch.writeAndFlush(msg);
+
+                    MessageNonAck msgNonAck = new MessageNonAck(msg, ch);
+                    messagesNonAck.put(msgNonAck.id, msgNonAck);
+                }
             }
 
-            // 重新发布服务
-            for (RegisterMeta meta : registerMetaSet) {
-                Message msg = new Message();
-                msg.sign(PUBLISH_SERVICE);
-                msg.data(meta);
+            ConcurrentSet<RegisterMeta> publishedSet = channel.attr(PUBLISH_KEY).get();
+            if (publishedSet != null) {
+                // 重新发布服务
+                for (RegisterMeta meta : registerMetaSet) {
+                    if (publishedSet.contains(meta)) {
+                        continue;
+                    }
 
-                ch.writeAndFlush(msg);
+                    Message msg = new Message();
+                    msg.sign(PUBLISH_SERVICE);
+                    msg.data(meta);
 
-                MessageNonAck msgNonAck = new MessageNonAck(msg, ch);
-                messagesNonAck.put(msgNonAck.id, msgNonAck);
+                    ch.writeAndFlush(msg);
+
+                    MessageNonAck msgNonAck = new MessageNonAck(msg, ch);
+                    messagesNonAck.put(msgNonAck.id, msgNonAck);
+                }
             }
         }
 
