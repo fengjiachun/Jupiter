@@ -54,8 +54,8 @@ public class ConfigClient extends NettyTcpConnector {
 
     private static final InternalLogger logger = InternalLoggerFactory.getInstance(ConfigClient.class);
 
-    private static final AttributeKey<ConcurrentSet<ServiceMeta>> SUBSCRIBE_KEY = AttributeKey.valueOf("subscribeKey");
-    private static final AttributeKey<ConcurrentSet<RegisterMeta>> PUBLISH_KEY = AttributeKey.valueOf("publishKey");
+    private static final AttributeKey<ConcurrentSet<ServiceMeta>> C_SUBSCRIBE_KEY = AttributeKey.valueOf("Subscribed");
+    private static final AttributeKey<ConcurrentSet<RegisterMeta>> C_PUBLISH_KEY = AttributeKey.valueOf("Published");
 
     // 没收到对端ack确认, 需要重发的消息
     private final ConcurrentMap<Long, MessageNonAck> messagesNonAck = Maps.newConcurrentHashMap();
@@ -200,7 +200,7 @@ public class ConfigClient extends NettyTcpConnector {
 
     // 在channel打标记(发布过的服务)
     private static boolean attachPublishEventOnChannel(RegisterMeta meta, Channel channel) {
-        Attribute<ConcurrentSet<RegisterMeta>> attr = channel.attr(PUBLISH_KEY);
+        Attribute<ConcurrentSet<RegisterMeta>> attr = channel.attr(C_PUBLISH_KEY);
         ConcurrentSet<RegisterMeta> registerMetaSet = attr.get();
         if (registerMetaSet == null) {
             ConcurrentSet<RegisterMeta> newRegisterMetaSet = new ConcurrentSet<>();
@@ -215,7 +215,7 @@ public class ConfigClient extends NettyTcpConnector {
 
     // 在channel打标记(订阅过的服务)
     private static boolean attachSubscribeEventOnChannel(ServiceMeta serviceMeta, Channel channel) {
-        Attribute<ConcurrentSet<ServiceMeta>> attr = channel.attr(SUBSCRIBE_KEY);
+        Attribute<ConcurrentSet<ServiceMeta>> attr = channel.attr(C_SUBSCRIBE_KEY);
         ConcurrentSet<ServiceMeta> serviceMetaSet = attr.get();
         if (serviceMetaSet == null) {
             ConcurrentSet<ServiceMeta> newServiceMetaSet = new ConcurrentSet<>();

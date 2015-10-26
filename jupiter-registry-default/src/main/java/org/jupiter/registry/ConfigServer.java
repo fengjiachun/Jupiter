@@ -56,8 +56,8 @@ public class ConfigServer extends NettyTcpAcceptor {
 
     private static final InternalLogger logger = InternalLoggerFactory.getInstance(ConfigServer.class);
 
-    private static final AttributeKey<ConcurrentSet<ServiceMeta>> SUBSCRIBE_KEY = AttributeKey.valueOf("subscribeKey");
-    private static final AttributeKey<ConcurrentSet<RegisterMeta>> PUBLISH_KEY = AttributeKey.valueOf("publishKey");
+    private static final AttributeKey<ConcurrentSet<ServiceMeta>> S_SUBSCRIBE_KEY = AttributeKey.valueOf("Subscribed");
+    private static final AttributeKey<ConcurrentSet<RegisterMeta>> S_PUBLISH_KEY = AttributeKey.valueOf("Published");
 
     // 注册信息
     private final RegisterInfoContext registerInfoContext = new RegisterInfoContext();
@@ -259,7 +259,7 @@ public class ConfigServer extends NettyTcpAcceptor {
 
     // 在channel打标记(发布过的服务)
     private static boolean attachPublishEventOnChannel(RegisterMeta meta, Channel channel) {
-        Attribute<ConcurrentSet<RegisterMeta>> attr = channel.attr(PUBLISH_KEY);
+        Attribute<ConcurrentSet<RegisterMeta>> attr = channel.attr(S_PUBLISH_KEY);
         ConcurrentSet<RegisterMeta> registerMetaSet = attr.get();
         if (registerMetaSet == null) {
             ConcurrentSet<RegisterMeta> newRegisterMetaSet = new ConcurrentSet<>();
@@ -274,7 +274,7 @@ public class ConfigServer extends NettyTcpAcceptor {
 
     // 取消在channel的标记(发布过的服务)
     private static boolean attachUnPublishEventOnChannel(RegisterMeta meta, Channel channel) {
-        Attribute<ConcurrentSet<RegisterMeta>> attr = channel.attr(PUBLISH_KEY);
+        Attribute<ConcurrentSet<RegisterMeta>> attr = channel.attr(S_PUBLISH_KEY);
         ConcurrentSet<RegisterMeta> registerMetaSet = attr.get();
         if (registerMetaSet == null) {
             ConcurrentSet<RegisterMeta> newRegisterMetaSet = new ConcurrentSet<>();
@@ -289,7 +289,7 @@ public class ConfigServer extends NettyTcpAcceptor {
 
     // 在channel打标记(订阅过的服务)
     private static boolean attachSubscribeEventOnChannel(ServiceMeta serviceMeta, Channel channel) {
-        Attribute<ConcurrentSet<ServiceMeta>> attr = channel.attr(SUBSCRIBE_KEY);
+        Attribute<ConcurrentSet<ServiceMeta>> attr = channel.attr(S_SUBSCRIBE_KEY);
         ConcurrentSet<ServiceMeta> serviceMetaSet = attr.get();
         if (serviceMetaSet == null) {
             ConcurrentSet<ServiceMeta> newServiceMetaSet = new ConcurrentSet<>();
@@ -304,7 +304,7 @@ public class ConfigServer extends NettyTcpAcceptor {
 
     // 检查channel上的标记(是否订阅过指定的服务)
     private static boolean isChannelSubscribeOnServiceMeta(ServiceMeta serviceMeta, Channel channel) {
-        ConcurrentSet<ServiceMeta> serviceMetaSet = channel.attr(SUBSCRIBE_KEY).get();
+        ConcurrentSet<ServiceMeta> serviceMetaSet = channel.attr(S_SUBSCRIBE_KEY).get();
 
         return serviceMetaSet != null && serviceMetaSet.contains(serviceMeta);
     }
@@ -486,7 +486,7 @@ public class ConfigServer extends NettyTcpAcceptor {
             Channel channel = ctx.channel();
 
             // 取消之前发布的所有服务
-            ConcurrentSet<RegisterMeta> registerMetaSet = channel.attr(PUBLISH_KEY).get();
+            ConcurrentSet<RegisterMeta> registerMetaSet = channel.attr(S_PUBLISH_KEY).get();
 
             if (registerMetaSet == null) {
                 return;
