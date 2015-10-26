@@ -155,11 +155,12 @@ public class ConfigClient extends NettyTcpConnector {
         msg.data(serviceMeta);
 
         Channel ch = channel;
-        attachSubscribeEventOnChannel(serviceMeta, ch);
-        ch.writeAndFlush(msg);
+        if (attachSubscribeEventOnChannel(serviceMeta, ch)) {
+            ch.writeAndFlush(msg);
 
-        MessageNonAck msgNonAck = new MessageNonAck(msg, channel);
-        messagesNonAck.put(msgNonAck.id, msgNonAck);
+            MessageNonAck msgNonAck = new MessageNonAck(msg, ch);
+            messagesNonAck.put(msgNonAck.id, msgNonAck);
+        }
     }
 
     public void doRegister(RegisterMeta meta) {
@@ -170,11 +171,12 @@ public class ConfigClient extends NettyTcpConnector {
         msg.data(meta);
 
         Channel ch = channel;
-        attachPublishEventOnChannel(meta, ch);
-        ch.writeAndFlush(msg);
+        if (attachPublishEventOnChannel(meta, ch)) {
+            ch.writeAndFlush(msg);
 
-        MessageNonAck msgNonAck = new MessageNonAck(msg, channel);
-        messagesNonAck.put(msgNonAck.id, msgNonAck);
+            MessageNonAck msgNonAck = new MessageNonAck(msg, ch);
+            messagesNonAck.put(msgNonAck.id, msgNonAck);
+        }
     }
 
     public void doUnregister(RegisterMeta meta) {
@@ -374,10 +376,9 @@ public class ConfigClient extends NettyTcpConnector {
         public void channelActive(ChannelHandlerContext ctx) throws Exception {
             Channel ch = (channel = ctx.channel());
 
-            ConcurrentSet<ServiceMeta> subscribedSet = ch.attr(SUBSCRIBE_KEY).get();
             // 重新订阅
             for (ServiceMeta serviceMeta : subscribeSet) {
-                if (subscribedSet != null && subscribedSet.contains(serviceMeta)) {
+                if (!attachSubscribeEventOnChannel(serviceMeta, ch)) {
                     continue;
                 }
 
@@ -391,10 +392,9 @@ public class ConfigClient extends NettyTcpConnector {
                 messagesNonAck.put(msgNonAck.id, msgNonAck);
             }
 
-            ConcurrentSet<RegisterMeta> publishedSet = ch.attr(PUBLISH_KEY).get();
             // 重新发布服务
             for (RegisterMeta meta : registerMetaSet) {
-                if (publishedSet != null && publishedSet.contains(meta)) {
+                if (attachPublishEventOnChannel(meta, ch)) {
                     continue;
                 }
 
