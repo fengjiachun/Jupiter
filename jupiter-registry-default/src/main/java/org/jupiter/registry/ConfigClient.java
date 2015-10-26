@@ -93,6 +93,9 @@ public class ConfigClient extends NettyTcpConnector {
         bootstrap().channel(NioSocketChannel.class);
     }
 
+    /**
+     * ConfigClient不支持异步连接行为, async参数无效
+     */
     @SuppressWarnings("SynchronizationOnLocalVariableOrMethodParameter")
     @Override
     public JConnection connect(UnresolvedAddress remoteAddress, boolean async) {
@@ -131,15 +134,14 @@ public class ConfigClient extends NettyTcpConnector {
             }
 
             // 以下代码在synchronized同步块外面是安全的
-            if (!async) {
-                future.sync();
-                channel = future.channel();
-            }
+            future.sync();
+            channel = future.channel();
         } catch (Exception e) {
             throw new ConnectFailedException("the connection fails", e);
         }
 
         return new JConnection(remoteAddress) {
+
             @Override
             public void setReconnect(boolean reconnect) {
                 watchdog.setReconnect(reconnect);
