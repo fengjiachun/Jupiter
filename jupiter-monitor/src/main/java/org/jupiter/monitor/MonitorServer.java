@@ -70,7 +70,11 @@ public class MonitorServer extends NettyTcpAcceptor {
     }
 
     private static boolean checkAuth(Channel channel) {
-        return channel.attr(AUTH_KEY).get() == null;
+        if (channel.attr(AUTH_KEY).get() == null) {
+            channel.writeAndFlush("Permission denied" + NEWLINE).addListener(CLOSE);
+            return false;
+        }
+        return true;
     }
 
     @ChannelHandler.Sharable
@@ -80,7 +84,7 @@ public class MonitorServer extends NettyTcpAcceptor {
         public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
             if (msg instanceof String) {
                 String[] args = Strings.split(((String) msg).replace("\r\n", ""), ' ');
-                CommandType command = CommandType.parse(args[0]);
+                Command command = Command.parse(args[0]);
                 if (command == null) {
                     ctx.writeAndFlush("invalid command" + NEWLINE);
                     return;
@@ -101,19 +105,37 @@ public class MonitorServer extends NettyTcpAcceptor {
 
                         break;
                     case HELP:
-                        for (CommandType c : CommandType.values()) {
-                            String name = c.name();
-                            int len = name.length();
+                        for (Command parent : Command.values()) {
+                            int len = parent.name().length();
                             if (len >= SEPARATORS.length) {
-                                ctx.writeAndFlush(name + ' ' + c.description() + NEWLINE);
+                                ctx.write(parent.name() + ' ' + parent.description() + NEWLINE);
                             } else {
-                                ctx.writeAndFlush(name + SEPARATORS[SEPARATORS.length - len] + c.description() + NEWLINE);
+                                ctx.write(parent.name() + SEPARATORS[len] + parent.description() + NEWLINE);
                             }
+
+                            for (Command.ChildCommand child : parent.children()) {
+                                ctx.write(SEPARATORS[0] + "  -" + child.name() + ' ' + child.description() + NEWLINE);
+                            }
+                            ctx.flush();
                         }
 
                         break;
+                    case METRICS:
+                        if (checkAuth(ctx.channel())) {
+                            Command.ChildCommand child = command.parseChild(args[1]);
+                            if (child != null) {
+                                switch (child) {
+                                    case REPORT:
+                                        // TODO
+                                        break;
+                                }
+                            } else {
+                                ctx.writeAndFlush("Wrong args denied" + NEWLINE).addListener(CLOSE);
+                            }
+                        }
+                        break;
                     case QUIT:
-                        ctx.writeAndFlush("Bye!" + NEWLINE).addListener(CLOSE);
+                        ctx.writeAndFlush("Bye bye!" + NEWLINE).addListener(CLOSE);
 
                         break;
                 }
@@ -133,6 +155,21 @@ public class MonitorServer extends NettyTcpAcceptor {
     }
 
     private static String[] SEPARATORS = {
+            "                               ",
+            "                              ",
+            "                             ",
+            "                            ",
+            "                           ",
+            "                          ",
+            "                         ",
+            "                        ",
+            "                       ",
+            "                      ",
+            "                     ",
+            "                    ",
+            "                   ",
+            "                  ",
+            "                 ",
             "                ",
             "               ",
             "              ",

@@ -6,6 +6,8 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
 /**
+ * MD5转换
+ *
  * jupiter
  * org.jupiter.common.util
  *
@@ -27,9 +29,6 @@ public class MD5Util {
         }
     }
 
-    /**
-     * 计算MD5并转换为32字节明文字符串
-     */
     public static String getMD5(String data) {
         try {
             MessageDigest message = messageDigestHolder.get();
