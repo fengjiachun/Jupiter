@@ -38,7 +38,7 @@ public interface JClient extends Registry {
     void subscribe(Directory directory, NotifyListener listener);
 
     /**
-     * 订阅provider下线通知
+     * provider下线通知
      */
-    void subscribe(UnresolvedAddress address, OfflineListener listener);
+    void offlineListening(UnresolvedAddress address, OfflineListener listener);
 }

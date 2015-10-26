@@ -92,17 +92,17 @@ public abstract class NettyConnector extends AbstractJClient implements JConnect
                     @Override
                     public void notify(List<RegisterMeta> registerMetaList) {
                         for (RegisterMeta meta : registerMetaList) {
-                            UnresolvedAddress address = new UnresolvedAddress(meta.getHost(), meta.getPort());
+                            final UnresolvedAddress address = new UnresolvedAddress(meta.getHost(), meta.getPort());
                             JChannelGroup group = group(address);
                             if (group.isEmpty()) {
                                 JConnection connection = connect(address);
                                 JConnectionManager.manage(connection);
 
-                                subscribe(address, new OfflineListener() {
+                                offlineListening(address, new OfflineListener() {
 
                                     @Override
-                                    public void offline(RegisterMeta.Address address) {
-                                        JConnectionManager.cancelReconnect(UnresolvedAddress.cast(address));
+                                    public void offline() {
+                                        JConnectionManager.cancelReconnect(address);
                                     }
                                 });
                             }

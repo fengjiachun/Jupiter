@@ -110,8 +110,8 @@ public abstract class AbstractJClient implements JClient {
     }
 
     @Override
-    public void subscribe(UnresolvedAddress address, OfflineListener listener) {
-        registryService.subscribe(cast2Address(address), listener);
+    public void offlineListening(UnresolvedAddress address, OfflineListener listener) {
+        registryService.offlineListening(cast2Address(address), listener);
     }
 
     protected abstract JChannelGroup newChannelGroup(UnresolvedAddress address);

@@ -87,7 +87,7 @@ public abstract class AbstractRegistryService implements RegistryService {
     }
 
     @Override
-    public void subscribe(Address address, OfflineListener listener) {
+    public void offlineListening(Address address, OfflineListener listener) {
         CopyOnWriteArrayList<OfflineListener> listeners = offlineListeners.get(address);
         if (listeners == null) {
             CopyOnWriteArrayList<OfflineListener> newListeners = new CopyOnWriteArrayList<>();
@@ -140,7 +140,7 @@ public abstract class AbstractRegistryService implements RegistryService {
         CopyOnWriteArrayList<OfflineListener> listeners = offlineListeners.get(address);
         if (listeners != null) {
             for (OfflineListener l : listeners) {
-                l.offline(address);
+                l.offline();
             }
         }
     }

@@ -1,7 +1,5 @@
 package org.jupiter.registry;
 
-import static org.jupiter.registry.RegisterMeta.*;
-
 /**
  * 通知provider下线
  *
@@ -12,5 +10,5 @@ import static org.jupiter.registry.RegisterMeta.*;
  */
 public interface OfflineListener {
 
-    void offline(Address address);
+    void offline();
 }
