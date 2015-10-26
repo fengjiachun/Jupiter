@@ -18,7 +18,7 @@ public class ConfigWithVersion<T> {
 
     private ConfigWithVersion() {}
 
-    private AtomicLong version = new AtomicLong(1);
+    private AtomicLong version = new AtomicLong(0);
     private T config;
 
     public long getVersion() {
