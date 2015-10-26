@@ -154,7 +154,9 @@ public class ConfigClient extends NettyTcpConnector {
         msg.sign(SUBSCRIBE_SERVICE);
         msg.data(serviceMeta);
 
-        channel.writeAndFlush(msg);
+        Channel ch = channel;
+        attachSubscribeEventOnChannel(serviceMeta, ch);
+        ch.writeAndFlush(msg);
 
         MessageNonAck msgNonAck = new MessageNonAck(msg, channel);
         messagesNonAck.put(msgNonAck.id, msgNonAck);
@@ -167,7 +169,9 @@ public class ConfigClient extends NettyTcpConnector {
         msg.sign(PUBLISH_SERVICE);
         msg.data(meta);
 
-        channel.writeAndFlush(msg);
+        Channel ch = channel;
+        attachPublishEventOnChannel(meta, ch);
+        ch.writeAndFlush(msg);
 
         MessageNonAck msgNonAck = new MessageNonAck(msg, channel);
         messagesNonAck.put(msgNonAck.id, msgNonAck);
@@ -371,41 +375,37 @@ public class ConfigClient extends NettyTcpConnector {
             Channel ch = (channel = ctx.channel());
 
             ConcurrentSet<ServiceMeta> subscribedSet = ch.attr(SUBSCRIBE_KEY).get();
-            if (subscribedSet != null) {
-                // 重新订阅
-                for (ServiceMeta serviceMeta : subscribeSet) {
-                    if (subscribedSet.contains(serviceMeta)) {
-                        continue;
-                    }
-
-                    Message msg = new Message();
-                    msg.sign(SUBSCRIBE_SERVICE);
-                    msg.data(serviceMeta);
-
-                    ch.writeAndFlush(msg);
-
-                    MessageNonAck msgNonAck = new MessageNonAck(msg, ch);
-                    messagesNonAck.put(msgNonAck.id, msgNonAck);
+            // 重新订阅
+            for (ServiceMeta serviceMeta : subscribeSet) {
+                if (subscribedSet != null && subscribedSet.contains(serviceMeta)) {
+                    continue;
                 }
+
+                Message msg = new Message();
+                msg.sign(SUBSCRIBE_SERVICE);
+                msg.data(serviceMeta);
+
+                ch.writeAndFlush(msg);
+
+                MessageNonAck msgNonAck = new MessageNonAck(msg, ch);
+                messagesNonAck.put(msgNonAck.id, msgNonAck);
             }
 
             ConcurrentSet<RegisterMeta> publishedSet = ch.attr(PUBLISH_KEY).get();
-            if (publishedSet != null) {
-                // 重新发布服务
-                for (RegisterMeta meta : registerMetaSet) {
-                    if (publishedSet.contains(meta)) {
-                        continue;
-                    }
-
-                    Message msg = new Message();
-                    msg.sign(PUBLISH_SERVICE);
-                    msg.data(meta);
-
-                    ch.writeAndFlush(msg);
-
-                    MessageNonAck msgNonAck = new MessageNonAck(msg, ch);
-                    messagesNonAck.put(msgNonAck.id, msgNonAck);
+            // 重新发布服务
+            for (RegisterMeta meta : registerMetaSet) {
+                if (publishedSet != null && publishedSet.contains(meta)) {
+                    continue;
                 }
+
+                Message msg = new Message();
+                msg.sign(PUBLISH_SERVICE);
+                msg.data(meta);
+
+                ch.writeAndFlush(msg);
+
+                MessageNonAck msgNonAck = new MessageNonAck(msg, ch);
+                messagesNonAck.put(msgNonAck.id, msgNonAck);
             }
         }
 
