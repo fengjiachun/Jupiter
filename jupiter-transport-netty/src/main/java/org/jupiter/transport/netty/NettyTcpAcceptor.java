@@ -8,9 +8,7 @@ import io.netty.channel.epoll.EpollEventLoopGroup;
 import io.netty.channel.nio.NioEventLoopGroup;
 import org.jupiter.common.util.internal.logging.InternalLogger;
 import org.jupiter.common.util.internal.logging.InternalLoggerFactory;
-import org.jupiter.transport.JConfig;
 import org.jupiter.transport.JConfigGroup;
-import org.jupiter.transport.JOption;
 
 import java.net.InetSocketAddress;
 import java.net.SocketAddress;
@@ -80,20 +78,6 @@ public abstract class NettyTcpAcceptor extends NettyAcceptor {
     }
 
     @Override
-    protected void init() {
-        super.init();
-
-        // parent options
-        JConfig parent = configGroup.parent();
-        parent.setOption(JOption.SO_BACKLOG, 32768);
-        parent.setOption(JOption.SO_REUSEADDR, true);
-
-        // child options
-        JConfig child = configGroup.child();
-        child.setOption(JOption.SO_REUSEADDR, true);
-    }
-
-    @Override
     protected void setOptions() {
         super.setOptions();
 
@@ -134,14 +118,21 @@ public abstract class NettyTcpAcceptor extends NettyAcceptor {
 
     @Override
     public void start() throws InterruptedException {
+        start(true);
+    }
+
+    @Override
+    public void start(boolean sync) throws InterruptedException {
         // Wait until the server socket is bind succeed.
         ChannelFuture future = bind(address).sync();
 
         logger.info("Jupiter TCP server start, and will wait until the server socket is closed."
                 + NEWLINE + "{}.", toString());
 
-        // Wait until the server socket is closed.
-        future.channel().closeFuture().sync();
+        if (sync) {
+            // Wait until the server socket is closed.
+            future.channel().closeFuture().sync();
+        }
     }
 
     @Override

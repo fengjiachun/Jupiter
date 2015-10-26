@@ -13,12 +13,12 @@ import java.net.SocketAddress;
 public interface JAcceptor<C, F> extends Transporter {
 
     /**
-     * Local address
+     * Local address.
      */
     SocketAddress localAddress();
 
     /**
-     * Server options [parent, child]
+     * Server options [parent, child].
      */
     JConfigGroup configGroup();
 
@@ -33,7 +33,12 @@ public interface JAcceptor<C, F> extends Transporter {
     void start() throws InterruptedException;
 
     /**
-     * Shutdown the server
+     * Start the server.
+     */
+    void start(boolean sync) throws InterruptedException;
+
+    /**
+     * Shutdown the server.
      */
     F shutdownGracefully();
 }

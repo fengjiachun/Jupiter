@@ -29,6 +29,11 @@
             <version>${project.version}</version>
         </dependency>
         <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>jupiter-monitor</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
             <groupId>com.barchart.udt</groupId>
             <artifactId>barchart-udt-bundle</artifactId>
             <scope>runtime</scope>

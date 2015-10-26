@@ -1,6 +1,7 @@
 package org.jupiter.example.round;
 
 import org.jupiter.example.ServiceTestImpl;
+import org.jupiter.monitor.MonitorServer;
 import org.jupiter.rpc.model.metadata.ServiceWrapper;
 import org.jupiter.transport.netty.NettyAcceptor;
 import org.jupiter.transport.netty.JNettyTcpAcceptor;
@@ -15,7 +16,10 @@ public class HelloJupiterServer {
 
     public static void main(String[] args) {
         NettyAcceptor server = new JNettyTcpAcceptor(18090);
+        MonitorServer monitor = new MonitorServer(21000);
         try {
+            monitor.start();
+
             ServiceWrapper provider = server.serviceRegistry()
                     .provider(new ServiceTestImpl())
                     .register();

@@ -79,14 +79,21 @@ public abstract class NettyUdtAcceptor extends NettyAcceptor {
 
     @Override
     public void start() throws InterruptedException {
+        start(true);
+    }
+
+    @Override
+    public void start(boolean sync) throws InterruptedException {
         // Wait until the server socket is bind succeed.
         ChannelFuture future = bind(address).sync();
 
         logger.info("Jupiter UDT server start, and will wait until the server socket is closed."
                 + NEWLINE + "{}.", toString());
 
-        // Wait until the server socket is closed.
-        future.channel().closeFuture().sync();
+        if (sync) {
+            // Wait until the server socket is closed.
+            future.channel().closeFuture().sync();
+        }
     }
 
     @Override
