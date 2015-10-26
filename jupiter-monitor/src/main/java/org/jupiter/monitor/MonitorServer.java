@@ -114,7 +114,7 @@ public class MonitorServer extends NettyTcpAcceptor {
                             }
 
                             for (Command.ChildCommand child : parent.children()) {
-                                ctx.write(SEPARATORS[0] + "  -" + child.name() + ' ' + child.description() + NEWLINE);
+                                ctx.write(SEPARATORS[0] + "  " + child.name() + ' ' + child.description() + NEWLINE);
                             }
                             ctx.flush();
                         }
