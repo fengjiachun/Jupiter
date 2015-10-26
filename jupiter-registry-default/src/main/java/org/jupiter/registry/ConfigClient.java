@@ -349,7 +349,7 @@ public class ConfigClient extends NettyTcpConnector {
 
                         registryService.notify(data.getKey(), data.getValue(), obj.getVersion());
 
-                        logger.info("Publish {}, version: {}.", data.getKey(), obj.getVersion());
+                        logger.info("Publish from ConfigServer {}, version: {}.", data.getKey(), obj.getVersion());
 
                         break;
                     case OFFLINE_NOTICE:
