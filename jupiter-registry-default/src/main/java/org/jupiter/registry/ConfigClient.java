@@ -394,7 +394,7 @@ public class ConfigClient extends NettyTcpConnector {
 
             // 重新发布服务
             for (RegisterMeta meta : registerMetaSet) {
-                if (attachPublishEventOnChannel(meta, ch)) {
+                if (!attachPublishEventOnChannel(meta, ch)) {
                     continue;
                 }
 
