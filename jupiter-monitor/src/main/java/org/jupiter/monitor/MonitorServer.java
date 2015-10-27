@@ -92,6 +92,11 @@ public class MonitorServer extends NettyTcpAcceptor {
 
                 switch (command) {
                     case AUTH:
+                        if (args.length < 2) {
+                            ctx.writeAndFlush("Need password!" + NEWLINE);
+                            break;
+                        }
+
                         String password = SystemPropertyUtil.get("monitor.server.password");
                         if (password == null) {
                             password = DEFAULT_PASSWORD;
