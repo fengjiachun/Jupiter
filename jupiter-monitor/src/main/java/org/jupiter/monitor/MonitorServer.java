@@ -13,6 +13,7 @@ import org.jupiter.common.util.Strings;
 import org.jupiter.common.util.SystemPropertyUtil;
 import org.jupiter.common.util.internal.logging.InternalLogger;
 import org.jupiter.common.util.internal.logging.InternalLoggerFactory;
+import org.jupiter.monitor.metric.MetricsReporter;
 import org.jupiter.transport.netty.NettyTcpAcceptor;
 
 import java.net.SocketAddress;
@@ -84,6 +85,10 @@ public class MonitorServer extends NettyTcpAcceptor {
         public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
             if (msg instanceof String) {
                 String[] args = Strings.split(((String) msg).replace("\r\n", ""), ' ');
+                if (args == null || args.length == 0) {
+                    return;
+                }
+
                 Command command = Command.parse(args[0]);
                 if (command == null) {
                     ctx.writeAndFlush("invalid command!" + NEWLINE);
@@ -110,8 +115,11 @@ public class MonitorServer extends NettyTcpAcceptor {
 
                         break;
                     case HELP:
+                        StringBuilder buf = new StringBuilder();
+                        buf.append("-- Help ------------------------------------------------------------------------")
+                            .append(NEWLINE);
                         for (Command parent : Command.values()) {
-                            StringBuilder buf = new StringBuilder();
+
                             buf.append(String.format("%1$-32s", parent.name()))
                                     .append(parent.description())
                                     .append(NEWLINE);
@@ -123,8 +131,10 @@ public class MonitorServer extends NettyTcpAcceptor {
                                         .append(child.description())
                                         .append(NEWLINE);
                             }
-                            ctx.writeAndFlush(buf.toString());
+
+                            buf.append(NEWLINE);
                         }
+                        ctx.writeAndFlush(buf.toString());
 
                         break;
                     case METRICS:
@@ -138,7 +148,8 @@ public class MonitorServer extends NettyTcpAcceptor {
                             if (child != null) {
                                 switch (child) {
                                     case REPORT:
-                                        // TODO
+                                        ctx.writeAndFlush(MetricsReporter.report());
+
                                         break;
                                 }
                             } else {

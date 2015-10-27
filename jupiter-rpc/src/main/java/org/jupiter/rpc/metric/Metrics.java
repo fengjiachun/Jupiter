@@ -26,8 +26,8 @@ public class Metrics {
             ScheduledReporter _reporter;
             try {
                 _reporter = Slf4jReporter.forRegistry(metricRegistry)
-                        .withLoggingLevel(Slf4jReporter.LoggingLevel.WARN)
-                        .build();
+                                            .withLoggingLevel(Slf4jReporter.LoggingLevel.WARN)
+                                            .build();
             } catch (NoClassDefFoundError e) {
                 // No Slf4j
                 _reporter = ConsoleReporter.forRegistry(metricRegistry).build();
@@ -35,6 +35,13 @@ public class Metrics {
             scheduledReporter = _reporter;
         }
         scheduledReporter.start(METRIC_REPORT_PERIOD, TimeUnit.MINUTES);
+    }
+
+    /**
+     * Return the global registry of metric instances.
+     */
+    public static MetricRegistry metricRegistry() {
+        return metricRegistry;
     }
 
     /**
