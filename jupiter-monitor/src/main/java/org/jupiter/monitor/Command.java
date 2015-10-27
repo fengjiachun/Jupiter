@@ -36,6 +36,9 @@ public enum Command {
     }
 
     public ChildCommand parseChild(String childName) {
+        if (childName.indexOf('-') == 0) {
+            childName = childName.substring(1);
+        }
         for (ChildCommand c : children()) {
             if (c.name().equalsIgnoreCase(childName)) {
                 return c;

@@ -124,7 +124,7 @@ public class MonitorServer extends NettyTcpAcceptor {
                                     .append(NEWLINE);
 
                             for (Command.ChildCommand child : parent.children()) {
-                                buf.append("                                  - ")
+                                buf.append(String.format("%1$36s", "-"))
                                         .append(child.name())
                                         .append(' ')
                                         .append(child.description())
