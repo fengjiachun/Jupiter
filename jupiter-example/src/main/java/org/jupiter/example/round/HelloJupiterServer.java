@@ -16,7 +16,7 @@ public class HelloJupiterServer {
 
     public static void main(String[] args) {
         NettyAcceptor server = new JNettyTcpAcceptor(18090);
-        MonitorServer monitor = new MonitorServer(21000);
+        MonitorServer monitor = new MonitorServer();
         try {
             monitor.start();
 

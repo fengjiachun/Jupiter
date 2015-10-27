@@ -22,5 +22,10 @@
             <artifactId>jupiter-transport-netty</artifactId>
             <version>${project.version}</version>
         </dependency>
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>jupiter-registry-default</artifactId>
+            <version>${project.version}</version>
+        </dependency>
     </dependencies>
 </project>

@@ -33,6 +33,7 @@ public class MonitorServer extends NettyTcpAcceptor {
 
     private static final InternalLogger logger = InternalLoggerFactory.getInstance(MonitorServer.class);
 
+    private static final int DEFAULT_PORT = 19999;
     private static final AttributeKey<Object> AUTH_KEY = AttributeKey.valueOf("Auth");
     private static final Object AUTH_OBJECT = new Object();
     private static final String DEFAULT_PASSWORD = "e10adc3949ba59abbe56e057f20f883e";
@@ -40,6 +41,10 @@ public class MonitorServer extends NettyTcpAcceptor {
     // handlers
     private final CommandHandler handler = new CommandHandler();
     private final StringEncoder encoder = new StringEncoder(UTF8);
+
+    public MonitorServer() {
+        this(DEFAULT_PORT);
+    }
 
     public MonitorServer(int port) {
         super(port, 1, false);
@@ -150,6 +155,25 @@ public class MonitorServer extends NettyTcpAcceptor {
                                         ctx.writeAndFlush(MetricsReporter.report());
 
                                         break;
+                                }
+                            } else {
+                                ctx.writeAndFlush("Wrong args denied!" + NEWLINE).addListener(CLOSE);
+                            }
+                        }
+
+                        break;
+                    case REGISTRY:
+                        if (checkAuth(ctx.channel())) {
+                            if (args.length < 2) {
+                                ctx.writeAndFlush("Need second arg!" + NEWLINE);
+                                break;
+                            }
+
+                            Command.ChildCommand child = command.parseChild(args[1]);
+                            if (child != null) {
+                                switch (child) {
+                                    case PROVIDERS:
+                                    case CONSUMER:
                                 }
                             } else {
                                 ctx.writeAndFlush("Wrong args denied!" + NEWLINE).addListener(CLOSE);

@@ -4,7 +4,7 @@ import org.jupiter.common.util.Maps;
 
 import java.util.Map;
 
-import static org.jupiter.monitor.Command.ChildCommand.REPORT;
+import static org.jupiter.monitor.Command.ChildCommand.*;
 
 /**
  * jupiter
@@ -15,9 +15,9 @@ import static org.jupiter.monitor.Command.ChildCommand.REPORT;
 public enum Command {
     AUTH("Login with password"),
     HELP("Help information"),
-    METRICS("Metrics", REPORT),
-    QUIT("Quit monitor")
-    ;
+    METRICS("Performance metrics", REPORT),
+    REGISTRY("Registry info", PROVIDERS, CONSUMER, GREP),
+    QUIT("Quit monitor");
 
     private String description;
     private ChildCommand[] children;
@@ -59,8 +59,10 @@ public enum Command {
     }
 
     public enum ChildCommand {
-        REPORT("Report the current values of all metrics in the registry.")
-        ;
+        REPORT("Report the current values of all metrics in the registry"),
+        PROVIDERS("List all providers"),
+        CONSUMER("List all consumers"),
+        GREP("Search for pattern in each line");
 
         private String description;
 
