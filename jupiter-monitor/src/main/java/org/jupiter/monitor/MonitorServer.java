@@ -86,7 +86,7 @@ public class MonitorServer extends NettyTcpAcceptor {
                 String[] args = Strings.split(((String) msg).replace("\r\n", ""), ' ');
                 Command command = Command.parse(args[0]);
                 if (command == null) {
-                    ctx.writeAndFlush("invalid command" + NEWLINE);
+                    ctx.writeAndFlush("invalid command!" + NEWLINE);
                     return;
                 }
 
@@ -100,7 +100,7 @@ public class MonitorServer extends NettyTcpAcceptor {
                         if (password.equals(MD5Util.getMD5(args[1]))) {
                             ctx.channel().attr(AUTH_KEY).setIfAbsent(AUTH_OBJECT);
                         } else {
-                            ctx.writeAndFlush("Permission denied" + NEWLINE).addListener(CLOSE);
+                            ctx.writeAndFlush("Permission denied!" + NEWLINE).addListener(CLOSE);
                         }
 
                         break;
@@ -124,6 +124,11 @@ public class MonitorServer extends NettyTcpAcceptor {
                         break;
                     case METRICS:
                         if (checkAuth(ctx.channel())) {
+                            if (args.length < 2) {
+                                ctx.writeAndFlush("Need second arg!" + NEWLINE).addListener(CLOSE);
+                                break;
+                            }
+
                             Command.ChildCommand child = command.parseChild(args[1]);
                             if (child != null) {
                                 switch (child) {
@@ -132,7 +137,7 @@ public class MonitorServer extends NettyTcpAcceptor {
                                         break;
                                 }
                             } else {
-                                ctx.writeAndFlush("Wrong args denied" + NEWLINE).addListener(CLOSE);
+                                ctx.writeAndFlush("Wrong args denied!" + NEWLINE).addListener(CLOSE);
                             }
                         }
 
