@@ -125,7 +125,7 @@ public class MonitorServer extends NettyTcpAcceptor {
                     case METRICS:
                         if (checkAuth(ctx.channel())) {
                             if (args.length < 2) {
-                                ctx.writeAndFlush("Need second arg!" + NEWLINE).addListener(CLOSE);
+                                ctx.writeAndFlush("Need second arg!" + NEWLINE);
                                 break;
                             }
 
