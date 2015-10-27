@@ -106,17 +106,19 @@ public class MonitorServer extends NettyTcpAcceptor {
                         break;
                     case HELP:
                         for (Command parent : Command.values()) {
-                            int len = parent.name().length();
-                            if (len >= SEPARATORS.length) {
-                                ctx.write(parent.name() + ' ' + parent.description() + NEWLINE);
-                            } else {
-                                ctx.write(parent.name() + SEPARATORS[len] + parent.description() + NEWLINE);
-                            }
+                            StringBuilder buf = new StringBuilder();
+                            buf.append(String.format("%1$-32s", parent.name()))
+                                    .append(parent.description())
+                                    .append(NEWLINE);
 
                             for (Command.ChildCommand child : parent.children()) {
-                                ctx.write(SEPARATORS[0] + "  " + child.name() + ' ' + child.description() + NEWLINE);
+                                buf.append("                                  - ")
+                                        .append(child.name())
+                                        .append(' ')
+                                        .append(child.description())
+                                        .append(NEWLINE);
                             }
-                            ctx.flush();
+                            ctx.writeAndFlush(buf.toString());
                         }
 
                         break;
@@ -154,39 +156,4 @@ public class MonitorServer extends NettyTcpAcceptor {
             ctx.close();
         }
     }
-
-    private static String[] SEPARATORS = {
-            "                               ",
-            "                              ",
-            "                             ",
-            "                            ",
-            "                           ",
-            "                          ",
-            "                         ",
-            "                        ",
-            "                       ",
-            "                      ",
-            "                     ",
-            "                    ",
-            "                   ",
-            "                  ",
-            "                 ",
-            "                ",
-            "               ",
-            "              ",
-            "             ",
-            "            ",
-            "           ",
-            "          ",
-            "         ",
-            "        ",
-            "       ",
-            "      ",
-            "     ",
-            "    ",
-            "   ",
-            "  ",
-            " ",
-            "",
-    };
 }
