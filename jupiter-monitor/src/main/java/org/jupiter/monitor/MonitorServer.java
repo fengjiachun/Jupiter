@@ -119,7 +119,6 @@ public class MonitorServer extends NettyTcpAcceptor {
                         buf.append("-- Help ------------------------------------------------------------------------")
                             .append(NEWLINE);
                         for (Command parent : Command.values()) {
-
                             buf.append(String.format("%1$-32s", parent.name()))
                                     .append(parent.description())
                                     .append(NEWLINE);
