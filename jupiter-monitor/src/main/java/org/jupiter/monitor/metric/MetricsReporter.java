@@ -24,14 +24,14 @@ public class MetricsReporter {
                                                             .build();
 
     public static String report() {
-        synchronized (reporter) {
+        synchronized (MetricsReporter.class) {
             reporter.report();
             return consoleOutput();
         }
     }
 
     private static String consoleOutput() {
-        synchronized (reporter) {
+        synchronized (MetricsReporter.class) {
             String output;
             try {
                 output = bytes.toString(JConstants.UTF8_CHARSET);
