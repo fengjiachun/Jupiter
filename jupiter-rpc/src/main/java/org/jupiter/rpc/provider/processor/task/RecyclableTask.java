@@ -48,7 +48,7 @@ public class RecyclableTask implements RejectedRunnable {
     // 请求被拒绝的统计
     private static final Meter rejectionMeter = Metrics.meter(RecyclableTask.class, "rejection.meter");
     // 响应数据大小的统计(不包括Jupiter协议头)
-    private static final Histogram responseSizes = Metrics.histogram(RecyclableTask.class, "response.sizes");
+    private static final Histogram responseSizes = Metrics.histogram(RecyclableTask.class, "response.size");
 
     private ProviderProcessor processor;
     private JChannel jChannel;

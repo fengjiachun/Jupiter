@@ -30,7 +30,7 @@ import static org.jupiter.rpc.Status.SERVICE_TPS_LIMIT;
 public class DefaultProviderProcessor extends AbstractProviderProcessor {
 
     // 请求数据大小的统计(不包括Jupiter协议头)
-    private static final Histogram requestSizes = Metrics.histogram(DefaultProviderProcessor.class, "request.sizes");
+    private static final Histogram requestSizes = Metrics.histogram(DefaultProviderProcessor.class, "request.size");
 
     // SPI
     private final TPSLimiter tpsLimiter = JServiceLoader.load(TPSLimiter.class);
