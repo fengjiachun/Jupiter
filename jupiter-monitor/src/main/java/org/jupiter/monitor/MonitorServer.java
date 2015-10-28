@@ -178,49 +178,93 @@ public class MonitorServer extends NettyTcpAcceptor {
                                 ctx.writeAndFlush("Need more args!" + NEWLINE);
                                 return;
                             }
+                            if (monitor == null) {
+                                return;
+                            }
 
                             Command.ChildCommand child = command.parseChild(args[1]);
                             if (child != null) {
                                 switch (child) {
-                                    case ADDRESS:
-                                        if (monitor == null) {
-                                            return;
-                                        }
+                                    case ADDRESS: {
                                         Command.ChildCommand target = command.parseChild(args[2]);
                                         if (target == null) {
                                             ctx.writeAndFlush("Wrong args denied!" + NEWLINE);
                                             return;
                                         }
 
-                                        List<String> hosts;
+                                        List<String> addresses;
                                         switch (target) {
                                             case P:
-                                                hosts = monitor.listPublisherHosts();
+                                                addresses = monitor.listPublisherHosts();
 
                                                 break;
                                             case S:
-                                                hosts = monitor.listSubscriberAddresses();
+                                                addresses = monitor.listSubscriberAddresses();
 
                                                 break;
                                             default:
-                                                    return;
+                                                return;
                                         }
-
                                         Command.ChildCommand childGrep = null;
-                                        if (args.length >= 4) {
+                                        if (args.length >= 5) {
                                             childGrep = command.parseChild(args[3]);
                                         }
-                                        for (String h : hosts) {
-                                            if (childGrep != null) {
-                                                if (h.contains(args[3])) {
-                                                    ctx.writeAndFlush(h + NEWLINE);
+                                        for (String a : addresses) {
+                                            if (childGrep != null && childGrep == Command.ChildCommand.GREP) {
+                                                if (a.contains(args[4])) {
+                                                    ctx.writeAndFlush(a + NEWLINE);
                                                 }
                                             } else {
-                                                ctx.writeAndFlush(h + NEWLINE);
+                                                ctx.writeAndFlush(a + NEWLINE);
                                             }
                                         }
 
                                         break;
+                                    }
+                                    case BY_SERVICE: {
+                                        if (args.length < 5) {
+                                            ctx.writeAndFlush("Args[2]: group, args[3]: version, args[4]: serviceProviderName" + NEWLINE);
+                                            return;
+                                        }
+                                        Command.ChildCommand childGrep = null;
+                                        if (args.length >= 7) {
+                                            childGrep = command.parseChild(args[5]);
+                                        }
+
+                                        for (String a : monitor.listAddressesByService(args[2], args[3], args[4])) {
+                                            if (childGrep != null && childGrep == Command.ChildCommand.GREP) {
+                                                if (a.contains(args[6])) {
+                                                    ctx.writeAndFlush(a + NEWLINE);
+                                                }
+                                            } else {
+                                                ctx.writeAndFlush(a + NEWLINE);
+                                            }
+                                        }
+
+                                        break;
+                                    }
+                                    case BY_ADDRESS: {
+                                        if (args.length < 4) {
+                                            ctx.writeAndFlush("Args[2]: host, args[3]: port" + NEWLINE);
+                                            return;
+                                        }
+                                        Command.ChildCommand childGrep = null;
+                                        if (args.length >= 6) {
+                                            childGrep = command.parseChild(args[4]);
+                                        }
+
+                                        for (String a : monitor.listServicesByAddress(args[2], Integer.parseInt(args[3]))) {
+                                            if (childGrep != null && childGrep == Command.ChildCommand.GREP) {
+                                                if (a.contains(args[5])) {
+                                                    ctx.writeAndFlush(a + NEWLINE);
+                                                }
+                                            } else {
+                                                ctx.writeAndFlush(a + NEWLINE);
+                                            }
+                                        }
+
+                                        break;
+                                    }
                                 }
                             } else {
                                 ctx.writeAndFlush("Wrong args denied!" + NEWLINE);

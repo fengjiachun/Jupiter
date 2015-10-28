@@ -129,9 +129,8 @@ public class ConfigServer extends NettyTcpAcceptor implements RegistryMonitor {
 
     @Override
     public List<String> listPublisherHosts() {
-        List<Address> addresses = registerInfoContext.listPublisherHosts();
-        List<String> hosts = Lists.newArrayListWithCapacity(addresses.size());
-        for (Address a : addresses) {
+        List<String> hosts = Lists.newArrayList();
+        for (Address a : registerInfoContext.listPublisherHosts()) {
             hosts.add(a.getHost());
         }
         return hosts;
@@ -145,10 +144,30 @@ public class ConfigServer extends NettyTcpAcceptor implements RegistryMonitor {
             if (address instanceof InetSocketAddress) {
                 String host = ((InetSocketAddress) address).getAddress().getHostAddress();
                 int port = ((InetSocketAddress) address).getPort();
-                hosts.add(host + ':' + port);
+                hosts.add(new Address(host, port).toString());
             }
         }
         return hosts;
+    }
+
+    @Override
+    public List<String> listAddressesByService(String group, String version, String serviceProviderName) {
+        ServiceMeta serviceMeta = new ServiceMeta(group, version, serviceProviderName);
+        List<String> addresses = Lists.newArrayList();
+        for (Address a : registerInfoContext.listAddressesByService(serviceMeta)) {
+            addresses.add(a.toString());
+        }
+        return addresses;
+    }
+
+    @Override
+    public List<String> listServicesByAddress(String host, int port) {
+        Address address = new Address(host, port);
+        List<String> services = Lists.newArrayList();
+        for (ServiceMeta s : registerInfoContext.listServicesByAddress(address)) {
+            services.add(s.toString());
+        }
+        return services;
     }
 
     // 添加指定机器指定服务, 然后全量发布到所有客户端

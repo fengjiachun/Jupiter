@@ -16,7 +16,7 @@ public enum Command {
     AUTH("Login with password"),
     HELP("Help information"),
     METRICS("Performance metrics", REPORT),
-    REGISTRY("Registry info(P/S command must follow behind ADDRESS)", ADDRESS, P, S, GREP),
+    REGISTRY("Registry info(P/S command must follow behind ADDRESS)", ADDRESS, P, S, BY_SERVICE, BY_ADDRESS, GREP),
     QUIT("Quit monitor");
 
     private String description;
@@ -61,6 +61,8 @@ public enum Command {
     public enum ChildCommand {
         REPORT("Report the current values of all metrics in the registry"),
         ADDRESS("List all publisher/subscriber's address"),
+        BY_SERVICE("List all providers by service name"),
+        BY_ADDRESS("List all services by address"),
         P("Publisher"),
         S("Subscriber"),
         GREP("Search for pattern in each line");

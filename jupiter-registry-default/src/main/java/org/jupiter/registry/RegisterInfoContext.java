@@ -61,4 +61,12 @@ public class RegisterInfoContext {
     public List<Address> listPublisherHosts() {
         return Lists.newArrayList(globalServiceMetaMap.keySet());
     }
+
+    public List<Address> listAddressesByService(ServiceMeta serviceMeta) {
+        return Lists.newArrayList(getRegisterMeta(serviceMeta).getConfig().keySet());
+    }
+
+    public List<ServiceMeta> listServicesByAddress(Address address) {
+        return Lists.newArrayList(getServiceMeta(address));
+    }
 }
