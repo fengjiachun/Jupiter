@@ -1,7 +1,7 @@
 package org.jupiter.rpc.consumer.processor;
 
 /**
- * A tagging interface that means consumer's executor factory
+ * A tagging interface that means consumer's executor factory.
  *
  * jupiter
  * org.jupiter.rpc.consumer.processor

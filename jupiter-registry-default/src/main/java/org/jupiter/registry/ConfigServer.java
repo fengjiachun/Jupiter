@@ -48,6 +48,14 @@ import static org.jupiter.transport.error.Signals.ILLEGAL_SIGN;
 
 /**
  * 注册中心服务端
+ *
+ * 所有信息均在内存中, 不持久化.
+ *
+ * provider(client)断线时所有该provider发布过的服务会被server清除并通知订阅者, 重新建立连接后provider会自动重新发布相关服务,
+ * 并且server会重新推送服务给订阅者.
+ *
+ * consumer(client)断线时所有该consumer订阅过的服务会被server清除, 重新建立连接后consumer会自动重新订阅相关服务.
+ *
  * jupiter
  * org.jupiter.registry
  *
@@ -546,6 +554,23 @@ public class ConfigServer extends NettyTcpAcceptor implements RegistryMonitor {
 
             // 通知所有订阅者对应机器下线
             handleOfflineNotice(address);
+        }
+
+        @Override
+        public void channelWritabilityChanged(ChannelHandlerContext ctx) throws Exception {
+            Channel ch = ctx.channel();
+
+            /**
+             * 高水位线: ChannelOption.WRITE_BUFFER_HIGH_WATER_MARK (默认值 64 * 1024)
+             * 低水位线: ChannelOption.WRITE_BUFFER_LOW_WATER_MARK (默认值 32 * 1024)
+             */
+            if (!ch.isWritable()) {
+                // 当前channel的缓冲区(OutboundBuffer)大小超过了WRITE_BUFFER_HIGH_WATER_MARK
+                logger.warn("{} is not writable, outbound buffer size: {}.", ch, ch.unsafe().outboundBuffer().size());
+            } else {
+                // 曾经高于高水位线的OutboundBuffer现在已经低于WRITE_BUFFER_LOW_WATER_MARK了
+                logger.info("{} is writable.", ch);
+            }
         }
 
         @Override

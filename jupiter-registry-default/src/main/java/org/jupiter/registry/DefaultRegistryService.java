@@ -6,6 +6,8 @@ import static org.jupiter.common.util.Preconditions.checkArgument;
 import static org.jupiter.registry.RegisterMeta.*;
 
 /**
+ * Default registry service.
+ *
  * jupiter
  * org.jupiter.registry.jupiter
  *

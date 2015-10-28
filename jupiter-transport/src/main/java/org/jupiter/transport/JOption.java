@@ -4,6 +4,8 @@ import org.jupiter.common.util.AbstractConstant;
 import org.jupiter.common.util.ConstantPool;
 
 /**
+ * Jupiter transport's option.
+ *
  * jupiter
  * org.jupiter.transport.api
  *

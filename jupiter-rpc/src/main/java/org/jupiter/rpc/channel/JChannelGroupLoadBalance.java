@@ -4,7 +4,7 @@ import org.jupiter.common.util.SystemClock;
 import org.jupiter.rpc.load.balance.RandomLoadBalance;
 
 /**
- * Load balance for channel groups
+ * Load balance for channel groups.
  *
  * jupiter
  * org.jupiter.rpc.channel

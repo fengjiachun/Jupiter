@@ -3,6 +3,8 @@ package org.jupiter.common.util;
 import java.util.ServiceLoader;
 
 /**
+ * A simple service-provider loading facility (SPI).
+ *
  * jupiter
  * org.jupiter.common.util
  *

@@ -3,7 +3,7 @@ package org.jupiter.rpc.channel;
 import org.jupiter.rpc.UnresolvedAddress;
 
 /**
- * Based on the same address of the channel group
+ * Based on the same address of the channel group.
  *
  * jupiter
  * org.jupiter.rpc.channel

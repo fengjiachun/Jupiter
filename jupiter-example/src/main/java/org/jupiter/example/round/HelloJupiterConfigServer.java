@@ -12,8 +12,8 @@ import org.jupiter.registry.ConfigServer;
 public class HelloJupiterConfigServer {
 
     public static void main(String[] args) {
-        ConfigServer configServer = new ConfigServer(20001, 1);
-        MonitorServer monitor = new MonitorServer(19998);
+        ConfigServer configServer = new ConfigServer(20001, 1); // 注册中心
+        MonitorServer monitor = new MonitorServer(19998);       // 监控服务
         try {
             monitor.setMonitor(configServer);
             monitor.start();

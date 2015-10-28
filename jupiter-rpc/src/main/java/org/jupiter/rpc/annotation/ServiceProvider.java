@@ -9,7 +9,7 @@ import static org.jupiter.common.util.JConstants.DEFAULT_GROUP;
 import static org.jupiter.common.util.JConstants.DEFAULT_VERSION;
 
 /**
- * Provider interface annotation
+ * Provider interface annotation.
  *
  * jupiter
  * org.jupiter.rpc.annotation

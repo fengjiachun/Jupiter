@@ -10,6 +10,8 @@ import java.io.PrintStream;
 import java.io.UnsupportedEncodingException;
 
 /**
+ * 用于为monitor提供指标度量数据.
+ *
  * jupiter
  * org.jupiter.monitor.metric
  *

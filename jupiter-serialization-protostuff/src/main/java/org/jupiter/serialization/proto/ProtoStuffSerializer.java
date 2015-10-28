@@ -23,10 +23,10 @@ public class ProtoStuffSerializer implements Serializer {
 
     /**
      * If true, the constructor will always be obtained from {@code ReflectionFactory.newConstructorFromSerialization}.
-     * <p>
+     *
      * Enable this if you intend to avoid deserialize objects whose no-args constructor initializes (unwanted)
      * internal state. This applies to complex/framework objects.
-     * <p>
+     *
      * If you intend to fill default field values using your default constructor, leave this disabled. This normally
      * applies to java beans/data objects.
      */

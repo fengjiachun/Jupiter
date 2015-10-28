@@ -32,7 +32,7 @@ import static org.jupiter.common.util.StackTraceUtil.stackTrace;
 import static org.jupiter.rpc.Status.*;
 
 /**
- * 可回收的Task, 减少小对象的分配以及回收(help gc)
+ * 可回收的Task, 减少小对象的分配以及回收(help gc).
  *
  * jupiter
  * org.jupiter.rpc.provider.processor.task

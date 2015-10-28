@@ -8,7 +8,7 @@ import org.jupiter.rpc.model.metadata.ResultWrapper;
 import org.jupiter.serialization.SerializerHolder;
 
 /**
- * 可回收的Task, 减少小对象的分配以及回收(help gc)
+ * 可回收的Task, 减少小对象的分配以及回收(help gc).
  *
  * jupiter
  * org.jupiter.rpc.consumer.processor.task

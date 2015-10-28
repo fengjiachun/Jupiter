@@ -3,7 +3,7 @@ package org.jupiter.transport;
 import java.net.SocketAddress;
 
 /**
- * Server acceptor
+ * Server acceptor.
  *
  * jupiter
  * org.jupiter.transport

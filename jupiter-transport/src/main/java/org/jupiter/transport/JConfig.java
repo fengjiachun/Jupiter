@@ -3,6 +3,8 @@ package org.jupiter.transport;
 import java.util.List;
 
 /**
+ * Jupiter transport's config.
+ *
  * jupiter
  * org.jupiter.transport
  *

@@ -12,7 +12,7 @@ import static org.jupiter.registry.RegisterMeta.Address;
 import static org.jupiter.registry.RegisterMeta.ServiceMeta;
 
 /**
- * 注册服务的全局信息, 同时也供监控程序使用
+ * 注册服务的全局信息, 同时也供monitor程序使用.
  *
  * jupiter
  * org.jupiter.registry

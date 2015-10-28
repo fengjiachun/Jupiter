@@ -17,6 +17,8 @@ import java.util.concurrent.TimeUnit;
 import static org.jupiter.common.util.StackTraceUtil.stackTrace;
 
 /**
+ * Connections watchdog.
+ *
  * jupiter
  * org.jupiter.transport.netty.handler.connector
  *

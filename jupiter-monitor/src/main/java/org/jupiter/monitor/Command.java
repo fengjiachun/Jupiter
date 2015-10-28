@@ -7,6 +7,8 @@ import java.util.Map;
 import static org.jupiter.monitor.Command.ChildCommand.*;
 
 /**
+ * Monitor command.
+ *
  * jupiter
  * org.jupiter.monitor
  *
@@ -60,9 +62,9 @@ public enum Command {
 
     public enum ChildCommand {
         REPORT("Report the current values of all metrics in the registry"),
-        ADDRESS("List all publisher/subscriber's address"),
+        ADDRESS("List all publisher/subscriber's addresses"),
         BY_SERVICE("List all providers by service name"),
-        BY_ADDRESS("List all services by address"),
+        BY_ADDRESS("List all services by addresses"),
         P("Publisher"),
         S("Subscriber"),
         GREP("Search for pattern in each line");

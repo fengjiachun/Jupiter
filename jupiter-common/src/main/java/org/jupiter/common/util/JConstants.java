@@ -5,6 +5,8 @@ import java.nio.charset.UnsupportedCharsetException;
 import java.util.Formatter;
 
 /**
+ * Jupiter constants.
+ *
  * jupiter
  * org.jupiter.common.util
  *

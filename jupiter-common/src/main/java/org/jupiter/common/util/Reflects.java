@@ -14,7 +14,7 @@ import java.util.concurrent.ConcurrentMap;
 import static org.jupiter.common.util.Preconditions.checkNotNull;
 
 /**
- * Reflection tools
+ * Reflection tools.
  *
  * jupiter
  * org.jupiter.common.util

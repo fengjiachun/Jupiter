@@ -6,7 +6,7 @@ import java.io.Serializable;
 
 /**
  * Service provider metadata
- * <p/>
+ *
  *
  * jupiter
  * org.jupiter.rpc.model.metadata

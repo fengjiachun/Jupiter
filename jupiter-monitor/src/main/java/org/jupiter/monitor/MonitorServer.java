@@ -26,6 +26,27 @@ import static org.jupiter.common.util.JConstants.UTF8;
 import static org.jupiter.common.util.StackTraceUtil.stackTrace;
 
 /**
+ * 监控服务, ConfigServer与ProviderServer都应该启用
+ *
+ * 常用的monitor command说明:
+ * ---------------------------------------------------------------------------------------------------------------------
+ * help                                 // 帮助信息
+ *
+ * auth 123456                          // 登录(默认密码为123456,
+ *                                      // 可通过System.setProperty("monitor.server.password", "password")设置密码
+ *
+ * metrics -report                      // 输出当前节点所有指标度量信息
+ *
+ * registry -address -p                 // 输出所有provider地址
+ * registry -address -s                 // 输出所有consumer地址
+ * registry -by_service                 // 根据服务(group version providerServiceName)查找所有提供当前服务的机器地址列表
+ * registry -by_address                 // 根据地址(host port)查找该地址对用provider提供的所有服务
+ *
+ * metrics/registry ... -grep xxx       // 过滤metrics/registry的输出内容
+ *
+ * quit                                 // 退出
+ * ---------------------------------------------------------------------------------------------------------------------
+ *
  * jupiter
  * org.jupiter.monitor
  *

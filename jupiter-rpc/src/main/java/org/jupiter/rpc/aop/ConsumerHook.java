@@ -3,7 +3,7 @@ package org.jupiter.rpc.aop;
 import org.jupiter.rpc.Request;
 
 /**
- * Consumer's hook
+ * Consumer's hook.
  *
  * jupiter
  * org.jupiter.rpc.aop

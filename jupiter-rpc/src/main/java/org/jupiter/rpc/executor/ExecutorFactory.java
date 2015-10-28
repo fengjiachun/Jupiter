@@ -6,7 +6,7 @@ import org.jupiter.rpc.provider.processor.ProviderExecutorFactory;
 import java.util.concurrent.Executor;
 
 /**
- * Executor factory
+ * Executor factory.
  *
  * jupiter
  * org.jupiter.rpc.executor

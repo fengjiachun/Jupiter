@@ -3,6 +3,8 @@ package org.jupiter.rpc.load.balance;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 /**
+ * Load balance.
+ *
  * jupiter
  * org.jupiter.rpc.load.balance
  *

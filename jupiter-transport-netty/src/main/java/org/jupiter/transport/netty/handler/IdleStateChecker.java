@@ -11,7 +11,6 @@ import java.util.concurrent.TimeUnit;
 
 /**
  * 基于{@link HashedWheelTimer}的空闲链路监测.
- * <p/>
  *
  * 相比较Netty4.x的默认链路监测方式:
  *
@@ -22,7 +21,6 @@ import java.util.concurrent.TimeUnit;
  *
  * 如果连接数小, 比如几万以内, 可以直接用Netty4.x默认的链路检测{@link io.netty.handler.timeout.IdleStateHandler},
  * 如果连接数较大, 建议使用这个实现.
- * <p/>
  *
  * jupiter
  * org.jupiter.transport.netty.handler

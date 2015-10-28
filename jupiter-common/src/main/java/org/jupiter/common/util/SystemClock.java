@@ -8,7 +8,7 @@ import java.util.concurrent.atomic.AtomicLong;
 
 /**
  * {@link SystemClock} is a optimized substitute of {@link System#currentTimeMillis()} for avoiding context switch overload.
- * <p/>
+ *
  * Every instance would start a thread to update the time, so it's supposed to be singleton in application context.
  *
  * Forked from <A>https://github.com/zhongl/jtoolkit/blob/master/common/src/main/java/com/github/zhongl/jtoolkit/SystemClock.java</A>

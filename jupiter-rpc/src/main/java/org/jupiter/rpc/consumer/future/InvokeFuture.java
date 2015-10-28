@@ -6,6 +6,8 @@ import org.jupiter.rpc.aop.ConsumerHook;
 import java.util.List;
 
 /**
+ * Invoke future.
+ *
  * jupiter
  * org.jupiter.rpc.consumer.future
  *

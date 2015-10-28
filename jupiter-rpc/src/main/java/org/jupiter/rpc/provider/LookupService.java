@@ -4,6 +4,8 @@ import org.jupiter.rpc.Directory;
 import org.jupiter.rpc.model.metadata.ServiceWrapper;
 
 /**
+ * Lookup designated service.
+ *
  * jupiter
  * org.jupiter.rpc.provider
  *

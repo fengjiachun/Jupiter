@@ -3,6 +3,8 @@ package org.jupiter.registry;
 import java.util.List;
 
 /**
+ * Registry monitor.
+ *
  * jupiter
  * org.jupiter.registry
  *

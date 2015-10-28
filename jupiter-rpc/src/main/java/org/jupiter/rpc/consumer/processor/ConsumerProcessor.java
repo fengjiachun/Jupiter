@@ -4,7 +4,7 @@ import org.jupiter.rpc.Response;
 import org.jupiter.rpc.channel.JChannel;
 
 /**
- * Consumer's processor
+ * Consumer's processor.
  *
  * jupiter
  * org.jupiter.rpc.consumer.processor

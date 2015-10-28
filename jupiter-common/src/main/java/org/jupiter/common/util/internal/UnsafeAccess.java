@@ -10,8 +10,8 @@ import java.nio.ByteBuffer;
 import java.util.concurrent.BlockingQueue;
 
 /**
- * For the {@link sun.misc.Unsafe} access
- * <p/>
+ * For the {@link sun.misc.Unsafe} access.
+ *
  * jupiter
  * org.jupiter.common.util.internal
  *

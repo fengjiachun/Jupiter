@@ -5,6 +5,8 @@ import java.util.Collection;
 import static org.jupiter.registry.RegisterMeta.*;
 
 /**
+ * Registry service.
+ *
  * jupiter
  * org.jupiter.registry
  *
@@ -12,6 +14,9 @@ import static org.jupiter.registry.RegisterMeta.*;
  */
 public interface RegistryService {
 
+    /**
+     * 初始化并与ConfigServer建立连接
+     */
     void init(Object... args);
 
     /**

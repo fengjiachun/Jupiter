@@ -3,7 +3,7 @@ package org.jupiter.registry;
 import java.util.concurrent.atomic.AtomicLong;
 
 /**
- * 发布订阅信息的包装类
+ * 发布订阅信息的包装类.
  *
  * jupiter
  * org.jupiter.registry

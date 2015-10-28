@@ -1,7 +1,7 @@
 package org.jupiter.transport;
 
 /**
- * Config group (parent config and child config)
+ * Config group (parent config and child config).
  *
  * jupiter
  * org.jupiter.transport

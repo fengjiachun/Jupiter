@@ -7,6 +7,8 @@ import java.util.concurrent.atomic.AtomicLongFieldUpdater;
 import java.util.concurrent.atomic.AtomicReferenceFieldUpdater;
 
 /**
+ * A tool utility that enables atomic updates to designated {@code volatile} fields of designated classes.
+ *
  * jupiter
  * org.jupiter.common.concurrent.atomic
  *
