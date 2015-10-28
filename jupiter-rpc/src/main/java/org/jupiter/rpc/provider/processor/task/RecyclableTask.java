@@ -44,11 +44,11 @@ public class RecyclableTask implements RejectedRunnable {
     private static final InternalLogger logger = InternalLoggerFactory.getInstance(RecyclableTask.class);
 
     // 请求处理的时间统计(从request被decode开始一直到response数据被刷到OS内核缓冲区为止)
-    private static final Timer invocationTimer = Metrics.timer(RecyclableTask.class, "invocation_timer");
+    private static final Timer invocationTimer = Metrics.timer(RecyclableTask.class, "invocation.timer");
     // 请求被拒绝的统计
-    private static final Meter rejectionMeter = Metrics.meter(RecyclableTask.class, "rejection_meter");
+    private static final Meter rejectionMeter = Metrics.meter(RecyclableTask.class, "rejection.meter");
     // 响应数据大小的统计(不包括Jupiter协议头)
-    private static final Histogram responseSizes = Metrics.histogram(RecyclableTask.class, "response_sizes");
+    private static final Histogram responseSizes = Metrics.histogram(RecyclableTask.class, "response.sizes");
 
     private ProviderProcessor processor;
     private JChannel jChannel;
