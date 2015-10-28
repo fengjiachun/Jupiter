@@ -128,7 +128,7 @@ public class ConfigServer extends NettyTcpAcceptor implements RegistryMonitor {
     }
 
     @Override
-    public List<String> getAllProviderHost() {
+    public List<String> getAllPublisherHost() {
         List<Address> addresses = registerInfoContext.listProvidersHost();
         List<String> hosts = Lists.newArrayListWithCapacity(addresses.size());
         for (Address a : addresses) {
@@ -138,7 +138,7 @@ public class ConfigServer extends NettyTcpAcceptor implements RegistryMonitor {
     }
 
     @Override
-    public List<String> getAllConsumerHost() {
+    public List<String> getAllSubscriberHost() {
         List<String> hosts = Lists.newArrayList();
         for (Channel ch : subscriberChannels) {
             SocketAddress address = ch.remoteAddress();

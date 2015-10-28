@@ -195,11 +195,11 @@ public class MonitorServer extends NettyTcpAcceptor {
                                         List<String> hosts;
                                         switch (target) {
                                             case P:
-                                                hosts = monitor.getAllProviderHost();
+                                                hosts = monitor.getAllPublisherHost();
 
                                                 break;
-                                            case C:
-                                                hosts = monitor.getAllConsumerHost();
+                                            case S:
+                                                hosts = monitor.getAllSubscriberHost();
 
                                                 break;
                                             default:

@@ -16,7 +16,7 @@ public enum Command {
     AUTH("Login with password"),
     HELP("Help information"),
     METRICS("Performance metrics", REPORT),
-    REGISTRY("Registry info", ADDRESS, P, C, GREP),
+    REGISTRY("Registry info", ADDRESS, P, S, GREP),
     QUIT("Quit monitor");
 
     private String description;
@@ -61,8 +61,8 @@ public enum Command {
     public enum ChildCommand {
         REPORT("Report the current values of all metrics in the registry"),
         ADDRESS("List all provider/consumer's address"),
-        P("Provider"),
-        C("Consumer"),
+        P("Publisher"),
+        S("Subscribe"),
         GREP("Search for pattern in each line");
 
         private String description;

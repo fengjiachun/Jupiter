@@ -11,12 +11,12 @@ import java.util.List;
 public interface RegistryMonitor {
 
     /**
-     * 获取所有Provider的地址列表
+     * 获取所有Publisher的地址列表
      */
-    List<String> getAllProviderHost();
+    List<String> getAllPublisherHost();
 
     /**
-     * 获取所有Consumer的地址列表
+     * 获取所有Subscriber的地址列表
      */
-    List<String> getAllConsumerHost();
+    List<String> getAllSubscriberHost();
 }
