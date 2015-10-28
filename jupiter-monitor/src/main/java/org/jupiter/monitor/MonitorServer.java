@@ -122,6 +122,7 @@ public class MonitorServer extends NettyTcpAcceptor {
 
                         if (password.equals(MD5Util.getMD5(args[1]))) {
                             ctx.channel().attr(AUTH_KEY).setIfAbsent(AUTH_OBJECT);
+                            ctx.writeAndFlush("OK" + NEWLINE);
                         } else {
                             ctx.writeAndFlush("Permission denied!" + NEWLINE).addListener(CLOSE);
                         }
@@ -172,22 +173,41 @@ public class MonitorServer extends NettyTcpAcceptor {
                         break;
                     case REGISTRY:
                         if (checkAuth(ctx.channel())) {
-                            if (args.length < 2) {
-                                ctx.writeAndFlush("Need second arg!" + NEWLINE);
+                            if (args.length < 3) {
+                                ctx.writeAndFlush("Need more args!" + NEWLINE);
                                 return;
                             }
 
                             Command.ChildCommand child = command.parseChild(args[1]);
                             if (child != null) {
                                 switch (child) {
-                                    case PROVIDERS:
+                                    case ADDRESS:
                                         if (monitor == null) {
                                             return;
                                         }
-                                        List<String> hosts = monitor.getAllProvidersHost();
+                                        Command.ChildCommand target = command.parseChild(args[2]);
+                                        if (target == null) {
+                                            ctx.writeAndFlush("Wrong args denied!" + NEWLINE);
+                                            return;
+                                        }
+
+                                        List<String> hosts;
+                                        switch (target) {
+                                            case P:
+                                                hosts = monitor.getAllProviderHost();
+
+                                                break;
+                                            case C:
+                                                hosts = monitor.getAllConsumerHost();
+
+                                                break;
+                                            default:
+                                                    return;
+                                        }
+
                                         Command.ChildCommand childGrep = null;
                                         if (args.length >= 4) {
-                                            childGrep = command.parseChild(args[2]);
+                                            childGrep = command.parseChild(args[3]);
                                         }
                                         for (String h : hosts) {
                                             if (childGrep != null) {
@@ -200,7 +220,6 @@ public class MonitorServer extends NettyTcpAcceptor {
                                         }
 
                                         break;
-                                    case CONSUMERS:
                                 }
                             } else {
                                 ctx.writeAndFlush("Wrong args denied!" + NEWLINE);

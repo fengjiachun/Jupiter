@@ -40,7 +40,8 @@ import java.util.concurrent.TimeUnit;
 
 import static org.jupiter.common.util.JConstants.READER_IDLE_TIME_SECONDS;
 import static org.jupiter.common.util.StackTraceUtil.stackTrace;
-import static org.jupiter.registry.RegisterMeta.*;
+import static org.jupiter.registry.RegisterMeta.Address;
+import static org.jupiter.registry.RegisterMeta.ServiceMeta;
 import static org.jupiter.transport.JProtocolHeader.*;
 import static org.jupiter.transport.error.Signals.ILLEGAL_MAGIC;
 import static org.jupiter.transport.error.Signals.ILLEGAL_SIGN;
@@ -126,11 +127,23 @@ public class ConfigServer extends NettyTcpAcceptor implements RegistryMonitor {
     }
 
     @Override
-    public List<String> getAllProvidersHost() {
+    public List<String> getAllProviderHost() {
         List<Address> addresses = registerInfoContext.listProvidersHost();
         List<String> hosts = Lists.newArrayListWithCapacity(addresses.size());
         for (Address a : addresses) {
             hosts.add(a.getHost());
+        }
+        return hosts;
+    }
+
+    @Override
+    public List<String> getAllConsumerHost() {
+        List<String> hosts = Lists.newArrayList();
+        for (Channel ch : subscriberChannels) {
+            SocketAddress address = ch.remoteAddress();
+            if (address instanceof InetSocketAddress) {
+                hosts.add(((InetSocketAddress) address).getAddress().getHostAddress());
+            }
         }
         return hosts;
     }
