@@ -42,6 +42,35 @@ TODO:
     telnet 127.0.0.0 19999
     输入: metrics -report
   
+  -- Histograms ------------------------------------------------------------------
+  
+  org.jupiter.rpc.provider.processor.DefaultProviderProcessor.request.sizes
+  
+               count = 10697193
+                 min = 122
+                 max = 122
+                mean = 122.00
+              stddev = 0.00
+              median = 122.00
+                75% <= 122.00
+                95% <= 122.00
+                98% <= 122.00
+                99% <= 122.00
+              99.9% <= 122.00
+  org.jupiter.rpc.provider.processor.task.RecyclableTask.response.sizes
+  
+               count = 10697143
+                 min = 17
+                 max = 17
+                mean = 17.00
+              stddev = 0.00
+              median = 17.00
+                75% <= 17.00
+                95% <= 17.00
+                98% <= 17.00
+                99% <= 17.00
+              99.9% <= 17.00
+  
   -- Timers ----------------------------------------------------------------------
 
   org.jupiter.benchmark.tcp.ServiceImpl.Jupiter-1.0.0-Service.hello
