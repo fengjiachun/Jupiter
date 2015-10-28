@@ -7,7 +7,7 @@ import org.jupiter.common.util.ConstantPool;
  * Jupiter transport's option.
  *
  * jupiter
- * org.jupiter.transport.api
+ * org.jupiter.transport
  *
  * @param <T> the type of the value which is valid for the {@link JOption}
  *

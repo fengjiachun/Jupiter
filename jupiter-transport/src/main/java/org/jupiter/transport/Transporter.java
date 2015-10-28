@@ -2,7 +2,7 @@ package org.jupiter.transport;
 
 /**
  * jupiter
- * org.jupiter.transport.api
+ * org.jupiter.transport
  *
  * @author jiachun.fjc
  */

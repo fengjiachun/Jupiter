@@ -11,7 +11,7 @@ package org.jupiter.transport;
  * + 4 // 消息体body长度, int类型
  *
  * jupiter
- * org.jupiter.transport.api
+ * org.jupiter.transport
  *
  * @author jiachun.fjc
  */
