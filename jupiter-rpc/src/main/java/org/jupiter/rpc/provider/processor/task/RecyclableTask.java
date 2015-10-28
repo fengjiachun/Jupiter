@@ -66,8 +66,14 @@ public class RecyclableTask implements RejectedRunnable {
         try {
             MessageWrapper msg = request.message();
 
-            // 调用对应服务
-            Object invokeResult = Reflects.fastInvoke(provider, msg.getMethodName(), msg.getParameterTypes(), msg.getArgs());
+            Timer.Context timeCtx = Metrics.timer(provider.getClass(), msg.directory() + '-' + msg.getMethodName()).time();
+            Object invokeResult = null;
+            try {
+                // 调用对应服务
+                invokeResult = Reflects.fastInvoke(provider, msg.getMethodName(), msg.getParameterTypes(), msg.getArgs());
+            } finally {
+                timeCtx.stop();
+            }
 
             ResultWrapper result = ResultWrapper.getInstance();
             result.setResult(invokeResult);
