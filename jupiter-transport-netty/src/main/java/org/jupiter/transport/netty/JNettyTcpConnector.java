@@ -64,7 +64,6 @@ public class JNettyTcpConnector extends NettyTcpConnector {
         }
     }
 
-    @SuppressWarnings("SynchronizationOnLocalVariableOrMethodParameter")
     @Override
     public JConnection connect(UnresolvedAddress remoteAddress, boolean async) {
         setOptions();
@@ -92,7 +91,7 @@ public class JNettyTcpConnector extends NettyTcpConnector {
 
         try {
             ChannelFuture future;
-            synchronized (boot) {
+            synchronized (bootstrapLock()) {
                 boot.handler(new ChannelInitializer<Channel>() {
 
                     @Override

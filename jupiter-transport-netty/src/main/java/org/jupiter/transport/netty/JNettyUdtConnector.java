@@ -51,7 +51,6 @@ public class JNettyUdtConnector extends NettyUdtConnector {
         bootstrap().channelFactory(NioUdtProvider.BYTE_CONNECTOR);
     }
 
-    @SuppressWarnings("SynchronizationOnLocalVariableOrMethodParameter")
     @Override
     public JConnection connect(UnresolvedAddress remoteAddress, boolean async) {
         setOptions();
@@ -78,7 +77,7 @@ public class JNettyUdtConnector extends NettyUdtConnector {
 
         try {
             ChannelFuture future;
-            synchronized (boot) {
+            synchronized (bootstrapLock()) {
                 boot.handler(new ChannelInitializer<UdtChannel>() {
 
                     @Override

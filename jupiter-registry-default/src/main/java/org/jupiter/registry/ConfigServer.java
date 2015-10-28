@@ -161,8 +161,7 @@ public class ConfigServer extends NettyTcpAcceptor implements RegistryMonitor {
         final ServiceMeta serviceMeta = meta.getServiceMeta();
         ConfigWithVersion<ConcurrentMap<Address, RegisterMeta>> config = registerInfoContext.getRegisterMeta(serviceMeta);
 
-        // noinspection SynchronizationOnLocalVariableOrMethodParameter
-        synchronized (config) {
+        synchronized (registerInfoContext.publishLock(config)) {
             // putIfAbsent和config.newVersion()需要是原子操作, 所以这里加锁
             if (config.getConfig().putIfAbsent(meta.getAddress(), meta) == null) {
                 registerInfoContext.getServiceMeta(meta.getAddress()).add(serviceMeta);
@@ -204,8 +203,7 @@ public class ConfigServer extends NettyTcpAcceptor implements RegistryMonitor {
             return;
         }
 
-        // noinspection SynchronizationOnLocalVariableOrMethodParameter
-        synchronized (config) {
+        synchronized (registerInfoContext.publishLock(config)) {
             // putIfAbsent和config.newVersion()需要是原子操作, 所以这里加锁
             Address address = meta.getAddress();
             RegisterMeta data = config.getConfig().remove(address);

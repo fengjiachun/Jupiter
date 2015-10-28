@@ -168,6 +168,10 @@ public abstract class NettyConnector extends AbstractJClient implements JConnect
         return bootstrap;
     }
 
+    public Object bootstrapLock() {
+        return bootstrap;
+    }
+
     public EventLoopGroup worker() {
         return worker;
     }

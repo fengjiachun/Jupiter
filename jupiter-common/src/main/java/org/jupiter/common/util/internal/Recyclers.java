@@ -141,14 +141,17 @@ public abstract class Recyclers<T> {
         private final WeakReference<Thread> owner;
         private final int id = idGenerator.getAndIncrement();
 
-        @SuppressWarnings("SynchronizationOnLocalVariableOrMethodParameter")
         WeakOrderQueue(Stack<?> stack, Thread thread) {
             head = tail = new Link();
             owner = new WeakReference<>(thread);
-            synchronized (stack) {
+            synchronized (stackLock(stack)) {
                 next = stack.head;
                 stack.head = this;
             }
+        }
+
+        private Object stackLock(Stack<?> stack) {
+            return stack;
         }
 
         void add(DefaultHandle<?> handle) {

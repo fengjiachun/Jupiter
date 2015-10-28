@@ -7,6 +7,7 @@ import org.jupiter.common.util.Maps;
 import java.util.List;
 import java.util.concurrent.ConcurrentMap;
 
+import static org.jupiter.common.util.Preconditions.checkNotNull;
 import static org.jupiter.registry.RegisterMeta.Address;
 import static org.jupiter.registry.RegisterMeta.ServiceMeta;
 
@@ -49,6 +50,10 @@ public class RegisterInfoContext {
             }
         }
         return serviceMetaSet;
+    }
+
+    public Object publishLock(ConfigWithVersion<ConcurrentMap<Address, RegisterMeta>> config) {
+        return checkNotNull(config, "publish lock");
     }
 
     // - Monitor -------------------------------------------------------------------------------------------------------

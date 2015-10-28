@@ -96,7 +96,6 @@ public class ConfigClient extends NettyTcpConnector {
     /**
      * ConfigClient不支持异步连接行为, async参数无效
      */
-    @SuppressWarnings("SynchronizationOnLocalVariableOrMethodParameter")
     @Override
     public JConnection connect(UnresolvedAddress remoteAddress, boolean async) {
         setOptions();
@@ -121,7 +120,7 @@ public class ConfigClient extends NettyTcpConnector {
 
         try {
             ChannelFuture future;
-            synchronized (boot) {
+            synchronized (bootstrapLock()) {
                 boot.handler(new ChannelInitializer<NioSocketChannel>() {
 
                     @Override
