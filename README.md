@@ -1,5 +1,8 @@
 Jupiter
-a rpc framework
+
+  a rpc framework
+  
+  example参见jupiter-example: org.jupiter.example.round.*
 
 
   ------------------------------------------------------------------
