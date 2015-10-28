@@ -45,6 +45,7 @@ TODO:
   -- Timers ----------------------------------------------------------------------
 
   org.jupiter.benchmark.tcp.ServiceImpl.Jupiter-1.0.0-Service.hello
+  
                count = 10697548
            mean rate = 100072.94 calls/second
        1-minute rate = 86585.73 calls/second
@@ -61,6 +62,7 @@ TODO:
                 99% <= 0.00 milliseconds
               99.9% <= 0.01 milliseconds
   org.jupiter.rpc.provider.processor.task.RecyclableTask.invocation.timer
+  
                count = 10698013
            mean rate = 100069.92 calls/second
        1-minute rate = 86576.08 calls/second
