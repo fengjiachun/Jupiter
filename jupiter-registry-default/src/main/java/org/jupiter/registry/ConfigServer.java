@@ -474,6 +474,7 @@ public class ConfigServer extends NettyTcpAcceptor implements RegistryMonitor {
                                 meta.setHost(((InetSocketAddress) address).getAddress().getHostAddress());
                             } else {
                                 logger.warn("Could not get remote host: {}, info: {}", channel, meta);
+
                                 return;
                             }
                         }
