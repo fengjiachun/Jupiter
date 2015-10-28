@@ -15,5 +15,8 @@ public interface RegistryMonitor {
      */
     List<String> getAllProviderHost();
 
+    /**
+     * 获取所有Consumer的地址列表
+     */
     List<String> getAllConsumerHost();
 }

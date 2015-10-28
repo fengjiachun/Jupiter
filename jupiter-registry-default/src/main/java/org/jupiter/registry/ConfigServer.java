@@ -143,7 +143,9 @@ public class ConfigServer extends NettyTcpAcceptor implements RegistryMonitor {
         for (Channel ch : subscriberChannels) {
             SocketAddress address = ch.remoteAddress();
             if (address instanceof InetSocketAddress) {
-                hosts.add(((InetSocketAddress) address).getAddress().getHostAddress());
+                String h = ((InetSocketAddress) address).getAddress().getHostAddress();
+                int p = ((InetSocketAddress) address).getPort();
+                hosts.add(h + ':' + p);
             }
         }
         return hosts;
