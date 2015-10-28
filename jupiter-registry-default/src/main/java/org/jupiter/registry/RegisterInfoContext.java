@@ -58,10 +58,7 @@ public class RegisterInfoContext {
 
     // - Monitor -------------------------------------------------------------------------------------------------------
 
-    /**
-     * 获取所有已注册过服务的Provider的地址
-     */
-    public List<Address> listProvidersHost() {
+    public List<Address> listPublisherHosts() {
         return Lists.newArrayList(globalServiceMetaMap.keySet());
     }
 }

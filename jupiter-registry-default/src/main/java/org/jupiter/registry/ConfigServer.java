@@ -128,8 +128,8 @@ public class ConfigServer extends NettyTcpAcceptor implements RegistryMonitor {
     }
 
     @Override
-    public List<String> getAllPublisherHost() {
-        List<Address> addresses = registerInfoContext.listProvidersHost();
+    public List<String> listPublisherHosts() {
+        List<Address> addresses = registerInfoContext.listPublisherHosts();
         List<String> hosts = Lists.newArrayListWithCapacity(addresses.size());
         for (Address a : addresses) {
             hosts.add(a.getHost());
@@ -138,14 +138,14 @@ public class ConfigServer extends NettyTcpAcceptor implements RegistryMonitor {
     }
 
     @Override
-    public List<String> getAllSubscriberHost() {
+    public List<String> listSubscriberAddresses() {
         List<String> hosts = Lists.newArrayList();
         for (Channel ch : subscriberChannels) {
             SocketAddress address = ch.remoteAddress();
             if (address instanceof InetSocketAddress) {
-                String h = ((InetSocketAddress) address).getAddress().getHostAddress();
-                int p = ((InetSocketAddress) address).getPort();
-                hosts.add(h + ':' + p);
+                String host = ((InetSocketAddress) address).getAddress().getHostAddress();
+                int port = ((InetSocketAddress) address).getPort();
+                hosts.add(host + ':' + port);
             }
         }
         return hosts;

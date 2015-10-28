@@ -13,10 +13,10 @@ public interface RegistryMonitor {
     /**
      * 获取所有Publisher的地址列表
      */
-    List<String> getAllPublisherHost();
+    List<String> listPublisherHosts();
 
     /**
      * 获取所有Subscriber的地址列表
      */
-    List<String> getAllSubscriberHost();
+    List<String> listSubscriberAddresses();
 }
