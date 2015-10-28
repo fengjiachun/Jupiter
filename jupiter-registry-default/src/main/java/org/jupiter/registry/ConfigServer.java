@@ -109,6 +109,7 @@ public class ConfigServer extends NettyTcpAcceptor implements RegistryMonitor {
 
         boot.channel(NioServerSocketChannel.class)
                 .childHandler(new ChannelInitializer<SocketChannel>() {
+
                     @Override
                     protected void initChannel(SocketChannel ch) throws Exception {
                         ch.pipeline().addLast(
