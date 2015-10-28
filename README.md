@@ -44,7 +44,7 @@ TODO:
   
   -- Histograms ------------------------------------------------------------------
   
-  org.jupiter.rpc.provider.processor.DefaultProviderProcessor.request.sizes
+  org.jupiter.rpc.provider.processor.DefaultProviderProcessor.request.size
   
                count = 10697193
                  min = 122
@@ -57,7 +57,7 @@ TODO:
                 98% <= 122.00
                 99% <= 122.00
               99.9% <= 122.00
-  org.jupiter.rpc.provider.processor.task.RecyclableTask.response.sizes
+  org.jupiter.rpc.provider.processor.task.RecyclableTask.response.size
   
                count = 10697143
                  min = 17
