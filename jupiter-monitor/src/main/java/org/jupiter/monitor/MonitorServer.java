@@ -14,9 +14,11 @@ import org.jupiter.common.util.SystemPropertyUtil;
 import org.jupiter.common.util.internal.logging.InternalLogger;
 import org.jupiter.common.util.internal.logging.InternalLoggerFactory;
 import org.jupiter.monitor.metric.MetricsReporter;
+import org.jupiter.registry.RegistryMonitor;
 import org.jupiter.transport.netty.NettyTcpAcceptor;
 
 import java.net.SocketAddress;
+import java.util.List;
 
 import static io.netty.channel.ChannelFutureListener.CLOSE;
 import static org.jupiter.common.util.JConstants.NEWLINE;
@@ -41,6 +43,8 @@ public class MonitorServer extends NettyTcpAcceptor {
     // handlers
     private final CommandHandler handler = new CommandHandler();
     private final StringEncoder encoder = new StringEncoder(UTF8);
+
+    private volatile RegistryMonitor monitor;
 
     public MonitorServer() {
         this(DEFAULT_PORT);
@@ -75,6 +79,10 @@ public class MonitorServer extends NettyTcpAcceptor {
         super.start(false);
     }
 
+    public void setMonitor(RegistryMonitor monitor) {
+        this.monitor = monitor;
+    }
+
     private static boolean checkAuth(Channel channel) {
         if (channel.attr(AUTH_KEY).get() == null) {
             channel.writeAndFlush("Permission denied" + NEWLINE).addListener(CLOSE);
@@ -104,7 +112,7 @@ public class MonitorServer extends NettyTcpAcceptor {
                     case AUTH:
                         if (args.length < 2) {
                             ctx.writeAndFlush("Need password!" + NEWLINE);
-                            break;
+                            return;
                         }
 
                         String password = SystemPropertyUtil.get("monitor.server.password");
@@ -145,7 +153,7 @@ public class MonitorServer extends NettyTcpAcceptor {
                         if (checkAuth(ctx.channel())) {
                             if (args.length < 2) {
                                 ctx.writeAndFlush("Need second arg!" + NEWLINE);
-                                break;
+                                return;
                             }
 
                             Command.ChildCommand child = command.parseChild(args[1]);
@@ -157,7 +165,7 @@ public class MonitorServer extends NettyTcpAcceptor {
                                         break;
                                 }
                             } else {
-                                ctx.writeAndFlush("Wrong args denied!" + NEWLINE).addListener(CLOSE);
+                                ctx.writeAndFlush("Wrong args denied!" + NEWLINE);
                             }
                         }
 
@@ -166,17 +174,36 @@ public class MonitorServer extends NettyTcpAcceptor {
                         if (checkAuth(ctx.channel())) {
                             if (args.length < 2) {
                                 ctx.writeAndFlush("Need second arg!" + NEWLINE);
-                                break;
+                                return;
                             }
 
                             Command.ChildCommand child = command.parseChild(args[1]);
                             if (child != null) {
                                 switch (child) {
                                     case PROVIDERS:
+                                        if (monitor == null) {
+                                            return;
+                                        }
+                                        List<String> hosts = monitor.getAllProvidersHost();
+                                        Command.ChildCommand childGrep = null;
+                                        if (args.length >= 4) {
+                                            childGrep = command.parseChild(args[2]);
+                                        }
+                                        for (String h : hosts) {
+                                            if (childGrep != null) {
+                                                if (h.contains(args[3])) {
+                                                    ctx.writeAndFlush(h + NEWLINE);
+                                                }
+                                            } else {
+                                                ctx.writeAndFlush(h + NEWLINE);
+                                            }
+                                        }
+
+                                        break;
                                     case CONSUMER:
                                 }
                             } else {
-                                ctx.writeAndFlush("Wrong args denied!" + NEWLINE).addListener(CLOSE);
+                                ctx.writeAndFlush("Wrong args denied!" + NEWLINE);
                             }
                         }
 

@@ -52,7 +52,7 @@ import static org.jupiter.transport.error.Signals.ILLEGAL_SIGN;
  *
  * @author jiachun.fjc
  */
-public class ConfigServer extends NettyTcpAcceptor {
+public class ConfigServer extends NettyTcpAcceptor implements RegistryMonitor {
 
     private static final InternalLogger logger = InternalLoggerFactory.getInstance(ConfigServer.class);
 
@@ -123,6 +123,16 @@ public class ConfigServer extends NettyTcpAcceptor {
         setOptions();
 
         return boot.bind(address);
+    }
+
+    @Override
+    public List<String> getAllProvidersHost() {
+        List<Address> addresses = registerInfoContext.listProvidersHost();
+        List<String> hosts = Lists.newArrayListWithCapacity(addresses.size());
+        for (Address a : addresses) {
+            hosts.add(a.getHost());
+        }
+        return hosts;
     }
 
     // 添加指定机器指定服务, 然后全量发布到所有客户端

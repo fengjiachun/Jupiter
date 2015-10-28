@@ -1,8 +1,10 @@
 package org.jupiter.registry;
 
 import org.jupiter.common.concurrent.ConcurrentSet;
+import org.jupiter.common.util.Lists;
 import org.jupiter.common.util.Maps;
 
+import java.util.List;
 import java.util.concurrent.ConcurrentMap;
 
 import static org.jupiter.registry.RegisterMeta.Address;
@@ -47,5 +49,14 @@ public class RegisterInfoContext {
             }
         }
         return serviceMetaSet;
+    }
+
+    // - Monitor -------------------------------------------------------------------------------------------------------
+
+    /**
+     * 获取所有已注册过服务的Provider的地址
+     */
+    public List<Address> listProvidersHost() {
+        return Lists.newArrayList(globalServiceMetaMap.keySet());
     }
 }
