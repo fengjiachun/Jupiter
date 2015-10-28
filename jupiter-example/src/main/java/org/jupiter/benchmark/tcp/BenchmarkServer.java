@@ -23,7 +23,7 @@ public class BenchmarkServer {
         SystemPropertyUtil
                 .setProperty("jupiter.metric.report.period", "1");
 
-        NettyAcceptor server = new JNettyTcpAcceptor(18090, processors);
+        NettyAcceptor server = new JNettyTcpAcceptor(18099, processors);
         MonitorServer monitor = new MonitorServer();
         try {
             monitor.start();
