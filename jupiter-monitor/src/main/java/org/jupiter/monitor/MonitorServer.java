@@ -200,7 +200,7 @@ public class MonitorServer extends NettyTcpAcceptor {
                                         }
 
                                         break;
-                                    case CONSUMER:
+                                    case CONSUMERS:
                                 }
                             } else {
                                 ctx.writeAndFlush("Wrong args denied!" + NEWLINE);
