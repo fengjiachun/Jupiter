@@ -80,8 +80,8 @@ public class BenchmarkClient {
 
                             String result = service.hello("jupiter");
 
-                            if (logger.isInfoEnabled()) {
-                                logger.info(result + " time cost=" + (SystemClock.millisClock().now() - s));
+                            if (logger.isDebugEnabled()) {
+                                logger.debug(result + " time cost=" + (SystemClock.millisClock().now() - s));
                             }
                             if (count.getAndIncrement() % 5000 == 0) {
                                 logger.warn("count=" + count.get());

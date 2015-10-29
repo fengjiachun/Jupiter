@@ -31,11 +31,11 @@ public class TaskHandler implements
 
     @Override
     public void onStart() {
-        logger.info("Task handler on start: {}.", Thread.currentThread().getName());
+        logger.debug("Task handler on start: {}.", Thread.currentThread().getName());
     }
 
     @Override
     public void onShutdown() {
-        logger.info("Task handler on shutdown: {}.", Thread.currentThread().getName());
+        logger.debug("Task handler on shutdown: {}.", Thread.currentThread().getName());
     }
 }

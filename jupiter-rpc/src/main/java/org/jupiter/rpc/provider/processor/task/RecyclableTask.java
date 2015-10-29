@@ -99,7 +99,7 @@ public class RecyclableTask implements RejectedRunnable {
                         responseSizes.update(bodySize);
                         invocationTimer.update(duration, TimeUnit.MILLISECONDS);
 
-                        logger.info("Service response has sent out: {}, response body size: {}, duration: {} millis.",
+                        logger.debug("Service response has sent out: {}, response body size: {}, duration: {} millis.",
                                 id, bodySize, duration);
                     } else {
                         logger.warn("Service response sent failed: {}, response body size: {}, duration: {} millis.",
@@ -151,7 +151,7 @@ public class RecyclableTask implements RejectedRunnable {
                 @Override
                 public void operationComplete(JChannel ch, boolean isSuccess) throws Exception {
                     if (isSuccess) {
-                        logger.info("Service rejection has sent out: {}.", id);
+                        logger.debug("Service rejection has sent out: {}.", id);
                     } else {
                         logger.warn("Service rejection sent failed: {}.", id);
                     }

@@ -420,7 +420,7 @@ public class ConfigServer extends NettyTcpAcceptor implements RegistryMonitor {
                 case BODY:
                     switch (header.sign()) {
                         case HEARTBEAT:
-                            logger.info("Heartbeat on channel {}.", ch);
+                            logger.debug("Heartbeat on channel {}.", ch);
 
                             break;
                         case PUBLISH_SERVICE:

@@ -276,12 +276,12 @@ public class ProxyFactory {
 
         @Override
         public void before(Request request) {
-            logger.info("Request: [{}], {}.", request.invokeId(), request.message());
+            logger.debug("Request: [{}], {}.", request.invokeId(), request.message());
         }
 
         @Override
         public void after(Request request) {
-            logger.info("Request: [{}], has respond.", request.invokeId());
+            logger.debug("Request: [{}], has respond.", request.invokeId());
         }
     };
 

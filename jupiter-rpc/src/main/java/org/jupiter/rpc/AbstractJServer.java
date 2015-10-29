@@ -179,7 +179,7 @@ public abstract class AbstractJServer implements JServer {
         public void registerService(String uniqueKey, ServiceWrapper serviceWrapper) {
             serviceProviders.put(uniqueKey, serviceWrapper);
 
-            logger.info("ServiceProvider [{}, {}] is registered.", uniqueKey, serviceWrapper.getServiceProvider());
+            logger.debug("ServiceProvider [{}, {}] is registered.", uniqueKey, serviceWrapper.getServiceProvider());
         }
 
         @Override
@@ -193,7 +193,7 @@ public abstract class AbstractJServer implements JServer {
             if (provider == null) {
                 logger.warn("ServiceProvider [{}] not found.", uniqueKey);
             } else {
-                logger.info("ServiceProvider [{}, {}] is removed.", uniqueKey, provider.getServiceProvider());
+                logger.debug("ServiceProvider [{}, {}] is removed.", uniqueKey, provider.getServiceProvider());
             }
             return provider;
         }

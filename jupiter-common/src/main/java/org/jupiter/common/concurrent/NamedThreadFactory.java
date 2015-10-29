@@ -61,7 +61,7 @@ public class NamedThreadFactory implements ThreadFactory {
             }
         } catch (Exception ignored) { /* Doesn't matter even if failed to set. */ }
 
-        logger.info("Creates new {}.", t);
+        logger.debug("Creates new {}.", t);
 
         return t;
     }

@@ -63,7 +63,7 @@ public class ProtocolDecoder extends ReplayingDecoder<ProtocolDecoder.State> {
                 switch (header.sign()) {
                     case HEARTBEAT:
 
-                        logger.info("Heartbeat on channel {}.", ch);
+                        logger.debug("Heartbeat on channel {}.", ch);
 
                         break;
                     case REQUEST:
@@ -75,7 +75,7 @@ public class ProtocolDecoder extends ReplayingDecoder<ProtocolDecoder.State> {
                         request.bytes(messageBytes);
                         out.add(request);
 
-                        logger.info("Request [{}], on channel {}.", header, ch);
+                        logger.debug("Request [{}], on channel {}.", header, ch);
 
                         break;
                     case RESPONSE:
@@ -87,7 +87,7 @@ public class ProtocolDecoder extends ReplayingDecoder<ProtocolDecoder.State> {
                         response.bytes(resultBytes);
                         out.add(response);
 
-                        logger.info("Response [{}], on channel {}.", header, ch);
+                        logger.debug("Response [{}], on channel {}.", header, ch);
 
                         break;
                     default:
