@@ -11,7 +11,7 @@ import static org.jupiter.transport.JProtocolHeader.ACK;
 import static org.jupiter.transport.JProtocolHeader.MAGIC;
 
 /**
- * ACK encoder
+ * ACK encoder.
  *
  * jupiter
  * org.jupiter.transport.netty.handler

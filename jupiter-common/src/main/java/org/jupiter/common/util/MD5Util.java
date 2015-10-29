@@ -6,7 +6,7 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
 /**
- * MD5转换
+ * MD5转换工具
  *
  * jupiter
  * org.jupiter.common.util

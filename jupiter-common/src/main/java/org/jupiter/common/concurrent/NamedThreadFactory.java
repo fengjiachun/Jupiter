@@ -9,7 +9,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import static org.jupiter.common.util.Preconditions.checkNotNull;
 
 /**
- * Named thread factory
+ * Named thread factory.
  *
  * jupiter
  * org.jupiter.common.util

@@ -2,6 +2,11 @@ package org.jupiter.common.util;
 
 /**
  * Power of 2 utility functions.
+ *
+ * jupiter
+ * org.jupiter.common.util
+ *
+ * @author jiachun.fjc
  */
 public class Pow2 {
 

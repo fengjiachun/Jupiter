@@ -34,7 +34,6 @@ import static org.jupiter.rpc.DispatchMode.ROUND;
 /**
  * ProxyFactory是池化的, 每次 {@link #create()} 即可, 使用完后会自动回收, 不要创建一个反复使用.
  *
- *
  * jupiter
  * org.jupiter.rpc.consumer
  *
