@@ -1,6 +1,7 @@
 package org.jupiter.monitor;
 
 import org.jupiter.common.util.Maps;
+import org.jupiter.monitor.handler.*;
 
 import java.util.Map;
 
@@ -15,22 +16,28 @@ import static org.jupiter.monitor.Command.ChildCommand.*;
  * @author jiachun.fjc
  */
 public enum Command {
-    AUTH("Login with password"),
-    HELP("Help information"),
-    METRICS("Performance metrics", REPORT),
-    REGISTRY("Registry info(P/S command must follow behind ADDRESS)", ADDRESS, P, S, BY_SERVICE, BY_ADDRESS, GREP),
-    QUIT("Quit monitor");
+    AUTH("Login with password", new AuthHandler()),
+    HELP("Help information", new HelpHandler()),
+    METRICS("Performance metrics", new MetricsHandler(), REPORT),
+    REGISTRY("Registry info(P/S command must follow behind ADDRESS)", new RegistryHandler(), ADDRESS, P, S, BY_SERVICE, BY_ADDRESS, GREP),
+    QUIT("Quit monitor", new QuitHandler());
 
-    private String description;
-    private ChildCommand[] children;
+    private final String description;
+    private final CommandHandler handler;
+    private final ChildCommand[] children;
 
-    Command(String description, ChildCommand... children) {
+    Command(String description, CommandHandler handler, ChildCommand... children) {
         this.description = description;
+        this.handler = handler;
         this.children = children;
     }
 
     public String description() {
         return description;
+    }
+
+    public CommandHandler handler() {
+        return handler;
     }
 
     public ChildCommand[] children() {
@@ -61,22 +68,28 @@ public enum Command {
     }
 
     public enum ChildCommand {
-        REPORT("Report the current values of all metrics in the registry"),
-        ADDRESS("List all publisher/subscriber's addresses"),
-        BY_SERVICE("List all providers by service name"),
-        BY_ADDRESS("List all services by addresses"),
-        P("Publisher"),
-        S("Subscriber"),
-        GREP("Search for pattern in each line");
+        REPORT("Report the current values of all metrics in the registry", null),
+        ADDRESS("List all publisher/subscriber's addresses", new AddressHandler()),
+        BY_SERVICE("List all providers by service name", new ByServiceHandler()),
+        BY_ADDRESS("List all services by addresses", new ByAddressHandler()),
+        P("Publisher", null),
+        S("Subscriber", null),
+        GREP("Search for pattern in each line", null);
 
-        private String description;
+        private final String description;
+        private final CommandHandler handler;
 
-        ChildCommand(String description) {
+        ChildCommand(String description, CommandHandler handler) {
             this.description = description;
+            this.handler = handler;
         }
 
         public String description() {
             return description;
+        }
+
+        public CommandHandler handler() {
+            return handler;
         }
     }
 }
