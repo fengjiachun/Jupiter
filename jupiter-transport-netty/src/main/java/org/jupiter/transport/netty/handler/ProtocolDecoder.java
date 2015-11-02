@@ -66,30 +66,32 @@ public class ProtocolDecoder extends ReplayingDecoder<ProtocolDecoder.State> {
                         logger.debug("Heartbeat on channel {}.", ch);
 
                         break;
-                    case REQUEST:
-                        byte[] messageBytes = new byte[header.bodyLength()];
-                        in.readBytes(messageBytes);
+                    case REQUEST: {
+                        byte[] bytes = new byte[header.bodyLength()];
+                        in.readBytes(bytes);
 
                         Request request = new Request(header.id());
                         request.timestamps(SystemClock.millisClock().now());
-                        request.bytes(messageBytes);
+                        request.bytes(bytes);
                         out.add(request);
 
                         logger.debug("Request [{}], on channel {}.", header, ch);
 
                         break;
-                    case RESPONSE:
-                        byte[] resultBytes = new byte[header.bodyLength()];
-                        in.readBytes(resultBytes);
+                    }
+                    case RESPONSE: {
+                        byte[] bytes = new byte[header.bodyLength()];
+                        in.readBytes(bytes);
 
                         Response response = new Response(header.id());
                         response.status(header.status());
-                        response.bytes(resultBytes);
+                        response.bytes(bytes);
                         out.add(response);
 
                         logger.debug("Response [{}], on channel {}.", header, ch);
 
                         break;
+                    }
                     default:
                         throw ILLEGAL_SIGN;
                 }
