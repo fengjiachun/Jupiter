@@ -19,8 +19,6 @@ import java.util.concurrent.ConcurrentMap;
  */
 public class ProtoStuffSerializer implements Serializer {
 
-    private static ConcurrentMap<Class<?>, Schema<?>> schemaCache = Maps.newConcurrentHashMap();
-
     /**
      * If true, the constructor will always be obtained from {@code ReflectionFactory.newConstructorFromSerialization}.
      *
@@ -31,6 +29,16 @@ public class ProtoStuffSerializer implements Serializer {
      * applies to java beans/data objects.
      */
     public static final boolean ALWAYS_USE_SUN_REFLECTION_FACTORY = true;
+
+    private static final ConcurrentMap<Class<?>, Schema<?>> schemaCache = Maps.newConcurrentHashMap();
+
+    private static final ThreadLocal<LinkedBuffer> bufThreadLocal = new ThreadLocal<LinkedBuffer>() {
+
+        @Override
+        protected LinkedBuffer initialValue() {
+            return LinkedBuffer.allocate();
+        }
+    };
 
     static {
         // RuntimeEnv
@@ -43,11 +51,11 @@ public class ProtoStuffSerializer implements Serializer {
     public <T> byte[] writeObject(T obj) {
         Schema<T> schema = getSchema((Class<T>) obj.getClass());
 
-        LinkedBuffer buf = LinkedBuffer.allocate();
+        LinkedBuffer buf = bufThreadLocal.get();
         try {
             return ProtostuffIOUtil.toByteArray(obj, schema, buf);
         } finally {
-            buf.clear();
+            bufThreadLocal.set(buf.clear());
         }
     }
 
