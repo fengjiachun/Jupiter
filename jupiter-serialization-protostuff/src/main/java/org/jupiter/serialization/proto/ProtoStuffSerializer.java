@@ -30,6 +30,12 @@ public class ProtoStuffSerializer implements Serializer {
      */
     public static final boolean ALWAYS_USE_SUN_REFLECTION_FACTORY = true;
 
+    static {
+        // RuntimeEnv
+        SystemPropertyUtil.setProperty(
+                "protostuff.runtime.always_use_sun_reflection_factory", String.valueOf(ALWAYS_USE_SUN_REFLECTION_FACTORY));
+    }
+
     private static final ConcurrentMap<Class<?>, Schema<?>> schemaCache = Maps.newConcurrentHashMap();
 
     private static final ThreadLocal<LinkedBuffer> bufThreadLocal = new ThreadLocal<LinkedBuffer>() {
@@ -39,12 +45,6 @@ public class ProtoStuffSerializer implements Serializer {
             return LinkedBuffer.allocate();
         }
     };
-
-    static {
-        // RuntimeEnv
-        SystemPropertyUtil.setProperty(
-                "protostuff.runtime.always_use_sun_reflection_factory", String.valueOf(ALWAYS_USE_SUN_REFLECTION_FACTORY));
-    }
 
     @SuppressWarnings("unchecked")
     @Override
