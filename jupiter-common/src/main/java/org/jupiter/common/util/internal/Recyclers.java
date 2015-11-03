@@ -1,5 +1,7 @@
 package org.jupiter.common.util.internal;
 
+import org.jupiter.common.util.SystemPropertyUtil;
+
 import java.lang.ref.WeakReference;
 import java.util.Arrays;
 import java.util.Map;
@@ -22,7 +24,12 @@ public abstract class Recyclers<T> {
     private static final int INITIAL_CAPACITY;
 
     static {
-        DEFAULT_MAX_CAPACITY = 262144;
+        int maxCapacity = SystemPropertyUtil.getInt("jupiter.recyclers.maxCapacity", 0);
+        if (maxCapacity <= 0) {
+            maxCapacity = 65536;
+        }
+
+        DEFAULT_MAX_CAPACITY = maxCapacity;
         INITIAL_CAPACITY = Math.min(DEFAULT_MAX_CAPACITY, 256);
     }
 
