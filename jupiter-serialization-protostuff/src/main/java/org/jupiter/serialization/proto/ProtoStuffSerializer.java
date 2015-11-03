@@ -52,9 +52,9 @@ public class ProtoStuffSerializer implements Serializer {
                 "protostuff.runtime.always_use_sun_reflection_factory", String.valueOf(ALWAYS_USE_SUN_REFLECTION_FACTORY));
     }
 
-    private static final ConcurrentMap<Class<?>, Schema<?>> schemaCache = Maps.newConcurrentHashMap();
+    private final ConcurrentMap<Class<?>, Schema<?>> schemaCache = Maps.newConcurrentHashMap();
 
-    private static final ThreadLocal<LinkedBuffer> bufThreadLocal = new ThreadLocal<LinkedBuffer>() {
+    private final ThreadLocal<LinkedBuffer> bufThreadLocal = new ThreadLocal<LinkedBuffer>() {
 
         @Override
         protected LinkedBuffer initialValue() {
