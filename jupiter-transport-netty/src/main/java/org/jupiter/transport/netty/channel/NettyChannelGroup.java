@@ -28,6 +28,8 @@ import org.jupiter.rpc.channel.JChannel;
 import org.jupiter.rpc.channel.JChannelGroup;
 
 import java.lang.reflect.Field;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -242,11 +244,13 @@ public class NettyChannelGroup implements JChannelGroup {
 
     @Override
     public String toString() {
+        SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss");
+
         return "NettyChannelGroup{" +
                 "channels=" + channels +
                 ", weight=" + weight +
                 ", warmUp=" + warmUp +
-                ", timestamps=" + timestamps +
+                ", time=" + formatter.format(new Date(timestamps)) +
                 ", address=" + address +
                 '}';
     }
