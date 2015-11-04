@@ -23,6 +23,7 @@ import io.netty.util.Attribute;
 import io.netty.util.AttributeKey;
 import org.jupiter.rpc.channel.JChannel;
 import org.jupiter.rpc.channel.JFutureListener;
+import org.jupiter.transport.netty.handler.connector.ConnectionWatchdog;
 
 import java.net.SocketAddress;
 
@@ -93,6 +94,12 @@ public class NettyChannel implements JChannel {
     @Override
     public boolean isWritable() {
         return channel.isWritable();
+    }
+
+    @Override
+    public boolean isReconnect() {
+        ConnectionWatchdog watchdog = channel.pipeline().get(ConnectionWatchdog.class);
+        return watchdog != null && watchdog.isReconnect();
     }
 
     @Override

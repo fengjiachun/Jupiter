@@ -22,7 +22,9 @@ import io.netty.channel.*;
 import io.netty.channel.socket.nio.NioSocketChannel;
 import io.netty.handler.codec.MessageToByteEncoder;
 import io.netty.handler.codec.ReplayingDecoder;
-import io.netty.util.*;
+import io.netty.util.Attribute;
+import io.netty.util.AttributeKey;
+import io.netty.util.ReferenceCountUtil;
 import org.jupiter.common.concurrent.ConcurrentSet;
 import org.jupiter.common.util.Maps;
 import org.jupiter.common.util.Pair;
@@ -42,8 +44,8 @@ import org.jupiter.transport.error.Signals;
 import org.jupiter.transport.netty.NettyTcpConnector;
 import org.jupiter.transport.netty.channel.NettyChannel;
 import org.jupiter.transport.netty.handler.AcknowledgeEncoder;
-import org.jupiter.transport.netty.handler.ChannelHandlerHolder;
 import org.jupiter.transport.netty.handler.IdleStateChecker;
+import org.jupiter.transport.netty.handler.connector.ConnectionWatchdog;
 import org.jupiter.transport.netty.handler.connector.ConnectorIdleStateTrigger;
 
 import java.util.List;
@@ -53,7 +55,8 @@ import java.util.concurrent.TimeUnit;
 import static org.jupiter.common.util.JConstants.WRITER_IDLE_TIME_SECONDS;
 import static org.jupiter.common.util.Preconditions.checkNotNull;
 import static org.jupiter.common.util.StackTraceUtil.stackTrace;
-import static org.jupiter.registry.RegisterMeta.*;
+import static org.jupiter.registry.RegisterMeta.Address;
+import static org.jupiter.registry.RegisterMeta.ServiceMeta;
 import static org.jupiter.transport.JProtocolHeader.*;
 import static org.jupiter.transport.error.Signals.ILLEGAL_MAGIC;
 import static org.jupiter.transport.error.Signals.ILLEGAL_SIGN;
@@ -119,7 +122,7 @@ public class ConfigClient extends NettyTcpConnector {
         Bootstrap boot = bootstrap();
 
         // 重连watchdog
-        final ConnectionWatchdog watchdog = new ConnectionWatchdog(boot, timer, remoteAddress) {
+        final ConnectionWatchdog watchdog = new ConnectionWatchdog(boot, timer, remoteAddress, null) {
 
             @Override
             public ChannelHandler[] handlers() {
@@ -438,93 +441,6 @@ public class ConfigClient extends NettyTcpConnector {
             } else {
                 logger.error("An exception has been caught {}, on {}.", stackTrace(cause), jChannel);
             }
-        }
-    }
-
-    @ChannelHandler.Sharable
-    public abstract class ConnectionWatchdog extends ChannelInboundHandlerAdapter implements TimerTask, ChannelHandlerHolder {
-        private final Bootstrap bootstrap;
-        private final Timer timer;
-        private final UnresolvedAddress remoteAddress;
-
-        private volatile boolean reconnect = true;
-        private int attempts;
-
-        public ConnectionWatchdog(Bootstrap bootstrap, Timer timer, UnresolvedAddress remoteAddress) {
-            this.bootstrap = bootstrap;
-            this.timer = timer;
-            this.remoteAddress = remoteAddress;
-        }
-
-        public void setReconnect(boolean reconnect) {
-            this.reconnect = reconnect;
-        }
-
-        @Override
-        public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
-            Channel ch = ctx.channel();
-
-            logger.error("An exception has been caught {}, on {}.", stackTrace(cause), ch);
-
-            ch.close();
-        }
-
-        @Override
-        public void channelActive(ChannelHandlerContext ctx) throws Exception {
-            attempts = 0;
-
-            logger.info("Connects with {}.", ctx.channel());
-
-            ctx.fireChannelActive();
-        }
-
-        @Override
-        public void channelInactive(ChannelHandlerContext ctx) throws Exception {
-            boolean doReconnect = reconnect;
-            if (doReconnect) {
-                if (attempts < 12) {
-                    attempts++;
-                }
-                int timeout = 2 << attempts;
-                timer.newTimeout(this, timeout, TimeUnit.MILLISECONDS);
-            }
-
-            logger.warn("Disconnects with {}, address: [{}:{}], reconnect: {}.",
-                    ctx.channel(), remoteAddress.getHost(), remoteAddress.getPort(), doReconnect);
-
-            ctx.fireChannelInactive();
-        }
-
-        @Override
-        public void run(Timeout timeout) throws Exception {
-            ChannelFuture future;
-            final String host = remoteAddress.getHost();
-            final int port = remoteAddress.getPort();
-            synchronized (bootstrap) {
-                bootstrap.handler(new ChannelInitializer<Channel>() {
-
-                    @Override
-                    protected void initChannel(Channel ch) throws Exception {
-                        ch.pipeline().addLast(handlers());
-                    }
-                });
-                future = bootstrap.connect(host, port);
-            }
-
-            future.addListener(new ChannelFutureListener() {
-
-                @Override
-                public void operationComplete(ChannelFuture f) throws Exception {
-                    boolean succeed = f.isSuccess();
-                    Channel ch = f.channel();
-
-                    logger.warn("Reconnects with [{}:{}] {}.", host, port, succeed ? "succeed" : "failed");
-
-                    if (!succeed) {
-                        ch.pipeline().fireChannelInactive();
-                    }
-                }
-            });
         }
     }
 

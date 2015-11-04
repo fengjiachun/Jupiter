@@ -64,6 +64,11 @@ public interface JChannel {
     boolean isWritable();
 
     /**
+     * Is set up automatic reconnection.
+     */
+    boolean isReconnect();
+
+    /**
      * Request to close this {@link JChannel}.
      */
     JChannel close();

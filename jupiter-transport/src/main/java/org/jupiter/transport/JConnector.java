@@ -57,8 +57,9 @@ public interface JConnector<C> extends Transporter {
         void start();
 
         /**
-         * Wait until the connections is available
+         * Wait until the connections is available or timeout,
+         * if available return true, otherwise return false.
          */
-        void waitForAvailable(long timeoutMillis);
+        boolean waitForAvailable(long timeoutMillis);
     }
 }

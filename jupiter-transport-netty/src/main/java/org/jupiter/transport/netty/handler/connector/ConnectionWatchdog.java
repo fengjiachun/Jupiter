@@ -60,17 +60,24 @@ public abstract class ConnectionWatchdog extends ChannelInboundHandlerAdapter im
         this.group = group;
     }
 
+    public boolean isReconnect() {
+        return reconnect;
+    }
+
     public void setReconnect(boolean reconnect) {
         this.reconnect = reconnect;
     }
 
     @Override
     public void channelActive(ChannelHandlerContext ctx) throws Exception {
-        NettyChannel nChannel = NettyChannel.attachChannel(ctx.channel());
-        group.add(nChannel);
+        Channel channel = ctx.channel();
+        if (group != null) {
+            group.add(NettyChannel.attachChannel(channel));
+        }
+
         attempts = 0;
 
-        logger.info("Connects with {}.", nChannel);
+        logger.info("Connects with {}.", channel);
 
         ctx.fireChannelActive();
     }

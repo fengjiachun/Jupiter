@@ -32,6 +32,7 @@ import org.jupiter.registry.RegisterMeta;
 import org.jupiter.rpc.AbstractJClient;
 import org.jupiter.rpc.Directory;
 import org.jupiter.rpc.UnresolvedAddress;
+import org.jupiter.rpc.channel.JChannel;
 import org.jupiter.rpc.channel.JChannelGroup;
 import org.jupiter.transport.*;
 import org.jupiter.transport.netty.channel.NettyChannelGroup;
@@ -110,7 +111,17 @@ public abstract class NettyConnector extends AbstractJClient implements JConnect
                         for (RegisterMeta meta : registerMetaList) {
                             final UnresolvedAddress address = new UnresolvedAddress(meta.getHost(), meta.getPort());
                             JChannelGroup group = group(address);
-                            if (group.isEmpty()) {
+
+                            // 每个group存放的是相同对端地址的channel, 如果group不为空且至少有一个channel自动重连
+                            // 被设置为true就不用再建立连接了
+                            boolean shouldConnect = true;
+                            for (JChannel channel : group.channels()) {
+                                if (channel.isActive() && channel.isReconnect()) {
+                                    shouldConnect = false;
+                                    break;
+                                }
+                            }
+                            if (shouldConnect) {
                                 JConnection connection = connect(address);
                                 JConnectionManager.manage(connection);
 
@@ -140,10 +151,12 @@ public abstract class NettyConnector extends AbstractJClient implements JConnect
             }
 
             @Override
-            public void waitForAvailable(long timeoutMillis) {
+            public boolean waitForAvailable(long timeoutMillis) {
                 if (isDirectoryAvailable(directory)) {
-                    return;
+                    return true;
                 }
+
+                boolean isAvailable = false;
 
                 long start = System.nanoTime();
                 final ReentrantLock _look = lock;
@@ -153,7 +166,11 @@ public abstract class NettyConnector extends AbstractJClient implements JConnect
                         signalNeeded.getAndSet(true);
                         notifyCondition.await(timeoutMillis, MILLISECONDS);
 
-                        if (isDirectoryAvailable(directory) || (System.nanoTime() - start) > MILLISECONDS.toNanos(timeoutMillis)) {
+                        if (isDirectoryAvailable(directory)) {
+                            isAvailable = true;
+                            break;
+                        }
+                        if ((System.nanoTime() - start) > MILLISECONDS.toNanos(timeoutMillis)) {
                             break;
                         }
                     }
@@ -162,6 +179,7 @@ public abstract class NettyConnector extends AbstractJClient implements JConnect
                 } finally {
                     _look.unlock();
                 }
+                return isAvailable;
             }
         };
 

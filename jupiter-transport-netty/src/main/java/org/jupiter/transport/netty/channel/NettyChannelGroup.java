@@ -18,6 +18,8 @@ package org.jupiter.transport.netty.channel;
 
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelFutureListener;
+import org.jupiter.common.util.Function;
+import org.jupiter.common.util.Lists;
 import org.jupiter.common.util.Reflects;
 import org.jupiter.common.util.SystemClock;
 import org.jupiter.common.util.internal.UnsafeAccess;
@@ -26,6 +28,7 @@ import org.jupiter.rpc.channel.JChannel;
 import org.jupiter.rpc.channel.JChannelGroup;
 
 import java.lang.reflect.Field;
+import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -58,6 +61,7 @@ public class NettyChannelGroup implements JChannelGroup {
 
     private final CopyOnWriteArrayList<NettyChannel> channels = new CopyOnWriteArrayList<>();
 
+    // 连接断开时自动被移除
     private final ChannelFutureListener remover = new ChannelFutureListener() {
 
         @Override
@@ -88,7 +92,6 @@ public class NettyChannelGroup implements JChannelGroup {
 
     @Override
     public JChannel next() {
-        boolean hasWaited = false;
         for (;;) {
             // 请原谅下面这段放荡不羁的糟糕代码
             Object[] array; // The snapshot of channels array
@@ -99,9 +102,7 @@ public class NettyChannelGroup implements JChannelGroup {
             }
 
             if (array.length == 0) {
-                if (!hasWaited) {
-                    waitForAvailable(1000);
-                    hasWaited = true;
+                if (waitForAvailable(1500)) { // Wait a moment
                     continue;
                 }
                 throw new IllegalStateException("no channel");
@@ -115,6 +116,17 @@ public class NettyChannelGroup implements JChannelGroup {
 
             return (JChannel) array[offset];
         }
+    }
+
+    @Override
+    public List<JChannel> channels() {
+        return Lists.transform(Lists.newArrayList(channels), new Function<NettyChannel, JChannel>() {
+
+            @Override
+            public JChannel apply(NettyChannel input) {
+                return input;
+            }
+        });
     }
 
     @Override
@@ -152,26 +164,35 @@ public class NettyChannelGroup implements JChannelGroup {
     }
 
     @Override
-    public void waitForAvailable(long timeoutMillis) {
-        if (channels.isEmpty()) {
-            long start = System.nanoTime();
-            final ReentrantLock _look = lock;
-            _look.lock();
-            try {
-                while (channels.isEmpty()) {
-                    signalNeeded.getAndSet(true);
-                    notifyCondition.await(timeoutMillis, MILLISECONDS);
-
-                    if (!channels.isEmpty() || (System.nanoTime() - start) > MILLISECONDS.toNanos(timeoutMillis)) {
-                        break;
-                    }
-                }
-            } catch (InterruptedException e) {
-                UnsafeAccess.UNSAFE.throwException(e);
-            } finally {
-                _look.unlock();
-            }
+    public boolean waitForAvailable(long timeoutMillis) {
+        if (!channels.isEmpty()) {
+            return true;
         }
+
+        boolean isAvailable = false;
+
+        long start = System.nanoTime();
+        final ReentrantLock _look = lock;
+        _look.lock();
+        try {
+            while (channels.isEmpty()) {
+                signalNeeded.getAndSet(true);
+                notifyCondition.await(timeoutMillis, MILLISECONDS);
+
+                if (!channels.isEmpty()) {
+                    isAvailable = true;
+                    break;
+                }
+                if ((System.nanoTime() - start) > MILLISECONDS.toNanos(timeoutMillis)) {
+                    break;
+                }
+            }
+        } catch (InterruptedException e) {
+            UnsafeAccess.UNSAFE.throwException(e);
+        } finally {
+            _look.unlock();
+        }
+        return isAvailable;
     }
 
     @Override

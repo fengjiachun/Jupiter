@@ -21,6 +21,7 @@ import org.jupiter.rpc.Directory;
 import org.jupiter.rpc.consumer.ProxyFactory;
 import org.jupiter.rpc.model.metadata.ServiceMetadata;
 import org.jupiter.transport.JConnector;
+import org.jupiter.transport.error.ConnectFailedException;
 import org.jupiter.transport.netty.JNettyTcpConnector;
 import org.jupiter.transport.netty.NettyConnector;
 
@@ -41,7 +42,9 @@ public class HelloJupiterClient {
         // 自动管理可用连接
         JConnector.ConnectionManager manager = connector.manageConnections(directory);
         // 等待连接可用
-        manager.waitForAvailable(3000);
+        if (!manager.waitForAvailable(3000)) {
+            throw new ConnectFailedException();
+        }
 
         ServiceTest service = ProxyFactory
                 .create()

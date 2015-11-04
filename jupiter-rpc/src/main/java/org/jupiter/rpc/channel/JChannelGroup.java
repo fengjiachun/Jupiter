@@ -18,6 +18,8 @@ package org.jupiter.rpc.channel;
 
 import org.jupiter.rpc.UnresolvedAddress;
 
+import java.util.List;
+
 /**
  * Based on the same address of the channel group.
  *
@@ -39,6 +41,11 @@ public interface JChannelGroup {
     JChannel next();
 
     /**
+     * Returns all {@link JChannel}s in the group.
+     */
+    List<JChannel> channels();
+
+    /**
      * Returns <tt>true</tt> if this group contains no {@link JChannel}.
      */
     boolean isEmpty();
@@ -58,7 +65,11 @@ public interface JChannelGroup {
      */
     int size();
 
-    void waitForAvailable(long timeoutMillis);
+    /**
+     * Wait until the {@link JChannel}s are available or timeout,
+     * if available return true, otherwise return false.
+     */
+    boolean waitForAvailable(long timeoutMillis);
 
     void setWeight(int weight);
 
