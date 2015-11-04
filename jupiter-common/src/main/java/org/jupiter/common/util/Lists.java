@@ -102,7 +102,6 @@ public final class Lists {
     }
 
     private static class TransformingRandomAccessList<F, T> extends AbstractList<T> implements RandomAccess, Serializable {
-
         private static final long serialVersionUID = 0;
 
         final List<F> fromList;
