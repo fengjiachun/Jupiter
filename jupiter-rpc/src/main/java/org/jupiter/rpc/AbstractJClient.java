@@ -115,24 +115,24 @@ public abstract class AbstractJClient implements JClient {
 
     @Override
     public Collection<RegisterMeta> lookup(Directory directory) {
-        ServiceMeta serviceMeta = cast2ServiceMeta(directory);
+        ServiceMeta serviceMeta = transform2ServiceMeta(directory);
 
         return registryService.lookup(serviceMeta);
     }
 
     @Override
     public void subscribe(Directory directory, NotifyListener listener) {
-        registryService.subscribe(cast2ServiceMeta(directory), listener);
+        registryService.subscribe(transform2ServiceMeta(directory), listener);
     }
 
     @Override
     public void offlineListening(UnresolvedAddress address, OfflineListener listener) {
-        registryService.offlineListening(cast2Address(address), listener);
+        registryService.offlineListening(transform2Address(address), listener);
     }
 
     protected abstract JChannelGroup newChannelGroup(UnresolvedAddress address);
 
-    private static ServiceMeta cast2ServiceMeta(Directory directory) {
+    private static ServiceMeta transform2ServiceMeta(Directory directory) {
         ServiceMeta serviceMeta = new ServiceMeta();
         serviceMeta.setGroup(checkNotNull(directory.getGroup(), "group"));
         serviceMeta.setVersion(checkNotNull(directory.getVersion(), "version"));
@@ -141,7 +141,7 @@ public abstract class AbstractJClient implements JClient {
         return serviceMeta;
     }
 
-    private static Address cast2Address(UnresolvedAddress address) {
+    private static Address transform2Address(UnresolvedAddress address) {
         return new Address(address.getHost(), address.getPort());
     }
 }
