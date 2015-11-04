@@ -202,7 +202,7 @@ public class ConfigClient extends NettyTcpConnector {
         registerMetaSet.remove(meta);
 
         Message msg = new Message();
-        msg.sign(UN_PUBLISH_SERVICE);
+        msg.sign(PUBLISH_CANCEL_SERVICE);
         msg.data(meta);
 
         channel.writeAndFlush(msg);

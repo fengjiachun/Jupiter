@@ -153,7 +153,9 @@ public class ConfigServer extends NettyTcpAcceptor implements RegistryMonitor {
 
     @Override
     public List<String> listPublisherHosts() {
-        return Lists.transform(registerInfoContext.listPublisherHosts(), new Function<Address, String>() {
+        List<Address> fromList = registerInfoContext.listPublisherHosts();
+
+        return Lists.transform(fromList, new Function<Address, String>() {
 
             @Override
             public String apply(Address input) {
@@ -179,7 +181,9 @@ public class ConfigServer extends NettyTcpAcceptor implements RegistryMonitor {
     @Override
     public List<String> listAddressesByService(String group, String version, String serviceProviderName) {
         ServiceMeta serviceMeta = new ServiceMeta(group, version, serviceProviderName);
-        return Lists.transform(registerInfoContext.listAddressesByService(serviceMeta), new Function<Address, String>() {
+        List<Address> fromList = registerInfoContext.listAddressesByService(serviceMeta);
+
+        return Lists.transform(fromList, new Function<Address, String>() {
 
             @Override
             public String apply(Address input) {
@@ -191,7 +195,9 @@ public class ConfigServer extends NettyTcpAcceptor implements RegistryMonitor {
     @Override
     public List<String> listServicesByAddress(String host, int port) {
         Address address = new Address(host, port);
-        return Lists.transform(registerInfoContext.listServicesByAddress(address), new Function<ServiceMeta, String>() {
+        List<ServiceMeta> fromList = registerInfoContext.listServicesByAddress(address);
+
+        return Lists.transform(fromList, new Function<ServiceMeta, String>() {
 
             @Override
             public String apply(ServiceMeta input) {
@@ -240,11 +246,11 @@ public class ConfigServer extends NettyTcpAcceptor implements RegistryMonitor {
     }
 
     // 删除指定机器指定服务, 然后全量发布到所有客户端
-    private void handleUnPublish(RegisterMeta meta, Channel channel) {
+    private void handlePublishCancel(RegisterMeta meta, Channel channel) {
 
         logger.info("Cancel publish {} on channel{}.", meta, channel);
 
-        attachUnPublishEventOnChannel(meta, channel);
+        attachPublishCancelEventOnChannel(meta, channel);
 
         final ServiceMeta serviceMeta = meta.getServiceMeta();
         ConfigWithVersion<ConcurrentMap<Address, RegisterMeta>> config = registerInfoContext.getRegisterMeta(serviceMeta);
@@ -346,7 +352,7 @@ public class ConfigServer extends NettyTcpAcceptor implements RegistryMonitor {
     }
 
     // 取消在channel的标记(发布过的服务)
-    private static boolean attachUnPublishEventOnChannel(RegisterMeta meta, Channel channel) {
+    private static boolean attachPublishCancelEventOnChannel(RegisterMeta meta, Channel channel) {
         Attribute<ConcurrentSet<RegisterMeta>> attr = channel.attr(S_PUBLISH_KEY);
         ConcurrentSet<RegisterMeta> registerMetaSet = attr.get();
         if (registerMetaSet == null) {
@@ -446,7 +452,7 @@ public class ConfigServer extends NettyTcpAcceptor implements RegistryMonitor {
 
                             break;
                         case PUBLISH_SERVICE:
-                        case UN_PUBLISH_SERVICE:
+                        case PUBLISH_CANCEL_SERVICE:
                         case SUBSCRIBE_SERVICE:
                         case OFFLINE_NOTICE: {
                             byte[] bytes = new byte[header.bodyLength()];
@@ -464,6 +470,7 @@ public class ConfigServer extends NettyTcpAcceptor implements RegistryMonitor {
 
                             Acknowledge ack = SerializerHolder.serializer().readObject(bytes, Acknowledge.class);
                             out.add(ack);
+
                             break;
                         }
                         default:
@@ -513,7 +520,7 @@ public class ConfigServer extends NettyTcpAcceptor implements RegistryMonitor {
                 Message obj = (Message) msg;
                 switch (obj.sign()) {
                     case PUBLISH_SERVICE:
-                    case UN_PUBLISH_SERVICE:
+                    case PUBLISH_CANCEL_SERVICE:
                         channel.writeAndFlush(new Acknowledge(obj.sequence())); // 回复ACK
 
                         RegisterMeta meta = (RegisterMeta) obj.data();
@@ -530,8 +537,8 @@ public class ConfigServer extends NettyTcpAcceptor implements RegistryMonitor {
 
                         if (obj.sign() == PUBLISH_SERVICE) {
                             handlePublish(meta, channel);
-                        } else if (obj.sign() == UN_PUBLISH_SERVICE) {
-                            handleUnPublish(meta, channel);
+                        } else if (obj.sign() == PUBLISH_CANCEL_SERVICE) {
+                            handlePublishCancel(meta, channel);
                         }
 
                         break;
@@ -571,7 +578,7 @@ public class ConfigServer extends NettyTcpAcceptor implements RegistryMonitor {
                 if (address == null) {
                     address = meta.getAddress();
                 }
-                handleUnPublish(meta, channel);
+                handlePublishCancel(meta, channel);
             }
 
             // 通知所有订阅者对应机器下线

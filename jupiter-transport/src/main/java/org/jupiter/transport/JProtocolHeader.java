@@ -52,7 +52,7 @@ public class JProtocolHeader {
     /** 发布服务 */
     public static final byte PUBLISH_SERVICE = 65;
     /** 取消发布服务 */
-    public static final byte UN_PUBLISH_SERVICE = 66;
+    public static final byte PUBLISH_CANCEL_SERVICE = 66;
     /** 订阅服务 */
     public static final byte SUBSCRIBE_SERVICE = 67;
     /** 通知下线 */
