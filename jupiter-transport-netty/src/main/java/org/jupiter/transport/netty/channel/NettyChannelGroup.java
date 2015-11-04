@@ -30,7 +30,6 @@ import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.locks.Condition;
-import java.util.concurrent.locks.LockSupport;
 import java.util.concurrent.locks.ReentrantLock;
 
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
@@ -89,7 +88,7 @@ public class NettyChannelGroup implements JChannelGroup {
 
     @Override
     public JChannel next() {
-        int attempts = 0;
+        boolean hasWaited = false;
         for (;;) {
             // 请原谅下面这段放荡不羁的糟糕代码
             Object[] array; // The snapshot of channels array
@@ -100,9 +99,9 @@ public class NettyChannelGroup implements JChannelGroup {
             }
 
             if (array.length == 0) {
-                if (attempts++ < 3) {
-                    int timeout = 100 << attempts;
-                    LockSupport.parkNanos(MILLISECONDS.toNanos(timeout));
+                if (!hasWaited) {
+                    waitForAvailable(1000);
+                    hasWaited = true;
                     continue;
                 }
                 throw new IllegalStateException("no channel");
