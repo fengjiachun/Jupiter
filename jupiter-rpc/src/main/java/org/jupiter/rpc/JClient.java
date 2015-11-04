@@ -38,7 +38,9 @@ public interface JClient extends Registry {
 
     Collection<JChannelGroup> groups();
 
-    void addGroup(Directory directory, JChannelGroup group);
+    void addChannelGroup(Directory directory, JChannelGroup group);
+
+    boolean removeChannelGroup(Directory directory, JChannelGroup group);
 
     CopyOnWriteArrayList<JChannelGroup> directory(Directory directory);
 

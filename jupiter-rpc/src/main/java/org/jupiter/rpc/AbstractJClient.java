@@ -76,8 +76,13 @@ public abstract class AbstractJClient implements JClient {
     }
 
     @Override
-    public void addGroup(Directory directory, JChannelGroup group) {
+    public void addChannelGroup(Directory directory, JChannelGroup group) {
         directory(directory).addIfAbsent(group);
+    }
+
+    @Override
+    public boolean removeChannelGroup(Directory directory, JChannelGroup group) {
+        return directory(directory).remove(group);
     }
 
     @Override

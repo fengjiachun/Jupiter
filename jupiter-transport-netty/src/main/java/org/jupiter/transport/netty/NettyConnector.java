@@ -110,7 +110,7 @@ public abstract class NettyConnector extends AbstractJClient implements JConnect
                     public void notify(List<RegisterMeta> registerMetaList) {
                         for (RegisterMeta meta : registerMetaList) {
                             final UnresolvedAddress address = new UnresolvedAddress(meta.getHost(), meta.getPort());
-                            JChannelGroup group = group(address);
+                            final JChannelGroup group = group(address);
 
                             // 每个group存放的是相同对端地址的channel, 如果group不为空且至少有一个channel自动重连
                             // 被设置为true就不用再建立连接了
@@ -129,12 +129,16 @@ public abstract class NettyConnector extends AbstractJClient implements JConnect
 
                                     @Override
                                     public void offline() {
+                                        // 取消自动重连
                                         JConnectionManager.cancelReconnect(address);
+                                        // 移除ChannelGroup避免被LoadBalance选中
+                                        removeChannelGroup(directory, group);
                                     }
                                 });
                             }
 
-                            addGroup(directory, group);
+                            // 添加ChannelGroup到指定directory
+                            addChannelGroup(directory, group);
                         }
 
                         if (!registerMetaList.isEmpty() && signalNeeded.getAndSet(false)) {
