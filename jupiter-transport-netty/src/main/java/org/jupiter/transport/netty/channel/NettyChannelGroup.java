@@ -239,4 +239,15 @@ public class NettyChannelGroup implements JChannelGroup {
     public int hashCode() {
         return address.hashCode();
     }
+
+    @Override
+    public String toString() {
+        return "NettyChannelGroup{" +
+                "channels=" + channels +
+                ", weight=" + weight +
+                ", warmUp=" + warmUp +
+                ", timestamps=" + timestamps +
+                ", address=" + address +
+                '}';
+    }
 }
