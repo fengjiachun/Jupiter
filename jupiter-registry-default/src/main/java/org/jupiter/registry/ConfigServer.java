@@ -153,11 +153,13 @@ public class ConfigServer extends NettyTcpAcceptor implements RegistryMonitor {
 
     @Override
     public List<String> listPublisherHosts() {
-        List<String> hosts = Lists.newArrayList();
-        for (Address a : registerInfoContext.listPublisherHosts()) {
-            hosts.add(a.getHost());
-        }
-        return hosts;
+        return Lists.transform(registerInfoContext.listPublisherHosts(), new Function<Address, String>() {
+
+            @Override
+            public String apply(Address input) {
+                return input.getHost();
+            }
+        });
     }
 
     @Override
@@ -177,21 +179,25 @@ public class ConfigServer extends NettyTcpAcceptor implements RegistryMonitor {
     @Override
     public List<String> listAddressesByService(String group, String version, String serviceProviderName) {
         ServiceMeta serviceMeta = new ServiceMeta(group, version, serviceProviderName);
-        List<String> addresses = Lists.newArrayList();
-        for (Address a : registerInfoContext.listAddressesByService(serviceMeta)) {
-            addresses.add(a.toString());
-        }
-        return addresses;
+        return Lists.transform(registerInfoContext.listAddressesByService(serviceMeta), new Function<Address, String>() {
+
+            @Override
+            public String apply(Address input) {
+                return input.toString();
+            }
+        });
     }
 
     @Override
     public List<String> listServicesByAddress(String host, int port) {
         Address address = new Address(host, port);
-        List<String> services = Lists.newArrayList();
-        for (ServiceMeta s : registerInfoContext.listServicesByAddress(address)) {
-            services.add(s.toString());
-        }
-        return services;
+        return Lists.transform(registerInfoContext.listServicesByAddress(address), new Function<ServiceMeta, String>() {
+
+            @Override
+            public String apply(ServiceMeta input) {
+                return input.toString();
+            }
+        });
     }
 
     // 添加指定机器指定服务, 然后全量发布到所有客户端

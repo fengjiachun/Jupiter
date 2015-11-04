@@ -18,9 +18,8 @@ package org.jupiter.common.util;
 
 import org.jupiter.common.util.internal.RecyclableArrayList;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
+import java.io.Serializable;
+import java.util.*;
 
 import static org.jupiter.common.util.Preconditions.checkArgument;
 import static org.jupiter.common.util.Preconditions.checkNotNull;
@@ -88,6 +87,158 @@ public final class Lists {
      */
     public static boolean recycleArrayList(RecyclableArrayList list) {
         return RecycleUtil.recycle(list);
+    }
+
+    /**
+     * Returns a list that applies {@code function} to each element of {@code
+     * fromList}. The returned list is a transformed view of {@code fromList};
+     * changes to {@code fromList} will be reflected in the returned list and vice
+     * versa.
+     */
+    public static <F, T> List<T> transform(List<F> fromList, Function<? super F, ? extends T> function) {
+        return (fromList instanceof RandomAccess)
+                ? new TransformingRandomAccessList<>(fromList, function)
+                : new TransformingSequentialList<>(fromList, function);
+    }
+
+    private static class TransformingRandomAccessList<F, T> extends AbstractList<T> implements RandomAccess, Serializable {
+
+        private static final long serialVersionUID = 0;
+
+        final List<F> fromList;
+        final Function<? super F, ? extends T> function;
+
+        TransformingRandomAccessList(List<F> fromList, Function<? super F, ? extends T> function) {
+            this.fromList = checkNotNull(fromList);
+            this.function = checkNotNull(function);
+        }
+
+        @Override
+        public void clear() {
+            fromList.clear();
+        }
+
+        @Override
+        public T get(int index) {
+            return function.apply(fromList.get(index));
+        }
+
+        @Override
+        public boolean isEmpty() {
+            return fromList.isEmpty();
+        }
+
+        @Override
+        public T remove(int index) {
+            return function.apply(fromList.remove(index));
+        }
+
+        @Override
+        public int size() {
+            return fromList.size();
+        }
+    }
+
+    private static class TransformingSequentialList<F, T> extends AbstractSequentialList<T> implements Serializable {
+        private static final long serialVersionUID = 0;
+
+        final List<F> fromList;
+        final Function<? super F, ? extends T> function;
+
+        TransformingSequentialList(
+                List<F> fromList, Function<? super F, ? extends T> function) {
+            this.fromList = checkNotNull(fromList);
+            this.function = checkNotNull(function);
+        }
+
+        @Override
+        public void clear() {
+            fromList.clear();
+        }
+
+        @Override
+        public int size() {
+            return fromList.size();
+        }
+
+        @SuppressWarnings("NullableProblems")
+        @Override
+        public ListIterator<T> listIterator(final int index) {
+            return new TransformedListIterator<F, T>(fromList.listIterator(index)) {
+
+                @Override
+                T transform(F from) {
+                    return function.apply(from);
+                }
+            };
+        }
+    }
+
+    abstract static class TransformedIterator<F, T> implements Iterator<T> {
+        final Iterator<? extends F> backingIterator;
+
+        TransformedIterator(Iterator<? extends F> backingIterator) {
+            this.backingIterator = checkNotNull(backingIterator);
+        }
+
+        abstract T transform(F from);
+
+        @Override
+        public final boolean hasNext() {
+            return backingIterator.hasNext();
+        }
+
+        @Override
+        public final T next() {
+            return transform(backingIterator.next());
+        }
+
+        @Override
+        public final void remove() {
+            backingIterator.remove();
+        }
+    }
+
+    abstract static class TransformedListIterator<F, T> extends TransformedIterator<F, T> implements ListIterator<T> {
+
+        TransformedListIterator(ListIterator<? extends F> backingIterator) {
+            super(backingIterator);
+        }
+
+        @SuppressWarnings("unchecked")
+        private ListIterator<? extends F> backingIterator() {
+            return (ListIterator<? extends F>) backingIterator;
+        }
+
+        @Override
+        public final boolean hasPrevious() {
+            return backingIterator().hasPrevious();
+        }
+
+        @Override
+        public final T previous() {
+            return transform(backingIterator().previous());
+        }
+
+        @Override
+        public final int nextIndex() {
+            return backingIterator().nextIndex();
+        }
+
+        @Override
+        public final int previousIndex() {
+            return backingIterator().previousIndex();
+        }
+
+        @Override
+        public void set(T element) {
+            throw new UnsupportedOperationException();
+        }
+
+        @Override
+        public void add(T element) {
+            throw new UnsupportedOperationException();
+        }
     }
 
     static int computeArrayListCapacity(int arraySize) {
