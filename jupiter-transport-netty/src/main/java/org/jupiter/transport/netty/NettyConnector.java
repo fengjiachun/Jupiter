@@ -26,8 +26,6 @@ import io.netty.util.concurrent.DefaultThreadFactory;
 import io.netty.util.internal.PlatformDependent;
 import org.jupiter.common.concurrent.NamedThreadFactory;
 import org.jupiter.common.util.internal.UnsafeAccess;
-import org.jupiter.common.util.internal.logging.InternalLogger;
-import org.jupiter.common.util.internal.logging.InternalLoggerFactory;
 import org.jupiter.registry.NotifyListener;
 import org.jupiter.registry.OfflineListener;
 import org.jupiter.registry.RegisterMeta;
@@ -55,8 +53,6 @@ import static org.jupiter.common.util.JConstants.AVAILABLE_PROCESSORS;
  * @author jiachun.fjc
  */
 public abstract class NettyConnector extends AbstractJClient implements JConnector<JConnection> {
-
-    private static final InternalLogger logger = InternalLoggerFactory.getInstance(NettyConnector.class);
 
     protected final Protocol protocol;
     protected final HashedWheelTimer timer = new HashedWheelTimer(new NamedThreadFactory("connector.timer"));
@@ -136,22 +132,17 @@ public abstract class NettyConnector extends AbstractJClient implements JConnect
                                         // 取消自动重连
                                         JConnectionManager.cancelReconnect(address);
 
-                                        logger.warn("Canceled reconnect to: {}.", address);
-
-                                        // 移除ChannelGroup避免被LoadBalance选中
-                                        boolean removed = removeChannelGroup(directory, group);
-
-                                        if (removed) {
-                                            logger.warn("Removed channel group: {} in directory: {}.", group, directory);
+                                        // 移除ChannelGroup避免被LoadBalance选中, group不为空时不移除,
+                                        // 当group再次被LoadBalance选中并且为空时移除, 见AbstractJClient#select()
+                                        if (group.isEmpty()) {
+                                            removeChannelGroup(directory, group);
                                         }
                                     }
                                 });
                             }
 
                             // 添加ChannelGroup到指定directory
-                            boolean added = addChannelGroup(directory, group);
-
-                            logger.info("Added channel group: {} to {}.", group, directory);
+                            addChannelGroup(directory, group);
                         }
 
                         if (!registerMetaList.isEmpty() && signalNeeded.getAndSet(false)) {

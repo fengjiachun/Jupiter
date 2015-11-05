@@ -33,9 +33,9 @@ public class JChannelGroupLoadBalance extends RandomLoadBalance<JChannelGroup> {
     protected int getWeight(JChannelGroup group) {
         int weight = group.getWeight();
         if (weight > 0) {
-            long timestamps = group.getTimestamps();
-            if (timestamps > 0L) {
-                int upTime = (int) (SystemClock.millisClock().now() - timestamps);
+            long timestamp = group.getTimestamp();
+            if (timestamp > 0L) {
+                int upTime = (int) (SystemClock.millisClock().now() - timestamp);
                 int warmUp = group.getWarmUp();
                 if (upTime > 0 && upTime < warmUp) {
                     int warmUpWeight = (int) (((float) upTime / warmUp) * weight);

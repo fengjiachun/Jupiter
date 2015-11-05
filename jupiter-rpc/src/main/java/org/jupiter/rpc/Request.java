@@ -37,7 +37,7 @@ public class Request extends BytesHolder {
     private final long invokeId;
     private MessageWrapper message; // 请求数据
 
-    private transient long timestamps;
+    private transient long timestamp;
     private transient Status status = OK;
 
     public Request() {
@@ -60,12 +60,12 @@ public class Request extends BytesHolder {
         this.message = message;
     }
 
-    public long timestamps() {
-        return timestamps;
+    public long timestamp() {
+        return timestamp;
     }
 
-    public void timestamps(long timestamps) {
-        this.timestamps = timestamps;
+    public void timestamp(long timestamp) {
+        this.timestamp = timestamp;
     }
 
     public Status status() {

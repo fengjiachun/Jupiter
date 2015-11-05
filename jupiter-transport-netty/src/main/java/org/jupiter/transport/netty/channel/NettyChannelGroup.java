@@ -76,8 +76,9 @@ public class NettyChannelGroup implements JChannelGroup {
     private final UnresolvedAddress address;
 
     private volatile int weight = DEFAULT_WEIGHT; // The weight
-    private volatile int warmUp = DEFAULT_WARM_UP; // Warm up time
-    private volatile long timestamps = SystemClock.millisClock().now();
+    private volatile int warmUp = DEFAULT_WARM_UP; // Warm-up time
+    private volatile long timestamp = SystemClock.millisClock().now();
+    private volatile long lossTimestamp = -1;
 
     private final ReentrantLock lock = new ReentrantLock();
     private final Condition notifyCondition = lock.newCondition();
@@ -141,6 +142,7 @@ public class NettyChannelGroup implements JChannelGroup {
         boolean added = channel instanceof NettyChannel && channels.add((NettyChannel) channel);
         if (added) {
             ((NettyChannel) channel).channel().closeFuture().addListener(remover);
+            lossTimestamp = -1;
 
             if (signalNeeded.getAndSet(false)) {
                 ReentrantLock _look = lock;
@@ -157,7 +159,11 @@ public class NettyChannelGroup implements JChannelGroup {
 
     @Override
     public boolean remove(JChannel channel) {
-        return channel instanceof NettyChannel && channels.remove(channel);
+        boolean removed = channel instanceof NettyChannel && channels.remove(channel);
+        if (removed && channels.isEmpty()) {
+            lossTimestamp = SystemClock.millisClock().now();
+        }
+        return removed;
     }
 
     @Override
@@ -198,13 +204,13 @@ public class NettyChannelGroup implements JChannelGroup {
     }
 
     @Override
-    public void setWeight(int weight) {
-        this.weight = weight;
+    public int getWeight() {
+        return weight;
     }
 
     @Override
-    public int getWeight() {
-        return weight;
+    public void setWeight(int weight) {
+        this.weight = weight;
     }
 
     @Override
@@ -218,13 +224,18 @@ public class NettyChannelGroup implements JChannelGroup {
     }
 
     @Override
-    public long getTimestamps() {
-        return timestamps;
+    public long getTimestamp() {
+        return timestamp;
     }
 
     @Override
-    public void resetTimestamps() {
-        timestamps = SystemClock.millisClock().now();
+    public void resetTimestamp() {
+        timestamp = SystemClock.millisClock().now();
+    }
+
+    @Override
+    public long getLossTimestamp() {
+        return lossTimestamp;
     }
 
     @Override
@@ -250,7 +261,7 @@ public class NettyChannelGroup implements JChannelGroup {
                 "channels=" + channels +
                 ", weight=" + weight +
                 ", warmUp=" + warmUp +
-                ", time=" + formatter.format(new Date(timestamps)) +
+                ", time=" + formatter.format(new Date(timestamp)) +
                 ", address=" + address +
                 '}';
     }

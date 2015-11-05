@@ -71,15 +71,38 @@ public interface JChannelGroup {
      */
     boolean waitForAvailable(long timeoutMillis);
 
-    void setWeight(int weight);
-
+    /**
+     * Weight of this group.
+     */
     int getWeight();
 
+    /**
+     * Sets weight of this group.
+     */
+    void setWeight(int weight);
+
+    /**
+     * Warm-up time
+     */
     int getWarmUp();
 
+    /**
+     * Sets warm-up time
+     */
     void setWarmUp(int warmUp);
 
-    long getTimestamps();
+    /**
+     * Time of birth.
+     */
+    long getTimestamp();
 
-    void resetTimestamps();
+    /**
+     * Reset the time of birth.
+     */
+    void resetTimestamp();
+
+    /**
+     * Loss time.
+     */
+    long getLossTimestamp();
 }

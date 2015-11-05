@@ -18,6 +18,10 @@ package org.jupiter.rpc;
 
 import org.jupiter.common.util.JServiceLoader;
 import org.jupiter.common.util.Maps;
+import org.jupiter.common.util.SystemClock;
+import org.jupiter.common.util.SystemPropertyUtil;
+import org.jupiter.common.util.internal.logging.InternalLogger;
+import org.jupiter.common.util.internal.logging.InternalLoggerFactory;
 import org.jupiter.registry.NotifyListener;
 import org.jupiter.registry.OfflineListener;
 import org.jupiter.registry.RegisterMeta;
@@ -31,8 +35,10 @@ import java.util.Collection;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 
+import static java.util.concurrent.TimeUnit.MILLISECONDS;
 import static org.jupiter.common.util.Preconditions.checkNotNull;
-import static org.jupiter.registry.RegisterMeta.*;
+import static org.jupiter.registry.RegisterMeta.Address;
+import static org.jupiter.registry.RegisterMeta.ServiceMeta;
 
 /**
  * jupiter
@@ -42,6 +48,8 @@ import static org.jupiter.registry.RegisterMeta.*;
  */
 public abstract class AbstractJClient implements JClient {
 
+    private static final InternalLogger logger = InternalLoggerFactory.getInstance(AbstractJClient.class);
+
     // SPI
     private final RegistryService registryService = JServiceLoader.load(RegistryService.class);
     @SuppressWarnings("unchecked")
@@ -49,6 +57,8 @@ public abstract class AbstractJClient implements JClient {
 
     private final DirectoryJChannelGroup directoryGroup = new DirectoryJChannelGroup();
     private final ConcurrentMap<UnresolvedAddress, JChannelGroup> addressGroups = Maps.newConcurrentHashMap();
+
+    private final long lossTimeMinutesLimit = SystemPropertyUtil.getLong("jupiter.channel.group.loss.time.minutes.limit", 5);
 
     @Override
     public void initRegistryService(Object... args) {
@@ -77,12 +87,20 @@ public abstract class AbstractJClient implements JClient {
 
     @Override
     public boolean addChannelGroup(Directory directory, JChannelGroup group) {
-        return directory(directory).addIfAbsent(group);
+        boolean added = directory(directory).addIfAbsent(group);
+        if (added) {
+            logger.info("Added channel group: {} to {}.", group, directory);
+        }
+        return added;
     }
 
     @Override
     public boolean removeChannelGroup(Directory directory, JChannelGroup group) {
-        return directory(directory).remove(group);
+        boolean removed = directory(directory).remove(group);
+        if (removed) {
+            logger.warn("Removed channel group: {} in directory: {}.", group, directory);
+        }
+        return removed;
     }
 
     @Override
@@ -107,6 +125,16 @@ public abstract class AbstractJClient implements JClient {
         JChannelGroup group = loadBalance.select(groupList);
         if (!group.isEmpty()) {
             return group.next();
+        }
+
+        // group死亡时间(无可用channel)超过限制
+        long lossTime = group.getLossTimestamp();
+        if (lossTime > 0 &&
+                MILLISECONDS.toMinutes(SystemClock.millisClock().now() - lossTime) > lossTimeMinutesLimit) {
+            boolean removed = groupList.remove(group);
+            if (removed) {
+                logger.warn("Removed channel group: {} in directory: {}.", group, directory);
+            }
         }
 
         for (JChannelGroup g : groupList) {

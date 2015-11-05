@@ -104,13 +104,13 @@ public class RecyclableTask implements RejectedRunnable {
                 RecycleUtil.recycle(result);
             }
 
-            final long timestamps = request.timestamps();
+            final long timestamp = request.timestamp();
             final int bodySize = response.bytes().length;
             jChannel.write(response, new JFutureListener<JChannel>() {
 
                 @Override
                 public void operationComplete(JChannel ch, boolean isSuccess) throws Exception {
-                    long duration = SystemClock.millisClock().now() - timestamps;
+                    long duration = SystemClock.millisClock().now() - timestamp;
                     if (isSuccess) {
                         responseSizes.update(bodySize);
                         invocationTimer.update(duration, TimeUnit.MILLISECONDS);
