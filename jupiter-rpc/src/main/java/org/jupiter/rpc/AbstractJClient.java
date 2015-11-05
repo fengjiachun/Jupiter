@@ -89,7 +89,7 @@ public abstract class AbstractJClient implements JClient {
     public boolean addChannelGroup(Directory directory, JChannelGroup group) {
         boolean added = directory(directory).addIfAbsent(group);
         if (added) {
-            logger.info("Added channel group: {} to {}.", group, directory);
+            logger.info("Added channel group: {} to {}.", group, directory.directory());
         }
         return added;
     }
@@ -98,7 +98,7 @@ public abstract class AbstractJClient implements JClient {
     public boolean removeChannelGroup(Directory directory, JChannelGroup group) {
         boolean removed = directory(directory).remove(group);
         if (removed) {
-            logger.warn("Removed channel group: {} in directory: {}.", group, directory);
+            logger.warn("Removed channel group: {} in directory: {}.", group, directory.directory());
         }
         return removed;
     }
@@ -133,7 +133,7 @@ public abstract class AbstractJClient implements JClient {
                 MILLISECONDS.toMinutes(SystemClock.millisClock().now() - lossTime) > lossTimeMinutesLimit) {
             boolean removed = groupList.remove(group);
             if (removed) {
-                logger.warn("Removed channel group: {} in directory: {}.", group, directory);
+                logger.warn("Removed channel group: {} in directory: {}.", group, directory.directory());
             }
         }
 
