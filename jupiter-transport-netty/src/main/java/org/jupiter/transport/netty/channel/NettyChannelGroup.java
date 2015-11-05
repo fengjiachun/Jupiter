@@ -244,7 +244,7 @@ public class NettyChannelGroup implements JChannelGroup {
 
     @Override
     public String toString() {
-        SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss");
+        SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSSZ");
 
         return "NettyChannelGroup{" +
                 "channels=" + channels +
