@@ -367,18 +367,16 @@ public class ConfigClient extends NettyTcpConnector {
 
                 switch (obj.sign()) {
                     case PUBLISH_SERVICE:
-                        ctx.channel().writeAndFlush(new Acknowledge(obj.sequence())); // 回复ACK
-
                         Pair<ServiceMeta, List<RegisterMeta>> data = (Pair<ServiceMeta, List<RegisterMeta>>) obj.data();
-
                         registryService.notify(data.getKey(), data.getValue(), obj.getVersion());
+
+                        ctx.channel().writeAndFlush(new Acknowledge(obj.sequence())); // 回复ACK
 
                         logger.info("Publish from ConfigServer {}, version: {}.", data.getKey(), obj.getVersion());
 
                         break;
                     case OFFLINE_NOTICE:
                         Address address = (Address) obj.data();
-
                         registryService.offline(address);
 
                         logger.info("Offline notice on {}.", address);

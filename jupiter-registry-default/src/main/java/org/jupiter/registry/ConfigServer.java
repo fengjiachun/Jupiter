@@ -521,8 +521,6 @@ public class ConfigServer extends NettyTcpAcceptor implements RegistryMonitor {
                 switch (obj.sign()) {
                     case PUBLISH_SERVICE:
                     case PUBLISH_CANCEL_SERVICE:
-                        channel.writeAndFlush(new Acknowledge(obj.sequence())); // 回复ACK
-
                         RegisterMeta meta = (RegisterMeta) obj.data();
                         if (Strings.isEmpty(meta.getHost())) {
                             SocketAddress address = channel.remoteAddress();
@@ -540,12 +538,12 @@ public class ConfigServer extends NettyTcpAcceptor implements RegistryMonitor {
                         } else if (obj.sign() == PUBLISH_CANCEL_SERVICE) {
                             handlePublishCancel(meta, channel);
                         }
+                        channel.writeAndFlush(new Acknowledge(obj.sequence())); // 回复ACK
 
                         break;
                     case SUBSCRIBE_SERVICE:
-                        channel.writeAndFlush(new Acknowledge(obj.sequence())); // 回复ACK
-
                         handleSubscribe((ServiceMeta) obj.data(), channel);
+                        channel.writeAndFlush(new Acknowledge(obj.sequence())); // 回复ACK
 
                         break;
                     case OFFLINE_NOTICE:
