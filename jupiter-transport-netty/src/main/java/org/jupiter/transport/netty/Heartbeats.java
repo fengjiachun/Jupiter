@@ -35,7 +35,6 @@ public class Heartbeats {
 
     static {
         ByteBuf buf = Unpooled.buffer(HEAD_LENGTH);
-        // 共享的心跳内容
         buf.writeShort(MAGIC);
         buf.writeByte(HEARTBEAT);
         buf.writeByte(0);
