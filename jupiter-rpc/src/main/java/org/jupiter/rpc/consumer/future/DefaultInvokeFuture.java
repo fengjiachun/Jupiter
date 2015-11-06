@@ -211,22 +211,26 @@ public class DefaultInvokeFuture implements InvokeFuture {
     }
 
     private void doReceived(Response response) {
-        final ReentrantLock _lock = lock;
-        _lock.lock();
-        try {
-            this.response = response;
-            done.signal();
-        } finally {
-            _lock.unlock();
+        // If there is a listener, that is considered to be an asynchronous call,
+        // and attempts to elide conditional wake-ups when the lock is uncontended.
+        if (listener != null) {
+            notifyListener(listener);
+        } else {
+            final ReentrantLock _lock = lock;
+            _lock.lock();
+            try {
+                this.response = response;
+                done.signal();
+            } finally {
+                _lock.unlock();
+            }
         }
 
+        // call hook's after method
         if (hooks != null) {
             for (ConsumerHook h : hooks) {
                 h.after(request);
             }
-        }
-        if (listener != null) {
-            notifyListener(listener);
         }
     }
 
