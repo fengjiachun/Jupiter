@@ -64,9 +64,9 @@ public final class JConstants {
     /** 链路write空闲检测 默认30秒, 30秒没有向链路中写入任何数据时客户端会主动向对端发送心跳 */
     public static final int WRITER_IDLE_TIME_SECONDS = SystemPropertyUtil.getInt("jupiter.writer.idle.time.seconds", 30);
 
-    /** LoadBalance 默认预热时间 **/
+    /** Load balancer 默认预热时间 **/
     public static final int DEFAULT_WARM_UP = 10 * 60 * 1000;
-    /** LoadBalance 默认权重, 建议最大100 **/
+    /** Load balancer 默认权重, 建议最大100 **/
     public static final int DEFAULT_WEIGHT = 50;
 
     /** Cpu核心数 */

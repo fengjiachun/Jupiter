@@ -48,7 +48,7 @@ import static org.jupiter.common.util.StackTraceUtil.stackTrace;
 import static org.jupiter.rpc.Status.*;
 
 /**
- * 可回收的Task, 减少小对象的分配以及回收(help gc).
+ * Recyclable Task, reduce distribution and recovery of small objects (help gc).
  *
  * jupiter
  * org.jupiter.rpc.provider.processor.task
