@@ -63,7 +63,7 @@ public class ProxyFactory {
     static {
         updater = AtomicUpdater.newAtomicIntegerFieldUpdater(ProxyFactory.class, "recycled");
     }
-    // ProxyFactory可能需要频繁创建实例, 相比较AtomicBoolean, 使用AtomicIntegerFieldUpdater来更新volatile int的方式
+    // 个别使用者可能喜欢频繁创建ProxyFactory实例, 相比较AtomicBoolean, 使用AtomicIntegerFieldUpdater来更新volatile int的方式
     // 在64位虚拟机环境中会节省12(开启压缩指针的情况下)个字节的对象头大小.
     // http://hg.openjdk.java.net/jdk7u/jdk7u/hotspot/file/6e9aa487055f/src/share/vm/oops/klass.hpp
     //  [header         ] 8  byte
@@ -98,7 +98,7 @@ public class ProxyFactory {
     }
 
     /**
-     * Connector
+     * Sets the connector.
      */
     public ProxyFactory connector(JClient connector) {
         checkValid(this);
@@ -108,7 +108,7 @@ public class ProxyFactory {
     }
 
     /**
-     * Provider地址
+     * Adds provider's addresses.
      */
     public ProxyFactory addProviderAddress(UnresolvedAddress... addresses) {
         checkValid(this);
@@ -118,7 +118,7 @@ public class ProxyFactory {
     }
 
     /**
-     * Provider地址
+     * Adds provider's addresses.
      */
     public ProxyFactory addProviderAddress(List<UnresolvedAddress> addresses) {
         checkValid(this);
@@ -128,7 +128,7 @@ public class ProxyFactory {
     }
 
     /**
-     * 应用名称
+     * Sets application's name
      */
     public ProxyFactory appName(String appName) {
         checkValid(this);
@@ -138,7 +138,7 @@ public class ProxyFactory {
     }
 
     /**
-     * 服务接口类型
+     * Sets the service interface type.
      */
     public <I> ProxyFactory interfaceClass(Class<I> serviceInterface) {
         checkValid(this);
@@ -148,7 +148,7 @@ public class ProxyFactory {
     }
 
     /**
-     * 同步阻塞或是异步回调
+     * Synchronous blocking or asynchronous callback.
      */
     public ProxyFactory asyncMode(AsyncMode asyncMode) {
         checkValid(this);
@@ -165,7 +165,7 @@ public class ProxyFactory {
     }
 
     /**
-     * 超时时间设置, 单位毫秒
+     * Timeout milliseconds.
      */
     public ProxyFactory timeoutMills(int timeoutMills) {
         checkValid(this);
@@ -175,7 +175,7 @@ public class ProxyFactory {
     }
 
     /**
-     * 异步回调接口
+     * Asynchronous callback interface.
      */
     public ProxyFactory listener(JListener listener) {
         checkValid(this);
@@ -188,7 +188,7 @@ public class ProxyFactory {
     }
 
     /**
-     * Hook
+     * Adds hooks.
      */
     public ProxyFactory addHook(ConsumerHook... hooks) {
         checkValid(this);
@@ -220,8 +220,8 @@ public class ProxyFactory {
                 throw new UnsupportedOperationException("unsupported mode, SYNC & BROADCAST");
             }
             checkNotNull(_connector, "connector");
-            checkNotNull(_addresses, "_addresses");
-            checkNotNull(_appName, "_appName");
+            checkNotNull(_addresses, "addresses");
+            checkNotNull(_appName, "appName");
             checkNotNull(_serviceInterface, "serviceInterface");
             checkNotNull(_hooks, "hooks");
             checkArgument(_serviceInterface.isInterface(), "serviceInterface is required to be interface");
