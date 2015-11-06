@@ -87,6 +87,6 @@ public final class JConstants {
     /** Metrics csv reporter directory */
     public static final String METRIC_CSV_REPORTER_DIRECTORY = SystemPropertyUtil.get(
             "jupiter.metric.csv.reporter.directory", SystemPropertyUtil.get("user.dir"));
-    /** Metrics reporter period of report  */
+    /** Metrics reporter period */
     public static final int METRIC_REPORT_PERIOD = SystemPropertyUtil.getInt("jupiter.metric.report.period", 15);
 }
