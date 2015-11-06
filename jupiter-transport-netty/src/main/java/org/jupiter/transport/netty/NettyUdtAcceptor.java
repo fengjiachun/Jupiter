@@ -49,8 +49,8 @@ public abstract class NettyUdtAcceptor extends NettyAcceptor {
         init();
     }
 
-    public NettyUdtAcceptor(SocketAddress address) {
-        super(Protocol.UDT, address);
+    public NettyUdtAcceptor(SocketAddress localAddress) {
+        super(Protocol.UDT, localAddress);
         init();
     }
 
@@ -59,8 +59,8 @@ public abstract class NettyUdtAcceptor extends NettyAcceptor {
         init();
     }
 
-    public NettyUdtAcceptor(SocketAddress address, int nWorks) {
-        super(Protocol.UDT, address, nWorks);
+    public NettyUdtAcceptor(SocketAddress localAddress, int nWorks) {
+        super(Protocol.UDT, localAddress, nWorks);
         init();
     }
 
@@ -101,7 +101,7 @@ public abstract class NettyUdtAcceptor extends NettyAcceptor {
     @Override
     public void start(boolean sync) throws InterruptedException {
         // Wait until the server socket is bind succeed.
-        ChannelFuture future = bind(address).sync();
+        ChannelFuture future = bind(localAddress).sync();
 
         logger.info("Jupiter UDT server start, and will wait until the server socket is closed."
                 + NEWLINE + "{}.", toString());
@@ -125,6 +125,6 @@ public abstract class NettyUdtAcceptor extends NettyAcceptor {
 
     @Override
     public String toString() {
-        return "Socket address:[" + address + "]" + NEWLINE + bootstrap();
+        return "Socket localAddress:[" + localAddress + "]" + NEWLINE + bootstrap();
     }
 }

@@ -128,7 +128,7 @@ public class ConfigServer extends NettyTcpAcceptor implements RegistryMonitor {
     }
 
     @Override
-    public ChannelFuture bind(SocketAddress address) {
+    public ChannelFuture bind(SocketAddress localAddress) {
         ServerBootstrap boot = bootstrap();
 
         boot.channel(NioServerSocketChannel.class)
@@ -148,7 +148,7 @@ public class ConfigServer extends NettyTcpAcceptor implements RegistryMonitor {
 
         setOptions();
 
-        return boot.bind(address);
+        return boot.bind(localAddress);
     }
 
     @Override

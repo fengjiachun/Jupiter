@@ -51,8 +51,8 @@ public abstract class NettyTcpAcceptor extends NettyAcceptor {
         init();
     }
 
-    public NettyTcpAcceptor(SocketAddress address) {
-        super(Protocol.TCP, address);
+    public NettyTcpAcceptor(SocketAddress localAddress) {
+        super(Protocol.TCP, localAddress);
         nativeEt = true;
         init();
     }
@@ -63,8 +63,8 @@ public abstract class NettyTcpAcceptor extends NettyAcceptor {
         init();
     }
 
-    public NettyTcpAcceptor(SocketAddress address, int nWorks) {
-        super(Protocol.TCP, address, nWorks);
+    public NettyTcpAcceptor(SocketAddress localAddress, int nWorks) {
+        super(Protocol.TCP, localAddress, nWorks);
         nativeEt = true;
         init();
     }
@@ -75,8 +75,8 @@ public abstract class NettyTcpAcceptor extends NettyAcceptor {
         init();
     }
 
-    public NettyTcpAcceptor(SocketAddress address, boolean nativeEt) {
-        super(Protocol.TCP, address);
+    public NettyTcpAcceptor(SocketAddress localAddress, boolean nativeEt) {
+        super(Protocol.TCP, localAddress);
         this.nativeEt = nativeEt;
         init();
     }
@@ -87,8 +87,8 @@ public abstract class NettyTcpAcceptor extends NettyAcceptor {
         init();
     }
 
-    public NettyTcpAcceptor(SocketAddress address, int nWorks, boolean nativeEt) {
-        super(Protocol.TCP, address, nWorks);
+    public NettyTcpAcceptor(SocketAddress localAddress, int nWorks, boolean nativeEt) {
+        super(Protocol.TCP, localAddress, nWorks);
         this.nativeEt = nativeEt;
         init();
     }
@@ -140,7 +140,7 @@ public abstract class NettyTcpAcceptor extends NettyAcceptor {
     @Override
     public void start(boolean sync) throws InterruptedException {
         // Wait until the server socket is bind succeed.
-        ChannelFuture future = bind(address).sync();
+        ChannelFuture future = bind(localAddress).sync();
 
         logger.info("Jupiter TCP server start, and will wait until the server socket is closed."
                 + NEWLINE + "{}.", toString());
@@ -179,7 +179,7 @@ public abstract class NettyTcpAcceptor extends NettyAcceptor {
 
     @Override
     public String toString() {
-        return "Socket address:[" + address + ']' + ", nativeET: " + isNativeEt()
+        return "Socket address:[" + localAddress + ']' + ", nativeET: " + isNativeEt()
                 + NEWLINE + bootstrap();
     }
 }

@@ -26,7 +26,7 @@ import java.net.SocketAddress;
  *
  * @author jiachun.fjc
  */
-public interface JAcceptor<C, F> extends Transporter {
+public interface JAcceptor extends Transporter {
 
     /**
      * Local address.
@@ -39,11 +39,6 @@ public interface JAcceptor<C, F> extends Transporter {
     JConfigGroup configGroup();
 
     /**
-     * Create a new Channel and bind it.
-     */
-    C bind(SocketAddress address);
-
-    /**
      * Start the server and wait until the server socket is closed.
      */
     void start() throws InterruptedException;
@@ -54,7 +49,7 @@ public interface JAcceptor<C, F> extends Transporter {
     void start(boolean sync) throws InterruptedException;
 
     /**
-     * Shutdown the server.
+     * Shutdown the server gracefully.
      */
-    F shutdownGracefully();
+    void shutdownGracefully();
 }

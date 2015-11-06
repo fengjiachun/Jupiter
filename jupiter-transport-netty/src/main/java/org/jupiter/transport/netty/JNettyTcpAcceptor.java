@@ -52,24 +52,24 @@ public class JNettyTcpAcceptor extends NettyTcpAcceptor {
         super(port);
     }
 
-    public JNettyTcpAcceptor(SocketAddress address) {
-        super(address);
+    public JNettyTcpAcceptor(SocketAddress localAddress) {
+        super(localAddress);
     }
 
     public JNettyTcpAcceptor(int port, int nWorks) {
         super(port, nWorks);
     }
 
-    public JNettyTcpAcceptor(SocketAddress address, int nWorks) {
-        super(address, nWorks);
+    public JNettyTcpAcceptor(SocketAddress localAddress, int nWorks) {
+        super(localAddress, nWorks);
     }
 
     public JNettyTcpAcceptor(int port, boolean nativeEt) {
         super(port, nativeEt);
     }
 
-    public JNettyTcpAcceptor(SocketAddress address, boolean nativeEt) {
-        super(address, nativeEt);
+    public JNettyTcpAcceptor(SocketAddress localAddress, boolean nativeEt) {
+        super(localAddress, nativeEt);
     }
 
     public JNettyTcpAcceptor(int port, int nWorks, boolean nativeEt) {
@@ -95,7 +95,7 @@ public class JNettyTcpAcceptor extends NettyTcpAcceptor {
     }
 
     @Override
-    public ChannelFuture bind(SocketAddress address) {
+    public ChannelFuture bind(SocketAddress localAddress) {
         ServerBootstrap boot = bootstrap();
 
         if (isNativeEt()) {
@@ -118,6 +118,6 @@ public class JNettyTcpAcceptor extends NettyTcpAcceptor {
 
         setOptions();
 
-        return boot.bind(address);
+        return boot.bind(localAddress);
     }
 }

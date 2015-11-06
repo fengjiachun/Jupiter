@@ -20,11 +20,12 @@ import io.netty.bootstrap.ServerBootstrap;
 import io.netty.buffer.ByteBufAllocator;
 import io.netty.buffer.PooledByteBufAllocator;
 import io.netty.buffer.UnpooledByteBufAllocator;
+import io.netty.channel.Channel;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.EventLoopGroup;
+import io.netty.channel.ServerChannel;
 import io.netty.util.HashedWheelTimer;
 import io.netty.util.concurrent.DefaultThreadFactory;
-import io.netty.util.concurrent.Future;
 import io.netty.util.internal.PlatformDependent;
 import org.jupiter.common.concurrent.NamedThreadFactory;
 import org.jupiter.rpc.AbstractJServer;
@@ -32,6 +33,7 @@ import org.jupiter.transport.JAcceptor;
 import org.jupiter.transport.JConfig;
 import org.jupiter.transport.JOption;
 
+import java.net.InetSocketAddress;
 import java.net.SocketAddress;
 import java.util.concurrent.ThreadFactory;
 
@@ -43,10 +45,10 @@ import static org.jupiter.common.util.JConstants.AVAILABLE_PROCESSORS;
  *
  * @author jiachun.fjc
  */
-public abstract class NettyAcceptor extends AbstractJServer implements JAcceptor<ChannelFuture, Future<?>[]> {
+public abstract class NettyAcceptor extends AbstractJServer implements JAcceptor {
 
     protected final Protocol protocol;
-    protected final SocketAddress address;
+    protected final SocketAddress localAddress;
 
     protected final HashedWheelTimer timer = new HashedWheelTimer(new NamedThreadFactory("acceptor.timer"));
 
@@ -57,13 +59,13 @@ public abstract class NettyAcceptor extends AbstractJServer implements JAcceptor
 
     protected volatile ByteBufAllocator allocator;
 
-    public NettyAcceptor(Protocol protocol, SocketAddress address) {
-        this(protocol, address, AVAILABLE_PROCESSORS + 1);
+    public NettyAcceptor(Protocol protocol, SocketAddress localAddress) {
+        this(protocol, localAddress, AVAILABLE_PROCESSORS + 1);
     }
 
-    public NettyAcceptor(Protocol protocol, SocketAddress address, int nWorkers) {
+    public NettyAcceptor(Protocol protocol, SocketAddress localAddress, int nWorkers) {
         this.protocol = protocol;
-        this.address = address;
+        this.localAddress = localAddress;
         this.nWorkers = nWorkers;
     }
 
@@ -93,12 +95,21 @@ public abstract class NettyAcceptor extends AbstractJServer implements JAcceptor
 
     @Override
     public SocketAddress localAddress() {
-        return address;
+        return localAddress;
     }
 
     @Override
-    public Future<?>[] shutdownGracefully() {
-        return new Future<?>[] { boss.shutdownGracefully(), worker.shutdownGracefully() };
+    public void shutdownGracefully() {
+        boss.shutdownGracefully().awaitUninterruptibly();
+        worker.shutdownGracefully().awaitUninterruptibly();
+    }
+
+    @Override
+    protected int bindPort() {
+        if (!(localAddress instanceof InetSocketAddress)) {
+            throw new UnsupportedOperationException("Unsupported address type to get port");
+        }
+        return ((InetSocketAddress) localAddress).getPort();
     }
 
     protected void setOptions() {
@@ -123,19 +134,42 @@ public abstract class NettyAcceptor extends AbstractJServer implements JAcceptor
         }
     }
 
+    /**
+     * Which allows easy bootstrap of {@link ServerChannel}.
+     */
     protected ServerBootstrap bootstrap() {
         return bootstrap;
     }
 
+    /**
+     * The {@link EventLoopGroup} which is used to handle all the events for the to-be-creates {@link Channel}.
+     */
     protected EventLoopGroup boss() {
         return boss;
     }
 
+    /**
+     * The {@link EventLoopGroup} for the child. These {@link EventLoopGroup}'s are used to handle all the events
+     * and IO for {@link Channel}'s.
+     */
     protected EventLoopGroup worker() {
         return worker;
     }
 
+    /**
+     * Sets the percentage of the desired amount of time spent for I/O in the child event loops.
+     * The default value is {@code 50}, which means the event loop will try to spend the same amount of time for
+     * I/O as for non-I/O tasks.
+     */
     public abstract void setIoRatio(int bossIoRatio, int workerIoRatio);
 
+    /**
+     * Create a new {@link Channel} and bind it.
+     */
+    protected abstract ChannelFuture bind(SocketAddress localAddress);
+
+    /**
+     * Create a new instance using the specified number of threads, the given {@link ThreadFactory}.
+     */
     protected abstract EventLoopGroup initEventLoopGroup(int nThreads, ThreadFactory tFactory);
 }

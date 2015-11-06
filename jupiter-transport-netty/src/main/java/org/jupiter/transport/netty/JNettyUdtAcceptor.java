@@ -51,16 +51,16 @@ public class JNettyUdtAcceptor extends NettyUdtAcceptor {
         super(port);
     }
 
-    public JNettyUdtAcceptor(SocketAddress address) {
-        super(address);
+    public JNettyUdtAcceptor(SocketAddress localAddress) {
+        super(localAddress);
     }
 
     public JNettyUdtAcceptor(int port, int nWorks) {
         super(port, nWorks);
     }
 
-    public JNettyUdtAcceptor(SocketAddress address, int nWorks) {
-        super(address, nWorks);
+    public JNettyUdtAcceptor(SocketAddress localAddress, int nWorks) {
+        super(localAddress, nWorks);
     }
 
     @Override
@@ -77,7 +77,7 @@ public class JNettyUdtAcceptor extends NettyUdtAcceptor {
     }
 
     @Override
-    public ChannelFuture bind(SocketAddress address) {
+    public ChannelFuture bind(SocketAddress localAddress) {
         ServerBootstrap boot = bootstrap();
 
         boot.channelFactory(NioUdtProvider.BYTE_ACCEPTOR)
@@ -96,6 +96,6 @@ public class JNettyUdtAcceptor extends NettyUdtAcceptor {
 
         setOptions();
 
-        return boot.bind(address);
+        return boot.bind(localAddress);
     }
 }

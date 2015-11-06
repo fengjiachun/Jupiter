@@ -23,6 +23,8 @@ import java.util.List;
 import java.util.concurrent.Executor;
 
 /**
+ * The rpc server.
+ *
  * jupiter
  * org.jupiter.rpc
  *
@@ -31,88 +33,67 @@ import java.util.concurrent.Executor;
 public interface JServer extends Registry {
 
     /**
-     * 服务注册表
+     * Service registry.
      */
     interface ServiceRegistry {
 
         /**
-         * 设置服务提供者
+         * Sets up the service provider.
          */
         ServiceRegistry provider(Object serviceProvider);
 
         /**
-         * Provider单独的处理器
+         * The proprietary processors for this provider.
          */
         ServiceRegistry executor(Executor executor);
 
         /**
-         * 注册服务
+         * Register this provider to local.
          */
         ServiceWrapper register();
     }
 
     /**
-     * 获取一个服务注册表
+     * To obtains a service registry.
      */
     ServiceRegistry serviceRegistry();
 
     /**
-     * 查找服务
+     * Looks for the specified service.
      */
     ServiceWrapper lookupService(Directory directory);
 
     /**
-     * 移除已注册的服务
+     * Removes the registered service.
      */
     ServiceWrapper removeService(Directory directory);
 
     /**
-     * 获取全部已注册的服务提供者集合
+     * Returns all the registered services.
      */
     List<ServiceWrapper> getRegisteredServices();
 
     /**
-     * 发布一个服务
-     * @param serviceWrapper 服务提供者, 需要通过{@link ServiceRegistry}构造
-     * @param port 服务端口
+     * Publishing a service.
+     * @param serviceWrapper service provider wrapper, created by {@link ServiceRegistry}.
      */
-    void publish(ServiceWrapper serviceWrapper, int port);
+    void publish(ServiceWrapper serviceWrapper);
 
     /**
-     * 发布一个服务
-     * @param serviceWrapper 服务提供者, 需要通过{@link ServiceRegistry}构造
-     * @param port 服务端口
-     * @param weight 权重
+     * Publishing a service.
+     * @param serviceWrapper service provider wrapper, created by {@link ServiceRegistry}.
+     * @param weight the weight of this provider at current server.
      */
-    void publish(ServiceWrapper serviceWrapper, int port, int weight);
+    void publish(ServiceWrapper serviceWrapper, int weight);
 
     /**
-     * 发布一个服务
-     * @param serviceWrapper 服务提供者, 需要通过{@link ServiceRegistry}构造
-     * @param host 服务地址
-     * @param port 服务端口
-     * @param weight 权重
+     * Publishing all services.
      */
-    void publish(ServiceWrapper serviceWrapper, String host, int port, int weight);
+    void publishAll();
 
     /**
-     * 发布本地所有服务
-     * @param port 服务端口
+     * Publishing all services.
+     * @param weight the weight of these providers at current server.
      */
-    void publishAll(int port);
-
-    /**
-     * 发布本地所有服务
-     * @param port 服务端口
-     * @param weight 权重
-     */
-    void publishAll(int port, int weight);
-
-    /**
-     * 发布本地所有服务
-     * @param host 服务地址
-     * @param port 服务端口
-     * @param weight 权重
-     */
-    void publishAll(String host, int port, int weight);
+    void publishAll(int weight);
 }

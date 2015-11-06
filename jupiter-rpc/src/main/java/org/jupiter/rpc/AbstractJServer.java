@@ -73,24 +73,16 @@ public abstract class AbstractJServer implements JServer {
     }
 
     @Override
-    public void publish(ServiceWrapper serviceWrapper, int port) {
-        publish(serviceWrapper, null, port, DEFAULT_WEIGHT);
+    public void publish(ServiceWrapper serviceWrapper) {
+        publish(serviceWrapper, DEFAULT_WEIGHT);
     }
 
     @Override
-    public void publish(ServiceWrapper serviceWrapper, int port, int weight) {
-        publish(serviceWrapper, null, port, weight);
-    }
-
-    @Override
-    public void publish(ServiceWrapper serviceWrapper, String host, int port, int weight) {
-        checkArgument(port > 0 && port < 0xFFFF, "port out of range:" + port);
-
+    public void publish(ServiceWrapper serviceWrapper, int weight) {
         ServiceMetadata metadata = serviceWrapper.getMetadata();
 
         RegisterMeta meta = new RegisterMeta();
-        meta.setHost(host);
-        meta.setPort(port);
+        meta.setPort(bindPort());
         meta.setGroup(metadata.getGroup());
         meta.setVersion(metadata.getVersion());
         meta.setServiceProviderName(metadata.getServiceProviderName());
@@ -100,21 +92,18 @@ public abstract class AbstractJServer implements JServer {
     }
 
     @Override
-    public void publishAll(int port) {
-        publishAll(null, port, DEFAULT_WEIGHT);
+    public void publishAll() {
+        publishAll(DEFAULT_WEIGHT);
     }
 
     @Override
-    public void publishAll(int port, int weight) {
-        publishAll(null, port, weight);
-    }
-
-    @Override
-    public void publishAll(String host, int port, int weight) {
+    public void publishAll(int weight) {
         for (ServiceWrapper wrapper : providerContainer.getAllServices()) {
-            publish(wrapper, host, port, weight);
+            publish(wrapper, weight);
         }
     }
+
+    protected abstract int bindPort();
 
     ServiceWrapper registerService(String group, String version, String name, Object serviceProvider, Executor executor) {
         ServiceWrapper serviceWrapper = new ServiceWrapper(group, version, name, serviceProvider);
