@@ -20,8 +20,10 @@ import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import org.jupiter.transport.JProtocolHeader;
 
+import static org.jupiter.transport.JProtocolHeader.*;
+
 /**
- * 心跳
+ * Shared heartbeat content.
  *
  * jupiter
  * org.jupiter.transport.netty
@@ -33,10 +35,10 @@ public class HeartBeats {
     private static final ByteBuf HEARTBEAT_BUF;
 
     static {
-        ByteBuf buf = Unpooled.buffer(JProtocolHeader.HEAD_LENGTH);
+        ByteBuf buf = Unpooled.buffer(HEAD_LENGTH);
         // 共享的心跳内容
-        buf.writeShort(JProtocolHeader.MAGIC);
-        buf.writeByte(JProtocolHeader.HEARTBEAT);
+        buf.writeShort(MAGIC);
+        buf.writeByte(HEARTBEAT);
         buf.writeByte(0);
         buf.writeLong(0);
         buf.writeInt(0);
@@ -44,7 +46,7 @@ public class HeartBeats {
     }
 
     /**
-     * 获取共享的心跳内容
+     * Returns the shared heartbeat content.
      */
     public static ByteBuf heartbeatContent() {
         return HEARTBEAT_BUF.duplicate();
