@@ -112,7 +112,7 @@ public abstract class AbstractJClient implements JClient {
     public boolean isDirectoryAvailable(Directory directory) {
         CopyOnWriteArrayList<JChannelGroup> groups = directory(directory);
         for (JChannelGroup g : groups) {
-            if (!g.isEmpty()) {
+            if (g.isAvailable()) {
                 return true;
             }
         }
@@ -123,7 +123,7 @@ public abstract class AbstractJClient implements JClient {
     public JChannel select(Directory directory) {
         CopyOnWriteArrayList<JChannelGroup> groupList = directory(directory);
         JChannelGroup group = loadBalance.select(groupList);
-        if (!group.isEmpty()) {
+        if (group.isAvailable()) {
             return group.next();
         }
 
@@ -138,7 +138,7 @@ public abstract class AbstractJClient implements JClient {
         }
 
         for (JChannelGroup g : groupList) {
-            if (!g.isEmpty()) {
+            if (g.isAvailable()) {
                 return g.next();
             }
         }

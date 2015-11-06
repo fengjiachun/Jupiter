@@ -172,23 +172,27 @@ public class NettyChannelGroup implements JChannelGroup {
     }
 
     @Override
+    public boolean isAvailable() {
+        return !channels.isEmpty();
+    }
+
+    @Override
     public boolean waitForAvailable(long timeoutMillis) {
-        if (!channels.isEmpty()) {
+        if (isAvailable()) {
             return true;
         }
 
-        boolean isAvailable = false;
-
+        boolean available = false;
         long start = System.nanoTime();
         final ReentrantLock _look = lock;
         _look.lock();
         try {
-            while (channels.isEmpty()) {
+            while (!isAvailable()) {
                 signalNeeded.getAndSet(true);
                 notifyCondition.await(timeoutMillis, MILLISECONDS);
 
-                if (!channels.isEmpty()) {
-                    isAvailable = true;
+                if (isAvailable()) {
+                    available = true;
                     break;
                 }
                 if ((System.nanoTime() - start) > MILLISECONDS.toNanos(timeoutMillis)) {
@@ -200,7 +204,8 @@ public class NettyChannelGroup implements JChannelGroup {
         } finally {
             _look.unlock();
         }
-        return isAvailable;
+
+        return available;
     }
 
     @Override

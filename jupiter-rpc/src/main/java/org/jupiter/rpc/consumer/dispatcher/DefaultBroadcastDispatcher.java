@@ -54,7 +54,7 @@ public class DefaultBroadcastDispatcher extends AbstractDispatcher {
         RecyclableArrayList jChannels = Lists.newRecyclableArrayList();
         try {
             for (JChannelGroup group : groupList) {
-                if (!group.isEmpty()) {
+                if (group.isAvailable()) {
                     jChannels.add(group.next());
                 }
             }

@@ -66,6 +66,11 @@ public interface JChannelGroup {
     int size();
 
     /**
+     * If available return true, otherwise return false.
+     */
+    boolean isAvailable();
+
+    /**
      * Wait until the {@link JChannel}s are available or timeout,
      * if available return true, otherwise return false.
      */
