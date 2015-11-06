@@ -163,7 +163,7 @@ public abstract class AbstractJServer implements JServer {
     }
 
     /**
-     * Service provider 容器
+     * Local service provider container.
      */
     interface ServiceProviderContainer {
 
