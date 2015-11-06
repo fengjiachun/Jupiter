@@ -164,8 +164,7 @@ public abstract class NettyConnector extends AbstractJClient implements JConnect
                     return true;
                 }
 
-                boolean isAvailable = false;
-
+                boolean available = false;
                 long start = System.nanoTime();
                 final ReentrantLock _look = lock;
                 _look.lock();
@@ -175,7 +174,7 @@ public abstract class NettyConnector extends AbstractJClient implements JConnect
                         notifyCondition.await(timeoutMillis, MILLISECONDS);
 
                         if (isDirectoryAvailable(directory)) {
-                            isAvailable = true;
+                            available = true;
                             break;
                         }
                         if ((System.nanoTime() - start) > MILLISECONDS.toNanos(timeoutMillis)) {
@@ -187,7 +186,8 @@ public abstract class NettyConnector extends AbstractJClient implements JConnect
                 } finally {
                     _look.unlock();
                 }
-                return isAvailable;
+
+                return available;
             }
         };
 
