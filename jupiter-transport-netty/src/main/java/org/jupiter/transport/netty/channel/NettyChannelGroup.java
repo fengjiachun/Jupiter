@@ -81,6 +81,7 @@ public class NettyChannelGroup implements JChannelGroup {
 
     private final ReentrantLock lock = new ReentrantLock();
     private final Condition notifyCondition = lock.newCondition();
+    // Attempts to elide conditional wake-ups when the lock is uncontended.
     private final AtomicBoolean signalNeeded = new AtomicBoolean(false);
 
     public NettyChannelGroup(UnresolvedAddress address) {

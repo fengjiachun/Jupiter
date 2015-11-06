@@ -100,6 +100,7 @@ public abstract class NettyConnector extends AbstractJClient implements JConnect
 
             private final ReentrantLock lock = new ReentrantLock();
             private final Condition notifyCondition = lock.newCondition();
+            // Attempts to elide conditional wake-ups when the lock is uncontended.
             private final AtomicBoolean signalNeeded = new AtomicBoolean(false);
 
             @Override
@@ -114,14 +115,14 @@ public abstract class NettyConnector extends AbstractJClient implements JConnect
 
                             // 每个group存放的是相同对端地址的channel, 如果group不为空且至少有一个channel自动重连
                             // 被设置为true就不用再建立连接了
-                            boolean shouldConnect = true;
+                            boolean connectNeeded = true;
                             for (JChannel channel : group.channels()) {
                                 if (channel.isActive() && channel.isReconnect()) {
-                                    shouldConnect = false;
+                                    connectNeeded = false;
                                     break;
                                 }
                             }
-                            if (shouldConnect) {
+                            if (connectNeeded) {
                                 JConnection connection = connect(address);
                                 JConnectionManager.manage(connection);
 
