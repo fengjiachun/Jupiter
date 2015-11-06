@@ -158,7 +158,7 @@ public class ProxyFactory {
     }
 
     /**
-     * Sets the dispatch mode, the default is {@link DispatchMode#ROUND}
+     * Sets the mode of dispatch, the default is {@link DispatchMode#ROUND}
      */
     public ProxyFactory dispatchMode(DispatchMode dispatchMode) {
         checkValid(this);
