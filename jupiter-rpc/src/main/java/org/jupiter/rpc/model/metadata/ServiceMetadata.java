@@ -21,7 +21,7 @@ import org.jupiter.rpc.Directory;
 import java.io.Serializable;
 
 /**
- * Service provider metadata.
+ * Service provider's metadata.
  *
  * jupiter
  * org.jupiter.rpc.model.metadata

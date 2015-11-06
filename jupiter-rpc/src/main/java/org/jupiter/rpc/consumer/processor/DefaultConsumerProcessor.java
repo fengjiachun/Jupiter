@@ -27,7 +27,7 @@ import java.util.concurrent.Executor;
 import static org.jupiter.common.util.JConstants.PROCESSOR_CORE_NUM_WORKERS;
 
 /**
- * Default consumer's processor.
+ * The default implementation of consumer's processor.
  *
  * jupiter
  * org.jupiter.rpc.consumer.processor

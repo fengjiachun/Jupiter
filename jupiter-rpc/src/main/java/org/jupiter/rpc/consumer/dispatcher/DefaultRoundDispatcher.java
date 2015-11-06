@@ -29,7 +29,7 @@ import org.jupiter.serialization.SerializerHolder;
 import java.util.List;
 
 /**
- * 单播派发
+ * 单播方式派发消息
  *
  * jupiter
  * org.jupiter.rpc.consumer.dispatcher

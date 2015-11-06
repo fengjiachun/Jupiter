@@ -20,6 +20,8 @@ import io.netty.channel.Channel;
 import org.jupiter.monitor.Command;
 
 /**
+ * Handles the telnet command from monitor client.
+ *
  * jupiter
  * org.jupiter.monitor.handler
  *

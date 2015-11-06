@@ -19,6 +19,8 @@ package org.jupiter.serialization;
 import org.jupiter.common.util.JServiceLoader;
 
 /**
+ * Holds a singleton serializer.
+ *
  * jupiter
  * org.jupiter.serialization
  *

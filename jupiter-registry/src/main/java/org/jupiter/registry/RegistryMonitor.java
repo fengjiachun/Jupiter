@@ -29,22 +29,22 @@ import java.util.List;
 public interface RegistryMonitor {
 
     /**
-     * 获取所有Publisher的地址列表
+     * Returns the address list of publisher.
      */
     List<String> listPublisherHosts();
 
     /**
-     * 获取所有Subscriber的地址列表
+     * Returns the address list of subscriber.
      */
     List<String> listSubscriberAddresses();
 
     /**
-     * 根据指定服务返回改服务的全部提供者的地址
+     * Returns to the service of all the specified service provider's address.
      */
     List<String> listAddressesByService(String group, String version, String serviceProviderName);
 
     /**
-     * 根据指定地址返回该地址对应的节点提供的所有服务
+     * Finds the address(host, port) of the corresponding node and returns all the service names it provides.
      */
     List<String> listServicesByAddress(String host, int port);
 }

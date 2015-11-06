@@ -22,7 +22,7 @@ import org.jupiter.common.util.internal.Recyclers;
 import java.io.Serializable;
 
 /**
- * Response数据的包装对象
+ * Response data wrapper.
  *
  * jupiter
  * org.jupiter.rpc.model.metadata

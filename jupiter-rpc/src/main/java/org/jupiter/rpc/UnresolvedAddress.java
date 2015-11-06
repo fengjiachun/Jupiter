@@ -22,6 +22,8 @@ import static org.jupiter.common.util.Preconditions.checkArgument;
 import static org.jupiter.common.util.Preconditions.checkNotNull;
 
 /**
+ * Unresolved address.
+ *
  * jupiter
  * org.jupiter.rpc
  *

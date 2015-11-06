@@ -25,7 +25,7 @@ import static org.jupiter.common.util.JConstants.PROCESSOR_MAX_NUM_WORKS;
 import static org.jupiter.common.util.JConstants.PROCESSOR_WORKER_QUEUE_CAPACITY;
 
 /**
- * Disruptor executor factory.
+ * Provide a disruptor implementation of executor.
  *
  * jupiter
  * org.jupiter.rpc.executor

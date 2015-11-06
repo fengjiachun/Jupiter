@@ -21,7 +21,7 @@ import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
 import io.netty.handler.timeout.IdleState;
 import io.netty.handler.timeout.IdleStateEvent;
-import org.jupiter.transport.netty.HeartBeats;
+import org.jupiter.transport.netty.Heartbeats;
 
 /**
  * jupiter
@@ -38,7 +38,7 @@ public class ConnectorIdleStateTrigger extends ChannelInboundHandlerAdapter {
             IdleState state = ((IdleStateEvent) evt).state();
             if (state == IdleState.WRITER_IDLE) {
                 // write heartbeat to server
-                ctx.writeAndFlush(HeartBeats.heartbeatContent());
+                ctx.writeAndFlush(Heartbeats.heartbeatContent());
             }
         } else {
             super.userEventTriggered(ctx, evt);

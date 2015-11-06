@@ -21,7 +21,7 @@ import org.jupiter.rpc.Status;
 import java.net.SocketAddress;
 
 /**
- * 调用超时会抛出此异常, 通常在客户端抛出
+ * Call timeout, usually thrown by client.
  *
  * jupiter
  * org.jupiter.rpc.error

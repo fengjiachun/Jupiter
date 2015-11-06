@@ -19,7 +19,7 @@ package org.jupiter.registry;
 import java.util.List;
 
 /**
- * 服务订阅者的监听器
+ * Service subscribers listener.
  *
  * jupiter
  * org.jupiter.registry

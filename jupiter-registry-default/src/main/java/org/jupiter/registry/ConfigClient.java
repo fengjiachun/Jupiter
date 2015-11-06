@@ -62,7 +62,7 @@ import static org.jupiter.transport.error.Signals.ILLEGAL_MAGIC;
 import static org.jupiter.transport.error.Signals.ILLEGAL_SIGN;
 
 /**
- * 注册中心客户端
+ * The client of registration center.
  *
  * jupiter
  * org.jupiter.registry
@@ -167,6 +167,9 @@ public class ConfigClient extends NettyTcpConnector {
         };
     }
 
+    /**
+     * Sent the subscription information to the config server.
+     */
     public void doSubscribe(ServiceMeta serviceMeta) {
         subscribeSet.add(serviceMeta);
 
@@ -184,6 +187,9 @@ public class ConfigClient extends NettyTcpConnector {
         }
     }
 
+    /**
+     * Publishing service to the config server.
+     */
     public void doRegister(RegisterMeta meta) {
         registerMetaSet.add(meta);
 
@@ -201,6 +207,9 @@ public class ConfigClient extends NettyTcpConnector {
         }
     }
 
+    /**
+     * Notification the config server unpublish corresponding service.
+     */
     public void doUnregister(RegisterMeta meta) {
         registerMetaSet.remove(meta);
 

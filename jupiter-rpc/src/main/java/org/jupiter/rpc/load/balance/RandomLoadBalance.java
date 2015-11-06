@@ -24,7 +24,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.ThreadLocalRandom;
 
 /**
- * Random load balance.
+ * Random load balance with weight.
  *
  * jupiter
  * org.jupiter.rpc.load.balance

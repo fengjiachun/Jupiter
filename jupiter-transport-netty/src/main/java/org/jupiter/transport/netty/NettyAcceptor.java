@@ -20,10 +20,8 @@ import io.netty.bootstrap.ServerBootstrap;
 import io.netty.buffer.ByteBufAllocator;
 import io.netty.buffer.PooledByteBufAllocator;
 import io.netty.buffer.UnpooledByteBufAllocator;
-import io.netty.channel.Channel;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.EventLoopGroup;
-import io.netty.channel.ServerChannel;
 import io.netty.util.HashedWheelTimer;
 import io.netty.util.concurrent.DefaultThreadFactory;
 import io.netty.util.internal.PlatformDependent;
@@ -135,14 +133,15 @@ public abstract class NettyAcceptor extends AbstractJServer implements JAcceptor
     }
 
     /**
-     * Which allows easy bootstrap of {@link ServerChannel}.
+     * Which allows easy bootstrap of {@link io.netty.channel.ServerChannel}.
      */
     protected ServerBootstrap bootstrap() {
         return bootstrap;
     }
 
     /**
-     * The {@link EventLoopGroup} which is used to handle all the events for the to-be-creates {@link Channel}.
+     * The {@link EventLoopGroup} which is used to handle all the events for the to-be-creates
+     * {@link io.netty.channel.Channel}.
      */
     protected EventLoopGroup boss() {
         return boss;
@@ -150,7 +149,7 @@ public abstract class NettyAcceptor extends AbstractJServer implements JAcceptor
 
     /**
      * The {@link EventLoopGroup} for the child. These {@link EventLoopGroup}'s are used to handle all the events
-     * and IO for {@link Channel}'s.
+     * and IO for {@link io.netty.channel.Channel}'s.
      */
     protected EventLoopGroup worker() {
         return worker;
@@ -164,7 +163,7 @@ public abstract class NettyAcceptor extends AbstractJServer implements JAcceptor
     public abstract void setIoRatio(int bossIoRatio, int workerIoRatio);
 
     /**
-     * Create a new {@link Channel} and bind it.
+     * Create a new {@link io.netty.channel.Channel} and bind it.
      */
     protected abstract ChannelFuture bind(SocketAddress localAddress);
 

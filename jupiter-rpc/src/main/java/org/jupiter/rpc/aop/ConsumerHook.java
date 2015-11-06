@@ -29,12 +29,12 @@ import org.jupiter.rpc.Request;
 public interface ConsumerHook {
 
     /**
-     * Request数据被发送到网络前被触发
+     * Will be triggered when the request data sent to the network.
      */
     void before(Request request);
 
     /**
-     * RPC返回结果时被触发
+     * Will to be triggered when the server returns the results.
      */
     void after(Request request);
 }

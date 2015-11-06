@@ -117,6 +117,9 @@ public abstract class NettyTcpConnector extends NettyConnector {
         return isNativeEt() ? new EpollEventLoopGroup(nThreads, tFactory) : new NioEventLoopGroup(nThreads, tFactory);
     }
 
+    /**
+     * Netty provides the native socket transport for Linux using JNI based on Epoll Edge Triggered(ET).
+     */
     public boolean isNativeEt() {
         return nativeEt && NativeSupport.isSupportNativeET();
     }

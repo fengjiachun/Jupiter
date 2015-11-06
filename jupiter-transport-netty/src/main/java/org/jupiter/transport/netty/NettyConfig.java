@@ -25,6 +25,8 @@ import org.jupiter.transport.JOption;
 import java.util.Collections;
 import java.util.List;
 
+import static org.jupiter.common.util.Preconditions.*;
+
 /**
  * Config for netty.
  *
@@ -58,7 +60,7 @@ public class NettyConfig implements JConfig {
     @SuppressWarnings("unchecked")
     @Override
     public <T> T getOption(JOption<T> option) {
-        Preconditions.checkNotNull(option);
+        checkNotNull(option);
 
         if (option == JOption.IO_RATIO) {
             return (T) Integer.valueOf(getIoRatio());
@@ -119,8 +121,8 @@ public class NettyConfig implements JConfig {
     }
 
     protected <T> void validate(JOption<T> option, T value) {
-        Preconditions.checkNotNull(option, "option");
-        Preconditions.checkNotNull(value, "value");
+        checkNotNull(option, "option");
+        checkNotNull(value, "value");
     }
 
     /**
@@ -169,7 +171,7 @@ public class NettyConfig implements JConfig {
             @SuppressWarnings("unchecked")
             @Override
             public <T> T getOption(JOption<T> option) {
-                Preconditions.checkNotNull(option);
+                checkNotNull(option);
 
                 if (option == JOption.SO_BACKLOG) {
                     return (T) Integer.valueOf(getBacklog());
@@ -265,7 +267,7 @@ public class NettyConfig implements JConfig {
             @SuppressWarnings("unchecked")
             @Override
             public <T> T getOption(JOption<T> option) {
-                Preconditions.checkNotNull(option);
+                checkNotNull(option);
 
                 if (option == JOption.SO_RCVBUF) {
                     return (T) Integer.valueOf(getRcvBuf());
@@ -442,7 +444,7 @@ public class NettyConfig implements JConfig {
             @SuppressWarnings("unchecked")
             @Override
             public <T> T getOption(JOption<T> option) {
-                Preconditions.checkNotNull(option);
+                checkNotNull(option);
 
                 if (option == JOption.SO_BACKLOG) {
                     return (T) Integer.valueOf(getBacklog());
@@ -504,7 +506,7 @@ public class NettyConfig implements JConfig {
             @SuppressWarnings("unchecked")
             @Override
             public <T> T getOption(JOption<T> option) {
-                Preconditions.checkNotNull(option);
+                checkNotNull(option);
 
                 if (option == JOption.SO_RCVBUF) {
                     return (T) Integer.valueOf(getRcvBuf());

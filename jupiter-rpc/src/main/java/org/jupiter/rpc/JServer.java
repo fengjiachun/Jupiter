@@ -48,7 +48,7 @@ public interface JServer extends Registry {
         ServiceRegistry executor(Executor executor);
 
         /**
-         * Register this provider to local.
+         * Register this provider to local scope.
          */
         ServiceWrapper register();
     }

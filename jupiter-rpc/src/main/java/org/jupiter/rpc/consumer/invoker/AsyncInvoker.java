@@ -24,7 +24,8 @@ import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 
 /**
- * 异步调用
+ * Asynchronous call, {@link AsyncInvoker#invoke(Object, Method, Object[])}
+ * returns a default value of the corresponding method.
  *
  * jupiter
  * org.jupiter.rpc.consumer.invoker

@@ -29,7 +29,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
 public interface LoadBalance<T> {
 
     /**
-     * Select one in list
+     * Select one in this list.
      */
     T select(CopyOnWriteArrayList<T> list);
 }

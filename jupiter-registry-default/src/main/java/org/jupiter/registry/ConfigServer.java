@@ -63,7 +63,7 @@ import static org.jupiter.transport.error.Signals.ILLEGAL_MAGIC;
 import static org.jupiter.transport.error.Signals.ILLEGAL_SIGN;
 
 /**
- * 注册中心服务端
+ * The server of registration center.
  *
  * 所有信息均在内存中, 不持久化.
  *

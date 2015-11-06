@@ -25,7 +25,7 @@ import java.util.concurrent.ForkJoinWorkerThread;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
- * Fork join pool executor factory.
+ * Provide a {@link ForkJoinPool} implementation of executor.
  *
  * jupiter
  * org.jupiter.rpc.executor

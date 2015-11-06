@@ -17,6 +17,8 @@
 package org.jupiter.rpc;
 
 /**
+ * Response status.
+ *
  * jupiter
  * org.jupiter.rpc
  *

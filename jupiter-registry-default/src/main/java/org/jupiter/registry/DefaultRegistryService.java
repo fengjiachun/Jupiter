@@ -33,10 +33,6 @@ public class DefaultRegistryService extends AbstractRegistryService {
 
     private volatile ConfigClient configClient;
 
-    public void connectToConfigServer(UnresolvedAddress address) {
-        configClient.connect(address);
-    }
-
     @Override
     protected void doSubscribe(ServiceMeta serviceMeta) {
         configClient.doSubscribe(serviceMeta);
@@ -63,6 +59,6 @@ public class DefaultRegistryService extends AbstractRegistryService {
         }
 
         UnresolvedAddress address = new UnresolvedAddress((String) args[0], (Integer) args[1]);
-        connectToConfigServer(address);
+        configClient.connect(address);
     }
 }

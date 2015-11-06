@@ -35,7 +35,7 @@ import java.util.List;
 import static org.jupiter.rpc.DispatchMode.BROADCAST;
 
 /**
- * 组播派发
+ * 组播方式派发消息
  *
  * jupiter
  * org.jupiter.rpc.consumer.dispatcher

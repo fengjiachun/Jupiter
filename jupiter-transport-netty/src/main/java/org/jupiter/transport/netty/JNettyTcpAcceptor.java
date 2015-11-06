@@ -76,8 +76,8 @@ public class JNettyTcpAcceptor extends NettyTcpAcceptor {
         super(port, nWorks, nativeEt);
     }
 
-    public JNettyTcpAcceptor(SocketAddress address, int nWorks, boolean nativeEt) {
-        super(address, nWorks, nativeEt);
+    public JNettyTcpAcceptor(SocketAddress localAddress, int nWorks, boolean nativeEt) {
+        super(localAddress, nWorks, nativeEt);
     }
 
     @Override

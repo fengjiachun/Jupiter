@@ -46,17 +46,23 @@ public interface JClient extends Registry {
 
     boolean isDirectoryAvailable(Directory directory);
 
+    /**
+     * Selects a {@link JChannel} from the load balancer.
+     */
     JChannel select(Directory directory);
 
+    /**
+     * Find a service in the local scope.
+     */
     Collection<RegisterMeta> lookup(Directory directory);
 
     /**
-     * 订阅服务
+     * Subscribe a service from config server.
      */
     void subscribe(Directory directory, NotifyListener listener);
 
     /**
-     * Provider下线通知
+     * Provider offline notification.
      */
     void offlineListening(UnresolvedAddress address, OfflineListener listener);
 }

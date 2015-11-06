@@ -43,6 +43,8 @@ import static org.jupiter.rpc.DispatchMode.ROUND;
 import static org.jupiter.rpc.Status.*;
 
 /**
+ * The default implementation of {@link InvokeFuture}, based on {@link ReentrantLock}.
+ *
  * jupiter
  * org.jupiter.rpc.consumer.future
  *

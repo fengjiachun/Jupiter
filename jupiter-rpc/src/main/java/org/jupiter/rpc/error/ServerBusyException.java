@@ -17,7 +17,7 @@
 package org.jupiter.rpc.error;
 
 /**
- * 抛出此异常是通常表明服务端的处理能力已经是饱和状态了
+ * Usually it means that the server can not handle the new request.
  *
  * For efficiency this exception will not have a stack trace.
  *

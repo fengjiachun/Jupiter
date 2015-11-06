@@ -41,7 +41,7 @@ public class HelloJupiterServer {
                     .register();
 
             server.initRegistryService("127.0.0.1", 20001);
-            server.publish(provider, 18090);
+            server.publish(provider);
             server.start();
         } catch (InterruptedException e) {
             e.printStackTrace();

@@ -18,10 +18,9 @@ package org.jupiter.example.broadcast;
 
 import org.jupiter.example.ServiceTestImpl;
 import org.jupiter.rpc.model.metadata.ServiceWrapper;
-import org.jupiter.transport.netty.NettyAcceptor;
 import org.jupiter.transport.netty.JNettyTcpAcceptor;
+import org.jupiter.transport.netty.NettyAcceptor;
 
-import java.net.InetSocketAddress;
 import java.util.concurrent.CountDownLatch;
 
 /**
@@ -47,8 +46,7 @@ public class HelloJupiterServer {
                                 .provider(new ServiceTestImpl())
                                 .register();
 
-                        int port = ((InetSocketAddress) acceptor.localAddress()).getPort();
-                        acceptor.publish(provider, port);
+                        acceptor.publish(provider);
                         acceptor.start();
                     } catch (InterruptedException e) {
                         e.printStackTrace();

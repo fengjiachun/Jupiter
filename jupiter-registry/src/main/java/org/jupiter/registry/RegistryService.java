@@ -31,32 +31,32 @@ import static org.jupiter.registry.RegisterMeta.*;
 public interface RegistryService {
 
     /**
-     * 初始化并与ConfigServer建立连接
+     * Initialize and establish a connection with config server.
      */
     void init(Object... args);
 
     /**
-     * 注册服务
+     * Register Service to config server.
      */
     void register(RegisterMeta meta);
 
     /**
-     * 取消注册服务
+     * Unregister service to config server.
      */
     void unregister(RegisterMeta meta);
 
     /**
-     * 订阅服务
+     * Subscribe a service from config server.
      */
     void subscribe(ServiceMeta serviceMeta, NotifyListener listener);
 
     /**
-     * provider下线通知
+     * Provider offline notification.
      */
     void offlineListening(Address address, OfflineListener listener);
 
     /**
-     * 本地查找服务
+     * Find a service in the local scope.
      */
     Collection<RegisterMeta> lookup(ServiceMeta serviceMeta);
 }

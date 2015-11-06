@@ -19,10 +19,12 @@ package org.jupiter.rpc;
 import java.util.EventListener;
 
 /**
- * RPC 回调, 一个服务对象中的所有方法都共用一个JListener, 以参数request作为区别.
+ * RPC callback, a service object all methods share a {@link JListener},
+ * as the difference between a parameter request.
  *
- * 注意:
- * {@link JListener#complete(Request, Object)}执行过程中出现异常会触发 {@link JListener#failure(Request, Throwable)}
+ * Note:
+ * If {@link JListener#complete(Request, Object)} thrown a {@link Exception} during execution,
+ * will trigger {@link JListener#failure(Request, Throwable)}
  *
  * jupiter
  * org.jupiter.rpc
@@ -32,19 +34,12 @@ import java.util.EventListener;
 public interface JListener extends EventListener {
 
     /**
-     * 调用成功返回结果
-     *
-     * @param request 请求对象
-     * @param result 返回结果
-     * @throws Exception
+     * Return result when the call succeeds.
      */
     void complete(Request request, Object result) throws Exception;
 
     /**
-     * 调用失败返回异常信息
-     *
-     * @param request 请求对象
-     * @param cause 异常信息
+     * Returns an exception message when call fails.
      */
     void failure(Request request, Throwable cause);
 }

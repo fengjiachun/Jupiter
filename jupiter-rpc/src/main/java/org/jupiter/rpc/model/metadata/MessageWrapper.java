@@ -22,7 +22,7 @@ import java.io.Serializable;
 import java.util.Arrays;
 
 /**
- * Request数据的包装对象
+ * Request data wrapper.
  *
  * jupiter
  * org.jupiter.rpc.model.metadata

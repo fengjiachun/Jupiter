@@ -206,18 +206,6 @@ public abstract class NettyConnector extends AbstractJClient implements JConnect
         return new NettyChannelGroup(address);
     }
 
-    public Bootstrap bootstrap() {
-        return bootstrap;
-    }
-
-    public Object bootstrapLock() {
-        return bootstrap;
-    }
-
-    public EventLoopGroup worker() {
-        return worker;
-    }
-
     protected void setOptions() {
         JConfig child = config();
 
@@ -239,7 +227,38 @@ public abstract class NettyConnector extends AbstractJClient implements JConnect
         }
     }
 
+    /**
+     * A {@link Bootstrap} that makes it easy to bootstrap a {@link io.netty.channel.Channel} to use
+     * for clients.
+     */
+    protected Bootstrap bootstrap() {
+        return bootstrap;
+    }
+
+    /**
+     * Lock object with bootstrap.
+     */
+    protected Object bootstrapLock() {
+        return bootstrap;
+    }
+
+    /**
+     * The {@link EventLoopGroup} for the child. These {@link EventLoopGroup}'s are used to handle all the events
+     * and IO for {@link io.netty.channel.Channel}'s.
+     */
+    protected EventLoopGroup worker() {
+        return worker;
+    }
+
+    /**
+     * Sets the percentage of the desired amount of time spent for I/O in the child event loops.
+     * The default value is {@code 50}, which means the event loop will try to spend the same amount of time for
+     * I/O as for non-I/O tasks.
+     */
     public abstract void setIoRatio(int workerIoRatio);
 
+    /**
+     * Create a new instance using the specified number of threads, the given {@link ThreadFactory}.
+     */
     protected abstract EventLoopGroup initEventLoopGroup(int nThreads, ThreadFactory tFactory);
 }
