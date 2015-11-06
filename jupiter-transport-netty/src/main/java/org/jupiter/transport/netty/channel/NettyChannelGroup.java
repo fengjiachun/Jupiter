@@ -18,7 +18,6 @@ package org.jupiter.transport.netty.channel;
 
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelFutureListener;
-import org.jupiter.common.util.Function;
 import org.jupiter.common.util.Lists;
 import org.jupiter.common.util.Reflects;
 import org.jupiter.common.util.SystemClock;
@@ -122,14 +121,8 @@ public class NettyChannelGroup implements JChannelGroup {
     }
 
     @Override
-    public List<JChannel> channels() {
-        return Lists.transform(Lists.newArrayList(channels), new Function<NettyChannel, JChannel>() {
-
-            @Override
-            public JChannel apply(NettyChannel input) {
-                return input;
-            }
-        });
+    public List<? extends JChannel> channels() {
+        return Lists.newArrayList(channels);
     }
 
     @Override
