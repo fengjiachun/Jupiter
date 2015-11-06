@@ -148,7 +148,7 @@ public class ProxyFactory {
     }
 
     /**
-     * Synchronous blocking or asynchronous callback.
+     * Synchronous blocking or asynchronous callback, the default is synchronous.
      */
     public ProxyFactory asyncMode(AsyncMode asyncMode) {
         checkValid(this);
@@ -157,6 +157,9 @@ public class ProxyFactory {
         return this;
     }
 
+    /**
+     * Sets dispatch mode, the default is {@link DispatchMode#ROUND}
+     */
     public ProxyFactory dispatchMode(DispatchMode dispatchMode) {
         checkValid(this);
 
@@ -175,7 +178,7 @@ public class ProxyFactory {
     }
 
     /**
-     * Asynchronous callback interface.
+     * Asynchronous callback listener.
      */
     public ProxyFactory listener(JListener listener) {
         checkValid(this);
