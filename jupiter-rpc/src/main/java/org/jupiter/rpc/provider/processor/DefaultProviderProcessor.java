@@ -50,7 +50,7 @@ public class DefaultProviderProcessor extends AbstractProviderProcessor {
     }
 
     @Override
-    public void handleRequest(final JChannel ch, final Request request) throws Exception {
+    public void handleRequest(JChannel ch, Request request) throws Exception {
         // 1. 反序列化相对较耗cpu, 避免在IO线程中执行.
         // 2. 根据Java Flight Recordings (JFR) 观察结果, protostuff在发序列化时,
         //      io.protostuff.runtime.RuntimeEnv.loadClass有较多的锁竞争, 避免在IO线程中执行.
