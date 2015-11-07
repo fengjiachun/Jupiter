@@ -33,7 +33,7 @@ import org.jupiter.transport.netty.JNettyTcpAcceptor;
 public class BenchmarkServer {
 
     public static void main(String[] args) {
-        final int processors = Runtime.getRuntime().availableProcessors() << 1;
+        final int processors = Runtime.getRuntime().availableProcessors();
         SystemPropertyUtil
                 .setProperty("jupiter.processor.executor.core.num.workers", String.valueOf(processors));
         SystemPropertyUtil
