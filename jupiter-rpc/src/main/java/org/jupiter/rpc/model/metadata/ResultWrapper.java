@@ -33,9 +33,7 @@ public class ResultWrapper implements Recyclable, Serializable {
 
     private static final long serialVersionUID = -1126932930252953428L;
 
-    // 服务调用结果
     private Object result;
-    // 错误信息
     private Throwable error;
 
     public Object getResult() {
@@ -54,9 +52,6 @@ public class ResultWrapper implements Recyclable, Serializable {
         this.error = error;
     }
 
-    /**
-     * 获取一个ResultWrapper对象
-     */
     public static ResultWrapper getInstance() {
         return recyclers.get();
     }
@@ -65,9 +60,6 @@ public class ResultWrapper implements Recyclable, Serializable {
         this.handle = null;
     }
 
-    /**
-     * 回收ResultWrapper对象, 不是通过getInstance()获得实例的不需要回收
-     */
     @Override
     public boolean recycle() {
         if (handle == null) return false;

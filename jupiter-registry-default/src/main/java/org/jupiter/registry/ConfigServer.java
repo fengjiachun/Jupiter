@@ -52,8 +52,8 @@ import java.net.InetSocketAddress;
 import java.net.SocketAddress;
 import java.util.List;
 import java.util.concurrent.ConcurrentMap;
-import java.util.concurrent.TimeUnit;
 
+import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.jupiter.common.util.JConstants.READER_IDLE_TIME_SECONDS;
 import static org.jupiter.common.util.StackTraceUtil.stackTrace;
 import static org.jupiter.registry.RegisterMeta.Address;
@@ -619,7 +619,7 @@ public class ConfigServer extends NettyTcpAcceptor implements RegistryMonitor {
             for (;;) {
                 try {
                     for (MessageNonAck m : messagesNonAck.values()) {
-                        if (SystemClock.millisClock().now() - m.timestamp > TimeUnit.SECONDS.toMillis(10)) {
+                        if (SystemClock.millisClock().now() - m.timestamp > SECONDS.toMillis(10)) {
 
                             // 移除
                             if (messagesNonAck.remove(m.id) == null) {

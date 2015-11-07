@@ -19,8 +19,8 @@ package org.jupiter.rpc.metric;
 import com.codahale.metrics.*;
 
 import java.io.File;
-import java.util.concurrent.TimeUnit;
 
+import static java.util.concurrent.TimeUnit.MINUTES;
 import static org.jupiter.common.util.JConstants.*;
 import static org.jupiter.common.util.Preconditions.checkNotNull;
 
@@ -51,7 +51,7 @@ public class Metrics {
             }
             scheduledReporter = _reporter;
         }
-        scheduledReporter.start(METRIC_REPORT_PERIOD, TimeUnit.MINUTES);
+        scheduledReporter.start(METRIC_REPORT_PERIOD, MINUTES);
     }
 
     /**

@@ -50,8 +50,8 @@ import org.jupiter.transport.netty.handler.connector.ConnectorIdleStateTrigger;
 
 import java.util.List;
 import java.util.concurrent.ConcurrentMap;
-import java.util.concurrent.TimeUnit;
 
+import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.jupiter.common.util.JConstants.WRITER_IDLE_TIME_SECONDS;
 import static org.jupiter.common.util.Preconditions.checkNotNull;
 import static org.jupiter.common.util.StackTraceUtil.stackTrace;
@@ -107,7 +107,7 @@ public class ConfigClient extends NettyTcpConnector {
     protected void doInit() {
         // child options
         config().setOption(JOption.SO_REUSEADDR, true);
-        config().setOption(JOption.CONNECT_TIMEOUT_MILLIS, (int) TimeUnit.SECONDS.toMillis(3));
+        config().setOption(JOption.CONNECT_TIMEOUT_MILLIS, (int) SECONDS.toMillis(3));
         // channel factory
         bootstrap().channel(NioSocketChannel.class);
     }
@@ -459,7 +459,7 @@ public class ConfigClient extends NettyTcpConnector {
             for (;;) {
                 try {
                     for (MessageNonAck m : messagesNonAck.values()) {
-                        if (SystemClock.millisClock().now() - m.timestamp > TimeUnit.SECONDS.toMillis(10)) {
+                        if (SystemClock.millisClock().now() - m.timestamp > SECONDS.toMillis(10)) {
 
                             // 移除
                             if (messagesNonAck.remove(m.id) == null) {

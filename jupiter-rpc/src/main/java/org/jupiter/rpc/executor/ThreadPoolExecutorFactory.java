@@ -21,6 +21,7 @@ import org.jupiter.common.concurrent.RejectedTaskPolicyWithReport;
 
 import java.util.concurrent.*;
 
+import static java.util.concurrent.TimeUnit.*;
 import static org.jupiter.common.util.JConstants.PROCESSOR_MAX_NUM_WORKS;
 import static org.jupiter.common.util.JConstants.PROCESSOR_WORKER_QUEUE_CAPACITY;
 
@@ -56,7 +57,7 @@ public class ThreadPoolExecutorFactory implements ExecutorFactory {
                 parallelism,
                 PROCESSOR_MAX_NUM_WORKS,
                 120L,
-                TimeUnit.SECONDS,
+                SECONDS,
                 workQueue,
                 new NamedThreadFactory("processor"),
                 new RejectedTaskPolicyWithReport("processor"));

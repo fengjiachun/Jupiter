@@ -36,8 +36,7 @@ import org.jupiter.transport.netty.handler.connector.ConnectionWatchdog;
 import org.jupiter.transport.netty.handler.connector.ConnectorHandler;
 import org.jupiter.transport.netty.handler.connector.ConnectorIdleStateTrigger;
 
-import java.util.concurrent.TimeUnit;
-
+import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.jupiter.common.util.JConstants.WRITER_IDLE_TIME_SECONDS;
 
 /**
@@ -71,7 +70,7 @@ public class JNettyTcpConnector extends NettyTcpConnector {
     protected void doInit() {
         // child options
         config().setOption(JOption.SO_REUSEADDR, true);
-        config().setOption(JOption.CONNECT_TIMEOUT_MILLIS, (int) TimeUnit.SECONDS.toMillis(3));
+        config().setOption(JOption.CONNECT_TIMEOUT_MILLIS, (int) SECONDS.toMillis(3));
         // channel factory
         if (isNativeEt()) {
             bootstrap().channel(EpollSocketChannel.class);

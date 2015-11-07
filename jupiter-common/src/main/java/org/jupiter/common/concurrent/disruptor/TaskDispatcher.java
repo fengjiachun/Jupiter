@@ -25,6 +25,7 @@ import org.jupiter.common.util.Pow2;
 
 import java.util.concurrent.*;
 
+import static java.util.concurrent.TimeUnit.*;
 import static org.jupiter.common.concurrent.disruptor.WaitStrategyType.*;
 
 /**
@@ -95,7 +96,7 @@ public class TaskDispatcher implements Dispatcher<Runnable>, Executor {
                     0,
                     numReserveWorkers,
                     60L,
-                    TimeUnit.SECONDS,
+                    SECONDS,
                     new SynchronousQueue<Runnable>(),
                     new NamedThreadFactory("reserve.processor"),
                     new RejectedTaskPolicyWithReport("reserve.processor"));
@@ -112,7 +113,7 @@ public class TaskDispatcher implements Dispatcher<Runnable>, Executor {
                 waitStrategy = new LiteBlockingWaitStrategy();
                 break;
             case PHASED_BACK_OFF_WAIT:
-                waitStrategy = PhasedBackoffWaitStrategy.withLock(1, 1, TimeUnit.MILLISECONDS);
+                waitStrategy = PhasedBackoffWaitStrategy.withLock(1, 1, MILLISECONDS);
                 break;
             case SLEEPING_WAIT:
                 waitStrategy = new SleepingWaitStrategy();
