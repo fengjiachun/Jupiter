@@ -45,6 +45,8 @@ import java.util.concurrent.atomic.AtomicLong;
  * 测试结果:
  * Request count: 12800000, time: 117 second, qps: 109401
  *
+ * 飞行记录: -XX:+UnlockCommercialFeatures -XX:+FlightRecorder
+ *
  * jupiter
  * org.jupiter.benchmark.tcp
  *
@@ -55,14 +57,14 @@ public class BenchmarkClient {
     private static final InternalLogger logger = InternalLoggerFactory.getInstance(BenchmarkClient.class);
 
     public static void main(String[] args) {
-        int processors = 2;
+        int processors = Runtime.getRuntime().availableProcessors();
         SystemPropertyUtil
                 .setProperty("jupiter.processor.executor.core.num.workers", String.valueOf(processors));
 
         NettyConnector connector = new JNettyTcpConnector();
         UnresolvedAddress[] addresses = new UnresolvedAddress[processors];
         for (int i = 0; i < processors; i++) {
-            addresses[i] = new UnresolvedAddress("127.0.0.1", 18099);
+            addresses[i] = new UnresolvedAddress("192.168.77.83", 18099);
             connector.connect(addresses[i]);
         }
 
