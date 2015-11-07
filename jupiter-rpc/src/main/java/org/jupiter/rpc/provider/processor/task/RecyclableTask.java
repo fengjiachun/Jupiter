@@ -64,23 +64,13 @@ public class RecyclableTask implements RejectedRunnable {
     private static final TPSLimiter tpsLimiter = JServiceLoader.load(TPSLimiter.class);
 
     // 请求处理的时间统计(从request被decode开始一直到response数据被刷到OS内核缓冲区为止)
-    private static final Timer invocationTimer;
+    private static final Timer invocationTimer = Metrics.timer("invocation");
     // 请求数据大小的统计(不包括Jupiter协议头)
-    private static final Histogram requestSizeHistogram;
+    private static final Histogram requestSizeHistogram = Metrics.histogram("request.size");
     // 响应数据大小的统计(不包括Jupiter协议头)
-    private static final Histogram responseSizeHistogram;
+    private static final Histogram responseSizeHistogram = Metrics.histogram("response.size");
     // 请求被拒绝的统计
-    private static final Meter rejectionMeter;
-    static {
-        invocationTimer =       SystemPropertyUtil.getBoolean("jupiter.metrics.invocation.timer", false)
-                                    ? Metrics.timer("invocation") : null;
-        requestSizeHistogram =  SystemPropertyUtil.getBoolean("jupiter.metrics.request.size.histogram", false)
-                                    ? Metrics.histogram("request.size") : null;
-        responseSizeHistogram = SystemPropertyUtil.getBoolean("jupiter.metrics.response.size.histogram", false)
-                                    ? Metrics.histogram("response.size") : null;
-        rejectionMeter =        SystemPropertyUtil.getBoolean("jupiter.metrics.rejection.meter", true)
-                                    ? Metrics.meter("rejection") : null;
-    }
+    private static final Meter rejectionMeter = Metrics.meter("rejection");
 
     private ProviderProcessor processor;
     private JChannel jChannel;
@@ -93,9 +83,7 @@ public class RecyclableTask implements RejectedRunnable {
             byte[] bytes = request.bytes();
 
             // request sizes histogram
-            if (requestSizeHistogram != null) {
-                requestSizeHistogram.update(bytes.length);
-            }
+            requestSizeHistogram.update(bytes.length);
 
             MessageWrapper msg = SerializerHolder.serializer().readObject(bytes, MessageWrapper.class);
             request.message(msg);
@@ -145,10 +133,7 @@ public class RecyclableTask implements RejectedRunnable {
     }
 
     private void reject(Status status, Object signal) {
-        if (rejectionMeter != null) {
-            rejectionMeter.mark();
-        }
-
+        rejectionMeter.mark();
         try {
             ResultWrapper result = ResultWrapper.getInstance();
             switch (status) {
@@ -232,13 +217,8 @@ public class RecyclableTask implements RejectedRunnable {
                 public void operationComplete(JChannel ch, boolean isSuccess) throws Exception {
                     long duration = SystemClock.millisClock().now() - timestamp;
                     if (isSuccess) {
-                        if (responseSizeHistogram != null) {
-                            responseSizeHistogram.update(bodySize);
-                        }
-
-                        if (invocationTimer != null) {
-                            invocationTimer.update(duration, TimeUnit.MILLISECONDS);
-                        }
+                        responseSizeHistogram.update(bodySize);
+                        invocationTimer.update(duration, TimeUnit.MILLISECONDS);
 
                         logger.debug("Service response has sent out: {}, response body size: {}, duration: {} millis.",
                                 id, bodySize, duration);
