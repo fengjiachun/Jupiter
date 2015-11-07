@@ -67,11 +67,11 @@ public class RecyclableTask implements RejectedRunnable {
     // 请求被拒绝的统计
     private static final Meter rejectionMeter;
     static {
-        invocationTimer =       SystemPropertyUtil.getBoolean("jupiter.metrics.invocation.timer", false)
+        invocationTimer = SystemPropertyUtil.getBoolean("jupiter.metrics.invocation.timer", false)
                 ? Metrics.timer(RecyclableTask.class, "invocation") : null;
         responseSizeHistogram = SystemPropertyUtil.getBoolean("jupiter.metrics.response.size.histogram", false)
                 ? Metrics.histogram(RecyclableTask.class, "response.size") : null;
-        rejectionMeter =        SystemPropertyUtil.getBoolean("jupiter.metrics.rejection.meter", true)
+        rejectionMeter = SystemPropertyUtil.getBoolean("jupiter.metrics.rejection.meter", true)
                 ? Metrics.meter(RecyclableTask.class, "rejection") : null;
     }
 
