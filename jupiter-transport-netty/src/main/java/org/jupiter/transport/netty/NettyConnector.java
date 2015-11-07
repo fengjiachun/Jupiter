@@ -117,7 +117,7 @@ public abstract class NettyConnector extends AbstractJClient implements JConnect
                             // 被设置为true就不用再建立连接了
                             boolean connectNeeded = true;
                             for (JChannel channel : group.channels()) {
-                                if (channel.isActive() && channel.isReconnect()) {
+                                if (channel.isActive() && channel.isMarkedReconnect()) {
                                     connectNeeded = false;
                                     break;
                                 }

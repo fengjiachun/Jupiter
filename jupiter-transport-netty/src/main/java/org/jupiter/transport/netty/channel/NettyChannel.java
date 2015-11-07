@@ -77,7 +77,7 @@ public class NettyChannel implements JChannel {
     }
 
     @Override
-    public boolean isIoThread() {
+    public boolean inIoThread() {
         return channel.eventLoop().inEventLoop();
     }
 
@@ -97,7 +97,7 @@ public class NettyChannel implements JChannel {
     }
 
     @Override
-    public boolean isReconnect() {
+    public boolean isMarkedReconnect() {
         ConnectionWatchdog watchdog = channel.pipeline().get(ConnectionWatchdog.class);
         return watchdog != null && watchdog.isReconnect();
     }

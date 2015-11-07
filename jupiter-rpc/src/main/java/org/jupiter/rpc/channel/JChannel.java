@@ -43,7 +43,7 @@ public interface JChannel {
      * Return {@code true} if the current {@link Thread} is executed in the IO thread,
      * {@code false} otherwise.
      */
-    boolean isIoThread();
+    boolean inIoThread();
 
     /**
      * Returns the local address where this channel is bound to.
@@ -66,7 +66,7 @@ public interface JChannel {
     /**
      * Is set up automatic reconnection.
      */
-    boolean isReconnect();
+    boolean isMarkedReconnect();
 
     /**
      * Request to close this {@link JChannel}.
