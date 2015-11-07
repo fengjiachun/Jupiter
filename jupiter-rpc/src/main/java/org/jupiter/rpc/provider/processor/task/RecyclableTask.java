@@ -112,7 +112,7 @@ public class RecyclableTask implements RejectedRunnable {
             return;
         }
 
-        // - Looks for the specified service ---------------------------------------------------------------------------
+        // - Lookup the service ----------------------------------------------------------------------------------------
         final MessageWrapper msg = request.message();
         final ServiceWrapper serviceWrapper = processor.lookupService(msg);
         if (serviceWrapper == null) {

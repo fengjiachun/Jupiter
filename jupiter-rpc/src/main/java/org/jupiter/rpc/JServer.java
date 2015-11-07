@@ -59,7 +59,7 @@ public interface JServer extends Registry {
     ServiceRegistry serviceRegistry();
 
     /**
-     * Looks for the specified service.
+     * Lookup the service.
      */
     ServiceWrapper lookupService(Directory directory);
 

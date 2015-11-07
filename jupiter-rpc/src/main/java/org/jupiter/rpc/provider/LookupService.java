@@ -20,7 +20,7 @@ import org.jupiter.rpc.Directory;
 import org.jupiter.rpc.model.metadata.ServiceWrapper;
 
 /**
- * Looks for the specified service.
+ * Lookup the service.
  *
  * jupiter
  * org.jupiter.rpc.provider
@@ -30,7 +30,7 @@ import org.jupiter.rpc.model.metadata.ServiceWrapper;
 public interface LookupService {
 
     /**
-     * Looks for the specified service.
+     * Lookup the service.
      */
     ServiceWrapper lookupService(Directory directory);
 }
