@@ -91,7 +91,7 @@ public class RecyclableTask implements RejectedRunnable {
         try {
             MessageWrapper msg = request.message();
 
-            Timer.Context timeCtx = Metrics.timer(provider.getClass(), msg.directory(), msg.getMethodName()).time();
+            Timer.Context timeCtx = Metrics.timer(msg.directory() + '.' + msg.getMethodName()).time();
             Object invokeResult = null;
             try {
                 // 调用对应服务

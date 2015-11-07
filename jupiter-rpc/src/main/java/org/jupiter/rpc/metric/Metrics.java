@@ -22,6 +22,7 @@ import java.io.File;
 import java.util.concurrent.TimeUnit;
 
 import static org.jupiter.common.util.JConstants.*;
+import static org.jupiter.common.util.Preconditions.checkNotNull;
 
 /**
  * 指标度量
@@ -64,8 +65,24 @@ public class Metrics {
      * Return the {@link Meter} registered under this name; or create and register
      * a new {@link Meter} if none is registered.
      */
+    public static Meter meter(String name) {
+        return metricRegistry.meter(checkNotNull(name, "name"));
+    }
+
+    /**
+     * Return the {@link Meter} registered under this name; or create and register
+     * a new {@link Meter} if none is registered.
+     */
     public static Meter meter(Class<?> clazz, String... names) {
         return metricRegistry.meter(MetricRegistry.name(clazz, names));
+    }
+
+    /**
+     * Return the {@link Timer} registered under this name; or create and register
+     * a new {@link Timer} if none is registered.
+     */
+    public static Timer timer(String name) {
+        return metricRegistry.timer(checkNotNull(name, "name"));
     }
 
     /**
@@ -80,8 +97,24 @@ public class Metrics {
      * Return the {@link Counter} registered under this name; or create and register
      * a new {@link Counter} if none is registered.
      */
+    public static Counter counter(String name) {
+        return metricRegistry.counter(checkNotNull(name, "name"));
+    }
+
+    /**
+     * Return the {@link Counter} registered under this name; or create and register
+     * a new {@link Counter} if none is registered.
+     */
     public static Counter counter(Class<?> clazz, String... names) {
         return metricRegistry.counter(MetricRegistry.name(clazz, names));
+    }
+
+    /**
+     * Return the {@link Histogram} registered under this name; or create and register
+     * a new {@link Histogram} if none is registered.
+     */
+    public static Histogram histogram(String name) {
+        return metricRegistry.histogram(checkNotNull(name, "name"));
     }
 
     /**
