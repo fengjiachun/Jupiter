@@ -23,6 +23,7 @@ import org.jupiter.common.concurrent.RejectedRunnable;
 import org.jupiter.common.util.RecycleUtil;
 import org.jupiter.common.util.Reflects;
 import org.jupiter.common.util.SystemClock;
+import org.jupiter.common.util.SystemPropertyUtil;
 import org.jupiter.common.util.internal.Recyclers;
 import org.jupiter.common.util.internal.logging.InternalLogger;
 import org.jupiter.common.util.internal.logging.InternalLoggerFactory;
@@ -60,11 +61,19 @@ public class RecyclableTask implements RejectedRunnable {
     private static final InternalLogger logger = InternalLoggerFactory.getInstance(RecyclableTask.class);
 
     // 请求处理的时间统计(从request被decode开始一直到response数据被刷到OS内核缓冲区为止)
-    private static final Timer invocationTimer = Metrics.timer(RecyclableTask.class, "invocation.timer");
-    // 请求被拒绝的统计
-    private static final Meter rejectionMeter = Metrics.meter(RecyclableTask.class, "rejection.meter");
+    private static final Timer invocationTimer;
     // 响应数据大小的统计(不包括Jupiter协议头)
-    private static final Histogram responseSizes = Metrics.histogram(RecyclableTask.class, "response.size");
+    private static final Histogram responseSizeHistogram;
+    // 请求被拒绝的统计
+    private static final Meter rejectionMeter;
+    static {
+        invocationTimer =       SystemPropertyUtil.getBoolean("jupiter.metrics.invocation.timer", false)
+                ? Metrics.timer(RecyclableTask.class, "invocation") : null;
+        responseSizeHistogram = SystemPropertyUtil.getBoolean("jupiter.metrics.response.size.histogram", false)
+                ? Metrics.histogram(RecyclableTask.class, "response.size") : null;
+        rejectionMeter =        SystemPropertyUtil.getBoolean("jupiter.metrics.rejection.meter", true)
+                ? Metrics.meter(RecyclableTask.class, "rejection") : null;
+    }
 
     private ProviderProcessor processor;
     private JChannel jChannel;
@@ -112,8 +121,13 @@ public class RecyclableTask implements RejectedRunnable {
                 public void operationComplete(JChannel ch, boolean isSuccess) throws Exception {
                     long duration = SystemClock.millisClock().now() - timestamp;
                     if (isSuccess) {
-                        responseSizes.update(bodySize);
-                        invocationTimer.update(duration, TimeUnit.MILLISECONDS);
+                        if (responseSizeHistogram != null) {
+                            responseSizeHistogram.update(bodySize);
+                        }
+
+                        if (invocationTimer != null) {
+                            invocationTimer.update(duration, TimeUnit.MILLISECONDS);
+                        }
 
                         logger.debug("Service response has sent out: {}, response body size: {}, duration: {} millis.",
                                 id, bodySize, duration);
@@ -132,7 +146,10 @@ public class RecyclableTask implements RejectedRunnable {
 
     @Override
     public void reject() {
-        rejectionMeter.mark();
+        if (rejectionMeter != null) {
+            rejectionMeter.mark();
+        }
+
         try {
             ResultWrapper result = ResultWrapper.getInstance();
             Status status = request.status();

@@ -18,6 +18,7 @@ package org.jupiter.rpc.provider.processor;
 
 import com.codahale.metrics.Histogram;
 import org.jupiter.common.util.JServiceLoader;
+import org.jupiter.common.util.SystemPropertyUtil;
 import org.jupiter.rpc.JServer;
 import org.jupiter.rpc.Request;
 import org.jupiter.rpc.channel.JChannel;
@@ -46,7 +47,11 @@ import static org.jupiter.rpc.Status.SERVICE_TPS_LIMIT;
 public class DefaultProviderProcessor extends AbstractProviderProcessor {
 
     // 请求数据大小的统计(不包括Jupiter协议头)
-    private static final Histogram requestSizes = Metrics.histogram(DefaultProviderProcessor.class, "request.size");
+    private static final Histogram requestSizeHistogram;
+    static {
+        requestSizeHistogram = SystemPropertyUtil.getBoolean("jupiter.metrics.request.size.histogram", false)
+                ? Metrics.histogram(DefaultProviderProcessor.class, "request.size") : null;
+    }
 
     // SPI
     private final TPSLimiter tpsLimiter = JServiceLoader.load(TPSLimiter.class);
@@ -71,7 +76,9 @@ public class DefaultProviderProcessor extends AbstractProviderProcessor {
             byte[] bytes = request.bytes();
 
             // request sizes histogram
-            requestSizes.update(bytes.length);
+            if (requestSizeHistogram != null) {
+                requestSizeHistogram.update(bytes.length);
+            }
 
             // 反序列化
             MessageWrapper msg = SerializerHolder.serializer().readObject(bytes, MessageWrapper.class);

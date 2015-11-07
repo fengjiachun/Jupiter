@@ -23,6 +23,8 @@ import org.jupiter.transport.netty.NettyAcceptor;
 import org.jupiter.transport.netty.JNettyTcpAcceptor;
 
 /**
+ * 飞行记录: -XX:+UnlockCommercialFeatures -XX:+FlightRecorder
+ *
  * jupiter
  * org.jupiter.benchmark.tcp
  *
