@@ -71,7 +71,7 @@ public class ProtoStuffSerializer implements Serializer {
         try {
             return ProtostuffIOUtil.toByteArray(obj, schema, buf);
         } finally {
-            bufThreadLocal.set(buf.clear());
+            buf.clear();
         }
     }
 

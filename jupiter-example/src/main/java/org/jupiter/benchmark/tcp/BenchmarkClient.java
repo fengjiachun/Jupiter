@@ -55,14 +55,14 @@ public class BenchmarkClient {
     private static final InternalLogger logger = InternalLoggerFactory.getInstance(BenchmarkClient.class);
 
     public static void main(String[] args) {
-        int processors = Runtime.getRuntime().availableProcessors();
+        int processors = 2;
         SystemPropertyUtil
                 .setProperty("jupiter.processor.executor.core.num.workers", String.valueOf(processors));
 
         NettyConnector connector = new JNettyTcpConnector();
         UnresolvedAddress[] addresses = new UnresolvedAddress[processors];
         for (int i = 0; i < processors; i++) {
-            addresses[i] = new UnresolvedAddress("192.168.77.83", 18099);
+            addresses[i] = new UnresolvedAddress("127.0.0.1", 18099);
             connector.connect(addresses[i]);
         }
 

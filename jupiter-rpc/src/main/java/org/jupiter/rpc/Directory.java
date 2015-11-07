@@ -24,6 +24,8 @@ package org.jupiter.rpc;
  */
 public abstract class Directory {
 
+    private String directoryCache;
+
     /**
      * 服务所属组别
      */
@@ -40,6 +42,12 @@ public abstract class Directory {
     public abstract String getServiceProviderName();
 
     public String directory() {
-        return getGroup() + '-' + getVersion() + '-' + getServiceProviderName();
+        if (directoryCache != null) {
+            return directoryCache;
+        }
+
+        directoryCache = getGroup() + '-' + getVersion() + '-' + getServiceProviderName();
+
+        return directoryCache;
     }
 }
