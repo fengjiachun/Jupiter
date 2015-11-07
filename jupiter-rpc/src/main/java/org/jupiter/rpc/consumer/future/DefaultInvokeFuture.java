@@ -277,7 +277,7 @@ public class DefaultInvokeFuture implements InvokeFuture {
                             continue;
                         }
                         if (SystemClock.millisClock().now() - future.start > future.timeoutMillis) {
-                            dealWithTimeout(future);
+                            processTimeout(future);
                         }
                     }
 
@@ -287,7 +287,7 @@ public class DefaultInvokeFuture implements InvokeFuture {
                             continue;
                         }
                         if (SystemClock.millisClock().now() - future.start > future.timeoutMillis) {
-                            dealWithTimeout(future);
+                            processTimeout(future);
                         }
                     }
 
@@ -298,7 +298,7 @@ public class DefaultInvokeFuture implements InvokeFuture {
             }
         }
 
-        private void dealWithTimeout(DefaultInvokeFuture future) {
+        private void processTimeout(DefaultInvokeFuture future) {
             Response timeoutResponse = new Response(future.invokeId);
             ResultWrapper result = new ResultWrapper();
             byte status = future.sent > 0 ? SERVER_TIMEOUT.value() : CLIENT_TIMEOUT.value();
