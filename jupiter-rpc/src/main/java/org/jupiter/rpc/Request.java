@@ -20,8 +20,6 @@ import org.jupiter.rpc.model.metadata.MessageWrapper;
 
 import java.util.concurrent.atomic.AtomicLong;
 
-import static org.jupiter.rpc.Status.*;
-
 /**
  * Consumer request data.
  *
@@ -38,7 +36,6 @@ public class Request extends BytesHolder {
     private MessageWrapper message; // 请求数据
 
     private transient long timestamp;
-    private transient Status status = OK;
 
     public Request() {
         this(invokeIdGenerator.getAndIncrement());
@@ -66,14 +63,6 @@ public class Request extends BytesHolder {
 
     public void timestamp(long timestamp) {
         this.timestamp = timestamp;
-    }
-
-    public Status status() {
-        return status;
-    }
-
-    public void status(Status status) {
-        this.status = status;
     }
 
     @Override

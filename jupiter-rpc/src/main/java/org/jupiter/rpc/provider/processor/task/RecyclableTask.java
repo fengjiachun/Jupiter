@@ -20,10 +20,7 @@ import com.codahale.metrics.Histogram;
 import com.codahale.metrics.Meter;
 import com.codahale.metrics.Timer;
 import org.jupiter.common.concurrent.RejectedRunnable;
-import org.jupiter.common.util.RecycleUtil;
-import org.jupiter.common.util.Reflects;
-import org.jupiter.common.util.SystemClock;
-import org.jupiter.common.util.SystemPropertyUtil;
+import org.jupiter.common.util.*;
 import org.jupiter.common.util.internal.Recyclers;
 import org.jupiter.common.util.internal.logging.InternalLogger;
 import org.jupiter.common.util.internal.logging.InternalLoggerFactory;
@@ -39,10 +36,13 @@ import org.jupiter.rpc.error.TPSLimitException;
 import org.jupiter.rpc.metric.Metrics;
 import org.jupiter.rpc.model.metadata.MessageWrapper;
 import org.jupiter.rpc.model.metadata.ResultWrapper;
+import org.jupiter.rpc.model.metadata.ServiceWrapper;
+import org.jupiter.rpc.provider.limiter.TPSLimiter;
 import org.jupiter.rpc.provider.limiter.TPSResult;
 import org.jupiter.rpc.provider.processor.ProviderProcessor;
 import org.jupiter.serialization.SerializerHolder;
 
+import java.util.concurrent.Executor;
 import java.util.concurrent.TimeUnit;
 
 import static org.jupiter.common.util.StackTraceUtil.stackTrace;
@@ -60,41 +60,152 @@ public class RecyclableTask implements RejectedRunnable {
 
     private static final InternalLogger logger = InternalLoggerFactory.getInstance(RecyclableTask.class);
 
+    // SPI
+    private static final TPSLimiter tpsLimiter = JServiceLoader.load(TPSLimiter.class);
+
     // 请求处理的时间统计(从request被decode开始一直到response数据被刷到OS内核缓冲区为止)
     private static final Timer invocationTimer;
+    // 请求数据大小的统计(不包括Jupiter协议头)
+    private static final Histogram requestSizeHistogram;
     // 响应数据大小的统计(不包括Jupiter协议头)
     private static final Histogram responseSizeHistogram;
     // 请求被拒绝的统计
     private static final Meter rejectionMeter;
     static {
-        invocationTimer = SystemPropertyUtil.getBoolean("jupiter.metrics.invocation.timer", false)
-                ? Metrics.timer(RecyclableTask.class, "invocation") : null;
+        invocationTimer =       SystemPropertyUtil.getBoolean("jupiter.metrics.invocation.timer", false)
+                                    ? Metrics.timer("invocation") : null;
+        requestSizeHistogram =  SystemPropertyUtil.getBoolean("jupiter.metrics.request.size.histogram", false)
+                                    ? Metrics.histogram("request.size") : null;
         responseSizeHistogram = SystemPropertyUtil.getBoolean("jupiter.metrics.response.size.histogram", false)
-                ? Metrics.histogram(RecyclableTask.class, "response.size") : null;
-        rejectionMeter = SystemPropertyUtil.getBoolean("jupiter.metrics.rejection.meter", true)
-                ? Metrics.meter(RecyclableTask.class, "rejection") : null;
+                                    ? Metrics.histogram("response.size") : null;
+        rejectionMeter =        SystemPropertyUtil.getBoolean("jupiter.metrics.rejection.meter", true)
+                                    ? Metrics.meter("rejection") : null;
     }
 
     private ProviderProcessor processor;
     private JChannel jChannel;
     private Request request;
-    private Object provider;
-    private Object attribute;
 
     @Override
     public void run() {
-        if (request.status() != OK) {
-            reject();
+        // - Deserialization -------------------------------------------------------------------------------------------
+        try {
+            byte[] bytes = request.bytes();
+
+            // request sizes histogram
+            if (requestSizeHistogram != null) {
+                requestSizeHistogram.update(bytes.length);
+            }
+
+            MessageWrapper msg = SerializerHolder.serializer().readObject(bytes, MessageWrapper.class);
+            request.message(msg);
+            request.bytes(null);
+        } catch (Exception e) {
+            reject(BAD_REQUEST);
             return;
         }
 
-        try {
-            MessageWrapper msg = request.message();
+        // - TPS limit -------------------------------------------------------------------------------------------------
+        TPSResult tpsResult = tpsLimiter.process(request);
+        if (!tpsResult.isAllowed()) {
+            reject(SERVICE_TPS_LIMIT, tpsResult);
+            return;
+        }
 
+        // - Looks for the specified service ---------------------------------------------------------------------------
+        final MessageWrapper msg = request.message();
+        final ServiceWrapper serviceWrapper = processor.lookupService(msg);
+        if (serviceWrapper == null) {
+            reject(SERVICE_NOT_FOUND);
+            return;
+        }
+
+        // - Processing ------------------------------------------------------------------------------------------------
+        Executor childExecutor = serviceWrapper.getExecutor();
+        if (childExecutor == null) {
+            process(msg, serviceWrapper.getServiceProvider());
+        } else {
+            childExecutor.execute(new Runnable() {
+
+                @Override
+                public void run() {
+                    process(msg, serviceWrapper.getServiceProvider());
+                }
+            });
+        }
+    }
+
+    @Override
+    public void reject() {
+        reject(SERVER_BUSY, null);
+    }
+
+    private void reject(Status status) {
+        reject(status, null);
+    }
+
+    private void reject(Status status, Object signal) {
+        if (rejectionMeter != null) {
+            rejectionMeter.mark();
+        }
+
+        try {
+            ResultWrapper result = ResultWrapper.getInstance();
+            switch (status) {
+                case SERVER_BUSY:
+                    result.setError(new ServerBusyException());
+                    break;
+                case BAD_REQUEST:
+                    result.setError(new BadRequestException());
+                    break;
+                case SERVICE_NOT_FOUND:
+                    result.setError(new ServiceNotFoundException(request.message().toString()));
+                    break;
+                case SERVICE_TPS_LIMIT:
+                    if (signal != null && signal instanceof TPSResult) {
+                        result.setError(new TPSLimitException(((TPSResult) signal).getMessage()));
+                    } else {
+                        result.setError(new TPSLimitException());
+                    }
+                    break;
+                default:
+                    return;
+            }
+
+            logger.warn("Service rejected: {}.", stackTrace(result.getError()));
+
+            final long id = request.invokeId();
+            Response response = new Response(id);
+            response.status(status.value());
+            try {
+                // 在业务线程里序列化, 减轻IO线程负担
+                response.bytes(SerializerHolder.serializer().writeObject(result));
+            } finally {
+                RecycleUtil.recycle(result);
+            }
+
+            jChannel.write(response, new JFutureListener<JChannel>() {
+
+                @Override
+                public void operationComplete(JChannel ch, boolean isSuccess) throws Exception {
+                    if (isSuccess) {
+                        logger.debug("Service rejection has sent out: {}.", id);
+                    } else {
+                        logger.warn("Service rejection sent failed: {}.", id);
+                    }
+                }
+            });
+        } finally {
+            recycle();
+        }
+    }
+
+    private void process(MessageWrapper msg, Object provider) {
+        try {
             Timer.Context timeCtx = Metrics.timer(msg.directory() + '.' + msg.getMethodName()).time();
             Object invokeResult = null;
             try {
-                // 调用对应服务
+                // call service
                 invokeResult = Reflects.fastInvoke(provider, msg.getMethodName(), msg.getParameterTypes(), msg.getArgs());
             } finally {
                 timeCtx.stop();
@@ -144,79 +255,12 @@ public class RecyclableTask implements RejectedRunnable {
         }
     }
 
-    @Override
-    public void reject() {
-        if (rejectionMeter != null) {
-            rejectionMeter.mark();
-        }
-
-        try {
-            ResultWrapper result = ResultWrapper.getInstance();
-            Status status = request.status();
-            if (status == SERVICE_TPS_LIMIT) {
-                if (attribute != null && attribute instanceof TPSResult) {
-                    result.setError(new TPSLimitException(((TPSResult) attribute).getMessage()));
-                } else {
-                    result.setError(new TPSLimitException());
-                }
-            } else if (status == SERVICE_NOT_FOUND) {
-                result.setError(new ServiceNotFoundException(request.message().toString()));
-            } else if (status == BAD_REQUEST) {
-                result.setError(new BadRequestException());
-            } else {
-                result.setError(new ServerBusyException());
-            }
-
-            logger.warn("Service rejected: {}.", stackTrace(result.getError()));
-
-            final long id = request.invokeId();
-            Response response = new Response(id);
-            response.status(status.value());
-            try {
-                // 在业务线程里序列化, 减轻IO线程负担
-                response.bytes(SerializerHolder.serializer().writeObject(result));
-            } finally {
-                RecycleUtil.recycle(result);
-            }
-
-            jChannel.write(response, new JFutureListener<JChannel>() {
-
-                @Override
-                public void operationComplete(JChannel ch, boolean isSuccess) throws Exception {
-                    if (isSuccess) {
-                        logger.debug("Service rejection has sent out: {}.", id);
-                    } else {
-                        logger.warn("Service rejection sent failed: {}.", id);
-                    }
-                }
-            });
-        } finally {
-            recycle();
-        }
-    }
-
-    public static RecyclableTask getInstance(
-            ProviderProcessor processor, JChannel jChannel, Request request, Object provider) {
-
+    public static RecyclableTask getInstance(ProviderProcessor processor, JChannel jChannel, Request request) {
         RecyclableTask task = recyclers.get();
 
         task.processor = processor;
         task.jChannel = jChannel;
         task.request = request;
-        task.provider = provider;
-        return task;
-    }
-
-    public static RecyclableTask getInstance(
-            ProviderProcessor processor, JChannel jChannel, Request request, Object provider, Object attribute) {
-
-        RecyclableTask task = recyclers.get();
-
-        task.processor = processor;
-        task.jChannel = jChannel;
-        task.request = request;
-        task.provider = provider;
-        task.attribute = attribute;
         return task;
     }
 
@@ -229,8 +273,6 @@ public class RecyclableTask implements RejectedRunnable {
         this.processor = null;
         this.jChannel = null;
         this.request = null;
-        this.provider = null;
-        this.attribute = null;
 
         return recyclers.recycle(this, handle);
     }
