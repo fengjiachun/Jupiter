@@ -129,12 +129,11 @@ public abstract class ConnectionWatchdog extends ChannelInboundHandlerAdapter im
             @Override
             public void operationComplete(ChannelFuture f) throws Exception {
                 boolean succeed = f.isSuccess();
-                Channel ch = f.channel();
 
                 logger.warn("Reconnects with [{}:{}] {}.", host, port, succeed ? "succeed" : "failed");
 
                 if (!succeed) {
-                    ch.pipeline().fireChannelInactive();
+                    f.channel().pipeline().fireChannelInactive();
                 }
             }
         });
