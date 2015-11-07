@@ -93,14 +93,14 @@ public class RecyclableTask implements RejectedRunnable {
             request.message(msg);
             request.bytes(null);
         } catch (Exception e) {
-            reject(BAD_REQUEST);
+            rejected(BAD_REQUEST);
             return;
         }
 
         // - TPS limit -------------------------------------------------------------------------------------------------
         TPSResult tpsResult = tpsLimiter.process(request);
         if (!tpsResult.isAllowed()) {
-            reject(SERVICE_TPS_LIMIT, tpsResult);
+            rejected(SERVICE_TPS_LIMIT, tpsResult);
             return;
         }
 
@@ -108,7 +108,7 @@ public class RecyclableTask implements RejectedRunnable {
         final MessageWrapper msg = request.message();
         final ServiceWrapper serviceWrapper = processor.lookupService(msg);
         if (serviceWrapper == null) {
-            reject(SERVICE_NOT_FOUND);
+            rejected(SERVICE_NOT_FOUND);
             return;
         }
 
@@ -128,15 +128,15 @@ public class RecyclableTask implements RejectedRunnable {
     }
 
     @Override
-    public void reject() {
-        reject(SERVER_BUSY, null);
+    public void rejected() {
+        rejected(SERVER_BUSY, null);
     }
 
-    private void reject(Status status) {
-        reject(status, null);
+    private void rejected(Status status) {
+        rejected(status, null);
     }
 
-    private void reject(Status status, Object signal) {
+    private void rejected(Status status, Object signal) {
         rejectionMeter.mark();
         try {
             ResultWrapper result = ResultWrapper.getInstance();
@@ -158,13 +158,14 @@ public class RecyclableTask implements RejectedRunnable {
                     }
                     break;
                 default:
+                    logger.warn("Unexpected status.", status.description());
                     return;
             }
 
             logger.warn("Service rejected: {}.", stackTrace(result.getError()));
 
-            final long id = request.invokeId();
-            Response response = new Response(id);
+            final long invokeId = request.invokeId();
+            Response response = new Response(invokeId);
             response.status(status.value());
             try {
                 // 在业务线程里序列化, 减轻IO线程负担
@@ -178,9 +179,9 @@ public class RecyclableTask implements RejectedRunnable {
                 @Override
                 public void operationComplete(JChannel ch, boolean isSuccess) throws Exception {
                     if (isSuccess) {
-                        logger.debug("Service rejection has sent out: {}.", id);
+                        logger.debug("Service rejection sent out: {}.", invokeId);
                     } else {
-                        logger.warn("Service rejection sent failed: {}.", id);
+                        logger.warn("Service rejection sent failed: {}.", invokeId);
                     }
                 }
             });

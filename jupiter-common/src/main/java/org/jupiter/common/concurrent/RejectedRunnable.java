@@ -24,5 +24,5 @@ package org.jupiter.common.concurrent;
  */
 public interface RejectedRunnable extends Runnable {
 
-    void reject();
+    void rejected();
 }
