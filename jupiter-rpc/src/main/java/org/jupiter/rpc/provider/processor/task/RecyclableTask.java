@@ -169,7 +169,8 @@ public class RecyclableTask implements RejectedRunnable {
             response.status(status.value());
             try {
                 // 在业务线程里序列化, 减轻IO线程负担
-                response.bytes(SerializerHolder.serializer().writeObject(result));
+                byte[] bytes = SerializerHolder.serializer().writeObject(result);
+                response.bytes(bytes);
             } finally {
                 RecycleUtil.recycle(result);
             }
