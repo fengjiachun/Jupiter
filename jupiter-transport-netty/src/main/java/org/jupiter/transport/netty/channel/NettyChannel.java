@@ -41,7 +41,7 @@ public class NettyChannel implements JChannel {
     private static final AttributeKey<NettyChannel> NETTY_CHANNEL_KEY = AttributeKey.valueOf("NettyChannel");
 
     /**
-     * Get the {@link NettyChannel} for the given {@link Channel}. This method will never return null.
+     * Returns the {@link NettyChannel} for the given {@link Channel}. This method will never return null.
      */
     public static NettyChannel attachChannel(Channel channel) {
         Attribute<NettyChannel> attr = channel.attr(NETTY_CHANNEL_KEY);
