@@ -103,7 +103,7 @@ public abstract class AbstractConstant<T extends AbstractConstant<T>> implements
     }
 
     /**
-     * Ensure return unique key value
+     * Ensure that returns a unique key value
      */
     private long uniqueKey() {
         long uniqueKey;
