@@ -55,7 +55,6 @@ public final class Strings {
         return split(str, separator, false);
     }
 
-    @SuppressWarnings("LoopStatementThatDoesntLoop")
     public static String[] split(String str, char separator, boolean preserveAllTokens) {
         if (str == null) {
             return null;
