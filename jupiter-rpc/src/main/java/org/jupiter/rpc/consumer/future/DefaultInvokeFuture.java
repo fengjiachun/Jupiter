@@ -179,6 +179,7 @@ public class DefaultInvokeFuture implements InvokeFuture {
             try {
                 while (!isDone()) {
                     done.await(timeoutMillis, MILLISECONDS);
+
                     if (isDone() || (System.nanoTime() - start) > MILLISECONDS.toNanos(timeoutMillis)) {
                         break;
                     }
@@ -188,6 +189,7 @@ public class DefaultInvokeFuture implements InvokeFuture {
             } finally {
                 _lock.unlock();
             }
+
             if (!isDone()) {
                 throw new TimeoutException(channel.remoteAddress(), sent > 0 ? SERVER_TIMEOUT.value() : CLIENT_TIMEOUT.value());
             }

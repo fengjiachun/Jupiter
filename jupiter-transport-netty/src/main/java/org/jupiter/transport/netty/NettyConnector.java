@@ -174,11 +174,8 @@ public abstract class NettyConnector extends AbstractJClient implements JConnect
                         signalNeeded.getAndSet(true);
                         notifyCondition.await(timeoutMillis, MILLISECONDS);
 
-                        if (isDirectoryAvailable(directory)) {
-                            available = true;
-                            break;
-                        }
-                        if ((System.nanoTime() - start) > MILLISECONDS.toNanos(timeoutMillis)) {
+                        available = isDirectoryAvailable(directory);
+                        if (available || (System.nanoTime() - start) > MILLISECONDS.toNanos(timeoutMillis)) {
                             break;
                         }
                     }

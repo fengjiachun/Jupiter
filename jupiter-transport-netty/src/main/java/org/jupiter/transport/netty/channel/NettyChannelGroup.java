@@ -74,14 +74,14 @@ public class NettyChannelGroup implements JChannelGroup {
     private final AtomicInteger index = new AtomicInteger();
     private final UnresolvedAddress address;
 
-    private volatile int weight = DEFAULT_WEIGHT; // The weight
-    private volatile int warmUp = DEFAULT_WARM_UP; // Warm-up time
+    private volatile int weight = DEFAULT_WEIGHT; // the weight if this group
+    private volatile int warmUp = DEFAULT_WARM_UP; // warm-up time
     private volatile long timestamp = SystemClock.millisClock().now();
     private volatile long lossTimestamp = -1;
 
     private final ReentrantLock lock = new ReentrantLock();
     private final Condition notifyCondition = lock.newCondition();
-    // Attempts to elide conditional wake-ups when the lock is uncontended.
+    // attempts to elide conditional wake-ups when the lock is uncontended.
     private final AtomicBoolean signalNeeded = new AtomicBoolean(false);
 
     public NettyChannelGroup(UnresolvedAddress address) {
@@ -97,7 +97,7 @@ public class NettyChannelGroup implements JChannelGroup {
     public JChannel next() {
         for (;;) {
             // 请原谅下面这段放荡不羁的糟糕代码
-            Object[] array; // The snapshot of channels array
+            Object[] array; // the snapshot of channels array
             if (ELEMENTS_OFFSET > 0) {
                 array = (Object[]) UNSAFE.getObjectVolatile(channels, ELEMENTS_OFFSET);
             } else {
@@ -105,7 +105,7 @@ public class NettyChannelGroup implements JChannelGroup {
             }
 
             if (array.length == 0) {
-                if (waitForAvailable(1500)) { // Wait a moment
+                if (waitForAvailable(1500)) { // wait a moment
                     continue;
                 }
                 throw new IllegalStateException("no channel");
@@ -185,11 +185,9 @@ public class NettyChannelGroup implements JChannelGroup {
                 signalNeeded.getAndSet(true);
                 notifyCondition.await(timeoutMillis, MILLISECONDS);
 
-                if (isAvailable()) {
-                    available = true;
-                    break;
-                }
-                if ((System.nanoTime() - start) > MILLISECONDS.toNanos(timeoutMillis)) {
+                available = isAvailable();
+
+                if (available || (System.nanoTime() - start) > MILLISECONDS.toNanos(timeoutMillis)) {
                     break;
                 }
             }
