@@ -33,7 +33,6 @@ import org.jupiter.common.util.internal.logging.InternalLogger;
 import org.jupiter.common.util.internal.logging.InternalLoggerFactory;
 import org.jupiter.rpc.UnresolvedAddress;
 import org.jupiter.rpc.channel.JChannel;
-import org.jupiter.serialization.SerializerHolder;
 import org.jupiter.transport.Acknowledge;
 import org.jupiter.transport.JConnection;
 import org.jupiter.transport.JOption;
@@ -57,6 +56,7 @@ import static org.jupiter.common.util.Preconditions.checkNotNull;
 import static org.jupiter.common.util.StackTraceUtil.stackTrace;
 import static org.jupiter.registry.RegisterMeta.Address;
 import static org.jupiter.registry.RegisterMeta.ServiceMeta;
+import static org.jupiter.serialization.SerializerHolder.serializer;
 import static org.jupiter.transport.JProtocolHeader.*;
 import static org.jupiter.transport.error.Signals.ILLEGAL_MAGIC;
 import static org.jupiter.transport.error.Signals.ILLEGAL_SIGN;
@@ -314,7 +314,7 @@ public class ConfigClient extends NettyTcpConnector {
                             byte[] bytes = new byte[header.bodyLength()];
                             in.readBytes(bytes);
 
-                            Message msg = SerializerHolder.serializer().readObject(bytes, Message.class);
+                            Message msg = serializer().readObject(bytes, Message.class);
                             msg.sign(header.sign());
                             out.add(msg);
 
@@ -324,7 +324,7 @@ public class ConfigClient extends NettyTcpConnector {
                             byte[] bytes = new byte[header.bodyLength()];
                             in.readBytes(bytes);
 
-                            Acknowledge ack = SerializerHolder.serializer().readObject(bytes, Acknowledge.class);
+                            Acknowledge ack = serializer().readObject(bytes, Acknowledge.class);
                             out.add(ack);
                             break;
                         }
@@ -355,7 +355,7 @@ public class ConfigClient extends NettyTcpConnector {
 
         @Override
         protected void encode(ChannelHandlerContext ctx, Message msg, ByteBuf out) throws Exception {
-            byte[] bytes = SerializerHolder.serializer().writeObject(msg);
+            byte[] bytes = serializer().writeObject(msg);
             out.writeShort(MAGIC)
                     .writeByte(msg.sign())
                     .writeByte(0)

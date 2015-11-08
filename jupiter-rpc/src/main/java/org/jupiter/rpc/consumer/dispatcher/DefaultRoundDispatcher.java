@@ -24,9 +24,10 @@ import org.jupiter.rpc.channel.JFutureListener;
 import org.jupiter.rpc.consumer.future.DefaultInvokeFuture;
 import org.jupiter.rpc.consumer.future.InvokeFuture;
 import org.jupiter.rpc.model.metadata.MessageWrapper;
-import org.jupiter.serialization.SerializerHolder;
 
 import java.util.List;
+
+import static org.jupiter.serialization.SerializerHolder.serializer;
 
 /**
  * 单播方式派发消息
@@ -44,12 +45,12 @@ public class DefaultRoundDispatcher extends AbstractDispatcher {
 
     @Override
     public InvokeFuture dispatch(MessageWrapper message) {
-        JChannel jChannel = connector.select(message);
+        JChannel jChannel = connector.select(message.getMetadata());
 
         final Request request = new Request();
         request.message(message);
         // 在业务线程里序列化, 减轻IO线程负担
-        request.bytes(SerializerHolder.serializer().writeObject(message));
+        request.bytes(serializer().writeObject(message));
         final List<ConsumerHook> _hooks = getHooks();
         final InvokeFuture invokeFuture = new DefaultInvokeFuture(jChannel, request, getTimeoutMills())
                 .hooks(_hooks)

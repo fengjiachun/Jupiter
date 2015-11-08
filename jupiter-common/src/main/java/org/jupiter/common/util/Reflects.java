@@ -43,7 +43,7 @@ public final class Reflects {
     private static final ConcurrentMap<Class<?>, FastClass> fastClassCache = Maps.newConcurrentHashMap();
 
     /**
-     * Creates a new object without any constructor being called
+     * Creates a new object without any constructor being called.
      *
      * @param clazz class to instantiate
      * @return new instance of clazz

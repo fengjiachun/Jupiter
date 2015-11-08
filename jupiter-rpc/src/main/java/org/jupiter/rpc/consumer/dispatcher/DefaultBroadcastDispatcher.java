@@ -28,11 +28,11 @@ import org.jupiter.rpc.channel.JFutureListener;
 import org.jupiter.rpc.consumer.future.DefaultInvokeFuture;
 import org.jupiter.rpc.consumer.future.InvokeFuture;
 import org.jupiter.rpc.model.metadata.MessageWrapper;
-import org.jupiter.serialization.SerializerHolder;
 
 import java.util.List;
 
 import static org.jupiter.rpc.DispatchMode.BROADCAST;
+import static org.jupiter.serialization.SerializerHolder.serializer;
 
 /**
  * 组播方式派发消息
@@ -50,7 +50,7 @@ public class DefaultBroadcastDispatcher extends AbstractDispatcher {
 
     @Override
     public InvokeFuture dispatch(MessageWrapper message) {
-        List<JChannelGroup> groupList = connector.directory(message);
+        List<JChannelGroup> groupList = connector.directory(message.getMetadata());
         RecyclableArrayList jChannels = Lists.newRecyclableArrayList();
         try {
             for (JChannelGroup group : groupList) {
@@ -62,7 +62,7 @@ public class DefaultBroadcastDispatcher extends AbstractDispatcher {
             final Request request = new Request();
             request.message(message);
             // 在业务线程里序列化, 减轻IO线程负担
-            request.bytes(SerializerHolder.serializer().writeObject(message));
+            request.bytes(serializer().writeObject(message));
             final List<ConsumerHook> _hooks = getHooks();
             final JListener _listener = getListener();
             for (Object obj : jChannels) {

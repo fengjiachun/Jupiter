@@ -16,8 +16,6 @@
 
 package org.jupiter.rpc.model.metadata;
 
-import org.jupiter.rpc.Directory;
-
 import java.io.Serializable;
 import java.util.Arrays;
 
@@ -29,7 +27,7 @@ import java.util.Arrays;
  *
  * @author jiachun.fjc
  */
-public class MessageWrapper extends Directory implements Serializable {
+public class MessageWrapper implements Serializable {
 
     private static final long serialVersionUID = 1009813828866652852L;
 
@@ -51,7 +49,10 @@ public class MessageWrapper extends Directory implements Serializable {
         this.appName = appName;
     }
 
-    @Override
+    public ServiceMetadata getMetadata() {
+        return metadata;
+    }
+
     public String getGroup() {
         return metadata.getGroup();
     }
@@ -60,7 +61,6 @@ public class MessageWrapper extends Directory implements Serializable {
         metadata.setGroup(group);
     }
 
-    @Override
     public String getVersion() {
         return metadata.getVersion();
     }
@@ -69,7 +69,6 @@ public class MessageWrapper extends Directory implements Serializable {
         metadata.setVersion(version);
     }
 
-    @Override
     public String getServiceProviderName() {
         return metadata.getServiceProviderName();
     }

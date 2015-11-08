@@ -246,7 +246,7 @@ public class ProxyFactory {
             message.setServiceProviderName(_serviceProviderName);
 
             for (UnresolvedAddress address : _addresses) {
-                _connector.addChannelGroup(message, _connector.group(address));
+                _connector.addChannelGroup(message.getMetadata(), _connector.group(address));
             }
 
             // dispatcher

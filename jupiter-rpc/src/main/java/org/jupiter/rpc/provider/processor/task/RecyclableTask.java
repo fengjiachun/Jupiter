@@ -22,7 +22,6 @@ import com.codahale.metrics.Timer;
 import org.jupiter.common.concurrent.RejectedRunnable;
 import org.jupiter.common.util.JServiceLoader;
 import org.jupiter.common.util.RecycleUtil;
-import org.jupiter.common.util.Reflects;
 import org.jupiter.common.util.SystemClock;
 import org.jupiter.common.util.internal.Recyclers;
 import org.jupiter.common.util.internal.logging.InternalLogger;
@@ -43,13 +42,14 @@ import org.jupiter.rpc.model.metadata.ServiceWrapper;
 import org.jupiter.rpc.provider.limiter.TPSLimiter;
 import org.jupiter.rpc.provider.limiter.TPSResult;
 import org.jupiter.rpc.provider.processor.ProviderProcessor;
-import org.jupiter.serialization.SerializerHolder;
 
 import java.util.concurrent.Executor;
 
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
+import static org.jupiter.common.util.Reflects.fastInvoke;
 import static org.jupiter.common.util.StackTraceUtil.stackTrace;
 import static org.jupiter.rpc.Status.*;
+import static org.jupiter.serialization.SerializerHolder.serializer;
 
 /**
  * Recyclable Task, reduce distribution and recovery of small objects (help gc).
@@ -83,15 +83,15 @@ public class RecyclableTask implements RejectedRunnable {
     @Override
     public void run() {
         // - Deserialization -------------------------------------------------------------------------------------------
+        final MessageWrapper msg;
         try {
             byte[] bytes = request.bytes();
+            request.bytes(null);
 
-            // request sizes histogram
             requestSizeHistogram.update(bytes.length);
 
-            MessageWrapper msg = SerializerHolder.serializer().readObject(bytes, MessageWrapper.class);
+            msg = serializer().readObject(bytes, MessageWrapper.class);
             request.message(msg);
-            request.bytes(null);
         } catch (Exception e) {
             rejected(BAD_REQUEST);
             return;
@@ -105,23 +105,22 @@ public class RecyclableTask implements RejectedRunnable {
         }
 
         // - Lookup the service ----------------------------------------------------------------------------------------
-        final MessageWrapper msg = request.message();
-        final ServiceWrapper serviceWrapper = processor.lookupService(msg);
-        if (serviceWrapper == null) {
+        final ServiceWrapper service = processor.lookupService(msg.getMetadata());
+        if (service == null) {
             rejected(SERVICE_NOT_FOUND);
             return;
         }
 
         // - Processing ------------------------------------------------------------------------------------------------
-        Executor childExecutor = serviceWrapper.getExecutor();
+        Executor childExecutor = service.getExecutor();
         if (childExecutor == null) {
-            process(msg, serviceWrapper.getServiceProvider());
+            process(service.getServiceProvider());
         } else {
             childExecutor.execute(new Runnable() {
 
                 @Override
                 public void run() {
-                    process(msg, serviceWrapper.getServiceProvider());
+                    process(service.getServiceProvider());
                 }
             });
         }
@@ -169,7 +168,7 @@ public class RecyclableTask implements RejectedRunnable {
             response.status(status.value());
             try {
                 // 在业务线程里序列化, 减轻IO线程负担
-                byte[] bytes = SerializerHolder.serializer().writeObject(result);
+                byte[] bytes = serializer().writeObject(result);
                 response.bytes(bytes);
             } finally {
                 RecycleUtil.recycle(result);
@@ -191,13 +190,20 @@ public class RecyclableTask implements RejectedRunnable {
         }
     }
 
-    private void process(MessageWrapper msg, Object provider) {
+    private void process(Object provider) {
         try {
-            Object invokeResult = null;
+            MessageWrapper msg = request.message();
+
+            String directory = msg.getMetadata().directory();
             String methodName = msg.getMethodName();
-            Timer.Context timeCtx = Metrics.timer(msg.directory() + '.' + methodName).time();
+            Class<?>[] parameterTypes = msg.getParameterTypes();
+            Object[] args = msg.getArgs();
+
+            Object invokeResult = null;
+
+            Timer.Context timeCtx = Metrics.timer(directory + '#' + methodName).time();
             try {
-                invokeResult = Reflects.fastInvoke(provider, methodName, msg.getParameterTypes(), msg.getArgs());
+                invokeResult = fastInvoke(provider, methodName, parameterTypes, args);
             } finally {
                 timeCtx.stop();
             }
@@ -211,7 +217,7 @@ public class RecyclableTask implements RejectedRunnable {
             byte[] bytes;
             try {
                 // 在业务线程里序列化, 减轻IO线程负担
-                bytes = SerializerHolder.serializer().writeObject(result);
+                bytes = serializer().writeObject(result);
                 response.bytes(bytes);
             } finally {
                 RecycleUtil.recycle(result);

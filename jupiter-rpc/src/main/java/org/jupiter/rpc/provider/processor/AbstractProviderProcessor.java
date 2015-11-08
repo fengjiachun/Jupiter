@@ -26,10 +26,10 @@ import org.jupiter.rpc.Response;
 import org.jupiter.rpc.channel.JChannel;
 import org.jupiter.rpc.model.metadata.ResultWrapper;
 import org.jupiter.rpc.model.metadata.ServiceWrapper;
-import org.jupiter.serialization.SerializerHolder;
 
 import static org.jupiter.common.util.StackTraceUtil.stackTrace;
 import static org.jupiter.rpc.Status.SERVICE_ERROR;
+import static org.jupiter.serialization.SerializerHolder.serializer;
 
 /**
  * jupiter
@@ -55,7 +55,7 @@ public abstract class AbstractProviderProcessor implements ProviderProcessor {
         Response response = new Response(request.invokeId());
         response.status(SERVICE_ERROR.value());
         try {
-            response.bytes(SerializerHolder.serializer().writeObject(result));
+            response.bytes(serializer().writeObject(result));
         } finally {
             RecycleUtil.recycle(result);
         }

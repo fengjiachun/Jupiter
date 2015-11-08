@@ -20,7 +20,6 @@ import org.junit.Test;
 import org.jupiter.common.util.Recyclable;
 import org.jupiter.common.util.internal.Recyclers;
 import org.jupiter.serialization.Serializer;
-import org.jupiter.serialization.SerializerHolder;
 
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -28,6 +27,7 @@ import java.util.List;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
+import static org.jupiter.serialization.SerializerHolder.serializer;
 
 /**
  * jupiter
@@ -39,7 +39,7 @@ public class ProtoStuffSerializerTest {
 
     @Test
     public void testSerializer() {
-        Serializer serializer = SerializerHolder.serializer();
+        Serializer serializer = serializer();
         ResultWrapper wrapper = ResultWrapper.getInstance();
         wrapper.setResult("test");
         byte[] bytes = serializer.writeObject(wrapper);

@@ -21,7 +21,8 @@ import org.jupiter.rpc.Response;
 import org.jupiter.rpc.channel.JChannel;
 import org.jupiter.rpc.consumer.future.DefaultInvokeFuture;
 import org.jupiter.rpc.model.metadata.ResultWrapper;
-import org.jupiter.serialization.SerializerHolder;
+
+import static org.jupiter.serialization.SerializerHolder.serializer;
 
 /**
  * Recyclable Task, reduce distribution and recovery of small objects (help gc).
@@ -40,7 +41,7 @@ public class RecyclableTask implements Runnable {
     public void run() {
         try {
             // 业务线程里反序列化, 减轻IO线程负担
-            response.result(SerializerHolder.serializer().readObject(response.bytes(), ResultWrapper.class));
+            response.result(serializer().readObject(response.bytes(), ResultWrapper.class));
             response.bytes(null);
             DefaultInvokeFuture.received(jChannel, response);
         } finally {
