@@ -26,7 +26,7 @@ import java.util.EventListener;
  *
  * @author jiachun.fjc
  */
-public interface JFutureListener<T> extends EventListener {
+public interface JFutureListener<C> extends EventListener {
 
-    void operationComplete(T channel, boolean isSuccess) throws Exception;
+    void operationComplete(C c, boolean isSuccess) throws Exception;
 }
