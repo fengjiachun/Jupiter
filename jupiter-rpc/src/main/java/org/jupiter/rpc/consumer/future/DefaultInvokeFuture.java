@@ -22,8 +22,8 @@ import org.jupiter.common.util.internal.logging.InternalLogger;
 import org.jupiter.common.util.internal.logging.InternalLoggerFactory;
 import org.jupiter.rpc.DispatchMode;
 import org.jupiter.rpc.JListener;
-import org.jupiter.rpc.Request;
-import org.jupiter.rpc.Response;
+import org.jupiter.rpc.JRequest;
+import org.jupiter.rpc.JResponse;
 import org.jupiter.rpc.aop.ConsumerHook;
 import org.jupiter.rpc.channel.JChannel;
 import org.jupiter.rpc.error.RemoteException;
@@ -62,11 +62,11 @@ public class DefaultInvokeFuture implements InvokeFuture {
     private final long invokeId; // request id, 组播的场景可重复
     private final String broadcastChildId; // 组播场景使用的 id
     private final JChannel channel;
-    private final Request request;
+    private final JRequest request;
     private final int timeoutMillis;
     private final DispatchMode mode;
 
-    private volatile Response response;
+    private volatile JResponse response;
     private volatile JListener listener;
     private volatile List<ConsumerHook> hooks;
 
@@ -75,11 +75,11 @@ public class DefaultInvokeFuture implements InvokeFuture {
     private final long start = SystemClock.millisClock().now();
     private volatile long sent;
 
-    public DefaultInvokeFuture(JChannel channel, Request request, int timeoutMillis) {
+    public DefaultInvokeFuture(JChannel channel, JRequest request, int timeoutMillis) {
         this(channel, request, timeoutMillis, ROUND);
     }
 
-    public DefaultInvokeFuture(JChannel channel, Request request, int timeoutMillis, DispatchMode mode) {
+    public DefaultInvokeFuture(JChannel channel, JRequest request, int timeoutMillis, DispatchMode mode) {
         invokeId = request.invokeId();
         this.channel = channel;
         this.request = request;
@@ -95,7 +95,7 @@ public class DefaultInvokeFuture implements InvokeFuture {
         }
     }
 
-    public static boolean received(JChannel channel, Response response) {
+    public static boolean received(JChannel channel, JResponse response) {
         long invokeId = response.id();
         // 在不知道是组播还是单播的情况下需要组播做出性能让步, 查询两次Map
         DefaultInvokeFuture future = roundFutures.remove(invokeId);
@@ -112,7 +112,7 @@ public class DefaultInvokeFuture implements InvokeFuture {
         return false;
     }
 
-    public static boolean received(JChannel channel, Response response, DispatchMode mode) {
+    public static boolean received(JChannel channel, JResponse response, DispatchMode mode) {
         DefaultInvokeFuture future;
         if (mode == BROADCAST) {
             future = broadcastFutures.remove(generateBroadChildId(channel, response.id()));
@@ -212,7 +212,7 @@ public class DefaultInvokeFuture implements InvokeFuture {
         return channel;
     }
 
-    private void doReceived(Response response) {
+    private void doReceived(JResponse response) {
         // If there is a listener, that is considered to be an asynchronous call,
         // and attempts to elide conditional wake-ups when the lock is uncontended.
         if (listener != null) {
@@ -237,7 +237,7 @@ public class DefaultInvokeFuture implements InvokeFuture {
     }
 
     private Object resultFromResponse() throws Throwable {
-        Response _response = this.response;
+        JResponse _response = this.response;
         byte status = _response.status();
         if (status == OK.value()) {
             ResultWrapper wrapper = _response.result();
@@ -249,7 +249,7 @@ public class DefaultInvokeFuture implements InvokeFuture {
     }
 
     private void notifyListener(JListener responseListener) {
-        Response _response = this.response;
+        JResponse _response = this.response;
         byte status = _response.status();
         ResultWrapper wrapper = _response.result();
         if (status == OK.value()) {
@@ -301,7 +301,7 @@ public class DefaultInvokeFuture implements InvokeFuture {
         }
 
         private void processTimeout(DefaultInvokeFuture future) {
-            Response timeoutResponse = new Response(future.invokeId);
+            JResponse timeoutResponse = new JResponse(future.invokeId);
             ResultWrapper result = new ResultWrapper();
             byte status = future.sent > 0 ? SERVER_TIMEOUT.value() : CLIENT_TIMEOUT.value();
             result.setError(new TimeoutException(future.channel.remoteAddress(), status));

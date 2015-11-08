@@ -23,7 +23,7 @@ import io.netty.channel.ChannelInboundHandlerAdapter;
 import io.netty.util.ReferenceCountUtil;
 import org.jupiter.common.util.internal.logging.InternalLogger;
 import org.jupiter.common.util.internal.logging.InternalLoggerFactory;
-import org.jupiter.rpc.Response;
+import org.jupiter.rpc.JResponse;
 import org.jupiter.rpc.channel.JChannel;
 import org.jupiter.rpc.consumer.processor.ConsumerProcessor;
 import org.jupiter.transport.error.Signal;
@@ -51,10 +51,10 @@ public class ConnectorHandler extends ChannelInboundHandlerAdapter {
 
     @Override
     public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
-        if (msg instanceof Response) {
+        if (msg instanceof JResponse) {
             JChannel jChannel = NettyChannel.attachChannel(ctx.channel());
             try {
-                processor.handleResponse(jChannel, (Response) msg);
+                processor.handleResponse(jChannel, (JResponse) msg);
             } catch (Exception e) {
                 logger.error("An exception has been caught {}, on {} #channelRead().", e, jChannel);
             }

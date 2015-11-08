@@ -21,7 +21,7 @@ package org.jupiter.transport;
  *
  * 消息头16个字节定长
  * = 2 // MAGIC = (short) 0xbabe
- * + 1 // 消息标志位, 用来表示消息类型Request/Response/Heartbeat等
+ * + 1 // 消息标志位, 用来表示消息类型Request/JResponse/Heartbeat等
  * + 1 // 状态位, 设置请求响应状态
  * + 8 // 消息 id long 类型
  * + 4 // 消息体body长度, int类型
@@ -40,9 +40,9 @@ public class JProtocolHeader {
 
     /** ============================================= For RPC ======================================================= */
 
-    /** Request */
+    /** JRequest */
     public static final byte REQUEST = 1;
-    /** Response */
+    /** JResponse */
     public static final byte RESPONSE = 2;
 
     /** ============================================================================================================= */

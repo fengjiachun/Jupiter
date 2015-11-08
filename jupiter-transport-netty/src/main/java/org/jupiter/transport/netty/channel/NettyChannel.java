@@ -110,15 +110,15 @@ public class NettyChannel implements JChannel {
 
     @Override
     public JChannel close(final JFutureListener<JChannel> listener) {
-        final JChannel ch = this;
+        final JChannel jChannel = this;
         channel.close().addListener(new ChannelFutureListener() {
 
             @Override
             public void operationComplete(ChannelFuture future) throws Exception {
-                listener.operationComplete(ch, future.isSuccess());
+                listener.operationComplete(jChannel, future.isSuccess());
             }
         });
-        return ch;
+        return jChannel;
     }
 
     @Override
@@ -129,16 +129,16 @@ public class NettyChannel implements JChannel {
 
     @Override
     public JChannel write(Object msg, final JFutureListener<JChannel> listener) {
-        final JChannel ch = this;
+        final JChannel jChannel = this;
         channel.writeAndFlush(msg)
                 .addListener(new ChannelFutureListener() {
 
                     @Override
                     public void operationComplete(ChannelFuture future) throws Exception {
-                        listener.operationComplete(ch, future.isSuccess());
+                        listener.operationComplete(jChannel, future.isSuccess());
                     }
                 });
-        return ch;
+        return jChannel;
     }
 
     @Override

@@ -69,22 +69,22 @@ public interface JChannel {
     boolean isMarkedReconnect();
 
     /**
-     * Request to close this {@link JChannel}.
+     * Requests to close this {@link JChannel}.
      */
     JChannel close();
 
     /**
-     * Request to close this {@link JChannel}.
+     * Requests to close this {@link JChannel}.
      */
     JChannel close(JFutureListener<JChannel> listener);
 
     /**
-     * Request to write a message on the channel.
+     * Requests to write a message on the channel.
      */
     JChannel write(Object msg);
 
     /**
-     * Request to write a message on the channel.
+     * Requests to write a message on the channel.
      */
     JChannel write(Object msg, JFutureListener<JChannel> listener);
 }

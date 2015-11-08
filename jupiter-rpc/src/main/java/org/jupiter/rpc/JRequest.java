@@ -28,7 +28,7 @@ import java.util.concurrent.atomic.AtomicLong;
  *
  * @author jiachun.fjc
  */
-public class Request extends BytesHolder {
+public class JRequest extends BytesHolder {
 
     private static final AtomicLong invokeIdGenerator = new AtomicLong(0);
 
@@ -37,11 +37,11 @@ public class Request extends BytesHolder {
 
     private transient long timestamp;
 
-    public Request() {
+    public JRequest() {
         this(invokeIdGenerator.getAndIncrement());
     }
 
-    public Request(long invokeId) {
+    public JRequest(long invokeId) {
         this.invokeId = invokeId;
     }
 
@@ -67,7 +67,7 @@ public class Request extends BytesHolder {
 
     @Override
     public String toString() {
-        return "Request{" +
+        return "JRequest{" +
                 "invokeId=" + invokeId +
                 ", message=" + message +
                 '}';

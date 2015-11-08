@@ -17,7 +17,7 @@
 package org.jupiter.rpc.consumer.processor;
 
 import org.jupiter.common.util.JServiceLoader;
-import org.jupiter.rpc.Response;
+import org.jupiter.rpc.JResponse;
 import org.jupiter.rpc.channel.JChannel;
 import org.jupiter.rpc.consumer.processor.task.RecyclableTask;
 import org.jupiter.rpc.executor.ExecutorFactory;
@@ -44,7 +44,7 @@ public class DefaultConsumerProcessor implements ConsumerProcessor {
     }
 
     @Override
-    public void handleResponse(JChannel ch, Response response) throws Exception {
-        executor.execute(RecyclableTask.getInstance(ch, response));
+    public void handleResponse(JChannel channel, JResponse response) throws Exception {
+        executor.execute(RecyclableTask.getInstance(channel, response));
     }
 }

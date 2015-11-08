@@ -16,7 +16,7 @@
 
 package org.jupiter.rpc.consumer.processor;
 
-import org.jupiter.rpc.Response;
+import org.jupiter.rpc.JResponse;
 import org.jupiter.rpc.channel.JChannel;
 
 /**
@@ -29,5 +29,5 @@ import org.jupiter.rpc.channel.JChannel;
  */
 public interface ConsumerProcessor {
 
-    void handleResponse(JChannel ch, Response response) throws Exception;
+    void handleResponse(JChannel channel, JResponse response) throws Exception;
 }

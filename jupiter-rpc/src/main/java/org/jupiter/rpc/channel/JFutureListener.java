@@ -28,5 +28,5 @@ import java.util.EventListener;
  */
 public interface JFutureListener<T> extends EventListener {
 
-    void operationComplete(T ch, boolean isSuccess) throws Exception;
+    void operationComplete(T channel, boolean isSuccess) throws Exception;
 }

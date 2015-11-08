@@ -23,8 +23,8 @@ import java.util.EventListener;
  * as the difference between a parameter request.
  *
  * Note:
- * If {@link JListener#complete(Request, Object)} thrown a {@link Exception} during execution,
- * will trigger {@link JListener#failure(Request, Throwable)}
+ * If {@link JListener#complete(JRequest, Object)} thrown a {@link Exception} during execution,
+ * will trigger {@link JListener#failure(JRequest, Throwable)}
  *
  * jupiter
  * org.jupiter.rpc
@@ -36,10 +36,10 @@ public interface JListener extends EventListener {
     /**
      * Return result when the call succeeds.
      */
-    void complete(Request request, Object result) throws Exception;
+    void complete(JRequest request, Object result) throws Exception;
 
     /**
      * Returns an exception message when call fails.
      */
-    void failure(Request request, Throwable cause);
+    void failure(JRequest request, Throwable cause);
 }

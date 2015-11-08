@@ -20,9 +20,9 @@ import org.jupiter.common.util.RecycleUtil;
 import org.jupiter.common.util.internal.logging.InternalLogger;
 import org.jupiter.common.util.internal.logging.InternalLoggerFactory;
 import org.jupiter.rpc.Directory;
+import org.jupiter.rpc.JRequest;
 import org.jupiter.rpc.JServer;
-import org.jupiter.rpc.Request;
-import org.jupiter.rpc.Response;
+import org.jupiter.rpc.JResponse;
 import org.jupiter.rpc.channel.JChannel;
 import org.jupiter.rpc.model.metadata.ResultWrapper;
 import org.jupiter.rpc.model.metadata.ServiceWrapper;
@@ -41,18 +41,18 @@ public abstract class AbstractProviderProcessor implements ProviderProcessor {
 
     private static final InternalLogger logger = InternalLoggerFactory.getInstance(AbstractProviderProcessor.class);
 
-    private final JServer jServer;
+    private final JServer server;
 
-    protected AbstractProviderProcessor(JServer jServer) {
-        this.jServer = jServer;
+    protected AbstractProviderProcessor(JServer server) {
+        this.server = server;
     }
 
     @Override
-    public void handleException(JChannel ch, Request request, Throwable cause) {
+    public void handleException(JChannel channel, JRequest request, Throwable cause) {
         ResultWrapper result = ResultWrapper.getInstance();
         result.setError(cause);
 
-        Response response = new Response(request.invokeId());
+        JResponse response = new JResponse(request.invokeId());
         response.status(SERVICE_ERROR.value());
         try {
             response.bytes(serializer().writeObject(result));
@@ -62,11 +62,11 @@ public abstract class AbstractProviderProcessor implements ProviderProcessor {
 
         logger.error("An exception has been caught while processing request: {}.", stackTrace(cause));
 
-        ch.write(response);
+        channel.write(response);
     }
 
     @Override
     public ServiceWrapper lookupService(Directory directory) {
-        return jServer.lookupService(directory);
+        return server.lookupService(directory);
     }
 }

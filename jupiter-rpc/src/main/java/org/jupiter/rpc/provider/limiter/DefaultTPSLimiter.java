@@ -16,7 +16,7 @@
 
 package org.jupiter.rpc.provider.limiter;
 
-import org.jupiter.rpc.Request;
+import org.jupiter.rpc.JRequest;
 
 /**
  * jupiter
@@ -27,7 +27,7 @@ import org.jupiter.rpc.Request;
 public class DefaultTPSLimiter implements TPSLimiter {
 
     @Override
-    public TPSResult process(Request request) {
+    public TPSResult process(JRequest request) {
         // TODO 以APP为最小粒度限流? 还是以方法为最小粒度? 我再仔细想想
         return new TPSResult(true, null);
     }

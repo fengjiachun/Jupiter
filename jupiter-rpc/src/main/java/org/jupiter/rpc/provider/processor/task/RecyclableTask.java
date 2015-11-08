@@ -26,8 +26,8 @@ import org.jupiter.common.util.SystemClock;
 import org.jupiter.common.util.internal.Recyclers;
 import org.jupiter.common.util.internal.logging.InternalLogger;
 import org.jupiter.common.util.internal.logging.InternalLoggerFactory;
-import org.jupiter.rpc.Request;
-import org.jupiter.rpc.Response;
+import org.jupiter.rpc.JRequest;
+import org.jupiter.rpc.JResponse;
 import org.jupiter.rpc.Status;
 import org.jupiter.rpc.channel.JChannel;
 import org.jupiter.rpc.channel.JFutureListener;
@@ -77,8 +77,8 @@ public class RecyclableTask implements RejectedRunnable {
     private static final Histogram responseSizeHistogram    = Metrics.histogram("response.size");
 
     private ProviderProcessor processor;
-    private JChannel jChannel;
-    private Request request;
+    private JChannel channel;
+    private JRequest request;
 
     @Override
     public void run() {
@@ -164,7 +164,7 @@ public class RecyclableTask implements RejectedRunnable {
             logger.warn("Service rejected: {}.", stackTrace(result.getError()));
 
             final long invokeId = request.invokeId();
-            Response response = new Response(invokeId);
+            JResponse response = new JResponse(invokeId);
             response.status(status.value());
             try {
                 // 在业务线程里序列化, 减轻IO线程负担
@@ -174,10 +174,10 @@ public class RecyclableTask implements RejectedRunnable {
                 RecycleUtil.recycle(result);
             }
 
-            jChannel.write(response, new JFutureListener<JChannel>() {
+            channel.write(response, new JFutureListener<JChannel>() {
 
                 @Override
-                public void operationComplete(JChannel ch, boolean isSuccess) throws Exception {
+                public void operationComplete(JChannel channel, boolean isSuccess) throws Exception {
                     if (isSuccess) {
                         logger.debug("Service rejection sent out: {}.", invokeId);
                     } else {
@@ -207,7 +207,7 @@ public class RecyclableTask implements RejectedRunnable {
             result.setResult(invokeResult);
 
             final long invokeId = request.invokeId();
-            Response response = new Response(invokeId);
+            JResponse response = new JResponse(invokeId);
             response.status(OK.value());
             byte[] bytes;
             try {
@@ -220,10 +220,10 @@ public class RecyclableTask implements RejectedRunnable {
 
             final long timestamp = request.timestamp();
             final int bodyLength = bytes.length;
-            jChannel.write(response, new JFutureListener<JChannel>() {
+            channel.write(response, new JFutureListener<JChannel>() {
 
                 @Override
-                public void operationComplete(JChannel ch, boolean isSuccess) throws Exception {
+                public void operationComplete(JChannel channel, boolean isSuccess) throws Exception {
                     long duration = SystemClock.millisClock().now() - timestamp;
                     if (isSuccess) {
                         responseSizeHistogram.update(bodyLength);
@@ -238,17 +238,17 @@ public class RecyclableTask implements RejectedRunnable {
                 }
             });
         } catch (Exception e) {
-            processor.handleException(jChannel, request, e);
+            processor.handleException(channel, request, e);
         } finally {
             recycle();
         }
     }
 
-    public static RecyclableTask getInstance(ProviderProcessor processor, JChannel jChannel, Request request) {
+    public static RecyclableTask getInstance(ProviderProcessor processor, JChannel channel, JRequest request) {
         RecyclableTask task = recyclers.get();
 
         task.processor = processor;
-        task.jChannel = jChannel;
+        task.channel = channel;
         task.request = request;
         return task;
     }
@@ -260,7 +260,7 @@ public class RecyclableTask implements RejectedRunnable {
     private boolean recycle() {
         // help GC
         this.processor = null;
-        this.jChannel = null;
+        this.channel = null;
         this.request = null;
 
         return recyclers.recycle(this, handle);

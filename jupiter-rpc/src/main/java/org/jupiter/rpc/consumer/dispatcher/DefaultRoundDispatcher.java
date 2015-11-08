@@ -17,7 +17,7 @@
 package org.jupiter.rpc.consumer.dispatcher;
 
 import org.jupiter.rpc.JClient;
-import org.jupiter.rpc.Request;
+import org.jupiter.rpc.JRequest;
 import org.jupiter.rpc.aop.ConsumerHook;
 import org.jupiter.rpc.channel.JChannel;
 import org.jupiter.rpc.channel.JFutureListener;
@@ -45,21 +45,21 @@ public class DefaultRoundDispatcher extends AbstractDispatcher {
 
     @Override
     public InvokeFuture dispatch(MessageWrapper message) {
-        JChannel jChannel = connector.select(message.getMetadata());
+        JChannel channel = connector.select(message.getMetadata());
 
-        final Request request = new Request();
+        final JRequest request = new JRequest();
         request.message(message);
         // 在业务线程里序列化, 减轻IO线程负担
         request.bytes(serializer().writeObject(message));
         final List<ConsumerHook> _hooks = getHooks();
-        final InvokeFuture invokeFuture = new DefaultInvokeFuture(jChannel, request, getTimeoutMills())
+        final InvokeFuture invokeFuture = new DefaultInvokeFuture(channel, request, getTimeoutMills())
                 .hooks(_hooks)
                 .listener(getListener());
 
-        jChannel.write(request, new JFutureListener<JChannel>() {
+        channel.write(request, new JFutureListener<JChannel>() {
 
             @Override
-            public void operationComplete(JChannel ch, boolean isSuccess) throws Exception {
+            public void operationComplete(JChannel channel, boolean isSuccess) throws Exception {
                 if (isSuccess) {
                     invokeFuture.sent();
 

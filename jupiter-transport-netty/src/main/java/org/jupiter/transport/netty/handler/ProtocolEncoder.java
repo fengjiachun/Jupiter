@@ -23,8 +23,8 @@ import io.netty.handler.codec.MessageToByteEncoder;
 import io.netty.util.ReferenceCountUtil;
 import org.jupiter.common.util.Reflects;
 import org.jupiter.rpc.BytesHolder;
-import org.jupiter.rpc.Request;
-import org.jupiter.rpc.Response;
+import org.jupiter.rpc.JRequest;
+import org.jupiter.rpc.JResponse;
 
 import static org.jupiter.transport.JProtocolHeader.*;
 
@@ -46,8 +46,8 @@ public class ProtocolEncoder extends MessageToByteEncoder<BytesHolder> {
 
     @Override
     protected void encode(ChannelHandlerContext ctx, BytesHolder msg, ByteBuf out) throws Exception {
-        if (msg instanceof Request) {
-            Request request = (Request) msg;
+        if (msg instanceof JRequest) {
+            JRequest request = (JRequest) msg;
             byte[] bytes = request.bytes();
             out.writeShort(MAGIC)
                     .writeByte(REQUEST)
@@ -55,8 +55,8 @@ public class ProtocolEncoder extends MessageToByteEncoder<BytesHolder> {
                     .writeLong(request.invokeId())
                     .writeInt(bytes.length)
                     .writeBytes(bytes);
-        } else if (msg instanceof Response) {
-            Response response = (Response) msg;
+        } else if (msg instanceof JResponse) {
+            JResponse response = (JResponse) msg;
             byte[] bytes = response.bytes();
             out.writeShort(MAGIC)
                     .writeByte(RESPONSE)

@@ -44,12 +44,12 @@ public class Client {
 //                .listener(new JListener() {
 //
 //                    @Override
-//                    public void complete(Request request, Object result) throws Exception {
+//                    public void complete(JRequest request, Object result) throws Exception {
 //                        System.out.println(request + ":" + result.toString());
 //                    }
 //
 //                    @Override
-//                    public void failure(Request request, Throwable cause) {
+//                    public void failure(JRequest request, Throwable cause) {
 //                        System.out.println(request + ":" + cause);
 //                    }
 //                })

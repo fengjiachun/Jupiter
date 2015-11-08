@@ -16,7 +16,7 @@
 
 package org.jupiter.rpc.aop;
 
-import org.jupiter.rpc.Request;
+import org.jupiter.rpc.JRequest;
 
 /**
  * Consumer's hook.
@@ -31,10 +31,10 @@ public interface ConsumerHook {
     /**
      * Will be triggered when the request data sent to the network.
      */
-    void before(Request request);
+    void before(JRequest request);
 
     /**
-     * Will to be triggered when the server returns the results.
+     * Will be triggered when the server returns the result.
      */
-    void after(Request request);
+    void after(JRequest request);
 }

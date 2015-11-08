@@ -17,7 +17,7 @@
 package org.jupiter.rpc.consumer.processor.task;
 
 import org.jupiter.common.util.internal.Recyclers;
-import org.jupiter.rpc.Response;
+import org.jupiter.rpc.JResponse;
 import org.jupiter.rpc.channel.JChannel;
 import org.jupiter.rpc.consumer.future.DefaultInvokeFuture;
 import org.jupiter.rpc.model.metadata.ResultWrapper;
@@ -34,8 +34,8 @@ import static org.jupiter.serialization.SerializerHolder.serializer;
  */
 public class RecyclableTask implements Runnable {
 
-    private JChannel jChannel;
-    private Response response;
+    private JChannel channel;
+    private JResponse response;
 
     @Override
     public void run() {
@@ -43,16 +43,16 @@ public class RecyclableTask implements Runnable {
             // 业务线程里反序列化, 减轻IO线程负担
             response.result(serializer().readObject(response.bytes(), ResultWrapper.class));
             response.bytes(null);
-            DefaultInvokeFuture.received(jChannel, response);
+            DefaultInvokeFuture.received(channel, response);
         } finally {
             recycle();
         }
     }
 
-    public static RecyclableTask getInstance(JChannel jChannel, Response response) {
+    public static RecyclableTask getInstance(JChannel channel, JResponse response) {
         RecyclableTask task = recyclers.get();
 
-        task.jChannel = jChannel;
+        task.channel = channel;
         task.response = response;
         return task;
     }
@@ -64,7 +64,7 @@ public class RecyclableTask implements Runnable {
     private boolean recycle() {
         // help GC
         this.response = null;
-        this.jChannel = null;
+        this.channel = null;
 
         return recyclers.recycle(this, handle);
     }

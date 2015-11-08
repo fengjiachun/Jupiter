@@ -16,7 +16,7 @@
 
 package org.jupiter.rpc.provider.limiter;
 
-import org.jupiter.rpc.Request;
+import org.jupiter.rpc.JRequest;
 
 /**
  * TPS 服务限流, 默认的实现为 {@link DefaultTPSLimiter}, 基于SPI可扩展.
@@ -28,5 +28,5 @@ import org.jupiter.rpc.Request;
  */
 public interface TPSLimiter {
 
-    TPSResult process(Request request);
+    TPSResult process(JRequest request);
 }

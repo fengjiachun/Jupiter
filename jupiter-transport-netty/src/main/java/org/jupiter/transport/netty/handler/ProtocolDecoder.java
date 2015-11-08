@@ -23,8 +23,8 @@ import io.netty.handler.codec.ReplayingDecoder;
 import org.jupiter.common.util.SystemClock;
 import org.jupiter.common.util.internal.logging.InternalLogger;
 import org.jupiter.common.util.internal.logging.InternalLoggerFactory;
-import org.jupiter.rpc.Request;
-import org.jupiter.rpc.Response;
+import org.jupiter.rpc.JRequest;
+import org.jupiter.rpc.JResponse;
 import org.jupiter.transport.JProtocolHeader;
 
 import java.util.List;
@@ -86,7 +86,7 @@ public class ProtocolDecoder extends ReplayingDecoder<ProtocolDecoder.State> {
                         byte[] bytes = new byte[header.bodyLength()];
                         in.readBytes(bytes);
 
-                        Request request = new Request(header.id());
+                        JRequest request = new JRequest(header.id());
                         request.timestamp(SystemClock.millisClock().now());
                         request.bytes(bytes);
                         out.add(request);
@@ -99,7 +99,7 @@ public class ProtocolDecoder extends ReplayingDecoder<ProtocolDecoder.State> {
                         byte[] bytes = new byte[header.bodyLength()];
                         in.readBytes(bytes);
 
-                        Response response = new Response(header.id());
+                        JResponse response = new JResponse(header.id());
                         response.status(header.status());
                         response.bytes(bytes);
                         out.add(response);

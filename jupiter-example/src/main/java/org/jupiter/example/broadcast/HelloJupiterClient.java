@@ -49,12 +49,12 @@ public class HelloJupiterClient {
                 .listener(new JListener() {
 
                     @Override
-                    public void complete(Request request, Object result) throws Exception {
+                    public void complete(JRequest request, Object result) throws Exception {
                         System.out.println("complete=" + result);
                     }
 
                     @Override
-                    public void failure(Request request, Throwable cause) {
+                    public void failure(JRequest request, Throwable cause) {
                         System.out.println("failure=" + cause);
                     }
                 })

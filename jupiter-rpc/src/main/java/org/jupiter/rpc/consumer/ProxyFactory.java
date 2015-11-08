@@ -293,12 +293,12 @@ public class ProxyFactory {
     private static final ConsumerHook logConsumerHook = new ConsumerHook() {
 
         @Override
-        public void before(Request request) {
+        public void before(JRequest request) {
             logger.debug("Request: [{}], {}.", request.invokeId(), request.message());
         }
 
         @Override
-        public void after(Request request) {
+        public void after(JRequest request) {
             logger.debug("Request: [{}], has respond.", request.invokeId());
         }
     };

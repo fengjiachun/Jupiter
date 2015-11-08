@@ -18,7 +18,7 @@ package org.jupiter.rpc.provider.processor;
 
 import org.jupiter.common.util.JServiceLoader;
 import org.jupiter.rpc.JServer;
-import org.jupiter.rpc.Request;
+import org.jupiter.rpc.JRequest;
 import org.jupiter.rpc.channel.JChannel;
 import org.jupiter.rpc.executor.ExecutorFactory;
 import org.jupiter.rpc.provider.processor.task.RecyclableTask;
@@ -50,10 +50,10 @@ public class DefaultProviderProcessor extends AbstractProviderProcessor {
     }
 
     @Override
-    public void handleRequest(JChannel ch, Request request) throws Exception {
+    public void handleRequest(JChannel channel, JRequest request) throws Exception {
         // 1. 反序列化相对较耗cpu, 避免在IO线程中执行.
         // 2. 根据Java Flight Recordings (JFR) 观察结果, protostuff在发序列化时,
         //      io.protostuff.runtime.RuntimeEnv.loadClass有较多的锁竞争, 避免在IO线程中执行.
-        executor.execute(RecyclableTask.getInstance(this, ch, request));
+        executor.execute(RecyclableTask.getInstance(this, channel, request));
     }
 }

@@ -29,16 +29,16 @@ import static org.jupiter.rpc.Status.parse;
  *
  * @author jiachun.fjc
  */
-public class Response extends BytesHolder {
+public class JResponse extends BytesHolder {
 
     private byte status = OK.value();
 
     private long id; // invoke id
     private ResultWrapper result; // 服务调用结果
 
-    public Response() {}
+    public JResponse() {}
 
-    public Response(long id) {
+    public JResponse(long id) {
         this.id = id;
     }
 
@@ -68,7 +68,7 @@ public class Response extends BytesHolder {
 
     @Override
     public String toString() {
-        return "Response{" +
+        return "JResponse{" +
                 "status=" + parse(status) +
                 ", id=" + id +
                 ", result=" + result +
