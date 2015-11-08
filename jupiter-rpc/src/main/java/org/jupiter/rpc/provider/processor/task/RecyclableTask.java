@@ -193,17 +193,12 @@ public class RecyclableTask implements RejectedRunnable {
     private void process(Object provider) {
         try {
             MessageWrapper msg = request.message();
-
-            String directory = msg.getMetadata().directory();
             String methodName = msg.getMethodName();
-            Class<?>[] parameterTypes = msg.getParameterTypes();
-            Object[] args = msg.getArgs();
 
             Object invokeResult = null;
-
-            Timer.Context timeCtx = Metrics.timer(directory + '#' + methodName).time();
+            Timer.Context timeCtx = Metrics.timer(msg.getMetadata().directory() + '#' + methodName).time();
             try {
-                invokeResult = fastInvoke(provider, methodName, parameterTypes, args);
+                invokeResult = fastInvoke(provider, methodName, msg.getParameterTypes(), msg.getArgs());
             } finally {
                 timeCtx.stop();
             }
