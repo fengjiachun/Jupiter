@@ -60,7 +60,7 @@ public class DefaultInvokeFuture implements InvokeFuture {
     private static final ConcurrentMap<String, DefaultInvokeFuture> broadcastFutures = Maps.newConcurrentHashMap();
 
     private final long invokeId; // request id, 组播的场景可重复
-    private final String id; // 组播场景使用的 id
+    private final String broadcastChildId; // 组播场景使用的 id
     private final JChannel channel;
     private final Request request;
     private final int timeoutMillis;
@@ -87,10 +87,10 @@ public class DefaultInvokeFuture implements InvokeFuture {
         this.mode = mode;
 
         if (mode == BROADCAST) {
-            id = generateGroupChildId(channel, invokeId);
-            broadcastFutures.put(id, this);
+            broadcastChildId = generateBroadChildId(channel, invokeId);
+            broadcastFutures.put(broadcastChildId, this);
         } else {
-            id = null;
+            broadcastChildId = null;
             roundFutures.put(invokeId, this);
         }
     }
@@ -100,7 +100,7 @@ public class DefaultInvokeFuture implements InvokeFuture {
         // 在不知道是组播还是单播的情况下需要组播做出性能让步, 查询两次Map
         DefaultInvokeFuture future = roundFutures.remove(invokeId);
         if (future == null) {
-            future = broadcastFutures.remove(generateGroupChildId(channel, invokeId));
+            future = broadcastFutures.remove(generateBroadChildId(channel, invokeId));
         }
         if (future != null) {
             future.doReceived(response);
@@ -115,7 +115,7 @@ public class DefaultInvokeFuture implements InvokeFuture {
     public static boolean received(JChannel channel, Response response, DispatchMode mode) {
         DefaultInvokeFuture future;
         if (mode == BROADCAST) {
-            future = broadcastFutures.remove(generateGroupChildId(channel, response.id()));
+            future = broadcastFutures.remove(generateBroadChildId(channel, response.id()));
         } else {
             future = roundFutures.remove(response.id());
         }
@@ -129,7 +129,7 @@ public class DefaultInvokeFuture implements InvokeFuture {
         return false;
     }
 
-    public static String generateGroupChildId(JChannel channel, long invokeId) {
+    public static String generateBroadChildId(JChannel channel, long invokeId) {
         return channel.id() + invokeId;
     }
 
@@ -199,7 +199,7 @@ public class DefaultInvokeFuture implements InvokeFuture {
 
     public String getId() {
         if (mode == BROADCAST) {
-            return id;
+            return broadcastChildId;
         }
         return String.valueOf(invokeId);
     }
@@ -265,7 +265,7 @@ public class DefaultInvokeFuture implements InvokeFuture {
     }
 
     /**
-     * 超时扫描
+     * Invoke timeout scanner.
      */
     private static class InvokeTimeoutScanner implements Runnable {
 
