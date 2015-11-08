@@ -142,7 +142,7 @@ public abstract class NettyTcpAcceptor extends NettyAcceptor {
         // Wait until the server socket is bind succeed.
         ChannelFuture future = bind(localAddress).sync();
 
-        logger.info("Jupiter TCP server start, and will wait until the server socket is closed."
+        logger.info("Jupiter TCP server start" + (sync ? ", and will wait until the server socket is closed." : ".")
                 + NEWLINE + "{}.", toString());
 
         if (sync) {

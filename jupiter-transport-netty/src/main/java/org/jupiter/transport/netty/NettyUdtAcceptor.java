@@ -103,7 +103,7 @@ public abstract class NettyUdtAcceptor extends NettyAcceptor {
         // Wait until the server socket is bind succeed.
         ChannelFuture future = bind(localAddress).sync();
 
-        logger.info("Jupiter UDT server start, and will wait until the server socket is closed."
+        logger.info("Jupiter UDT server start" + (sync ? ", and will wait until the server socket is closed." : ".")
                 + NEWLINE + "{}.", toString());
 
         if (sync) {
