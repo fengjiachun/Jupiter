@@ -25,7 +25,6 @@ import io.netty.util.HashedWheelTimer;
 import io.netty.util.concurrent.DefaultThreadFactory;
 import io.netty.util.internal.PlatformDependent;
 import org.jupiter.common.concurrent.NamedThreadFactory;
-import org.jupiter.common.util.internal.UnsafeAccess;
 import org.jupiter.registry.NotifyListener;
 import org.jupiter.registry.OfflineListener;
 import org.jupiter.registry.RegisterMeta;
@@ -45,6 +44,7 @@ import java.util.concurrent.locks.ReentrantLock;
 
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
 import static org.jupiter.common.util.JConstants.AVAILABLE_PROCESSORS;
+import static org.jupiter.common.util.internal.UnsafeAccess.UNSAFE;
 
 /**
  * jupiter
@@ -183,7 +183,7 @@ public abstract class NettyConnector extends AbstractJClient implements JConnect
                         }
                     }
                 } catch (InterruptedException e) {
-                    UnsafeAccess.UNSAFE.throwException(e);
+                    UNSAFE.throwException(e);
                 } finally {
                     _look.unlock();
                 }

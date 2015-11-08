@@ -17,11 +17,12 @@
 package org.jupiter.rpc.load.balance;
 
 import org.jupiter.common.util.Reflects;
-import org.jupiter.common.util.internal.UnsafeAccess;
 
 import java.lang.reflect.Field;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.ThreadLocalRandom;
+
+import static org.jupiter.common.util.internal.UnsafeAccess.UNSAFE;
 
 /**
  * Random load balance with weight.
@@ -38,7 +39,7 @@ public abstract class RandomLoadBalance<T> implements LoadBalance<T> {
         long offset;
         try {
             Field field = Reflects.getField(CopyOnWriteArrayList.class, "array");
-            offset = UnsafeAccess.UNSAFE.objectFieldOffset(field);
+            offset = UNSAFE.objectFieldOffset(field);
         } catch (Exception e) {
             offset = 0;
         }
@@ -55,7 +56,7 @@ public abstract class RandomLoadBalance<T> implements LoadBalance<T> {
         // 请原谅下面这段放荡不羁的糟糕代码
         Object[] array; // The snapshot of elements array
         if (ELEMENTS_OFFSET > 0) {
-            array = (Object[]) UnsafeAccess.UNSAFE.getObjectVolatile(list, ELEMENTS_OFFSET);
+            array = (Object[]) UNSAFE.getObjectVolatile(list, ELEMENTS_OFFSET);
         } else {
             array = (Object[]) Reflects.getValue(list, "array");
         }

@@ -16,10 +16,10 @@
 
 package org.jupiter.common.util;
 
-import org.jupiter.common.util.internal.UnsafeAccess;
-
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+
+import static org.jupiter.common.util.internal.UnsafeAccess.UNSAFE;
 
 /**
  * MD5转换工具
@@ -41,7 +41,7 @@ public class MD5Util {
             MessageDigest message = java.security.MessageDigest.getInstance("MD5");
             messageDigestHolder.set(message);
         } catch (NoSuchAlgorithmException e) {
-            UnsafeAccess.UNSAFE.throwException(e);
+            UNSAFE.throwException(e);
         }
     }
 
@@ -62,7 +62,7 @@ public class MD5Util {
 
             return digestHex.toString();
         } catch (Exception e) {
-            UnsafeAccess.UNSAFE.throwException(e);
+            UNSAFE.throwException(e);
         }
         return "";
     }

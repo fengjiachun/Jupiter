@@ -18,7 +18,6 @@ package org.jupiter.rpc.consumer.future;
 
 import org.jupiter.common.util.Maps;
 import org.jupiter.common.util.SystemClock;
-import org.jupiter.common.util.internal.UnsafeAccess;
 import org.jupiter.common.util.internal.logging.InternalLogger;
 import org.jupiter.common.util.internal.logging.InternalLoggerFactory;
 import org.jupiter.rpc.DispatchMode;
@@ -38,6 +37,7 @@ import java.util.concurrent.locks.ReentrantLock;
 
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
 import static org.jupiter.common.util.JConstants.DEFAULT_TIMEOUT;
+import static org.jupiter.common.util.internal.UnsafeAccess.UNSAFE;
 import static org.jupiter.rpc.DispatchMode.BROADCAST;
 import static org.jupiter.rpc.DispatchMode.ROUND;
 import static org.jupiter.rpc.Status.*;
@@ -184,7 +184,7 @@ public class DefaultInvokeFuture implements InvokeFuture {
                     }
                 }
             } catch (InterruptedException e) {
-                UnsafeAccess.UNSAFE.throwException(e);
+                UNSAFE.throwException(e);
             } finally {
                 _lock.unlock();
             }

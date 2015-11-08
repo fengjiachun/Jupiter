@@ -16,11 +16,11 @@
 
 package org.jupiter.common.concurrent.atomic;
 
-import org.jupiter.common.util.internal.UnsafeAccess;
-
 import java.util.concurrent.atomic.AtomicIntegerFieldUpdater;
 import java.util.concurrent.atomic.AtomicLongFieldUpdater;
 import java.util.concurrent.atomic.AtomicReferenceFieldUpdater;
+
+import static org.jupiter.common.util.internal.UnsafeAccess.UNSAFE;
 
 /**
  * A tool utility that enables atomic updates to designated {@code volatile} fields of designated classes.
@@ -42,7 +42,7 @@ public final class AtomicUpdater {
     public static <U, W> AtomicReferenceFieldUpdater<U, W> newAtomicReferenceFieldUpdater(
             Class<U> tClass, Class<W> vClass, String fieldName) {
         try {
-            return new UnsafeAtomicReferenceFieldUpdater<>(UnsafeAccess.UNSAFE, tClass, fieldName);
+            return new UnsafeAtomicReferenceFieldUpdater<>(UNSAFE, tClass, fieldName);
         } catch (Throwable t) {
             return AtomicReferenceFieldUpdater.newUpdater(tClass, vClass, fieldName);
         }
@@ -56,7 +56,7 @@ public final class AtomicUpdater {
      */
     public static <T> AtomicIntegerFieldUpdater<T> newAtomicIntegerFieldUpdater(Class<T> tClass, String fieldName) {
         try {
-            return new UnsafeAtomicIntegerFieldUpdater<>(UnsafeAccess.UNSAFE, tClass, fieldName);
+            return new UnsafeAtomicIntegerFieldUpdater<>(UNSAFE, tClass, fieldName);
         } catch (Throwable t) {
             return AtomicIntegerFieldUpdater.newUpdater(tClass, fieldName);
         }
@@ -70,7 +70,7 @@ public final class AtomicUpdater {
      */
     public static <T> AtomicLongFieldUpdater<T> newAtomicLongFieldUpdater(Class<T> tClass, String fieldName) {
         try {
-            return new UnsafeAtomicLongFieldUpdater<>(UnsafeAccess.UNSAFE, tClass, fieldName);
+            return new UnsafeAtomicLongFieldUpdater<>(UNSAFE, tClass, fieldName);
         } catch (Throwable t) {
             return AtomicLongFieldUpdater.newUpdater(tClass, fieldName);
         }

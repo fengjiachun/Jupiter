@@ -16,7 +16,6 @@
 
 package org.jupiter.common.util;
 
-import org.jupiter.common.util.internal.UnsafeAccess;
 import org.openjdk.jmh.annotations.*;
 import org.openjdk.jmh.runner.Runner;
 import org.openjdk.jmh.runner.RunnerException;
@@ -24,6 +23,8 @@ import org.openjdk.jmh.runner.options.Options;
 import org.openjdk.jmh.runner.options.OptionsBuilder;
 
 import java.util.concurrent.TimeUnit;
+
+import static org.jupiter.common.util.internal.UnsafeAccess.UNSAFE;
 
 /**
  * jupiter
@@ -59,7 +60,7 @@ public class GetFieldValueBenchmark {
     @Benchmark
     public void unsafeGet() {
         // RandomLoadBalance中使用了这样的操作
-        Object[] array = (Object[]) UnsafeAccess.UNSAFE.getObjectVolatile(FIELD_TEST, FieldTest.OFFSET);
+        Object[] array = (Object[]) UNSAFE.getObjectVolatile(FIELD_TEST, FieldTest.OFFSET);
         if (array[0] != 1) {
             System.out.println(1);
         }
@@ -78,7 +79,7 @@ class FieldTest {
     static {
         long offsetTmp;
         try {
-            offsetTmp = UnsafeAccess.UNSAFE.objectFieldOffset(Reflects.getField(FieldTest.class, "array"));
+            offsetTmp = UNSAFE.objectFieldOffset(Reflects.getField(FieldTest.class, "array"));
         } catch (NoSuchFieldException e) {
             offsetTmp = 0;
         }

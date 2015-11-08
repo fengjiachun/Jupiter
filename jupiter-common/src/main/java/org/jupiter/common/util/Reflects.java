@@ -17,7 +17,6 @@
 package org.jupiter.common.util;
 
 import net.sf.cglib.reflect.FastClass;
-import org.jupiter.common.util.internal.UnsafeAccess;
 import org.objenesis.Objenesis;
 import org.objenesis.ObjenesisStd;
 
@@ -28,6 +27,7 @@ import java.lang.reflect.Modifier;
 import java.util.concurrent.ConcurrentMap;
 
 import static org.jupiter.common.util.Preconditions.checkNotNull;
+import static org.jupiter.common.util.internal.UnsafeAccess.UNSAFE;
 
 /**
  * Reflection tools.
@@ -68,7 +68,7 @@ public final class Reflects {
             method.setAccessible(true);
             value = method.invoke(obj, args);
         } catch (Exception e) {
-            UnsafeAccess.UNSAFE.throwException(e);
+            UNSAFE.throwException(e);
         }
         return value;
     }
@@ -97,7 +97,7 @@ public final class Reflects {
         try {
             value = fastClass.invoke(methodName, parameterTypes, obj, args);
         } catch (InvocationTargetException e) {
-            UnsafeAccess.UNSAFE.throwException(e);
+            UNSAFE.throwException(e);
         }
         return value;
     }
@@ -139,7 +139,7 @@ public final class Reflects {
             Field fd = setAccessible(getField(o.getClass(), name));
             value = fd.get(o);
         } catch (Exception e) {
-            UnsafeAccess.UNSAFE.throwException(e);
+            UNSAFE.throwException(e);
         }
         return value;
     }
@@ -158,7 +158,7 @@ public final class Reflects {
             Field fd = setAccessible(getField(o.getClass(), name));
             fd.set(o, value);
         } catch (Exception e) {
-            UnsafeAccess.UNSAFE.throwException(e);
+            UNSAFE.throwException(e);
         }
     }
 

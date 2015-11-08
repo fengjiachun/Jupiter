@@ -21,7 +21,6 @@ import io.netty.channel.ChannelFutureListener;
 import org.jupiter.common.util.Lists;
 import org.jupiter.common.util.Reflects;
 import org.jupiter.common.util.SystemClock;
-import org.jupiter.common.util.internal.UnsafeAccess;
 import org.jupiter.rpc.UnresolvedAddress;
 import org.jupiter.rpc.channel.JChannel;
 import org.jupiter.rpc.channel.JChannelGroup;
@@ -39,6 +38,7 @@ import java.util.concurrent.locks.ReentrantLock;
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
 import static org.jupiter.common.util.JConstants.DEFAULT_WARM_UP;
 import static org.jupiter.common.util.JConstants.DEFAULT_WEIGHT;
+import static org.jupiter.common.util.internal.UnsafeAccess.UNSAFE;
 
 /**
  * jupiter
@@ -53,7 +53,7 @@ public class NettyChannelGroup implements JChannelGroup {
         long offset;
         try {
             Field field = Reflects.getField(CopyOnWriteArrayList.class, "array");
-            offset = UnsafeAccess.UNSAFE.objectFieldOffset(field);
+            offset = UNSAFE.objectFieldOffset(field);
         } catch (Exception e) {
             offset = 0;
         }
@@ -99,7 +99,7 @@ public class NettyChannelGroup implements JChannelGroup {
             // 请原谅下面这段放荡不羁的糟糕代码
             Object[] array; // The snapshot of channels array
             if (ELEMENTS_OFFSET > 0) {
-                array = (Object[]) UnsafeAccess.UNSAFE.getObjectVolatile(channels, ELEMENTS_OFFSET);
+                array = (Object[]) UNSAFE.getObjectVolatile(channels, ELEMENTS_OFFSET);
             } else {
                 array = (Object[]) Reflects.getValue(channels, "array");
             }
@@ -194,7 +194,7 @@ public class NettyChannelGroup implements JChannelGroup {
                 }
             }
         } catch (InterruptedException e) {
-            UnsafeAccess.UNSAFE.throwException(e);
+            UNSAFE.throwException(e);
         } finally {
             _look.unlock();
         }
