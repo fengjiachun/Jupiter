@@ -47,7 +47,7 @@ public class MethodInvokeBenchmark {
 
     @Benchmark
     public void cglibFastInvoke() {
-        // RecyclableTask使用了这样的操作
+        // RecyclableTask中有类似代码
         ReflectClass1 obj = new ReflectClass1();
         Reflects.fastInvoke(obj, "method", new Class[] { String.class }, new Object[] { "Jupiter" });
     }

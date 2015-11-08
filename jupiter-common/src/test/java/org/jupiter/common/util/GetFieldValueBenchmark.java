@@ -59,7 +59,7 @@ public class GetFieldValueBenchmark {
 
     @Benchmark
     public void unsafeGet() {
-        // RandomLoadBalance中使用了这样的操作
+        // RandomLoadBalance中有类似代码
         Object[] array = (Object[]) UNSAFE.getObjectVolatile(FIELD_TEST, FieldTest.OFFSET);
         if (array[0] != 1) {
             System.out.println(1);
