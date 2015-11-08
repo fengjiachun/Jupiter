@@ -28,7 +28,7 @@ import org.jupiter.transport.netty.handler.connector.ConnectionWatchdog;
 import java.net.SocketAddress;
 
 /**
- * 对netty {@link Channel}的包装, 通过静态方法 {@link NettyChannel#attachChannel(Channel)} 获取一个实例,
+ * 对Netty {@link Channel}的包装, 通过静态方法 {@link NettyChannel#attachChannel(Channel)} 获取一个实例,
  * {@link NettyChannel} 实例构造后会attach到对应 {@link Channel}上, 不需要每次创建.
  *
  * jupiter
@@ -38,22 +38,22 @@ import java.net.SocketAddress;
  */
 public class NettyChannel implements JChannel {
 
-    private static final AttributeKey<NettyChannel> NETTY_CHANNEL_KEY = AttributeKey.valueOf("NettyChannel");
+    private static final AttributeKey<NettyChannel> NETTY_CHANNEL_KEY = AttributeKey.valueOf("netty.channel");
 
     /**
-     * Returns the {@link NettyChannel} for the given {@link Channel}. This method will never return null.
+     * Returns the {@link NettyChannel} for given {@link Channel}, this method never return null.
      */
     public static NettyChannel attachChannel(Channel channel) {
         Attribute<NettyChannel> attr = channel.attr(NETTY_CHANNEL_KEY);
-        NettyChannel ch = attr.get();
-        if (ch == null) {
-            NettyChannel newCh = new NettyChannel(channel);
-            ch = attr.setIfAbsent(newCh);
-            if (ch == null) {
-                ch = newCh;
+        NettyChannel nChannel = attr.get();
+        if (nChannel == null) {
+            NettyChannel newNChannel = new NettyChannel(channel);
+            nChannel = attr.setIfAbsent(newNChannel);
+            if (nChannel == null) {
+                nChannel = newNChannel;
             }
         }
-        return ch;
+        return nChannel;
     }
 
     private final Channel channel;
