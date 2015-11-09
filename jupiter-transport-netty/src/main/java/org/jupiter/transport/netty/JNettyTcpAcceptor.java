@@ -36,6 +36,46 @@ import java.net.SocketAddress;
 import static org.jupiter.common.util.JConstants.READER_IDLE_TIME_SECONDS;
 
 /**
+ * Jupiter tcp acceptor based on netty.
+ *
+ * <pre>
+ *            I/O Request                       I/O Response
+ *                 │                                 △
+ *                                                   │
+ *                 │
+ * ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ┼ ─ ─ ─ ─ ─ ─ ─ ─
+ * │               │                                                  │
+ *                                                   │
+ * │  ┌ ─ ─ ─ ─ ─ ─▽─ ─ ─ ─ ─ ─ ┐       ┌ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ┐   │
+ *     IdleStateChecker#inBound          IdleStateChecker#outBound
+ * │  └ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ┘       └ ─ ─ ─ ─ ─ ─△─ ─ ─ ─ ─ ─ ┘   │
+ *                 │                                 │
+ * │                                                                  │
+ *                 │                                 │
+ * │  ┌ ─ ─ ─ ─ ─ ─▽─ ─ ─ ─ ─ ─ ┐                                     │
+ *     AcceptorIdleStateTrigger                      │
+ * │  └ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ┘                                     │
+ *                 │                                 │
+ * │                                                                  │
+ *                 │                                 │
+ * │  ┌ ─ ─ ─ ─ ─ ─▽─ ─ ─ ─ ─ ─ ┐       ┌ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ┐   │
+ *          ProtocolDecoder                   ProtocolEncoder
+ * │  └ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ┘       └ ─ ─ ─ ─ ─ ─△─ ─ ─ ─ ─ ─ ┘   │
+ *                 │                                 │
+ * │                                                                  │
+ *                 │                                 │
+ * │  ┌ ─ ─ ─ ─ ─ ─▽─ ─ ─ ─ ─ ─ ┐                                     │
+ *          AcceptorHandler                          │
+ * │  └ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ┘                                     │
+ *                 │                                 │
+ * │                    ┌ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ┐                     │
+ *                 ▽                                 │
+ * │               ─ ─ ▷│       Processor       ├ ─ ─▷                │
+ *
+ * │                    └ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ┘                     │
+ * ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─
+ * </pre>
+ *
  * jupiter
  * org.jupiter.transport.netty
  *
