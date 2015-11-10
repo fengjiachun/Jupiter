@@ -61,15 +61,15 @@ import static org.jupiter.common.util.JConstants.WRITER_IDLE_TIME_SECONDS;
  *   └ ─ ─ ─ ─ ─ ─ △ ─ ─ ─ ─ ─ ─ ┘      └ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─
  * │                                                 │                │
  *                 │
- * │                                    ┌ ─ ─ ─ ─ ─ ─▽─ ─ ─ ─ ─ ─ ┐   │
- *                 │                     IdleStateChecker#inBound
- * │                                    └ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ┘   │
- *                 │                                 │
- * │                                                                  │
- *                 │                    ┌ ─ ─ ─ ─ ─ ─▽─ ─ ─ ─ ─ ─ ┐
- * │  ┌ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ┐        AcceptorIdleStateTrigger     │
- *     IdleStateChecker#outBound        └ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ┘
- * │  └ ─ ─ ─ ─ ─ ─△─ ─ ─ ─ ─ ─ ┘                    │                │
+ * │  ┌ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ┐       ┌ ─ ─ ─ ─ ─ ─▽─ ─ ─ ─ ─ ─ ┐   │
+ *     IdleStateChecker#outBound         IdleStateChecker#inBound
+ * │  └ ─ ─ ─ ─ ─ ─△─ ─ ─ ─ ─ ─ ┘       └ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ┘   │
+ *                                                   │
+ * │               │                                                  │
+ *                                      ┌ ─ ─ ─ ─ ─ ─▽─ ─ ─ ─ ─ ─ ┐
+ * │               │                     AcceptorIdleStateTrigger     │
+ *                                      └ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ┘
+ * │               │                                 │                │
  *
  * │               │                    ┌ ─ ─ ─ ─ ─ ─▽─ ─ ─ ─ ─ ─ ┐   │
  *                                            ProtocolEncoder
@@ -88,6 +88,7 @@ import static org.jupiter.common.util.JConstants.WRITER_IDLE_TIME_SECONDS;
  *                                       │       Processor       │
  *                 │
  *            I/O Request                └ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ┘
+ *
  *
  * jupiter
  * org.jupiter.transport.netty
