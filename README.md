@@ -37,40 +37,41 @@ Jupiter
     小数据包同步调用qps:10w+
     (详细测试代码见jupiter-example中BenchmarkClient/BenchmarkServer)
 
-  其中一次简单的测试结果(小数据包2.5亿+次同步调用)
-  
+  以下其中一次测试数据(小数据包2.5亿+次同步调用):
+
   ------------------------------------------------------------------
-  
+
   测试机器:
-  
+
   server端(一台机器)
-  
+
        cpu型号: Intel(R) Xeon(R) CPU           X3430  @ 2.40GHz
        
        cpu cores: 4核心
        
   client端(一台机器)
-  
+
        cpu型号: Intel(R) Xeon(R) CPU           X3430  @ 2.40GHz
        
        cpu cores: 4核心
-       
+
   网络环境: 局域网
-  
+
   ------------------------------------------------------------------
-  
+
   测试结果:
-  
+
   Request count: 256000000, time: 2465 second, qps: 103853
-  
+
   监控数据:
   ------------------------------------------------------------------
     telnet 127.0.0.1 19999
-    输入: metrics -report
-  
-  
+    >: auth 123456
+    >: metrics -report
+
+
     - Histograms ------------------------------------------------------------------
-    
+
     org.jupiter.rpc.provider.processor.DefaultProviderProcessor.request.size
                  count = 253946227
                    min = 122
@@ -95,7 +96,7 @@ Jupiter
                   98% <= 17.00
                   99% <= 17.00
                 99.9% <= 17.00
-    
+
     -- Timers ----------------------------------------------------------------------
     org.jupiter.benchmark.tcp.ServiceImpl.Jupiter-1.0.0-Service.hello
                  count = 253946428
@@ -129,7 +130,7 @@ Jupiter
                   98% <= 4.00 milliseconds
                   99% <= 4.00 milliseconds
                 99.9% <= 10.88 milliseconds
-    
+
     TOP:
     ￼------------------------------------------------------------------
 
