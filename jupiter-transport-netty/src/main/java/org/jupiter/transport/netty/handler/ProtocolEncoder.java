@@ -29,6 +29,16 @@ import org.jupiter.rpc.JResponse;
 import static org.jupiter.transport.JProtocolHeader.*;
 
 /**
+ * --------------------------------------------------------------------------------------------------
+ *                                          Protocol
+ *  ┌ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ┐
+ *       2   │   1   │    1   │     8     │      4      │
+ *  ├ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ┤
+ *           │       │        │           │             │
+ *  │  MAGIC   Sign    Status   Invoke Id   Body Length                   Body Content              │
+ *           │       │        │           │             │
+ *  └ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ┘
+ *
  * 消息头16个字节定长
  * = 2 // MAGIC = (short) 0xbabe
  * + 1 // 消息标志位, 用来表示消息类型Request/Response/Heartbeat
