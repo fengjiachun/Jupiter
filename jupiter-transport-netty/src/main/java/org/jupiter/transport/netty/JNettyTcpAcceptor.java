@@ -38,7 +38,7 @@ import static org.jupiter.common.util.JConstants.READER_IDLE_TIME_SECONDS;
 /**
  * Jupiter tcp acceptor based on netty.
  *
- * <pre>
+ * *********************************************************************
  *            I/O Request                       I/O Response
  *                 │                                 △
  *                                                   │
@@ -74,7 +74,6 @@ import static org.jupiter.common.util.JConstants.READER_IDLE_TIME_SECONDS;
  *
  * │                    └ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ┘                     │
  * ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─
- * </pre>
  *
  * jupiter
  * org.jupiter.transport.netty
