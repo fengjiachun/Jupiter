@@ -39,6 +39,56 @@ import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.jupiter.common.util.JConstants.WRITER_IDLE_TIME_SECONDS;
 
 /**
+ * Jupiter udt connector based on netty.
+ *
+ *************************************************************************
+ *                      ┌ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ┐
+ *
+ *                 ─ ─ ─│        Server         │─ ─▷
+ *                 │                                 │
+ *                      └ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ┘
+ *                 │                                 ▽
+ *                                              I/O Response
+ *                 │                                 │
+ *
+ *                 │                                 │
+ * ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─
+ * │               │                                 │                │
+ *
+ * │               │                                 ▽                │
+ *   ┌ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ┐      ┌ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─
+ * │  ConnectionWatchdog#outbound        ConnectionWatchdog#inbound│  │
+ *   └ ─ ─ ─ ─ ─ ─ △ ─ ─ ─ ─ ─ ─ ┘      └ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─
+ * │                                                 │                │
+ *                 │
+ * │                                    ┌ ─ ─ ─ ─ ─ ─▽─ ─ ─ ─ ─ ─ ┐   │
+ *                 │                     IdleStateChecker#inBound
+ * │                                    └ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ┘   │
+ *                 │                                 │
+ * │                                                                  │
+ *                 │                    ┌ ─ ─ ─ ─ ─ ─▽─ ─ ─ ─ ─ ─ ┐
+ * │  ┌ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ┐        AcceptorIdleStateTrigger     │
+ *     IdleStateChecker#outBound        └ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ┘
+ * │  └ ─ ─ ─ ─ ─ ─△─ ─ ─ ─ ─ ─ ┘                    │                │
+ *
+ * │               │                    ┌ ─ ─ ─ ─ ─ ─▽─ ─ ─ ─ ─ ─ ┐   │
+ *                                            ProtocolEncoder
+ * │               │                    └ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ┘   │
+ *                                                   │
+ * │               │                                                  │
+ *                                      ┌ ─ ─ ─ ─ ─ ─▽─ ─ ─ ─ ─ ─ ┐
+ * │               │                         ConnectorHandler         │
+ *    ┌ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ┐       └ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ┘
+ * │        ProtocolEncoder                          │                │
+ *    └ ─ ─ ─ ─ ─ ─△─ ─ ─ ─ ─ ─ ┘
+ * │                                                 │                │
+ * ─ ─ ─ ─ ─ ─ ─ ─ ┼ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─
+ *                                       ┌ ─ ─ ─ ─ ─ ▽ ─ ─ ─ ─ ─ ┐
+ *                 │
+ *                                       │       Processor       │
+ *                 │
+ *            I/O Request                └ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ┘
+ *
  * jupiter
  * org.jupiter.transport.netty
  *
