@@ -72,7 +72,7 @@ import static org.jupiter.common.util.JConstants.WRITER_IDLE_TIME_SECONDS;
  * │               │                                 │                │
  *
  * │               │                    ┌ ─ ─ ─ ─ ─ ─▽─ ─ ─ ─ ─ ─ ┐   │
- *                                            ProtocolEncoder
+ *                                            ProtocolDecoder
  * │               │                    └ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ┘   │
  *                                                   │
  * │               │                                                  │
