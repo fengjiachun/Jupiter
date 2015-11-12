@@ -213,6 +213,8 @@ public class DefaultInvokeFuture implements InvokeFuture {
     }
 
     private void doReceived(JResponse response) {
+        this.response = response;
+
         // If there is a listener, that is considered to be an asynchronous call,
         // and attempts to elide conditional wake-ups when the lock is uncontended.
         if (listener != null) {
@@ -221,7 +223,6 @@ public class DefaultInvokeFuture implements InvokeFuture {
             final ReentrantLock _lock = lock;
             _lock.lock();
             try {
-                this.response = response;
                 done.signal();
             } finally {
                 _lock.unlock();
