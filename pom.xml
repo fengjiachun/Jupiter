@@ -27,6 +27,7 @@
     <modules>
         <module>jupiter-common</module>
         <module>jupiter-example</module>
+        <module>jupiter-hotexec</module>
         <module>jupiter-monitor</module>
         <module>jupiter-registry</module>
         <module>jupiter-registry-default</module>

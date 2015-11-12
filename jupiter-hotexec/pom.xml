@@ -25,44 +25,18 @@
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>jupiter-example</artifactId>
-    <packaging>jar</packaging>
+    <artifactId>jupiter-hotexec</artifactId>
 
     <dependencies>
         <dependency>
             <groupId>${project.groupId}</groupId>
-            <artifactId>jupiter-transport-netty</artifactId>
+            <artifactId>jupiter-common</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
-            <artifactId>jupiter-serialization-protostuff</artifactId>
+            <artifactId>jupiter-rpc</artifactId>
             <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>${project.groupId}</groupId>
-            <artifactId>jupiter-registry-default</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>${project.groupId}</groupId>
-            <artifactId>jupiter-monitor</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>${project.groupId}</groupId>
-            <artifactId>jupiter-hotexec</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>com.barchart.udt</groupId>
-            <artifactId>barchart-udt-bundle</artifactId>
-            <scope>runtime</scope>
-        </dependency>
-        <dependency>
-            <groupId>ch.qos.logback</groupId>
-            <artifactId>logback-classic</artifactId>
-            <version>1.0.13</version>
         </dependency>
     </dependencies>
 </project>
