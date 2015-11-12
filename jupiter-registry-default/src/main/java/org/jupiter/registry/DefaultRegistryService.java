@@ -16,7 +16,10 @@
 
 package org.jupiter.registry;
 
+import org.jupiter.common.util.Maps;
 import org.jupiter.rpc.UnresolvedAddress;
+
+import java.util.concurrent.ConcurrentMap;
 
 import static org.jupiter.common.util.Preconditions.checkArgument;
 import static org.jupiter.registry.RegisterMeta.*;
@@ -31,21 +34,27 @@ import static org.jupiter.registry.RegisterMeta.*;
  */
 public class DefaultRegistryService extends AbstractRegistryService {
 
-    private volatile ConfigClient configClient;
+    private final ConcurrentMap<UnresolvedAddress, ConfigClient> clients = Maps.newConcurrentHashMap();
 
     @Override
     protected void doSubscribe(ServiceMeta serviceMeta) {
-        configClient.doSubscribe(serviceMeta);
+        for (ConfigClient c : clients.values()) {
+            c.doSubscribe(serviceMeta);
+        }
     }
 
     @Override
     protected void doRegister(RegisterMeta meta) {
-        configClient.doRegister(meta);
+        for (ConfigClient c : clients.values()) {
+            c.doRegister(meta);
+        }
     }
 
     @Override
     protected void doUnregister(RegisterMeta meta) {
-        configClient.doUnregister(meta);
+        for (ConfigClient c : clients.values()) {
+            c.doUnregister(meta);
+        }
     }
 
     @Override
@@ -54,11 +63,15 @@ public class DefaultRegistryService extends AbstractRegistryService {
         checkArgument(args[0] instanceof String, "args[0] must be a String with host");
         checkArgument(args[1] instanceof Integer, "args[1] must be a Integer with port");
 
-        if (configClient == null) {
-            configClient = new ConfigClient(this);
-        }
-
         UnresolvedAddress address = new UnresolvedAddress((String) args[0], (Integer) args[1]);
-        configClient.connect(address);
+        ConfigClient client = clients.get(address);
+        if (client == null) {
+            ConfigClient newClient = new ConfigClient(this);
+            client = clients.putIfAbsent(address, newClient);
+            if (client == null) {
+                client = newClient;
+                client.connect(address);
+            }
+        }
     }
 }

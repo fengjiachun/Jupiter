@@ -16,8 +16,6 @@
 
 package org.jupiter.rpc;
 
-import org.jupiter.common.util.Pair;
-
 import java.net.SocketAddress;
 import java.util.EventListener;
 
@@ -26,7 +24,7 @@ import java.util.EventListener;
  * as the difference between a parameter request.
  *
  * Note:
- * If {@link JListener#complete(JRequest, Pair)} thrown a {@link Exception} during execution,
+ * If {@link JListener#complete(JRequest, JResult)} thrown a {@link Exception} during execution,
  * will trigger {@link JListener#failure(JRequest, Throwable)}
  *
  * jupiter
@@ -39,10 +37,36 @@ public interface JListener extends EventListener {
     /**
      * Return result when the call succeeds.
      */
-    void complete(JRequest request, Pair<SocketAddress, Object> result) throws Exception;
+    void complete(JRequest request, JResult result) throws Exception;
 
     /**
      * Returns an exception message when call fails.
      */
     void failure(JRequest request, Throwable cause);
+
+    class JResult {
+        private final SocketAddress remoteAddress;
+        private final Object value;
+
+        public JResult(SocketAddress remoteAddress, Object value) {
+            this.remoteAddress = remoteAddress;
+            this.value = value;
+        }
+
+        public SocketAddress remoteAddress() {
+            return remoteAddress;
+        }
+
+        public Object value() {
+            return value;
+        }
+
+        @Override
+        public String toString() {
+            return "JResult{" +
+                    "remoteAddress=" + remoteAddress +
+                    ", value=" + value +
+                    '}';
+        }
+    }
 }

@@ -17,7 +17,6 @@
 package org.jupiter.example.hot.exec;
 
 import org.jupiter.common.util.Lists;
-import org.jupiter.common.util.Pair;
 import org.jupiter.hot.exec.JavaClassExec;
 import org.jupiter.hot.exec.JavaCompiler;
 import org.jupiter.rpc.*;
@@ -27,8 +26,6 @@ import org.jupiter.transport.JConnector;
 import org.jupiter.transport.error.ConnectFailedException;
 import org.jupiter.transport.netty.JNettyTcpConnector;
 import org.jupiter.transport.netty.NettyConnector;
-
-import java.net.SocketAddress;
 
 import static org.jupiter.common.util.JConstants.DEFAULT_VERSION;
 
@@ -64,7 +61,7 @@ public class HotExecClient {
                 .listener(new JListener() {
 
                     @Override
-                    public void complete(JRequest request, Pair<SocketAddress, Object> result) throws Exception {
+                    public void complete(JRequest request, JResult result) throws Exception {
                         System.out.println("complete=" + result);
                     }
 

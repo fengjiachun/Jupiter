@@ -17,7 +17,6 @@
 package org.jupiter.rpc.consumer.future;
 
 import org.jupiter.common.util.Maps;
-import org.jupiter.common.util.Pair;
 import org.jupiter.common.util.SystemClock;
 import org.jupiter.common.util.internal.logging.InternalLogger;
 import org.jupiter.common.util.internal.logging.InternalLoggerFactory;
@@ -31,7 +30,6 @@ import org.jupiter.rpc.error.RemoteException;
 import org.jupiter.rpc.error.TimeoutException;
 import org.jupiter.rpc.model.metadata.ResultWrapper;
 
-import java.net.SocketAddress;
 import java.util.List;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.locks.Condition;
@@ -42,6 +40,7 @@ import static org.jupiter.common.util.JConstants.DEFAULT_TIMEOUT;
 import static org.jupiter.common.util.internal.UnsafeAccess.UNSAFE;
 import static org.jupiter.rpc.DispatchMode.BROADCAST;
 import static org.jupiter.rpc.DispatchMode.ROUND;
+import static org.jupiter.rpc.JListener.*;
 import static org.jupiter.rpc.Status.*;
 
 /**
@@ -257,7 +256,7 @@ public class DefaultInvokeFuture implements InvokeFuture {
         ResultWrapper wrapper = _response.result();
         if (status == OK.value()) {
             try {
-                Pair<SocketAddress, Object> result = new Pair<>(channel.remoteAddress(), wrapper.getResult());
+                JResult result = new JResult(channel.remoteAddress(), wrapper.getResult());
                 listener.complete(request, result);
             } catch (Exception e) {
                 listener.failure(request, e);
