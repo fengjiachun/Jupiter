@@ -19,7 +19,8 @@
  *
  * 使用方式:
  *      服务端注册 {@link org.jupiter.hot.exec.JavaClassExecProvider}
- *      客户端以RPC的方式调用 {@link org.jupiter.hot.exec.JavaClassExec}
+ *      客户端使用{@link org.jupiter.hot.exec.JavaCompiler} 编译好需要执行的类后将返回的字节码byte数组作为
+ *          {@link org.jupiter.hot.exec.JavaClassExec#exec(byte[])}的参数, 以RPC的方式调用.
  *
  * jupiter
  * org.jupiter.hot.exec
