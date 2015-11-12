@@ -48,8 +48,8 @@ public abstract class AbstractJServer implements JServer {
     private final RegistryService registryService = JServiceLoader.load(RegistryService.class);
 
     @Override
-    public void initRegistryService(Object... args) {
-        registryService.init(args);
+    public void connectToConfigServer(String host, int port) {
+        registryService.connectToConfigServer(host, port);
     }
 
     @Override

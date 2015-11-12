@@ -46,7 +46,7 @@ public class HotExecClient {
 
         NettyConnector connector = new JNettyTcpConnector();
         // 连接ConfigServer
-        connector.initRegistryService("127.0.0.1", 20001);
+        connector.connectToConfigServer("127.0.0.1", 20001);
         // 自动管理可用连接
         JConnector.ConnectionManager manager = connector.manageConnections(directory);
         // 等待连接可用

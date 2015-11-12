@@ -24,5 +24,8 @@ package org.jupiter.registry;
  */
 public interface Registry {
 
-    void initRegistryService(Object... args);
+    /**
+     * Establish a connection with config server.
+     */
+    void connectToConfigServer(String host, int port);
 }

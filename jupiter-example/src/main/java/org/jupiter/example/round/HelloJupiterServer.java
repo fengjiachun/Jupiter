@@ -40,7 +40,7 @@ public class HelloJupiterServer {
                     .provider(new ServiceTestImpl())
                     .register();
 
-            server.initRegistryService("127.0.0.1", 20001);
+            server.connectToConfigServer("127.0.0.1", 20001);
             server.publish(provider);
             server.start();
         } catch (InterruptedException e) {

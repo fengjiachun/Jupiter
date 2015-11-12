@@ -28,12 +28,7 @@ import static org.jupiter.registry.RegisterMeta.*;
  *
  * @author jiachun.fjc
  */
-public interface RegistryService {
-
-    /**
-     * Initialize and establish a connection with config server.
-     */
-    void init(Object... args);
+public interface RegistryService extends Registry {
 
     /**
      * Register Service to config server.
