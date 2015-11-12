@@ -16,7 +16,13 @@
 
 /**
  * 客户端编译, 服务端执行, 以java的方式, 留一个方便线上调试的口子.
- * 实现虽简单, 但使用很灵活, 比如你甚至可以在不重启线上server的前提下临时写一个业务provider直接推送到对应server上以提供服务.
+ *
+ * 实现虽简单, 但使用很灵活, 除了线上调试, 还有很多使用方式:
+ *      比如你可以在不重启线上server的前提下临时写一个业务provider直接推送到对应server(需要拿到JServer实例)上以提供服务.
+ *
+ *      又比如某个provider阻塞时间很长, 严重占用全局的线程池, 你也可以临时写一个线程池的实现并通过
+ *      {@link org.jupiter.rpc.JServer.ServiceRegistry#executor(java.util.concurrent.Executor)}
+ *      将该线程池注册到该provider上供其单独使用(需重新调用register).
  *
  * 使用方式:
  *      1. 服务端注册 {@link org.jupiter.hot.exec.JavaClassExecProvider} 作为一个provider.
