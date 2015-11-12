@@ -76,7 +76,7 @@ public class HotExecClient {
             byte[] classBytes = JavaCompiler.compile(
                     System.getProperty("user.dir") + "/jupiter-example/src/main/java/",
                     UserExecImpl.class.getName(),
-                    Lists.newArrayList("-verbose", "-source", "1.6", "-target", "1.6"));
+                    Lists.newArrayList("-verbose", "-source", "1.7", "-target", "1.7"));
 
             service.exec(classBytes);
             Thread.sleep(2000);
