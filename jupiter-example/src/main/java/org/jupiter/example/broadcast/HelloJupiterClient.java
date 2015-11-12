@@ -16,11 +16,14 @@
 
 package org.jupiter.example.broadcast;
 
+import org.jupiter.common.util.Pair;
 import org.jupiter.example.ServiceTest;
 import org.jupiter.rpc.*;
 import org.jupiter.rpc.consumer.ProxyFactory;
 import org.jupiter.transport.netty.NettyConnector;
 import org.jupiter.transport.netty.JNettyTcpConnector;
+
+import java.net.SocketAddress;
 
 /**
  * jupiter
@@ -49,7 +52,7 @@ public class HelloJupiterClient {
                 .listener(new JListener() {
 
                     @Override
-                    public void complete(JRequest request, Object result) throws Exception {
+                    public void complete(JRequest request, Pair<SocketAddress, Object> result) throws Exception {
                         System.out.println("complete=" + result);
                     }
 
