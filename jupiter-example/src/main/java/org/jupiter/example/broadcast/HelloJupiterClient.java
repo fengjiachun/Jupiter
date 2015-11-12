@@ -22,6 +22,9 @@ import org.jupiter.rpc.consumer.ProxyFactory;
 import org.jupiter.transport.netty.JNettyTcpConnector;
 import org.jupiter.transport.netty.NettyConnector;
 
+import static org.jupiter.rpc.AsyncMode.*;
+import static org.jupiter.rpc.DispatchMode.*;
+
 /**
  * jupiter
  * org.jupiter.example.broadcast
@@ -42,8 +45,8 @@ public class HelloJupiterClient {
         ServiceTest service = ProxyFactory
                 .create()
                 .connector(connector)
-                .dispatchMode(DispatchMode.BROADCAST)
-                .asyncMode(AsyncMode.ASYNC_CALLBACK)
+                .dispatchMode(BROADCAST)
+                .asyncMode(ASYNC_CALLBACK)
                 .addProviderAddress(address1, address2, address2)
                 .interfaceClass(ServiceTest.class)
                 .listener(new JListener() {

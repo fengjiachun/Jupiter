@@ -20,6 +20,8 @@ import org.jupiter.common.concurrent.NamedThreadFactory;
 import org.jupiter.common.util.Lists;
 import org.jupiter.common.util.Maps;
 import org.jupiter.common.util.Pair;
+import org.jupiter.common.util.internal.logging.InternalLogger;
+import org.jupiter.common.util.internal.logging.InternalLoggerFactory;
 
 import java.util.Collection;
 import java.util.Collections;
@@ -28,7 +30,9 @@ import java.util.Map;
 import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-import static org.jupiter.registry.RegisterMeta.*;
+import static org.jupiter.common.util.StackTraceUtil.stackTrace;
+import static org.jupiter.registry.RegisterMeta.Address;
+import static org.jupiter.registry.RegisterMeta.ServiceMeta;
 
 /**
  * jupiter
@@ -37,6 +41,8 @@ import static org.jupiter.registry.RegisterMeta.*;
  * @author jiachun.fjc
  */
 public abstract class AbstractRegistryService implements RegistryService {
+
+    private static final InternalLogger logger = InternalLoggerFactory.getInstance(AbstractRegistryService.class);
 
     private final LinkedBlockingQueue<RegisterMeta> queue = new LinkedBlockingQueue<>(1204);
     private final ExecutorService executor =
@@ -59,6 +65,7 @@ public abstract class AbstractRegistryService implements RegistryService {
                         doRegister(meta);
                     } catch (Exception e) {
                         if (meta != null) {
+                            logger.warn("Register [{}] fail: {}, will try again...", meta.getServiceMeta(), stackTrace(e));
                             queue.add(meta);
                         }
                     }

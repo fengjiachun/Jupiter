@@ -28,6 +28,8 @@ import org.jupiter.transport.netty.JNettyTcpConnector;
 import org.jupiter.transport.netty.NettyConnector;
 
 import static org.jupiter.common.util.JConstants.DEFAULT_VERSION;
+import static org.jupiter.rpc.AsyncMode.*;
+import static org.jupiter.rpc.DispatchMode.*;
 
 /**
  * 客户端编译, 服务端执行, 以java的方式, 留一个方便线上调试的口子.
@@ -55,8 +57,8 @@ public class HotExecClient {
         JavaClassExec service = ProxyFactory
                 .create()
                 .connector(connector)
-                .dispatchMode(DispatchMode.BROADCAST)
-                .asyncMode(AsyncMode.ASYNC_CALLBACK)
+                .dispatchMode(BROADCAST)
+                .asyncMode(ASYNC_CALLBACK)
                 .interfaceClass(JavaClassExec.class)
                 .listener(new JListener() {
 

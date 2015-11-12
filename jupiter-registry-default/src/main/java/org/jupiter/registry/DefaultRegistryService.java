@@ -17,12 +17,15 @@
 package org.jupiter.registry;
 
 import org.jupiter.common.util.Maps;
+import org.jupiter.common.util.internal.logging.InternalLogger;
+import org.jupiter.common.util.internal.logging.InternalLoggerFactory;
 import org.jupiter.rpc.UnresolvedAddress;
 
+import java.util.Collection;
 import java.util.concurrent.ConcurrentMap;
 
 import static org.jupiter.common.util.Preconditions.checkArgument;
-import static org.jupiter.registry.RegisterMeta.*;
+import static org.jupiter.registry.RegisterMeta.ServiceMeta;
 
 /**
  * Default registry service.
@@ -34,25 +37,42 @@ import static org.jupiter.registry.RegisterMeta.*;
  */
 public class DefaultRegistryService extends AbstractRegistryService {
 
+    private static final InternalLogger logger = InternalLoggerFactory.getInstance(DefaultRegistryService.class);
+
     private final ConcurrentMap<UnresolvedAddress, ConfigClient> clients = Maps.newConcurrentHashMap();
 
     @Override
     protected void doSubscribe(ServiceMeta serviceMeta) {
-        for (ConfigClient c : clients.values()) {
+        Collection<ConfigClient> allClients = clients.values();
+        checkArgument(!allClients.isEmpty(), "init needed");
+
+        logger.info("Subscribe: {}.", serviceMeta);
+
+        for (ConfigClient c : allClients) {
             c.doSubscribe(serviceMeta);
         }
     }
 
     @Override
     protected void doRegister(RegisterMeta meta) {
-        for (ConfigClient c : clients.values()) {
+        Collection<ConfigClient> allClients = clients.values();
+        checkArgument(!allClients.isEmpty(), "init needed");
+
+        logger.info("Register: {}.", meta);
+
+        for (ConfigClient c : allClients) {
             c.doRegister(meta);
         }
     }
 
     @Override
     protected void doUnregister(RegisterMeta meta) {
-        for (ConfigClient c : clients.values()) {
+        Collection<ConfigClient> allClients = clients.values();
+        checkArgument(!allClients.isEmpty(), "init needed");
+
+        logger.info("Unregister: {}.", meta);
+
+        for (ConfigClient c : allClients) {
             c.doUnregister(meta);
         }
     }
