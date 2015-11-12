@@ -16,6 +16,7 @@
 
 /**
  * 客户端编译, 服务端执行, 以java的方式, 留一个方便线上调试的口子.
+ * 实现虽简单, 但使用很灵活, 比如你甚至可以在不重启线上server的前提下临时写一个业务provider直接推送到对应server上以提供服务.
  *
  * 使用方式:
  *      1. 服务端注册 {@link org.jupiter.hot.exec.JavaClassExecProvider} 作为一个provider.
