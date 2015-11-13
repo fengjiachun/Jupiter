@@ -40,6 +40,6 @@ public class UserExecImpl implements UserExecInterface {
             System.out.println(s.getRegisteredServices());
             System.out.println();
         }
-        return "OK";
+        return "OK!";
     }
 }

@@ -16,8 +16,6 @@
 
 package org.jupiter.hot.exec;
 
-import org.jupiter.common.util.Reflects;
-
 /**
  * jupiter
  * org.jupiter.hot.exec
@@ -40,10 +38,9 @@ public class JavaClassExecProvider implements JavaClassExec {
 
             synchronized (HackSystem.class) {
                 HackSystem.clearBuf();
-                // 不要妄想在构造函数里做任何事, 这里不调用构造函数
-                Object executor = Reflects.newInstance(clazz);
+                UserExecInterface executor = (UserExecInterface) clazz.newInstance();
                 // execute
-                Object value = Reflects.fastInvoke(executor, "exec", new Class[] {}, new Object[] {});
+                Object value = executor.exec();
 
                 result.setDebugInfo(HackSystem.getBufString());
                 result.setValue(value);
