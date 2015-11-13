@@ -127,6 +127,7 @@ public final class Reflects {
 
     /**
      * Returns the static value by name.
+     * The value is automatically wrapped in an object if it has a primitive type.
      *
      * @param clazz the specified class
      * @param name the name of the represented field in class
