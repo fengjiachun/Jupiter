@@ -139,17 +139,17 @@ public abstract class AbstractRegistryService implements RegistryService {
 
     // 通知新的服务
     protected void notify(ServiceMeta serviceMeta, List<RegisterMeta> registerMetaList, long version) {
-        boolean needNotify = false;
+        boolean notifyNeeded = false;
 
         synchronized (registries) {
             Pair<Long, List<RegisterMeta>> oldData = registries.get(serviceMeta);
             if (oldData == null || (oldData.getKey() < version)) {
                 registries.put(serviceMeta, new Pair<>(version, registerMetaList));
-                needNotify = true;
+                notifyNeeded = true;
             }
         }
 
-        if (needNotify) {
+        if (notifyNeeded) {
             CopyOnWriteArrayList<NotifyListener> listeners = subscribeListeners.get(serviceMeta);
             if (listeners != null) {
                 for (NotifyListener l : listeners) {
