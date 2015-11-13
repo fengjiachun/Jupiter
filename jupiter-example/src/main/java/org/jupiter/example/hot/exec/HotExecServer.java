@@ -39,6 +39,7 @@ public class HotExecServer {
         final CountDownLatch latch = new CountDownLatch(servers.length);
         for (final NettyAcceptor acceptor : servers) {
             new Thread(new Runnable() {
+
                 @Override
                 public void run() {
                     try {
