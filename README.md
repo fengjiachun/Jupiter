@@ -39,7 +39,7 @@ Jupiter
          2   │   1   │    1   │     8     │      4      │
     ├ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ┤
              │       │        │           │             │
-    │  MAGIC   Sign    Status   Invoke Id   Body Length                   Body Content          │
+    │  MAGIC   Sign    Status   Invoke Id   Body Length                Body Content             │
              │       │        │           │             │
     └ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ┘
 
