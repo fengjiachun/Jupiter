@@ -154,8 +154,8 @@ public class ConfigClient extends NettyTcpConnector {
             // 以下代码在synchronized同步块外面是安全的
             future.sync();
             channel = future.channel();
-        } catch (Exception e) {
-            throw new ConnectFailedException("the connection[" + remoteAddress + "] fails", e);
+        } catch (Throwable t) {
+            throw new ConnectFailedException("connects to [" + remoteAddress + "] fails", t);
         }
 
         return new JConnection(remoteAddress) {
@@ -495,8 +495,8 @@ public class ConfigClient extends NettyTcpConnector {
                     }
 
                     Thread.sleep(300);
-                } catch (Exception e) {
-                    logger.error("An exception has been caught while scanning the timeout acknowledges {}.", e);
+                } catch (Throwable t) {
+                    logger.error("An exception has been caught while scanning the timeout acknowledges {}.", t);
                 }
             }
         }

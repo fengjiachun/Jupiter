@@ -16,6 +16,8 @@
 
 package org.jupiter.hot.exec;
 
+import org.jupiter.common.util.Reflects;
+
 import java.io.ByteArrayOutputStream;
 import java.io.Console;
 import java.io.IOException;
@@ -34,13 +36,18 @@ public class HackSystem {
 
     public final static InputStream in = System.in;
 
-    private static ByteArrayOutputStream buf = new ByteArrayOutputStream();
+    private static ByteArrayOutputStream buf = new ByteArrayOutputStream(1024);
+    private static PrintStream tmpOut = new PrintStream(buf);
 
     public final static PrintStream out = new PrintStream(buf);
-
     public final static PrintStream err = out;
 
-    public static String getBufString() {
+    public synchronized static String getBufString() {
+        if (buf.size() > 1024 * 8) {
+            String value = buf.toString();
+            Reflects.setValue(buf, "buf", new byte[1024]);
+            return value;
+        }
         return buf.toString();
     }
 

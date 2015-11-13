@@ -63,8 +63,8 @@ public class JavaCompiler {
             if (javacTask.call()) {
                 return classFileManager.getJavaClassObject().classBytes();
             }
-        } catch (Exception e) {
-            UNSAFE.throwException(e);
+        } catch (Throwable t) {
+            UNSAFE.throwException(t);
         } finally {
             if (javaFileManager != null) {
                 try {

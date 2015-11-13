@@ -159,8 +159,8 @@ public class JNettyUdtConnector extends NettyUdtConnector {
             if (!async) {
                 future.sync();
             }
-        } catch (Exception e) {
-            throw new ConnectFailedException("the connection[" + remoteAddress + "] fails", e);
+        } catch (Throwable t) {
+            throw new ConnectFailedException("connects to [" + remoteAddress + "] fails", t);
         }
 
         return new JConnection(remoteAddress) {

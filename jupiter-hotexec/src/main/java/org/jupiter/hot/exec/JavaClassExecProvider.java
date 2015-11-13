@@ -16,6 +16,8 @@
 
 package org.jupiter.hot.exec;
 
+import static org.jupiter.common.util.internal.UnsafeAccess.UNSAFE;
+
 /**
  * jupiter
  * org.jupiter.hot.exec
@@ -27,6 +29,7 @@ public class JavaClassExecProvider implements JavaClassExec {
     @Override
     public ExecResult exec(byte[] classBytes) {
         ExecResult result = new ExecResult();
+        UserExecInterface executor = null;
         try {
             // modify class
             ClassModifier cm = new ClassModifier(classBytes);
@@ -36,21 +39,26 @@ public class JavaClassExecProvider implements JavaClassExec {
             HotExecClassLoader loader = new HotExecClassLoader();
             Class<?> clazz = loader.loadBytes(classBytes);
 
-            synchronized (HackSystem.class) {
-                HackSystem.clearBuf();
-                UserExecInterface executor = (UserExecInterface) clazz.newInstance();
-                // execute
-                Object value = executor.exec();
+            executor = (UserExecInterface) clazz.newInstance();
+        } catch (Throwable t) {
+            UNSAFE.throwException(t);
+        }
 
+        synchronized (HackSystem.class) {
+            HackSystem.clearBuf();
+            Object value = null;
+            try {
+                // execute
+                if (executor != null) {
+                    value = executor.exec();
+                }
+            } catch (Throwable t) {
+                t.printStackTrace(HackSystem.out);
+            } finally {
                 result.setDebugInfo(HackSystem.getBufString());
                 result.setValue(value);
             }
-        } catch (Throwable t) {
-            synchronized (HackSystem.class) {
-                t.printStackTrace(HackSystem.out);
-            }
         }
-
         return result;
     }
 }

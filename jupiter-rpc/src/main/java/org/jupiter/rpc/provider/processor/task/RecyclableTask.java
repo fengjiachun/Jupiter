@@ -92,7 +92,7 @@ public class RecyclableTask implements RejectedRunnable {
 
             msg = serializer().readObject(bytes, MessageWrapper.class);
             request.message(msg);
-        } catch (Exception e) {
+        } catch (Throwable t) {
             rejected(BAD_REQUEST);
             return;
         }
@@ -237,8 +237,8 @@ public class RecyclableTask implements RejectedRunnable {
                     }
                 }
             });
-        } catch (Exception e) {
-            processor.handleException(channel, request, e);
+        } catch (Throwable t) {
+            processor.handleException(channel, request, t);
         } finally {
             recycle();
         }

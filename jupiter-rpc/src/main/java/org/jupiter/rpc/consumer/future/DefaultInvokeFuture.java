@@ -258,8 +258,8 @@ public class DefaultInvokeFuture implements InvokeFuture {
             try {
                 JResult result = new JResult(channel.remoteAddress(), wrapper.getResult());
                 listener.complete(request, result);
-            } catch (Exception e) {
-                listener.failure(request, e);
+            } catch (Throwable t) {
+                listener.failure(request, t);
             }
         } else {
             Throwable t = wrapper.getError();
@@ -297,8 +297,8 @@ public class DefaultInvokeFuture implements InvokeFuture {
                     }
 
                     Thread.sleep(30);
-                } catch (Exception e) {
-                    logger.error("An exception has been caught while scanning the timeout invocations {}.", e);
+                } catch (Throwable t) {
+                    logger.error("An exception has been caught while scanning the timeout invocations {}.", t);
                 }
             }
         }

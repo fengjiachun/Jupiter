@@ -55,8 +55,8 @@ public class ConnectorHandler extends ChannelInboundHandlerAdapter {
             JChannel jChannel = NettyChannel.attachChannel(ctx.channel());
             try {
                 processor.handleResponse(jChannel, (JResponse) msg);
-            } catch (Exception e) {
-                logger.error("An exception has been caught {}, on {} #channelRead().", e, jChannel);
+            } catch (Throwable t) {
+                logger.error("An exception has been caught {}, on {} #channelRead().", t, jChannel);
             }
         } else {
             logger.warn("Unexpected message type received: {}.", msg.getClass());

@@ -660,8 +660,8 @@ public class ConfigServer extends NettyTcpAcceptor implements RegistryMonitor {
                     }
 
                     Thread.sleep(300);
-                } catch (Exception e) {
-                    logger.error("An exception has been caught while scanning the timeout acknowledges {}.", e);
+                } catch (Throwable t) {
+                    logger.error("An exception has been caught while scanning the timeout acknowledges {}.", t);
                 }
             }
         }

@@ -60,8 +60,8 @@ public class AcceptorHandler extends ChannelInboundHandlerAdapter {
             JRequest request = (JRequest) msg;
             try {
                 processor.handleRequest(jChannel, request);
-            } catch (Exception e) {
-                processor.handleException(jChannel, request, e);
+            } catch (Throwable t) {
+                processor.handleException(jChannel, request, t);
             }
         } else {
             logger.warn("Unexpected msg type received:{}.", msg.getClass());
