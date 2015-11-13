@@ -126,6 +126,24 @@ public final class Reflects {
     }
 
     /**
+     * Returns the static value by name.
+     *
+     * @param clazz the specified class
+     * @param name the name of the represented field in class
+     * @return the value of the represented field in class
+     */
+    public static Object getStaticValue(Class<?> clazz, String name) {
+        Object value = null;
+        try {
+            Field fd = setAccessible(getField(clazz, name));
+            value = fd.get(null);
+        } catch (Exception e) {
+            UNSAFE.throwException(e);
+        }
+        return value;
+    }
+
+    /**
      * Returns the value by name, on the specified object.
      * The value is automatically wrapped in an object if it has a primitive type.
      *

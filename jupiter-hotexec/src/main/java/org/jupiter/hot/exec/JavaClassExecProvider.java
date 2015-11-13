@@ -17,7 +17,6 @@
 package org.jupiter.hot.exec;
 
 import org.jupiter.common.util.Reflects;
-import org.jupiter.common.util.StackTraceUtil;
 
 /**
  * jupiter
@@ -28,15 +27,33 @@ import org.jupiter.common.util.StackTraceUtil;
 public class JavaClassExecProvider implements JavaClassExec {
 
     @Override
-    public String exec(byte[] classBytes) {
+    public ExecResult exec(byte[] classBytes) {
+        ExecResult result = new ExecResult();
         try {
+            // modify class
+            ClassModifier cm = new ClassModifier(classBytes);
+            classBytes = cm.modifyUTF8Constant("java/lang/System", "org/jupiter/hot/exec/HackSystem");
+
+            // load class
             HotExecClassLoader loader = new HotExecClassLoader();
-            @SuppressWarnings("unchecked")
-            Class<UserExecInterface> clazz = (Class<UserExecInterface>) loader.loadBytes(classBytes);
-            UserExecInterface executor = Reflects.newInstance(clazz); // 不要妄想在构造函数里做任何事, 这里不调用构造函数
-            return executor.exec();
-        } catch (Exception e) {
-            return StackTraceUtil.stackTrace(e);
+            Class<?> clazz = loader.loadBytes(classBytes);
+
+            synchronized (HackSystem.class) {
+                HackSystem.clearBuf();
+                // 不要妄想在构造函数里做任何事, 这里不调用构造函数
+                Object executor = Reflects.newInstance(clazz);
+                // execute
+                Object value = Reflects.fastInvoke(executor, "exec", new Class[] {}, new Object[] {});
+
+                result.setDebugInfo(HackSystem.getBufString());
+                result.setValue(value);
+            }
+        } catch (Throwable t) {
+            synchronized (HackSystem.class) {
+                t.printStackTrace(HackSystem.out);
+            }
         }
+
+        return result;
     }
 }

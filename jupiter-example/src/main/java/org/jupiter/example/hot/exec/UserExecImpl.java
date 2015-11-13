@@ -16,8 +16,9 @@
 
 package org.jupiter.example.hot.exec;
 
-import net.sf.cglib.reflect.FastClass;
+import org.jupiter.common.util.Reflects;
 import org.jupiter.hot.exec.UserExecInterface;
+import org.jupiter.transport.netty.NettyAcceptor;
 
 /**
  * jupiter
@@ -28,9 +29,17 @@ import org.jupiter.hot.exec.UserExecInterface;
 public class UserExecImpl implements UserExecInterface {
 
     @Override
-    public String exec() {
-        // 引用一下jupiter以外的类
-        FastClass fastClass = FastClass.create(UserExecImpl.class);
-        return "Execute on jupiter server... " + fastClass.getName();
+    public Object exec() {
+        // System.out输出会返回客户端, 因为服务端执行前将该类的常量池修改了
+        System.out.println("get server instance...");
+        NettyAcceptor[] servers = (NettyAcceptor[]) Reflects.getStaticValue(HotExecServer.class, "servers");
+        System.out.println("server count=" + servers.length);
+
+        for (NettyAcceptor s : servers) {
+            System.out.println(s.localAddress() + " -----------------------");
+            System.out.println(s.getRegisteredServices());
+            System.out.println();
+        }
+        return "OK";
     }
 }

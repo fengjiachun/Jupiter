@@ -78,4 +78,13 @@ public class ServiceWrapper implements Serializable {
     public int hashCode() {
         return metadata.hashCode();
     }
+
+    @Override
+    public String toString() {
+        return "ServiceWrapper{" +
+                "metadata=" + metadata +
+                ", serviceProvider=" + serviceProvider +
+                ", executor=" + executor +
+                '}';
+    }
 }

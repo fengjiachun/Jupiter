@@ -17,9 +17,12 @@
 package org.jupiter.example.hot.exec;
 
 import org.jupiter.common.util.Lists;
+import org.jupiter.hot.exec.ExecResult;
 import org.jupiter.hot.exec.JavaClassExec;
 import org.jupiter.hot.exec.JavaCompiler;
-import org.jupiter.rpc.*;
+import org.jupiter.rpc.Directory;
+import org.jupiter.rpc.JListener;
+import org.jupiter.rpc.JRequest;
 import org.jupiter.rpc.consumer.ProxyFactory;
 import org.jupiter.rpc.model.metadata.ServiceMetadata;
 import org.jupiter.transport.JConnector;
@@ -28,8 +31,8 @@ import org.jupiter.transport.netty.JNettyTcpConnector;
 import org.jupiter.transport.netty.NettyConnector;
 
 import static org.jupiter.common.util.JConstants.DEFAULT_VERSION;
-import static org.jupiter.rpc.AsyncMode.*;
-import static org.jupiter.rpc.DispatchMode.*;
+import static org.jupiter.rpc.AsyncMode.ASYNC_CALLBACK;
+import static org.jupiter.rpc.DispatchMode.BROADCAST;
 
 /**
  * 客户端编译, 服务端执行, 以java的方式, 留一个方便线上调试的口子.
@@ -51,7 +54,7 @@ public class HotExecClient {
         JConnector.ConnectionManager manager = connector.manageConnections(directory);
         // 等待连接可用
         if (!manager.waitForAvailable(3000)) {
-            throw new ConnectFailedException();
+            throw new ConnectFailedException("waitForAvailable() timeout");
         }
 
         JavaClassExec service = ProxyFactory
@@ -64,7 +67,16 @@ public class HotExecClient {
 
                     @Override
                     public void complete(JRequest request, JResult result) throws Exception {
-                        System.out.println("complete=" + result);
+                        synchronized (this) {
+                            System.out.println("complete from " + result.remoteAddress());
+                            ExecResult execResult = (ExecResult) result.value();
+                            System.out.println("= debug info ======================================");
+                            System.out.println(execResult.getDebugInfo());
+                            System.out.println("= return value ====================================");
+                            System.out.println(execResult.getValue());
+                            System.out.println();
+                            System.out.println();
+                        }
                     }
 
                     @Override

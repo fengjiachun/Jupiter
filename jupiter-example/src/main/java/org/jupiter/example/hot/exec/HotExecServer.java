@@ -33,11 +33,9 @@ import java.util.concurrent.CountDownLatch;
  */
 public class HotExecServer {
 
-    public static void main(String[] args) {
-        NettyAcceptor acceptor1 = new JNettyTcpAcceptor(18090);
-        NettyAcceptor acceptor2 = new JNettyTcpAcceptor(18091);
+    private static NettyAcceptor[] servers = { new JNettyTcpAcceptor(18090), new JNettyTcpAcceptor(18091) };
 
-        NettyAcceptor[] servers = { acceptor1, acceptor2 };
+    public static void main(String[] args) {
         final CountDownLatch latch = new CountDownLatch(servers.length);
         for (final NettyAcceptor acceptor : servers) {
             new Thread(new Runnable() {

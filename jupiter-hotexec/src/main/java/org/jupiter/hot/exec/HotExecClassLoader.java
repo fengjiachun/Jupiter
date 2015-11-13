@@ -16,6 +16,10 @@
 
 package org.jupiter.hot.exec;
 
+import java.security.AccessController;
+import java.security.PrivilegedAction;
+import java.security.ProtectionDomain;
+
 /**
  * jupiter
  * org.jupiter.hot.exec
@@ -24,11 +28,23 @@ package org.jupiter.hot.exec;
  */
 public class HotExecClassLoader extends ClassLoader {
 
+    private static ProtectionDomain PROTECTION_DOMAIN;
+
+    static {
+        PROTECTION_DOMAIN = AccessController.doPrivileged(new PrivilegedAction<ProtectionDomain>() {
+
+            @Override
+            public ProtectionDomain run() {
+                return HotExecClassLoader.class.getProtectionDomain();
+            }
+        });
+    }
+
     public HotExecClassLoader() {
-        super(HotExecClassLoader.class.getClassLoader());
+        super(Thread.currentThread().getContextClassLoader());
     }
 
     public Class<?> loadBytes(byte[] classBytes) {
-        return defineClass(null, classBytes, 0, classBytes.length);
+        return defineClass(null, classBytes, 0, classBytes.length, PROTECTION_DOMAIN);
     }
 }

@@ -16,16 +16,38 @@
 
 package org.jupiter.hot.exec;
 
-import org.jupiter.rpc.annotation.ServiceProvider;
-
 /**
  * jupiter
  * org.jupiter.hot.exec
  *
  * @author jiachun.fjc
  */
-@ServiceProvider(group = "exec")
-public interface JavaClassExec {
+public class ExecResult {
 
-    ExecResult exec(byte[] classBytes);
+    private String debugInfo; // 接收System.out的输出
+    private Object value;
+
+    public String getDebugInfo() {
+        return debugInfo;
+    }
+
+    public void setDebugInfo(String debugInfo) {
+        this.debugInfo = debugInfo;
+    }
+
+    public Object getValue() {
+        return value;
+    }
+
+    public void setValue(Object value) {
+        this.value = value;
+    }
+
+    @Override
+    public String toString() {
+        return "ExecResult{" +
+                "debugInfo='" + debugInfo + '\'' +
+                ", value=" + value +
+                '}';
+    }
 }

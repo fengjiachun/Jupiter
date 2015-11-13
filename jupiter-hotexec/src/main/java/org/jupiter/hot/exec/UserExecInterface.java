@@ -24,5 +24,5 @@ package org.jupiter.hot.exec;
  */
 public interface UserExecInterface {
 
-    String exec();
+    Object exec();
 }
