@@ -18,15 +18,16 @@ package org.jupiter.common.concurrent.disruptor;
 
 import com.lmax.disruptor.*;
 import com.lmax.disruptor.dsl.Disruptor;
-import com.lmax.disruptor.dsl.ProducerType;
 import org.jupiter.common.concurrent.NamedThreadFactory;
 import org.jupiter.common.concurrent.RejectedTaskPolicyWithReport;
 import org.jupiter.common.util.Pow2;
 
 import java.util.concurrent.*;
 
-import static java.util.concurrent.TimeUnit.*;
-import static org.jupiter.common.concurrent.disruptor.WaitStrategyType.*;
+import static com.lmax.disruptor.dsl.ProducerType.MULTI;
+import static java.util.concurrent.TimeUnit.MILLISECONDS;
+import static java.util.concurrent.TimeUnit.SECONDS;
+import static org.jupiter.common.concurrent.disruptor.WaitStrategyType.BLOCKING_WAIT;
 
 /**
  * 可选择的等待策略，性能由低到高：
@@ -133,12 +134,12 @@ public class TaskDispatcher implements Dispatcher<Runnable>, Executor {
         Disruptor<MessageEvent<Runnable>> dr;
         if (numWorkers == 1) {
             dr = new Disruptor<>(
-                    eventFactory, bufSize, Executors.newSingleThreadExecutor(tFactory), ProducerType.MULTI, waitStrategy);
+                    eventFactory, bufSize, Executors.newSingleThreadExecutor(tFactory), MULTI, waitStrategy);
             dr.handleExceptionsWith(new IgnoreExceptionHandler()); // ignore exception
             dr.handleEventsWith(new TaskHandler());
         } else {
             dr = new Disruptor<>(
-                    eventFactory, bufSize, Executors.newCachedThreadPool(tFactory), ProducerType.MULTI, waitStrategy);
+                    eventFactory, bufSize, Executors.newCachedThreadPool(tFactory), MULTI, waitStrategy);
             dr.handleExceptionsWith(new IgnoreExceptionHandler()); // ignore exception
             WorkHandler<MessageEvent<Runnable>>[] handlers = new TaskHandler[numWorkers];
             for (int i = 0; i < numWorkers; i++) {
