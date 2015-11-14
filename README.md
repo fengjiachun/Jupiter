@@ -121,7 +121,7 @@ Jupiter
             15-minute rate = 0.00 events/second
 
         -- Timers ----------------------------------------------------------------------
-        Jupiter-1.0.0-Service#hello [此次测试的的provider方法执行时间统计]
+        Jupiter-1.0.0-Service#hello [参与此次测试的provider方法执行时间统计]
                      count = 1246287634
                  mean rate = 105977.57 calls/second
              1-minute rate = 107930.46 calls/second
