@@ -78,7 +78,7 @@ public class RecyclableTask implements RejectedRunnable {
 
     @Override
     public void run() {
-        // - Deserialization -------------------------------------------------------------------------------------------
+        // deserialization
         final MessageWrapper msg;
         try {
             byte[] bytes = request.bytes();
@@ -93,21 +93,21 @@ public class RecyclableTask implements RejectedRunnable {
             return;
         }
 
-        // - App tps limit ---------------------------------------------------------------------------------------------
+        // app tps limit
         TpsResult tpsResult = processor.checkTpsLimit(request);
         if (!tpsResult.isAllowed()) {
             rejected(APP_SERVICE_TPS_LIMIT, tpsResult);
             return;
         }
 
-        // - Lookup the service ----------------------------------------------------------------------------------------
+        // lookup service
         final ServiceWrapper service = processor.lookupService(msg.getMetadata());
         if (service == null) {
             rejected(SERVICE_NOT_FOUND);
             return;
         }
 
-        // - Provide tps limit -----------------------------------------------------------------------------------------
+        // provider tps limit
         TpsLimiter<JRequest> pTpsLimiter = service.getTpsLimiter();
         if (pTpsLimiter != null) {
             tpsResult = pTpsLimiter.checkTpsLimit(request);
@@ -117,7 +117,7 @@ public class RecyclableTask implements RejectedRunnable {
             }
         }
 
-        // - Processing ------------------------------------------------------------------------------------------------
+        // processing
         Executor childExecutor = service.getExecutor();
         if (childExecutor == null) {
             process(service.getServiceProvider());
