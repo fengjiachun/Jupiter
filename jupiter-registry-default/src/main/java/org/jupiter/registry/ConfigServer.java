@@ -450,7 +450,7 @@ public class ConfigServer extends NettyTcpAcceptor implements RegistryMonitor {
                     }
 
                     header.sign(buf.readByte());            // 消息标志位
-                    buf.readByte();                         // noOp
+                    buf.readByte();                         // no-op
                     header.id(buf.readLong());              // 消息id
                     header.bodyLength(buf.readInt());       // 消息体长度
 
