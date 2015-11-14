@@ -156,7 +156,7 @@ public class TaskDispatcher implements Dispatcher<Runnable>, Executor {
     public boolean dispatch(Runnable message) {
         RingBuffer<MessageEvent<Runnable>> ringBuffer = disruptor.getRingBuffer();
         try {
-            final long sequence = ringBuffer.tryNext();
+            long sequence = ringBuffer.tryNext();
             try {
                 MessageEvent<Runnable> event = ringBuffer.get(sequence);
                 event.setMessage(message);
