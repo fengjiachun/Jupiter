@@ -108,9 +108,9 @@ public class RecyclableTask implements RejectedRunnable {
         }
 
         // - Provide tps limit -----------------------------------------------------------------------------------------
-        TpsLimiter<JRequest> providerTpsLimiter = service.getTpsLimiter();
-        if (providerTpsLimiter != null) {
-            tpsResult = providerTpsLimiter.checkTpsLimit(request);
+        TpsLimiter<JRequest> pTpsLimiter = service.getTpsLimiter();
+        if (pTpsLimiter != null) {
+            tpsResult = pTpsLimiter.checkTpsLimit(request);
             if (!tpsResult.isAllowed()) {
                 rejected(PROVIDER_SERVICE_TPS_LIMIT, tpsResult);
                 return;
