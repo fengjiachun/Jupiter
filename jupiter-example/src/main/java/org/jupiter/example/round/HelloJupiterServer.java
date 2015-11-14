@@ -18,9 +18,14 @@ package org.jupiter.example.round;
 
 import org.jupiter.example.ServiceTestImpl;
 import org.jupiter.monitor.MonitorServer;
+import org.jupiter.rpc.JRequest;
 import org.jupiter.rpc.model.metadata.ServiceWrapper;
+import org.jupiter.rpc.provider.limiter.TpsLimiter;
+import org.jupiter.rpc.provider.limiter.TpsResult;
 import org.jupiter.transport.netty.NettyAcceptor;
 import org.jupiter.transport.netty.JNettyTcpAcceptor;
+
+import java.util.concurrent.atomic.AtomicLong;
 
 /**
  * jupiter
@@ -38,8 +43,22 @@ public class HelloJupiterServer {
 
             ServiceWrapper provider = server.serviceRegistry()
                     .provider(new ServiceTestImpl())
+                    .tpsLimiter(new TpsLimiter<JRequest>() { // Provide级别限流器, 可以不设置
+
+                        private final TpsResult CITY_WIDE_OPEN = new TpsResult(true);
+                        private AtomicLong count = new AtomicLong();
+
+                        @Override
+                        public TpsResult checkTpsLimit(JRequest param) {
+                            if (count.getAndIncrement() > 9999) {
+                                return new TpsResult(false, "fuck out!!!");
+                            }
+                            return CITY_WIDE_OPEN;
+                        }
+                    })
                     .register();
 
+//            server.setTpsLimiter(); // App级别限流器
             server.connectToConfigServer("127.0.0.1", 20001);
             server.publish(provider);
             server.start();
