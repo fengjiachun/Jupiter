@@ -157,7 +157,7 @@ Jupiter
 
         一些系统指标:
         ￼------------------------------------------------------------------
-        TOP: (top时间点在程序启动后3个小时左右)
+        TOP: (top时间点在程序启动后3个小时左右, load较低)
 
         top - 02:34:22 up 235 days,  9:43,  1 user,  load average: 0.00, 0.02, 0.00
         Tasks: 167 total,   2 running, 165 sleeping,   0 stopped,   0 zombie
