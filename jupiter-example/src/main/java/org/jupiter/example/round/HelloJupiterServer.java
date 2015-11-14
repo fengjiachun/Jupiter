@@ -43,7 +43,7 @@ public class HelloJupiterServer {
 
             ServiceWrapper provider = server.serviceRegistry()
                     .provider(new ServiceTestImpl())
-                    .tpsLimiter(new TpsLimiter<JRequest>() { // Provide级别限流器, 可以不设置
+                    .tpsLimiter(new TpsLimiter<JRequest>() { // Provider级别限流器, 可以不设置
 
                         private final TpsResult CITY_WIDE_OPEN = new TpsResult(true);
                         private AtomicLong count = new AtomicLong();
