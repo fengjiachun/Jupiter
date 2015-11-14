@@ -27,6 +27,11 @@ import java.util.regex.Pattern;
 
 /**
  * A collection of utility methods to retrieve and parse the values of the Java system properties.
+ *
+ * jupiter
+ * org.jupiter.common.util
+ *
+ * @author jiachun.fjc
  */
 public class SystemPropertyUtil {
 

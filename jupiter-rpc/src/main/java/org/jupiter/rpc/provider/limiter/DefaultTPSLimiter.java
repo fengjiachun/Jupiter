@@ -28,7 +28,7 @@ public class DefaultTPSLimiter implements TPSLimiter {
 
     @Override
     public TPSResult process(JRequest request) {
-        // TODO 以APP为最小粒度限流? 还是以方法为最小粒度? 我再仔细想想
+        // TODO 以APP为最小粒度限流? 还是以provider甚至方法为最小粒度? 我再仔细想想
         return new TPSResult(true, null);
     }
 }

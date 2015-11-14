@@ -25,6 +25,8 @@ import static org.jupiter.common.util.Preconditions.checkArgument;
 import static org.jupiter.common.util.Preconditions.checkNotNull;
 
 /**
+ * Static utility methods pertaining to {@link List} instances.
+ *
  * jupiter
  * org.jupiter.common.util
  *
@@ -32,10 +34,16 @@ import static org.jupiter.common.util.Preconditions.checkNotNull;
  */
 public final class Lists {
 
+    /**
+     * Creates a mutable, empty {@code ArrayList} instance.
+     */
     public static <E> ArrayList<E> newArrayList() {
         return new ArrayList<>();
     }
 
+    /**
+     * Creates a mutable {@code ArrayList} instance containing the given elements.
+     */
     @SuppressWarnings("unchecked")
     public static <E> ArrayList<E> newArrayList(E... elements) {
         checkNotNull(elements);
@@ -46,12 +54,32 @@ public final class Lists {
         return list;
     }
 
+    /**
+     * Creates a mutable {@code ArrayList} instance containing the given elements.
+     */
     @SuppressWarnings("unchecked")
     public static <E> ArrayList<E> newArrayList(Iterable<? extends E> elements) {
         checkNotNull(elements);
-        return elements instanceof Collection ? new ArrayList((Collection<E>) elements) : newArrayList(elements.iterator());
+        return elements instanceof Collection
+                ? new ArrayList((Collection<E>) elements)
+                : newArrayList(elements.iterator());
     }
 
+    /**
+     * Creates a mutable {@code ArrayList} instance containing the given elements.
+     */
+    public static <E> ArrayList<E> newArrayList(Iterator<? extends E> elements) {
+        ArrayList<E> list = newArrayList();
+        while (elements.hasNext()) {
+            list.add(elements.next());
+        }
+        return list;
+    }
+
+    /**
+     * Creates an {@code ArrayList} instance backed by an array of the exact size specified;
+     * equivalent to {@link ArrayList#ArrayList(int)}.
+     */
     public static <E> ArrayList<E> newArrayListWithCapacity(int initialArraySize) {
         checkArgument(initialArraySize >= 0);
         return new ArrayList<>(initialArraySize);
@@ -59,6 +87,7 @@ public final class Lists {
 
     /**
      * Returns a simple list which is recyclable.
+     *
      * <p/>
      * <pre>
      *     List&lt{@link Object}&gt list = Lists.newRecyclableArrayList();
@@ -74,7 +103,8 @@ public final class Lists {
     }
 
     /**
-     * Recycle the RecyclableArrayList.
+     * Recycles the RecyclableArrayList.
+     *
      * <p/>
      * <pre>
      *     List&lt{@link Object}&gt list = Lists.newRecyclableArrayList();
@@ -90,10 +120,9 @@ public final class Lists {
     }
 
     /**
-     * Returns a list that applies {@code function} to each element of {@code
-     * fromList}. The returned list is a transformed view of {@code fromList};
-     * changes to {@code fromList} will be reflected in the returned list and vice
-     * versa.
+     * Returns a list that applies {@code function} to each element of {@code fromList}.
+     * The returned list is a transformed view of {@code fromList};
+     * changes to {@code fromList} will be reflected in the returned list and vice versa.
      */
     public static <F, T> List<T> transform(List<F> fromList, Function<? super F, ? extends T> function) {
         return (fromList instanceof RandomAccess)
@@ -242,7 +271,6 @@ public final class Lists {
 
     static int computeArrayListCapacity(int arraySize) {
         checkArgument(arraySize >= 0);
-
         return Ints.saturatedCast(5L + arraySize + (arraySize / 10));
     }
 

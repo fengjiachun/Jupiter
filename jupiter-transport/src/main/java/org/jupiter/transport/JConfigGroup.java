@@ -27,12 +27,12 @@ package org.jupiter.transport;
 public interface JConfigGroup {
 
     /**
-     * Parent config
+     * Config for parent.
      */
     JConfig parent();
 
     /**
-     * Child config
+     * Config for child.
      */
     JConfig child();
 }

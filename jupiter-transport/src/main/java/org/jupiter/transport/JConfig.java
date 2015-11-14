@@ -19,7 +19,7 @@ package org.jupiter.transport;
 import java.util.List;
 
 /**
- * Jupiter transport's config.
+ * Jupiter transport config.
  *
  * jupiter
  * org.jupiter.transport

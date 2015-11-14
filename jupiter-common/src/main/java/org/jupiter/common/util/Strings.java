@@ -20,6 +20,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
+ * Static utility methods pertaining to {@code String} or {@code CharSequence}
+ * instances.
+ *
  * jupiter
  * org.jupiter.common.util
  *
@@ -27,14 +30,36 @@ import java.util.List;
  */
 public final class Strings {
 
-    public static boolean isEmpty(String str) {
+    /**
+     * Returns the given string if it is non-null; the empty string otherwise.
+     */
+    public static String nullToEmpty(String string) {
+        return (string == null) ? "" : string;
+    }
+
+    /**
+     * Returns the given string if it is nonempty; {@code null} otherwise.
+     */
+    public static String emptyToNull(String string) {
+        return isNullOrEmpty(string) ? null : string;
+    }
+
+    /**
+     * Returns {@code true} if the given string is null or is the empty string.
+     */
+    public static boolean isNullOrEmpty(String str) {
         return str == null || str.length() == 0;
     }
 
-    public static boolean isNotEmpty(String str) {
-        return !isEmpty(str);
-    }
-
+    /**
+     * Checks if a string is whitespace, empty ("") or null.
+     *
+     * Strings.isBlank(null)      = true
+     * Strings.isBlank("")        = true
+     * Strings.isBlank(" ")       = true
+     * Strings.isBlank("bob")     = false
+     * Strings.isBlank("  bob  ") = false
+     */
     public static boolean isBlank(String str) {
         int strLen;
         if (str != null && (strLen = str.length()) != 0) {
@@ -47,14 +72,54 @@ public final class Strings {
         return true;
     }
 
+    /**
+     * Checks if a string is not empty (""), not null and not whitespace only.
+     *
+     * Strings.isNotBlank(null)      = false
+     * Strings.isNotBlank("")        = false
+     * Strings.isNotBlank(" ")       = false
+     * Strings.isNotBlank("bob")     = true
+     * Strings.isNotBlank("  bob  ") = true
+     */
     public static boolean isNotBlank(String str) {
         return !isBlank(str);
     }
 
+    /**
+     * Splits the provided text into an array, separator specified.
+     *
+     * A null input String returns null.
+     *
+     * Strings.split(null, *)         = null
+     * Strings.split("", *)           = []
+     * Strings.split("a.b.c", '.')    = ["a", "b", "c"]
+     * Strings.split("a..b.c", '.')   = ["a", "b", "c"]
+     * Strings.split("a:b:c", '.')    = ["a:b:c"]
+     * Strings.split("a b c", ' ')    = ["a", "b", "c"]
+     */
     public static String[] split(String str, char separator) {
         return split(str, separator, false);
     }
 
+    /**
+     * Splits the provided text into an array, separator specified,
+     * if {@code} true, preserving all tokens, including empty tokens created
+     * by adjacent separators.
+     *
+     * A null input String returns null.
+     *
+     * Strings.split(null, *, true)         = null
+     * Strings.split("", *, true)           = []
+     * Strings.split("a.b.c", '.', true)    = ["a", "b", "c"]
+     * Strings.split("a..b.c", '.', true)   = ["a", "", "b", "c"]
+     * Strings.split("a:b:c", '.', true)    = ["a:b:c"]
+     * Strings.split("a b c", ' ', true)    = ["a", "b", "c"]
+     * Strings.split("a b c ", ' ', true)   = ["a", "b", "c", ""]
+     * Strings.split("a b c  ", ' ', true)  = ["a", "b", "c", "", ""]
+     * Strings.split(" a b c", ' ', true)   = ["", a", "b", "c"]
+     * Strings.split("  a b c", ' ', true)  = ["", "", a", "b", "c"]
+     * Strings.split(" a b c ", ' ', true)  = ["", a", "b", "c", ""]
+     */
     public static String[] split(String str, char separator, boolean preserveAllTokens) {
         if (str == null) {
             return null;

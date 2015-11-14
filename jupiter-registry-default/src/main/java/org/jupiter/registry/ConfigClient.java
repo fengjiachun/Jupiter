@@ -168,7 +168,7 @@ public class ConfigClient extends NettyTcpConnector {
     }
 
     /**
-     * Sent the subscription information to the config server.
+     * Sent the subscription information to config server.
      */
     public void doSubscribe(ServiceMeta serviceMeta) {
         subscribeSet.add(serviceMeta);
@@ -188,7 +188,7 @@ public class ConfigClient extends NettyTcpConnector {
     }
 
     /**
-     * Publishing service to the config server.
+     * Publishing service to config server.
      */
     public void doRegister(RegisterMeta meta) {
         registerMetaSet.add(meta);
@@ -208,7 +208,7 @@ public class ConfigClient extends NettyTcpConnector {
     }
 
     /**
-     * Notify the config server unpublish corresponding service.
+     * Notify to config server unpublish corresponding service.
      */
     public void doUnregister(RegisterMeta meta) {
         registerMetaSet.remove(meta);

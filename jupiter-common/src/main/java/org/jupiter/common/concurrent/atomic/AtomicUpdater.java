@@ -35,8 +35,8 @@ public final class AtomicUpdater {
     /**
      * Creates and returns an updater for objects with the given field.
      *
-     * @param tClass the class of the objects holding the field.
-     * @param vClass the class of the field
+     * @param tClass    the class of the objects holding the field.
+     * @param vClass    the class of the field
      * @param fieldName the name of the field to be updated.
      */
     public static <U, W> AtomicReferenceFieldUpdater<U, W> newAtomicReferenceFieldUpdater(
@@ -51,7 +51,7 @@ public final class AtomicUpdater {
     /**
      * Creates and returns an updater for objects with the given field.
      *
-     * @param tClass the class of the objects holding the field.
+     * @param tClass    the class of the objects holding the field.
      * @param fieldName the name of the field to be updated.
      */
     public static <T> AtomicIntegerFieldUpdater<T> newAtomicIntegerFieldUpdater(Class<T> tClass, String fieldName) {
@@ -65,7 +65,7 @@ public final class AtomicUpdater {
     /**
      * Creates and returns an updater for objects with the given field.
      *
-     * @param tClass the class of the objects holding the field.
+     * @param tClass    the class of the objects holding the field.
      * @param fieldName the name of the field to be updated.
      */
     public static <T> AtomicLongFieldUpdater<T> newAtomicLongFieldUpdater(Class<T> tClass, String fieldName) {

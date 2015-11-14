@@ -75,14 +75,16 @@ public interface JServer extends Registry {
 
     /**
      * Publishing a service.
+     *
      * @param serviceWrapper service provider wrapper, created by {@link ServiceRegistry}.
      */
     void publish(ServiceWrapper serviceWrapper);
 
     /**
      * Publishing a service.
+     *
      * @param serviceWrapper service provider wrapper, created by {@link ServiceRegistry}.
-     * @param weight the weight of this provider at current server.
+     * @param weight         the weight of this provider at current server.
      */
     void publish(ServiceWrapper serviceWrapper, int weight);
 
@@ -93,6 +95,7 @@ public interface JServer extends Registry {
 
     /**
      * Publishing all services.
+     *
      * @param weight the weight of these providers at current server.
      */
     void publishAll(int weight);

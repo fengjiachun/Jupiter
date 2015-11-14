@@ -22,7 +22,7 @@ import org.jupiter.rpc.aop.ConsumerHook;
 import java.util.List;
 
 /**
- * Invoke future.
+ * A {@link InvokeFuture} represents the result of an rpc invocation.
  *
  * jupiter
  * org.jupiter.rpc.consumer.future
@@ -47,7 +47,7 @@ public interface InvokeFuture {
     void sent();
 
     /**
-     * Returns the result for rpc.
+     * Returns the result of rpc.
      */
     Object singleResult() throws Throwable;
 }

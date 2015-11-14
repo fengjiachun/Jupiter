@@ -19,6 +19,8 @@ package org.jupiter.common.concurrent.disruptor;
 import static org.jupiter.common.util.JConstants.AVAILABLE_PROCESSORS;
 
 /**
+ * Task message dispatcher.
+ *
  * jupiter
  * org.jupiter.common.concurrent.disruptor
  *
@@ -30,7 +32,7 @@ public interface Dispatcher<T> {
     int MAX_NUM_WORKERS = AVAILABLE_PROCESSORS << 3;
 
     /**
-     * 任务分发
+     * Dispatch task message.
      */
     boolean dispatch(T message);
 

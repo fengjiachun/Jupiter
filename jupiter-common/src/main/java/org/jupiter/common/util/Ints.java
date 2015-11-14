@@ -16,7 +16,11 @@
 
 package org.jupiter.common.util;
 
+import static org.jupiter.common.util.Preconditions.*;
+
 /**
+ * Static utility methods pertaining to {@code int} primitives.
+ *
  * jupiter
  * org.jupiter.common.util
  *
@@ -28,6 +32,15 @@ public final class Ints {
      * The largest power of two that can be represented as an int.
      */
     public static final int MAX_POWER_OF_TWO = 1 << (Integer.SIZE - 2);
+
+    /**
+     * Returns the {@code int} value that is equal to {@code value}, if possible.
+     */
+    public static int checkedCast(long value) {
+        int result = (int) value;
+        checkArgument(result == value, "Out of range: " + value);
+        return result;
+    }
 
     /**
      * Returns the {@code int} nearest in value to {@code value}.

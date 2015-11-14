@@ -542,7 +542,7 @@ public class ConfigServer extends NettyTcpAcceptor implements RegistryMonitor {
                     case PUBLISH_SERVICE:
                     case PUBLISH_CANCEL_SERVICE:
                         RegisterMeta meta = (RegisterMeta) obj.data();
-                        if (Strings.isEmpty(meta.getHost())) {
+                        if (Strings.isNullOrEmpty(meta.getHost())) {
                             SocketAddress address = channel.remoteAddress();
                             if (address instanceof InetSocketAddress) {
                                 meta.setHost(((InetSocketAddress) address).getAddress().getHostAddress());

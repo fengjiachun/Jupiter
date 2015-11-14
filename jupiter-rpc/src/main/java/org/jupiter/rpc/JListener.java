@@ -35,7 +35,7 @@ import java.util.EventListener;
 public interface JListener extends EventListener {
 
     /**
-     * Return result when the call succeeds.
+     * Returns result when the call succeeds.
      */
     void complete(JRequest request, JResult result) throws Exception;
 

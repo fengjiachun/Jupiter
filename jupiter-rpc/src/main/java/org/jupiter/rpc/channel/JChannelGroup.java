@@ -46,7 +46,7 @@ public interface JChannelGroup {
     List<? extends JChannel> channels();
 
     /**
-     * Returns <tt>true</tt> if this group contains no {@link JChannel}.
+     * Returns true if this group contains no {@link JChannel}.
      */
     boolean isEmpty();
 
@@ -87,12 +87,12 @@ public interface JChannelGroup {
     void setWeight(int weight);
 
     /**
-     * Warm-up time
+     * Warm-up time.
      */
     int getWarmUp();
 
     /**
-     * Sets warm-up time
+     * Sets warm-up time.
      */
     void setWarmUp(int warmUp);
 

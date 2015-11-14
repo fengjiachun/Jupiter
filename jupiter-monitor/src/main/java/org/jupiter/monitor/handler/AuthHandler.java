@@ -33,7 +33,7 @@ import static org.jupiter.common.util.JConstants.NEWLINE;
  */
 public class AuthHandler implements CommandHandler {
 
-    private static final AttributeKey<Object> AUTH_KEY = AttributeKey.valueOf("Auth");
+    private static final AttributeKey<Object> AUTH_KEY = AttributeKey.valueOf("auth");
     private static final Object AUTH_OBJECT = new Object();
     private static final String DEFAULT_PASSWORD = "e10adc3949ba59abbe56e057f20f883e"; // 123456
 

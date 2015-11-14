@@ -17,13 +17,15 @@
 package org.jupiter.monitor.metric;
 
 import com.codahale.metrics.ConsoleReporter;
-import org.jupiter.common.util.JConstants;
+import org.jupiter.common.util.Reflects;
 import org.jupiter.common.util.StackTraceUtil;
 import org.jupiter.rpc.metric.Metrics;
 
 import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
 import java.io.UnsupportedEncodingException;
+
+import static org.jupiter.common.util.JConstants.UTF8_CHARSET;
 
 /**
  * Indicators measure used to provide data for the monitor.
@@ -35,28 +37,27 @@ import java.io.UnsupportedEncodingException;
  */
 public class MetricsReporter {
 
-    private static final ByteArrayOutputStream bytes = new ByteArrayOutputStream();
-    private static final PrintStream output = new PrintStream(bytes);
+    private static final ByteArrayOutputStream buf = new ByteArrayOutputStream();
+    private static final PrintStream output = new PrintStream(buf);
     private static final ConsoleReporter reporter = ConsoleReporter.forRegistry(Metrics.metricRegistry())
                                                             .outputTo(output)
                                                             .build();
 
-    public static String report() {
-        synchronized (MetricsReporter.class) {
-            reporter.report();
-            return consoleOutput();
-        }
+    public synchronized static String report() {
+        reporter.report();
+        return consoleOutput();
     }
 
     private static String consoleOutput() {
-        synchronized (MetricsReporter.class) {
-            String output;
-            try {
-                output = bytes.toString(JConstants.UTF8_CHARSET);
-            } catch (UnsupportedEncodingException e) {
-                output = StackTraceUtil.stackTrace(e);
+        String output;
+        try {
+            output = buf.toString(UTF8_CHARSET);
+            if (buf.size() > 1024 * 64) {
+                Reflects.setValue(buf, "buf", new byte[1024 * 64]);
             }
-            return output;
+        } catch (UnsupportedEncodingException e) {
+            output = StackTraceUtil.stackTrace(e);
         }
+        return output;
     }
 }

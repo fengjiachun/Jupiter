@@ -20,7 +20,7 @@ import org.jupiter.common.util.AbstractConstant;
 import org.jupiter.common.util.ConstantPool;
 
 /**
- * Jupiter transport's option.
+ * Jupiter transport option.
  *
  * jupiter
  * org.jupiter.transport
@@ -128,8 +128,8 @@ public final class JOption<T> extends AbstractConstant<JOption<T>> {
 
     /**
      * 在linux内核中TCP握手过程总共会有两个队列:
-     *  1)一个俗称半连接队列, 放着那些握手一半的连接(syn queue)
-     *  2)另一个放着那些握手成功但是还没有被应用层accept的连接的队列(accept queue)
+     *  1) 一个俗称半连接队列, 放着那些握手一半的连接(syn queue)
+     *  2) 另一个放着那些握手成功但是还没有被应用层accept的连接的队列(accept queue)
      *
      * backlog的大小跟这两个队列的容量之和息息相关.
      *
@@ -163,18 +163,19 @@ public final class JOption<T> extends AbstractConstant<JOption<T>> {
     public static final JOption<Boolean> ALLOW_HALF_CLOSURE = valueOf("ALLOW_HALF_CLOSURE");
 
     /**
-     * 是否使用 direct buf
+     * 是否使用 direct buffer.
      */
     public static final JOption<Boolean> PREFER_DIRECT = valueOf("PREFER_DIRECT");
 
     /**
-     * Netty的选项, 是否启用pooled buf allocator
+     * Netty的选项, 是否启用pooled buf allocator.
      */
     public static final JOption<Boolean> USE_POOLED_ALLOCATOR = valueOf("USE_POOLED_ALLOCATOR");
 
     /**
-     * Sets the percentage of the desired amount of time spent for I/O in the child event loops.  The default value is
-     * {@code 50}, which means the event loop will try to spend the same amount of time for I/O as for non-I/O tasks.
+     * Sets the percentage of the desired amount of time spent for I/O in the child event loops.
+     * The default value is {@code 50}, which means the event loop will try to spend the same
+     * amount of time for I/O as for non-I/O tasks.
      */
     public static final JOption<Integer> IO_RATIO = valueOf("IO_RATIO");
 

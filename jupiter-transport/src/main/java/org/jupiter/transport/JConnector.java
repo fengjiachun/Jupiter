@@ -28,12 +28,12 @@ import org.jupiter.rpc.UnresolvedAddress;
 public interface JConnector<C> extends Transporter {
 
     /**
-     * Connect to the remote peer.
+     * Connects to the remote peer.
      */
     C connect(UnresolvedAddress remoteAddress);
 
     /**
-     * Connect to the remote peer.
+     * Connects to the remote peer.
      */
     C connect(UnresolvedAddress remoteAddress, boolean async);
 

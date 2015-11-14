@@ -30,7 +30,7 @@ import static org.jupiter.common.util.Preconditions.checkNotNull;
 import static org.jupiter.common.util.internal.UnsafeAccess.UNSAFE;
 
 /**
- * Reflection tools.
+ * Static utility methods pertaining to reflection.
  *
  * jupiter
  * org.jupiter.common.util
@@ -55,10 +55,10 @@ public final class Reflects {
     /**
      * Invokes the underlying method.
      *
-     * @param obj the object the underlying method is invoked from
-     * @param methodName the method name this object
+     * @param obj            the object the underlying method is invoked from
+     * @param methodName     the method name this object
      * @param parameterTypes the parameter types for the method this object
-     * @param args the arguments used for the method call
+     * @param args           the arguments used for the method call
      * @return the result of dispatching the method represented by this object on {@code obj} with parameters
      */
     public static Object invoke(Object obj, String methodName, Class<?>[] parameterTypes, Object[] args) {
@@ -76,10 +76,10 @@ public final class Reflects {
     /**
      * Invokes the underlying method, fast invoke using cglib's FastClass.
      *
-     * @param obj the object the underlying method is invoked from
-     * @param methodName the method name this object
+     * @param obj            the object the underlying method is invoked from
+     * @param methodName     the method name this object
      * @param parameterTypes the parameter types for the method this object
-     * @param args the arguments used for the method call
+     * @param args           the arguments used for the method call
      * @return the result of dispatching the method represented by this object on {@code obj} with parameters
      */
     public static Object fastInvoke(Object obj, String methodName, Class<?>[] parameterTypes, Object[] args) {
@@ -109,7 +109,7 @@ public final class Reflects {
      * simple name of the desired field.
      *
      * @param clazz class
-     * @param name field name
+     * @param name  field name
      * @return the {@code Field} object for the specified field in this class
      * @throws NoSuchFieldException
      */
@@ -118,7 +118,8 @@ public final class Reflects {
         while (cls != null) {
             try {
                 return cls.getDeclaredField(name);
-            } catch (Throwable ignored) {}
+            } catch (Throwable ignored) {
+            }
 
             cls = cls.getSuperclass();
         }
@@ -130,7 +131,7 @@ public final class Reflects {
      * The value is automatically wrapped in an object if it has a primitive type.
      *
      * @param clazz the specified class
-     * @param name the name of the represented field in class
+     * @param name  the name of the represented field in class
      * @return the value of the represented field in class
      */
     public static Object getStaticValue(Class<?> clazz, String name) {
@@ -148,7 +149,7 @@ public final class Reflects {
      * Returns the value by name, on the specified object.
      * The value is automatically wrapped in an object if it has a primitive type.
      *
-     * @param o the specified object
+     * @param o    the specified object
      * @param name the name of the represented field in object
      * @return the value of the represented field in object
      */
@@ -168,8 +169,8 @@ public final class Reflects {
      * The new value is automatically unwrapped if the underlying field
      * has a primitive type.
      *
-     * @param o the specified object
-     * @param name the name of the the field in object
+     * @param o     the specified object
+     * @param name  the name of the the field in object
      * @param value the new value for the field in object
      */
     public static void setValue(Object o, String name, Object value) {
@@ -260,5 +261,6 @@ public final class Reflects {
         return fd;
     }
 
-    private Reflects() {}
+    private Reflects() {
+    }
 }

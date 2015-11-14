@@ -42,13 +42,14 @@ public class HackSystem {
     public final static PrintStream out = new PrintStream(buf);
     public final static PrintStream err = out;
 
-    public synchronized static String getBufString() {
-        if (buf.size() > 1024 * 8) {
-            String value = buf.toString();
-            Reflects.setValue(buf, "buf", new byte[1024]);
-            return value;
+    public static String getBufString() {
+        String value = buf.toString();
+        synchronized (HackSystem.class) {
+            if (buf.size() > 1024 * 8) {
+                Reflects.setValue(buf, "buf", new byte[1024]);
+            }
         }
-        return buf.toString();
+        return value;
     }
 
     public static void clearBuf() {

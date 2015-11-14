@@ -148,8 +148,8 @@ public abstract class NettyAcceptor extends AbstractJServer implements JAcceptor
     }
 
     /**
-     * The {@link EventLoopGroup} for the child. These {@link EventLoopGroup}'s are used to handle all the events
-     * and IO for {@link io.netty.channel.Channel}'s.
+     * The {@link EventLoopGroup} for the child. These {@link EventLoopGroup}'s are used to
+     * handle all the events and IO for {@link io.netty.channel.Channel}'s.
      */
     protected EventLoopGroup worker() {
         return worker;
@@ -157,8 +157,8 @@ public abstract class NettyAcceptor extends AbstractJServer implements JAcceptor
 
     /**
      * Sets the percentage of the desired amount of time spent for I/O in the child event loops.
-     * The default value is {@code 50}, which means the event loop will try to spend the same amount of time for
-     * I/O as for non-I/O tasks.
+     * The default value is {@code 50}, which means the event loop will try to spend the same
+     * amount of time for I/O as for non-I/O tasks.
      */
     public abstract void setIoRatio(int bossIoRatio, int workerIoRatio);
 
