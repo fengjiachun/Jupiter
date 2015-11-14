@@ -18,6 +18,7 @@ package org.jupiter.rpc;
 
 import org.jupiter.registry.Registry;
 import org.jupiter.rpc.model.metadata.ServiceWrapper;
+import org.jupiter.rpc.provider.limiter.TpsLimiter;
 
 import java.util.List;
 import java.util.concurrent.Executor;
@@ -48,10 +49,25 @@ public interface JServer extends Registry {
         ServiceRegistry executor(Executor executor);
 
         /**
+         * Sets up the service provider's {@link TpsLimiter}.
+         */
+        ServiceRegistry tpsLimiter(TpsLimiter<JRequest> tpsLimiter);
+
+        /**
          * Register this provider to local scope.
          */
         ServiceWrapper register();
     }
+
+    /**
+     * Returns the global {@link TpsLimiter} if have one.
+     */
+    TpsLimiter<JRequest> getTpsLimiter();
+
+    /**
+     * Sets a global {@link TpsLimiter} for this server.
+     */
+    void setTpsLimiter(TpsLimiter<JRequest> tpsLimiter);
 
     /**
      * To obtains a service registry.

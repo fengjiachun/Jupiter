@@ -16,7 +16,10 @@
 
 package org.jupiter.rpc;
 
-import org.jupiter.common.util.*;
+import org.jupiter.common.util.JServiceLoader;
+import org.jupiter.common.util.Lists;
+import org.jupiter.common.util.Maps;
+import org.jupiter.common.util.Strings;
 import org.jupiter.common.util.internal.logging.InternalLogger;
 import org.jupiter.common.util.internal.logging.InternalLoggerFactory;
 import org.jupiter.registry.RegisterMeta;
@@ -24,12 +27,13 @@ import org.jupiter.registry.RegistryService;
 import org.jupiter.rpc.annotation.ServiceProvider;
 import org.jupiter.rpc.model.metadata.ServiceMetadata;
 import org.jupiter.rpc.model.metadata.ServiceWrapper;
+import org.jupiter.rpc.provider.limiter.TpsLimiter;
 
 import java.util.List;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.Executor;
 
-import static org.jupiter.common.util.JConstants.*;
+import static org.jupiter.common.util.JConstants.DEFAULT_WEIGHT;
 import static org.jupiter.common.util.Preconditions.checkArgument;
 import static org.jupiter.common.util.Preconditions.checkNotNull;
 
@@ -47,9 +51,21 @@ public abstract class AbstractJServer implements JServer {
     // SPI
     private final RegistryService registryService = JServiceLoader.load(RegistryService.class);
 
+    private volatile TpsLimiter<JRequest> tpsLimiter;
+
     @Override
     public void connectToConfigServer(String host, int port) {
         registryService.connectToConfigServer(host, port);
+    }
+
+    @Override
+    public TpsLimiter<JRequest> getTpsLimiter() {
+        return tpsLimiter;
+    }
+
+    @Override
+    public void setTpsLimiter(TpsLimiter<JRequest> tpsLimiter) {
+        this.tpsLimiter = tpsLimiter;
     }
 
     @Override
@@ -105,9 +121,12 @@ public abstract class AbstractJServer implements JServer {
 
     protected abstract int bindPort();
 
-    ServiceWrapper registerService(String group, String version, String name, Object serviceProvider, Executor executor) {
+    ServiceWrapper registerService(String group, String version, String name, Object serviceProvider,
+            Executor executor, TpsLimiter<JRequest> tpsLimiter) {
+
         ServiceWrapper serviceWrapper = new ServiceWrapper(group, version, name, serviceProvider);
         serviceWrapper.setExecutor(executor);
+        serviceWrapper.setTpsLimiter(tpsLimiter);
 
         providerContainer.registerService(serviceWrapper.getMetadata().directory(), serviceWrapper);
 
@@ -118,6 +137,7 @@ public abstract class AbstractJServer implements JServer {
 
         private Object serviceProvider;
         protected Executor executor;
+        protected TpsLimiter<JRequest> tpsLimiter;
 
         @Override
         public ServiceRegistry provider(Object serviceProvider) {
@@ -128,6 +148,12 @@ public abstract class AbstractJServer implements JServer {
         @Override
         public ServiceRegistry executor(Executor executor) {
             this.executor = executor;
+            return this;
+        }
+
+        @Override
+        public ServiceRegistry tpsLimiter(TpsLimiter<JRequest> tpsLimiter) {
+            this.tpsLimiter = tpsLimiter;
             return this;
         }
 
@@ -158,7 +184,7 @@ public abstract class AbstractJServer implements JServer {
             checkNotNull(group, "group");
             checkNotNull(version, "version");
 
-            return registerService(group, version, name, serviceProvider, executor);
+            return registerService(group, version, name, serviceProvider, executor, tpsLimiter);
         }
     }
 

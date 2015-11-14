@@ -17,10 +17,14 @@
 package org.jupiter.rpc.provider.processor;
 
 import org.jupiter.common.util.JServiceLoader;
-import org.jupiter.rpc.JServer;
+import org.jupiter.rpc.Directory;
 import org.jupiter.rpc.JRequest;
+import org.jupiter.rpc.JServer;
 import org.jupiter.rpc.channel.JChannel;
 import org.jupiter.rpc.executor.ExecutorFactory;
+import org.jupiter.rpc.model.metadata.ServiceWrapper;
+import org.jupiter.rpc.provider.limiter.TpsLimiter;
+import org.jupiter.rpc.provider.limiter.TpsResult;
 import org.jupiter.rpc.provider.processor.task.RecyclableTask;
 
 import java.util.concurrent.Executor;
@@ -35,17 +39,19 @@ import static org.jupiter.common.util.JConstants.PROCESSOR_CORE_NUM_WORKERS;
  */
 public class DefaultProviderProcessor extends AbstractProviderProcessor {
 
+    private static final TpsResult CITY_WIDE_OPEN = new TpsResult(true);
+
+    private final JServer server;
     private final Executor executor;
 
-    public DefaultProviderProcessor(JServer jServer) {
-        super(jServer);
-
+    public DefaultProviderProcessor(JServer server) {
+        this.server = server;
         ExecutorFactory factory = (ExecutorFactory) JServiceLoader.load(ProviderExecutorFactory.class);
         executor = factory.newExecutor(PROCESSOR_CORE_NUM_WORKERS);
     }
 
-    public DefaultProviderProcessor(JServer jServer, Executor executor) {
-        super(jServer);
+    public DefaultProviderProcessor(JServer server, Executor executor) {
+        this.server = server;
         this.executor = executor;
     }
 
@@ -55,5 +61,19 @@ public class DefaultProviderProcessor extends AbstractProviderProcessor {
         // 2. 根据Java Flight Recordings (JFR) 观察结果, protostuff在发序列化时,
         //      io.protostuff.runtime.RuntimeEnv.loadClass有较多的锁竞争, 避免在IO线程中执行.
         executor.execute(RecyclableTask.getInstance(this, channel, request));
+    }
+
+    @Override
+    public ServiceWrapper lookupService(Directory directory) {
+        return server.lookupService(directory);
+    }
+
+    @Override
+    public TpsResult checkTpsLimit(JRequest param) {
+        TpsLimiter<JRequest> limiter = server.getTpsLimiter();
+        if (limiter == null) {
+            return CITY_WIDE_OPEN;
+        }
+        return limiter.checkTpsLimit(param);
     }
 }

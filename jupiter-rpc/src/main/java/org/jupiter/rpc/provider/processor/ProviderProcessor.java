@@ -19,6 +19,7 @@ package org.jupiter.rpc.provider.processor;
 import org.jupiter.rpc.JRequest;
 import org.jupiter.rpc.channel.JChannel;
 import org.jupiter.rpc.provider.LookupService;
+import org.jupiter.rpc.provider.limiter.TpsLimiter;
 
 /**
  * jupiter
@@ -26,7 +27,7 @@ import org.jupiter.rpc.provider.LookupService;
  *
  * @author jiachun.fjc
  */
-public interface ProviderProcessor extends LookupService {
+public interface ProviderProcessor extends LookupService, TpsLimiter<JRequest> {
 
     /**
      * 处理正常请求

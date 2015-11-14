@@ -16,6 +16,9 @@
 
 package org.jupiter.rpc.model.metadata;
 
+import org.jupiter.rpc.JRequest;
+import org.jupiter.rpc.provider.limiter.TpsLimiter;
+
 import java.io.Serializable;
 import java.util.concurrent.Executor;
 
@@ -37,6 +40,7 @@ public class ServiceWrapper implements Serializable {
     private final Object serviceProvider;
 
     private volatile Executor executor;
+    private volatile TpsLimiter<JRequest> tpsLimiter;
 
     public ServiceWrapper(String group, String version, String name, Object serviceProvider) {
         checkNotNull(group, "group");
@@ -64,6 +68,14 @@ public class ServiceWrapper implements Serializable {
         this.executor = executor;
     }
 
+    public TpsLimiter<JRequest> getTpsLimiter() {
+        return tpsLimiter;
+    }
+
+    public void setTpsLimiter(TpsLimiter<JRequest> tpsLimiter) {
+        this.tpsLimiter = tpsLimiter;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -85,6 +97,7 @@ public class ServiceWrapper implements Serializable {
                 "metadata=" + metadata +
                 ", serviceProvider=" + serviceProvider +
                 ", executor=" + executor +
+                ", tpsLimiter=" + tpsLimiter +
                 '}';
     }
 }

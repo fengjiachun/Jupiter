@@ -20,7 +20,6 @@ import com.codahale.metrics.Histogram;
 import com.codahale.metrics.Meter;
 import com.codahale.metrics.Timer;
 import org.jupiter.common.concurrent.RejectedRunnable;
-import org.jupiter.common.util.JServiceLoader;
 import org.jupiter.common.util.RecycleUtil;
 import org.jupiter.common.util.SystemClock;
 import org.jupiter.common.util.internal.Recyclers;
@@ -39,8 +38,8 @@ import org.jupiter.rpc.metric.Metrics;
 import org.jupiter.rpc.model.metadata.MessageWrapper;
 import org.jupiter.rpc.model.metadata.ResultWrapper;
 import org.jupiter.rpc.model.metadata.ServiceWrapper;
-import org.jupiter.rpc.provider.limiter.TPSLimiter;
-import org.jupiter.rpc.provider.limiter.TPSResult;
+import org.jupiter.rpc.provider.limiter.TpsLimiter;
+import org.jupiter.rpc.provider.limiter.TpsResult;
 import org.jupiter.rpc.provider.processor.ProviderProcessor;
 
 import java.util.concurrent.Executor;
@@ -62,9 +61,6 @@ import static org.jupiter.serialization.SerializerHolder.serializer;
 public class RecyclableTask implements RejectedRunnable {
 
     private static final InternalLogger logger = InternalLoggerFactory.getInstance(RecyclableTask.class);
-
-    // SPI
-    private static final TPSLimiter tpsLimiter = JServiceLoader.load(TPSLimiter.class);
 
     // - Metrics -------------------------------------------------------------------------------------------------------
     // 请求处理的时间统计(从request被decode开始一直到response数据被刷到OS内核缓冲区为止)
@@ -97,10 +93,10 @@ public class RecyclableTask implements RejectedRunnable {
             return;
         }
 
-        // - TPS limit -------------------------------------------------------------------------------------------------
-        TPSResult tpsResult = tpsLimiter.process(request);
+        // - App tps limit ---------------------------------------------------------------------------------------------
+        TpsResult tpsResult = processor.checkTpsLimit(request);
         if (!tpsResult.isAllowed()) {
-            rejected(SERVICE_TPS_LIMIT, tpsResult);
+            rejected(APP_SERVICE_TPS_LIMIT, tpsResult);
             return;
         }
 
@@ -109,6 +105,16 @@ public class RecyclableTask implements RejectedRunnable {
         if (service == null) {
             rejected(SERVICE_NOT_FOUND);
             return;
+        }
+
+        // - Provide tps limit -----------------------------------------------------------------------------------------
+        TpsLimiter<JRequest> providerTpsLimiter = service.getTpsLimiter();
+        if (providerTpsLimiter != null) {
+            tpsResult = providerTpsLimiter.checkTpsLimit(request);
+            if (!tpsResult.isAllowed()) {
+                rejected(PROVIDER_SERVICE_TPS_LIMIT, tpsResult);
+                return;
+            }
         }
 
         // - Processing ------------------------------------------------------------------------------------------------
@@ -149,9 +155,10 @@ public class RecyclableTask implements RejectedRunnable {
                 case SERVICE_NOT_FOUND:
                     result.setError(new ServiceNotFoundException(request.message().toString()));
                     break;
-                case SERVICE_TPS_LIMIT:
-                    if (signal != null && signal instanceof TPSResult) {
-                        result.setError(new TPSLimitException(((TPSResult) signal).getMessage()));
+                case APP_SERVICE_TPS_LIMIT:
+                case PROVIDER_SERVICE_TPS_LIMIT:
+                    if (signal != null && signal instanceof TpsResult) {
+                        result.setError(new TPSLimitException(((TpsResult) signal).getMessage()));
                     } else {
                         result.setError(new TPSLimitException());
                     }

@@ -19,13 +19,10 @@ package org.jupiter.rpc.provider.processor;
 import org.jupiter.common.util.RecycleUtil;
 import org.jupiter.common.util.internal.logging.InternalLogger;
 import org.jupiter.common.util.internal.logging.InternalLoggerFactory;
-import org.jupiter.rpc.Directory;
 import org.jupiter.rpc.JRequest;
-import org.jupiter.rpc.JServer;
 import org.jupiter.rpc.JResponse;
 import org.jupiter.rpc.channel.JChannel;
 import org.jupiter.rpc.model.metadata.ResultWrapper;
-import org.jupiter.rpc.model.metadata.ServiceWrapper;
 
 import static org.jupiter.common.util.StackTraceUtil.stackTrace;
 import static org.jupiter.rpc.Status.SERVICE_ERROR;
@@ -40,12 +37,6 @@ import static org.jupiter.serialization.SerializerHolder.serializer;
 public abstract class AbstractProviderProcessor implements ProviderProcessor {
 
     private static final InternalLogger logger = InternalLoggerFactory.getInstance(AbstractProviderProcessor.class);
-
-    private final JServer server;
-
-    protected AbstractProviderProcessor(JServer server) {
-        this.server = server;
-    }
 
     @Override
     public void handleException(JChannel channel, JRequest request, Throwable cause) {
@@ -63,10 +54,5 @@ public abstract class AbstractProviderProcessor implements ProviderProcessor {
         logger.error("An exception has been caught while processing request: {}.", stackTrace(cause));
 
         channel.write(response);
-    }
-
-    @Override
-    public ServiceWrapper lookupService(Directory directory) {
-        return server.lookupService(directory);
     }
 }
