@@ -63,13 +63,13 @@ public class RecyclableTask implements RejectedRunnable {
     private static final InternalLogger logger = InternalLoggerFactory.getInstance(RecyclableTask.class);
 
     // - Metrics -------------------------------------------------------------------------------------------------------
-    // 请求处理的时间统计(从request被decode开始一直到response数据被刷到OS内核缓冲区为止)
+    // 请求处理耗时统计(从request被解码开始, 到response数据被刷到OS内核缓冲区为止)
     private static final Timer processingTimer              = Metrics.timer("processing");
-    // 请求被拒绝的统计
+    // 请求被拒绝统计
     private static final Meter rejectionMeter               = Metrics.meter("rejection");
-    // 请求数据大小的统计(不包括Jupiter协议头)
+    // 请求数据大小统计(不包括Jupiter协议头)
     private static final Histogram requestSizeHistogram     = Metrics.histogram("request.size");
-    // 响应数据大小的统计(不包括Jupiter协议头)
+    // 响应数据大小统计(不包括Jupiter协议头)
     private static final Histogram responseSizeHistogram    = Metrics.histogram("response.size");
 
     private ProviderProcessor processor;
