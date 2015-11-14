@@ -51,7 +51,7 @@ Jupiter
 
   -------------------------------------------------------------------------------------------------------
 
-以下为其中一次测试结果(小数据包2.5亿+次同步调用):
+2015-11-15的一次测试结果(小数据包12亿+次同步调用):
 
   -------------------------------------------------------------------------------------------------------
 
@@ -72,7 +72,8 @@ Jupiter
 
     测试结果:
 
-        Request count: 256000000, time: 2465 second, qps: 103853
+        2015-11-15 02:43:10.691 WARN  [main] [BenchmarkClient] - count=1280000000
+        Request count: 1280000000, time: 12070 second, qps: 106048
 
   ------------------------------------------------------------------------------------------------------
 
@@ -83,22 +84,23 @@ Jupiter
         >: metrics -report
     ------------------------------------------------------------------
 
-        - Histograms ------------------------------------------------------------------
+        15-11-15 2:38:20 ===============================================================
 
-        org.jupiter.rpc.provider.processor.DefaultProviderProcessor.request.size
-                     count = 253946227
-                       min = 122
-                       max = 122
-                      mean = 122.00
+        -- Histograms ------------------------------------------------------------------
+        request.size
+                     count = 1246287634
+                       min = 145
+                       max = 145
+                      mean = 145.00
                     stddev = 0.00
-                    median = 122.00
-                      75% <= 122.00
-                      95% <= 122.00
-                      98% <= 122.00
-                      99% <= 122.00
-                    99.9% <= 122.00
-        org.jupiter.rpc.provider.processor.task.RecyclableTask.response.size
-                     count = 253946207
+                    median = 145.00
+                      75% <= 145.00
+                      95% <= 145.00
+                      98% <= 145.00
+                      99% <= 145.00
+                    99.9% <= 145.00
+        response.size
+                     count = 1246287634
                        min = 17
                        max = 17
                       mean = 17.00
@@ -110,13 +112,21 @@ Jupiter
                       99% <= 17.00
                     99.9% <= 17.00
 
+        -- Meters ----------------------------------------------------------------------
+        rejection
+                     count = 0
+                 mean rate = 0.00 events/second
+             1-minute rate = 0.00 events/second
+             5-minute rate = 0.00 events/second
+            15-minute rate = 0.00 events/second
+
         -- Timers ----------------------------------------------------------------------
-        org.jupiter.benchmark.tcp.ServiceImpl.Jupiter-1.0.0-Service.hello
-                     count = 253946428
-                 mean rate = 103665.58 calls/second
-             1-minute rate = 103374.81 calls/second
-             5-minute rate = 103748.01 calls/second
-            15-minute rate = 97171.10 calls/second
+        Jupiter-1.0.0-Service#hello
+                     count = 1246287634
+                 mean rate = 105977.57 calls/second
+             1-minute rate = 107930.46 calls/second
+             5-minute rate = 107646.03 calls/second
+            15-minute rate = 107220.85 calls/second
                        min = 0.00 milliseconds
                        max = 0.01 milliseconds
                       mean = 0.00 milliseconds
@@ -127,31 +137,36 @@ Jupiter
                       98% <= 0.00 milliseconds
                       99% <= 0.00 milliseconds
                     99.9% <= 0.01 milliseconds
-        org.jupiter.rpc.provider.processor.task.RecyclableTask.invocation.timer
-                     count = 253946355
-                 mean rate = 103665.41 calls/second
-             1-minute rate = 103374.82 calls/second
-             5-minute rate = 103748.06 calls/second
-            15-minute rate = 97169.22 calls/second
+        processing
+                     count = 1246287634
+                 mean rate = 105976.89 calls/second
+             1-minute rate = 107928.26 calls/second
+             5-minute rate = 107645.48 calls/second
+            15-minute rate = 107220.61 calls/second
                        min = 0.00 milliseconds
-                       max = 11.00 milliseconds
-                      mean = 0.62 milliseconds
-                    stddev = 1.00 milliseconds
+                       max = 5.00 milliseconds
+                      mean = 0.39 milliseconds
+                    stddev = 0.72 milliseconds
                     median = 0.00 milliseconds
                       75% <= 1.00 milliseconds
-                      95% <= 3.00 milliseconds
-                      98% <= 4.00 milliseconds
-                      99% <= 4.00 milliseconds
-                    99.9% <= 10.88 milliseconds
+                      95% <= 2.00 milliseconds
+                      98% <= 3.00 milliseconds
+                      99% <= 3.00 milliseconds
+                    99.9% <= 4.97 milliseconds
 
-        TOP:
+
+        TOP: (top时间点在程序启动后6个小时左右)
         ￼------------------------------------------------------------------
 
-        top - 00:43:39 up 220 days,  7:52,  3 users,  load average: 0.17, 0.13, 0.06
-        Tasks: 171 total,   2 running, 169 sleeping,   0 stopped,   0 zombie
-        Cpu0  : 34.8%us, 17.4%sy,  0.0%ni,  3.4%id,  0.0%wa,  0.0%hi, 44.4%si,  0.0%st
-        Cpu1  : 44.2%us, 19.6%sy,  0.0%ni, 35.8%id,  0.4%wa,  0.0%hi,  0.0%si,  0.0%st
-        Cpu2  : 45.4%us, 16.4%sy,  0.0%ni, 38.2%id,  0.0%wa,  0.0%hi,  0.0%si,  0.0%st
-        Cpu3  : 45.9%us, 16.5%sy,  0.0%ni, 37.6%id,  0.0%wa,  0.0%hi,  0.0%si,  0.0%st
-        Mem:  10117196k total,  7387036k used,  2730160k free,   250092k buffers
-        Swap:  8191992k total,   161452k used,  8030540k free,   579820k cached
+        top - 02:34:22 up 235 days,  9:43,  1 user,  load average: 0.00, 0.02, 0.00
+        Tasks: 167 total,   2 running, 165 sleeping,   0 stopped,   0 zombie
+        Cpu0  : 28.4%us, 22.1%sy,  0.0%ni,  6.2%id,  0.0%wa,  0.0%hi, 43.3%si,  0.0%st
+        Cpu1  : 41.4%us, 18.4%sy,  0.0%ni, 40.2%id,  0.0%wa,  0.0%hi,  0.0%si,  0.0%st
+        Cpu2  : 42.9%us, 16.8%sy,  0.0%ni, 40.3%id,  0.0%wa,  0.0%hi,  0.0%si,  0.0%st
+        Cpu3  : 40.9%us, 16.7%sy,  0.0%ni, 42.4%id,  0.0%wa,  0.0%hi,  0.0%si,  0.0%st
+        Mem:  10117196k total,  9384396k used,   732800k free,   267816k buffers
+        Swap:  8191992k total,   163432k used,  8028560k free,  2397504k cached
+
+          PID USER      PR  NI  VIRT  RES  SHR S %CPU %MEM    TIME+  COMMAND
+        11616 fengjc    20   0 5667m 1.1g  12m S 253.3 11.0 485:39.31 java
+
