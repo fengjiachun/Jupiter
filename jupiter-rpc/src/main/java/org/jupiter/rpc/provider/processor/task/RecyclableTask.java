@@ -83,9 +83,7 @@ public class RecyclableTask implements RejectedRunnable {
         try {
             byte[] bytes = request.bytes();
             request.bytes(null);
-
             requestSizeHistogram.update(bytes.length);
-
             msg = serializer().readObject(bytes, MessageWrapper.class);
             request.message(msg);
         } catch (Throwable t) {
