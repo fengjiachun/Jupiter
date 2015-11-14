@@ -155,8 +155,9 @@ Jupiter
                     99.9% <= 4.97 milliseconds
 
 
-        TOP: (top时间点在程序启动后3个小时左右)
+        一些系统指标:
         ￼------------------------------------------------------------------
+        TOP: (top时间点在程序启动后3个小时左右)
 
         top - 02:34:22 up 235 days,  9:43,  1 user,  load average: 0.00, 0.02, 0.00
         Tasks: 167 total,   2 running, 165 sleeping,   0 stopped,   0 zombie
@@ -169,4 +170,21 @@ Jupiter
 
           PID USER      PR  NI  VIRT  RES  SHR S %CPU %MEM    TIME+  COMMAND
         11616 fengjc    20   0 5667m 1.1g  12m S 253.3 11.0 485:39.31 java
+
+        GC: (无老年代GC, 新生代GC大概4秒一次)
+
+        2015-11-15T02:43:12.321+0800: 12078.036: [GC (Allocation Failure) 12078.036: [ParNew: 840695K->1264K(943744K), 0.0106041 secs] 926524K->87117K(1992320K), 0.0106820 secs] [Times: user=0.04 sys=0.00, real=0.01 secs]
+        2015-11-15T02:43:16.021+0800: 12081.735: [GC (Allocation Failure) 12081.735: [ParNew: 840176K->1632K(943744K), 0.0105246 secs] 926029K->87507K(1992320K), 0.0106068 secs] [Times: user=0.04 sys=0.00, real=0.01 secs]
+        2015-11-15T02:43:19.854+0800: 12085.568: [GC (Allocation Failure) 12085.568: [ParNew: 840544K->1713K(943744K), 0.0105379 secs] 926419K->87609K(1992320K), 0.0106154 secs] [Times: user=0.04 sys=0.00, real=0.01 secs]
+        2015-11-15T02:43:23.629+0800: 12089.344: [GC (Allocation Failure) 12089.344: [ParNew: 840625K->1796K(943744K), 0.0108642 secs] 926521K->87712K(1992320K), 0.0110592 secs] [Times: user=0.04 sys=0.00, real=0.01 secs]
+        2015-11-15T02:43:27.435+0800: 12093.150: [GC (Allocation Failure) 12093.150: [ParNew: 840708K->1110K(943744K), 0.0107892 secs] 926624K->87048K(1992320K), 0.0108655 secs] [Times: user=0.04 sys=0.00, real=0.01 secs]
+        2015-11-15T02:43:31.499+0800: 12097.213: [GC (Allocation Failure) 12097.213: [ParNew: 840022K->1582K(943744K), 0.0106472 secs] 925960K->87542K(1992320K), 0.0107275 secs] [Times: user=0.04 sys=0.00, real=0.01 secs]
+        Heap
+         par new generation   total 943744K, used 633439K [0x0000000080000000, 0x00000000c0000000, 0x00000000c0000000)
+          eden space 838912K,  75% used [0x0000000080000000, 0x00000000a690c338, 0x00000000b3340000)
+          from space 104832K,   1% used [0x00000000b99a0000, 0x00000000b9b2bbb8, 0x00000000c0000000)
+          to   space 104832K,   0% used [0x00000000b3340000, 0x00000000b3340000, 0x00000000b99a0000)
+         concurrent mark-sweep generation total 1048576K, used 85959K [0x00000000c0000000, 0x0000000100000000, 0x0000000100000000)
+         Metaspace       used 14240K, capacity 14400K, committed 14592K, reserved 1062912K
+          class space    used 1690K, capacity 1726K, committed 1792K, reserved 1048576K
 
