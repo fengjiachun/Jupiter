@@ -208,7 +208,7 @@ public class ConfigClient extends NettyTcpConnector {
     }
 
     /**
-     * Notification the config server unpublish corresponding service.
+     * Notify the config server unpublish corresponding service.
      */
     public void doUnregister(RegisterMeta meta) {
         registerMetaSet.remove(meta);
