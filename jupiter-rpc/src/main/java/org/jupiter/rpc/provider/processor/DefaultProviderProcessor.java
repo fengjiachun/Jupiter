@@ -39,8 +39,6 @@ import static org.jupiter.common.util.JConstants.PROCESSOR_CORE_NUM_WORKERS;
  */
 public class DefaultProviderProcessor extends AbstractProviderProcessor {
 
-    private static final TpsResult CITY_WIDE_OPEN = new TpsResult(true);
-
     private final JServer server;
     private final Executor executor;
 
@@ -72,7 +70,7 @@ public class DefaultProviderProcessor extends AbstractProviderProcessor {
     public TpsResult checkTpsLimit(JRequest param) {
         TpsLimiter<JRequest> limiter = server.getTpsLimiter();
         if (limiter == null) {
-            return CITY_WIDE_OPEN;
+            return TpsResult.CITY_WIDE_OPEN;
         }
         return limiter.checkTpsLimit(param);
     }

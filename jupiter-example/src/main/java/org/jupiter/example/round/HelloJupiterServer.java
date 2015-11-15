@@ -45,7 +45,6 @@ public class HelloJupiterServer {
                     .provider(new ServiceTestImpl())
                     .tpsLimiter(new TpsLimiter<JRequest>() { // Provider级别限流器, 可以不设置
 
-                        private final TpsResult CITY_WIDE_OPEN = new TpsResult(true);
                         private AtomicLong count = new AtomicLong();
 
                         @Override
@@ -53,7 +52,7 @@ public class HelloJupiterServer {
                             if (count.getAndIncrement() > 9999) {
                                 return new TpsResult(false, "fuck out!!!");
                             }
-                            return CITY_WIDE_OPEN;
+                            return TpsResult.CITY_WIDE_OPEN;
                         }
                     })
                     .register();

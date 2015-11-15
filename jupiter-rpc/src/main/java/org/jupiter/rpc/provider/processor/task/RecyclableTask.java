@@ -99,18 +99,18 @@ public class RecyclableTask implements RejectedRunnable {
         }
 
         // app tps limit
-        TpsResult tpsResult = processor.checkTpsLimit(request);
-        if (!tpsResult.isAllowed()) {
-            rejected(APP_SERVICE_TPS_LIMIT, tpsResult);
+        TpsResult tResult = processor.checkTpsLimit(request);
+        if (!tResult.isAllowed()) {
+            rejected(APP_SERVICE_TPS_LIMIT, tResult);
             return;
         }
 
         // child(provider) tps limit
         TpsLimiter<JRequest> childTpsLimiter = service.getTpsLimiter();
         if (childTpsLimiter != null) {
-            tpsResult = childTpsLimiter.checkTpsLimit(request);
-            if (!tpsResult.isAllowed()) {
-                rejected(PROVIDER_SERVICE_TPS_LIMIT, tpsResult);
+            tResult = childTpsLimiter.checkTpsLimit(request);
+            if (!tResult.isAllowed()) {
+                rejected(PROVIDER_SERVICE_TPS_LIMIT, tResult);
                 return;
             }
         }

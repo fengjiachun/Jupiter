@@ -26,6 +26,8 @@ package org.jupiter.rpc.provider.limiter;
  */
 public class TpsResult {
 
+    public static final TpsResult CITY_WIDE_OPEN = new TpsResult(true);
+
     private final boolean allowed;
     private final String message;
 
