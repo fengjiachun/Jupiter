@@ -91,13 +91,6 @@ public class RecyclableTask implements RejectedRunnable {
             return;
         }
 
-        // app tps limit
-        TpsResult tpsResult = processor.checkTpsLimit(request);
-        if (!tpsResult.isAllowed()) {
-            rejected(APP_SERVICE_TPS_LIMIT, tpsResult);
-            return;
-        }
-
         // lookup service
         final ServiceWrapper service = processor.lookupService(msg.getMetadata());
         if (service == null) {
@@ -105,10 +98,17 @@ public class RecyclableTask implements RejectedRunnable {
             return;
         }
 
-        // provider tps limit
-        TpsLimiter<JRequest> pTpsLimiter = service.getTpsLimiter();
-        if (pTpsLimiter != null) {
-            tpsResult = pTpsLimiter.checkTpsLimit(request);
+        // app tps limit
+        TpsResult tpsResult = processor.checkTpsLimit(request);
+        if (!tpsResult.isAllowed()) {
+            rejected(APP_SERVICE_TPS_LIMIT, tpsResult);
+            return;
+        }
+
+        // child(provider) tps limit
+        TpsLimiter<JRequest> childTpsLimiter = service.getTpsLimiter();
+        if (childTpsLimiter != null) {
+            tpsResult = childTpsLimiter.checkTpsLimit(request);
             if (!tpsResult.isAllowed()) {
                 rejected(PROVIDER_SERVICE_TPS_LIMIT, tpsResult);
                 return;
