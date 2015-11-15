@@ -16,7 +16,7 @@
 
 package org.jupiter.hot.exec;
 
-import static org.jupiter.hot.exec.ByteUtils.*;
+import org.jupiter.common.util.Bytes;
 
 /**
  * 代码来自周志明的 [深入理解Java虚拟机] 一书, 第九章第三小节[自己动手实现远程执行功能], 稍有改动.
@@ -73,10 +73,10 @@ public class ClassModifier {
         int offset = CONSTANT_POOL_COUNT_INDEX;
 
         // 获取常量池中常量的数量
-        int cpCount = bytes2Int(classBytes, CONSTANT_POOL_COUNT_INDEX, u2);
+        int cpCount = Bytes.bytes2Int(classBytes, CONSTANT_POOL_COUNT_INDEX, u2);
         offset += u2;
         for (int i = 0; i < cpCount; i++) {
-            int tag = bytes2Int(classBytes, offset, u1);
+            int tag = Bytes.bytes2Int(classBytes, offset, u1);
             if (tag == CONSTANT_Utf8_info) {
                 offset += u1;
 
@@ -88,16 +88,16 @@ public class ClassModifier {
                  * length   u2      UTF-8编码的字符串占用的字节数
                  * bytes            长度为length的UTF-8编码格式的字符串
                  */
-                int length = bytes2Int(classBytes, offset, u2);
+                int length = Bytes.bytes2Int(classBytes, offset, u2);
                 offset += u2;
 
-                String str = bytes2String(classBytes, offset, length);
+                String str = Bytes.bytes2String(classBytes, offset, length);
                 if (str.equalsIgnoreCase(originalString)) {
-                    byte[] strBytes = string2Bytes(replaceString);
-                    byte[] strLen = int2Bytes(replaceString.length(), u2);
+                    byte[] strBytes = Bytes.string2Bytes(replaceString);
+                    byte[] strLen = Bytes.int2Bytes(replaceString.length(), u2);
 
-                    classBytes = bytesReplace(classBytes, offset - u2, u2, strLen); // 替换为新字符串的 "长度"
-                    classBytes = bytesReplace(classBytes, offset, length, strBytes); // 替换为新字符串的 "内容"
+                    classBytes = Bytes.replace(classBytes, offset - u2, u2, strLen); // 替换为新字符串的 "长度"
+                    classBytes = Bytes.replace(classBytes, offset, length, strBytes); // 替换为新字符串的 "内容"
 
                     return classBytes;
                 } else {
