@@ -127,7 +127,7 @@ public final class Reflects {
     }
 
     /**
-     * Returns the static value by name.
+     * Returns the static value by name, on the specified class.
      * The value is automatically wrapped in an object if it has a primitive type.
      *
      * @param clazz the specified class
@@ -143,6 +143,24 @@ public final class Reflects {
             UNSAFE.throwException(e);
         }
         return value;
+    }
+
+    /**
+     * Sets new value by name, on the specified class.
+     * The new value is automatically unwrapped if the underlying field has
+     * a primitive type.
+     *
+     * @param clazz the specified class
+     * @param name  the name of the the field in class
+     * @param value the new value for the field in class
+     */
+    public static void setStaticValue(Class<?> clazz, String name, Object value) {
+        try {
+            Field fd = setAccessible(getField(clazz, name));
+            fd.set(null, value);
+        } catch (Exception e) {
+            UNSAFE.throwException(e);
+        }
     }
 
     /**
@@ -206,28 +224,35 @@ public final class Reflects {
         checkNotNull(clazz, "clazz");
 
         if (clazz.isPrimitive()) {
-            if (byte.class == clazz) {
+            if (clazz == byte.class) {
                 return (byte) 0;
             }
-            if (short.class == clazz) {
+
+            if (clazz == short.class) {
                 return (short) 0;
             }
-            if (int.class == clazz) {
+
+            if (clazz == int.class) {
                 return 0;
             }
-            if (long.class == clazz) {
+
+            if (clazz == long.class) {
                 return 0L;
             }
-            if (float.class == clazz) {
+
+            if (clazz == float.class) {
                 return 0F;
             }
-            if (double.class == clazz) {
+
+            if (clazz == double.class) {
                 return 0D;
             }
-            if (char.class == clazz) {
+
+            if (clazz == char.class) {
                 return (char) 0;
             }
-            if (boolean.class == clazz) {
+
+            if (clazz == boolean.class) {
                 return false;
             }
         }
@@ -261,6 +286,5 @@ public final class Reflects {
         return fd;
     }
 
-    private Reflects() {
-    }
+    private Reflects() {}
 }
