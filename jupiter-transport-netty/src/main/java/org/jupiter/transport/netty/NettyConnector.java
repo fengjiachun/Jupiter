@@ -123,7 +123,9 @@ public abstract class NettyConnector extends AbstractJClient implements JConnect
                                 }
                             }
                             if (connectNeeded) {
-                                for (int i = 0; i < meta.getNumOfConnections(); i++) {
+                                int connectionsNeeded = meta.getNumOfConnections();
+                                connectionsNeeded = connectionsNeeded < 1 ? 1 : connectionsNeeded;
+                                for (int i = 0; i < connectionsNeeded; i++) {
                                     JConnection connection = connect(address);
                                     JConnectionManager.manage(connection);
 
