@@ -201,7 +201,7 @@ public final class Reflects {
     }
 
     /**
-     * Returns the class loader for this class.
+     * Returns the class loader for the specified class.
      */
     public static ClassLoader getClassLoader(Class<?> clazz) {
         ClassLoader cl = clazz.getClassLoader();
@@ -218,7 +218,7 @@ public final class Reflects {
     }
 
     /**
-     * Returns the default value for this class.
+     * Returns the default value for the specified class.
      */
     public static Object getTypeDefaultValue(Class<?> clazz) {
         checkNotNull(clazz, "clazz");
