@@ -51,6 +51,9 @@ public final class JConstants {
         UTF8 = charset;
     }
 
+    /** Cpu核心数 */
+    public static final int AVAILABLE_PROCESSORS = Runtime.getRuntime().availableProcessors();
+
     /** 未知应用名称 */
     public static final String UNKNOWN_APP_NAME = "UNKNOWN";
     /** 服务默认组别 */
@@ -58,19 +61,19 @@ public final class JConstants {
     /** 服务默认版本号 */
     public static final String DEFAULT_VERSION = "1.0.0";
     /** 默认的调用超时时间为3秒 **/
-    public static final int DEFAULT_TIMEOUT = 3 * 1000;
+    public static final int DEFAULT_TIMEOUT = SystemPropertyUtil.getInt("jupiter.reader.connection.timeout", 3 * 1000);
     /** 链路read空闲检测 默认60秒, 60秒没读到任何数据会强制关闭连接 */
     public static final int READER_IDLE_TIME_SECONDS = SystemPropertyUtil.getInt("jupiter.reader.idle.time.seconds", 60);
     /** 链路write空闲检测 默认30秒, 30秒没有向链路中写入任何数据时客户端会主动向对端发送心跳 */
     public static final int WRITER_IDLE_TIME_SECONDS = SystemPropertyUtil.getInt("jupiter.writer.idle.time.seconds", 30);
 
     /** Load balancer 默认预热时间 **/
-    public static final int DEFAULT_WARM_UP = 10 * 60 * 1000;
+    public static final int DEFAULT_WARM_UP = SystemPropertyUtil.getInt("jupiter.load-balancer.warm-up", 10 * 60 * 1000);
     /** Load balancer 默认权重, 建议最大100 **/
-    public static final int DEFAULT_WEIGHT = 50;
+    public static final int DEFAULT_WEIGHT = SystemPropertyUtil.getInt("jupiter.load-balancer.weight", 50);
 
-    /** Cpu核心数 */
-    public static final int AVAILABLE_PROCESSORS = Runtime.getRuntime().availableProcessors();
+    /** Suggest that the number of connections **/
+    public static final int DEFAULT_NUM_CONNECTIONS = SystemPropertyUtil.getInt("jupiter.suggest.num.connections", AVAILABLE_PROCESSORS);
 
     /** Processor.executor 核心线程数 **/
     public static final int PROCESSOR_CORE_NUM_WORKERS = SystemPropertyUtil.getInt(
