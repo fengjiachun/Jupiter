@@ -45,8 +45,8 @@ Jupiter
 
     性能报告:
 
-        1. 小数据包同步调用qps: 10w+ (详细测试代码见jupiter-example中BenchmarkClient/BenchmarkServer)
-        2. 客户端发送 1K String, 服务端原样返回, 同步调用qps: 7w+ (详细测试代码见jupiter-example中BenchmarkClient_1KString/BenchmarkServer_1KString)
+        1. 小数据包同步调用qps: 10w+ (测试代码见jupiter-example[BenchmarkClient/BenchmarkServer])
+        2. 客户端发送 1K String, 服务端原样返回, 同步调用qps: 7w+ (测试代码见jupiter-example[BenchmarkClient_1KString/BenchmarkServer_1KString])
 
   -------------------------------------------------------------------------------------------------------
 
