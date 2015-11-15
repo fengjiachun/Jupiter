@@ -45,7 +45,8 @@ Jupiter
 
     性能报告:
 
-        小数据包同步调用qps: 10w+ (详细测试代码见jupiter-example中BenchmarkClient/BenchmarkServer)
+        1. 小数据包同步调用qps: 10w+ (详细测试代码见jupiter-example中BenchmarkClient/BenchmarkServer)
+        2. 客户端发送 1K String, 服务端原样返回, 同步调用qps: 7w+ (详细测试代码见jupiter-example中BenchmarkClient_1KString/BenchmarkServer_1KString)
 
   -------------------------------------------------------------------------------------------------------
 
@@ -186,3 +187,127 @@ Jupiter
          Metaspace       used 14240K, capacity 14400K, committed 14592K, reserved 1062912K
           class space    used 1690K, capacity 1726K, committed 1792K, reserved 1048576K
 
+  -------------------------------------------------------------------------------------------------------
+
+2015-11-15的一次测试结果(1K String数据, 1000w+次同步调用):
+
+  -------------------------------------------------------------------------------------------------------
+
+    测试机器:
+    ------------------------------------------------------------------
+      server端(一台机器)
+           cpu型号: Intel(R) Xeon(R) CPU           X3430  @ 2.40GHz
+           cpu cores: 4核心
+
+      client端(一台机器)
+           cpu型号: Intel(R) Xeon(R) CPU           X3430  @ 2.40GHz
+           cpu cores: 4核心
+
+      网络环境: 局域网
+    ------------------------------------------------------------------
+
+  ------------------------------------------------------------------------------------------------------
+
+    测试结果:
+
+        2015-11-15 16:02:59.644 WARN  [main] [BenchmarkClient] - count=12800000
+        Request count: 12800000, time: 168 second, qps: 76190
+
+  ------------------------------------------------------------------------------------------------------
+
+    监控数据:
+    ------------------------------------------------------------------
+        telnet 127.0.0.1 19999
+        >: auth 123456
+        >: metrics -report
+    ------------------------------------------------------------------
+
+        15-11-15 16:02:30 ==============================================================
+
+        -- Histograms ------------------------------------------------------------------
+        request.size  [请求数据大小(byte)统计(不包括Jupiter协议头的16个字节)]
+                     count = 8739966
+                       min = 1139
+                       max = 1139
+                      mean = 1139.00
+                    stddev = 0.00
+                    median = 1139.00
+                      75% <= 1139.00
+                      95% <= 1139.00
+                      98% <= 1139.00
+                      99% <= 1139.00
+                    99.9% <= 1139.00
+        response.size [响应数据大小(byte)统计(不包括Jupiter协议头的16个字节)]
+                     count = 8739964
+                       min = 1005
+                       max = 1005
+                      mean = 1005.00
+                    stddev = 0.00
+                    median = 1005.00
+                      75% <= 1005.00
+                      95% <= 1005.00
+                      98% <= 1005.00
+                      99% <= 1005.00
+                    99.9% <= 1005.00
+
+        -- Meters ----------------------------------------------------------------------
+        rejection [请求被拒绝次数统计]
+                     count = 0
+                 mean rate = 0.00 events/second
+             1-minute rate = 0.00 events/second
+             5-minute rate = 0.00 events/second
+            15-minute rate = 0.00 events/second
+
+        -- Timers ----------------------------------------------------------------------
+        Jupiter-1.0.0-Service#hello [参与此次测试的provider方法执行时间统计]
+                     count = 8740185
+                 mean rate = 72881.64 calls/second
+             1-minute rate = 64381.05 calls/second
+             5-minute rate = 24889.29 calls/second
+            15-minute rate = 10723.75 calls/second
+                       min = 0.00 milliseconds
+                       max = 0.01 milliseconds
+                      mean = 0.00 milliseconds
+                    stddev = 0.00 milliseconds
+                    median = 0.00 milliseconds
+                      75% <= 0.00 milliseconds
+                      95% <= 0.00 milliseconds
+                      98% <= 0.00 milliseconds
+                      99% <= 0.00 milliseconds
+                    99.9% <= 0.01 milliseconds
+        processing [请求处理耗时统计(从request被解码开始, 到response数据被刷到OS内核缓冲区为止)]
+                     count = 8740389
+                 mean rate = 72835.88 calls/second
+             1-minute rate = 65256.92 calls/second
+             5-minute rate = 25577.15 calls/second
+            15-minute rate = 10893.93 calls/second
+                       min = 0.00 milliseconds
+                       max = 6.00 milliseconds
+                      mean = 0.54 milliseconds
+                    stddev = 1.03 milliseconds
+                    median = 0.00 milliseconds
+                      75% <= 1.00 milliseconds
+                      95% <= 3.00 milliseconds
+                      98% <= 4.00 milliseconds
+                      99% <= 4.00 milliseconds
+                    99.9% <= 6.00 milliseconds
+
+        一些系统指标:
+        ￼------------------------------------------------------------------
+        GC: (无老年代GC, 新生代GC大概2秒一次)
+
+        2015-11-15T16:03:13.643+0800: 169.466: [GC (Allocation Failure) 169.466: [ParNew: 839181K->336K(943744K), 0.0047825 secs] 850025K->11195K(1992320K), 0.0048617 secs] [Times: user=0.01 sys=0.00, real=0.01 secs]
+        2015-11-15T16:03:15.373+0800: 171.196: [GC (Allocation Failure) 171.196: [ParNew: 839248K->479K(943744K), 0.0046315 secs] 850107K->11354K(1992320K), 0.0047053 secs] [Times: user=0.02 sys=0.00, real=0.01 secs]
+        2015-11-15T16:03:17.161+0800: 172.984: [GC (Allocation Failure) 172.984: [ParNew: 839391K->322K(943744K), 0.0048379 secs] 850266K->11214K(1992320K), 0.0049344 secs] [Times: user=0.02 sys=0.00, real=0.00 secs]
+        2015-11-15T16:03:18.860+0800: 174.683: [GC (Allocation Failure) 174.683: [ParNew: 839234K->295K(943744K), 0.0045733 secs] 850126K->11202K(1992320K), 0.0046447 secs] [Times: user=0.02 sys=0.00, real=0.00 secs]
+        2015-11-15T16:03:20.552+0800: 176.375: [GC (Allocation Failure) 176.375: [ParNew: 839207K->252K(943744K), 0.0051823 secs] 850114K->11175K(1992320K), 0.0053021 secs] [Times: user=0.02 sys=0.00, real=0.00 secs]
+        2015-11-15T16:03:22.222+0800: 178.045: [GC (Allocation Failure) 178.045: [ParNew: 839164K->258K(943744K), 0.0045260 secs] 850087K->11196K(1992320K), 0.0045989 secs] [Times: user=0.01 sys=0.00, real=0.00 secs]
+        2015-11-15T16:03:23.994+0800: 179.818: [GC (Allocation Failure) 179.818: [ParNew: 839170K->237K(943744K), 0.0046721 secs] 850108K->11189K(1992320K), 0.0047435 secs] [Times: user=0.02 sys=0.00, real=0.01 secs]
+        Heap
+         par new generation   total 943744K, used 69965K [0x0000000080000000, 0x00000000c0000000, 0x00000000c0000000)
+          eden space 838912K,   8% used [0x0000000080000000, 0x0000000084417ed0, 0x00000000b3340000)
+          from space 104832K,   0% used [0x00000000b99a0000, 0x00000000b99db588, 0x00000000c0000000)
+          to   space 104832K,   0% used [0x00000000b3340000, 0x00000000b3340000, 0x00000000b99a0000)
+         concurrent mark-sweep generation total 1048576K, used 10952K [0x00000000c0000000, 0x0000000100000000, 0x0000000100000000)
+         Metaspace       used 14172K, capacity 14336K, committed 14592K, reserved 1062912K
+          class space    used 1689K, capacity 1726K, committed 1792K, reserved 1048576K
