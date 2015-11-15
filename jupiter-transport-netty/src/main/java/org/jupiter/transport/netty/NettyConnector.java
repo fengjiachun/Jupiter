@@ -123,23 +123,25 @@ public abstract class NettyConnector extends AbstractJClient implements JConnect
                                 }
                             }
                             if (connectNeeded) {
-                                JConnection connection = connect(address);
-                                JConnectionManager.manage(connection);
+                                for (int i = 0; i < meta.getNumOfConnections(); i++) {
+                                    JConnection connection = connect(address);
+                                    JConnectionManager.manage(connection);
 
-                                offlineListening(address, new OfflineListener() {
+                                    offlineListening(address, new OfflineListener() {
 
-                                    @Override
-                                    public void offline() {
-                                        // 取消自动重连
-                                        JConnectionManager.cancelReconnect(address);
+                                        @Override
+                                        public void offline() {
+                                            // 取消自动重连
+                                            JConnectionManager.cancelReconnect(address);
 
-                                        // 移除ChannelGroup避免被LoadBalance选中, group不为空时不移除,
-                                        // 当group再次被LoadBalance选中并且为空时移除, 见AbstractJClient#select()
-                                        if (group.isEmpty()) {
-                                            removeChannelGroup(directory, group);
+                                            // 移除ChannelGroup避免被LoadBalance选中, group不为空时不移除,
+                                            // 当group再次被LoadBalance选中并且为空时移除, 见AbstractJClient#select()
+                                            if (group.isEmpty()) {
+                                                removeChannelGroup(directory, group);
+                                            }
                                         }
-                                    }
-                                });
+                                    });
+                                }
                             }
 
                             // 添加ChannelGroup到指定directory

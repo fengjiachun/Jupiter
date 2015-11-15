@@ -32,8 +32,10 @@ public class RegisterMeta {
     private Address address = new Address();
     // metadata
     private ServiceMeta serviceMeta = new ServiceMeta();
-    // 权重 hashCode()与equals()不把这个字段计算在内
+    // 权重 hashCode()与equals()不把weight计算在内
     private volatile int weight;
+    // 建议连接数 hashCode()与equals()不把numOfConnections计算在内
+    private volatile int numOfConnections;
 
     public String getHost() {
         return address.getHost();
@@ -91,6 +93,14 @@ public class RegisterMeta {
         this.weight = weight;
     }
 
+    public int getNumOfConnections() {
+        return numOfConnections;
+    }
+
+    public void setNumOfConnections(int numOfConnections) {
+        this.numOfConnections = numOfConnections;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -113,10 +123,11 @@ public class RegisterMeta {
 
     @Override
     public String toString() {
-        return "RegisterInfo{" +
+        return "RegisterMeta{" +
                 "address=" + address +
                 ", serviceMeta=" + serviceMeta +
                 ", weight=" + weight +
+                ", numOfConnections=" + numOfConnections +
                 '}';
     }
 

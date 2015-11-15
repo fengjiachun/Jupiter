@@ -92,17 +92,18 @@ public interface JServer extends Registry {
     /**
      * Publishing a service.
      *
-     * @param serviceWrapper service provider wrapper, created by {@link ServiceRegistry}.
+     * @param serviceWrapper service provider wrapper, created by {@link ServiceRegistry}
      */
     void publish(ServiceWrapper serviceWrapper);
 
     /**
      * Publishing a service.
      *
-     * @param serviceWrapper service provider wrapper, created by {@link ServiceRegistry}.
-     * @param weight         the weight of this provider at current server.
+     * @param serviceWrapper   service provider wrapper, created by {@link ServiceRegistry}
+     * @param weight           the weight of this provider at current server
+     * @param numOfConnections suggest that the number of connections
      */
-    void publish(ServiceWrapper serviceWrapper, int weight);
+    void publish(ServiceWrapper serviceWrapper, int weight, int numOfConnections);
 
     /**
      * Publishing all services.
@@ -112,7 +113,8 @@ public interface JServer extends Registry {
     /**
      * Publishing all services.
      *
-     * @param weight the weight of these providers at current server.
+     * @param weight           the weight of these providers at current server
+     * @param numOfConnections suggest that the number of connections
      */
-    void publishAll(int weight);
+    void publishAll(int weight, int numOfConnections);
 }
