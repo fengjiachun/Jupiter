@@ -49,7 +49,7 @@ public interface JServer extends Registry {
         ServiceRegistry executor(Executor executor);
 
         /**
-         * Sets a private {@link FlowController} for this provider.
+         * Sets a private {@link FlowController} to this provider.
          */
         ServiceRegistry flowController(FlowController<JRequest> flowController);
 
