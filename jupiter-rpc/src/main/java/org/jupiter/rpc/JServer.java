@@ -65,7 +65,7 @@ public interface JServer extends Registry {
     FlowController<JRequest> getFlowController();
 
     /**
-     * Sets a global {@link FlowController} for this server.
+     * Sets a global {@link FlowController} to this server.
      */
     void setFlowController(FlowController<JRequest> flowController);
 
