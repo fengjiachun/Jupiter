@@ -44,7 +44,7 @@ public interface JServer extends Registry {
         ServiceRegistry provider(Object serviceProvider);
 
         /**
-         * The proprietary processors for this provider.
+         * The private executor for this provider.
          */
         ServiceRegistry executor(Executor executor);
 
