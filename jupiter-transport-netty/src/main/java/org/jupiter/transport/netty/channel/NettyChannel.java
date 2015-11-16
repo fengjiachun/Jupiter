@@ -103,6 +103,16 @@ public class NettyChannel implements JChannel {
     }
 
     @Override
+    public boolean isAutoRead() {
+        return channel.config().isAutoRead();
+    }
+
+    @Override
+    public void setAutoRead(boolean autoRead) {
+        channel.config().setAutoRead(autoRead);
+    }
+
+    @Override
     public JChannel close() {
         channel.close();
         return this;

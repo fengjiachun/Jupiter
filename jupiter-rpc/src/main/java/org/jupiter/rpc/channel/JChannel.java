@@ -40,8 +40,8 @@ public interface JChannel {
     boolean isActive();
 
     /**
-     * Return {@code true} if the current {@link Thread} is executed in the IO thread,
-     * {@code false} otherwise.
+     * Return {@code true} if the current {@link Thread} is executed in the
+     * IO thread, {@code false} otherwise.
      */
     boolean inIoThread();
 
@@ -67,6 +67,20 @@ public interface JChannel {
      * Is set up automatic reconnection.
      */
     boolean isMarkedReconnect();
+
+    /**
+     * Returns {@code true} if and only if read(socket) will be invoked
+     * automatically so that a user application doesn't need to call it
+     * at all. The default value is {@code true}.
+     */
+    boolean isAutoRead();
+
+    /**
+     * Sets if read(socket) will be invoked automatically so that a user
+     * application doesn't need to call it at all. The default value is
+     * {@code true}.
+     */
+    void setAutoRead(boolean autoRead);
 
     /**
      * Requests to close this {@link JChannel}.
