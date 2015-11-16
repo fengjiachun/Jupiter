@@ -29,6 +29,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 import static org.jupiter.common.util.StackTraceUtil.stackTrace;
 import static org.jupiter.registry.RegisterMeta.Address;
@@ -50,6 +52,8 @@ public abstract class AbstractRegistryService implements RegistryService {
     private final AtomicBoolean shutdown = new AtomicBoolean(false);
 
     private final Map<ServiceMeta, Pair<Long, List<RegisterMeta>>> registries = Maps.newHashMap();
+    private final ReentrantReadWriteLock registriesLock = new ReentrantReadWriteLock();
+
     private final ConcurrentMap<ServiceMeta, CopyOnWriteArrayList<NotifyListener>> subscribeListeners = Maps.newConcurrentHashMap();
     private final ConcurrentMap<Address, CopyOnWriteArrayList<OfflineListener>> offlineListeners = Maps.newConcurrentHashMap();
 
@@ -127,8 +131,12 @@ public abstract class AbstractRegistryService implements RegistryService {
     public Collection<RegisterMeta> lookup(ServiceMeta serviceMeta) {
         Pair<Long, List<RegisterMeta>> data;
 
-        synchronized (registries) {
+        final Lock readLock = registriesLock.readLock();
+        readLock.lock();
+        try {
             data = registries.get(serviceMeta);
+        } finally {
+            readLock.unlock();
         }
 
         if (data != null) {
@@ -141,12 +149,16 @@ public abstract class AbstractRegistryService implements RegistryService {
     protected void notify(ServiceMeta serviceMeta, List<RegisterMeta> registerMetaList, long version) {
         boolean notifyNeeded = false;
 
-        synchronized (registries) {
+        final Lock writeLock = registriesLock.writeLock();
+        writeLock.lock();
+        try {
             Pair<Long, List<RegisterMeta>> oldData = registries.get(serviceMeta);
             if (oldData == null || (oldData.getKey() < version)) {
                 registries.put(serviceMeta, new Pair<>(version, registerMetaList));
                 notifyNeeded = true;
             }
+        } finally {
+            writeLock.unlock();
         }
 
         if (notifyNeeded) {
