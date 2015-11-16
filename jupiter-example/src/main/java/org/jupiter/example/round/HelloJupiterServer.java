@@ -19,9 +19,9 @@ package org.jupiter.example.round;
 import org.jupiter.example.ServiceTestImpl;
 import org.jupiter.monitor.MonitorServer;
 import org.jupiter.rpc.JRequest;
+import org.jupiter.rpc.flow.control.ControlResult;
+import org.jupiter.rpc.flow.control.FlowController;
 import org.jupiter.rpc.model.metadata.ServiceWrapper;
-import org.jupiter.rpc.provider.limiter.TpsLimiter;
-import org.jupiter.rpc.provider.limiter.TpsResult;
 import org.jupiter.transport.netty.NettyAcceptor;
 import org.jupiter.transport.netty.JNettyTcpAcceptor;
 
@@ -43,16 +43,16 @@ public class HelloJupiterServer {
 
             ServiceWrapper provider = server.serviceRegistry()
                     .provider(new ServiceTestImpl())
-                    .tpsLimiter(new TpsLimiter<JRequest>() { // Provider级别限流器, 可以不设置
+                    .flowController(new FlowController<JRequest>() { // Provider级别限流器, 可以不设置
 
                         private AtomicLong count = new AtomicLong();
 
                         @Override
-                        public TpsResult checkTpsLimit(JRequest param) {
+                        public ControlResult flowControl(JRequest param) {
                             if (count.getAndIncrement() > 9999) {
-                                return new TpsResult(false, "fuck out!!!");
+                                return new ControlResult(false, "fuck out!!!");
                             }
-                            return TpsResult.CITY_WIDE_OPEN;
+                            return ControlResult.CITY_WIDE_OPEN;
                         }
                     })
                     .register();
