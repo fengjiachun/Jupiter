@@ -48,7 +48,7 @@ public class HelloJupiterServer {
                         private AtomicLong count = new AtomicLong();
 
                         @Override
-                        public ControlResult flowControl(JRequest param) {
+                        public ControlResult flowControl(JRequest request) {
                             if (count.getAndIncrement() > 9999) {
                                 return new ControlResult(false, "fuck out!!!");
                             }
@@ -57,7 +57,7 @@ public class HelloJupiterServer {
                     })
                     .register();
 
-//            server.setTpsLimiter(); // App级别限流器
+//            server.setFlowController(); // App级别限流器
             server.connectToConfigServer("127.0.0.1", 20001);
             server.publish(provider);
             server.start();
