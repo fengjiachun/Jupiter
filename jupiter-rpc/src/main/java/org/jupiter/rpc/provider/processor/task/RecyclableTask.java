@@ -33,13 +33,13 @@ import org.jupiter.rpc.channel.JFutureListener;
 import org.jupiter.rpc.error.BadRequestException;
 import org.jupiter.rpc.error.ServerBusyException;
 import org.jupiter.rpc.error.ServiceNotFoundException;
-import org.jupiter.rpc.error.TPSLimitException;
+import org.jupiter.rpc.error.FlowControlException;
+import org.jupiter.rpc.flow.control.ControlResult;
+import org.jupiter.rpc.flow.control.FlowController;
 import org.jupiter.rpc.metric.Metrics;
 import org.jupiter.rpc.model.metadata.MessageWrapper;
 import org.jupiter.rpc.model.metadata.ResultWrapper;
 import org.jupiter.rpc.model.metadata.ServiceWrapper;
-import org.jupiter.rpc.provider.limiter.TpsLimiter;
-import org.jupiter.rpc.provider.limiter.TpsResult;
 import org.jupiter.rpc.provider.processor.ProviderProcessor;
 
 import java.util.concurrent.Executor;
@@ -98,19 +98,19 @@ public class RecyclableTask implements RejectedRunnable {
             return;
         }
 
-        // app tps limit
-        TpsResult tResult = processor.checkTpsLimit(request);
-        if (!tResult.isAllowed()) {
-            rejected(APP_SERVICE_TPS_LIMIT, tResult);
+        // app flow control
+        ControlResult controlResult = processor.flowControl(request);
+        if (!controlResult.isAllowed()) {
+            rejected(APP_FLOW_CONTROL, controlResult);
             return;
         }
 
-        // child(provider) tps limit
-        TpsLimiter<JRequest> childTpsLimiter = service.getTpsLimiter();
-        if (childTpsLimiter != null) {
-            tResult = childTpsLimiter.checkTpsLimit(request);
-            if (!tResult.isAllowed()) {
-                rejected(PROVIDER_SERVICE_TPS_LIMIT, tResult);
+        // child(provider) flow control
+        FlowController<JRequest> childFlowController = service.getFlowController();
+        if (childFlowController != null) {
+            controlResult = childFlowController.flowControl(request);
+            if (!controlResult.isAllowed()) {
+                rejected(PROVIDER_FLOW_CONTROL, controlResult);
                 return;
             }
         }
@@ -153,12 +153,12 @@ public class RecyclableTask implements RejectedRunnable {
                 case SERVICE_NOT_FOUND:
                     result.setError(new ServiceNotFoundException(request.message().toString()));
                     break;
-                case APP_SERVICE_TPS_LIMIT:
-                case PROVIDER_SERVICE_TPS_LIMIT:
-                    if (signal != null && signal instanceof TpsResult) {
-                        result.setError(new TPSLimitException(((TpsResult) signal).getMessage()));
+                case APP_FLOW_CONTROL:
+                case PROVIDER_FLOW_CONTROL:
+                    if (signal != null && signal instanceof ControlResult) {
+                        result.setError(new FlowControlException(((ControlResult) signal).getMessage()));
                     } else {
-                        result.setError(new TPSLimitException());
+                        result.setError(new FlowControlException());
                     }
                     break;
                 default:

@@ -17,8 +17,8 @@
 package org.jupiter.rpc;
 
 import org.jupiter.registry.Registry;
+import org.jupiter.rpc.flow.control.FlowController;
 import org.jupiter.rpc.model.metadata.ServiceWrapper;
-import org.jupiter.rpc.provider.limiter.TpsLimiter;
 
 import java.util.List;
 import java.util.concurrent.Executor;
@@ -49,9 +49,9 @@ public interface JServer extends Registry {
         ServiceRegistry executor(Executor executor);
 
         /**
-         * Sets up the service provider's {@link TpsLimiter}.
+         * Sets up the service provider's {@link FlowController}.
          */
-        ServiceRegistry tpsLimiter(TpsLimiter<JRequest> tpsLimiter);
+        ServiceRegistry flowController(FlowController<JRequest> flowController);
 
         /**
          * Register this provider to local scope.
@@ -60,14 +60,14 @@ public interface JServer extends Registry {
     }
 
     /**
-     * Returns the global {@link TpsLimiter} if have one.
+     * Returns the global {@link FlowController} if have one.
      */
-    TpsLimiter<JRequest> getTpsLimiter();
+    FlowController<JRequest> getFlowController();
 
     /**
-     * Sets a global {@link TpsLimiter} for this server.
+     * Sets a global {@link FlowController} for this server.
      */
-    void setTpsLimiter(TpsLimiter<JRequest> tpsLimiter);
+    void setFlowController(FlowController<JRequest> flowController);
 
     /**
      * To obtains a service registry.

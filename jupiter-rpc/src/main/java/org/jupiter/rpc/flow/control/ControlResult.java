@@ -14,29 +14,29 @@
  * limitations under the License.
  */
 
-package org.jupiter.rpc.provider.limiter;
+package org.jupiter.rpc.flow.control;
 
 /**
- * TPS服务限流检查结果
+ * Flow control result.
  *
  * jupiter
- * org.jupiter.rpc.provider.limiter
+ * org.jupiter.rpc.flow.control
  *
  * @author jiachun.fjc
  */
-public class TpsResult {
+public class ControlResult {
 
-    public static final TpsResult CITY_WIDE_OPEN = new TpsResult(true);
+    public static final ControlResult CITY_WIDE_OPEN = new ControlResult(true);
 
     private final boolean allowed;
     private final String message;
 
-    public TpsResult(boolean allowed) {
+    public ControlResult(boolean allowed) {
         this.allowed = allowed;
         this.message = null;
     }
 
-    public TpsResult(boolean allowed, String message) {
+    public ControlResult(boolean allowed, String message) {
         this.allowed = allowed;
         this.message = message;
     }
@@ -51,7 +51,7 @@ public class TpsResult {
 
     @Override
     public String toString() {
-        return "TpsResult{" +
+        return "ControlResult{" +
                 "allowed=" + allowed +
                 ", message='" + message + '\'' +
                 '}';

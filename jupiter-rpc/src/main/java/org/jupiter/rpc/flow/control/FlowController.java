@@ -14,18 +14,18 @@
  * limitations under the License.
  */
 
-package org.jupiter.rpc.provider.limiter;
+package org.jupiter.rpc.flow.control;
 
 /**
- * TPS 服务限流, 每个{@link org.jupiter.rpc.JServer} 都可设置一个App级别的限流器,
+ * 服务限流, 每个{@link org.jupiter.rpc.JServer} 都可设置一个App级别的限流器,
  * 每个Provide也可以设置更细粒度的Provider级别限流器.
  *
  * jupiter
- * org.jupiter.rpc.provider.limiter
+ * org.jupiter.rpc.flow.control
  *
  * @author jiachun.fjc
  */
-public interface TpsLimiter<T> {
+public interface FlowController<T> {
 
-    TpsResult checkTpsLimit(T param);
+    ControlResult flowControl(T t);
 }

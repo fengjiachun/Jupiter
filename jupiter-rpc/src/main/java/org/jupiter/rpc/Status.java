@@ -34,8 +34,8 @@ public enum Status {
     SERVER_ERROR(               (byte) 0x50, "SERVER_ERROR"),                   // 内部错误 — 因为意外情况, 服务器不能完成请求
     SERVER_BUSY(                (byte) 0x51, "SERVER_BUSY"),                    // 内部错误 — 服务器太忙, 无法处理新的请求
     SERVICE_ERROR(              (byte) 0x52, "SERVICE_ERROR"),                  // 服务错误 - 服务执行意外出错
-    APP_SERVICE_TPS_LIMIT(      (byte) 0x53, "APP_SERVICE_TPS_LIMIT"),          // 服务错误 - App级别服务限流
-    PROVIDER_SERVICE_TPS_LIMIT( (byte) 0x534, "PROVIDER_SERVICE_TPS_LIMIT");    // 服务错误 - Provider级别服务限流
+    APP_FLOW_CONTROL(           (byte) 0x53, "APP_FLOW_CONTROL"),               // 服务错误 - App级别服务限流
+    PROVIDER_FLOW_CONTROL(      (byte) 0x54, "PROVIDER_FLOW_CONTROL");          // 服务错误 - Provider级别服务限流
 
     Status(byte value, String description) {
         this.value = value;

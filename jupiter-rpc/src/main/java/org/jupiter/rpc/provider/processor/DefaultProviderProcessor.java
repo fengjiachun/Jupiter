@@ -22,9 +22,9 @@ import org.jupiter.rpc.JRequest;
 import org.jupiter.rpc.JServer;
 import org.jupiter.rpc.channel.JChannel;
 import org.jupiter.rpc.executor.ExecutorFactory;
+import org.jupiter.rpc.flow.control.ControlResult;
+import org.jupiter.rpc.flow.control.FlowController;
 import org.jupiter.rpc.model.metadata.ServiceWrapper;
-import org.jupiter.rpc.provider.limiter.TpsLimiter;
-import org.jupiter.rpc.provider.limiter.TpsResult;
 import org.jupiter.rpc.provider.processor.task.RecyclableTask;
 
 import java.util.concurrent.Executor;
@@ -67,11 +67,11 @@ public class DefaultProviderProcessor extends AbstractProviderProcessor {
     }
 
     @Override
-    public TpsResult checkTpsLimit(JRequest param) {
-        TpsLimiter<JRequest> limiter = server.getTpsLimiter();
-        if (limiter == null) {
-            return TpsResult.CITY_WIDE_OPEN;
+    public ControlResult flowControl(JRequest request) {
+        FlowController<JRequest> controller = server.getFlowController();
+        if (controller == null) {
+            return ControlResult.CITY_WIDE_OPEN;
         }
-        return limiter.checkTpsLimit(param);
+        return controller.flowControl(request);
     }
 }

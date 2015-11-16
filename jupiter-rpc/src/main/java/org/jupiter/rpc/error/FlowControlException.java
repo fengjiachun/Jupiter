@@ -26,21 +26,21 @@ package org.jupiter.rpc.error;
  *
  * @author jiachun.fjc
  */
-public class TPSLimitException extends RuntimeException {
+public class FlowControlException extends RuntimeException {
 
     private static final long serialVersionUID = 3478741195763320940L;
 
-    public TPSLimitException() {}
+    public FlowControlException() {}
 
-    public TPSLimitException(String message) {
+    public FlowControlException(String message) {
         super(message);
     }
 
-    public TPSLimitException(String message, Throwable cause) {
+    public FlowControlException(String message, Throwable cause) {
         super(message, cause);
     }
 
-    public TPSLimitException(Throwable cause) {
+    public FlowControlException(Throwable cause) {
         super(cause);
     }
 
