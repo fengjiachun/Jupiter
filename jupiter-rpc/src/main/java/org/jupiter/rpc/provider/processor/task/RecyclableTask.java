@@ -99,18 +99,18 @@ public class RecyclableTask implements RejectedRunnable {
         }
 
         // app flow control
-        ControlResult controlResult = processor.flowControl(request);
-        if (!controlResult.isAllowed()) {
-            rejected(APP_FLOW_CONTROL, controlResult);
+        ControlResult ctrlResult = processor.flowControl(request);
+        if (!ctrlResult.isAllowed()) {
+            rejected(APP_FLOW_CONTROL, ctrlResult);
             return;
         }
 
         // child(provider) flow control
-        FlowController<JRequest> childFlowController = service.getFlowController();
-        if (childFlowController != null) {
-            controlResult = childFlowController.flowControl(request);
-            if (!controlResult.isAllowed()) {
-                rejected(PROVIDER_FLOW_CONTROL, controlResult);
+        FlowController<JRequest> childController = service.getFlowController();
+        if (childController != null) {
+            ctrlResult = childController.flowControl(request);
+            if (!ctrlResult.isAllowed()) {
+                rejected(PROVIDER_FLOW_CONTROL, ctrlResult);
                 return;
             }
         }

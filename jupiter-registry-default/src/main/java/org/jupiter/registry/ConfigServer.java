@@ -81,8 +81,8 @@ public class ConfigServer extends NettyTcpAcceptor implements RegistryMonitor {
 
     private static final InternalLogger logger = InternalLoggerFactory.getInstance(ConfigServer.class);
 
-    private static final AttributeKey<ConcurrentSet<ServiceMeta>> S_SUBSCRIBE_KEY = AttributeKey.valueOf("S_Subscribed");
-    private static final AttributeKey<ConcurrentSet<RegisterMeta>> S_PUBLISH_KEY = AttributeKey.valueOf("S_Published");
+    private static final AttributeKey<ConcurrentSet<ServiceMeta>> S_SUBSCRIBE_KEY = AttributeKey.valueOf("server.subscribed");
+    private static final AttributeKey<ConcurrentSet<RegisterMeta>> S_PUBLISH_KEY = AttributeKey.valueOf("server.published");
 
     // 注册信息
     private final RegisterInfoContext registerInfoContext = new RegisterInfoContext();

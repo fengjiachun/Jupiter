@@ -73,8 +73,8 @@ public class ConfigClient extends NettyTcpConnector {
 
     private static final InternalLogger logger = InternalLoggerFactory.getInstance(ConfigClient.class);
 
-    private static final AttributeKey<ConcurrentSet<ServiceMeta>> C_SUBSCRIBE_KEY = AttributeKey.valueOf("C_Subscribed");
-    private static final AttributeKey<ConcurrentSet<RegisterMeta>> C_PUBLISH_KEY = AttributeKey.valueOf("C_Published");
+    private static final AttributeKey<ConcurrentSet<ServiceMeta>> C_SUBSCRIBE_KEY = AttributeKey.valueOf("client.subscribed");
+    private static final AttributeKey<ConcurrentSet<RegisterMeta>> C_PUBLISH_KEY = AttributeKey.valueOf("client.published");
 
     // 没收到对端ack确认, 需要重发的消息
     private final ConcurrentMap<Long, MessageNonAck> messagesNonAck = Maps.newConcurrentHashMap();
