@@ -17,6 +17,7 @@
 package org.jupiter.registry;
 
 import org.jupiter.common.util.Maps;
+import org.jupiter.common.util.Strings;
 import org.jupiter.common.util.internal.logging.InternalLogger;
 import org.jupiter.common.util.internal.logging.InternalLoggerFactory;
 import org.jupiter.rpc.UnresolvedAddress;
@@ -25,6 +26,7 @@ import java.util.Collection;
 import java.util.concurrent.ConcurrentMap;
 
 import static org.jupiter.common.util.Preconditions.checkArgument;
+import static org.jupiter.common.util.Preconditions.checkNotNull;
 import static org.jupiter.registry.RegisterMeta.ServiceMeta;
 
 /**
@@ -78,16 +80,31 @@ public class DefaultRegistryService extends AbstractRegistryService {
     }
 
     @Override
-    public void connectToConfigServer(String host, int port) {
-        UnresolvedAddress address = new UnresolvedAddress(host, port);
-        ConfigClient client = clients.get(address);
-        if (client == null) {
-            ConfigClient newClient = new ConfigClient(this);
-            client = clients.putIfAbsent(address, newClient);
+    public void connectToConfigServer(String connectString) {
+        checkNotNull(connectString, "connectString");
+
+        String[] array = Strings.split(connectString, ',');
+        for (String s : array) {
+            String[] addressStr = Strings.split(s, ':');
+            String host = addressStr[0];
+            int port = Integer.parseInt(addressStr[1]);
+            UnresolvedAddress address = new UnresolvedAddress(host, port);
+            ConfigClient client = clients.get(address);
             if (client == null) {
-                client = newClient;
-                client.connect(address);
+                ConfigClient newClient = new ConfigClient(this);
+                client = clients.putIfAbsent(address, newClient);
+                if (client == null) {
+                    client = newClient;
+                    client.connect(address);
+                }
             }
+        }
+    }
+
+    @Override
+    public void destroy() {
+        for (ConfigClient c : clients.values()) {
+            c.shutdownGracefully();
         }
     }
 }

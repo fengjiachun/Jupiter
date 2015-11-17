@@ -16,6 +16,7 @@
 
 package org.jupiter.registry;
 
+import org.jupiter.common.concurrent.ConcurrentSet;
 import org.jupiter.common.concurrent.NamedThreadFactory;
 import org.jupiter.common.util.Lists;
 import org.jupiter.common.util.Maps;
@@ -23,10 +24,7 @@ import org.jupiter.common.util.Pair;
 import org.jupiter.common.util.internal.logging.InternalLogger;
 import org.jupiter.common.util.internal.logging.InternalLoggerFactory;
 
-import java.util.Collection;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.locks.Lock;
@@ -57,6 +55,11 @@ public abstract class AbstractRegistryService implements RegistryService {
     private final ConcurrentMap<ServiceMeta, CopyOnWriteArrayList<NotifyListener>> subscribeListeners = Maps.newConcurrentHashMap();
     private final ConcurrentMap<Address, CopyOnWriteArrayList<OfflineListener>> offlineListeners = Maps.newConcurrentHashMap();
 
+    // Consumer已订阅的信息
+    private final ConcurrentSet<ServiceMeta> subscribeSet = new ConcurrentSet<>();
+    // Provider已发布的注册信息
+    private final ConcurrentSet<RegisterMeta> registerMetaSet = new ConcurrentSet<>();
+
     public AbstractRegistryService() {
         executor.execute(new Runnable() {
 
@@ -77,16 +80,6 @@ public abstract class AbstractRegistryService implements RegistryService {
                 }
             }
         });
-    }
-
-    public boolean isShutdown() {
-        return shutdown.get();
-    }
-
-    public void shutdown() {
-        if (!shutdown.getAndSet(true)) {
-            executor.shutdown();
-        }
     }
 
     @Override
@@ -145,7 +138,30 @@ public abstract class AbstractRegistryService implements RegistryService {
         return Collections.emptyList();
     }
 
-    // 通知新的服务
+    public ConcurrentSet<ServiceMeta> subscribeSet() {
+        return subscribeSet;
+    }
+
+    public ConcurrentSet<RegisterMeta> registerMetaSet() {
+        return registerMetaSet;
+    }
+
+    public boolean isShutdown() {
+        return shutdown.get();
+    }
+
+    public void shutdown() {
+        if (!shutdown.getAndSet(true)) {
+            executor.shutdown();
+            try {
+                destroy();
+            } catch (Exception ignored) {}
+        }
+    }
+
+    public abstract void destroy();
+
+    // 通知新的全量服务, 总是携带版本号
     protected void notify(ServiceMeta serviceMeta, List<RegisterMeta> registerMetaList, long version) {
         boolean notifyNeeded = false;
 
@@ -167,6 +183,42 @@ public abstract class AbstractRegistryService implements RegistryService {
                 for (NotifyListener l : listeners) {
                     l.notify(registerMetaList);
                 }
+            }
+        }
+    }
+
+    // 通知新增/删除服务
+    protected void notify(ServiceMeta serviceMeta, RegisterMeta meta, boolean add) {
+        List<RegisterMeta> copies = null;
+
+        final Lock writeLock = registriesLock.writeLock();
+        writeLock.lock();
+        try {
+            Pair<Long, List<RegisterMeta>> data = registries.get(serviceMeta);
+            if (data == null) {
+                if (!add) {
+                    return;
+                }
+                List<RegisterMeta> metaList = Lists.newArrayList(meta);
+                data = new Pair<>(0L, metaList);
+                registries.put(serviceMeta, data);
+            } else {
+                if (add) {
+                    data.getValue().add(meta);
+                } else {
+                    data.getValue().remove(meta);
+                }
+            }
+
+            copies = Lists.newArrayList(data.getValue());
+        } finally {
+            writeLock.unlock();
+        }
+
+        CopyOnWriteArrayList<NotifyListener> listeners = subscribeListeners.get(serviceMeta);
+        if (listeners != null) {
+            for (NotifyListener l : listeners) {
+                l.notify(copies);
             }
         }
     }

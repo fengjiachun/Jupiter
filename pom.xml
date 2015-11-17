@@ -31,6 +31,7 @@
         <module>jupiter-monitor</module>
         <module>jupiter-registry</module>
         <module>jupiter-registry-default</module>
+        <module>jupiter-registry-zookeeper</module>
         <module>jupiter-rpc</module>
         <module>jupiter-serialization</module>
         <module>jupiter-serialization-protostuff</module>

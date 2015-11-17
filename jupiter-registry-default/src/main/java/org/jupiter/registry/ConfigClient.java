@@ -78,10 +78,6 @@ public class ConfigClient extends NettyTcpConnector {
 
     // 没收到对端ack确认, 需要重发的消息
     private final ConcurrentMap<Long, MessageNonAck> messagesNonAck = Maps.newConcurrentHashMap();
-    // Consumer订阅信息
-    private final ConcurrentSet<ServiceMeta> subscribeSet = new ConcurrentSet<>();
-    // Provider注册信息
-    private final ConcurrentSet<RegisterMeta> registerMetaSet = new ConcurrentSet<>();
 
     // handlers
     private final ConnectorIdleStateTrigger idleStateTrigger = new ConnectorIdleStateTrigger();
@@ -171,7 +167,7 @@ public class ConfigClient extends NettyTcpConnector {
      * Sent the subscription information to config server.
      */
     public void doSubscribe(ServiceMeta serviceMeta) {
-        subscribeSet.add(serviceMeta);
+        registryService.subscribeSet().add(serviceMeta);
 
         Message msg = new Message();
         msg.sign(SUBSCRIBE_SERVICE);
@@ -191,7 +187,7 @@ public class ConfigClient extends NettyTcpConnector {
      * Publishing service to config server.
      */
     public void doRegister(RegisterMeta meta) {
-        registerMetaSet.add(meta);
+        registryService.registerMetaSet().add(meta);
 
         Message msg = new Message();
         msg.sign(PUBLISH_SERVICE);
@@ -211,7 +207,7 @@ public class ConfigClient extends NettyTcpConnector {
      * Notify to config server unpublish corresponding service.
      */
     public void doUnregister(RegisterMeta meta) {
-        registerMetaSet.remove(meta);
+        registryService.registerMetaSet().remove(meta);
 
         Message msg = new Message();
         msg.sign(PUBLISH_CANCEL_SERVICE);
@@ -426,7 +422,7 @@ public class ConfigClient extends NettyTcpConnector {
             Channel ch = (channel = ctx.channel());
 
             // 重新订阅
-            for (ServiceMeta serviceMeta : subscribeSet) {
+            for (ServiceMeta serviceMeta : registryService.subscribeSet()) {
                 // 与doSubscribe()中的write有竞争
                 if (!attachSubscribeEventOnChannel(serviceMeta, ch)) {
                     continue;
@@ -443,7 +439,7 @@ public class ConfigClient extends NettyTcpConnector {
             }
 
             // 重新发布服务
-            for (RegisterMeta meta : registerMetaSet) {
+            for (RegisterMeta meta : registryService.registerMetaSet()) {
                 // 与doRegister()中的write有竞争
                 if (!attachPublishEventOnChannel(meta, ch)) {
                     continue;

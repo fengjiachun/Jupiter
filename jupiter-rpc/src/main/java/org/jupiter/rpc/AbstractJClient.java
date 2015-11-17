@@ -61,8 +61,8 @@ public abstract class AbstractJClient implements JClient {
     private final long lossTimeMinutesLimit = SystemPropertyUtil.getLong("jupiter.channel.group.loss.time.minutes.limit", 5);
 
     @Override
-    public void connectToConfigServer(String host, int port) {
-        registryService.connectToConfigServer(host, port);
+    public void connectToConfigServer(String connectString) {
+        registryService.connectToConfigServer(connectString);
     }
 
     @Override

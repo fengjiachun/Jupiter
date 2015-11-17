@@ -47,7 +47,7 @@ public class HotExecServer {
                                 .provider(new JavaClassExecProvider())
                                 .register();
 
-                        acceptor.connectToConfigServer("127.0.0.1", 20001);
+                        acceptor.connectToConfigServer("127.0.0.1:20001");
                         acceptor.publish(service);
                         acceptor.start();
                     } catch (InterruptedException e) {
