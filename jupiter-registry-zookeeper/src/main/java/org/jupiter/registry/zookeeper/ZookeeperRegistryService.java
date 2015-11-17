@@ -77,30 +77,32 @@ public class ZookeeperRegistryService extends AbstractRegistryService {
             childrenCache = pathChildrenCaches.putIfAbsent(directory, newChildrenCache);
             if (childrenCache == null) {
                 childrenCache = newChildrenCache;
-            }
-        }
 
-        childrenCache.getListenable().addListener(new PathChildrenCacheListener() {
+                childrenCache.getListenable().addListener(new PathChildrenCacheListener() {
 
-            @Override
-            public void childEvent(CuratorFramework client, PathChildrenCacheEvent event) throws Exception {
+                    @Override
+                    public void childEvent(CuratorFramework client, PathChildrenCacheEvent event) throws Exception {
 
-                logger.info("Child event: {}", event);
+                        logger.info("Child event: {}", event);
 
-                switch (event.getType()) {
-                    case CHILD_ADDED:
-                        ZookeeperRegistryService.this.notify(serviceMeta, parseRegisterMeta(event.getData().getPath()), true);
-                        break;
-                    case CHILD_REMOVED:
-                        ZookeeperRegistryService.this.notify(serviceMeta, parseRegisterMeta(event.getData().getPath()), false);
-                        break;
+                        switch (event.getType()) {
+                            case CHILD_ADDED:
+                                ZookeeperRegistryService.this.notify(
+                                        serviceMeta, parseRegisterMeta(event.getData().getPath()), true);
+                                break;
+                            case CHILD_REMOVED:
+                                ZookeeperRegistryService.this.notify(
+                                        serviceMeta, parseRegisterMeta(event.getData().getPath()), false);
+                                break;
+                        }
+                    }
+                });
+                try {
+                    childrenCache.start();
+                } catch (Exception e) {
+                    logger.warn("Subscribe {} failed, {}.", directory, e);
                 }
             }
-        });
-        try {
-            childrenCache.start();
-        } catch (Exception e) {
-            logger.warn("Subscribe {} failed, {}.", directory, e);
         }
     }
 
