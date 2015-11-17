@@ -60,21 +60,21 @@ public class ZookeeperRegistryService extends AbstractRegistryService {
     private final int sessionTimeoutMs = SystemPropertyUtil.getInt("jupiter.registry.zookeeper.sessionTimeoutMs", 60 * 1000);
     private final int connectionTimeoutMs = SystemPropertyUtil.getInt("jupiter.registry.zookeeper.connectionTimeoutMs", 15 * 1000);
 
-    private final ConcurrentMap<String, PathChildrenCache> pathChildrenCaches = Maps.newConcurrentHashMap();
+    private final ConcurrentMap<ServiceMeta, PathChildrenCache> pathChildrenCaches = Maps.newConcurrentHashMap();
 
     private CuratorFramework configClient;
 
     @Override
     protected void doSubscribe(final ServiceMeta serviceMeta) {
-        String directory = String.format("/jupiter/provider/%s/%s/%s",
-                serviceMeta.getGroup(),
-                serviceMeta.getVersion(),
-                serviceMeta.getServiceProviderName());
-
-        PathChildrenCache childrenCache = pathChildrenCaches.get(directory);
+        PathChildrenCache childrenCache = pathChildrenCaches.get(serviceMeta);
         if (childrenCache == null) {
+            String directory = String.format("/jupiter/provider/%s/%s/%s",
+                    serviceMeta.getGroup(),
+                    serviceMeta.getVersion(),
+                    serviceMeta.getServiceProviderName());
+
             PathChildrenCache newChildrenCache = new PathChildrenCache(configClient, directory, false);
-            childrenCache = pathChildrenCaches.putIfAbsent(directory, newChildrenCache);
+            childrenCache = pathChildrenCaches.putIfAbsent(serviceMeta, newChildrenCache);
             if (childrenCache == null) {
                 childrenCache = newChildrenCache;
 
@@ -97,6 +97,7 @@ public class ZookeeperRegistryService extends AbstractRegistryService {
                         }
                     }
                 });
+
                 try {
                     childrenCache.start();
                 } catch (Exception e) {
