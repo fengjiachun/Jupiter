@@ -39,6 +39,14 @@ import java.util.concurrent.atomic.AtomicLong;
 public class HelloJupiterServer {
 
     public static void main(String[] args) {
+        try {
+            Class.forName("org.jupiter.registry.zookeeper.ZookeeperRegistryService");
+        } catch (ClassNotFoundException e) {
+            e.printStackTrace();
+            System.err.println("ConfigServer是基于SPI的, 使用zookeeper的话maven引入jupiter-registry-zookeeper即可");
+            return;
+        }
+
         SystemPropertyUtil.setProperty("jupiter.server.provider.host", "127.0.0.1");
 
         NettyAcceptor server = new JNettyTcpAcceptor(18090);
