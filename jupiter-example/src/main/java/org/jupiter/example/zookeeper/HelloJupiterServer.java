@@ -71,7 +71,7 @@ public class HelloJupiterServer {
                     .register();
 
 //            server.setFlowController(); // App级别限流器
-            server.connectToConfigServer("127.0.0.1:2181");
+            server.connectToConfigServer("127.0.0.1:2181,127.0.0.1:2182,127.0.0.1:2183");
             server.publish(provider);
             server.start();
         } catch (InterruptedException e) {
