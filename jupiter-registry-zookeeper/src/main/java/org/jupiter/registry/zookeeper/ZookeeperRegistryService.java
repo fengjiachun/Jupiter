@@ -41,7 +41,7 @@ import java.util.concurrent.ConcurrentMap;
 import static org.jupiter.common.util.Preconditions.checkArgument;
 import static org.jupiter.common.util.Preconditions.checkNotNull;
 import static org.jupiter.common.util.StackTraceUtil.stackTrace;
-import static org.jupiter.registry.RegisterMeta.*;
+import static org.jupiter.registry.RegisterMeta.ServiceMeta;
 
 /**
  * Zookeeper registry service.
@@ -109,6 +109,9 @@ public class ZookeeperRegistryService extends AbstractRegistryService {
 
     @Override
     protected void doRegister(final RegisterMeta meta) {
+        checkArgument(Strings.isNotBlank(providerHost), "If use zookeeper as a config server, " +
+                "\'jupiter.server.provider.host\' must be set with System.setProperty().");
+
         String directory = String.format("/jupiter/provider/%s/%s/%s",
                 meta.getGroup(),
                 meta.getVersion(),
@@ -147,6 +150,9 @@ public class ZookeeperRegistryService extends AbstractRegistryService {
 
     @Override
     protected void doUnregister(final RegisterMeta meta) {
+        checkArgument(Strings.isNotBlank(providerHost), "If use zookeeper as a config server, " +
+                "\'jupiter.server.provider.host\' must be set with System.setProperty().");
+
         String directory = String.format("/jupiter/provider/%s/%s/%s",
                 meta.getGroup(),
                 meta.getVersion(),
@@ -186,8 +192,6 @@ public class ZookeeperRegistryService extends AbstractRegistryService {
     @Override
     public void connectToConfigServer(String connectString) {
         checkNotNull(connectString, "connectString");
-        checkArgument(Strings.isNotBlank(providerHost), "If use zookeeper as a config server, " +
-                "\'jupiter.server.provider.host\' must be set with System.setProperty().");
 
         configClient = CuratorFrameworkFactory.newClient(
                 connectString, sessionTimeoutMs, connectionTimeoutMs, new ExponentialBackoffRetry(500, 20));
@@ -239,9 +243,9 @@ public class ZookeeperRegistryService extends AbstractRegistryService {
 
         String[] array_1 = Strings.split(array_0[5], ':');
         meta.setHost(array_1[0]);
-        meta.setPort(Integer.parseInt(array_1[2]));
-        meta.setWeight(Integer.parseInt(array_1[3]));
-        meta.setNumOfConnections(Integer.parseInt(array_1[4]));
+        meta.setPort(Integer.parseInt(array_1[1]));
+        meta.setWeight(Integer.parseInt(array_1[2]));
+        meta.setNumOfConnections(Integer.parseInt(array_1[3]));
 
         return meta;
     }

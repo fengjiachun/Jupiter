@@ -44,6 +44,11 @@
             <artifactId>jupiter-registry-default</artifactId>
             <version>${project.version}</version>
         </dependency>
+        <!--<dependency>-->
+            <!--<groupId>${project.groupId}</groupId>-->
+            <!--<artifactId>jupiter-registry-zookeeper</artifactId>-->
+            <!--<version>${project.version}</version>-->
+        <!--</dependency>-->
         <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>jupiter-monitor</artifactId>
