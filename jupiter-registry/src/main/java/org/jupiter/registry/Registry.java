@@ -26,9 +26,8 @@ public interface Registry {
 
     /**
      * Establish connections with config server.
-     * {@code connectString}'s format: [host1:port1,host2:port2....].
      *
-     * @param connectString list of servers to connect to
+     * @param connectString list of servers to connect to [host1:port1,host2:port2....]
      */
     void connectToConfigServer(String connectString);
 }
