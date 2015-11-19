@@ -121,7 +121,7 @@
                 <version>${netty.version}</version>
             </dependency>
 
-            <!-- UDT -->
+            <!-- UDT - scope: runtime -->
             <dependency>
                 <groupId>com.barchart.udt</groupId>
                 <artifactId>barchart-udt-bundle</artifactId>
