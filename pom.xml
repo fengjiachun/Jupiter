@@ -128,7 +128,7 @@
                 <version>${barchart.version}</version>
             </dependency>
 
-            <!-- Byte code generator - scope: optional -->
+            <!-- Byte code generator -->
             <dependency>
                 <groupId>org.javassist</groupId>
                 <artifactId>javassist</artifactId>
