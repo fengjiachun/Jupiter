@@ -31,17 +31,14 @@
         <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>jupiter-common</artifactId>
-            <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>jupiter-registry</artifactId>
-            <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>jupiter-transport-netty</artifactId>
-            <version>${project.version}</version>
         </dependency>
     </dependencies>
 </project>
