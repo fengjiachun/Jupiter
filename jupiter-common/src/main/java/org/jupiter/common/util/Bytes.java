@@ -24,7 +24,7 @@ package org.jupiter.common.util;
  *
  * @author jiachun.fjc
  */
-public class Bytes {
+public final class Bytes {
 
     /**
      * Returns a int by decoding the specified sub array of bytes.

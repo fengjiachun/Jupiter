@@ -24,7 +24,7 @@ package org.jupiter.common.util;
  *
  * @author jiachun.fjc
  */
-public class Pow2 {
+public final class Pow2 {
 
     /**
      * Find the next larger positive power of two value up from the given value.
@@ -46,4 +46,6 @@ public class Pow2 {
     public static boolean isPowerOfTwo(final int value) {
         return (value & (value - 1)) == 0;
     }
+
+    private Pow2() {}
 }
