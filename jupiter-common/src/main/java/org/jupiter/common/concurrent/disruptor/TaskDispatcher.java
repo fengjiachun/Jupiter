@@ -28,6 +28,7 @@ import static com.lmax.disruptor.dsl.ProducerType.MULTI;
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
 import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.jupiter.common.concurrent.disruptor.WaitStrategyType.BLOCKING_WAIT;
+import static org.jupiter.common.util.Preconditions.checkArgument;
 
 /**
  * 可选择的等待策略，性能由低到高：
@@ -85,9 +86,7 @@ public class TaskDispatcher implements Dispatcher<Runnable>, Executor {
 
     @SuppressWarnings("unchecked")
     public TaskDispatcher(int numWorkers, String threadFactoryName, int bufSize, int numReserveWorkers, WaitStrategyType waitStrategyType) {
-        if (bufSize < 0) {
-            throw new IllegalArgumentException("bufSize must be larger than 0");
-        }
+        checkArgument(bufSize > 0, "bufSize must be larger than 0");
         if (!Pow2.isPowerOfTwo(bufSize)) {
             bufSize = Pow2.roundToPowerOfTwo(bufSize);
         }
