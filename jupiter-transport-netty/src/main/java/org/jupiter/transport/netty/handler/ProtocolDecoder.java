@@ -21,6 +21,7 @@ import io.netty.channel.Channel;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.ReplayingDecoder;
 import org.jupiter.common.util.SystemClock;
+import org.jupiter.common.util.SystemPropertyUtil;
 import org.jupiter.common.util.internal.logging.InternalLogger;
 import org.jupiter.common.util.internal.logging.InternalLoggerFactory;
 import org.jupiter.rpc.JRequest;
@@ -30,6 +31,7 @@ import org.jupiter.transport.JProtocolHeader;
 import java.util.List;
 
 import static org.jupiter.transport.JProtocolHeader.*;
+import static org.jupiter.transport.error.Signals.BODY_TOO_LARAGE;
 import static org.jupiter.transport.error.Signals.ILLEGAL_MAGIC;
 import static org.jupiter.transport.error.Signals.ILLEGAL_SIGN;
 
@@ -59,6 +61,9 @@ import static org.jupiter.transport.error.Signals.ILLEGAL_SIGN;
 public class ProtocolDecoder extends ReplayingDecoder<ProtocolDecoder.State> {
 
     private static final InternalLogger logger = InternalLoggerFactory.getInstance(ProtocolDecoder.class);
+
+    // 协议体最大限制, 默认5M
+    private static final int MAX_BODY_SIZE = SystemPropertyUtil.getInt("jupiter.protocol.max.body.size", 1024 * 1024 * 5);
 
     public ProtocolDecoder() {
         super(State.HEADER);
@@ -93,7 +98,12 @@ public class ProtocolDecoder extends ReplayingDecoder<ProtocolDecoder.State> {
 
                         break;
                     case REQUEST: {
-                        byte[] bytes = new byte[header.bodyLength()];
+                        int bodyLen = header.bodyLength();
+                        if (bodyLen > MAX_BODY_SIZE) {
+                            throw BODY_TOO_LARAGE;
+                        }
+
+                        byte[] bytes = new byte[bodyLen];
                         in.readBytes(bytes);
 
                         JRequest request = new JRequest(header.id());
@@ -106,7 +116,12 @@ public class ProtocolDecoder extends ReplayingDecoder<ProtocolDecoder.State> {
                         break;
                     }
                     case RESPONSE: {
-                        byte[] bytes = new byte[header.bodyLength()];
+                        int bodyLen = header.bodyLength();
+                        if (bodyLen > MAX_BODY_SIZE) {
+                            throw BODY_TOO_LARAGE;
+                        }
+
+                        byte[] bytes = new byte[bodyLen];
                         in.readBytes(bytes);
 
                         JResponse response = new JResponse(header.id());
