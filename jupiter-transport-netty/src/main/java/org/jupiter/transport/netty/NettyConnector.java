@@ -151,7 +151,7 @@ public abstract class NettyConnector extends AbstractJClient implements JConnect
                         }
 
                         if (!registerMetaList.isEmpty() && signalNeeded.getAndSet(false)) {
-                            ReentrantLock _look = lock;
+                            final ReentrantLock _look = lock;
                             _look.lock();
                             try {
                                 notifyCondition.signalAll();
