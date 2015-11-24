@@ -45,8 +45,7 @@ public class ServerBusyException extends RuntimeException {
     }
 
     @Override
-    public synchronized Throwable fillInStackTrace()
-    {
+    public synchronized Throwable fillInStackTrace() {
         return this;
     }
 }
