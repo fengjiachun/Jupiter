@@ -139,7 +139,7 @@ public class NettyChannelGroup implements JChannelGroup {
             lossTimestamp = -1;
 
             if (signalNeeded.getAndSet(false)) {
-                ReentrantLock _look = lock;
+                final ReentrantLock _look = lock;
                 _look.lock();
                 try {
                     notifyCondition.signalAll();
