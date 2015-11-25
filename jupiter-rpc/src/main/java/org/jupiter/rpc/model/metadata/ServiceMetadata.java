@@ -20,6 +20,8 @@ import org.jupiter.rpc.Directory;
 
 import java.io.Serializable;
 
+import static org.jupiter.common.util.Preconditions.checkNotNull;
+
 /**
  * Service provider's metadata.
  *
@@ -39,9 +41,9 @@ public class ServiceMetadata extends Directory implements Serializable {
     public ServiceMetadata() {}
 
     public ServiceMetadata(String group, String version, String serviceProviderName) {
-        this.group = group;
-        this.version = version;
-        this.serviceProviderName = serviceProviderName;
+        this.group = checkNotNull(group, "group");
+        this.version = checkNotNull(version, "version");
+        this.serviceProviderName = checkNotNull(serviceProviderName, "serviceProviderName");
     }
 
     @Override

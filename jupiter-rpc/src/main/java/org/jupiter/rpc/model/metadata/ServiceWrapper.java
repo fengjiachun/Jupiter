@@ -43,13 +43,8 @@ public class ServiceWrapper implements Serializable {
     private volatile FlowController<JRequest> flowController;
 
     public ServiceWrapper(String group, String version, String name, Object serviceProvider) {
-        checkNotNull(group, "group");
-        checkNotNull(version, "version");
-        checkNotNull(name, "serviceProviderName");
-        checkNotNull(serviceProvider, "serviceProvider");
-
         metadata = new ServiceMetadata(group, version, name);
-        this.serviceProvider = serviceProvider;
+        this.serviceProvider = checkNotNull(serviceProvider, "serviceProvider");
     }
 
     public ServiceMetadata getMetadata() {

@@ -140,7 +140,7 @@ public class ProxyFactory {
     public ProxyFactory asyncMode(AsyncMode asyncMode) {
         checkValid(this);
 
-        this.asyncMode = asyncMode;
+        this.asyncMode = checkNotNull(asyncMode);
         return this;
     }
 
@@ -150,7 +150,7 @@ public class ProxyFactory {
     public ProxyFactory dispatchMode(DispatchMode dispatchMode) {
         checkValid(this);
 
-        this.dispatchMode = dispatchMode;
+        this.dispatchMode = checkNotNull(dispatchMode);
         return this;
     }
 
@@ -189,74 +189,57 @@ public class ProxyFactory {
 
     @SuppressWarnings("unchecked")
     public <I> I newProxyInstance() {
-        // stack copy
-        JClient _client = client;
-        Class<?> _serviceInterface = serviceInterface;
-        AsyncMode _asyncMode = asyncMode;
-        DispatchMode _dispatchMode = dispatchMode;
-        int _timeoutMills = timeoutMills;
-        List<ConsumerHook> _hooks = hooks;
-        JListener _listener = listener;
-
         if (!updater.compareAndSet(this, 0, 1)) {
-            throw new IllegalStateException(
-                    Reflects.simpleClassName(this) + " is used by others, you should create another one!");
+            throw new IllegalStateException(Reflects.simpleClassName(this) + " is used by others, you should create another one!");
         }
+
         try {
             // check arguments
-            if (_asyncMode == SYNC && _dispatchMode == BROADCAST) {
-                throw new UnsupportedOperationException("unsupported mode, SYNC & BROADCAST");
-            }
-            checkNotNull(_client, "connector");
-            checkNotNull(_serviceInterface, "serviceInterface");
-            checkNotNull(_hooks, "hooks");
-            checkArgument(_serviceInterface.isInterface(), "serviceInterface is required to be interface");
-            ServiceProvider annotation = _serviceInterface.getAnnotation(ServiceProvider.class);
-            checkNotNull(annotation, _serviceInterface.getClass() + " is not a ServiceProvider interface");
-            String _serviceProviderName = annotation.value();
-            _serviceProviderName =
-                    Strings.isNotBlank(_serviceProviderName) ? _serviceProviderName : _serviceInterface.getSimpleName();
-            String _group = annotation.group();
-            String _version = annotation.version();
-            checkNotNull(_group, "group");
-            checkNotNull(_version, "version");
+            checkNotNull(client, "connector");
+            checkNotNull(serviceInterface, "serviceInterface");
+            checkArgument(!(asyncMode == SYNC && dispatchMode == BROADCAST), "illegal mode, [SYNC & BROADCAST] unsupported");
+            checkArgument(serviceInterface.isInterface(), "serviceInterface is required to be interface");
+            ServiceProvider annotation = serviceInterface.getAnnotation(ServiceProvider.class);
+            checkNotNull(annotation, serviceInterface.getClass() + " is not a ServiceProvider interface");
+            String providerName = annotation.value();
+            providerName = Strings.isNotBlank(providerName) ? providerName : serviceInterface.getSimpleName();
 
             // metadata
-            ServiceMetadata metadata = new ServiceMetadata(_group, _version, _serviceProviderName);
+            ServiceMetadata metadata = new ServiceMetadata(annotation.group(), annotation.version(), providerName);
 
             for (UnresolvedAddress address : addresses) {
-                _client.addChannelGroup(metadata, _client.group(address));
+                client.addChannelGroup(metadata, client.group(address));
             }
 
             // dispatcher
             Dispatcher dispatcher = null;
-            switch (_dispatchMode) {
+            switch (dispatchMode) {
                 case ROUND:
-                    dispatcher = new DefaultRoundDispatcher(_client, metadata);
+                    dispatcher = new DefaultRoundDispatcher(client, metadata);
                     break;
                 case BROADCAST:
-                    dispatcher = new DefaultBroadcastDispatcher(_client, metadata);
+                    dispatcher = new DefaultBroadcastDispatcher(client, metadata);
                     break;
             }
-            if (_timeoutMills > 0) {
-                dispatcher.setTimeoutMills(_timeoutMills);
+            if (timeoutMills > 0) {
+                dispatcher.setTimeoutMills(timeoutMills);
             }
-            dispatcher.setHooks(_hooks);
+            dispatcher.setHooks(hooks);
 
             // invocation handler
             InvocationHandler handler = null;
-            switch (_asyncMode) {
+            switch (asyncMode) {
                 case SYNC:
                     handler = new SyncInvoker(dispatcher);
                     break;
                 case ASYNC_CALLBACK:
-                    dispatcher.setListener(checkNotNull(_listener, "listener"));
+                    dispatcher.setListener(checkNotNull(listener, "listener"));
                     handler = new AsyncInvoker(dispatcher);
                     break;
             }
 
             return (I) Proxy.newProxyInstance(
-                    Reflects.getClassLoader(_serviceInterface), new Class<?>[] { _serviceInterface }, handler);
+                    Reflects.getClassLoader(serviceInterface), new Class<?>[] { serviceInterface }, handler);
         } finally {
             recycle();
         }
