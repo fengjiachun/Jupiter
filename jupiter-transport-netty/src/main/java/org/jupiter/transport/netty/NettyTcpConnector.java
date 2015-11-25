@@ -44,8 +44,20 @@ public abstract class NettyTcpConnector extends NettyConnector {
         init();
     }
 
+    public NettyTcpConnector(String appName) {
+        super(appName, Protocol.TCP);
+        nativeEt = true;
+        init();
+    }
+
     public NettyTcpConnector(boolean nativeEt) {
         super(Protocol.TCP);
+        this.nativeEt = nativeEt;
+        init();
+    }
+
+    public NettyTcpConnector(String appName, boolean nativeEt) {
+        super(appName, Protocol.TCP);
         this.nativeEt = nativeEt;
         init();
     }
@@ -56,8 +68,20 @@ public abstract class NettyTcpConnector extends NettyConnector {
         init();
     }
 
+    public NettyTcpConnector(String appName, int nWorkers) {
+        super(appName, Protocol.TCP, nWorkers);
+        nativeEt = true;
+        init();
+    }
+
     public NettyTcpConnector(int nWorkers, boolean nativeEt) {
         super(Protocol.TCP, nWorkers);
+        this.nativeEt = nativeEt;
+        init();
+    }
+
+    public NettyTcpConnector(String appName, int nWorkers, boolean nativeEt) {
+        super(appName, Protocol.TCP, nWorkers);
         this.nativeEt = nativeEt;
         init();
     }

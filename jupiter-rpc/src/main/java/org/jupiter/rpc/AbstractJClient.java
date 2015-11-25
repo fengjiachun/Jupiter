@@ -16,10 +16,7 @@
 
 package org.jupiter.rpc;
 
-import org.jupiter.common.util.JServiceLoader;
-import org.jupiter.common.util.Maps;
-import org.jupiter.common.util.SystemClock;
-import org.jupiter.common.util.SystemPropertyUtil;
+import org.jupiter.common.util.*;
 import org.jupiter.common.util.internal.logging.InternalLogger;
 import org.jupiter.common.util.internal.logging.InternalLoggerFactory;
 import org.jupiter.registry.NotifyListener;
@@ -36,6 +33,7 @@ import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
+import static org.jupiter.common.util.JConstants.*;
 import static org.jupiter.common.util.Preconditions.checkNotNull;
 import static org.jupiter.registry.RegisterMeta.Address;
 import static org.jupiter.registry.RegisterMeta.ServiceMeta;
@@ -59,10 +57,24 @@ public abstract class AbstractJClient implements JClient {
     private final ConcurrentMap<UnresolvedAddress, JChannelGroup> addressGroups = Maps.newConcurrentHashMap();
 
     private final long lossTimeMinutesLimit = SystemPropertyUtil.getLong("jupiter.channel.group.loss.time.minutes.limit", 5);
+    private final String appName;
+
+    public AbstractJClient() {
+        this(UNKNOWN_APP_NAME);
+    }
+
+    public AbstractJClient(String appName) {
+        this.appName = appName;
+    }
 
     @Override
     public void connectToConfigServer(String connectString) {
         registryService.connectToConfigServer(connectString);
+    }
+
+    @Override
+    public String appName() {
+        return appName;
     }
 
     @Override

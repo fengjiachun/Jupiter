@@ -31,7 +31,7 @@ import org.jupiter.rpc.consumer.dispatcher.DefaultRoundDispatcher;
 import org.jupiter.rpc.consumer.dispatcher.Dispatcher;
 import org.jupiter.rpc.consumer.invoker.AsyncInvoker;
 import org.jupiter.rpc.consumer.invoker.SyncInvoker;
-import org.jupiter.rpc.model.metadata.MessageWrapper;
+import org.jupiter.rpc.model.metadata.ServiceMetadata;
 
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Proxy;
@@ -39,7 +39,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicIntegerFieldUpdater;
 
-import static org.jupiter.common.util.JConstants.UNKNOWN_APP_NAME;
 import static org.jupiter.common.util.Preconditions.checkArgument;
 import static org.jupiter.common.util.Preconditions.checkNotNull;
 import static org.jupiter.rpc.AsyncMode.ASYNC_CALLBACK;
@@ -70,9 +69,8 @@ public class ProxyFactory {
     //  [klass pointer  ] 8  byte (4 byte for compressed-oops)
     private volatile int recycled = 0; // 0: 可用; 1: 不可用(已被回收)
 
-    private JClient connector;
+    private JClient client;
     private List<UnresolvedAddress> addresses;
-    private String appName;
     private Class<?> serviceInterface;
     private AsyncMode asyncMode = SYNC;
     private DispatchMode dispatchMode = ROUND;
@@ -84,7 +82,6 @@ public class ProxyFactory {
         ProxyFactory fac = recyclers.get();
 
         // 初始化数据
-        fac.appName = UNKNOWN_APP_NAME;
         fac.addresses = Lists.newArrayListWithCapacity(4);
         fac.hooks = Lists.newArrayListWithCapacity(4);
         fac.hooks.add(logConsumerHook);
@@ -100,10 +97,10 @@ public class ProxyFactory {
     /**
      * Sets the connector.
      */
-    public ProxyFactory connector(JClient connector) {
+    public ProxyFactory connector(JClient client) {
         checkValid(this);
 
-        this.connector = connector;
+        this.client = client;
         return this;
     }
 
@@ -124,16 +121,6 @@ public class ProxyFactory {
         checkValid(this);
 
         this.addresses.addAll(addresses);
-        return this;
-    }
-
-    /**
-     * Sets application's name
-     */
-    public ProxyFactory appName(String appName) {
-        checkValid(this);
-
-        this.appName = appName;
         return this;
     }
 
@@ -203,9 +190,8 @@ public class ProxyFactory {
     @SuppressWarnings("unchecked")
     public <I> I newProxyInstance() {
         // stack copy
-        JClient _connector = connector;
+        JClient _client = client;
         List<UnresolvedAddress> _addresses = addresses;
-        String _appName = appName;
         Class<?> _serviceInterface = serviceInterface;
         AsyncMode _asyncMode = asyncMode;
         DispatchMode _dispatchMode = dispatchMode;
@@ -222,9 +208,8 @@ public class ProxyFactory {
             if (_asyncMode == SYNC && _dispatchMode == BROADCAST) {
                 throw new UnsupportedOperationException("unsupported mode, SYNC & BROADCAST");
             }
-            checkNotNull(_connector, "connector");
+            checkNotNull(_client, "connector");
             checkNotNull(_addresses, "addresses");
-            checkNotNull(_appName, "appName");
             checkNotNull(_serviceInterface, "serviceInterface");
             checkNotNull(_hooks, "hooks");
             checkArgument(_serviceInterface.isInterface(), "serviceInterface is required to be interface");
@@ -238,25 +223,21 @@ public class ProxyFactory {
             checkNotNull(_group, "group");
             checkNotNull(_version, "version");
 
-            // message info
-            MessageWrapper message = new MessageWrapper();
-            message.setAppName(_appName);
-            message.setGroup(_group);
-            message.setVersion(_version);
-            message.setServiceProviderName(_serviceProviderName);
+            // metadata
+            ServiceMetadata metadata = new ServiceMetadata(_group, _version, _serviceProviderName);
 
             for (UnresolvedAddress address : _addresses) {
-                _connector.addChannelGroup(message.getMetadata(), _connector.group(address));
+                _client.addChannelGroup(metadata, _client.group(address));
             }
 
             // dispatcher
             Dispatcher dispatcher = null;
             switch (_dispatchMode) {
                 case ROUND:
-                    dispatcher = new DefaultRoundDispatcher(_connector);
+                    dispatcher = new DefaultRoundDispatcher(_client, metadata);
                     break;
                 case BROADCAST:
-                    dispatcher = new DefaultBroadcastDispatcher(_connector);
+                    dispatcher = new DefaultBroadcastDispatcher(_client, metadata);
                     break;
             }
             if (_timeoutMills > 0) {
@@ -268,11 +249,11 @@ public class ProxyFactory {
             InvocationHandler handler = null;
             switch (_asyncMode) {
                 case SYNC:
-                    handler = new SyncInvoker(dispatcher, message);
+                    handler = new SyncInvoker(dispatcher);
                     break;
                 case ASYNC_CALLBACK:
                     dispatcher.setListener(checkNotNull(_listener, "listener"));
-                    handler = new AsyncInvoker(dispatcher, message);
+                    handler = new AsyncInvoker(dispatcher);
                     break;
             }
 
@@ -309,9 +290,8 @@ public class ProxyFactory {
 
     private boolean recycle() {
         // help GC
-        connector = null;
+        client = null;
         addresses = null;
-        appName = null;
         serviceInterface = null;
         timeoutMills = 0;
         hooks = null;

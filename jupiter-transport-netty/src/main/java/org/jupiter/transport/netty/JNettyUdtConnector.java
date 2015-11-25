@@ -104,8 +104,16 @@ public class JNettyUdtConnector extends NettyUdtConnector {
 
     public JNettyUdtConnector() {}
 
+    public JNettyUdtConnector(String appName) {
+        super(appName);
+    }
+
     public JNettyUdtConnector(int nWorkers) {
         super(nWorkers);
+    }
+
+    public JNettyUdtConnector(String appName, int nWorkers) {
+        super(appName, nWorkers);
     }
 
     @Override

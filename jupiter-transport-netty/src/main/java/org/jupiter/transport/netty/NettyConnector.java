@@ -67,7 +67,17 @@ public abstract class NettyConnector extends AbstractJClient implements JConnect
         this(protocol, AVAILABLE_PROCESSORS + 1);
     }
 
+    public NettyConnector(String appName, Protocol protocol) {
+        this(appName, protocol, AVAILABLE_PROCESSORS + 1);
+    }
+
     public NettyConnector(Protocol protocol, int nWorkers) {
+        this.protocol = protocol;
+        this.nWorkers = nWorkers;
+    }
+
+    public NettyConnector(String appName, Protocol protocol, int nWorkers) {
+        super(appName);
         this.protocol = protocol;
         this.nWorkers = nWorkers;
     }

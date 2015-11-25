@@ -24,7 +24,9 @@ import org.jupiter.rpc.channel.JFutureListener;
 import org.jupiter.rpc.consumer.future.DefaultInvokeFuture;
 import org.jupiter.rpc.consumer.future.InvokeFuture;
 import org.jupiter.rpc.model.metadata.MessageWrapper;
+import org.jupiter.rpc.model.metadata.ServiceMetadata;
 
+import java.lang.reflect.Method;
 import java.util.List;
 
 import static org.jupiter.serialization.SerializerHolder.serializer;
@@ -39,13 +41,19 @@ import static org.jupiter.serialization.SerializerHolder.serializer;
  */
 public class DefaultRoundDispatcher extends AbstractDispatcher {
 
-    public DefaultRoundDispatcher(JClient connector) {
-        super(connector);
+    public DefaultRoundDispatcher(JClient client, ServiceMetadata metadata) {
+        super(client, metadata);
     }
 
     @Override
-    public InvokeFuture dispatch(MessageWrapper message) {
-        JChannel channel = connector.select(message.getMetadata());
+    public InvokeFuture dispatch(Method method, Object[] args) {
+        MessageWrapper message = new MessageWrapper(metadata);
+        message.setAppName(client.appName());
+        message.setMethodName(method.getName());
+        message.setParameterTypes(method.getParameterTypes());
+        message.setArgs(args);
+
+        JChannel channel = client.select(message.getMetadata());
 
         final JRequest request = new JRequest();
         request.message(message);

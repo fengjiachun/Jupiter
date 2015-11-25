@@ -105,16 +105,32 @@ public class JNettyTcpConnector extends NettyTcpConnector {
 
     public JNettyTcpConnector() {}
 
+    public JNettyTcpConnector(String appName) {
+        super(appName);
+    }
+
     public JNettyTcpConnector(boolean nativeEt) {
         super(nativeEt);
+    }
+
+    public JNettyTcpConnector(String appName, boolean nativeEt) {
+        super(appName, nativeEt);
     }
 
     public JNettyTcpConnector(int nWorkers) {
         super(nWorkers);
     }
 
+    public JNettyTcpConnector(String appName, int nWorkers) {
+        super(appName, nWorkers);
+    }
+
     public JNettyTcpConnector(int nWorkers, boolean nativeEt) {
         super(nWorkers, nativeEt);
+    }
+
+    public JNettyTcpConnector(String appName, int nWorkers, boolean nativeEt) {
+        super(appName, nWorkers, nativeEt);
     }
 
     @Override

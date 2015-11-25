@@ -42,8 +42,18 @@ public abstract class NettyUdtConnector extends NettyConnector {
         init();
     }
 
+    public NettyUdtConnector(String appName) {
+        super(appName, Protocol.UDT);
+        init();
+    }
+
     public NettyUdtConnector(int nWorkers) {
         super(Protocol.UDT, nWorkers);
+        init();
+    }
+
+    public NettyUdtConnector(String appName, int nWorkers) {
+        super(appName, Protocol.UDT, nWorkers);
         init();
     }
 

@@ -33,13 +33,18 @@ public class MessageWrapper implements Serializable {
 
     // 应用名称
     private String appName;
-    private ServiceMetadata metadata = new ServiceMetadata();
+    // metadata
+    private final ServiceMetadata metadata;
     // 方法名称
     private String methodName;
     // 方法参数类型
     private Class<?>[] parameterTypes;
     // 方法参数
     private Object[] args;
+
+    public MessageWrapper(ServiceMetadata metadata) {
+        this.metadata = metadata;
+    }
 
     public String getAppName() {
         return appName;
@@ -57,24 +62,12 @@ public class MessageWrapper implements Serializable {
         return metadata.getGroup();
     }
 
-    public void setGroup(String group) {
-        metadata.setGroup(group);
-    }
-
     public String getVersion() {
         return metadata.getVersion();
     }
 
-    public void setVersion(String version) {
-        metadata.setVersion(version);
-    }
-
     public String getServiceProviderName() {
         return metadata.getServiceProviderName();
-    }
-
-    public void setServiceProviderName(String serviceProviderName) {
-        metadata.setServiceProviderName(serviceProviderName);
     }
 
     public String getMethodName() {

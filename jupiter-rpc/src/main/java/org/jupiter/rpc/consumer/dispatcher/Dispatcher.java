@@ -18,9 +18,9 @@ package org.jupiter.rpc.consumer.dispatcher;
 
 import org.jupiter.rpc.JListener;
 import org.jupiter.rpc.aop.ConsumerHook;
-import org.jupiter.rpc.model.metadata.MessageWrapper;
 import org.jupiter.rpc.consumer.future.InvokeFuture;
 
+import java.lang.reflect.Method;
 import java.util.List;
 
 /**
@@ -33,7 +33,7 @@ import java.util.List;
  */
 public interface Dispatcher {
 
-    InvokeFuture dispatch(MessageWrapper message);
+    InvokeFuture dispatch(Method method, Object[] args);
 
     List<ConsumerHook> getHooks();
 
