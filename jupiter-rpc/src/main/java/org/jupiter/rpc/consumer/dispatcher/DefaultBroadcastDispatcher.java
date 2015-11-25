@@ -18,6 +18,8 @@ package org.jupiter.rpc.consumer.dispatcher;
 
 import org.jupiter.common.util.Lists;
 import org.jupiter.common.util.internal.RecyclableArrayList;
+import org.jupiter.common.util.internal.logging.InternalLogger;
+import org.jupiter.common.util.internal.logging.InternalLoggerFactory;
 import org.jupiter.rpc.JClient;
 import org.jupiter.rpc.JListener;
 import org.jupiter.rpc.JRequest;
@@ -45,6 +47,8 @@ import static org.jupiter.serialization.SerializerHolder.serializer;
  * @author jiachun.fjc
  */
 public class DefaultBroadcastDispatcher extends AbstractDispatcher {
+
+    private static final InternalLogger logger = InternalLoggerFactory.getInstance(DefaultBroadcastDispatcher.class);
 
     public DefaultBroadcastDispatcher(JClient client, ServiceMetadata metadata) {
         super(client, metadata);
@@ -94,6 +98,8 @@ public class DefaultBroadcastDispatcher extends AbstractDispatcher {
                                     h.before(request);
                                 }
                             }
+                        } else {
+                            logger.warn("Writes {} fail on {}.", request, channel);
                         }
                     }
                 });
