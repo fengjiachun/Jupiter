@@ -17,7 +17,6 @@
 package org.jupiter.rpc.consumer.invoker;
 
 import org.jupiter.rpc.consumer.dispatcher.Dispatcher;
-import org.jupiter.rpc.consumer.future.InvokeFuture;
 
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
