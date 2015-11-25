@@ -82,7 +82,7 @@ public class ProxyFactory {
         ProxyFactory fac = recyclers.get();
 
         // 初始化数据
-        fac.addresses = Lists.newArrayListWithCapacity(4);
+        fac.addresses = Lists.newArrayList();
         fac.hooks = Lists.newArrayListWithCapacity(4);
         fac.hooks.add(logConsumerHook);
 
@@ -191,7 +191,6 @@ public class ProxyFactory {
     public <I> I newProxyInstance() {
         // stack copy
         JClient _client = client;
-        List<UnresolvedAddress> _addresses = addresses;
         Class<?> _serviceInterface = serviceInterface;
         AsyncMode _asyncMode = asyncMode;
         DispatchMode _dispatchMode = dispatchMode;
@@ -209,7 +208,6 @@ public class ProxyFactory {
                 throw new UnsupportedOperationException("unsupported mode, SYNC & BROADCAST");
             }
             checkNotNull(_client, "connector");
-            checkNotNull(_addresses, "addresses");
             checkNotNull(_serviceInterface, "serviceInterface");
             checkNotNull(_hooks, "hooks");
             checkArgument(_serviceInterface.isInterface(), "serviceInterface is required to be interface");
@@ -226,7 +224,7 @@ public class ProxyFactory {
             // metadata
             ServiceMetadata metadata = new ServiceMetadata(_group, _version, _serviceProviderName);
 
-            for (UnresolvedAddress address : _addresses) {
+            for (UnresolvedAddress address : addresses) {
                 _client.addChannelGroup(metadata, _client.group(address));
             }
 
