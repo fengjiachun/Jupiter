@@ -52,15 +52,17 @@ public class DefaultBroadcastDispatcher extends AbstractDispatcher {
 
     @Override
     public InvokeFuture dispatch(Method method, Object[] args) {
-        ServiceMetadata _metadata = this.metadata; // stack copy
+        // stack copy
+        final JClient _client = client;
+        final ServiceMetadata _metadata = metadata;
 
         MessageWrapper message = new MessageWrapper(_metadata);
-        message.setAppName(client.appName());
+        message.setAppName(_client.appName());
         message.setMethodName(method.getName());
         message.setParameterTypes(method.getParameterTypes());
         message.setArgs(args);
 
-        List<JChannelGroup> groupList = client.directory(_metadata);
+        List<JChannelGroup> groupList = _client.directory(_metadata);
         RecyclableArrayList channels = Lists.newRecyclableArrayList();
         try {
             for (JChannelGroup group : groupList) {

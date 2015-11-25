@@ -47,15 +47,17 @@ public class DefaultRoundDispatcher extends AbstractDispatcher {
 
     @Override
     public InvokeFuture dispatch(Method method, Object[] args) {
-        ServiceMetadata _metadata = this.metadata; // stack copy
+        // stack copy
+        final JClient _client = client;
+        final ServiceMetadata _metadata = metadata;
 
         MessageWrapper message = new MessageWrapper(_metadata);
-        message.setAppName(client.appName());
+        message.setAppName(_client.appName());
         message.setMethodName(method.getName());
         message.setParameterTypes(method.getParameterTypes());
         message.setArgs(args);
 
-        JChannel channel = client.select(_metadata);
+        JChannel channel = _client.select(_metadata);
 
         final JRequest request = new JRequest();
         request.message(message);
