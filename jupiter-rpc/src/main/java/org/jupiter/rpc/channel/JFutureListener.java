@@ -19,7 +19,7 @@ package org.jupiter.rpc.channel;
 import java.util.EventListener;
 
 /**
- * Listener on {@link JChannel}'s event.
+ * Listen on {@link JChannel}'s event.
  *
  * jupiter
  * org.jupiter.rpc.channel

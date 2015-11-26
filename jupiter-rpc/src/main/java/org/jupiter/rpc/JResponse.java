@@ -22,7 +22,7 @@ import static org.jupiter.rpc.Status.OK;
 import static org.jupiter.rpc.Status.parse;
 
 /**
- * Provider response data.
+ * Provider's response data.
  *
  * jupiter
  * org.jupiter.rpc

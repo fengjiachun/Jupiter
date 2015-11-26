@@ -21,7 +21,7 @@ import org.jupiter.rpc.model.metadata.MessageWrapper;
 import java.util.concurrent.atomic.AtomicLong;
 
 /**
- * Consumer request data.
+ * Consumer's request data.
  *
  * jupiter
  * org.jupiter.rpc

@@ -108,8 +108,7 @@ public class RegisterMeta {
 
         RegisterMeta that = (RegisterMeta) o;
 
-        return weight == that.weight
-                && !(address != null ? !address.equals(that.address) : that.address != null)
+        return !(address != null ? !address.equals(that.address) : that.address != null)
                 && !(serviceMeta != null ? !serviceMeta.equals(that.serviceMeta) : that.serviceMeta != null);
     }
 
@@ -117,7 +116,6 @@ public class RegisterMeta {
     public int hashCode() {
         int result = address != null ? address.hashCode() : 0;
         result = 31 * result + (serviceMeta != null ? serviceMeta.hashCode() : 0);
-        result = 31 * result + weight;
         return result;
     }
 
@@ -132,7 +130,7 @@ public class RegisterMeta {
     }
 
     /**
-     * 不要轻易修改成员变量, 否则将影响hashCode和equals, Address需要经常放入List, Map等容器中
+     * 不要轻易修改成员变量, 否则将影响hashCode和equals, Address需要经常放入List, Map等容器中.
      */
     public static class Address {
         // 地址
@@ -190,7 +188,7 @@ public class RegisterMeta {
     }
 
     /**
-     * 不要轻易修改成员变量, 否则将影响hashCode和equals, ServiceMeta需要经常放入List, Map等容器中
+     * 不要轻易修改成员变量, 否则将影响hashCode和equals, ServiceMeta需要经常放入List, Map等容器中.
      */
     public static class ServiceMeta {
         // 组别

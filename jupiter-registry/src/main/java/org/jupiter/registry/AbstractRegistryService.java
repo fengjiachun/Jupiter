@@ -225,7 +225,8 @@ public abstract class AbstractRegistryService implements RegistryService {
 
     // 通知对应地址的机器下线
     protected void offline(Address address) {
-        CopyOnWriteArrayList<OfflineListener> listeners = offlineListeners.get(address);
+        // remove and notify
+        CopyOnWriteArrayList<OfflineListener> listeners = offlineListeners.remove(address);
         if (listeners != null) {
             for (OfflineListener l : listeners) {
                 l.offline();

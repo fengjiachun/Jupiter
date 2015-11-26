@@ -17,7 +17,7 @@
 package org.jupiter.registry;
 
 /**
- * Provider offline notification
+ * Provider offline notification.
  *
  * jupiter
  * org.jupiter.registry
