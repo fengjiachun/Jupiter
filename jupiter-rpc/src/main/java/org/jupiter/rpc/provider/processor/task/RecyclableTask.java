@@ -21,7 +21,6 @@ import com.codahale.metrics.Meter;
 import com.codahale.metrics.Timer;
 import org.jupiter.common.concurrent.RejectedRunnable;
 import org.jupiter.common.util.RecycleUtil;
-import org.jupiter.common.util.Reflects;
 import org.jupiter.common.util.SystemClock;
 import org.jupiter.common.util.internal.Recyclers;
 import org.jupiter.common.util.internal.logging.InternalLogger;
@@ -47,6 +46,7 @@ import java.util.concurrent.Executor;
 
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
 import static org.jupiter.common.util.Reflects.fastInvoke;
+import static org.jupiter.common.util.Reflects.findMatchingParameterTypes;
 import static org.jupiter.common.util.StackTraceUtil.stackTrace;
 import static org.jupiter.rpc.Status.*;
 import static org.jupiter.serialization.SerializerHolder.serializer;
@@ -205,8 +205,7 @@ public class RecyclableTask implements RejectedRunnable {
             Timer.Context timeCtx = Metrics.timer(msg.getMetadata().directory() + '#' + methodName).time();
             try {
                 Object[] args = msg.getArgs();
-                Class<?>[] parameterTypes =
-                        Reflects.findMatchingParameterTypes(service.getMethodParameterTypes(methodName), args);
+                Class<?>[] parameterTypes = findMatchingParameterTypes(service.getMethodParameterTypes(methodName), args);
 
                 invokeResult = fastInvoke(service.getServiceProvider(), methodName, parameterTypes, args);
             } finally {
