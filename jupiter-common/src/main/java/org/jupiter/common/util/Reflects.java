@@ -410,17 +410,6 @@ public final class Reflects {
                 return false;
             }
 
-            if (Integer.TYPE.equals(clazz)) {
-                return Long.TYPE.equals(toClass)
-                        || Float.TYPE.equals(toClass)
-                        || Double.TYPE.equals(toClass);
-            }
-
-            if (Long.TYPE.equals(clazz)) {
-                return Float.TYPE.equals(toClass)
-                        || Double.TYPE.equals(toClass);
-            }
-
             if (Boolean.TYPE.equals(clazz)) {
                 return false;
             }
@@ -431,6 +420,17 @@ public final class Reflects {
 
             if (Float.TYPE.equals(clazz)) {
                 return Double.TYPE.equals(toClass);
+            }
+
+            if (Long.TYPE.equals(clazz)) {
+                return Float.TYPE.equals(toClass)
+                        || Double.TYPE.equals(toClass);
+            }
+
+            if (Integer.TYPE.equals(clazz)) {
+                return Long.TYPE.equals(toClass)
+                        || Float.TYPE.equals(toClass)
+                        || Double.TYPE.equals(toClass);
             }
 
             if (Character.TYPE.equals(clazz)) {
