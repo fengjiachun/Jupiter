@@ -20,12 +20,10 @@ import net.sf.cglib.reflect.FastClass;
 import org.objenesis.Objenesis;
 import org.objenesis.ObjenesisStd;
 
-import java.lang.reflect.Field;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
-import java.lang.reflect.Modifier;
+import java.lang.reflect.*;
 import java.util.concurrent.ConcurrentMap;
 
+import static org.jupiter.common.util.Preconditions.checkArgument;
 import static org.jupiter.common.util.Preconditions.checkNotNull;
 import static org.jupiter.common.util.internal.UnsafeAccess.UNSAFE;
 
@@ -201,20 +199,22 @@ public final class Reflects {
     }
 
     /**
-     * Returns the class loader for the specified class.
+     * Returns a proxy instance that implements {@code interfaceType} by dispatching
+     * method invocations to {@code handler}. The class loader of {@code interfaceType}
+     * will be used to define the proxy class. To implement multiple interfaces or
+     * specify a class loader, use {@link Proxy#newProxyInstance}.
+     *
+     * @throws IllegalArgumentException if {@code interfaceType} does not specify
+     *     the type of a Java interface
      */
-    public static ClassLoader getClassLoader(Class<?> clazz) {
-        ClassLoader cl = clazz.getClassLoader();
-        if (cl != null) {
-            return cl;
-        }
+    public static <T> T newProxy(Class<T> interfaceType, InvocationHandler handler) {
+        checkNotNull(handler, "handler");
+        checkArgument(interfaceType.isInterface(), interfaceType + " is not an interface");
 
-        cl = Thread.currentThread().getContextClassLoader();
-        if (cl != null) {
-            return cl;
-        }
+        Object object = Proxy.newProxyInstance(
+                interfaceType.getClassLoader(), new Class<?>[] { interfaceType }, handler);
 
-        return ClassLoader.getSystemClassLoader();
+        return interfaceType.cast(object);
     }
 
     /**

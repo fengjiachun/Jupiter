@@ -34,7 +34,6 @@ import org.jupiter.rpc.consumer.invoker.SyncInvoker;
 import org.jupiter.rpc.model.metadata.ServiceMetadata;
 
 import java.lang.reflect.InvocationHandler;
-import java.lang.reflect.Proxy;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicIntegerFieldUpdater;
@@ -198,9 +197,8 @@ public class ProxyFactory {
             checkNotNull(client, "connector");
             checkNotNull(serviceInterface, "serviceInterface");
             checkArgument(!(asyncMode == SYNC && dispatchMode == BROADCAST), "illegal mode, [SYNC & BROADCAST] unsupported");
-            checkArgument(serviceInterface.isInterface(), "serviceInterface is required to be interface");
             ServiceProvider annotation = serviceInterface.getAnnotation(ServiceProvider.class);
-            checkNotNull(annotation, serviceInterface.getClass() + " is not a ServiceProvider interface");
+            checkNotNull(annotation, serviceInterface + " is not a ServiceProvider interface");
             String providerName = annotation.value();
             providerName = Strings.isNotBlank(providerName) ? providerName : serviceInterface.getSimpleName();
 
@@ -238,8 +236,7 @@ public class ProxyFactory {
                     break;
             }
 
-            return (I) Proxy.newProxyInstance(
-                    Reflects.getClassLoader(serviceInterface), new Class<?>[] { serviceInterface }, handler);
+            return (I) Reflects.newProxy(serviceInterface, handler);
         } finally {
             recycle();
         }
