@@ -208,23 +208,25 @@ public class RecyclableTask implements RejectedRunnable {
                 timeCtx.stop();
             }
 
-            ResultWrapper result = ResultWrapper.getInstance();
-            result.setResult(invokeResult);
-
             final long invokeId = request.invokeId();
             JResponse response = new JResponse(invokeId);
             response.status(OK.value());
-            byte[] bytes;
+
+            int bytesLength = 0;
+            ResultWrapper result = ResultWrapper.getInstance();
             try {
+                result.setResult(invokeResult);
                 // 在业务线程里序列化, 减轻IO线程负担
-                bytes = serializer().writeObject(result);
+                byte[] bytes = serializer().writeObject(result);
+                bytesLength = bytes.length;
+
                 response.bytes(bytes);
             } finally {
                 RecycleUtil.recycle(result);
             }
 
             final long timestamp = request.timestamp();
-            final int bodyLength = bytes.length;
+            final int bodyLength = bytesLength;
             channel.write(response, new JFutureListener<JChannel>() {
 
                 @Override
