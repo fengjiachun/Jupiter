@@ -29,7 +29,9 @@ import org.jupiter.rpc.flow.control.FlowController;
 import org.jupiter.rpc.model.metadata.ServiceMetadata;
 import org.jupiter.rpc.model.metadata.ServiceWrapper;
 
+import java.lang.reflect.Method;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.Executor;
 
@@ -123,10 +125,16 @@ public abstract class AbstractJServer implements JServer {
 
     protected abstract int bindPort();
 
-    ServiceWrapper registerService(String group, String version, String name, Object serviceProvider,
-            Executor executor, FlowController<JRequest> flowController) {
+    ServiceWrapper registerService(
+            String group,
+            String version,
+            String providerName,
+            Object serviceProvider,
+            Map<String, List<Class<?>[]>> methodsParameterTypes,
+            Executor executor,
+            FlowController<JRequest> flowController) {
 
-        ServiceWrapper serviceWrapper = new ServiceWrapper(group, version, name, serviceProvider);
+        ServiceWrapper serviceWrapper = new ServiceWrapper(group, version, providerName, serviceProvider, methodsParameterTypes);
         serviceWrapper.setExecutor(executor);
         serviceWrapper.setFlowController(flowController);
 
@@ -165,16 +173,28 @@ public abstract class AbstractJServer implements JServer {
 
             Class<?>[] interfaces = serviceProvider.getClass().getInterfaces();
             ServiceProvider annotation = null;
-            String name = null;
+            String providerName = null;
+            Map<String, List<Class<?>[]>> methodsParameterTypes = Maps.newHashMap();
             if (interfaces != null) {
-                for (Class<?> clazz : interfaces) {
-                    annotation = clazz.getAnnotation(ServiceProvider.class);
+                for (Class<?> providerInterface : interfaces) {
+                    annotation = providerInterface.getAnnotation(ServiceProvider.class);
                     if (annotation == null) {
                         continue;
                     }
 
-                    name = annotation.value();
-                    name = Strings.isNotBlank(name) ? name : clazz.getSimpleName();
+                    providerName = annotation.value();
+                    providerName = Strings.isNotBlank(providerName) ? providerName : providerInterface.getSimpleName();
+
+                    // method's parameterTypes
+                    for (Method method : providerInterface.getMethods()) {
+                        String methodName = method.getName();
+                        List<Class<?>[]> list = methodsParameterTypes.get(methodName);
+                        if (list == null) {
+                            list = Lists.newArrayList();
+                            methodsParameterTypes.put(methodName, list);
+                        }
+                        list.add(method.getParameterTypes());
+                    }
                     break;
                 }
             }
@@ -186,7 +206,7 @@ public abstract class AbstractJServer implements JServer {
             checkNotNull(group, "group");
             checkNotNull(version, "version");
 
-            return registerService(group, version, name, serviceProvider, executor, flowController);
+            return registerService(group, version, providerName, serviceProvider, methodsParameterTypes, executor, flowController);
         }
     }
 

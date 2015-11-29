@@ -20,6 +20,8 @@ import org.jupiter.rpc.JRequest;
 import org.jupiter.rpc.flow.control.FlowController;
 
 import java.io.Serializable;
+import java.util.List;
+import java.util.Map;
 import java.util.concurrent.Executor;
 
 import static org.jupiter.common.util.Preconditions.checkNotNull;
@@ -39,11 +41,16 @@ public class ServiceWrapper implements Serializable {
     private final ServiceMetadata metadata;
     private final Object serviceProvider;
 
+    private transient Map<String, List<Class<?>[]>> methodsParameterTypes;
+
     private volatile Executor executor;
     private volatile FlowController<JRequest> flowController;
 
-    public ServiceWrapper(String group, String version, String name, Object serviceProvider) {
+    public ServiceWrapper(String group, String version, String name,
+                          Object serviceProvider, Map<String, List<Class<?>[]>> methodsParameterTypes) {
         metadata = new ServiceMetadata(group, version, name);
+
+        this.methodsParameterTypes = checkNotNull(methodsParameterTypes, "methodsParameterTypes");
         this.serviceProvider = checkNotNull(serviceProvider, "serviceProvider");
     }
 
@@ -69,6 +76,10 @@ public class ServiceWrapper implements Serializable {
 
     public void setFlowController(FlowController<JRequest> flowController) {
         this.flowController = flowController;
+    }
+
+    public List<Class<?>[]> getMethodParameterTypes(String methodName) {
+        return methodsParameterTypes.get(methodName);
     }
 
     @Override

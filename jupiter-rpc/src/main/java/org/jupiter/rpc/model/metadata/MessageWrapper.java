@@ -37,8 +37,6 @@ public class MessageWrapper implements Serializable {
     private final ServiceMetadata metadata;
     // 方法名称
     private String methodName;
-    // 方法参数类型
-    private Class<?>[] parameterTypes;
     // 方法参数
     private Object[] args;
 
@@ -78,14 +76,6 @@ public class MessageWrapper implements Serializable {
         this.methodName = methodName;
     }
 
-    public Class<?>[] getParameterTypes() {
-        return parameterTypes;
-    }
-
-    public void setParameterTypes(Class<?>[] parameterTypes) {
-        this.parameterTypes = parameterTypes;
-    }
-
     public Object[] getArgs() {
         return args;
     }
@@ -100,7 +90,6 @@ public class MessageWrapper implements Serializable {
                 "appName='" + appName + '\'' +
                 ", metadata=" + metadata +
                 ", methodName='" + methodName + '\'' +
-                ", parameterTypes=" + Arrays.toString(parameterTypes) +
                 ", args=" + Arrays.toString(args) +
                 '}';
     }

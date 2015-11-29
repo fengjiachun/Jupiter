@@ -58,7 +58,6 @@ public class DefaultRoundDispatcher extends AbstractDispatcher {
         MessageWrapper message = new MessageWrapper(_metadata);
         message.setAppName(_client.appName());
         message.setMethodName(method.getName());
-        message.setParameterTypes(method.getParameterTypes());
         message.setArgs(args);
 
         JChannel channel = _client.select(_metadata);

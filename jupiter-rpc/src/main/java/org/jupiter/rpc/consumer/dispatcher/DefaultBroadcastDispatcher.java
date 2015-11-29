@@ -63,7 +63,6 @@ public class DefaultBroadcastDispatcher extends AbstractDispatcher {
         MessageWrapper message = new MessageWrapper(_metadata);
         message.setAppName(_client.appName());
         message.setMethodName(method.getName());
-        message.setParameterTypes(method.getParameterTypes());
         message.setArgs(args);
 
         List<JChannelGroup> groupList = _client.directory(_metadata);

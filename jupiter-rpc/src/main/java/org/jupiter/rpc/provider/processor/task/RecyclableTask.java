@@ -21,6 +21,7 @@ import com.codahale.metrics.Meter;
 import com.codahale.metrics.Timer;
 import org.jupiter.common.concurrent.RejectedRunnable;
 import org.jupiter.common.util.RecycleUtil;
+import org.jupiter.common.util.Reflects;
 import org.jupiter.common.util.SystemClock;
 import org.jupiter.common.util.internal.Recyclers;
 import org.jupiter.common.util.internal.logging.InternalLogger;
@@ -31,9 +32,9 @@ import org.jupiter.rpc.Status;
 import org.jupiter.rpc.channel.JChannel;
 import org.jupiter.rpc.channel.JFutureListener;
 import org.jupiter.rpc.error.BadRequestException;
+import org.jupiter.rpc.error.FlowControlException;
 import org.jupiter.rpc.error.ServerBusyException;
 import org.jupiter.rpc.error.ServiceNotFoundException;
-import org.jupiter.rpc.error.FlowControlException;
 import org.jupiter.rpc.flow.control.ControlResult;
 import org.jupiter.rpc.flow.control.FlowController;
 import org.jupiter.rpc.metric.Metrics;
@@ -118,13 +119,13 @@ public class RecyclableTask implements RejectedRunnable {
         // processing
         Executor childExecutor = service.getExecutor();
         if (childExecutor == null) {
-            process(service.getServiceProvider());
+            process(service);
         } else {
             childExecutor.execute(new Runnable() {
 
                 @Override
                 public void run() {
-                    process(service.getServiceProvider());
+                    process(service);
                 }
             });
         }
@@ -195,7 +196,7 @@ public class RecyclableTask implements RejectedRunnable {
         }
     }
 
-    private void process(Object provider) {
+    private void process(ServiceWrapper service) {
         try {
             MessageWrapper msg = request.message();
             String methodName = msg.getMethodName();
@@ -203,7 +204,11 @@ public class RecyclableTask implements RejectedRunnable {
             Object invokeResult = null;
             Timer.Context timeCtx = Metrics.timer(msg.getMetadata().directory() + '#' + methodName).time();
             try {
-                invokeResult = fastInvoke(provider, methodName, msg.getParameterTypes(), msg.getArgs());
+                Object[] args = msg.getArgs();
+                Class<?>[] parameterTypes =
+                        Reflects.findMatchingParameterTypes(service.getMethodParameterTypes(methodName), args);
+
+                invokeResult = fastInvoke(service.getServiceProvider(), methodName, parameterTypes, args);
             } finally {
                 timeCtx.stop();
             }
