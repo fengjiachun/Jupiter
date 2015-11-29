@@ -42,9 +42,14 @@ public class ProtoStuffSerializerTest {
         Serializer serializer = serializer();
         ResultWrapper wrapper = ResultWrapper.getInstance();
         wrapper.setResult("test");
+        // TODO Class<?>[] parameterTypes 需要优化
+        wrapper.setClazz(new Class[]{String.class, ArrayList.class, Serializable.class});
         byte[] bytes = serializer.writeObject(wrapper);
         ResultWrapper wrapper1 = serializer.readObject(bytes, ResultWrapper.class);
+        System.out.println(bytes.length);
         System.out.println(wrapper1.getResult());
+        // noinspection ImplicitArrayToString
+        System.out.println(wrapper1.getClazz());
         assertThat(String.valueOf(wrapper1.getResult()), is("test"));
 
         SerializerInterface obj = new SerializerObj();
@@ -63,6 +68,7 @@ class ResultWrapper implements Recyclable, Serializable {
 
     private Object result; // 服务调用结果
     private String error; // 错误信息
+    private Class<?>[] clazz;
 
     public Object getResult() {
         return result;
@@ -78,6 +84,14 @@ class ResultWrapper implements Recyclable, Serializable {
 
     public void setError(String error) {
         this.error = error;
+    }
+
+    public Class<?>[] getClazz() {
+        return clazz;
+    }
+
+    public void setClazz(Class<?>[] clazz) {
+        this.clazz = clazz;
     }
 
     /**
