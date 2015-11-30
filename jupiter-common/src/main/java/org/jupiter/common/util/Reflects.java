@@ -269,31 +269,24 @@ public final class Reflects {
             if (clazz == byte.class) {
                 return (byte) 0;
             }
-
             if (clazz == short.class) {
                 return (short) 0;
             }
-
             if (clazz == int.class) {
                 return 0;
             }
-
             if (clazz == long.class) {
                 return 0L;
             }
-
             if (clazz == float.class) {
                 return 0F;
             }
-
             if (clazz == double.class) {
                 return 0D;
             }
-
             if (clazz == char.class) {
                 return (char) 0;
             }
-
             if (clazz == boolean.class) {
                 return false;
             }
@@ -358,7 +351,7 @@ public final class Reflects {
     /**
      * Checks if an array of {@link Class}es can be assigned to another array of {@link Class}es.
      */
-    public static boolean isAssignable(Class<?>[] classArray, Class<?>[] toClassArray, boolean autoboxing) {
+    public static boolean isAssignable(Class<?>[] classArray, Class<?>[] toClassArray, final boolean autoboxing) {
         if (classArray.length != toClassArray.length) {
             return false;
         }
@@ -375,101 +368,89 @@ public final class Reflects {
     /**
      * Checks if one {@link Class} can be assigned to a variable of another {@link Class}.
      */
-    public static boolean isAssignable(Class<?> clazz, Class<?> toClass, boolean autoboxing) {
+    public static boolean isAssignable(Class<?> cls, final Class<?> toClass, final boolean autoboxing) {
         if (toClass == null) {
             return false;
         }
 
         // have to check for null, as isAssignableFrom doesn't
-        if (clazz == null) {
+        if (cls == null) {
             return !(toClass.isPrimitive());
         }
 
         // autoboxing
         if (autoboxing) {
-            if (clazz.isPrimitive() && !toClass.isPrimitive()) {
-                clazz = primitiveToWrapper(clazz);
-                if (clazz == null) {
+            if (cls.isPrimitive() && !toClass.isPrimitive()) {
+                cls = primitiveToWrapper(cls);
+                if (cls == null) {
                     return false;
                 }
             }
-            if (toClass.isPrimitive() && !clazz.isPrimitive()) {
-                clazz = wrapperToPrimitive(clazz);
-                if (clazz == null) {
+            if (toClass.isPrimitive() && !cls.isPrimitive()) {
+                cls = wrapperToPrimitive(cls);
+                if (cls == null) {
                     return false;
                 }
             }
         }
-
-        if (clazz.equals(toClass)) {
+        if (cls.equals(toClass)) {
             return true;
         }
-
-        if (clazz.isPrimitive()) {
+        if (cls.isPrimitive()) {
             if (!toClass.isPrimitive()) {
                 return false;
             }
-
-            if (Boolean.TYPE.equals(clazz)) {
+            if (Boolean.TYPE.equals(cls)) {
                 return false;
             }
-
-            if (Double.TYPE.equals(clazz)) {
+            if (Double.TYPE.equals(cls)) {
                 return false;
             }
-
-            if (Float.TYPE.equals(clazz)) {
+            if (Float.TYPE.equals(cls)) {
                 return Double.TYPE.equals(toClass);
             }
-
-            if (Long.TYPE.equals(clazz)) {
-                return Float.TYPE.equals(toClass)
-                        || Double.TYPE.equals(toClass);
-            }
-
-            if (Integer.TYPE.equals(clazz)) {
+            if (Integer.TYPE.equals(cls)) {
                 return Long.TYPE.equals(toClass)
                         || Float.TYPE.equals(toClass)
                         || Double.TYPE.equals(toClass);
             }
-
-            if (Character.TYPE.equals(clazz)) {
+            if (Long.TYPE.equals(cls)) {
+                return Float.TYPE.equals(toClass)
+                        || Double.TYPE.equals(toClass);
+            }
+            if (Character.TYPE.equals(cls)) {
                 return Integer.TYPE.equals(toClass)
                         || Long.TYPE.equals(toClass)
                         || Float.TYPE.equals(toClass)
                         || Double.TYPE.equals(toClass);
             }
-
-            if (Short.TYPE.equals(clazz)) {
+            if (Short.TYPE.equals(cls)) {
                 return Integer.TYPE.equals(toClass)
                         || Long.TYPE.equals(toClass)
                         || Float.TYPE.equals(toClass)
                         || Double.TYPE.equals(toClass);
             }
-
-            if (Byte.TYPE.equals(clazz)) {
+            if (Byte.TYPE.equals(cls)) {
                 return Short.TYPE.equals(toClass)
                         || Integer.TYPE.equals(toClass)
                         || Long.TYPE.equals(toClass)
                         || Float.TYPE.equals(toClass)
                         || Double.TYPE.equals(toClass);
             }
-
             // should never get here
             return false;
         }
-
-        return toClass.isAssignableFrom(clazz);
+        return toClass.isAssignableFrom(cls);
     }
 
     /**
      * Converts the specified primitive {@link Class} object to its corresponding
      * wrapper Class object.
      */
-    public static Class<?> primitiveToWrapper(Class<?> clazz) {
-        Class<?> convertedClass = clazz;
-        if (clazz != null && clazz.isPrimitive()) {
-            convertedClass = primitiveWrapperMap.get(clazz);
+    public static Class<?> primitiveToWrapper(final Class<?> cls) {
+        Class<?> convertedClass = cls;
+        if (cls != null && cls.isPrimitive()) {
+            convertedClass = primitiveWrapperMap.get(cls);
         }
         return convertedClass;
     }
@@ -478,8 +459,8 @@ public final class Reflects {
      * Converts the specified wrapper {@link Class} to its corresponding primitive
      * class.
      */
-    public static Class<?> wrapperToPrimitive(Class<?> clazz) {
-        return wrapperPrimitiveMap.get(clazz);
+    public static Class<?> wrapperToPrimitive(final Class<?> cls) {
+        return wrapperPrimitiveMap.get(cls);
     }
 
     /**
@@ -496,26 +477,32 @@ public final class Reflects {
     }
 
     /**
-     * Compare the relative fitness of two sets of parameter types in terms of
+     * Compares the relative fitness of two sets of parameter types in terms of
      * matching a third set of runtime parameter types, such that a list ordered
-     * by the results of the comparison would return the best match first (least).
+     * by the results of the comparison would return the best match first
+     * (least).
      *
-     * @param left the "left" parameter set
-     * @param right the "right" parameter set
-     * @param actual the runtime parameter types to match against <code>left</code>/<code>right</code>
-     * @return int consistent with <code>compare</code> semantics
+     * @param left   the "left" parameter set
+     * @param right  the "right" parameter set
+     * @param actual the runtime parameter types to match against
+     *               {@code left}/{@code right}
+     * @return int consistent with {@code compare} semantics
      */
     private static int compareParameterTypes(Class<?>[] left, Class<?>[] right, Class<?>[] actual) {
-        float leftCost = getTotalTransformationCost(actual, left);
-        float rightCost = getTotalTransformationCost(actual, right);
+        final float leftCost = getTotalTransformationCost(actual, left);
+        final float rightCost = getTotalTransformationCost(actual, right);
         return leftCost < rightCost ? -1 : rightCost < leftCost ? 1 : 0;
     }
 
     /**
-     * Returns the sum of the object transformation cost for each class in the source
-     * argument list.
+     * Returns the sum of the object transformation cost for each class in the
+     * source argument list.
+     *
+     * @param srcArgs The source arguments
+     * @param dstArgs The destination arguments
+     * @return The total transformation cost
      */
-    private static float getTotalTransformationCost(Class<?>[] srcArgs, Class<?>[] dstArgs) {
+    private static float getTotalTransformationCost(final Class<?>[] srcArgs, final Class<?>[] dstArgs) {
         float totalCost = 0.0f;
         for (int i = 0; i < srcArgs.length; i++) {
             Class<?> srcClass, dstClass;
@@ -527,20 +514,21 @@ public final class Reflects {
     }
 
     /**
-     * Gets the number of steps required needed to turn the source class into the
-     * destination class. This represents the number of steps in the object hierarchy
-     * graph.
+     * Gets the number of steps required needed to turn the source class into
+     * the destination class. This represents the number of steps in the object
+     * hierarchy graph.
      *
+     * @param srcClass The source class
+     * @param dstClass The destination class
      * @return The cost of transforming an object
      */
-    private static float getObjectTransformationCost(Class<?> srcClass, Class<?> dstClass) {
+    private static float getObjectTransformationCost(Class<?> srcClass, final Class<?> dstClass) {
         if (dstClass.isPrimitive()) {
             return getPrimitivePromotionCost(srcClass, dstClass);
         }
-
         float cost = 0.0f;
-        while (dstClass != null && !dstClass.equals(srcClass)) {
-            if (dstClass.isInterface() && isAssignable(srcClass, dstClass, false)) {
+        while (srcClass != null && !dstClass.equals(srcClass)) {
+            if (dstClass.isInterface() && isAssignable(srcClass, dstClass, true)) {
                 // slight penalty for interface match.
                 // we still want an exact match to override an interface match,
                 // but
@@ -550,39 +538,42 @@ public final class Reflects {
                 break;
             }
             cost++;
-            dstClass = dstClass.getSuperclass();
+            srcClass = srcClass.getSuperclass();
         }
-
         /*
          * If the destination class is null, we've travelled all the way up to
          * an Object match. We'll penalize this by adding 1.5 to the cost.
          */
-        if (dstClass == null) {
+        if (srcClass == null) {
             cost += 1.5f;
         }
         return cost;
     }
 
     /**
-     * Get the number of steps required to promote a primitive number to another type.
+     * Gets the number of steps required to promote a primitive number to another
+     * type.
+     *
+     * @param srcClass the (primitive) source class
+     * @param dstClass the (primitive) destination class
+     * @return The cost of promoting the primitive
      */
-    private static float getPrimitivePromotionCost(Class<?> srcClass, Class<?> dstClass) {
+    private static float getPrimitivePromotionCost(final Class<?> srcClass, final Class<?> dstClass) {
         float cost = 0.0f;
-        Class<?> clazz = srcClass;
-        if (!clazz.isPrimitive()) {
+        Class<?> cls = srcClass;
+        if (!cls.isPrimitive()) {
             // slight unwrapping penalty
             cost += 0.1f;
-            clazz = wrapperToPrimitive(clazz);
+            cls = wrapperToPrimitive(cls);
         }
-        for (int i = 0; clazz != dstClass && i < ORDERED_PRIMITIVE_TYPES.length; i++) {
-            if (clazz == ORDERED_PRIMITIVE_TYPES[i]) {
+        for (int i = 0; cls != dstClass && i < ORDERED_PRIMITIVE_TYPES.length; i++) {
+            if (cls == ORDERED_PRIMITIVE_TYPES[i]) {
                 cost += 0.1f;
                 if (i < ORDERED_PRIMITIVE_TYPES.length - 1) {
-                    clazz = ORDERED_PRIMITIVE_TYPES[i + 1];
+                    cls = ORDERED_PRIMITIVE_TYPES[i + 1];
                 }
             }
         }
-
         return cost;
     }
 
