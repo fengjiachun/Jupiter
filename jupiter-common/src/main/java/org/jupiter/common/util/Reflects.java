@@ -322,8 +322,6 @@ public final class Reflects {
      * Find an array of parameter {@link Type}s that matches the given compatible parameters.
      */
     public static Class<?>[] findMatchingParameterTypes(List<Class<?>[]> parameterTypesList, Object[] args) {
-        checkArgument(!parameterTypesList.isEmpty(), "empty parameterTypesList");
-
         if (parameterTypesList.size() == 1) {
             return parameterTypesList.get(0);
         }
