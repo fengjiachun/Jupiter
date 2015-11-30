@@ -393,9 +393,12 @@ public final class Reflects {
                 }
             }
         }
+
         if (cls.equals(toClass)) {
             return true;
         }
+
+        // 对于原子类型, 根据JLS的规则进行扩展
         if (cls.isPrimitive()) {
             if (!toClass.isPrimitive()) {
                 return false;
