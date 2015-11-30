@@ -472,19 +472,6 @@ public final class Reflects {
     }
 
     /**
-     * Set the {@code accessible} flag for this object to the indicated boolean value.
-     * A value of {@code true} indicates that the reflected object should suppress
-     * Java language access checking when it is used.  A value of {@code false} indicates
-     * that the reflected object should enforce Java language access checks.
-     */
-    private static Field setAccessible(Field fd) {
-        if (!Modifier.isPublic(fd.getModifiers()) || !Modifier.isPublic(fd.getDeclaringClass().getModifiers())) {
-            fd.setAccessible(true);
-        }
-        return fd;
-    }
-
-    /**
      * Compares the relative fitness of two sets of parameter types in terms of
      * matching a third set of runtime parameter types, such that a list ordered
      * by the results of the comparison would return the best match first
@@ -583,6 +570,19 @@ public final class Reflects {
             }
         }
         return cost;
+    }
+
+    /**
+     * Set the {@code accessible} flag for this object to the indicated boolean value.
+     * A value of {@code true} indicates that the reflected object should suppress
+     * Java language access checking when it is used.  A value of {@code false} indicates
+     * that the reflected object should enforce Java language access checks.
+     */
+    private static Field setAccessible(Field fd) {
+        if (!Modifier.isPublic(fd.getModifiers()) || !Modifier.isPublic(fd.getDeclaringClass().getModifiers())) {
+            fd.setAccessible(true);
+        }
+        return fd;
     }
 
     private Reflects() {}
