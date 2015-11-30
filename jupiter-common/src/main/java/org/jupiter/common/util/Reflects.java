@@ -443,6 +443,7 @@ public final class Reflects {
             // should never get here
             return false;
         }
+
         return toClass.isAssignableFrom(cls);
     }
 
