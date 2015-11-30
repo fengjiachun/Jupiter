@@ -42,6 +42,7 @@ import org.jupiter.rpc.model.metadata.ResultWrapper;
 import org.jupiter.rpc.model.metadata.ServiceWrapper;
 import org.jupiter.rpc.provider.processor.ProviderProcessor;
 
+import java.util.List;
 import java.util.concurrent.Executor;
 
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
@@ -205,7 +206,8 @@ public class RecyclableTask implements RejectedRunnable {
             Timer.Context timeCtx = Metrics.timer(msg.getMetadata().directory() + '#' + methodName).time();
             try {
                 Object[] args = msg.getArgs();
-                Class<?>[] parameterTypes = findMatchingParameterTypes(service.getMethodParameterTypes(methodName), args);
+                List<Class<?>[]> parameterTypesList = service.getMethodParameterTypes(methodName);
+                Class<?>[] parameterTypes = findMatchingParameterTypes(parameterTypesList, args);
 
                 invokeResult = fastInvoke(service.getServiceProvider(), methodName, parameterTypes, args);
             } finally {

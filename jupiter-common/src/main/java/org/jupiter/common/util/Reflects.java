@@ -163,8 +163,7 @@ public final class Reflects {
         while (cls != null) {
             try {
                 return cls.getDeclaredField(name);
-            } catch (Throwable ignored) {
-            }
+            } catch (Throwable ignored) {}
 
             cls = cls.getSuperclass();
         }
@@ -258,7 +257,7 @@ public final class Reflects {
         checkArgument(interfaceType.isInterface(), interfaceType + " is not an interface");
 
         Object object = Proxy.newProxyInstance(
-                interfaceType.getClassLoader(), new Class<?>[]{interfaceType}, handler);
+                interfaceType.getClassLoader(), new Class<?>[] { interfaceType }, handler);
 
         return interfaceType.cast(object);
     }
