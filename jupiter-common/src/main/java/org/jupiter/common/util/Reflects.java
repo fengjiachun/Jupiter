@@ -65,8 +65,11 @@ public final class Reflects {
     private static final Map<Class<?>, Class<?>> wrapperPrimitiveMap = Maps.newHashMap();
 
     static {
-        for (Map.Entry<Class<?>, Class<?>> entry : primitiveWrapperMap.entrySet()) {
-            wrapperPrimitiveMap.put(entry.getValue(), entry.getKey());
+        for (final Class<?> primitiveClass : primitiveWrapperMap.keySet()) {
+            final Class<?> wrapperClass = primitiveWrapperMap.get(primitiveClass);
+            if (!primitiveClass.equals(wrapperClass)) {
+                wrapperPrimitiveMap.put(wrapperClass, primitiveClass);
+            }
         }
     }
 
