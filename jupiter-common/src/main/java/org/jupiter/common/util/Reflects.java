@@ -406,12 +406,6 @@ public final class Reflects {
             if (Boolean.TYPE.equals(cls)) {
                 return false;
             }
-            if (Double.TYPE.equals(cls)) {
-                return false;
-            }
-            if (Float.TYPE.equals(cls)) {
-                return Double.TYPE.equals(toClass);
-            }
             if (Integer.TYPE.equals(cls)) {
                 return Long.TYPE.equals(toClass)
                         || Float.TYPE.equals(toClass)
@@ -420,6 +414,12 @@ public final class Reflects {
             if (Long.TYPE.equals(cls)) {
                 return Float.TYPE.equals(toClass)
                         || Double.TYPE.equals(toClass);
+            }
+            if (Float.TYPE.equals(cls)) {
+                return Double.TYPE.equals(toClass);
+            }
+            if (Double.TYPE.equals(cls)) {
+                return false;
             }
             if (Character.TYPE.equals(cls)) {
                 return Integer.TYPE.equals(toClass)
