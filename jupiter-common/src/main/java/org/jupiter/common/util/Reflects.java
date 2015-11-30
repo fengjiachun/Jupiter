@@ -86,7 +86,7 @@ public final class Reflects {
     /**
      * Creates a new object without any constructor being called.
      *
-     * @param clazz class to instantiate
+     * @param clazz ths class to instantiate
      * @return new instance of clazz
      */
     public static <T> T newInstance(Class<T> clazz) {
@@ -502,9 +502,9 @@ public final class Reflects {
      * Returns the sum of the object transformation cost for each class in the
      * source argument list.
      *
-     * @param srcArgs The source arguments
-     * @param dstArgs The destination arguments
-     * @return The total transformation cost
+     * @param srcArgs the source arguments
+     * @param dstArgs the destination arguments
+     * @return the total transformation cost
      */
     private static float getTotalTransformationCost(final Class<?>[] srcArgs, final Class<?>[] dstArgs) {
         float totalCost = 0.0f;
@@ -522,9 +522,9 @@ public final class Reflects {
      * the destination class. This represents the number of steps in the object
      * hierarchy graph.
      *
-     * @param srcClass The source class
-     * @param dstClass The destination class
-     * @return The cost of transforming an object
+     * @param srcClass the source class
+     * @param dstClass the destination class
+     * @return the cost of transforming an object
      */
     private static float getObjectTransformationCost(Class<?> srcClass, final Class<?> dstClass) {
         if (dstClass.isPrimitive()) {
@@ -560,7 +560,7 @@ public final class Reflects {
      *
      * @param srcClass the (primitive) source class
      * @param dstClass the (primitive) destination class
-     * @return The cost of promoting the primitive
+     * @return the cost of promoting the primitive
      */
     private static float getPrimitivePromotionCost(final Class<?> srcClass, final Class<?> dstClass) {
         float cost = 0.0f;
