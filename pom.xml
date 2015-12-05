@@ -128,13 +128,6 @@
                 <version>${barchart.version}</version>
             </dependency>
 
-            <!-- Byte code generator -->
-            <dependency>
-                <groupId>org.javassist</groupId>
-                <artifactId>javassist</artifactId>
-                <version>${javassist.version}</version>
-            </dependency>
-
             <!-- Protostuff -->
             <dependency>
                 <groupId>io.protostuff</groupId>
@@ -152,6 +145,14 @@
                 <groupId>org.objenesis</groupId>
                 <artifactId>objenesis</artifactId>
                 <version>${objenesis.version}</version>
+            </dependency>
+
+            <!-- Byte code generator -->
+            <!-- Javassist -->
+            <dependency>
+                <groupId>org.javassist</groupId>
+                <artifactId>javassist</artifactId>
+                <version>${javassist.version}</version>
             </dependency>
 
             <!-- CGLib -->
