@@ -43,9 +43,9 @@
         <netty.version>4.1.0.Beta5</netty.version>
         <jmh.version>1.9.3</jmh.version>
         <barchart.version>2.3.0</barchart.version>
-        <javassist.version>3.19.0-GA</javassist.version>
         <protostuff.version>1.3.5</protostuff.version>
         <objenesis.version>2.1</objenesis.version>
+        <javassist.version>3.19.0-GA</javassist.version>
         <cglib.version>3.1</cglib.version>
         <disruptor.version>3.3.2</disruptor.version>
         <metrics.version>3.1.2</metrics.version>
