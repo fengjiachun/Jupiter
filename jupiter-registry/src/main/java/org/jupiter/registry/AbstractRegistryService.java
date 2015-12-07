@@ -106,10 +106,9 @@ public abstract class AbstractRegistryService implements RegistryService {
         doSubscribe(serviceMeta);
     }
 
+    // 子类根据需要作为钩子实现
     @Override
-    public void offlineListening(Address address, OfflineListener listener) {
-        // 子类根据需要作为钩子实现
-    }
+    public void offlineListening(Address address, OfflineListener listener) {}
 
     @Override
     public Collection<RegisterMeta> lookup(ServiceMeta serviceMeta) {
