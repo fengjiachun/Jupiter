@@ -42,7 +42,7 @@ public class ProtoStuffSerializerTest {
         Serializer serializer = serializer();
         ResultWrapper wrapper = ResultWrapper.getInstance();
         wrapper.setResult("test");
-        // TODO Class<?>[] parameterTypes 需要优化
+        // Class<?>[] parameterTypes 需要优化 -------- 后续: 已优化掉了
         wrapper.setClazz(new Class[] { String.class, ArrayList.class, Serializable.class });
         byte[] bytes = serializer.writeObject(wrapper);
         ResultWrapper wrapper1 = serializer.readObject(bytes, ResultWrapper.class);

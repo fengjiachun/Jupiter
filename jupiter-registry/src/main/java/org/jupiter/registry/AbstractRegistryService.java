@@ -53,7 +53,6 @@ public abstract class AbstractRegistryService implements RegistryService {
     private final ReentrantReadWriteLock registriesLock = new ReentrantReadWriteLock();
 
     private final ConcurrentMap<ServiceMeta, CopyOnWriteArrayList<NotifyListener>> subscribeListeners = Maps.newConcurrentHashMap();
-    private final ConcurrentMap<Address, CopyOnWriteArrayList<OfflineListener>> offlineListeners = Maps.newConcurrentHashMap();
 
     // Consumer已订阅的信息
     private final ConcurrentSet<ServiceMeta> subscribeSet = new ConcurrentSet<>();
@@ -109,15 +108,7 @@ public abstract class AbstractRegistryService implements RegistryService {
 
     @Override
     public void offlineListening(Address address, OfflineListener listener) {
-        CopyOnWriteArrayList<OfflineListener> listeners = offlineListeners.get(address);
-        if (listeners == null) {
-            CopyOnWriteArrayList<OfflineListener> newListeners = new CopyOnWriteArrayList<>();
-            listeners = offlineListeners.putIfAbsent(address, newListeners);
-            if (listeners == null) {
-                listeners = newListeners;
-            }
-        }
-        listeners.add(listener);
+        // 子类根据需要作为钩子实现
     }
 
     @Override
@@ -223,16 +214,8 @@ public abstract class AbstractRegistryService implements RegistryService {
         }
     }
 
-    // 通知对应地址的机器下线
-    protected void offline(Address address) {
-        // remove and notify
-        CopyOnWriteArrayList<OfflineListener> listeners = offlineListeners.remove(address);
-        if (listeners != null) {
-            for (OfflineListener l : listeners) {
-                l.offline();
-            }
-        }
-    }
+    // 通知对应地址的机器下线, 子类根据需要作为钩子实现
+    protected void offline(Address address) {}
 
     protected abstract void doSubscribe(ServiceMeta serviceMeta);
 
