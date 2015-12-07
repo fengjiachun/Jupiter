@@ -24,14 +24,16 @@ import org.jupiter.common.util.Pair;
 import org.jupiter.common.util.internal.logging.InternalLogger;
 import org.jupiter.common.util.internal.logging.InternalLoggerFactory;
 
-import java.util.*;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
 import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 import static org.jupiter.common.util.StackTraceUtil.stackTrace;
-import static org.jupiter.registry.RegisterMeta.Address;
 import static org.jupiter.registry.RegisterMeta.ServiceMeta;
 
 /**
@@ -106,10 +108,6 @@ public abstract class AbstractRegistryService implements RegistryService {
         doSubscribe(serviceMeta);
     }
 
-    // 子类根据需要作为钩子实现
-    @Override
-    public void offlineListening(Address address, OfflineListener listener) {}
-
     @Override
     public Collection<RegisterMeta> lookup(ServiceMeta serviceMeta) {
         Pair<Long, List<RegisterMeta>> data;
@@ -127,6 +125,12 @@ public abstract class AbstractRegistryService implements RegistryService {
         }
         return Collections.emptyList();
     }
+
+    // 对端下线监听, 子类根据需要作为钩子实现
+    public void offlineListening(RegisterMeta.Address address, OfflineListener listener) {}
+
+    // 通知对应地址的机器下线, 子类根据需要作为钩子实现
+    public void offline(RegisterMeta.Address address) {}
 
     public ConcurrentSet<ServiceMeta> subscribeSet() {
         return subscribeSet;
@@ -212,9 +216,6 @@ public abstract class AbstractRegistryService implements RegistryService {
             }
         }
     }
-
-    // 通知对应地址的机器下线, 子类根据需要作为钩子实现
-    protected void offline(Address address) {}
 
     protected abstract void doSubscribe(ServiceMeta serviceMeta);
 

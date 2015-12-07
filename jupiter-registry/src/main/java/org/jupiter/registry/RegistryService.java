@@ -46,11 +46,6 @@ public interface RegistryService extends Registry {
     void subscribe(ServiceMeta serviceMeta, NotifyListener listener);
 
     /**
-     * Provider offline notification.
-     */
-    void offlineListening(Address address, OfflineListener listener);
-
-    /**
      * Find a service in the local scope.
      */
     Collection<RegisterMeta> lookup(ServiceMeta serviceMeta);

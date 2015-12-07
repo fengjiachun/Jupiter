@@ -124,8 +124,8 @@ public class DefaultRegistryService extends AbstractRegistryService {
         listeners.add(listener);
     }
 
-    // 通知对应地址的机器下线
-    protected void offline(RegisterMeta.Address address) {
+    @Override
+    public void offline(RegisterMeta.Address address) {
         // remove and notify
         CopyOnWriteArrayList<OfflineListener> listeners = offlineListeners.remove(address);
         if (listeners != null) {

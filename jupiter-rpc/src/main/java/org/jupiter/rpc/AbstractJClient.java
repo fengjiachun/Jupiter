@@ -19,10 +19,7 @@ package org.jupiter.rpc;
 import org.jupiter.common.util.*;
 import org.jupiter.common.util.internal.logging.InternalLogger;
 import org.jupiter.common.util.internal.logging.InternalLoggerFactory;
-import org.jupiter.registry.NotifyListener;
-import org.jupiter.registry.OfflineListener;
-import org.jupiter.registry.RegisterMeta;
-import org.jupiter.registry.RegistryService;
+import org.jupiter.registry.*;
 import org.jupiter.rpc.channel.DirectoryJChannelGroup;
 import org.jupiter.rpc.channel.JChannel;
 import org.jupiter.rpc.channel.JChannelGroup;
@@ -172,12 +169,16 @@ public abstract class AbstractJClient implements JClient {
 
     @Override
     public void offlineListening(UnresolvedAddress address, OfflineListener listener) {
-        registryService.offlineListening(transform2Address(address), listener);
+        if (registryService instanceof AbstractRegistryService) {
+            ((AbstractRegistryService) registryService).offlineListening(transform2Address(address), listener);
+        } else {
+            throw new UnsupportedOperationException();
+        }
     }
 
     protected abstract JChannelGroup newChannelGroup(UnresolvedAddress address);
 
-    private static ServiceMeta transform2ServiceMeta(Directory directory) {
+        private static ServiceMeta transform2ServiceMeta(Directory directory) {
         ServiceMeta serviceMeta = new ServiceMeta();
         serviceMeta.setGroup(checkNotNull(directory.getGroup(), "group"));
         serviceMeta.setVersion(checkNotNull(directory.getVersion(), "version"));
