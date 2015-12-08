@@ -70,7 +70,7 @@ public class DefaultProviderProcessor extends AbstractProviderProcessor {
     public ControlResult flowControl(JRequest request) {
         FlowController<JRequest> controller = server.getFlowController();
         if (controller == null) {
-            return ControlResult.CITY_WIDE_OPEN;
+            return ControlResult.ALLOWED;
         }
         return controller.flowControl(request);
     }

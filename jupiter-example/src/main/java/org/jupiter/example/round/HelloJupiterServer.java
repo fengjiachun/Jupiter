@@ -52,7 +52,7 @@ public class HelloJupiterServer {
                             if (count.getAndIncrement() > 9999) {
                                 return new ControlResult(false, "fuck out!!!");
                             }
-                            return ControlResult.CITY_WIDE_OPEN;
+                            return ControlResult.ALLOWED;
                         }
                     })
                     .register();

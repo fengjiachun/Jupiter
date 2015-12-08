@@ -26,7 +26,7 @@ package org.jupiter.rpc.flow.control;
  */
 public class ControlResult {
 
-    public static final ControlResult CITY_WIDE_OPEN = new ControlResult(true);
+    public static final ControlResult ALLOWED = new ControlResult(true);
 
     private final boolean allowed;
     private final String message;
