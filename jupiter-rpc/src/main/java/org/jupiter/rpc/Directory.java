@@ -16,6 +16,8 @@
 
 package org.jupiter.rpc;
 
+import org.jupiter.common.util.StringBuilderHelper;
+
 /**
  * jupiter
  * org.jupiter.rpc
@@ -46,8 +48,19 @@ public abstract class Directory {
             return directoryCache;
         }
 
-        directoryCache = getGroup() + '-' + getVersion() + '-' + getServiceProviderName();
+        StringBuilder buf = StringBuilderHelper.get();
+        buf.append(getGroup())
+                .append('-')
+                .append(getVersion())
+                .append('-')
+                .append(getServiceProviderName());
+
+        directoryCache = buf.toString();
 
         return directoryCache;
+    }
+
+    public void clear() {
+        directoryCache = null;
     }
 }

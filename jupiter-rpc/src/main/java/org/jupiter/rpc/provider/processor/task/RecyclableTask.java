@@ -21,6 +21,7 @@ import com.codahale.metrics.Meter;
 import com.codahale.metrics.Timer;
 import org.jupiter.common.concurrent.RejectedRunnable;
 import org.jupiter.common.util.RecycleUtil;
+import org.jupiter.common.util.StringBuilderHelper;
 import org.jupiter.common.util.SystemClock;
 import org.jupiter.common.util.internal.Recyclers;
 import org.jupiter.common.util.internal.logging.InternalLogger;
@@ -203,7 +204,11 @@ public class RecyclableTask implements RejectedRunnable {
             String methodName = msg.getMethodName();
 
             Object invokeResult = null;
-            Timer.Context timeCtx = Metrics.timer(msg.getMetadata().directory() + '#' + methodName).time();
+            StringBuilder nameBuf = StringBuilderHelper.get();
+            nameBuf.append(msg.getMetadata().directory())
+                    .append('#')
+                    .append(methodName);
+            Timer.Context timeCtx = Metrics.timer(nameBuf.toString()).time();
             try {
                 Object[] args = msg.getArgs();
                 List<Class<?>[]> parameterTypesList = service.getMethodParameterTypes(methodName);
