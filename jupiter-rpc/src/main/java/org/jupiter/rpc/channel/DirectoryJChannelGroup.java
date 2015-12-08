@@ -33,7 +33,7 @@ public class DirectoryJChannelGroup {
     private final ConcurrentMap<String, CopyOnWriteArrayList<JChannelGroup>> groups = Maps.newConcurrentHashMap();
 
     public CopyOnWriteArrayList<JChannelGroup> list(Directory directory) {
-        final String _directory = directory.directory();
+        String _directory = directory.directory();
 
         CopyOnWriteArrayList<JChannelGroup> groupList = groups.get(_directory);
         if (groupList == null) {
