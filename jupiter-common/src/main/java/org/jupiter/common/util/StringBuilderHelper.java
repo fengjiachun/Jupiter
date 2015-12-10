@@ -30,7 +30,7 @@ import static org.jupiter.common.util.internal.UnsafeAccess.UNSAFE;
  */
 public class StringBuilderHelper {
 
-    private static final int DISCARD_LIMIT = 1024 << 3;
+    private static final int DISCARD_LIMIT = 1024 << 3; // 8k
     private static final long VALUE_OFFSET;
     static {
         long offset;
@@ -43,36 +43,47 @@ public class StringBuilderHelper {
         VALUE_OFFSET = offset;
     }
 
-    private static final ThreadLocal<StringBuilderHelper>
-            threadLocalStringBuilderHelper = new ThreadLocal<StringBuilderHelper>() {
+    private static final ThreadLocal<StringBuilderHolder>
+            threadLocalStringBuilderHolder = new ThreadLocal<StringBuilderHolder>() {
 
         @Override
-        protected StringBuilderHelper initialValue() {
-            return new StringBuilderHelper();
+        protected StringBuilderHolder initialValue() {
+            return new StringBuilderHolder();
         }
     };
 
     public static StringBuilder get() {
-        StringBuilderHelper helper = threadLocalStringBuilderHelper.get();
-        return helper.getStringBuilder();
+        StringBuilderHolder holder = threadLocalStringBuilderHolder.get();
+        return holder.getStringBuilder();
     }
 
-    private final StringBuilder buf;
-
-    private StringBuilderHelper() {
-        buf = new StringBuilder();
+    public static void truncate() {
+        StringBuilderHolder holder = threadLocalStringBuilderHolder.get();
+        holder.truncate();
     }
 
-    private StringBuilder getStringBuilder() {
-        if (buf.length() > DISCARD_LIMIT) {
-            if (VALUE_OFFSET > 0) {
-                UNSAFE.putObject(buf, VALUE_OFFSET, new char[32]);
-            } else {
-                Reflects.setValue(buf, "value", new char[32]);
-            }
+    private static class StringBuilderHolder {
+
+        private final StringBuilder buf;
+
+        private StringBuilderHolder() {
+            buf = new StringBuilder();
         }
 
-        buf.setLength(0);
-        return buf;
+        private StringBuilder getStringBuilder() {
+            truncate();
+            return buf;
+        }
+
+        private void truncate() {
+            if (buf.capacity() > DISCARD_LIMIT) {
+                if (VALUE_OFFSET > 0) {
+                    UNSAFE.putObject(buf, VALUE_OFFSET, new char[1024]);
+                } else {
+                    Reflects.setValue(buf, "value", new char[1024]);
+                }
+            }
+            buf.setLength(0);
+        }
     }
 }
