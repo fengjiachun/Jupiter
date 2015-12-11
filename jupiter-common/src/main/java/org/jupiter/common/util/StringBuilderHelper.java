@@ -64,11 +64,7 @@ public class StringBuilderHelper {
 
     private static class StringBuilderHolder {
 
-        private final StringBuilder buf;
-
-        private StringBuilderHolder() {
-            buf = new StringBuilder();
-        }
+        private final StringBuilder buf = new StringBuilder();
 
         private StringBuilder getStringBuilder() {
             truncate();
