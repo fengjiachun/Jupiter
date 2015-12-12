@@ -17,6 +17,7 @@
 package org.jupiter.rpc.consumer.invoker;
 
 import org.jupiter.common.util.Reflects;
+import org.jupiter.rpc.JClient;
 import org.jupiter.rpc.consumer.dispatcher.Dispatcher;
 
 import java.lang.reflect.InvocationHandler;
@@ -33,15 +34,17 @@ import java.lang.reflect.Method;
  */
 public class AsyncInvoker implements InvocationHandler {
 
+    private final JClient client;
     private final Dispatcher dispatcher;
 
-    public AsyncInvoker(Dispatcher dispatcher) {
+    public AsyncInvoker(JClient client, Dispatcher dispatcher) {
+        this.client = client;
         this.dispatcher = dispatcher;
     }
 
     @Override
     public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
-        dispatcher.dispatch(method, args);
+        dispatcher.dispatch(client, method.getName(), args);
         return Reflects.getTypeDefaultValue(method.getReturnType());
     }
 }

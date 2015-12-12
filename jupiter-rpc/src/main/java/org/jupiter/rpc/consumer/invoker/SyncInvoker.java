@@ -16,7 +16,9 @@
 
 package org.jupiter.rpc.consumer.invoker;
 
+import org.jupiter.rpc.JClient;
 import org.jupiter.rpc.consumer.dispatcher.Dispatcher;
+import org.jupiter.rpc.consumer.future.InvokeFuture;
 
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
@@ -31,14 +33,17 @@ import java.lang.reflect.Method;
  */
 public class SyncInvoker implements InvocationHandler {
 
+    private final JClient client;
     private final Dispatcher dispatcher;
 
-    public SyncInvoker(Dispatcher dispatcher) {
+    public SyncInvoker(JClient client, Dispatcher dispatcher) {
+        this.client = client;
         this.dispatcher = dispatcher;
     }
 
     @Override
     public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
-        return dispatcher.dispatch(method, args).singleResult();
+        InvokeFuture future = dispatcher.dispatch(client, method.getName(), args);
+        return future.singleResult();
     }
 }

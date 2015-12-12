@@ -213,10 +213,10 @@ public class ProxyFactory {
             Dispatcher dispatcher = null;
             switch (dispatchMode) {
                 case ROUND:
-                    dispatcher = new DefaultRoundDispatcher(client, metadata);
+                    dispatcher = new DefaultRoundDispatcher(metadata);
                     break;
                 case BROADCAST:
-                    dispatcher = new DefaultBroadcastDispatcher(client, metadata);
+                    dispatcher = new DefaultBroadcastDispatcher(metadata);
                     break;
             }
             if (timeoutMills > 0) {
@@ -228,11 +228,11 @@ public class ProxyFactory {
             InvocationHandler handler = null;
             switch (asyncMode) {
                 case SYNC:
-                    handler = new SyncInvoker(dispatcher);
+                    handler = new SyncInvoker(client, dispatcher);
                     break;
                 case ASYNC_CALLBACK:
                     dispatcher.setListener(checkNotNull(listener, "listener"));
-                    handler = new AsyncInvoker(dispatcher);
+                    handler = new AsyncInvoker(client, dispatcher);
                     break;
             }
 

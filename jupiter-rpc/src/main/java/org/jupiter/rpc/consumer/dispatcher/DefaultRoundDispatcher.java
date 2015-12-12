@@ -28,7 +28,6 @@ import org.jupiter.rpc.consumer.future.InvokeFuture;
 import org.jupiter.rpc.model.metadata.MessageWrapper;
 import org.jupiter.rpc.model.metadata.ServiceMetadata;
 
-import java.lang.reflect.Method;
 import java.util.List;
 
 import static org.jupiter.serialization.SerializerHolder.serializer;
@@ -45,22 +44,21 @@ public class DefaultRoundDispatcher extends AbstractDispatcher {
 
     private static final InternalLogger logger = InternalLoggerFactory.getInstance(DefaultRoundDispatcher.class);
 
-    public DefaultRoundDispatcher(JClient client, ServiceMetadata metadata) {
-        super(client, metadata);
+    public DefaultRoundDispatcher(ServiceMetadata metadata) {
+        super(metadata);
     }
 
     @Override
-    public InvokeFuture dispatch(Method method, Object[] args) {
+    public InvokeFuture dispatch(JClient proxy, String method, Object[] args) {
         // stack copy
-        final JClient _client = client;
         final ServiceMetadata _metadata = metadata;
 
         MessageWrapper message = new MessageWrapper(_metadata);
-        message.setAppName(_client.appName());
-        message.setMethodName(method.getName());
+        message.setAppName(proxy.appName());
+        message.setMethodName(method);
         message.setArgs(args);
 
-        JChannel channel = _client.select(_metadata);
+        JChannel channel = proxy.select(_metadata);
 
         final JRequest request = new JRequest();
         request.message(message);

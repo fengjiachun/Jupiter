@@ -32,7 +32,6 @@ import org.jupiter.rpc.consumer.future.InvokeFuture;
 import org.jupiter.rpc.model.metadata.MessageWrapper;
 import org.jupiter.rpc.model.metadata.ServiceMetadata;
 
-import java.lang.reflect.Method;
 import java.util.List;
 
 import static org.jupiter.rpc.DispatchMode.BROADCAST;
@@ -50,22 +49,21 @@ public class DefaultBroadcastDispatcher extends AbstractDispatcher {
 
     private static final InternalLogger logger = InternalLoggerFactory.getInstance(DefaultBroadcastDispatcher.class);
 
-    public DefaultBroadcastDispatcher(JClient client, ServiceMetadata metadata) {
-        super(client, metadata);
+    public DefaultBroadcastDispatcher(ServiceMetadata metadata) {
+        super(metadata);
     }
 
     @Override
-    public InvokeFuture dispatch(Method method, Object[] args) {
+    public InvokeFuture dispatch(JClient proxy, String method, Object[] args) {
         // stack copy
-        final JClient _client = client;
         final ServiceMetadata _metadata = metadata;
 
         MessageWrapper message = new MessageWrapper(_metadata);
-        message.setAppName(_client.appName());
-        message.setMethodName(method.getName());
+        message.setAppName(proxy.appName());
+        message.setMethodName(method);
         message.setArgs(args);
 
-        List<JChannelGroup> groupList = _client.directory(_metadata);
+        List<JChannelGroup> groupList = proxy.directory(_metadata);
         RecyclableArrayList channels = Lists.newRecyclableArrayList();
         try {
             for (JChannelGroup group : groupList) {

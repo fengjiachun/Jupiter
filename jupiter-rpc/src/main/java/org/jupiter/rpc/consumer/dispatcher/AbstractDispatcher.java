@@ -16,7 +16,6 @@
 
 package org.jupiter.rpc.consumer.dispatcher;
 
-import org.jupiter.rpc.JClient;
 import org.jupiter.rpc.JListener;
 import org.jupiter.rpc.aop.ConsumerHook;
 import org.jupiter.rpc.model.metadata.ServiceMetadata;
@@ -33,15 +32,13 @@ import static org.jupiter.common.util.JConstants.DEFAULT_TIMEOUT;
  */
 public abstract class AbstractDispatcher implements Dispatcher {
 
-    protected final JClient client;
     protected final ServiceMetadata metadata;
 
     private List<ConsumerHook> hooks;
     private JListener listener;
     private int timeoutMills = DEFAULT_TIMEOUT;
 
-    public AbstractDispatcher(JClient client, ServiceMetadata metadata) {
-        this.client = client;
+    public AbstractDispatcher(ServiceMetadata metadata) {
         this.metadata = metadata;
     }
 
