@@ -45,7 +45,7 @@ public final class Reflects {
     /**
      * Maps primitive {@link Class}es to their corresponding wrapper {@link Class}.
      */
-    private static final Map<Class<?>, Class<?>> primitiveWrapperMap = Maps.newHashMap();
+    private static final Map<Class<?>, Class<?>> primitiveWrapperMap = Maps.newIdentityHashMap();
 
     static {
         primitiveWrapperMap.put(Boolean.TYPE, Boolean.class);
@@ -62,7 +62,7 @@ public final class Reflects {
     /**
      * Maps wrapper {@link Class}es to their corresponding primitive types.
      */
-    private static final Map<Class<?>, Class<?>> wrapperPrimitiveMap = Maps.newHashMap();
+    private static final Map<Class<?>, Class<?>> wrapperPrimitiveMap = Maps.newIdentityHashMap();
 
     static {
         for (Map.Entry<Class<?>, Class<?>> entry : primitiveWrapperMap.entrySet()) {
