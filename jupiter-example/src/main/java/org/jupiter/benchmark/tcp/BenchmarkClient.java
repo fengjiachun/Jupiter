@@ -16,14 +16,13 @@
 
 package org.jupiter.benchmark.tcp;
 
-import org.jupiter.common.util.SystemClock;
 import org.jupiter.common.util.SystemPropertyUtil;
 import org.jupiter.common.util.internal.logging.InternalLogger;
 import org.jupiter.common.util.internal.logging.InternalLoggerFactory;
 import org.jupiter.rpc.UnresolvedAddress;
 import org.jupiter.rpc.consumer.ProxyFactory;
-import org.jupiter.transport.netty.NettyConnector;
 import org.jupiter.transport.netty.JNettyTcpConnector;
+import org.jupiter.transport.netty.NettyConnector;
 
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.atomic.AtomicLong;
@@ -95,14 +94,9 @@ public class BenchmarkClient {
                 public void run() {
                     for (int i = 0; i < t; i++) {
                         try {
-                            long s = SystemClock.millisClock().now();
-
                             String result = service.hello("jupiter");
 
-                            if (logger.isDebugEnabled()) {
-                                logger.debug(result + " time cost=" + (SystemClock.millisClock().now() - s));
-                            }
-                            if (count.getAndIncrement() % 5000 == 0) {
+                            if (count.getAndIncrement() % 10000 == 0) {
                                 logger.warn("count=" + count.get());
                             }
                         } catch (Exception e) {
@@ -120,6 +114,6 @@ public class BenchmarkClient {
             e.printStackTrace();
         }
         long second = (System.currentTimeMillis() - start) / 1000;
-        System.err.println("Request count: " + count.get() + ", time: " + second + " second, qps: " + count.get() / second);
+        logger.warn("Request count: " + count.get() + ", time: " + second + " second, qps: " + count.get() / second);
     }
 }
