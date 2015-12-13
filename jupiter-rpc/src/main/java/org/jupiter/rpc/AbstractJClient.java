@@ -178,7 +178,7 @@ public abstract class AbstractJClient implements JClient {
 
     protected abstract JChannelGroup newChannelGroup(UnresolvedAddress address);
 
-        private static ServiceMeta transform2ServiceMeta(Directory directory) {
+    private static ServiceMeta transform2ServiceMeta(Directory directory) {
         ServiceMeta serviceMeta = new ServiceMeta();
         serviceMeta.setGroup(checkNotNull(directory.getGroup(), "group"));
         serviceMeta.setVersion(checkNotNull(directory.getVersion(), "version"));
