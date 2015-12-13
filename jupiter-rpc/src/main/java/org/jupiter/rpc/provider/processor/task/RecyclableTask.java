@@ -175,7 +175,7 @@ public class RecyclableTask implements RejectedRunnable {
             JResponse response = new JResponse(invokeId);
             response.status(status.value());
             try {
-                // 在业务线程里序列化, 减轻IO线程负担
+                // 在非IO线程里序列化, 减轻IO线程负担
                 byte[] bytes = serializer().writeObject(result);
                 response.bytes(bytes);
             } finally {
@@ -227,7 +227,7 @@ public class RecyclableTask implements RejectedRunnable {
             ResultWrapper result = ResultWrapper.getInstance();
             try {
                 result.setResult(invokeResult);
-                // 在业务线程里序列化, 减轻IO线程负担
+                // 在非IO线程里序列化, 减轻IO线程负担
                 byte[] bytes = serializer().writeObject(result);
                 bytesLength = bytes.length;
 

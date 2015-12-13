@@ -40,7 +40,7 @@ public class RecyclableTask implements Runnable {
     @Override
     public void run() {
         try {
-            // 业务线程里反序列化, 减轻IO线程负担
+            // 在非IO线程里反序列化, 减轻IO线程负担
             response.result(serializer().readObject(response.bytes(), ResultWrapper.class));
             response.bytes(null);
             DefaultInvokeFuture.received(channel, response);
