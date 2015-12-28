@@ -49,10 +49,6 @@ public abstract class RandomLoadBalance<T> implements LoadBalance<T> {
     @SuppressWarnings({"unchecked", "ForLoopReplaceableByForEach"})
     @Override
     public T select(CopyOnWriteArrayList<T> list) {
-        if (list == null || list.isEmpty()) {
-            throw new IllegalArgumentException("[LoadBalance] empty list for select");
-        }
-
         // 请原谅下面这段放荡不羁的糟糕代码
         Object[] array; // The snapshot of elements array
         if (ELEMENTS_OFFSET > 0) {
@@ -60,22 +56,22 @@ public abstract class RandomLoadBalance<T> implements LoadBalance<T> {
         } else {
             array = (Object[]) Reflects.getValue(list, "array");
         }
+
+        if (array.length == 0) {
+            throw new IllegalArgumentException("[LoadBalance] empty list for select");
+        }
         if (array.length == 1) {
             return (T) array[0];
         }
 
+        int totalWeight = 0;
         int[] weightSnapshots = new int[array.length];
         for (int i = 0; i < array.length; i++) {
-            weightSnapshots[i] = getWeight((T) array[i]);
-        }
-
-        int totalWeight = 0;
-        for (int i = 0; i < weightSnapshots.length; i++) { // for cpu write combining
-            totalWeight += weightSnapshots[i];
+            totalWeight += (weightSnapshots[i] = getWeight((T) array[i]));
         }
 
         boolean sameWeight = true;
-        for (int i = 1; i < weightSnapshots.length; i++) { // for cpu write combining
+        for (int i = 1; i < weightSnapshots.length; i++) {
             if (weightSnapshots[0] != weightSnapshots[i]) {
                 sameWeight = false;
                 break;
@@ -83,7 +79,7 @@ public abstract class RandomLoadBalance<T> implements LoadBalance<T> {
         }
 
         ThreadLocalRandom random = ThreadLocalRandom.current();
-        if (totalWeight > 0 && !sameWeight) {
+        if (!sameWeight && totalWeight > 0) {
             // 如果权重不相同且权重大于0, 则按总权重数随机
             int offset = random.nextInt(totalWeight);
 
