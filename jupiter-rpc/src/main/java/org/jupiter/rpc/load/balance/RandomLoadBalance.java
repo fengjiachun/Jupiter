@@ -60,13 +60,12 @@ public abstract class RandomLoadBalance<T> implements LoadBalance<T> {
         } else {
             array = (Object[]) Reflects.getValue(list, "array");
         }
-        int length = array.length;
-        if (length == 1) {
+        if (array.length == 1) {
             return (T) array[0];
         }
 
-        int[] weightSnapshots = new int[length];
-        for (int i = 0; i < length; i++) {
+        int[] weightSnapshots = new int[array.length];
+        for (int i = 0; i < array.length; i++) {
             weightSnapshots[i] = getWeight((T) array[i]);
         }
 
@@ -76,8 +75,8 @@ public abstract class RandomLoadBalance<T> implements LoadBalance<T> {
         }
 
         boolean sameWeight = true;
-        for (int i = 0; i < weightSnapshots.length; i++) { // for cpu write combining
-            if (i > 0 && weightSnapshots[i] != weightSnapshots[(i - 1)]) {
+        for (int i = 1; i < weightSnapshots.length; i++) { // for cpu write combining
+            if (weightSnapshots[0] != weightSnapshots[i]) {
                 sameWeight = false;
                 break;
             }
@@ -89,7 +88,7 @@ public abstract class RandomLoadBalance<T> implements LoadBalance<T> {
             int offset = random.nextInt(totalWeight);
 
             // 确定随机值落在哪个片
-            for (int i = 0; i < length; i++) {
+            for (int i = 0; i < weightSnapshots.length; i++) {
                 offset -= weightSnapshots[i];
                 if (offset < 0) {
                     return (T) array[i];
@@ -97,7 +96,7 @@ public abstract class RandomLoadBalance<T> implements LoadBalance<T> {
             }
         }
 
-        return (T) array[random.nextInt(length)];
+        return (T) array[random.nextInt(array.length)];
     }
 
     protected abstract int getWeight(T t);
