@@ -104,18 +104,18 @@ public class NettyChannelGroup implements JChannelGroup {
                 array = (Object[]) Reflects.getValue(channels, "array");
             }
 
-            if (array.length == 0) {
+            final int arrayLength = array.length;
+            if (arrayLength == 0) {
                 if (waitForAvailable(1500)) { // wait a moment
                     continue;
                 }
                 throw new IllegalStateException("no channel");
             }
-
-            if (array.length == 1) {
+            if (arrayLength == 1) {
                 return (JChannel) array[0];
             }
 
-            int offset = Math.abs(index.getAndIncrement() % array.length);
+            int offset = Math.abs(index.getAndIncrement() % arrayLength);
 
             return (JChannel) array[offset];
         }
