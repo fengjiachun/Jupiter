@@ -57,21 +57,22 @@ public abstract class RandomLoadBalance<T> implements LoadBalance<T> {
             array = (Object[]) Reflects.getValue(list, "array");
         }
 
-        if (array.length == 0) {
-            throw new IllegalArgumentException("[LoadBalance] empty list for select");
+        final int arrayLength = array.length;
+        if (arrayLength == 0) {
+            throw new IllegalArgumentException("empty elements for select");
         }
-        if (array.length == 1) {
+        if (arrayLength == 1) {
             return (T) array[0];
         }
 
         int totalWeight = 0;
-        int[] weightSnapshots = new int[array.length];
-        for (int i = 0; i < array.length; i++) {
+        int[] weightSnapshots = new int[arrayLength];
+        for (int i = 0; i < arrayLength; i++) {
             totalWeight += (weightSnapshots[i] = getWeight((T) array[i]));
         }
 
         boolean sameWeight = true;
-        for (int i = 1; i < weightSnapshots.length; i++) {
+        for (int i = 1; i < arrayLength; i++) {
             if (weightSnapshots[0] != weightSnapshots[i]) {
                 sameWeight = false;
                 break;
@@ -79,12 +80,11 @@ public abstract class RandomLoadBalance<T> implements LoadBalance<T> {
         }
 
         ThreadLocalRandom random = ThreadLocalRandom.current();
+        // 如果权重不相同且总权重大于0, 则按总权重数随机
         if (!sameWeight && totalWeight > 0) {
-            // 如果权重不相同且权重大于0, 则按总权重数随机
             int offset = random.nextInt(totalWeight);
-
             // 确定随机值落在哪个片
-            for (int i = 0; i < weightSnapshots.length; i++) {
+            for (int i = 0; i < arrayLength; i++) {
                 offset -= weightSnapshots[i];
                 if (offset < 0) {
                     return (T) array[i];
@@ -92,7 +92,7 @@ public abstract class RandomLoadBalance<T> implements LoadBalance<T> {
             }
         }
 
-        return (T) array[random.nextInt(array.length)];
+        return (T) array[random.nextInt(arrayLength)];
     }
 
     protected abstract int getWeight(T t);
