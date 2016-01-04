@@ -23,7 +23,7 @@ import org.jupiter.registry.*;
 import org.jupiter.rpc.channel.DirectoryJChannelGroup;
 import org.jupiter.rpc.channel.JChannel;
 import org.jupiter.rpc.channel.JChannelGroup;
-import org.jupiter.rpc.load.balance.LoadBalance;
+import org.jupiter.rpc.load.balance.LoadBalancer;
 
 import java.util.Collection;
 import java.util.concurrent.ConcurrentMap;
@@ -48,7 +48,7 @@ public abstract class AbstractJClient implements JClient {
     // SPI
     private final RegistryService registryService = JServiceLoader.load(RegistryService.class);
     @SuppressWarnings("unchecked")
-    private final LoadBalance<JChannelGroup> loadBalance = JServiceLoader.load(LoadBalance.class);
+    private final LoadBalancer<JChannelGroup> loadBalancer = JServiceLoader.load(LoadBalancer.class);
 
     private final DirectoryJChannelGroup directoryGroup = new DirectoryJChannelGroup();
     private final ConcurrentMap<UnresolvedAddress, JChannelGroup> addressGroups = Maps.newConcurrentHashMap();
@@ -131,7 +131,7 @@ public abstract class AbstractJClient implements JClient {
     @Override
     public JChannel select(Directory directory) {
         CopyOnWriteArrayList<JChannelGroup> groupList = directory(directory);
-        JChannelGroup group = loadBalance.select(groupList);
+        JChannelGroup group = loadBalancer.select(groupList);
         if (group.isAvailable()) {
             return group.next();
         }

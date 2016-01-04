@@ -14,4 +14,4 @@
 # limitations under the License.
 #
 
-org.jupiter.rpc.channel.JChannelGroupLoadBalance
+org.jupiter.rpc.channel.JChannelGroupLoadBalancer

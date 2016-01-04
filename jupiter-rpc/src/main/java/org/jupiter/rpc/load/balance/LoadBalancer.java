@@ -19,14 +19,14 @@ package org.jupiter.rpc.load.balance;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 /**
- * Load balance.
+ * Load balancer.
  *
  * jupiter
  * org.jupiter.rpc.load.balance
  *
  * @author jiachun.fjc
  */
-public interface LoadBalance<T> {
+public interface LoadBalancer<T> {
 
     /**
      * Select one in this list.

@@ -25,14 +25,14 @@ import java.util.concurrent.ThreadLocalRandom;
 import static org.jupiter.common.util.internal.UnsafeAccess.UNSAFE;
 
 /**
- * Random load balance with weight.
+ * Random load balancer with weight.
  *
  * jupiter
  * org.jupiter.rpc.load.balance
  *
  * @author jiachun.fjc
  */
-public abstract class RandomLoadBalance<T> implements LoadBalance<T> {
+public abstract class RandomLoadBalancer<T> implements LoadBalancer<T> {
 
     private static final long ELEMENTS_OFFSET;
     static {

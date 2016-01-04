@@ -17,17 +17,17 @@
 package org.jupiter.rpc.channel;
 
 import org.jupiter.common.util.SystemClock;
-import org.jupiter.rpc.load.balance.RandomLoadBalance;
+import org.jupiter.rpc.load.balance.RandomLoadBalancer;
 
 /**
- * Load balance for channel groups.
+ * Load balancer for channel groups.
  *
  * jupiter
  * org.jupiter.rpc.channel
  *
  * @author jiachun.fjc
  */
-public class JChannelGroupLoadBalance extends RandomLoadBalance<JChannelGroup> {
+public class JChannelGroupLoadBalancer extends RandomLoadBalancer<JChannelGroup> {
 
     @Override
     protected int getWeight(JChannelGroup group) {

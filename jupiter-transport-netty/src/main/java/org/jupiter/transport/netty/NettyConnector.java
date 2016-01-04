@@ -146,8 +146,8 @@ public abstract class NettyConnector extends AbstractJClient implements JConnect
                                             // 取消自动重连
                                             JConnectionManager.cancelReconnect(address);
 
-                                            // 移除ChannelGroup避免被LoadBalance选中, group不为空时不移除,
-                                            // 当group再次被LoadBalance选中并且为空时移除, 见AbstractJClient#select()
+                                            // 移除ChannelGroup避免被LoadBalancer选中, group不为空时不移除,
+                                            // 当group再次被LoadBalancer选中并且为空时移除, 见AbstractJClient#select()
                                             if (group.isEmpty()) {
                                                 removeChannelGroup(directory, group);
                                             }
