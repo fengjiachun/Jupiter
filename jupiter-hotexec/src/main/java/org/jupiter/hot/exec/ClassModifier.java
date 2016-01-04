@@ -34,7 +34,7 @@ public class ClassModifier {
     // CONSTANT_Utf8_info常量的tag标志
     private static final int CONSTANT_Utf8_info = 1;
 
-    // 常量池中14种常量所占的长度，CONSTANT_Utf8_info型常量除外，因为它不是定长的
+    // 常量池中14种常量所占的长度, CONSTANT_Utf8_info型常量除外, 因为它不是定长的
     private static final int[] CONSTANT_ITEM_LENGTH = {
             -1,         // 占位用的
             -1,         // tag 1:   CONSTANT_Utf8_info

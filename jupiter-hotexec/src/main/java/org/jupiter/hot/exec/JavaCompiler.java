@@ -51,6 +51,7 @@ public class JavaCompiler {
             classFileManager = new ClassFileManager(javaFileManager);
 
             List<String> classFiles = Lists.transform(classNames, new Function<String, String>() {
+
                 @Override
                 public String apply(String input) {
                     return classPath + input.replace(".", "/") + ".java";
