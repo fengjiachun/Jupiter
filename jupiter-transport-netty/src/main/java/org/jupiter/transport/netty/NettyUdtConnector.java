@@ -35,7 +35,7 @@ import java.util.concurrent.ThreadFactory;
  */
 public abstract class NettyUdtConnector extends NettyConnector {
 
-    private final NettyConfig.NettyUDTConfigGroup.ChildConfig childConfig = new NettyConfig.NettyUDTConfigGroup.ChildConfig();
+    private final NettyConfig.NettyUdtConfigGroup.ChildConfig childConfig = new NettyConfig.NettyUdtConfigGroup.ChildConfig();
 
     public NettyUdtConnector() {
         super(Protocol.UDT);
@@ -63,7 +63,7 @@ public abstract class NettyUdtConnector extends NettyConnector {
 
         Bootstrap boot = bootstrap();
 
-        NettyConfig.NettyUDTConfigGroup.ChildConfig child = childConfig;
+        NettyConfig.NettyUdtConfigGroup.ChildConfig child = childConfig;
 
         // child options
         boot.option(ChannelOption.SO_REUSEADDR, child.isReuseAddress());

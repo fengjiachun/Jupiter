@@ -36,7 +36,7 @@ import java.util.concurrent.ThreadFactory;
 public abstract class NettyTcpConnector extends NettyConnector {
 
     private final boolean nativeEt; // Use native epoll ET
-    private final NettyConfig.NettyTCPConfigGroup.ChildConfig childConfig = new NettyConfig.NettyTCPConfigGroup.ChildConfig();
+    private final NettyConfig.NettyTcpConfigGroup.ChildConfig childConfig = new NettyConfig.NettyTcpConfigGroup.ChildConfig();
 
     public NettyTcpConnector() {
         super(Protocol.TCP);
@@ -92,7 +92,7 @@ public abstract class NettyTcpConnector extends NettyConnector {
 
         Bootstrap boot = bootstrap();
 
-        NettyConfig.NettyTCPConfigGroup.ChildConfig child = childConfig;
+        NettyConfig.NettyTcpConfigGroup.ChildConfig child = childConfig;
 
         // child options
         boot.option(ChannelOption.SO_REUSEADDR, child.isReuseAddress())

@@ -127,7 +127,7 @@ public class NettyConfig implements JConfig {
     /**
      * TCP netty option
      */
-    public static class NettyTCPConfigGroup implements JConfigGroup {
+    public static class NettyTcpConfigGroup implements JConfigGroup {
 
         private ParentConfig parent = new ParentConfig();
         private ChildConfig child = new ChildConfig();
@@ -405,7 +405,7 @@ public class NettyConfig implements JConfig {
     /**
      * UDT netty option
      */
-    public static class NettyUDTConfigGroup implements JConfigGroup {
+    public static class NettyUdtConfigGroup implements JConfigGroup {
 
         private ParentConfig parent = new ParentConfig();
         private ChildConfig child = new ChildConfig();

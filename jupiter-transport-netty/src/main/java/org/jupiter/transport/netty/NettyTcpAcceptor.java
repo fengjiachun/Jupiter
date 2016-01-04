@@ -43,7 +43,7 @@ public abstract class NettyTcpAcceptor extends NettyAcceptor {
     private static final InternalLogger logger = InternalLoggerFactory.getInstance(NettyTcpAcceptor.class);
 
     private final boolean nativeEt; // Use native epoll ET
-    private final NettyConfig.NettyTCPConfigGroup configGroup = new NettyConfig.NettyTCPConfigGroup();
+    private final NettyConfig.NettyTcpConfigGroup configGroup = new NettyConfig.NettyTcpConfigGroup();
 
     public NettyTcpAcceptor(int port) {
         super(Protocol.TCP, new InetSocketAddress(port));
@@ -100,7 +100,7 @@ public abstract class NettyTcpAcceptor extends NettyAcceptor {
         ServerBootstrap boot = bootstrap();
 
         // parent options
-        NettyConfig.NettyTCPConfigGroup.ParentConfig parent = configGroup.parent();
+        NettyConfig.NettyTcpConfigGroup.ParentConfig parent = configGroup.parent();
         boot.option(ChannelOption.SO_BACKLOG, parent.getBacklog());
         boot.option(ChannelOption.SO_REUSEADDR, parent.isReuseAddress());
         if (parent.getRcvBuf() > 0) {
@@ -108,7 +108,7 @@ public abstract class NettyTcpAcceptor extends NettyAcceptor {
         }
 
         // child options
-        NettyConfig.NettyTCPConfigGroup.ChildConfig child = configGroup.child();
+        NettyConfig.NettyTcpConfigGroup.ChildConfig child = configGroup.child();
         boot.childOption(ChannelOption.SO_REUSEADDR, child.isReuseAddress())
                 .childOption(ChannelOption.SO_KEEPALIVE, child.isKeepAlive())
                 .childOption(ChannelOption.TCP_NODELAY, child.isTcpNoDelay())
