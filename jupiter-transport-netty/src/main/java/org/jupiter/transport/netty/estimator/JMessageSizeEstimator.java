@@ -57,14 +57,14 @@ public class JMessageSizeEstimator implements MessageSizeEstimator {
     }
 
     /**
-     * Return the default implementation which returns {@code -1} for unknown messages.
+     * Returns the default implementation which returns {@code -1} for unknown messages.
      */
     public static final MessageSizeEstimator DEFAULT = new JMessageSizeEstimator(0);
 
     private final Handle handle;
 
     /**
-     * Create a new instance
+     * Creates a new instance
      *
      * @param unknownSize The size which is returned for unknown messages.
      */
