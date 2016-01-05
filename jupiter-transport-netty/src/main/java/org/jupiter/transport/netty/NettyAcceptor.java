@@ -132,9 +132,8 @@ public abstract class NettyAcceptor extends AbstractJServer implements JAcceptor
                 allocator = new UnpooledByteBufAllocator(false);
             }
         }
-        bootstrap.childOption(ChannelOption.ALLOCATOR, allocator);
-        // MESSAGE_SIZE_ESTIMATOR默认实现只能计算ByteBuf
-        bootstrap.childOption(ChannelOption.MESSAGE_SIZE_ESTIMATOR, JMessageSizeEstimator.DEFAULT);
+        bootstrap.childOption(ChannelOption.ALLOCATOR, allocator)
+                .childOption(ChannelOption.MESSAGE_SIZE_ESTIMATOR, JMessageSizeEstimator.DEFAULT);
     }
 
     /**

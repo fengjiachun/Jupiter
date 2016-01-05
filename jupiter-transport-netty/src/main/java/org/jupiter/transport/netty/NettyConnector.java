@@ -239,10 +239,8 @@ public abstract class NettyConnector extends AbstractJClient implements JConnect
                 allocator = new UnpooledByteBufAllocator(false);
             }
         }
-        bootstrap.option(ChannelOption.ALLOCATOR, allocator);
-
-        // MESSAGE_SIZE_ESTIMATOR默认实现只能计算ByteBuf
-        bootstrap.option(ChannelOption.MESSAGE_SIZE_ESTIMATOR, JMessageSizeEstimator.DEFAULT);
+        bootstrap.option(ChannelOption.ALLOCATOR, allocator)
+                .option(ChannelOption.MESSAGE_SIZE_ESTIMATOR, JMessageSizeEstimator.DEFAULT);
     }
 
     /**
