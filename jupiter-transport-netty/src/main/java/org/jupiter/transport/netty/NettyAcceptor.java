@@ -21,6 +21,7 @@ import io.netty.buffer.ByteBufAllocator;
 import io.netty.buffer.PooledByteBufAllocator;
 import io.netty.buffer.UnpooledByteBufAllocator;
 import io.netty.channel.ChannelFuture;
+import io.netty.channel.ChannelOption;
 import io.netty.channel.EventLoopGroup;
 import io.netty.util.HashedWheelTimer;
 import io.netty.util.concurrent.DefaultThreadFactory;
@@ -30,6 +31,7 @@ import org.jupiter.rpc.AbstractJServer;
 import org.jupiter.transport.JAcceptor;
 import org.jupiter.transport.JConfig;
 import org.jupiter.transport.JOption;
+import org.jupiter.transport.netty.estimator.JMessageSizeEstimator;
 
 import java.net.InetSocketAddress;
 import java.net.SocketAddress;
@@ -130,6 +132,9 @@ public abstract class NettyAcceptor extends AbstractJServer implements JAcceptor
                 allocator = new UnpooledByteBufAllocator(false);
             }
         }
+        bootstrap.childOption(ChannelOption.ALLOCATOR, allocator);
+        // MESSAGE_SIZE_ESTIMATOR默认实现只能计算ByteBuf
+        bootstrap.childOption(ChannelOption.MESSAGE_SIZE_ESTIMATOR, JMessageSizeEstimator.DEFAULT);
     }
 
     /**
