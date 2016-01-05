@@ -92,24 +92,13 @@ public class AcceptorHandler extends ChannelInboundHandlerAdapter {
     public void channelWritabilityChanged(ChannelHandlerContext ctx) throws Exception {
         Channel ch = ctx.channel();
 
-        /**
-         * 高水位线: ChannelOption.WRITE_BUFFER_HIGH_WATER_MARK (默认值 64 * 1024)
-         * 低水位线: ChannelOption.WRITE_BUFFER_LOW_WATER_MARK (默认值 32 * 1024)
-         */
+        // 高水位线: ChannelOption.WRITE_BUFFER_HIGH_WATER_MARK (默认值 64 * 1024)
+        // 低水位线: ChannelOption.WRITE_BUFFER_LOW_WATER_MARK(默认值 32 * 1024)
         if (!ch.isWritable()) {
-            // 当前channel的缓冲区(OutboundBuffer)大小超过了WRITE_BUFFER_HIGH_WATER_MARK
-            if (ch.unsafe().outboundBuffer().size() > 32) {
-                // 大于32块的小块数据, 网络可能真的不好, OS的snd_buf被填满, 一直不能flush, 关闭当前channel
-                logger.error("{} is not writable. Going to close channel.", ch);
-
-                ch.close();
-            } else {
-                // 可能是单次写入的数据比较大, 不关闭连接
-                logger.warn("{} is not writable.", ch);
-            }
+            logger.warn("{} is not writable.", ch);
         } else {
             // 曾经高于高水位线的OutboundBuffer现在已经低于WRITE_BUFFER_LOW_WATER_MARK了
-            logger.info("{} is writable.", ch);
+            logger.warn("{} is writable(rehabilitate).", ch);
         }
     }
 
