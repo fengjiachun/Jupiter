@@ -16,7 +16,6 @@
 
 package org.jupiter.rpc.provider.processor;
 
-import org.jupiter.common.util.RecycleUtil;
 import org.jupiter.common.util.internal.logging.InternalLogger;
 import org.jupiter.common.util.internal.logging.InternalLoggerFactory;
 import org.jupiter.rpc.JRequest;
@@ -45,11 +44,7 @@ public abstract class AbstractProviderProcessor implements ProviderProcessor {
 
         JResponse response = new JResponse(request.invokeId());
         response.status(SERVICE_ERROR.value());
-        try {
-            response.bytes(serializer().writeObject(result));
-        } finally {
-            RecycleUtil.recycle(result);
-        }
+        response.bytes(serializer().writeObject(result));
 
         logger.error("An exception has been caught while processing request: {}.", stackTrace(cause));
 

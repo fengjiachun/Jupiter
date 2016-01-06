@@ -47,7 +47,7 @@ public class HelloJupiterClient {
         }
 
         ServiceTest service = ProxyFactory
-                .create()
+                .factory()
                 .connector(connector)
                 .interfaceClass(ServiceTest.class)
                 .newProxyInstance();

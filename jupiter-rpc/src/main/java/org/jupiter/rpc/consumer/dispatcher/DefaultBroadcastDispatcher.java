@@ -17,7 +17,6 @@
 package org.jupiter.rpc.consumer.dispatcher;
 
 import org.jupiter.common.util.Lists;
-import org.jupiter.common.util.internal.RecyclableArrayList;
 import org.jupiter.common.util.internal.logging.InternalLogger;
 import org.jupiter.common.util.internal.logging.InternalLoggerFactory;
 import org.jupiter.rpc.JClient;
@@ -64,45 +63,41 @@ public class DefaultBroadcastDispatcher extends AbstractDispatcher {
         message.setArgs(args);
 
         List<JChannelGroup> groupList = proxy.directory(_metadata);
-        RecyclableArrayList channels = Lists.newRecyclableArrayList();
-        try {
-            for (JChannelGroup group : groupList) {
-                if (group.isAvailable()) {
-                    channels.add(group.next());
-                }
+        List<JChannel> channels = Lists.newArrayListWithCapacity(groupList.size());
+        for (JChannelGroup group : groupList) {
+            if (group.isAvailable()) {
+                channels.add(group.next());
             }
+        }
 
-            final JRequest request = new JRequest();
-            request.message(message);
-            // 在非IO线程里序列化, 减轻IO线程负担
-            request.bytes(serializer().writeObject(message));
-            final List<ConsumerHook> _hooks = getHooks();
-            final JListener _listener = getListener();
-            for (Object obj : channels) {
-                final InvokeFuture invokeFuture = new DefaultInvokeFuture((JChannel) obj, request, getTimeoutMills(), BROADCAST)
-                        .hooks(_hooks)
-                        .listener(_listener);
+        final JRequest request = new JRequest();
+        request.message(message);
+        // 在非IO线程里序列化, 减轻IO线程负担
+        request.bytes(serializer().writeObject(message));
+        final List<ConsumerHook> _hooks = getHooks();
+        final JListener _listener = getListener();
+        for (JChannel ch : channels) {
+            final InvokeFuture invokeFuture = new DefaultInvokeFuture(ch, request, getTimeoutMills(), BROADCAST)
+                    .hooks(_hooks)
+                    .listener(_listener);
 
-                ((JChannel) obj).write(request, new JFutureListener<JChannel>() {
+            ch.write(request, new JFutureListener<JChannel>() {
 
-                    @Override
-                    public void operationComplete(JChannel channel, boolean isSuccess) throws Exception {
-                        if (isSuccess) {
-                            invokeFuture.sent();
+                @Override
+                public void operationComplete(JChannel channel, boolean isSuccess) throws Exception {
+                    if (isSuccess) {
+                        invokeFuture.sent();
 
-                            if (_hooks != null) {
-                                for (ConsumerHook h : _hooks) {
-                                    h.before(request);
-                                }
+                        if (_hooks != null) {
+                            for (ConsumerHook h : _hooks) {
+                                h.before(request);
                             }
-                        } else {
-                            logger.warn("Writes {} fail on {}.", request, channel);
                         }
+                    } else {
+                        logger.warn("Writes {} fail on {}.", request, channel);
                     }
-                });
-            }
-        } finally {
-            Lists.recycleArrayList(channels);
+                }
+            });
         }
 
         return null;

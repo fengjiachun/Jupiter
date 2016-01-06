@@ -16,9 +16,6 @@
 
 package org.jupiter.rpc.model.metadata;
 
-import org.jupiter.common.util.Recyclable;
-import org.jupiter.common.util.internal.Recyclers;
-
 import java.io.Serializable;
 
 /**
@@ -29,7 +26,7 @@ import java.io.Serializable;
  *
  * @author jiachun.fjc
  */
-public class ResultWrapper implements Recyclable, Serializable {
+public class ResultWrapper implements Serializable {
 
     private static final long serialVersionUID = -1126932930252953428L;
 
@@ -53,36 +50,7 @@ public class ResultWrapper implements Recyclable, Serializable {
     }
 
     public static ResultWrapper getInstance() {
-        return recyclers.get();
-    }
-
-    public ResultWrapper() {
-        this.handle = null;
-    }
-
-    @Override
-    public boolean recycle() {
-        if (handle == null) return false;
-
-        // help GC
-        result = null;
-        error = null;
-
-        return recyclers.recycle(this, handle);
-    }
-
-    private static final Recyclers<ResultWrapper> recyclers = new Recyclers<ResultWrapper>() {
-
-        @Override
-        protected ResultWrapper newObject(Handle handle) {
-            return new ResultWrapper(handle);
-        }
-    };
-
-    private transient final Recyclers.Handle handle;
-
-    private ResultWrapper(Recyclers.Handle handle) {
-        this.handle = handle;
+        return new ResultWrapper();
     }
 
     @Override

@@ -16,8 +16,6 @@
 
 package org.jupiter.common.util;
 
-import org.jupiter.common.util.internal.RecyclableArrayList;
-
 import java.io.Serializable;
 import java.util.*;
 
@@ -83,40 +81,6 @@ public final class Lists {
     public static <E> ArrayList<E> newArrayListWithCapacity(int initialArraySize) {
         checkArgument(initialArraySize >= 0);
         return new ArrayList<>(initialArraySize);
-    }
-
-    /**
-     * Returns a simple list which is recyclable.
-     *
-     * <p/>
-     * <pre>
-     *     List&lt{@link Object}&gt list = Lists.newRecyclableArrayList();
-     *     try {
-     *         // ...
-     *     } finally {
-     *         Lists.recycleArrayList(list);
-     *     }
-     * </pre>
-     */
-    public static RecyclableArrayList newRecyclableArrayList() {
-        return RecyclableArrayList.newInstance();
-    }
-
-    /**
-     * Recycles the RecyclableArrayList.
-     *
-     * <p/>
-     * <pre>
-     *     List&lt{@link Object}&gt list = Lists.newRecyclableArrayList();
-     *     try {
-     *         // ...
-     *     } finally {
-     *         Lists.recycleArrayList(list);
-     *     }
-     * </pre>
-     */
-    public static boolean recycleArrayList(RecyclableArrayList list) {
-        return RecycleUtil.recycle(list);
     }
 
     /**

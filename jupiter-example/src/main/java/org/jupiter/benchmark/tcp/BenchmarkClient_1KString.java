@@ -51,7 +51,7 @@ public class BenchmarkClient_1KString {
         }
 
         final Service service = ProxyFactory
-                .create()
+                .factory()
                 .connector(connector)
                 .addProviderAddress(addresses)
                 .interfaceClass(Service.class)

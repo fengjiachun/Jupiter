@@ -43,7 +43,7 @@ public class HelloJupiterClient {
         connector.connect(address3);
 
         ServiceTest service = ProxyFactory
-                .create()
+                .factory()
                 .connector(connector)
                 .dispatchMode(BROADCAST)
                 .asyncMode(ASYNC_CALLBACK)

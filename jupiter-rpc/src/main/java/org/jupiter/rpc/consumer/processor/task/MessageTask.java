@@ -16,7 +16,6 @@
 
 package org.jupiter.rpc.consumer.processor.task;
 
-import org.jupiter.common.util.internal.Recyclers;
 import org.jupiter.rpc.JResponse;
 import org.jupiter.rpc.channel.JChannel;
 import org.jupiter.rpc.consumer.future.DefaultInvokeFuture;
@@ -25,57 +24,30 @@ import org.jupiter.rpc.model.metadata.ResultWrapper;
 import static org.jupiter.serialization.SerializerHolder.serializer;
 
 /**
- * Recyclable Task, reduce distribution and recovery of small objects (help gc).
  *
  * jupiter
  * org.jupiter.rpc.consumer.processor.task
  *
  * @author jiachun.fjc
  */
-public class RecyclableTask implements Runnable {
+public class MessageTask implements Runnable {
 
     private JChannel channel;
     private JResponse response;
 
     @Override
     public void run() {
-        try {
-            // 在非IO线程里反序列化, 减轻IO线程负担
-            response.result(serializer().readObject(response.bytes(), ResultWrapper.class));
-            response.bytes(null);
-            DefaultInvokeFuture.received(channel, response);
-        } finally {
-            recycle();
-        }
+        // 在非IO线程里反序列化, 减轻IO线程负担
+        response.result(serializer().readObject(response.bytes(), ResultWrapper.class));
+        response.bytes(null);
+        DefaultInvokeFuture.received(channel, response);
     }
 
-    public static RecyclableTask getInstance(JChannel channel, JResponse response) {
-        RecyclableTask task = recyclers.get();
+    public static MessageTask getInstance(JChannel channel, JResponse response) {
+        MessageTask task = new MessageTask();
 
         task.channel = channel;
         task.response = response;
         return task;
     }
-
-    private RecyclableTask(Recyclers.Handle handle) {
-        this.handle = handle;
-    }
-
-    private boolean recycle() {
-        // help GC
-        this.response = null;
-        this.channel = null;
-
-        return recyclers.recycle(this, handle);
-    }
-
-    private static final Recyclers<RecyclableTask> recyclers = new Recyclers<RecyclableTask>() {
-
-        @Override
-        protected RecyclableTask newObject(Handle handle) {
-            return new RecyclableTask(handle);
-        }
-    };
-
-    private transient final Recyclers.Handle handle;
 }

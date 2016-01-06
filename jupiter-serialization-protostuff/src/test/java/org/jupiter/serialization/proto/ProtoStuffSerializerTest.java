@@ -17,8 +17,6 @@
 package org.jupiter.serialization.proto;
 
 import org.junit.Test;
-import org.jupiter.common.util.Recyclable;
-import org.jupiter.common.util.internal.Recyclers;
 import org.jupiter.serialization.Serializer;
 
 import java.io.Serializable;
@@ -40,7 +38,7 @@ public class ProtoStuffSerializerTest {
     @Test
     public void testSerializer() {
         Serializer serializer = serializer();
-        ResultWrapper wrapper = ResultWrapper.getInstance();
+        ResultWrapper wrapper = new ResultWrapper();
         wrapper.setResult("test");
         // Class<?>[] parameterTypes 需要优化 -------- 后续: 已优化掉了
         wrapper.setClazz(new Class[] { String.class, ArrayList.class, Serializable.class });
@@ -62,7 +60,7 @@ public class ProtoStuffSerializerTest {
     }
 }
 
-class ResultWrapper implements Recyclable, Serializable {
+class ResultWrapper implements Serializable {
 
     private static final long serialVersionUID = -1126932930252953428L;
 
@@ -92,48 +90,6 @@ class ResultWrapper implements Recyclable, Serializable {
 
     public void setClazz(Class<?>[] clazz) {
         this.clazz = clazz;
-    }
-
-    /**
-     * 获取一个ResultWrapper对象
-     */
-    public static ResultWrapper getInstance() {
-        return recyclers.get();
-    }
-
-    /**
-     * 照顾一些需要调用默认构造函数的反序列化框架
-     */
-    public ResultWrapper() {
-        this.handle = null;
-    }
-
-    /**
-     * 回收ResultWrapper对象, 如果不是通过getInstance()不需要回收
-     */
-    @Override
-    public boolean recycle() {
-        if (handle == null) return false;
-
-        // help GC
-        result = null;
-        error = null;
-
-        return recyclers.recycle(this, handle);
-    }
-
-    private static final Recyclers<ResultWrapper> recyclers = new Recyclers<ResultWrapper>() {
-
-        @Override
-        protected ResultWrapper newObject(Handle handle) {
-            return new ResultWrapper(handle);
-        }
-    };
-
-    private transient final Recyclers.Handle handle;
-
-    private ResultWrapper(Recyclers.Handle handle) {
-        this.handle = handle;
     }
 
     @Override

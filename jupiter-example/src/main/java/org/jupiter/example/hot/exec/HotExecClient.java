@@ -58,7 +58,7 @@ public class HotExecClient {
         }
 
         JavaClassExec service = ProxyFactory
-                .create()
+                .factory()
                 .connector(connector)
                 .dispatchMode(BROADCAST)
                 .asyncMode(ASYNC_CALLBACK)

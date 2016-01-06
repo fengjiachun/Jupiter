@@ -20,10 +20,8 @@ import com.codahale.metrics.Histogram;
 import com.codahale.metrics.Meter;
 import com.codahale.metrics.Timer;
 import org.jupiter.common.concurrent.RejectedRunnable;
-import org.jupiter.common.util.RecycleUtil;
 import org.jupiter.common.util.StringBuilderHelper;
 import org.jupiter.common.util.SystemClock;
-import org.jupiter.common.util.internal.Recyclers;
 import org.jupiter.common.util.internal.logging.InternalLogger;
 import org.jupiter.common.util.internal.logging.InternalLoggerFactory;
 import org.jupiter.rpc.JRequest;
@@ -54,16 +52,15 @@ import static org.jupiter.rpc.Status.*;
 import static org.jupiter.serialization.SerializerHolder.serializer;
 
 /**
- * Recyclable Task, reduce distribution and recovery of small objects (help gc).
  *
  * jupiter
  * org.jupiter.rpc.provider.processor.task
  *
  * @author jiachun.fjc
  */
-public class RecyclableTask implements RejectedRunnable {
+public class MessageTask implements RejectedRunnable {
 
-    private static final InternalLogger logger = InternalLoggerFactory.getInstance(RecyclableTask.class);
+    private static final InternalLogger logger = InternalLoggerFactory.getInstance(MessageTask.class);
 
     // - Metrics -------------------------------------------------------------------------------------------------------
     // 请求处理耗时统计(从request被解码开始, 到response数据被刷到OS内核缓冲区为止)
@@ -143,59 +140,51 @@ public class RecyclableTask implements RejectedRunnable {
     }
 
     private void rejected(Status status, Object signal) {
-        try {
-            rejectionMeter.mark();
-            ResultWrapper result = ResultWrapper.getInstance();
-            switch (status) {
-                case SERVER_BUSY:
-                    result.setError(new ServerBusyException());
-                    break;
-                case BAD_REQUEST:
-                    result.setError(new BadRequestException());
-                    break;
-                case SERVICE_NOT_FOUND:
-                    result.setError(new ServiceNotFoundException(request.message().toString()));
-                    break;
-                case APP_FLOW_CONTROL:
-                case PROVIDER_FLOW_CONTROL:
-                    if (signal != null && signal instanceof ControlResult) {
-                        result.setError(new FlowControlException(((ControlResult) signal).getMessage()));
-                    } else {
-                        result.setError(new FlowControlException());
-                    }
-                    break;
-                default:
-                    logger.warn("Unexpected status.", status.description());
-                    return;
-            }
-
-            logger.warn("Service rejected: {}.", stackTrace(result.getError()));
-
-            final long invokeId = request.invokeId();
-            JResponse response = new JResponse(invokeId);
-            response.status(status.value());
-            try {
-                // 在非IO线程里序列化, 减轻IO线程负担
-                byte[] bytes = serializer().writeObject(result);
-                response.bytes(bytes);
-            } finally {
-                RecycleUtil.recycle(result);
-            }
-
-            channel.write(response, new JFutureListener<JChannel>() {
-
-                @Override
-                public void operationComplete(JChannel channel, boolean isSuccess) throws Exception {
-                    if (isSuccess) {
-                        logger.debug("Service rejection sent out: {}.", invokeId);
-                    } else {
-                        logger.warn("Service rejection sent failed: {}.", invokeId);
-                    }
+        rejectionMeter.mark();
+        ResultWrapper result = ResultWrapper.getInstance();
+        switch (status) {
+            case SERVER_BUSY:
+                result.setError(new ServerBusyException());
+                break;
+            case BAD_REQUEST:
+                result.setError(new BadRequestException());
+                break;
+            case SERVICE_NOT_FOUND:
+                result.setError(new ServiceNotFoundException(request.message().toString()));
+                break;
+            case APP_FLOW_CONTROL:
+            case PROVIDER_FLOW_CONTROL:
+                if (signal != null && signal instanceof ControlResult) {
+                    result.setError(new FlowControlException(((ControlResult) signal).getMessage()));
+                } else {
+                    result.setError(new FlowControlException());
                 }
-            });
-        } finally {
-            recycle();
+                break;
+            default:
+                logger.warn("Unexpected status.", status.description());
+                return;
         }
+
+        logger.warn("Service rejected: {}.", stackTrace(result.getError()));
+
+        final long invokeId = request.invokeId();
+        JResponse response = new JResponse(invokeId);
+        response.status(status.value());
+        // 在非IO线程里序列化, 减轻IO线程负担
+        byte[] bytes = serializer().writeObject(result);
+        response.bytes(bytes);
+
+        channel.write(response, new JFutureListener<JChannel>() {
+
+            @Override
+            public void operationComplete(JChannel channel, boolean isSuccess) throws Exception {
+                if (isSuccess) {
+                    logger.debug("Service rejection sent out: {}.", invokeId);
+                } else {
+                    logger.warn("Service rejection sent failed: {}.", invokeId);
+                }
+            }
+        });
     }
 
     private void process(ServiceWrapper service) {
@@ -223,21 +212,14 @@ public class RecyclableTask implements RejectedRunnable {
             JResponse response = new JResponse(invokeId);
             response.status(OK.value());
 
-            int bytesLength = 0;
             ResultWrapper result = ResultWrapper.getInstance();
-            try {
-                result.setResult(invokeResult);
-                // 在非IO线程里序列化, 减轻IO线程负担
-                byte[] bytes = serializer().writeObject(result);
-                bytesLength = bytes.length;
-
-                response.bytes(bytes);
-            } finally {
-                RecycleUtil.recycle(result);
-            }
+            result.setResult(invokeResult);
+            // 在非IO线程里序列化, 减轻IO线程负担
+            byte[] bytes = serializer().writeObject(result);
+            response.bytes(bytes);
 
             final long timestamp = request.timestamp();
-            final int bodyLength = bytesLength;
+            final int bodyLength = bytes.length;
             channel.write(response, new JFutureListener<JChannel>() {
 
                 @Override
@@ -257,40 +239,15 @@ public class RecyclableTask implements RejectedRunnable {
             });
         } catch (Throwable t) {
             processor.handleException(channel, request, t);
-        } finally {
-            recycle();
         }
     }
 
-    public static RecyclableTask getInstance(ProviderProcessor processor, JChannel channel, JRequest request) {
-        RecyclableTask task = recyclers.get();
+    public static MessageTask getInstance(ProviderProcessor processor, JChannel channel, JRequest request) {
+        MessageTask task = new MessageTask();
 
         task.processor = processor;
         task.channel = channel;
         task.request = request;
         return task;
     }
-
-    private RecyclableTask(Recyclers.Handle handle) {
-        this.handle = handle;
-    }
-
-    private boolean recycle() {
-        // help GC
-        this.processor = null;
-        this.channel = null;
-        this.request = null;
-
-        return recyclers.recycle(this, handle);
-    }
-
-    private static final Recyclers<RecyclableTask> recyclers = new Recyclers<RecyclableTask>() {
-
-        @Override
-        protected RecyclableTask newObject(Handle handle) {
-            return new RecyclableTask(handle);
-        }
-    };
-
-    private transient final Recyclers.Handle handle;
 }

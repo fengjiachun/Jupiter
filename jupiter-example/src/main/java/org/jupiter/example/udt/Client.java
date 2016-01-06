@@ -36,7 +36,7 @@ public class Client {
         connector.connect(address);
 
         ServiceTest service = ProxyFactory
-                .create()
+                .factory()
                 .connector(connector)
                 .addProviderAddress(address)
                 .interfaceClass(ServiceTest.class)
