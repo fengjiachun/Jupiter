@@ -159,7 +159,7 @@ public abstract class Recyclers<T> {
             // we don't want to have a ref to the queue as the value in our weak map
             // so we null it out; to ensure there are no races with restoring it later
             // we impose a memory ordering here (no-op on x86)
-            Map<Stack<?>, WeakOrderQueue> delayedRecycled = DELAYED_RECYCLED.get();
+            Map<Stack<?>, WeakOrderQueue> delayedRecycled = Recyclers.delayedRecycled.get();
             WeakOrderQueue queue = delayedRecycled.get(stack);
             if (queue == null) {
                 delayedRecycled.put(stack, queue = new WeakOrderQueue(stack, thread));
@@ -168,7 +168,7 @@ public abstract class Recyclers<T> {
         }
     }
 
-    private static final ThreadLocal<Map<Stack<?>, WeakOrderQueue>> DELAYED_RECYCLED =
+    private static final ThreadLocal<Map<Stack<?>, WeakOrderQueue>> delayedRecycled =
             new ThreadLocal<Map<Stack<?>, WeakOrderQueue>>() {
 
                 @Override
@@ -201,11 +201,14 @@ public abstract class Recyclers<T> {
         WeakOrderQueue(Stack<?> stack, Thread thread) {
             head = tail = new Link();
             owner = new WeakReference<>(thread);
-            // noinspection SynchronizationOnLocalVariableOrMethodParameter
-            synchronized (stack) {
+            synchronized (stackLock(stack)) {
                 next = stack.head;
                 stack.head = this;
             }
+        }
+
+        private Object stackLock(Stack<?> stack) {
+            return stack;
         }
 
         void add(DefaultHandle handle) {
@@ -380,7 +383,7 @@ public abstract class Recyclers<T> {
                     // performing a volatile read to confirm there is no data left to collect.
                     // We never unlink the first queue, as we don't want to synchronize on updating the head.
                     if (cursor.hasFinalData()) {
-                        for (; ; ) {
+                        for (;;) {
                             if (cursor.transfer(this)) {
                                 success = true;
                             } else {
