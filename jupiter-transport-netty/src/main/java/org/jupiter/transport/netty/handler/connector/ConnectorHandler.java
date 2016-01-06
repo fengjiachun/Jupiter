@@ -72,9 +72,14 @@ public class ConnectorHandler extends ChannelInboundHandlerAdapter {
             // 当前channel的缓冲区(OutboundBuffer)大小超过了WRITE_BUFFER_HIGH_WATER_MARK
             logger.warn("{} is not writable, the number of flushed entries that are not written yet: {}.",
                     ch, ch.unsafe().outboundBuffer().size());
+
+            ch.config().setAutoRead(false);
         } else {
             // 曾经高于高水位线的OutboundBuffer现在已经低于WRITE_BUFFER_LOW_WATER_MARK了
-            logger.warn("{} is writable(rehabilitate).", ch);
+            logger.warn("{} is writable(rehabilitate), the number of flushed entries that are not written yet: {}.",
+                    ch, ch.unsafe().outboundBuffer().size());
+
+            ch.config().setAutoRead(true);
         }
     }
 
