@@ -143,8 +143,8 @@ public class RecyclableTask implements RejectedRunnable {
     }
 
     private void rejected(Status status, Object signal) {
-        rejectionMeter.mark();
         try {
+            rejectionMeter.mark();
             ResultWrapper result = ResultWrapper.getInstance();
             switch (status) {
                 case SERVER_BUSY:
