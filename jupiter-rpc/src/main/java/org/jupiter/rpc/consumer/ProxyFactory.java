@@ -262,7 +262,7 @@ public class ProxyFactory {
         }
     };
 
-    private ProxyFactory(Recyclers.Handle<ProxyFactory> handle) {
+    private ProxyFactory(Recyclers.Handle handle) {
         this.handle = handle;
     }
 
@@ -281,10 +281,10 @@ public class ProxyFactory {
     private static final Recyclers<ProxyFactory> recyclers = new Recyclers<ProxyFactory>() {
 
         @Override
-        protected ProxyFactory newObject(Handle<ProxyFactory> handle) {
+        protected ProxyFactory newObject(Handle handle) {
             return new ProxyFactory(handle);
         }
     };
 
-    private transient final Recyclers.Handle<ProxyFactory> handle;
+    private transient final Recyclers.Handle handle;
 }

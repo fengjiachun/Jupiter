@@ -271,7 +271,7 @@ public class RecyclableTask implements RejectedRunnable {
         return task;
     }
 
-    private RecyclableTask(Recyclers.Handle<RecyclableTask> handle) {
+    private RecyclableTask(Recyclers.Handle handle) {
         this.handle = handle;
     }
 
@@ -287,10 +287,10 @@ public class RecyclableTask implements RejectedRunnable {
     private static final Recyclers<RecyclableTask> recyclers = new Recyclers<RecyclableTask>() {
 
         @Override
-        protected RecyclableTask newObject(Handle<RecyclableTask> handle) {
+        protected RecyclableTask newObject(Handle handle) {
             return new RecyclableTask(handle);
         }
     };
 
-    private transient final Recyclers.Handle<RecyclableTask> handle;
+    private transient final Recyclers.Handle handle;
 }

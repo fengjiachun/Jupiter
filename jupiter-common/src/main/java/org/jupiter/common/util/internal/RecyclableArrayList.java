@@ -128,21 +128,21 @@ public final class RecyclableArrayList extends ArrayList<Object> implements Recy
         return recyclers.recycle(this, handle);
     }
 
-    private RecyclableArrayList(Recyclers.Handle<RecyclableArrayList> handle) {
+    private RecyclableArrayList(Recyclers.Handle handle) {
         this(handle, DEFAULT_INITIAL_CAPACITY);
     }
 
-    private RecyclableArrayList(Recyclers.Handle<RecyclableArrayList> handle, int initialCapacity) {
+    private RecyclableArrayList(Recyclers.Handle handle, int initialCapacity) {
         super(initialCapacity);
         this.handle = handle;
     }
 
-    private transient final Recyclers.Handle<RecyclableArrayList> handle;
+    private transient final Recyclers.Handle handle;
 
     private static final Recyclers<RecyclableArrayList> recyclers = new Recyclers<RecyclableArrayList>() {
 
         @Override
-        protected RecyclableArrayList newObject(Handle<RecyclableArrayList> handle) {
+        protected RecyclableArrayList newObject(Handle handle) {
             return new RecyclableArrayList(handle);
         }
     };

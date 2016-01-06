@@ -74,14 +74,14 @@ public class ResultWrapper implements Recyclable, Serializable {
     private static final Recyclers<ResultWrapper> recyclers = new Recyclers<ResultWrapper>() {
 
         @Override
-        protected ResultWrapper newObject(Handle<ResultWrapper> handle) {
+        protected ResultWrapper newObject(Handle handle) {
             return new ResultWrapper(handle);
         }
     };
 
-    private transient final Recyclers.Handle<ResultWrapper> handle;
+    private transient final Recyclers.Handle handle;
 
-    private ResultWrapper(Recyclers.Handle<ResultWrapper> handle) {
+    private ResultWrapper(Recyclers.Handle handle) {
         this.handle = handle;
     }
 

@@ -50,14 +50,14 @@ public class RecyclerTest {
         private static final Recyclers<RecyclableObject> recycler = new Recyclers<RecyclableObject>() {
 
             @Override
-            protected RecyclableObject newObject(Handle<RecyclableObject> handle) {
+            protected RecyclableObject newObject(Handle handle) {
                 return new RecyclableObject(handle);
             }
         };
 
-        private final Recyclers.Handle<RecyclableObject> handle;
+        private final Recyclers.Handle handle;
 
-        private RecyclableObject(Recyclers.Handle<RecyclableObject> handle) {
+        private RecyclableObject(Recyclers.Handle handle) {
             this.handle = handle;
         }
 
@@ -83,8 +83,7 @@ public class RecyclerTest {
         Recyclers<HandledObject> recycler = new Recyclers<HandledObject>(maxCapacity) {
 
             @Override
-            protected HandledObject newObject(
-                    Recyclers.Handle<HandledObject> handle) {
+            protected HandledObject newObject(Recyclers.Handle handle) {
                 return new HandledObject(handle);
             }
         };
@@ -107,7 +106,7 @@ public class RecyclerTest {
         final Recyclers<HandledObject> recycler = new Recyclers<HandledObject>(256) {
 
             @Override
-            protected HandledObject newObject(Recyclers.Handle<HandledObject> handle) {
+            protected HandledObject newObject(Recyclers.Handle handle) {
 
                 return new HandledObject(handle);
             }
@@ -132,7 +131,7 @@ public class RecyclerTest {
         final Recyclers<HandledObject> recycler = new Recyclers<HandledObject>(maxCapacity) {
 
             @Override
-            protected HandledObject newObject(Recyclers.Handle<HandledObject> handle) {
+            protected HandledObject newObject(Recyclers.Handle handle) {
                 return new HandledObject(handle);
             }
         };
@@ -174,9 +173,9 @@ public class RecyclerTest {
     }
 
     static final class HandledObject {
-        Recyclers.Handle<HandledObject> handle;
+        Recyclers.Handle handle;
 
-        HandledObject(Recyclers.Handle<HandledObject> handle) {
+        HandledObject(Recyclers.Handle handle) {
             this.handle = handle;
         }
     }
