@@ -198,7 +198,6 @@ public class GenericProxyFactory {
         }
         dispatcher.setHooks(hooks);
 
-        // invocation handler
         GenericInvoker genericInvoker = null;
         switch (asyncMode) {
             case SYNC:
