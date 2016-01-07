@@ -55,7 +55,7 @@ public class GenericClient {
                 .newProxyInstance();
 
         try {
-            Object result = invoker.$invoke("sayHello1", "Luca");
+            Object result = invoker.$invoke("sayHello", "Luca");
             System.out.println(result);
         } catch (Throwable e) {
             e.printStackTrace();

@@ -201,6 +201,9 @@ public class MessageTask implements RejectedRunnable {
             try {
                 Object[] args = msg.getArgs();
                 List<Class<?>[]> parameterTypesList = service.getMethodParameterTypes(methodName);
+                if (parameterTypesList == null) {
+                    throw new NoSuchMethodException(methodName);
+                }
                 Class<?>[] parameterTypes = findMatchingParameterTypes(parameterTypesList, args);
 
                 invokeResult = fastInvoke(service.getServiceProvider(), methodName, parameterTypes, args);
