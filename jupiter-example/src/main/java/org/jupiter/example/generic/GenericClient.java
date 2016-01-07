@@ -27,7 +27,7 @@ import org.jupiter.transport.netty.NettyConnector;
 
 /**
  * jupiter
- * org.jupiter.example.round
+ * org.jupiter.example.generic
  *
  * @author jiachun.fjc
  */

@@ -29,7 +29,7 @@ import java.util.concurrent.atomic.AtomicLong;
 
 /**
  * jupiter
- * org.jupiter.example.round
+ * org.jupiter.example.generic
  *
  * @author jiachun.fjc
  */
