@@ -40,10 +40,12 @@ public class ProtoStuffSerializerTest {
         Serializer serializer = serializer();
         ResultWrapper wrapper = new ResultWrapper();
         wrapper.setResult("test");
+        wrapper.setError(new RuntimeException("test"));
         // Class<?>[] parameterTypes 需要优化 -------- 后续: 已优化掉了
         wrapper.setClazz(new Class[] { String.class, ArrayList.class, Serializable.class });
         byte[] bytes = serializer.writeObject(wrapper);
         ResultWrapper wrapper1 = serializer.readObject(bytes, ResultWrapper.class);
+        wrapper1.getError().printStackTrace();
         System.out.println(bytes.length);
         System.out.println(wrapper1.getResult());
         // noinspection ImplicitArrayToString
@@ -65,7 +67,7 @@ class ResultWrapper implements Serializable {
     private static final long serialVersionUID = -1126932930252953428L;
 
     private Object result; // 服务调用结果
-    private String error; // 错误信息
+    private Exception error; // 错误信息
     private Class<?>[] clazz;
 
     public Object getResult() {
@@ -76,11 +78,11 @@ class ResultWrapper implements Serializable {
         this.result = result;
     }
 
-    public String getError() {
+    public Exception getError() {
         return error;
     }
 
-    public void setError(String error) {
+    public void setError(Exception error) {
         this.error = error;
     }
 

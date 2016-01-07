@@ -246,8 +246,7 @@ public class DefaultInvokeFuture implements InvokeFuture {
             return wrapper.getResult();
         }
 
-        Throwable t = _response.result().getError();
-        throw t != null ? t : new RemoteException(_response.toString(), channel.remoteAddress());
+        throw new RemoteException(_response.toString(), channel.remoteAddress());
     }
 
     private void notifyListener(JListener responseListener) {
@@ -262,8 +261,7 @@ public class DefaultInvokeFuture implements InvokeFuture {
                 listener.failure(request, t);
             }
         } else {
-            Throwable t = wrapper.getError();
-            listener.failure(request, t != null ? t : new RemoteException(_response.toString(), channel.remoteAddress()));
+            listener.failure(request, new RemoteException(_response.toString(), channel.remoteAddress()));
         }
     }
 

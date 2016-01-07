@@ -47,7 +47,6 @@ import java.util.concurrent.Executor;
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
 import static org.jupiter.common.util.Reflects.fastInvoke;
 import static org.jupiter.common.util.Reflects.findMatchingParameterTypes;
-import static org.jupiter.common.util.StackTraceUtil.stackTrace;
 import static org.jupiter.rpc.Status.*;
 import static org.jupiter.serialization.SerializerHolder.serializer;
 
@@ -165,7 +164,7 @@ public class MessageTask implements RejectedRunnable {
                 return;
         }
 
-        logger.warn("Service rejected: {}.", stackTrace(result.getError()));
+        logger.warn("Service rejected: {}.", result.getError());
 
         final long invokeId = request.invokeId();
         JResponse response = new JResponse(invokeId);

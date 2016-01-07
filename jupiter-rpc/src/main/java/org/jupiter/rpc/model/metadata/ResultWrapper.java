@@ -16,6 +16,8 @@
 
 package org.jupiter.rpc.model.metadata;
 
+import org.jupiter.common.util.StackTraceUtil;
+
 import java.io.Serializable;
 
 /**
@@ -31,7 +33,7 @@ public class ResultWrapper implements Serializable {
     private static final long serialVersionUID = -1126932930252953428L;
 
     private Object result;
-    private Throwable error;
+    private String error;
 
     public Object getResult() {
         return result;
@@ -41,12 +43,16 @@ public class ResultWrapper implements Serializable {
         this.result = result;
     }
 
-    public Throwable getError() {
+    public String getError() {
         return error;
     }
 
-    public void setError(Throwable error) {
+    public void setError(String error) {
         this.error = error;
+    }
+
+    public void setError(Throwable t) {
+        this.error = StackTraceUtil.stackTrace(t);
     }
 
     public static ResultWrapper getInstance() {
