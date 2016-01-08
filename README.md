@@ -76,10 +76,17 @@ Jupiter
 
   ------------------------------------------------------------------------------------------------------
 
+    监控数据:
+    ------------------------------------------------------------------
+        telnet 127.0.0.1 19999
+        >: auth 123456
+        >: metrics -report
+    ------------------------------------------------------------------
+
         2016-1-9 1:43:54 =================================================================
 
         -- Histograms ------------------------------------------------------------------
-        request.size
+        request.size [请求数据大小(byte)统计(不包括Jupiter协议头的16个字节)]
                      count = 105222780
                        min = 101
                        max = 101
@@ -91,7 +98,7 @@ Jupiter
                       98% <= 101.00
                       99% <= 101.00
                     99.9% <= 101.00
-        response.size
+        response.size [响应数据大小(byte)统计(不包括Jupiter协议头的16个字节)]
                      count = 105222780
                        min = 17
                        max = 17
@@ -105,7 +112,7 @@ Jupiter
                     99.9% <= 17.00
 
         -- Meters ----------------------------------------------------------------------
-        rejection
+        rejection [请求被拒绝次数统计]
                      count = 0
                  mean rate = 0.00 events/second
              1-minute rate = 0.00 events/second
@@ -113,7 +120,7 @@ Jupiter
             15-minute rate = 0.00 events/second
 
         -- Timers ----------------------------------------------------------------------
-        Jupiter-1.0.0-Service#hello
+        Jupiter-1.0.0-Service#hello [参与此次测试的provider方法执行时间统计]
                      count = 105222780
                  mean rate = 116923.98 calls/second
              1-minute rate = 117567.98 calls/second
@@ -129,7 +136,7 @@ Jupiter
                       98% <= 0.00 milliseconds
                       99% <= 0.00 milliseconds
                     99.9% <= 0.01 milliseconds
-        processing
+        processing [请求处理耗时统计(从request被解码开始, 到response数据被刷到OS内核缓冲区为止)]
                      count = 105222780
                  mean rate = 116914.57 calls/second
              1-minute rate = 117567.89 calls/second
