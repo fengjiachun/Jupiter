@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.jupiter.rpc.annotation;
+package org.jupiter.rpc;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
@@ -28,7 +28,7 @@ import static org.jupiter.common.util.JConstants.DEFAULT_VERSION;
  * Provider interface annotation.
  *
  * jupiter
- * org.jupiter.rpc.annotation
+ * org.jupiter.rpc
  *
  * @author jiachun.fjc
  */

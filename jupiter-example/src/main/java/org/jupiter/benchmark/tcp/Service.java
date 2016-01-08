@@ -16,7 +16,7 @@
 
 package org.jupiter.benchmark.tcp;
 
-import org.jupiter.rpc.annotation.ServiceProvider;
+import org.jupiter.rpc.ServiceProvider;
 
 /**
  * jupiter

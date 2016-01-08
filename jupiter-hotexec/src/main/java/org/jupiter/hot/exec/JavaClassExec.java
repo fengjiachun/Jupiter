@@ -16,7 +16,7 @@
 
 package org.jupiter.hot.exec;
 
-import org.jupiter.rpc.annotation.ServiceProvider;
+import org.jupiter.rpc.ServiceProvider;
 
 /**
  * jupiter
