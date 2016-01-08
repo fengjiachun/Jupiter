@@ -18,7 +18,7 @@ package org.jupiter.rpc.consumer.dispatcher;
 
 import org.jupiter.rpc.JClient;
 import org.jupiter.rpc.JListener;
-import org.jupiter.rpc.aop.ConsumerHook;
+import org.jupiter.rpc.ConsumerHook;
 import org.jupiter.rpc.consumer.future.InvokeFuture;
 
 import java.util.List;

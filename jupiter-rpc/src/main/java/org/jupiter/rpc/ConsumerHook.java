@@ -14,15 +14,13 @@
  * limitations under the License.
  */
 
-package org.jupiter.rpc.aop;
-
-import org.jupiter.rpc.JRequest;
+package org.jupiter.rpc;
 
 /**
  * Consumer's hook.
  *
  * jupiter
- * org.jupiter.rpc.aop
+ * org.jupiter.rpc
  *
  * @author jiachun.fjc
  */

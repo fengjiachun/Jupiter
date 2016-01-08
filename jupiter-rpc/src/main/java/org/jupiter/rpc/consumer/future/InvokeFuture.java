@@ -16,8 +16,8 @@
 
 package org.jupiter.rpc.consumer.future;
 
+import org.jupiter.rpc.ConsumerHook;
 import org.jupiter.rpc.JListener;
-import org.jupiter.rpc.aop.ConsumerHook;
 
 import java.util.List;
 

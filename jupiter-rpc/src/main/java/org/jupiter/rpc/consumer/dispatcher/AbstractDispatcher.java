@@ -16,8 +16,8 @@
 
 package org.jupiter.rpc.consumer.dispatcher;
 
+import org.jupiter.rpc.ConsumerHook;
 import org.jupiter.rpc.JListener;
-import org.jupiter.rpc.aop.ConsumerHook;
 import org.jupiter.rpc.model.metadata.ServiceMetadata;
 
 import java.util.List;

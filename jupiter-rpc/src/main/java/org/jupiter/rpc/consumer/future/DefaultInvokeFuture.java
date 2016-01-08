@@ -20,11 +20,7 @@ import org.jupiter.common.util.Maps;
 import org.jupiter.common.util.SystemClock;
 import org.jupiter.common.util.internal.logging.InternalLogger;
 import org.jupiter.common.util.internal.logging.InternalLoggerFactory;
-import org.jupiter.rpc.DispatchMode;
-import org.jupiter.rpc.JListener;
-import org.jupiter.rpc.JRequest;
-import org.jupiter.rpc.JResponse;
-import org.jupiter.rpc.aop.ConsumerHook;
+import org.jupiter.rpc.*;
 import org.jupiter.rpc.channel.JChannel;
 import org.jupiter.rpc.error.RemoteException;
 import org.jupiter.rpc.error.TimeoutException;
@@ -40,7 +36,7 @@ import static org.jupiter.common.util.JConstants.DEFAULT_TIMEOUT;
 import static org.jupiter.common.util.internal.UnsafeAccess.UNSAFE;
 import static org.jupiter.rpc.DispatchMode.BROADCAST;
 import static org.jupiter.rpc.DispatchMode.ROUND;
-import static org.jupiter.rpc.JListener.*;
+import static org.jupiter.rpc.JListener.JResult;
 import static org.jupiter.rpc.Status.*;
 
 /**
