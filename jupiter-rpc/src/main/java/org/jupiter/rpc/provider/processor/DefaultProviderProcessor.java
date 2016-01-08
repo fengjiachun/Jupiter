@@ -44,6 +44,7 @@ public class DefaultProviderProcessor extends AbstractProviderProcessor {
 
     public DefaultProviderProcessor(JServer server) {
         this.server = server;
+
         ExecutorFactory factory = (ExecutorFactory) JServiceLoader.load(ProviderExecutorFactory.class);
         executor = factory.newExecutor(PROCESSOR_CORE_NUM_WORKERS);
     }
@@ -55,10 +56,12 @@ public class DefaultProviderProcessor extends AbstractProviderProcessor {
 
     @Override
     public void handleRequest(JChannel channel, JRequest request) throws Exception {
-        // 1. 反序列化相对较耗cpu, 避免在IO线程中执行.
-        // 2. 根据Java Flight Recordings (JFR) 观察结果, protostuff在反序列化时,
-        //    io.protostuff.runtime.RuntimeEnv.loadClass有较多的锁竞争, 避免在IO线程中执行.
-        executor.execute(MessageTask.getInstance(this, channel, request));
+        MessageTask task = new MessageTask(this, channel, request);
+        if (executor == null) {
+            task.run();
+        } else {
+            executor.execute(task);
+        }
     }
 
     @Override

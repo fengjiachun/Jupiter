@@ -62,7 +62,6 @@ public class DefaultRoundDispatcher extends AbstractDispatcher {
 
         final JRequest request = new JRequest();
         request.message(message);
-        // 在非IO线程里序列化, 减轻IO线程负担
         request.bytes(serializer().writeObject(message));
         final List<ConsumerHook> _hooks = getHooks();
         final InvokeFuture invokeFuture = new DefaultInvokeFuture(channel, request, getTimeoutMills())

@@ -18,6 +18,7 @@ package org.jupiter.rpc.executor;
 
 import org.jupiter.common.concurrent.NamedThreadFactory;
 import org.jupiter.common.concurrent.RejectedTaskPolicyWithReport;
+import org.jupiter.common.util.SystemPropertyUtil;
 
 import java.util.concurrent.*;
 
@@ -37,20 +38,24 @@ import static org.jupiter.common.util.JConstants.PROCESSOR_WORKER_QUEUE_CAPACITY
 public class ThreadPoolExecutorFactory implements ExecutorFactory {
 
     @Override
-    public Executor newExecutor(int parallelism, Object... args) {
+    public Executor newExecutor(int parallelism) {
         BlockingQueue<Runnable> workQueue = null;
-        if (args.length > 0 && args[0] instanceof WorkQueueType) {
-            switch ((WorkQueueType) args[0]) {
-                case LINKED_BLOCKING_QUEUE:
-                    workQueue = new LinkedBlockingQueue<>(PROCESSOR_WORKER_QUEUE_CAPACITY);
-                    break;
-                case ARRAY_BLOCKING_QUEUE:
-                    workQueue = new ArrayBlockingQueue<>(PROCESSOR_WORKER_QUEUE_CAPACITY);
-                    break;
+
+        String workerQueueTypeString = SystemPropertyUtil.get("jupiter.executor.thread.pool.queue.type");
+        WorkerQueueType workerQueueType = WorkerQueueType.ARRAY_BLOCKING_QUEUE;
+        for (WorkerQueueType qType : WorkerQueueType.values()) {
+            if (qType.name().equals(workerQueueTypeString)) {
+                workerQueueType = qType;
+                break;
             }
         }
-        if (workQueue == null) {
-            workQueue = new LinkedBlockingQueue<>(PROCESSOR_WORKER_QUEUE_CAPACITY);
+        switch (workerQueueType) {
+            case LINKED_BLOCKING_QUEUE:
+                workQueue = new LinkedBlockingQueue<>(PROCESSOR_WORKER_QUEUE_CAPACITY);
+                break;
+            case ARRAY_BLOCKING_QUEUE:
+                workQueue = new ArrayBlockingQueue<>(PROCESSOR_WORKER_QUEUE_CAPACITY);
+                break;
         }
 
         return new ThreadPoolExecutor(
@@ -63,7 +68,7 @@ public class ThreadPoolExecutorFactory implements ExecutorFactory {
                 new RejectedTaskPolicyWithReport("processor"));
     }
 
-    public enum WorkQueueType {
+    public enum WorkerQueueType {
         LINKED_BLOCKING_QUEUE,
         ARRAY_BLOCKING_QUEUE
     }

@@ -32,22 +32,20 @@ import static org.jupiter.serialization.SerializerHolder.serializer;
  */
 public class MessageTask implements Runnable {
 
-    private JChannel channel;
-    private JResponse response;
+    private final JChannel channel;
+    private final JResponse response;
+
+    public MessageTask(JChannel channel, JResponse response) {
+        this.channel = channel;
+        this.response = response;
+    }
 
     @Override
     public void run() {
-        // 在非IO线程里反序列化, 减轻IO线程负担
-        response.result(serializer().readObject(response.bytes(), ResultWrapper.class));
-        response.bytes(null);
-        DefaultInvokeFuture.received(channel, response);
-    }
+        final JResponse _response = response;
 
-    public static MessageTask getInstance(JChannel channel, JResponse response) {
-        MessageTask task = new MessageTask();
-
-        task.channel = channel;
-        task.response = response;
-        return task;
+        _response.result(serializer().readObject(_response.bytes(), ResultWrapper.class));
+        _response.bytes(null);
+        DefaultInvokeFuture.received(channel, _response);
     }
 }

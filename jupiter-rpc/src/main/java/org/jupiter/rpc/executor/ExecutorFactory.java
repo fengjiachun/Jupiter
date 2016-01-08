@@ -31,5 +31,5 @@ import java.util.concurrent.Executor;
  */
 public interface ExecutorFactory extends ConsumerExecutorFactory, ProviderExecutorFactory {
 
-    Executor newExecutor(int parallelism, Object... args);
+    Executor newExecutor(int parallelism);
 }

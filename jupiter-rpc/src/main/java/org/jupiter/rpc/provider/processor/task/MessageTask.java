@@ -71,34 +71,44 @@ public class MessageTask implements RejectedRunnable {
     // 响应数据大小统计(不包括Jupiter协议头的16个字节)
     private static final Histogram responseSizeHistogram    = Metrics.histogram("response.size");
 
-    private ProviderProcessor processor;
-    private JChannel channel;
-    private JRequest request;
+    private final ProviderProcessor processor;
+    private final JChannel channel;
+    private final JRequest request;
+
+    public MessageTask(ProviderProcessor processor, JChannel channel, JRequest request) {
+        this.processor = processor;
+        this.channel = channel;
+        this.request = request;
+    }
 
     @Override
     public void run() {
+        // stack copy
+        final ProviderProcessor _processor = processor;
+        final JRequest _request = request;
+
         // deserialization
         final MessageWrapper msg;
         try {
-            byte[] bytes = request.bytes();
-            request.bytes(null);
+            byte[] bytes = _request.bytes();
+            _request.bytes(null);
             requestSizeHistogram.update(bytes.length);
             msg = serializer().readObject(bytes, MessageWrapper.class);
-            request.message(msg);
+            _request.message(msg);
         } catch (Throwable t) {
             rejected(BAD_REQUEST);
             return;
         }
 
         // lookup service
-        final ServiceWrapper service = processor.lookupService(msg.getMetadata());
+        final ServiceWrapper service = _processor.lookupService(msg.getMetadata());
         if (service == null) {
             rejected(SERVICE_NOT_FOUND);
             return;
         }
 
         // app flow control
-        ControlResult ctrlResult = processor.flowControl(request);
+        ControlResult ctrlResult = _processor.flowControl(_request);
         if (!ctrlResult.isAllowed()) {
             rejected(APP_FLOW_CONTROL, ctrlResult);
             return;
@@ -107,7 +117,7 @@ public class MessageTask implements RejectedRunnable {
         // child(provider) flow control
         FlowController<JRequest> childController = service.getFlowController();
         if (childController != null) {
-            ctrlResult = childController.flowControl(request);
+            ctrlResult = childController.flowControl(_request);
             if (!ctrlResult.isAllowed()) {
                 rejected(PROVIDER_FLOW_CONTROL, ctrlResult);
                 return;
@@ -139,6 +149,9 @@ public class MessageTask implements RejectedRunnable {
     }
 
     private void rejected(Status status, Object signal) {
+        // stack copy
+        final JRequest _request = request;
+
         rejectionMeter.mark();
         ResultWrapper result = new ResultWrapper();
         switch (status) {
@@ -149,7 +162,7 @@ public class MessageTask implements RejectedRunnable {
                 result.setError(new BadRequestException());
                 break;
             case SERVICE_NOT_FOUND:
-                result.setError(new ServiceNotFoundException(request.message().toString()));
+                result.setError(new ServiceNotFoundException(_request.message().toString()));
                 break;
             case APP_FLOW_CONTROL:
             case PROVIDER_FLOW_CONTROL:
@@ -166,10 +179,9 @@ public class MessageTask implements RejectedRunnable {
 
         logger.warn("Service rejected: {}.", result.getError());
 
-        final long invokeId = request.invokeId();
+        final long invokeId = _request.invokeId();
         JResponse response = new JResponse(invokeId);
         response.status(status.value());
-        // 在非IO线程里序列化, 减轻IO线程负担
         byte[] bytes = serializer().writeObject(result);
         response.bytes(bytes);
 
@@ -187,8 +199,12 @@ public class MessageTask implements RejectedRunnable {
     }
 
     private void process(ServiceWrapper service) {
+        // stack copy
+        final JChannel _channel = channel;
+        final JRequest _request = request;
+
         try {
-            MessageWrapper msg = request.message();
+            MessageWrapper msg = _request.message();
             String methodName = msg.getMethodName();
 
             Object invokeResult = null;
@@ -210,19 +226,18 @@ public class MessageTask implements RejectedRunnable {
                 timeCtx.stop();
             }
 
-            final long invokeId = request.invokeId();
+            final long invokeId = _request.invokeId();
             JResponse response = new JResponse(invokeId);
             response.status(OK.value());
 
             ResultWrapper result = new ResultWrapper();
             result.setResult(invokeResult);
-            // 在非IO线程里序列化, 减轻IO线程负担
             byte[] bytes = serializer().writeObject(result);
             response.bytes(bytes);
 
-            final long timestamp = request.timestamp();
+            final long timestamp = _request.timestamp();
             final int bodyLength = bytes.length;
-            channel.write(response, new JFutureListener<JChannel>() {
+            _channel.write(response, new JFutureListener<JChannel>() {
 
                 @Override
                 public void operationComplete(JChannel channel, boolean isSuccess) throws Exception {
@@ -240,16 +255,7 @@ public class MessageTask implements RejectedRunnable {
                 }
             });
         } catch (Throwable t) {
-            processor.handleException(channel, request, t);
+            processor.handleException(_channel, _request, t);
         }
-    }
-
-    public static MessageTask getInstance(ProviderProcessor processor, JChannel channel, JRequest request) {
-        MessageTask task = new MessageTask();
-
-        task.processor = processor;
-        task.channel = channel;
-        task.request = request;
-        return task;
     }
 }

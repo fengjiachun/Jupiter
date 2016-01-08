@@ -37,7 +37,7 @@ public class ForkJoinPoolExecutorFactory implements ExecutorFactory {
     private static final InternalLogger logger = InternalLoggerFactory.getInstance(ForkJoinPoolExecutorFactory.class);
 
     @Override
-    public Executor newExecutor(int parallelism, Object... args) {
+    public Executor newExecutor(int parallelism) {
         return new ForkJoinPool(
                 parallelism,
                 new DefaultForkJoinWorkerThreadFactory("fjp.processor"),

@@ -60,7 +60,7 @@ public abstract class NettyAcceptor extends AbstractJServer implements JAcceptor
     protected volatile ByteBufAllocator allocator;
 
     public NettyAcceptor(Protocol protocol, SocketAddress localAddress) {
-        this(protocol, localAddress, AVAILABLE_PROCESSORS + 1);
+        this(protocol, localAddress, AVAILABLE_PROCESSORS << 1);
     }
 
     public NettyAcceptor(Protocol protocol, SocketAddress localAddress, int nWorkers) {
