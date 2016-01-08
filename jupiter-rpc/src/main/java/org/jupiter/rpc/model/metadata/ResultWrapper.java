@@ -55,10 +55,6 @@ public class ResultWrapper implements Serializable {
         this.error = StackTraceUtil.stackTrace(t);
     }
 
-    public static ResultWrapper getInstance() {
-        return new ResultWrapper();
-    }
-
     @Override
     public String toString() {
         return "ResultWrapper{" +

@@ -140,7 +140,7 @@ public class MessageTask implements RejectedRunnable {
 
     private void rejected(Status status, Object signal) {
         rejectionMeter.mark();
-        ResultWrapper result = ResultWrapper.getInstance();
+        ResultWrapper result = new ResultWrapper();
         switch (status) {
             case SERVER_BUSY:
                 result.setError(new ServerBusyException());
@@ -214,7 +214,7 @@ public class MessageTask implements RejectedRunnable {
             JResponse response = new JResponse(invokeId);
             response.status(OK.value());
 
-            ResultWrapper result = ResultWrapper.getInstance();
+            ResultWrapper result = new ResultWrapper();
             result.setResult(invokeResult);
             // 在非IO线程里序列化, 减轻IO线程负担
             byte[] bytes = serializer().writeObject(result);

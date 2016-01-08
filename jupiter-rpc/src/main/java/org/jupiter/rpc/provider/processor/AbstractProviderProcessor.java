@@ -38,7 +38,7 @@ public abstract class AbstractProviderProcessor implements ProviderProcessor {
 
     @Override
     public void handleException(JChannel channel, JRequest request, Throwable cause) {
-        ResultWrapper result = ResultWrapper.getInstance();
+        ResultWrapper result = new ResultWrapper();
         result.setError(cause);
 
         JResponse response = new JResponse(request.invokeId());
