@@ -65,6 +65,88 @@ Jupiter
 
   ------------------------------------------------------------------------------------------------------
 
+2016-1-9的最新一次测试结果(小数据包1亿+次同步调用):
+
+  ------------------------------------------------------------------------------------------------------
+
+    测试结果:
+
+        2016-01-09 01:46:38.279 WARN  [main] [BenchmarkClient] - count=128000000
+        2016-01-09 01:46:38.279 WARN  [main] [BenchmarkClient] - Request count: 128000000, time: 1089 second, qps: 117539
+
+  ------------------------------------------------------------------------------------------------------
+
+        2016-1-9 1:43:54 =================================================================
+
+        -- Histograms ------------------------------------------------------------------
+        request.size
+                     count = 105222780
+                       min = 101
+                       max = 101
+                      mean = 101.00
+                    stddev = 0.00
+                    median = 101.00
+                      75% <= 101.00
+                      95% <= 101.00
+                      98% <= 101.00
+                      99% <= 101.00
+                    99.9% <= 101.00
+        response.size
+                     count = 105222780
+                       min = 17
+                       max = 17
+                      mean = 17.00
+                    stddev = 0.00
+                    median = 17.00
+                      75% <= 17.00
+                      95% <= 17.00
+                      98% <= 17.00
+                      99% <= 17.00
+                    99.9% <= 17.00
+
+        -- Meters ----------------------------------------------------------------------
+        rejection
+                     count = 0
+                 mean rate = 0.00 events/second
+             1-minute rate = 0.00 events/second
+             5-minute rate = 0.00 events/second
+            15-minute rate = 0.00 events/second
+
+        -- Timers ----------------------------------------------------------------------
+        Jupiter-1.0.0-Service#hello
+                     count = 105222780
+                 mean rate = 116923.98 calls/second
+             1-minute rate = 117567.98 calls/second
+             5-minute rate = 111719.59 calls/second
+            15-minute rate = 75550.32 calls/second
+                       min = 0.00 milliseconds
+                       max = 0.01 milliseconds
+                      mean = 0.00 milliseconds
+                    stddev = 0.00 milliseconds
+                    median = 0.00 milliseconds
+                      75% <= 0.00 milliseconds
+                      95% <= 0.00 milliseconds
+                      98% <= 0.00 milliseconds
+                      99% <= 0.00 milliseconds
+                    99.9% <= 0.01 milliseconds
+        processing
+                     count = 105222780
+                 mean rate = 116914.57 calls/second
+             1-minute rate = 117567.89 calls/second
+             5-minute rate = 111678.29 calls/second
+            15-minute rate = 75253.79 calls/second
+                       min = 0.00 milliseconds
+                       max = 4.00 milliseconds
+                      mean = 0.24 milliseconds
+                    stddev = 0.53 milliseconds
+                    median = 0.00 milliseconds
+                      75% <= 0.00 milliseconds
+                      95% <= 1.00 milliseconds
+                      98% <= 2.00 milliseconds
+                      99% <= 2.00 milliseconds
+                    99.9% <= 4.00 milliseconds
+  ------------------------------------------------------------------------------------------------------
+
 2015-11-15的一次测试结果(测试时间3.5小时左右, 小数据包12亿+次同步调用):
 
   ------------------------------------------------------------------------------------------------------
