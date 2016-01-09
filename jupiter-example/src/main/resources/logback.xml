@@ -26,7 +26,7 @@
 
     <appender name="ASYNC_STD_OUT" class="ch.qos.logback.classic.AsyncAppender">
         <!-- 如果队列元素超过容量80%，丢掉新日志 -->
-        <queueSize>512</queueSize>
+        <queueSize>4096</queueSize>
         <appender-ref ref="STD_OUT" />
     </appender>
 
