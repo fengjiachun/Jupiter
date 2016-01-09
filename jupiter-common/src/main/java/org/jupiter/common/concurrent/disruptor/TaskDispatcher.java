@@ -31,7 +31,7 @@ import static org.jupiter.common.concurrent.disruptor.WaitStrategyType.BLOCKING_
 import static org.jupiter.common.util.Preconditions.checkArgument;
 
 /**
- * 可选择的等待策略，性能由低到高：
+ * 可选择的等待策略, 越往下越极端:
  *
  * The default wait strategy used by the Disruptor is the BlockingWaitStrategy.
  * Internally the BlockingWaitStrategy uses a typical lock and condition variable to handle thread wake-up.
