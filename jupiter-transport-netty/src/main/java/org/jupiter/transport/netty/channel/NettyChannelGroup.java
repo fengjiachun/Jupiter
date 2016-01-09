@@ -103,7 +103,6 @@ public class NettyChannelGroup implements JChannelGroup {
     @Override
     public JChannel next() {
         for (;;) {
-            // 请原谅下面这段放荡不羁的糟糕代码
             Object[] array; // the snapshot of channels array
             if (ELEMENTS_OFFSET > 0) {
                 array = (Object[]) UNSAFE.getObjectVolatile(channels, ELEMENTS_OFFSET);

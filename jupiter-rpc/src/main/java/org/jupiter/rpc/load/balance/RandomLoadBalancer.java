@@ -49,7 +49,6 @@ public abstract class RandomLoadBalancer<T> implements LoadBalancer<T> {
     @SuppressWarnings({"unchecked", "ForLoopReplaceableByForEach"})
     @Override
     public T select(CopyOnWriteArrayList<T> list) {
-        // 请原谅下面这段放荡不羁的糟糕代码
         Object[] array; // The snapshot of elements array
         if (ELEMENTS_OFFSET > 0) {
             array = (Object[]) UNSAFE.getObjectVolatile(list, ELEMENTS_OFFSET);
