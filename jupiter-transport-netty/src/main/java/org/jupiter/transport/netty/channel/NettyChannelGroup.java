@@ -148,7 +148,7 @@ public class NettyChannelGroup implements JChannelGroup {
                 final ReentrantLock _look = lock;
                 _look.lock();
                 try {
-                    notifyCondition.signalAll();
+                    notifyCondition.signalAll(); // must signal all
                 } finally {
                     _look.unlock();
                 }
