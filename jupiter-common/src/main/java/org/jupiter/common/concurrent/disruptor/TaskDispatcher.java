@@ -140,7 +140,7 @@ public class TaskDispatcher implements Dispatcher<Runnable>, Executor {
             dr = new Disruptor<>(
                     eventFactory, bufSize, Executors.newCachedThreadPool(tFactory), MULTI, waitStrategy);
             dr.handleExceptionsWith(new IgnoreExceptionHandler()); // ignore exception
-            WorkHandler<MessageEvent<Runnable>>[] handlers = new TaskHandler[numWorkers];
+            TaskHandler[] handlers = new TaskHandler[numWorkers];
             for (int i = 0; i < numWorkers; i++) {
                 handlers[i] = new TaskHandler();
             }
