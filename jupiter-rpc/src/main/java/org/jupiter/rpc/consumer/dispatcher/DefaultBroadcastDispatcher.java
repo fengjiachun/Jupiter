@@ -16,6 +16,7 @@
 
 package org.jupiter.rpc.consumer.dispatcher;
 
+import org.jupiter.common.util.Function;
 import org.jupiter.common.util.Lists;
 import org.jupiter.common.util.internal.logging.InternalLogger;
 import org.jupiter.common.util.internal.logging.InternalLoggerFactory;
@@ -63,12 +64,13 @@ public class DefaultBroadcastDispatcher extends AbstractDispatcher {
         message.setArgs(args);
 
         List<JChannelGroup> groupList = proxy.directory(_metadata);
-        List<JChannel> channels = Lists.newArrayListWithCapacity(groupList.size());
-        for (JChannelGroup group : groupList) {
-            if (group.isAvailable()) {
-                channels.add(group.next());
+        List<JChannel> channels = Lists.transform(groupList, new Function<JChannelGroup, JChannel>() {
+
+            @Override
+            public JChannel apply(JChannelGroup input) {
+                return input.next();
             }
-        }
+        });
 
         final JRequest request = new JRequest();
         request.message(message);
