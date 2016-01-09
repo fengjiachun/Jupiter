@@ -48,7 +48,7 @@ import static java.util.concurrent.TimeUnit.MILLISECONDS;
 import static org.jupiter.common.util.Reflects.fastInvoke;
 import static org.jupiter.common.util.Reflects.findMatchingParameterTypes;
 import static org.jupiter.rpc.Status.*;
-import static org.jupiter.serialization.SerializerHolder.serializer;
+import static org.jupiter.serialization.SerializerHolder.serializerImpl;
 
 /**
  *
@@ -93,7 +93,7 @@ public class MessageTask implements RejectedRunnable {
             byte[] bytes = _request.bytes();
             _request.bytes(null);
             requestSizeHistogram.update(bytes.length);
-            msg = serializer().readObject(bytes, MessageWrapper.class);
+            msg = serializerImpl().readObject(bytes, MessageWrapper.class);
             _request.message(msg);
         } catch (Throwable t) {
             rejected(BAD_REQUEST);
@@ -182,7 +182,7 @@ public class MessageTask implements RejectedRunnable {
         final long invokeId = _request.invokeId();
         JResponse response = new JResponse(invokeId);
         response.status(status.value());
-        byte[] bytes = serializer().writeObject(result);
+        byte[] bytes = serializerImpl().writeObject(result);
         response.bytes(bytes);
 
         channel.write(response, new JFutureListener<JChannel>() {
@@ -232,7 +232,7 @@ public class MessageTask implements RejectedRunnable {
 
             ResultWrapper result = new ResultWrapper();
             result.setResult(invokeResult);
-            byte[] bytes = serializer().writeObject(result);
+            byte[] bytes = serializerImpl().writeObject(result);
             response.bytes(bytes);
 
             final long timestamp = _request.timestamp();

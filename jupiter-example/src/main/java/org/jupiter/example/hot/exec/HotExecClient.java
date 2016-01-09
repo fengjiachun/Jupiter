@@ -17,6 +17,7 @@
 package org.jupiter.example.hot.exec;
 
 import org.jupiter.common.util.Lists;
+import org.jupiter.common.util.SystemPropertyUtil;
 import org.jupiter.hot.exec.ExecResult;
 import org.jupiter.hot.exec.JavaClassExec;
 import org.jupiter.hot.exec.JavaCompiler;
@@ -88,7 +89,7 @@ public class HotExecClient {
 
         try {
             byte[] classBytes = JavaCompiler.compile(
-                    System.getProperty("user.dir") + "/jupiter-example/src/main/java/",
+                    SystemPropertyUtil.get("user.dir") + "/jupiter-example/src/main/java/",
                     UserExecImpl.class.getName(),
                     Lists.newArrayList("-verbose", "-source", "1.7", "-target", "1.7"));
 

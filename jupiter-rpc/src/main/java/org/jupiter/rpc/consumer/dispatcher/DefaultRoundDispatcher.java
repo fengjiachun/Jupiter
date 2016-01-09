@@ -30,7 +30,7 @@ import org.jupiter.rpc.model.metadata.ServiceMetadata;
 
 import java.util.List;
 
-import static org.jupiter.serialization.SerializerHolder.serializer;
+import static org.jupiter.serialization.SerializerHolder.serializerImpl;
 
 /**
  * 单播方式派发消息
@@ -62,7 +62,7 @@ public class DefaultRoundDispatcher extends AbstractDispatcher {
 
         final JRequest request = new JRequest();
         request.message(message);
-        request.bytes(serializer().writeObject(message));
+        request.bytes(serializerImpl().writeObject(message));
         final List<ConsumerHook> _hooks = getHooks();
         final InvokeFuture invokeFuture = new DefaultInvokeFuture(channel, request, getTimeoutMills())
                 .hooks(_hooks)

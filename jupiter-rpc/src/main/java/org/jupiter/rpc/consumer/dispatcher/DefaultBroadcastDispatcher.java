@@ -35,7 +35,7 @@ import org.jupiter.rpc.model.metadata.ServiceMetadata;
 import java.util.List;
 
 import static org.jupiter.rpc.DispatchMode.BROADCAST;
-import static org.jupiter.serialization.SerializerHolder.serializer;
+import static org.jupiter.serialization.SerializerHolder.serializerImpl;
 
 /**
  * 组播方式派发消息
@@ -74,7 +74,7 @@ public class DefaultBroadcastDispatcher extends AbstractDispatcher {
 
         final JRequest request = new JRequest();
         request.message(message);
-        request.bytes(serializer().writeObject(message));
+        request.bytes(serializerImpl().writeObject(message));
         final List<ConsumerHook> _hooks = getHooks();
         final JListener _listener = getListener();
         for (JChannel ch : channels) {

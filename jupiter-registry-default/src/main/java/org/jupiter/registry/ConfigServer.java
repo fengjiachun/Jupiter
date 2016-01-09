@@ -57,7 +57,7 @@ import static org.jupiter.common.util.JConstants.READER_IDLE_TIME_SECONDS;
 import static org.jupiter.common.util.StackTraceUtil.stackTrace;
 import static org.jupiter.registry.RegisterMeta.Address;
 import static org.jupiter.registry.RegisterMeta.ServiceMeta;
-import static org.jupiter.serialization.SerializerHolder.serializer;
+import static org.jupiter.serialization.SerializerHolder.serializerImpl;
 import static org.jupiter.transport.JProtocolHeader.*;
 import static org.jupiter.transport.error.Signals.ILLEGAL_MAGIC;
 import static org.jupiter.transport.error.Signals.ILLEGAL_SIGN;
@@ -468,7 +468,7 @@ public class ConfigServer extends NettyTcpAcceptor implements RegistryMonitor {
                             byte[] bytes = new byte[header.bodyLength()];
                             in.readBytes(bytes);
 
-                            Message msg = serializer().readObject(bytes, Message.class);
+                            Message msg = serializerImpl().readObject(bytes, Message.class);
                             msg.sign(header.sign());
                             out.add(msg);
 
@@ -478,7 +478,7 @@ public class ConfigServer extends NettyTcpAcceptor implements RegistryMonitor {
                             byte[] bytes = new byte[header.bodyLength()];
                             in.readBytes(bytes);
 
-                            Acknowledge ack = serializer().readObject(bytes, Acknowledge.class);
+                            Acknowledge ack = serializerImpl().readObject(bytes, Acknowledge.class);
                             out.add(ack);
 
                             break;
@@ -519,7 +519,7 @@ public class ConfigServer extends NettyTcpAcceptor implements RegistryMonitor {
 
         @Override
         protected void encode(ChannelHandlerContext ctx, Message msg, ByteBuf out) throws Exception {
-            byte[] bytes = serializer().writeObject(msg);
+            byte[] bytes = serializerImpl().writeObject(msg);
             out.writeShort(MAGIC)
                     .writeByte(msg.sign())
                     .writeByte(0)

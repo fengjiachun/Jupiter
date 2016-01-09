@@ -31,7 +31,7 @@ public final class SerializerHolder {
     // SPI
     private static final Serializer serializer = JServiceLoader.load(Serializer.class);
 
-    public static Serializer serializer() {
+    public static Serializer serializerImpl() {
         return serializer;
     }
 }

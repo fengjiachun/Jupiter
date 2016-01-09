@@ -24,7 +24,7 @@ import org.jupiter.rpc.channel.JChannel;
 import org.jupiter.rpc.model.metadata.ResultWrapper;
 
 import static org.jupiter.rpc.Status.SERVICE_ERROR;
-import static org.jupiter.serialization.SerializerHolder.serializer;
+import static org.jupiter.serialization.SerializerHolder.serializerImpl;
 
 /**
  * jupiter
@@ -43,7 +43,7 @@ public abstract class AbstractProviderProcessor implements ProviderProcessor {
 
         JResponse response = new JResponse(request.invokeId());
         response.status(SERVICE_ERROR.value());
-        response.bytes(serializer().writeObject(result));
+        response.bytes(serializerImpl().writeObject(result));
 
         logger.error("An exception has been caught while processing request: {}.", result.getError());
 

@@ -21,7 +21,7 @@ import org.jupiter.rpc.channel.JChannel;
 import org.jupiter.rpc.consumer.future.DefaultInvokeFuture;
 import org.jupiter.rpc.model.metadata.ResultWrapper;
 
-import static org.jupiter.serialization.SerializerHolder.serializer;
+import static org.jupiter.serialization.SerializerHolder.serializerImpl;
 
 /**
  *
@@ -42,9 +42,10 @@ public class MessageTask implements Runnable {
 
     @Override
     public void run() {
+        // stack copy
         final JResponse _response = response;
 
-        _response.result(serializer().readObject(_response.bytes(), ResultWrapper.class));
+        _response.result(serializerImpl().readObject(_response.bytes(), ResultWrapper.class));
         _response.bytes(null);
         DefaultInvokeFuture.received(channel, _response);
     }
