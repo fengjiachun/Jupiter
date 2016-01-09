@@ -187,7 +187,7 @@ public abstract class NettyConnector extends AbstractJClient implements JConnect
                 _look.lock();
                 try {
                     while (!isDirectoryAvailable(directory)) {
-                        signalNeeded.getAndSet(true);
+                        signalNeeded.set(true);
                         notifyCondition.await(timeoutMillis, MILLISECONDS);
 
                         available = isDirectoryAvailable(directory);

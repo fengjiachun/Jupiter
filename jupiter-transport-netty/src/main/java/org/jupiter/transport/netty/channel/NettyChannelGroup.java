@@ -18,6 +18,7 @@ package org.jupiter.transport.netty.channel;
 
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelFutureListener;
+import org.jupiter.common.concurrent.atomic.AtomicUpdater;
 import org.jupiter.common.util.Lists;
 import org.jupiter.common.util.Reflects;
 import org.jupiter.common.util.SystemClock;
@@ -30,8 +31,7 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
-import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicIntegerFieldUpdater;
 import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.ReentrantLock;
 
@@ -60,6 +60,11 @@ public class NettyChannelGroup implements JChannelGroup {
         ELEMENTS_OFFSET = offset;
     }
 
+    private static final AtomicIntegerFieldUpdater<NettyChannelGroup> signalNeededUpdater =
+            AtomicUpdater.newAtomicIntegerFieldUpdater(NettyChannelGroup.class, "signalNeeded");
+    private static final AtomicIntegerFieldUpdater<NettyChannelGroup> indexUpdater =
+            AtomicUpdater.newAtomicIntegerFieldUpdater(NettyChannelGroup.class, "index");
+
     private final CopyOnWriteArrayList<NettyChannel> channels = new CopyOnWriteArrayList<>();
 
     // 连接断开时自动被移除
@@ -71,18 +76,20 @@ public class NettyChannelGroup implements JChannelGroup {
         }
     };
 
-    private final AtomicInteger index = new AtomicInteger();
     private final UnresolvedAddress address;
-
-    private volatile int weight = DEFAULT_WEIGHT; // the weight if this group
-    private volatile int warmUp = DEFAULT_WARM_UP; // warm-up time
-    private volatile long timestamp = SystemClock.millisClock().now();
-    private volatile long lossTimestamp = -1;
 
     private final ReentrantLock lock = new ReentrantLock();
     private final Condition notifyCondition = lock.newCondition();
     // attempts to elide conditional wake-ups when the lock is uncontended.
-    private final AtomicBoolean signalNeeded = new AtomicBoolean(false);
+    @SuppressWarnings("unused")
+    private volatile int signalNeeded = 0; // 0: false, 1: true
+
+    @SuppressWarnings("unused")
+    private volatile int index = 0;
+    private volatile int weight = DEFAULT_WEIGHT; // the weight if this group
+    private volatile int warmUp = DEFAULT_WARM_UP; // warm-up time
+    private volatile long timestamp = SystemClock.millisClock().now();
+    private volatile long lossTimestamp = -1;
 
     public NettyChannelGroup(UnresolvedAddress address) {
         this.address = address;
@@ -115,7 +122,7 @@ public class NettyChannelGroup implements JChannelGroup {
                 return (JChannel) array[0];
             }
 
-            int offset = Math.abs(index.getAndIncrement() % arrayLength);
+            int offset = Math.abs(indexUpdater.getAndIncrement(this) % arrayLength);
 
             return (JChannel) array[offset];
         }
@@ -138,7 +145,7 @@ public class NettyChannelGroup implements JChannelGroup {
             ((NettyChannel) channel).channel().closeFuture().addListener(remover);
             lossTimestamp = -1;
 
-            if (signalNeeded.getAndSet(false)) {
+            if (signalNeededUpdater.getAndSet(this, 0) != 0) { // signal needed: true
                 final ReentrantLock _look = lock;
                 _look.lock();
                 try {
@@ -182,7 +189,7 @@ public class NettyChannelGroup implements JChannelGroup {
         _look.lock();
         try {
             while (!isAvailable()) {
-                signalNeeded.getAndSet(true);
+                signalNeededUpdater.set(this, 1); // set signal needed to true
                 notifyCondition.await(timeoutMillis, MILLISECONDS);
 
                 available = isAvailable();
