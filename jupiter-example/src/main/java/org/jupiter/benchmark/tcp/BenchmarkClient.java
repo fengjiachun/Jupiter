@@ -28,7 +28,7 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.atomic.AtomicLong;
 
 /**
- * 其中一次简单的测试结果(小包数据1000w+次同步调用)
+ * 2016-1-9的最新一次测试结果(小数据包1亿+次同步调用):
  * ------------------------------------------------------------------
  * 测试机器:
  * server端(一台机器)
@@ -42,7 +42,9 @@ import java.util.concurrent.atomic.AtomicLong;
  * 网络环境: 局域网
  * ------------------------------------------------------------------
  * 测试结果:
- * Request count: 12800000, time: 117 second, qps: 109401
+ * 2016-01-09 01:46:38.279 WARN  [main] [BenchmarkClient] - count=128000000
+ * 2016-01-09 01:46:38.279 WARN  [main] [BenchmarkClient] - Request count: 128000000, time: 1089 second, qps: 117539
+ *
  *
  * 飞行记录: -XX:+UnlockCommercialFeatures -XX:+FlightRecorder
  *
