@@ -48,10 +48,8 @@ public class HelloJupiterClient {
             throw new ConnectFailedException();
         }
 
-        ServiceTest service = ProxyFactory
-                .factory()
+        ServiceTest service = ProxyFactory.factory(ServiceTest.class)
                 .connector(connector)
-                .interfaceClass(ServiceTest.class)
                 .newProxyInstance();
 
         try {

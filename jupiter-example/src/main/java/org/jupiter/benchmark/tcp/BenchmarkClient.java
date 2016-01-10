@@ -69,11 +69,9 @@ public class BenchmarkClient {
             connector.connect(addresses[i]);
         }
 
-        final Service service = ProxyFactory
-                .factory()
+        final Service service = ProxyFactory.factory(Service.class)
                 .connector(connector)
                 .addProviderAddress(addresses)
-                .interfaceClass(Service.class)
                 .newProxyInstance();
 
         for (int i = 0; i < 10000; i++) {

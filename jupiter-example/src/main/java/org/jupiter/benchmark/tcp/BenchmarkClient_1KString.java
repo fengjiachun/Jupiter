@@ -50,11 +50,9 @@ public class BenchmarkClient_1KString {
             connector.connect(addresses[i]);
         }
 
-        final Service service = ProxyFactory
-                .factory()
+        final Service service = ProxyFactory.factory(Service.class)
                 .connector(connector)
                 .addProviderAddress(addresses)
-                .interfaceClass(Service.class)
                 .newProxyInstance();
 
         StringBuilder buf = new StringBuilder(1024);

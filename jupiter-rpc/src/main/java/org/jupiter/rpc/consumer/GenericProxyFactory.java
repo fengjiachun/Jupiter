@@ -75,6 +75,12 @@ public class GenericProxyFactory {
 
     private GenericProxyFactory() {}
 
+    public GenericProxyFactory directory(Directory directory) {
+        return group(directory.getGroup())
+                .version(directory.getVersion())
+                .providerName(directory.getServiceProviderName());
+    }
+
     /**
      * Sets the connector.
      */
@@ -166,7 +172,6 @@ public class GenericProxyFactory {
         return this;
     }
 
-    @SuppressWarnings("unchecked")
     public GenericInvoker newProxyInstance() {
         // check arguments
         checkNotNull(client, "connector");

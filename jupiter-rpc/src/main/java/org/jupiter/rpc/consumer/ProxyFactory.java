@@ -48,21 +48,22 @@ import static org.jupiter.rpc.DispatchMode.ROUND;
  *
  * @author jiachun.fjc
  */
-public class ProxyFactory {
+public class ProxyFactory<I> {
 
     private static final InternalLogger logger = InternalLoggerFactory.getInstance(ProxyFactory.class);
 
+    private final Class<I> interfaceClass;
+
     private JClient client;
     private List<UnresolvedAddress> addresses;
-    private Class<?> serviceInterface;
     private AsyncMode asyncMode = SYNC;
     private DispatchMode dispatchMode = ROUND;
     private int timeoutMills;
     private List<ConsumerHook> hooks;
     private JListener listener;
 
-    public static ProxyFactory factory() {
-        ProxyFactory fac = new ProxyFactory();
+    public static <I> ProxyFactory<I> factory(Class<I> interfaceClass) {
+        ProxyFactory<I> fac = new ProxyFactory<>(interfaceClass);
 
         // 初始化数据
         fac.addresses = Lists.newArrayList();
@@ -71,12 +72,14 @@ public class ProxyFactory {
         return fac;
     }
 
-    private ProxyFactory() {}
+    private ProxyFactory(Class<I> interfaceClass) {
+        this.interfaceClass = interfaceClass;
+    }
 
     /**
      * Sets the connector.
      */
-    public ProxyFactory connector(JClient client) {
+    public ProxyFactory<I> connector(JClient client) {
         this.client = client;
         return this;
     }
@@ -84,7 +87,7 @@ public class ProxyFactory {
     /**
      * Adds provider's addresses.
      */
-    public ProxyFactory addProviderAddress(UnresolvedAddress... addresses) {
+    public ProxyFactory<I> addProviderAddress(UnresolvedAddress... addresses) {
         Collections.addAll(this.addresses, addresses);
         return this;
     }
@@ -92,23 +95,15 @@ public class ProxyFactory {
     /**
      * Adds provider's addresses.
      */
-    public ProxyFactory addProviderAddress(List<UnresolvedAddress> addresses) {
+    public ProxyFactory<I> addProviderAddress(List<UnresolvedAddress> addresses) {
         this.addresses.addAll(addresses);
-        return this;
-    }
-
-    /**
-     * Sets the service interface type.
-     */
-    public <I> ProxyFactory interfaceClass(Class<I> serviceInterface) {
-        this.serviceInterface = serviceInterface;
         return this;
     }
 
     /**
      * Synchronous blocking or asynchronous callback, the default is synchronous.
      */
-    public ProxyFactory asyncMode(AsyncMode asyncMode) {
+    public ProxyFactory<I> asyncMode(AsyncMode asyncMode) {
         this.asyncMode = checkNotNull(asyncMode);
         return this;
     }
@@ -116,7 +111,7 @@ public class ProxyFactory {
     /**
      * Sets the mode of dispatch, the default is {@link DispatchMode#ROUND}
      */
-    public ProxyFactory dispatchMode(DispatchMode dispatchMode) {
+    public ProxyFactory<I> dispatchMode(DispatchMode dispatchMode) {
         this.dispatchMode = checkNotNull(dispatchMode);
         return this;
     }
@@ -124,7 +119,7 @@ public class ProxyFactory {
     /**
      * Timeout milliseconds.
      */
-    public ProxyFactory timeoutMills(int timeoutMills) {
+    public ProxyFactory<I> timeoutMills(int timeoutMills) {
         this.timeoutMills = timeoutMills;
         return this;
     }
@@ -132,7 +127,7 @@ public class ProxyFactory {
     /**
      * Asynchronous callback listener.
      */
-    public ProxyFactory listener(JListener listener) {
+    public ProxyFactory<I> listener(JListener listener) {
         if (asyncMode != ASYNC_CALLBACK) {
             throw new UnsupportedOperationException("asyncMode should first be set to ASYNC_CALLBACK");
         }
@@ -143,21 +138,20 @@ public class ProxyFactory {
     /**
      * Adds hooks.
      */
-    public ProxyFactory addHook(ConsumerHook... hooks) {
+    public ProxyFactory<I> addHook(ConsumerHook... hooks) {
         Collections.addAll(this.hooks, hooks);
         return this;
     }
 
-    @SuppressWarnings("unchecked")
-    public <I> I newProxyInstance() {
+    public I newProxyInstance() {
         // check arguments
         checkNotNull(client, "connector");
-        checkNotNull(serviceInterface, "serviceInterface");
+        checkNotNull(interfaceClass, "interfaceClass");
         checkArgument(!(asyncMode == SYNC && dispatchMode == BROADCAST), "illegal mode, [SYNC & BROADCAST] unsupported");
-        ServiceProvider annotation = serviceInterface.getAnnotation(ServiceProvider.class);
-        checkNotNull(annotation, serviceInterface + " is not a ServiceProvider interface");
+        ServiceProvider annotation = interfaceClass.getAnnotation(ServiceProvider.class);
+        checkNotNull(annotation, interfaceClass + " is not a ServiceProvider interface");
         String providerName = annotation.value();
-        providerName = Strings.isNotBlank(providerName) ? providerName : serviceInterface.getSimpleName();
+        providerName = Strings.isNotBlank(providerName) ? providerName : interfaceClass.getSimpleName();
 
         // metadata
         ServiceMetadata metadata = new ServiceMetadata(annotation.group(), annotation.version(), providerName);
@@ -193,7 +187,7 @@ public class ProxyFactory {
                 break;
         }
 
-        return (I) Reflects.newProxy(serviceInterface, handler);
+        return Reflects.newProxy(interfaceClass, handler);
     }
 
     private static final ConsumerHook logConsumerHook = new ConsumerHook() {

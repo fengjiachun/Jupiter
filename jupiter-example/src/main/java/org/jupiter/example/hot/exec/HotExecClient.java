@@ -58,12 +58,10 @@ public class HotExecClient {
             throw new ConnectFailedException("waitForAvailable() timeout");
         }
 
-        JavaClassExec service = ProxyFactory
-                .factory()
+        JavaClassExec service = ProxyFactory.factory(JavaClassExec.class)
                 .connector(connector)
                 .dispatchMode(BROADCAST)
                 .asyncMode(ASYNC_CALLBACK)
-                .interfaceClass(JavaClassExec.class)
                 .listener(new JListener() {
 
                     @Override

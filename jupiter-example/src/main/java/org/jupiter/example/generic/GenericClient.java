@@ -46,12 +46,9 @@ public class GenericClient {
             throw new ConnectFailedException();
         }
 
-        GenericInvoker invoker = GenericProxyFactory
-                .factory()
+        GenericInvoker invoker = GenericProxyFactory.factory()
                 .connector(connector)
-                .group(directory.getGroup())
-                .version(directory.getVersion())
-                .providerName(directory.getServiceProviderName())
+                .directory(directory)
                 .newProxyInstance();
 
         try {

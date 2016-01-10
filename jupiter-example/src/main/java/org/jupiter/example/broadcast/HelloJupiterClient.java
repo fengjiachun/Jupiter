@@ -42,13 +42,11 @@ public class HelloJupiterClient {
         connector.connect(address2);
         connector.connect(address3);
 
-        ServiceTest service = ProxyFactory
-                .factory()
+        ServiceTest service = ProxyFactory.factory(ServiceTest.class)
                 .connector(connector)
                 .dispatchMode(BROADCAST)
                 .asyncMode(ASYNC_CALLBACK)
                 .addProviderAddress(address1, address2, address2)
-                .interfaceClass(ServiceTest.class)
                 .listener(new JListener() {
 
                     @Override

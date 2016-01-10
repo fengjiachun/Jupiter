@@ -35,11 +35,9 @@ public class Client {
         UnresolvedAddress address = new UnresolvedAddress("127.0.0.1", 18090);
         connector.connect(address);
 
-        ServiceTest service = ProxyFactory
-                .factory()
+        ServiceTest service = ProxyFactory.factory(ServiceTest.class)
                 .connector(connector)
                 .addProviderAddress(address)
-                .interfaceClass(ServiceTest.class)
 //                .asyncMode(AsyncMode.ASYNC_CALLBACK)
 //                .listener(new JListener() {
 //
