@@ -33,7 +33,6 @@ import java.util.concurrent.locks.ReentrantLock;
 
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
 import static org.jupiter.common.util.JConstants.DEFAULT_TIMEOUT;
-import static org.jupiter.common.util.internal.UnsafeAccess.UNSAFE;
 import static org.jupiter.rpc.DispatchMode.BROADCAST;
 import static org.jupiter.rpc.DispatchMode.ROUND;
 import static org.jupiter.rpc.JListener.JResult;
@@ -181,8 +180,6 @@ public class DefaultInvokeFuture implements InvokeFuture {
                         break;
                     }
                 }
-            } catch (InterruptedException e) {
-                UNSAFE.throwException(e);
             } finally {
                 _lock.unlock();
             }
