@@ -92,14 +92,13 @@ public class DefaultInvokeFuture implements InvokeFuture {
         if (future == null) {
             future = broadcastFutures.remove(broadcastChildInvokeId(channel, invokeId));
         }
-        if (future != null) {
-            future.doReceived(response);
-            return true;
+        if (future == null) {
+            logger.warn("A timeout response [{}] finally returned on {}.", response, channel);
+            return false;
         }
 
-        logger.warn("A timeout response [{}] finally returned on {}.", response, channel);
-
-        return false;
+        future.doReceived(response);
+        return true;
     }
 
     public static String broadcastChildInvokeId(JChannel channel, long invokeId) {
