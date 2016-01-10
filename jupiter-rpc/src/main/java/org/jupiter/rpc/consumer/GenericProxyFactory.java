@@ -52,16 +52,17 @@ public class GenericProxyFactory {
 
     private static final InternalLogger logger = InternalLoggerFactory.getInstance(GenericProxyFactory.class);
 
-    private JClient client;
-    private List<UnresolvedAddress> addresses;
     private String group;
     private String version;
     private String providerName;
+
+    private JClient client;
+    private List<UnresolvedAddress> addresses;
     private AsyncMode asyncMode = SYNC;
     private DispatchMode dispatchMode = ROUND;
     private int timeoutMills;
-    private List<ConsumerHook> hooks;
     private JListener listener;
+    private List<ConsumerHook> hooks;
 
     public static GenericProxyFactory factory() {
         GenericProxyFactory fac = new GenericProxyFactory();
@@ -75,33 +76,11 @@ public class GenericProxyFactory {
 
     private GenericProxyFactory() {}
 
-    public GenericProxyFactory directory(Directory directory) {
-        return group(directory.getGroup())
-                .version(directory.getVersion())
-                .providerName(directory.getServiceProviderName());
-    }
-
     /**
      * Sets the connector.
      */
     public GenericProxyFactory connector(JClient client) {
         this.client = client;
-        return this;
-    }
-
-    /**
-     * Adds provider's addresses.
-     */
-    public GenericProxyFactory addProviderAddress(UnresolvedAddress... addresses) {
-        Collections.addAll(this.addresses, addresses);
-        return this;
-    }
-
-    /**
-     * Adds provider's addresses.
-     */
-    public GenericProxyFactory addProviderAddress(List<UnresolvedAddress> addresses) {
-        this.addresses.addAll(addresses);
         return this;
     }
 
@@ -126,6 +105,31 @@ public class GenericProxyFactory {
      */
     public GenericProxyFactory providerName(String providerName) {
         this.providerName = providerName;
+        return this;
+    }
+
+    /**
+     * Sets the group, version and service provider name.
+     */
+    public GenericProxyFactory directory(Directory directory) {
+        return group(directory.getGroup())
+                .version(directory.getVersion())
+                .providerName(directory.getServiceProviderName());
+    }
+
+    /**
+     * Adds provider's addresses.
+     */
+    public GenericProxyFactory addProviderAddress(UnresolvedAddress... addresses) {
+        Collections.addAll(this.addresses, addresses);
+        return this;
+    }
+
+    /**
+     * Adds provider's addresses.
+     */
+    public GenericProxyFactory addProviderAddress(List<UnresolvedAddress> addresses) {
+        this.addresses.addAll(addresses);
         return this;
     }
 

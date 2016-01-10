@@ -59,8 +59,8 @@ public class ProxyFactory<I> {
     private AsyncMode asyncMode = SYNC;
     private DispatchMode dispatchMode = ROUND;
     private int timeoutMills;
-    private List<ConsumerHook> hooks;
     private JListener listener;
+    private List<ConsumerHook> hooks;
 
     public static <I> ProxyFactory<I> factory(Class<I> interfaceClass) {
         ProxyFactory<I> fac = new ProxyFactory<>(interfaceClass);
