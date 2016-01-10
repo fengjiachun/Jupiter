@@ -34,7 +34,7 @@ public abstract class AbstractDispatcher implements Dispatcher {
 
     protected final ServiceMetadata metadata;
 
-    private List<ConsumerHook> hooks;
+    private ConsumerHook[] hooks;
     private JListener listener;
     private int timeoutMills = DEFAULT_TIMEOUT;
 
@@ -43,13 +43,13 @@ public abstract class AbstractDispatcher implements Dispatcher {
     }
 
     @Override
-    public List<ConsumerHook> getHooks() {
+    public ConsumerHook[] getHooks() {
         return hooks;
     }
 
     @Override
     public void setHooks(List<ConsumerHook> hooks) {
-        this.hooks = hooks;
+        this.hooks = hooks.toArray(new ConsumerHook[hooks.size()]);
     }
 
     @Override

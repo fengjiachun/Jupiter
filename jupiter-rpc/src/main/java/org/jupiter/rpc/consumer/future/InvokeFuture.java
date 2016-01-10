@@ -19,8 +19,6 @@ package org.jupiter.rpc.consumer.future;
 import org.jupiter.rpc.ConsumerHook;
 import org.jupiter.rpc.JListener;
 
-import java.util.List;
-
 /**
  * A {@link InvokeFuture} represents the result of an rpc invocation.
  *
@@ -34,7 +32,7 @@ public interface InvokeFuture {
     /**
      * Sets hooks for consumer.
      */
-    InvokeFuture hooks(List<ConsumerHook> hooks);
+    InvokeFuture hooks(ConsumerHook[] hooks);
 
     /**
      * Sets listener for asynchronous rpc.
@@ -42,9 +40,9 @@ public interface InvokeFuture {
     InvokeFuture listener(JListener listener);
 
     /**
-     * Sets send time.
+     * Sets timestamp on message sent out.
      */
-    void sent();
+    void setSentOutTimestamp();
 
     /**
      * Returns the result of rpc.

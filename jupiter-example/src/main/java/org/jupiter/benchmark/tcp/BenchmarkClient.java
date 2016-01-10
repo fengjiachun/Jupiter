@@ -65,7 +65,7 @@ public class BenchmarkClient {
         NettyConnector connector = new JNettyTcpConnector();
         UnresolvedAddress[] addresses = new UnresolvedAddress[processors];
         for (int i = 0; i < processors; i++) {
-            addresses[i] = new UnresolvedAddress("192.168.77.83", 18099);
+            addresses[i] = new UnresolvedAddress("127.0.0.1", 18099);
             connector.connect(addresses[i]);
         }
 

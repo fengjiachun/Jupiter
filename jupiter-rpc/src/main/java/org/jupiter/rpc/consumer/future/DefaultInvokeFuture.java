@@ -26,7 +26,6 @@ import org.jupiter.rpc.error.RemoteException;
 import org.jupiter.rpc.error.TimeoutException;
 import org.jupiter.rpc.model.metadata.ResultWrapper;
 
-import java.util.List;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.ReentrantLock;
@@ -55,38 +54,33 @@ public class DefaultInvokeFuture implements InvokeFuture {
     // 组播场景的future, 组播都是一个invokeId, 所以要把Key再加一个前缀
     private static final ConcurrentMap<String, DefaultInvokeFuture> broadcastFutures = Maps.newConcurrentHashMap();
 
+    private final ReentrantLock lock = new ReentrantLock();
+    private final Condition doneCondition = lock.newCondition();
+
     private final long invokeId; // request id, 组播的场景可重复
-    private final String broadcastChildId; // 组播场景使用的 id
     private final JChannel channel;
     private final JRequest request;
     private final int timeoutMillis;
-    private final DispatchMode mode;
+    private final long startTimestamp = SystemClock.millisClock().now();
 
+    private volatile long sentOutTimestamp;
     private volatile JResponse response;
     private volatile JListener listener;
-    private volatile List<ConsumerHook> hooks;
-
-    private final ReentrantLock lock = new ReentrantLock();
-    private final Condition done = lock.newCondition();
-    private final long start = SystemClock.millisClock().now();
-    private volatile long sent;
+    private volatile ConsumerHook[] hooks;
 
     public DefaultInvokeFuture(JChannel channel, JRequest request, int timeoutMillis) {
         this(channel, request, timeoutMillis, ROUND);
     }
 
-    public DefaultInvokeFuture(JChannel channel, JRequest request, int timeoutMillis, DispatchMode mode) {
+    public DefaultInvokeFuture(JChannel channel, JRequest request, int timeoutMillis, DispatchMode dispatchMode) {
         invokeId = request.invokeId();
         this.channel = channel;
         this.request = request;
         this.timeoutMillis = timeoutMillis > 0 ? timeoutMillis : DEFAULT_TIMEOUT;
-        this.mode = mode;
 
-        if (mode == BROADCAST) {
-            broadcastChildId = generateBroadChildId(channel, invokeId);
-            broadcastFutures.put(broadcastChildId, this);
+        if (dispatchMode == BROADCAST) {
+            broadcastFutures.put(broadcastChildInvokeId(channel, invokeId), this);
         } else {
-            broadcastChildId = null;
             roundFutures.put(invokeId, this);
         }
     }
@@ -96,7 +90,7 @@ public class DefaultInvokeFuture implements InvokeFuture {
         // 在不知道是组播还是单播的情况下需要组播做出性能让步, 查询两次Map
         DefaultInvokeFuture future = roundFutures.remove(invokeId);
         if (future == null) {
-            future = broadcastFutures.remove(generateBroadChildId(channel, invokeId));
+            future = broadcastFutures.remove(broadcastChildInvokeId(channel, invokeId));
         }
         if (future != null) {
             future.doReceived(response);
@@ -108,29 +102,12 @@ public class DefaultInvokeFuture implements InvokeFuture {
         return false;
     }
 
-    public static boolean received(JChannel channel, JResponse response, DispatchMode mode) {
-        DefaultInvokeFuture future;
-        if (mode == BROADCAST) {
-            future = broadcastFutures.remove(generateBroadChildId(channel, response.id()));
-        } else {
-            future = roundFutures.remove(response.id());
-        }
-        if (future != null) {
-            future.doReceived(response);
-            return true;
-        }
-
-        logger.warn("A timeout response [{}] finally returned on {}.", response, channel);
-
-        return false;
-    }
-
-    public static String generateBroadChildId(JChannel channel, long invokeId) {
+    public static String broadcastChildInvokeId(JChannel channel, long invokeId) {
         return channel.id() + invokeId;
     }
 
     @Override
-    public DefaultInvokeFuture hooks(List<ConsumerHook> hooks) {
+    public DefaultInvokeFuture hooks(ConsumerHook[] hooks) {
         this.hooks = hooks;
         return this;
     }
@@ -162,8 +139,8 @@ public class DefaultInvokeFuture implements InvokeFuture {
     }
 
     @Override
-    public void sent() {
-        sent = SystemClock.millisClock().now();
+    public void setSentOutTimestamp() {
+        sentOutTimestamp = SystemClock.millisClock().now();
     }
 
     @Override
@@ -174,7 +151,7 @@ public class DefaultInvokeFuture implements InvokeFuture {
             _lock.lock();
             try {
                 while (!isDone()) {
-                    done.await(timeoutMillis, MILLISECONDS);
+                    doneCondition.await(timeoutMillis, MILLISECONDS);
 
                     if (isDone() || (System.nanoTime() - start) > MILLISECONDS.toNanos(timeoutMillis)) {
                         break;
@@ -185,25 +162,14 @@ public class DefaultInvokeFuture implements InvokeFuture {
             }
 
             if (!isDone()) {
-                throw new TimeoutException(channel.remoteAddress(), sent > 0 ? SERVER_TIMEOUT.value() : CLIENT_TIMEOUT.value());
+                throw new TimeoutException(channel.remoteAddress(), sentOutTimestamp > 0 ? SERVER_TIMEOUT.value() : CLIENT_TIMEOUT.value());
             }
         }
         return resultFromResponse();
     }
 
-    public String getId() {
-        if (mode == BROADCAST) {
-            return broadcastChildId;
-        }
-        return String.valueOf(invokeId);
-    }
-
     public boolean isDone() {
         return response != null;
-    }
-
-    public JChannel getChannel() {
-        return channel;
     }
 
     private void doReceived(JResponse response) {
@@ -217,7 +183,7 @@ public class DefaultInvokeFuture implements InvokeFuture {
             final ReentrantLock _lock = lock;
             _lock.lock();
             try {
-                done.signal();
+                doneCondition.signal();
             } finally {
                 _lock.unlock();
             }
@@ -232,7 +198,7 @@ public class DefaultInvokeFuture implements InvokeFuture {
     }
 
     private Object resultFromResponse() throws Throwable {
-        JResponse _response = this.response;
+        final JResponse _response = this.response;
         byte status = _response.status();
         if (status == OK.value()) {
             ResultWrapper wrapper = _response.result();
@@ -243,7 +209,7 @@ public class DefaultInvokeFuture implements InvokeFuture {
     }
 
     private void notifyListener(JListener responseListener) {
-        JResponse _response = this.response;
+        final JResponse _response = this.response;
         byte status = _response.status();
         ResultWrapper wrapper = _response.result();
         if (status == OK.value()) {
@@ -259,9 +225,9 @@ public class DefaultInvokeFuture implements InvokeFuture {
     }
 
     /**
-     * Invoke timeout scanner.
+     * Timeout future scanner.
      */
-    private static class InvokeTimeoutScanner implements Runnable {
+    private static class TimeoutFutureScanner implements Runnable {
 
         @SuppressWarnings("InfiniteLoopStatement")
         public void run() {
@@ -272,8 +238,8 @@ public class DefaultInvokeFuture implements InvokeFuture {
                         if (future == null || future.isDone()) {
                             continue;
                         }
-                        if (SystemClock.millisClock().now() - future.start > future.timeoutMillis) {
-                            processTimeout(future);
+                        if (SystemClock.millisClock().now() - future.startTimestamp > future.timeoutMillis) {
+                            processingTimeoutFuture(future);
                         }
                     }
 
@@ -282,8 +248,8 @@ public class DefaultInvokeFuture implements InvokeFuture {
                         if (future == null || future.isDone()) {
                             continue;
                         }
-                        if (SystemClock.millisClock().now() - future.start > future.timeoutMillis) {
-                            processTimeout(future);
+                        if (SystemClock.millisClock().now() - future.startTimestamp > future.timeoutMillis) {
+                            processingTimeoutFuture(future);
                         }
                     }
 
@@ -294,10 +260,10 @@ public class DefaultInvokeFuture implements InvokeFuture {
             }
         }
 
-        private void processTimeout(DefaultInvokeFuture future) {
+        private void processingTimeoutFuture(DefaultInvokeFuture future) {
             JResponse timeoutResponse = new JResponse(future.invokeId);
             ResultWrapper result = new ResultWrapper();
-            byte status = future.sent > 0 ? SERVER_TIMEOUT.value() : CLIENT_TIMEOUT.value();
+            byte status = future.sentOutTimestamp > 0 ? SERVER_TIMEOUT.value() : CLIENT_TIMEOUT.value();
             result.setError(new TimeoutException(future.channel.remoteAddress(), status));
 
             // 设置超时状态
@@ -308,7 +274,7 @@ public class DefaultInvokeFuture implements InvokeFuture {
     }
 
     static {
-        Thread t = new Thread(new InvokeTimeoutScanner(), "invocation.timeout.scanner");
+        Thread t = new Thread(new TimeoutFutureScanner(), "timeout.future.scanner");
         t.setDaemon(true);
         t.start();
     }

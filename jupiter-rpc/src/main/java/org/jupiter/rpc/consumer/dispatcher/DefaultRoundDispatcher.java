@@ -28,8 +28,6 @@ import org.jupiter.rpc.consumer.future.InvokeFuture;
 import org.jupiter.rpc.model.metadata.MessageWrapper;
 import org.jupiter.rpc.model.metadata.ServiceMetadata;
 
-import java.util.List;
-
 import static org.jupiter.serialization.SerializerHolder.serializerImpl;
 
 /**
@@ -49,13 +47,13 @@ public class DefaultRoundDispatcher extends AbstractDispatcher {
     }
 
     @Override
-    public InvokeFuture dispatch(JClient proxy, String method, Object[] args) {
+    public InvokeFuture dispatch(JClient proxy, String methodName, Object[] args) {
         // stack copy
         final ServiceMetadata _metadata = metadata;
 
         MessageWrapper message = new MessageWrapper(_metadata);
         message.setAppName(proxy.appName());
-        message.setMethodName(method);
+        message.setMethodName(methodName);
         message.setArgs(args);
 
         JChannel channel = proxy.select(_metadata);
@@ -63,7 +61,7 @@ public class DefaultRoundDispatcher extends AbstractDispatcher {
         final JRequest request = new JRequest();
         request.message(message);
         request.bytes(serializerImpl().writeObject(message));
-        final List<ConsumerHook> _hooks = getHooks();
+        final ConsumerHook[] _hooks = getHooks();
         final InvokeFuture invokeFuture = new DefaultInvokeFuture(channel, request, getTimeoutMills())
                 .hooks(_hooks)
                 .listener(getListener());
@@ -73,7 +71,7 @@ public class DefaultRoundDispatcher extends AbstractDispatcher {
             @Override
             public void operationComplete(JChannel channel, boolean isSuccess) throws Exception {
                 if (isSuccess) {
-                    invokeFuture.sent();
+                    invokeFuture.setSentOutTimestamp();
 
                     if (_hooks != null) {
                         for (ConsumerHook h : _hooks) {

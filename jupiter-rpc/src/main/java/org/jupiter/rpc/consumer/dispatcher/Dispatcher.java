@@ -35,7 +35,7 @@ public interface Dispatcher {
 
     InvokeFuture dispatch(JClient proxy, String method, Object[] args);
 
-    List<ConsumerHook> getHooks();
+    ConsumerHook[] getHooks();
 
     void setHooks(List<ConsumerHook> hooks);
 

@@ -54,13 +54,13 @@ public class DefaultBroadcastDispatcher extends AbstractDispatcher {
     }
 
     @Override
-    public InvokeFuture dispatch(JClient proxy, String method, Object[] args) {
+    public InvokeFuture dispatch(JClient proxy, String methodName, Object[] args) {
         // stack copy
         final ServiceMetadata _metadata = metadata;
 
         MessageWrapper message = new MessageWrapper(_metadata);
         message.setAppName(proxy.appName());
-        message.setMethodName(method);
+        message.setMethodName(methodName);
         message.setArgs(args);
 
         List<JChannelGroup> groupList = proxy.directory(_metadata);
@@ -75,7 +75,7 @@ public class DefaultBroadcastDispatcher extends AbstractDispatcher {
         final JRequest request = new JRequest();
         request.message(message);
         request.bytes(serializerImpl().writeObject(message));
-        final List<ConsumerHook> _hooks = getHooks();
+        final ConsumerHook[] _hooks = getHooks();
         final JListener _listener = getListener();
         for (JChannel ch : channels) {
             final InvokeFuture invokeFuture = new DefaultInvokeFuture(ch, request, getTimeoutMills(), BROADCAST)
@@ -87,7 +87,7 @@ public class DefaultBroadcastDispatcher extends AbstractDispatcher {
                 @Override
                 public void operationComplete(JChannel channel, boolean isSuccess) throws Exception {
                     if (isSuccess) {
-                        invokeFuture.sent();
+                        invokeFuture.setSentOutTimestamp();
 
                         if (_hooks != null) {
                             for (ConsumerHook h : _hooks) {
