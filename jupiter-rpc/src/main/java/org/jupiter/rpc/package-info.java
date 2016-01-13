@@ -38,7 +38,7 @@
  * ******************************************************************************
  *
  * jupiter
- * org.jupiter.hot.exec
+ * org.jupiter.rpc
  *
  * @author jiachun.fjc
  */

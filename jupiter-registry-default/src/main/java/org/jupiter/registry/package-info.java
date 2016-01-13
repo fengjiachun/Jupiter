@@ -21,7 +21,7 @@
  * 的话建议使用[jupiter-registry-zookeeper], 或是利用redis的发布订阅功能自己实现一个更稳定的.
  *
  * jupiter
- * org.jupiter.hot.exec
+ * org.jupiter.registry
  *
  * @author jiachun.fjc
  */

@@ -31,7 +31,7 @@
  *         作为consumer的参数, 最后再以RPC的方式调用 {@link org.jupiter.flight.exec.JavaClassExec#exec(byte[])}.
  *
  * jupiter
- * org.jupiter.hot.exec
+ * org.jupiter.flight.exec
  *
  * @author jiachun.fjc
  */

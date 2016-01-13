@@ -65,7 +65,7 @@
             </dependency>
             <dependency>
                 <groupId>${project.groupId}</groupId>
-                <artifactId>jupiter-hotexec</artifactId>
+                <artifactId>jupiter-flightexec</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
