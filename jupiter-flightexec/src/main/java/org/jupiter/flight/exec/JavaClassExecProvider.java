@@ -14,13 +14,13 @@
  * limitations under the License.
  */
 
-package org.jupiter.hot.exec;
+package org.jupiter.flight.exec;
 
 import static org.jupiter.common.util.internal.UnsafeAccess.UNSAFE;
 
 /**
  * jupiter
- * org.jupiter.hot.exec
+ * org.jupiter.flight.exec
  *
  * @author jiachun.fjc
  */
@@ -33,10 +33,10 @@ public class JavaClassExecProvider implements JavaClassExec {
         try {
             // modify class
             ClassModifier cm = new ClassModifier(classBytes);
-            classBytes = cm.modifyUTF8Constant("java/lang/System", "org/jupiter/hot/exec/HackSystem");
+            classBytes = cm.modifyUTF8Constant("java/lang/System", "org/jupiter/flight/exec/HackSystem");
 
             // load class
-            HotExecClassLoader loader = new HotExecClassLoader();
+            FlightExecClassLoader loader = new FlightExecClassLoader();
             Class<?> clazz = loader.loadBytes(classBytes);
 
             executor = (UserExecInterface) clazz.newInstance();

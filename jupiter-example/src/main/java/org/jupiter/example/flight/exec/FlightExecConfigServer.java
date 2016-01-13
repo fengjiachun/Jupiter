@@ -14,17 +14,17 @@
  * limitations under the License.
  */
 
-package org.jupiter.example.hot.exec;
+package org.jupiter.example.flight.exec;
 
 import org.jupiter.registry.ConfigServer;
 
 /**
  * jupiter
- * org.jupiter.example.hot.exec
+ * org.jupiter.example.flight.exec
  *
  * @author jiachun.fjc
  */
-public class HotExecConfigServer {
+public class FlightExecConfigServer {
 
     public static void main(String[] args) {
         ConfigServer configServer = new ConfigServer(20001, 1); // 注册中心

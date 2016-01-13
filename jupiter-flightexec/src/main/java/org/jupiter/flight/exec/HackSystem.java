@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.jupiter.hot.exec;
+package org.jupiter.flight.exec;
 
 import org.jupiter.common.util.Reflects;
 
@@ -28,7 +28,7 @@ import java.util.Properties;
 
 /**
  * jupiter
- * org.jupiter.hot.exec
+ * org.jupiter.flight.exec
  *
  * @author jiachun.fjc
  */

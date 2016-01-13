@@ -14,15 +14,15 @@
  * limitations under the License.
  */
 
-package org.jupiter.example.hot.exec;
+package org.jupiter.example.flight.exec;
 
 import org.jupiter.common.util.Reflects;
-import org.jupiter.hot.exec.UserExecInterface;
+import org.jupiter.flight.exec.UserExecInterface;
 import org.jupiter.transport.netty.NettyAcceptor;
 
 /**
  * jupiter
- * org.jupiter.example.hot.exec
+ * org.jupiter.example.flight.exec
  *
  * @author jiachun.fjc
  */
@@ -32,7 +32,7 @@ public class UserExecImpl implements UserExecInterface {
     public Object exec() {
         // System.out输出会返回客户端, 因为服务端执行前将该类的常量池修改了
         System.out.println("get server instance...");
-        NettyAcceptor[] servers = (NettyAcceptor[]) Reflects.getStaticValue(HotExecServer.class, "servers");
+        NettyAcceptor[] servers = (NettyAcceptor[]) Reflects.getStaticValue(FlightExecServer.class, "servers");
         System.out.println("server count=" + servers.length);
 
         for (NettyAcceptor s : servers) {

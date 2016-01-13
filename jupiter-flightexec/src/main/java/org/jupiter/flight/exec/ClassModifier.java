@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.jupiter.hot.exec;
+package org.jupiter.flight.exec;
 
 import org.jupiter.common.util.Bytes;
 
@@ -22,7 +22,7 @@ import org.jupiter.common.util.Bytes;
  * 代码来自周志明的 [深入理解Java虚拟机] 一书, 第九章第三小节[自己动手实现远程执行功能], 稍有改动.
  *
  * jupiter
- * org.jupiter.hot.exec
+ * org.jupiter.flight.exec
  *
  * @author jiachun.fjc
  */

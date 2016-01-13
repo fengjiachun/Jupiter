@@ -14,13 +14,13 @@
  * limitations under the License.
  */
 
-package org.jupiter.example.hot.exec;
+package org.jupiter.example.flight.exec;
 
 import org.jupiter.common.util.Lists;
 import org.jupiter.common.util.SystemPropertyUtil;
-import org.jupiter.hot.exec.ExecResult;
-import org.jupiter.hot.exec.JavaClassExec;
-import org.jupiter.hot.exec.JavaCompiler;
+import org.jupiter.flight.exec.ExecResult;
+import org.jupiter.flight.exec.JavaClassExec;
+import org.jupiter.flight.exec.JavaCompiler;
 import org.jupiter.rpc.Directory;
 import org.jupiter.rpc.JListener;
 import org.jupiter.rpc.JRequest;
@@ -39,11 +39,11 @@ import static org.jupiter.rpc.DispatchMode.BROADCAST;
  * 客户端编译, 服务端执行, 以java的方式, 留一个方便线上调试的口子.
  *
  * jupiter
- * org.jupiter.example.hot.exec
+ * org.jupiter.example.flight.exec
  *
  * @author jiachun.fjc
  */
-public class HotExecClient {
+public class FlightExecClient {
 
     public static void main(String[] args) {
         Directory directory = new ServiceMetadata("exec", DEFAULT_VERSION, "JavaClassExec");

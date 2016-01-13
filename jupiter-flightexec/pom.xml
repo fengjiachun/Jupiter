@@ -25,7 +25,7 @@
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>jupiter-hotexec</artifactId>
+    <artifactId>jupiter-flightexec</artifactId>
 
     <dependencies>
         <dependency>

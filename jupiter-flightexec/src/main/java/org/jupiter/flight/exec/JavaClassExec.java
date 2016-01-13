@@ -14,15 +14,18 @@
  * limitations under the License.
  */
 
-package org.jupiter.hot.exec;
+package org.jupiter.flight.exec;
+
+import org.jupiter.rpc.ServiceProvider;
 
 /**
  * jupiter
- * org.jupiter.hot.exec
+ * org.jupiter.flight.exec
  *
  * @author jiachun.fjc
  */
-public interface UserExecInterface {
+@ServiceProvider(group = "exec")
+public interface JavaClassExec {
 
-    Object exec();
+    ExecResult exec(byte[] classBytes);
 }

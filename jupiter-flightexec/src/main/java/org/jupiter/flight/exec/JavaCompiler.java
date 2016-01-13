@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.jupiter.hot.exec;
+package org.jupiter.flight.exec;
 
 import org.jupiter.common.util.Function;
 import org.jupiter.common.util.Lists;
@@ -32,7 +32,7 @@ import static org.jupiter.common.util.internal.UnsafeAccess.UNSAFE;
  * Java compiler, base on javac.
  *
  * jupiter
- * org.jupiter.hot.exec
+ * org.jupiter.flight.exec
  *
  * @author jiachun.fjc
  */

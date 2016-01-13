@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.jupiter.hot.exec;
+package org.jupiter.flight.exec;
 
 import java.security.AccessController;
 import java.security.PrivilegedAction;
@@ -22,11 +22,11 @@ import java.security.ProtectionDomain;
 
 /**
  * jupiter
- * org.jupiter.hot.exec
+ * org.jupiter.flight.exec
  *
  * @author jiachun.fjc
  */
-public class HotExecClassLoader extends ClassLoader {
+public class FlightExecClassLoader extends ClassLoader {
 
     private static ProtectionDomain PROTECTION_DOMAIN;
 
@@ -35,12 +35,12 @@ public class HotExecClassLoader extends ClassLoader {
 
             @Override
             public ProtectionDomain run() {
-                return HotExecClassLoader.class.getProtectionDomain();
+                return FlightExecClassLoader.class.getProtectionDomain();
             }
         });
     }
 
-    public HotExecClassLoader() {
+    public FlightExecClassLoader() {
         super(Thread.currentThread().getContextClassLoader());
     }
 
