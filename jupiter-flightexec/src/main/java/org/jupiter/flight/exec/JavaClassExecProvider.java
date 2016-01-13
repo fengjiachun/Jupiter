@@ -26,6 +26,9 @@ import static org.jupiter.common.util.internal.UnsafeAccess.UNSAFE;
  */
 public class JavaClassExecProvider implements JavaClassExec {
 
+    private static String SYSTEM_STRING = System.class.getName().replace('.', '/');
+    private static String HACK_SYSTEM_STRING = HackSystem.class.getName().replace('.', '/');
+
     @Override
     public ExecResult exec(byte[] classBytes) {
         ExecResult result = new ExecResult();
@@ -33,7 +36,7 @@ public class JavaClassExecProvider implements JavaClassExec {
         try {
             // modify class
             ClassModifier cm = new ClassModifier(classBytes);
-            classBytes = cm.modifyUTF8Constant("java/lang/System", "org/jupiter/flight/exec/HackSystem");
+            classBytes = cm.modifyUTF8Constant(SYSTEM_STRING, HACK_SYSTEM_STRING);
 
             // load class
             FlightExecClassLoader loader = new FlightExecClassLoader();
