@@ -170,7 +170,7 @@ public abstract class NettyConnector extends AbstractJClient implements JConnect
                     }
 
                     private void connectTo(final UnresolvedAddress address, final JChannelGroup group, RegisterMeta registerMeta) {
-                        int connCount = registerMeta.getNumOfConnections();
+                        int connCount = registerMeta.getConnCount();
                         connCount = connCount < 1 ? 1 : connCount;
 
                         group.setWeight(registerMeta.getWeight()); // 设置权重

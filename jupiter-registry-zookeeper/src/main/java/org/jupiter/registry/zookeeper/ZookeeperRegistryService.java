@@ -143,7 +143,7 @@ public class ZookeeperRegistryService extends AbstractRegistryService {
                             meta.getHost(),
                             String.valueOf(meta.getPort()),
                             String.valueOf(meta.getWeight()),
-                            String.valueOf(meta.getNumOfConnections())));
+                            String.valueOf(meta.getConnCount())));
         } catch (Exception e) {
             logger.warn("Create register meta: {} path failed.", meta, stackTrace(e));
         }
@@ -184,7 +184,7 @@ public class ZookeeperRegistryService extends AbstractRegistryService {
                             meta.getHost(),
                             String.valueOf(meta.getPort()),
                             String.valueOf(meta.getWeight()),
-                            String.valueOf(meta.getNumOfConnections())));
+                            String.valueOf(meta.getConnCount())));
         } catch (Exception e) {
             logger.warn("Delete register meta: {} path failed.", meta, stackTrace(e));
         }
@@ -246,7 +246,7 @@ public class ZookeeperRegistryService extends AbstractRegistryService {
         meta.setHost(array_1[0]);
         meta.setPort(Integer.parseInt(array_1[1]));
         meta.setWeight(Integer.parseInt(array_1[2]));
-        meta.setNumOfConnections(Integer.parseInt(array_1[3]));
+        meta.setConnCount(Integer.parseInt(array_1[3]));
 
         return meta;
     }

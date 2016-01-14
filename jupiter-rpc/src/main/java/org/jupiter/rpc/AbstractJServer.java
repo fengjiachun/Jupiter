@@ -34,7 +34,7 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.Executor;
 
-import static org.jupiter.common.util.JConstants.DEFAULT_NUM_CONNECTIONS;
+import static org.jupiter.common.util.JConstants.DEFAULT_CONNECTION_COUNT;
 import static org.jupiter.common.util.JConstants.DEFAULT_WEIGHT;
 import static org.jupiter.common.util.Preconditions.checkArgument;
 import static org.jupiter.common.util.Preconditions.checkNotNull;
@@ -96,7 +96,7 @@ public abstract class AbstractJServer implements JServer {
     }
 
     @Override
-    public void publish(ServiceWrapper serviceWrapper, int weight, int numOfConnections) {
+    public void publish(ServiceWrapper serviceWrapper, int weight, int connCount) {
         ServiceMetadata metadata = serviceWrapper.getMetadata();
 
         RegisterMeta meta = new RegisterMeta();
@@ -105,7 +105,7 @@ public abstract class AbstractJServer implements JServer {
         meta.setVersion(metadata.getVersion());
         meta.setServiceProviderName(metadata.getServiceProviderName());
         meta.setWeight(weight <= 0 ? DEFAULT_WEIGHT : weight);
-        meta.setNumOfConnections(numOfConnections <= 0 ? DEFAULT_NUM_CONNECTIONS : numOfConnections);
+        meta.setConnCount(connCount <= 0 ? DEFAULT_CONNECTION_COUNT : connCount);
 
         registryService.register(meta);
     }
@@ -116,9 +116,9 @@ public abstract class AbstractJServer implements JServer {
     }
 
     @Override
-    public void publishAll(int weight, int numOfConnections) {
+    public void publishAll(int weight, int connCount) {
         for (ServiceWrapper wrapper : providerContainer.getAllServices()) {
-            publish(wrapper, weight, numOfConnections);
+            publish(wrapper, weight, connCount);
         }
     }
 

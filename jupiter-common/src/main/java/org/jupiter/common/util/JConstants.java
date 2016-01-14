@@ -72,8 +72,8 @@ public final class JConstants {
     /** Load balancer 默认权重, 建议最大100 **/
     public static final int DEFAULT_WEIGHT = SystemPropertyUtil.getInt("jupiter.load-balancer.weight", 50);
 
-    /** Suggest that the number of connections **/
-    public static final int DEFAULT_NUM_CONNECTIONS = SystemPropertyUtil.getInt("jupiter.suggest.num.connections", AVAILABLE_PROCESSORS);
+    /** Suggest that the count of connections **/
+    public static final int DEFAULT_CONNECTION_COUNT = SystemPropertyUtil.getInt("jupiter.suggest.connection.count", AVAILABLE_PROCESSORS);
 
     /** Processor.executor 核心线程数 **/
     public static final int PROCESSOR_CORE_NUM_WORKERS = SystemPropertyUtil.getInt(
