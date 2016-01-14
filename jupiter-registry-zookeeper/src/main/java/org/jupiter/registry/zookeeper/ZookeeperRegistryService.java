@@ -41,6 +41,7 @@ import java.util.concurrent.ConcurrentMap;
 import static org.jupiter.common.util.Preconditions.checkArgument;
 import static org.jupiter.common.util.Preconditions.checkNotNull;
 import static org.jupiter.common.util.StackTraceUtil.stackTrace;
+import static org.jupiter.registry.NotifyListener.NotifyEvent;
 import static org.jupiter.registry.RegisterMeta.ServiceMeta;
 
 /**
@@ -88,11 +89,11 @@ public class ZookeeperRegistryService extends AbstractRegistryService {
                         switch (event.getType()) {
                             case CHILD_ADDED:
                                 ZookeeperRegistryService.this.notify(
-                                        serviceMeta, parseRegisterMeta(event.getData().getPath()), true);
+                                        serviceMeta, parseRegisterMeta(event.getData().getPath()), NotifyEvent.CHILD_ADDED);
                                 break;
                             case CHILD_REMOVED:
                                 ZookeeperRegistryService.this.notify(
-                                        serviceMeta, parseRegisterMeta(event.getData().getPath()), false);
+                                        serviceMeta, parseRegisterMeta(event.getData().getPath()), NotifyEvent.CHILD_REMOVED);
                                 break;
                         }
                     }

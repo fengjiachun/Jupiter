@@ -34,6 +34,8 @@ import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 import static org.jupiter.common.util.StackTraceUtil.stackTrace;
+import static org.jupiter.registry.NotifyListener.*;
+import static org.jupiter.registry.RegisterMeta.Address;
 import static org.jupiter.registry.RegisterMeta.ServiceMeta;
 
 /**
@@ -127,10 +129,10 @@ public abstract class AbstractRegistryService implements RegistryService {
     }
 
     // 对端下线监听, 子类根据需要作为钩子实现
-    public void offlineListening(RegisterMeta.Address address, OfflineListener listener) {}
+    public void offlineListening(Address address, OfflineListener listener) {}
 
     // 通知对应地址的机器下线, 子类根据需要作为钩子实现
-    public void offline(RegisterMeta.Address address) {}
+    public void offline(Address address) {}
 
     public ConcurrentSet<ServiceMeta> subscribeSet() {
         return subscribeSet;
@@ -156,7 +158,7 @@ public abstract class AbstractRegistryService implements RegistryService {
     public abstract void destroy();
 
     // 通知新的全量服务, 总是携带版本号
-    protected void notify(ServiceMeta serviceMeta, List<RegisterMeta> registerMetaList, long version) {
+    protected void notify(ServiceMeta serviceMeta, List<RegisterMeta> allRegisterMeta, long version) {
         boolean notifyNeeded = false;
 
         final Lock writeLock = registriesLock.writeLock();
@@ -164,7 +166,7 @@ public abstract class AbstractRegistryService implements RegistryService {
         try {
             Pair<Long, List<RegisterMeta>> oldData = registries.get(serviceMeta);
             if (oldData == null || (oldData.getKey() < version)) {
-                registries.put(serviceMeta, new Pair<>(version, registerMetaList));
+                registries.put(serviceMeta, new Pair<>(version, allRegisterMeta));
                 notifyNeeded = true;
             }
         } finally {
@@ -175,36 +177,32 @@ public abstract class AbstractRegistryService implements RegistryService {
             CopyOnWriteArrayList<NotifyListener> listeners = subscribeListeners.get(serviceMeta);
             if (listeners != null) {
                 for (NotifyListener l : listeners) {
-                    l.notify(registerMetaList);
+                    l.notify(allRegisterMeta);
                 }
             }
         }
     }
 
-    // 通知新增/删除服务
-    protected void notify(ServiceMeta serviceMeta, RegisterMeta meta, boolean add) {
-        List<RegisterMeta> copies = null;
-
+    // 通知新增或删除服务
+    protected void notify(ServiceMeta serviceMeta, RegisterMeta registerMeta, NotifyEvent event) {
         final Lock writeLock = registriesLock.writeLock();
         writeLock.lock();
         try {
             Pair<Long, List<RegisterMeta>> data = registries.get(serviceMeta);
             if (data == null) {
-                if (!add) {
+                if (event == NotifyEvent.CHILD_REMOVED) {
                     return;
                 }
-                List<RegisterMeta> metaList = Lists.newArrayList(meta);
+                List<RegisterMeta> metaList = Lists.newArrayList(registerMeta);
                 data = new Pair<>(0L, metaList);
                 registries.put(serviceMeta, data);
             } else {
-                if (add) {
-                    data.getValue().add(meta);
-                } else {
-                    data.getValue().remove(meta);
+                if (event == NotifyEvent.CHILD_REMOVED) {
+                    data.getValue().remove(registerMeta);
+                } else if (event == NotifyEvent.CHILD_ADDED) {
+                    data.getValue().add(registerMeta);
                 }
             }
-
-            copies = Lists.newArrayList(data.getValue());
         } finally {
             writeLock.unlock();
         }
@@ -212,7 +210,7 @@ public abstract class AbstractRegistryService implements RegistryService {
         CopyOnWriteArrayList<NotifyListener> listeners = subscribeListeners.get(serviceMeta);
         if (listeners != null) {
             for (NotifyListener l : listeners) {
-                l.notify(copies);
+                l.notify(registerMeta, event);
             }
         }
     }

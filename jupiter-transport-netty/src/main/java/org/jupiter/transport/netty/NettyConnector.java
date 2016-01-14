@@ -32,7 +32,6 @@ import org.jupiter.registry.RegisterMeta;
 import org.jupiter.rpc.AbstractJClient;
 import org.jupiter.rpc.Directory;
 import org.jupiter.rpc.UnresolvedAddress;
-import org.jupiter.rpc.channel.JChannel;
 import org.jupiter.rpc.channel.JChannelGroup;
 import org.jupiter.transport.*;
 import org.jupiter.transport.netty.channel.NettyChannelGroup;
@@ -120,50 +119,18 @@ public abstract class NettyConnector extends AbstractJClient implements JConnect
                 subscribe(directory, new NotifyListener() {
 
                     @Override
-                    public void notify(final List<RegisterMeta> registerMetaList) {
-                        for (RegisterMeta meta : registerMetaList) {
-                            final UnresolvedAddress address = new UnresolvedAddress(meta.getHost(), meta.getPort());
-                            final JChannelGroup group = group(address);
-                            group.setWeight(meta.getWeight()); // 设置权重
-
-                            // 每个group存放的是相同对端地址的channel, 如果group不为空且至少有一个channel自动重连
-                            // 被设置为true就不用再建立连接了
-                            boolean connectNeeded = true;
-                            for (JChannel channel : group.channels()) {
-                                if (channel.isActive() && channel.isMarkedReconnect()) {
-                                    connectNeeded = false;
-                                    break;
-                                }
+                    public void notify(List<RegisterMeta> allRegisterMeta) {
+                        for (RegisterMeta meta : allRegisterMeta) {
+                            UnresolvedAddress address = new UnresolvedAddress(meta.getHost(), meta.getPort());
+                            JChannelGroup group = group(address);
+                            if (!group.isAvailable()) {
+                                connectTo(address, group, meta);
                             }
-                            if (connectNeeded) {
-                                int connectionsNeeded = meta.getNumOfConnections();
-                                connectionsNeeded = connectionsNeeded < 1 ? 1 : connectionsNeeded;
-                                for (int i = 0; i < connectionsNeeded; i++) {
-                                    JConnection connection = connect(address);
-                                    JConnectionManager.manage(connection);
-
-                                    offlineListening(address, new OfflineListener() {
-
-                                        @Override
-                                        public void offline() {
-                                            // 取消自动重连
-                                            JConnectionManager.cancelReconnect(address);
-
-                                            // 移除ChannelGroup避免被LoadBalancer选中, group不为空时不移除,
-                                            // 当group再次被LoadBalancer选中并且为空时移除, 见AbstractJClient#select()
-                                            if (group.isEmpty()) {
-                                                removeChannelGroup(directory, group);
-                                            }
-                                        }
-                                    });
-                                }
-                            }
-
                             // 添加ChannelGroup到指定directory
                             addChannelGroup(directory, group);
                         }
 
-                        if (!registerMetaList.isEmpty() && signalNeeded.getAndSet(false)) {
+                        if (!allRegisterMeta.isEmpty() && signalNeeded.getAndSet(false)) {
                             final ReentrantLock _look = lock;
                             _look.lock();
                             try {
@@ -171,6 +138,57 @@ public abstract class NettyConnector extends AbstractJClient implements JConnect
                             } finally {
                                 _look.unlock();
                             }
+                        }
+                    }
+
+                    @Override
+                    public void notify(RegisterMeta registerMeta, NotifyEvent event) {
+                        UnresolvedAddress address = new UnresolvedAddress(registerMeta.getHost(), registerMeta.getPort());
+                        JChannelGroup group = group(address);
+                        if (event == NotifyEvent.CHILD_ADDED) {
+                            if (!group.isAvailable()) {
+                                connectTo(address, group, registerMeta);
+                            }
+                            // 添加ChannelGroup到指定directory
+                            addChannelGroup(directory, group);
+
+                            if (signalNeeded.getAndSet(false)) {
+                                final ReentrantLock _look = lock;
+                                _look.lock();
+                                try {
+                                    notifyCondition.signalAll();
+                                } finally {
+                                    _look.unlock();
+                                }
+                            }
+                        } else if (event == NotifyEvent.CHILD_REMOVED) {
+                            removeChannelGroup(directory, group);
+                            if (!group.isAvailable()) {
+                                JConnectionManager.cancelReconnect(address); // 取消自动重连
+                            }
+                        }
+                    }
+
+                    private void connectTo(final UnresolvedAddress address, final JChannelGroup group, RegisterMeta registerMeta) {
+                        int connCount = registerMeta.getNumOfConnections();
+                        connCount = connCount < 1 ? 1 : connCount;
+
+                        group.setWeight(registerMeta.getWeight()); // 设置权重
+                        group.setCapacity(connCount);
+                        for (int i = 0; i < connCount; i++) {
+                            JConnection connection = connect(address);
+                            JConnectionManager.manage(connection);
+
+                            offlineListening(address, new OfflineListener() {
+
+                                @Override
+                                public void offline() {
+                                    JConnectionManager.cancelReconnect(address); // 取消自动重连
+                                    if (!group.isAvailable()) {
+                                        removeChannelGroup(directory, group);
+                                    }
+                                }
+                            });
                         }
                     }
                 });

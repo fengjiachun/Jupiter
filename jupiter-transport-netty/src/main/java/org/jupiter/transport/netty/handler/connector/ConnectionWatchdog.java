@@ -83,7 +83,7 @@ public abstract class ConnectionWatchdog extends ChannelInboundHandlerAdapter im
 
     @Override
     public void channelInactive(ChannelHandlerContext ctx) throws Exception {
-        boolean doReconnect = reconnect;
+        boolean doReconnect = reconnect && group.size() < group.getCapacity();
         if (doReconnect) {
             if (attempts < 12) {
                 attempts++;
@@ -109,6 +109,11 @@ public abstract class ConnectionWatchdog extends ChannelInboundHandlerAdapter im
 
     @Override
     public void run(Timeout timeout) throws Exception {
+        if (group.size() >= group.getCapacity()) {
+            logger.warn("Cancel reconnecting with [{}].", remoteAddress);
+            return;
+        }
+
         ChannelFuture future;
         final String host = remoteAddress.getHost();
         final int port = remoteAddress.getPort();
@@ -129,7 +134,7 @@ public abstract class ConnectionWatchdog extends ChannelInboundHandlerAdapter im
             public void operationComplete(ChannelFuture f) throws Exception {
                 boolean succeed = f.isSuccess();
 
-                logger.warn("Reconnects with [{}:{}] {}.", host, port, succeed ? "succeed" : "failed");
+                logger.warn("Reconnects with [{}] {}.", remoteAddress, succeed ? "succeed" : "failed");
 
                 if (!succeed) {
                     f.channel().pipeline().fireChannelInactive();

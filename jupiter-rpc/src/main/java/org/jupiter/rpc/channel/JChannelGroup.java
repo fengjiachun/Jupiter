@@ -66,6 +66,16 @@ public interface JChannelGroup {
     int size();
 
     /**
+     * Sets the capacity of this group
+     */
+    void setCapacity(int capacity);
+
+    /**
+     * The capacity of this group
+     */
+    int getCapacity();
+
+    /**
      * If available return true, otherwise return false.
      */
     boolean isAvailable();

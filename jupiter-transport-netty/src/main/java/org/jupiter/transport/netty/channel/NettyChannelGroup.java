@@ -86,6 +86,7 @@ public class NettyChannelGroup implements JChannelGroup {
 
     @SuppressWarnings("unused")
     private volatile int index = 0;
+    private volatile int capacity = Integer.MAX_VALUE;
     private volatile int weight = DEFAULT_WEIGHT; // the weight if this group
     private volatile int warmUp = DEFAULT_WARM_UP; // warm-up time
     private volatile long timestamp = SystemClock.millisClock().now();
@@ -169,6 +170,16 @@ public class NettyChannelGroup implements JChannelGroup {
     @Override
     public int size() {
         return channels.size();
+    }
+
+    @Override
+    public void setCapacity(int capacity) {
+        this.capacity = capacity;
+    }
+
+    @Override
+    public int getCapacity() {
+        return capacity;
     }
 
     @Override

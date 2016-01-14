@@ -28,5 +28,18 @@ import java.util.List;
  */
 public interface NotifyListener {
 
-    void notify(List<RegisterMeta> registerMetaList);
+    /**
+     * 全量信息通知
+     */
+    void notify(List<RegisterMeta> allRegisterMeta);
+
+    /**
+     * 增量信息通知
+     */
+    void notify(RegisterMeta registerMeta, NotifyEvent event);
+
+    enum NotifyEvent {
+        CHILD_ADDED,
+        CHILD_REMOVED
+    }
 }
