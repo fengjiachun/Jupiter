@@ -66,12 +66,12 @@ public interface JChannelGroup {
     int size();
 
     /**
-     * Sets the capacity of this group
+     * Sets the capacity of this group.
      */
     void setCapacity(int capacity);
 
     /**
-     * The capacity of this group
+     * The capacity of this group.
      */
     int getCapacity();
 
