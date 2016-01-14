@@ -124,6 +124,7 @@ public abstract class NettyConnector extends AbstractJClient implements JConnect
                         for (RegisterMeta meta : registerMetaList) {
                             final UnresolvedAddress address = new UnresolvedAddress(meta.getHost(), meta.getPort());
                             final JChannelGroup group = group(address);
+                            group.setWeight(meta.getWeight()); // 设置权重
 
                             // 每个group存放的是相同对端地址的channel, 如果group不为空且至少有一个channel自动重连
                             // 被设置为true就不用再建立连接了
