@@ -192,32 +192,32 @@ public class GenericProxyFactory {
         }
 
         // dispatcher
-        Dispatcher dispatcher = null;
-        switch (dispatchMode) {
-            case ROUND:
-                dispatcher = new DefaultRoundDispatcher(metadata);
-                break;
-            case BROADCAST:
-                dispatcher = new DefaultBroadcastDispatcher(metadata);
-                break;
-        }
+        Dispatcher dispatcher = asDispatcher(dispatchMode, metadata);
         if (timeoutMills > 0) {
             dispatcher.setTimeoutMills(timeoutMills);
         }
         dispatcher.setHooks(hooks);
 
-        GenericInvoker genericInvoker = null;
-        switch (asyncMode) {
-            case SYNC:
-                genericInvoker = new SyncGenericInvoker(client, dispatcher);
-                break;
-            case ASYNC_CALLBACK:
-                dispatcher.setListener(checkNotNull(listener, "listener"));
-                genericInvoker = new AsyncGenericInvoker(client, dispatcher);
-                break;
+        if (SYNC == asyncMode) {
+            return new SyncGenericInvoker(client, dispatcher);
+        }
+        if (ASYNC_CALLBACK == asyncMode) {
+            dispatcher.setListener(checkNotNull(listener, "listener"));
+            return new AsyncGenericInvoker(client, dispatcher);
         }
 
-        return genericInvoker;
+        throw new IllegalStateException("AsyncMode: " + asyncMode);
+    }
+
+    protected Dispatcher asDispatcher(DispatchMode dispatchMode, ServiceMetadata metadata) {
+        if (ROUND == dispatchMode) {
+            return new DefaultRoundDispatcher(metadata);
+        }
+        if (BROADCAST == dispatchMode) {
+            return new DefaultBroadcastDispatcher(metadata);
+        }
+
+        throw new IllegalStateException("DispatchMode: " + dispatchMode);
     }
 
     private static final ConsumerHook logConsumerHook = new ConsumerHook() {

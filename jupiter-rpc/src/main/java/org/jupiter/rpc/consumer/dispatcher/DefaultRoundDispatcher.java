@@ -65,7 +65,7 @@ public class DefaultRoundDispatcher extends AbstractDispatcher {
         request.message(message);
         request.bytes(serializerImpl().writeObject(message));
         final ConsumerHook[] _hooks = getHooks();
-        final InvokeFuture invokeFuture = new DefaultInvokeFuture(channel, request, getTimeoutMills())
+        final InvokeFuture invokeFuture = asInvokeFuture(channel, request)
                 .hooks(_hooks)
                 .listener(getListener());
 
@@ -97,5 +97,10 @@ public class DefaultRoundDispatcher extends AbstractDispatcher {
         });
 
         return invokeFuture;
+    }
+
+    @Override
+    public InvokeFuture asInvokeFuture(JChannel channel, JRequest request) {
+        return new DefaultInvokeFuture(channel, request, getTimeoutMills());
     }
 }

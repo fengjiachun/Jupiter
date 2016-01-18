@@ -18,6 +18,9 @@ package org.jupiter.rpc.consumer.dispatcher;
 
 import org.jupiter.rpc.ConsumerHook;
 import org.jupiter.rpc.JListener;
+import org.jupiter.rpc.JRequest;
+import org.jupiter.rpc.channel.JChannel;
+import org.jupiter.rpc.consumer.future.InvokeFuture;
 import org.jupiter.rpc.model.metadata.ServiceMetadata;
 
 import java.util.List;
@@ -71,4 +74,6 @@ public abstract class AbstractDispatcher implements Dispatcher {
     public void setTimeoutMills(int timeoutMills) {
         this.timeoutMills = timeoutMills;
     }
+
+    public abstract InvokeFuture asInvokeFuture(JChannel channel, JRequest request);
 }

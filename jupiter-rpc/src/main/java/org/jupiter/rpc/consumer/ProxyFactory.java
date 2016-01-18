@@ -29,7 +29,6 @@ import org.jupiter.rpc.consumer.invoker.AsyncInvoker;
 import org.jupiter.rpc.consumer.invoker.SyncInvoker;
 import org.jupiter.rpc.model.metadata.ServiceMetadata;
 
-import java.lang.reflect.InvocationHandler;
 import java.util.Collections;
 import java.util.List;
 
@@ -161,33 +160,33 @@ public class ProxyFactory<I> {
         }
 
         // dispatcher
-        Dispatcher dispatcher = null;
-        switch (dispatchMode) {
-            case ROUND:
-                dispatcher = new DefaultRoundDispatcher(metadata);
-                break;
-            case BROADCAST:
-                dispatcher = new DefaultBroadcastDispatcher(metadata);
-                break;
-        }
+        Dispatcher dispatcher = asDispatcher(dispatchMode, metadata);
         if (timeoutMills > 0) {
             dispatcher.setTimeoutMills(timeoutMills);
         }
         dispatcher.setHooks(hooks);
 
         // invocation handler
-        InvocationHandler handler = null;
-        switch (asyncMode) {
-            case SYNC:
-                handler = new SyncInvoker(client, dispatcher);
-                break;
-            case ASYNC_CALLBACK:
-                dispatcher.setListener(checkNotNull(listener, "listener"));
-                handler = new AsyncInvoker(client, dispatcher);
-                break;
+        if (SYNC == asyncMode) {
+            return Reflects.newProxy(interfaceClass, new SyncInvoker(client, dispatcher));
+        }
+        if (ASYNC_CALLBACK == asyncMode) {
+            dispatcher.setListener(checkNotNull(listener, "listener"));
+            return Reflects.newProxy(interfaceClass, new AsyncInvoker(client, dispatcher));
         }
 
-        return Reflects.newProxy(interfaceClass, handler);
+        throw new IllegalStateException("AsyncMode: " + asyncMode);
+    }
+
+    protected Dispatcher asDispatcher(DispatchMode dispatchMode, ServiceMetadata metadata) {
+        if (ROUND == dispatchMode) {
+            return new DefaultRoundDispatcher(metadata);
+        }
+        if (BROADCAST == dispatchMode) {
+            return new DefaultBroadcastDispatcher(metadata);
+        }
+
+        throw new IllegalStateException("DispatchMode: " + dispatchMode);
     }
 
     private static final ConsumerHook logConsumerHook = new ConsumerHook() {

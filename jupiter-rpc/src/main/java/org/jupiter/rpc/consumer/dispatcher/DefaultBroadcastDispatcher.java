@@ -77,7 +77,7 @@ public class DefaultBroadcastDispatcher extends AbstractDispatcher {
         final ConsumerHook[] _hooks = getHooks();
         final JListener _listener = getListener();
         for (JChannel ch : channels) {
-            final InvokeFuture invokeFuture = new DefaultInvokeFuture(ch, request, getTimeoutMills(), BROADCAST)
+            final InvokeFuture invokeFuture = asInvokeFuture(ch, request)
                     .hooks(_hooks)
                     .listener(_listener);
 
@@ -110,5 +110,10 @@ public class DefaultBroadcastDispatcher extends AbstractDispatcher {
         }
 
         return null;
+    }
+
+    @Override
+    public InvokeFuture asInvokeFuture(JChannel channel, JRequest request) {
+        return new DefaultInvokeFuture(channel, request, getTimeoutMills(), BROADCAST);
     }
 }
