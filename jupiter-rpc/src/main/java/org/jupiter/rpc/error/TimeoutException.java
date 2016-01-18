@@ -32,36 +32,36 @@ public class TimeoutException extends RemoteException {
 
     private static final long serialVersionUID = 8768621104391094458L;
 
-    private final byte status;
+    private final Status status;
 
-    public TimeoutException(SocketAddress remoteAddress, byte status) {
+    public TimeoutException(SocketAddress remoteAddress, Status status) {
         super(remoteAddress);
         this.status = status;
     }
 
-    public TimeoutException(Throwable cause, SocketAddress remoteAddress, byte status) {
+    public TimeoutException(Throwable cause, SocketAddress remoteAddress, Status status) {
         super(cause, remoteAddress);
         this.status = status;
     }
 
-    public TimeoutException(String message, SocketAddress remoteAddress, byte status) {
+    public TimeoutException(String message, SocketAddress remoteAddress, Status status) {
         super(message, remoteAddress);
         this.status = status;
     }
 
-    public TimeoutException(String message, Throwable cause, SocketAddress remoteAddress, byte status) {
+    public TimeoutException(String message, Throwable cause, SocketAddress remoteAddress, Status status) {
         super(message, cause, remoteAddress);
         this.status = status;
     }
 
     public Status status() {
-        return Status.parse(status);
+        return status;
     }
 
     @Override
     public String toString() {
         return "TimeoutException{" +
-                "status=" + status() +
+                "status=" + status +
                 '}';
     }
 }

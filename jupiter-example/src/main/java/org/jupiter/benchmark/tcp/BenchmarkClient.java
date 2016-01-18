@@ -83,7 +83,7 @@ public class BenchmarkClient {
         }
 
         final int t = 500000;
-        final int step = 6;
+        final int step = 5;
         long start = System.currentTimeMillis();
         final CountDownLatch latch = new CountDownLatch(processors << step);
         final AtomicLong count = new AtomicLong();

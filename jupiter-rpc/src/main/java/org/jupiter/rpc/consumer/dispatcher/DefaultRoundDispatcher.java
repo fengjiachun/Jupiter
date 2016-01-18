@@ -84,14 +84,12 @@ public class DefaultRoundDispatcher extends AbstractDispatcher {
 
             @Override
             public void operationFailure(JChannel channel, Throwable cause) throws Exception {
-                logger.warn("Writes {} fail on {}.", request, channel);
+                logger.warn("Writes {} fail on {}, {}.", request, channel, cause);
 
                 ResultWrapper result = new ResultWrapper();
                 result.setError(cause);
 
-                JResponse response = new JResponse(request.invokeId());
-                response.status(CLIENT_ERROR.value());
-                response.result(result);
+                JResponse response = JResponse.getInstance(request.invokeId(), CLIENT_ERROR, result);
                 DefaultInvokeFuture.received(channel, response);
             }
         });

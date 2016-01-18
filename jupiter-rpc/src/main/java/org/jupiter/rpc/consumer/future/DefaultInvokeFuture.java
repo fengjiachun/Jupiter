@@ -161,7 +161,7 @@ public class DefaultInvokeFuture implements InvokeFuture {
             }
 
             if (!isDone()) {
-                throw new TimeoutException(channel.remoteAddress(), sentOutTimestamp > 0 ? SERVER_TIMEOUT.value() : CLIENT_TIMEOUT.value());
+                throw new TimeoutException(channel.remoteAddress(), sentOutTimestamp > 0 ? SERVER_TIMEOUT : CLIENT_TIMEOUT);
             }
         }
         return resultFromResponse();
@@ -260,15 +260,12 @@ public class DefaultInvokeFuture implements InvokeFuture {
         }
 
         private void processingTimeoutFuture(DefaultInvokeFuture future) {
-            JResponse timeoutResponse = new JResponse(future.invokeId);
             ResultWrapper result = new ResultWrapper();
-            byte status = future.sentOutTimestamp > 0 ? SERVER_TIMEOUT.value() : CLIENT_TIMEOUT.value();
+            Status status = future.sentOutTimestamp > 0 ? SERVER_TIMEOUT : CLIENT_TIMEOUT;
             result.setError(new TimeoutException(future.channel.remoteAddress(), status));
 
-            // 设置超时状态
-            timeoutResponse.status(status);
-            timeoutResponse.result(result);
-            DefaultInvokeFuture.received(future.channel, timeoutResponse);
+            JResponse r = JResponse.getInstance(future.invokeId, status, result);
+            DefaultInvokeFuture.received(future.channel, r);
         }
     }
 

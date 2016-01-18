@@ -180,12 +180,9 @@ public class MessageTask implements RejectedRunnable {
         logger.warn("Service rejected: {}.", result.getError());
 
         final long invokeId = _request.invokeId();
-        JResponse response = new JResponse(invokeId);
-        response.status(status.value());
         byte[] bytes = serializerImpl().writeObject(result);
-        response.bytes(bytes);
 
-        channel.write(response, new JFutureListener<JChannel>() {
+        channel.write(JResponse.getInstance(invokeId, status, bytes), new JFutureListener<JChannel>() {
 
             @Override
             public void operationSuccess(JChannel channel) throws Exception {
@@ -228,17 +225,14 @@ public class MessageTask implements RejectedRunnable {
             }
 
             final long invokeId = _request.invokeId();
-            JResponse response = new JResponse(invokeId);
-            response.status(OK.value());
 
             ResultWrapper result = new ResultWrapper();
             result.setResult(invokeResult);
             byte[] bytes = serializerImpl().writeObject(result);
-            response.bytes(bytes);
 
             final long timestamp = _request.timestamp();
             final int bodyLength = bytes.length;
-            _channel.write(response, new JFutureListener<JChannel>() {
+            _channel.write(JResponse.getInstance(invokeId, OK, bytes), new JFutureListener<JChannel>() {
 
                 @Override
                 public void operationSuccess(JChannel channel) throws Exception {

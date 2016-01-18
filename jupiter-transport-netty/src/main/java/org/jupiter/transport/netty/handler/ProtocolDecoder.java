@@ -124,10 +124,7 @@ public class ProtocolDecoder extends ReplayingDecoder<ProtocolDecoder.State> {
                         byte[] bytes = new byte[bodyLen];
                         in.readBytes(bytes);
 
-                        JResponse response = new JResponse(header.id());
-                        response.status(header.status());
-                        response.bytes(bytes);
-                        out.add(response);
+                        out.add(JResponse.getInstance(header.id(), header.status(), bytes));
 
                         logger.debug("Response [{}], on channel {}.", header, ch);
 
