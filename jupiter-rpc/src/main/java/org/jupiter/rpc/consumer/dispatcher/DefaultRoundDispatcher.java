@@ -88,6 +88,7 @@ public class DefaultRoundDispatcher extends AbstractDispatcher {
 
                 ResultWrapper result = new ResultWrapper();
                 result.setError(cause);
+
                 JResponse response = new JResponse(request.invokeId());
                 response.status(CLIENT_ERROR.value());
                 response.result(result);
