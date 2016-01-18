@@ -100,7 +100,7 @@ public class DefaultRoundDispatcher extends AbstractDispatcher {
     }
 
     @Override
-    public InvokeFuture asInvokeFuture(JChannel channel, JRequest request) {
+    protected InvokeFuture asInvokeFuture(JChannel channel, JRequest request) {
         return new DefaultInvokeFuture(channel, request, getTimeoutMills());
     }
 }

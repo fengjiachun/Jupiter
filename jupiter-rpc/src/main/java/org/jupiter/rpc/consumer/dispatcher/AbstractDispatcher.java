@@ -75,5 +75,5 @@ public abstract class AbstractDispatcher implements Dispatcher {
         this.timeoutMills = timeoutMills;
     }
 
-    public abstract InvokeFuture asInvokeFuture(JChannel channel, JRequest request);
+    protected abstract InvokeFuture asInvokeFuture(JChannel channel, JRequest request);
 }
