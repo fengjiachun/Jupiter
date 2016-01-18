@@ -188,12 +188,13 @@ public class MessageTask implements RejectedRunnable {
         channel.write(response, new JFutureListener<JChannel>() {
 
             @Override
-            public void operationComplete(JChannel channel, boolean isSuccess) throws Exception {
-                if (isSuccess) {
-                    logger.debug("Service rejection sent out: {}.", invokeId);
-                } else {
-                    logger.warn("Service rejection sent failed: {}.", invokeId);
-                }
+            public void operationSuccess(JChannel channel) throws Exception {
+                logger.debug("Service rejection sent out: {}, {}.", invokeId, channel);
+            }
+
+            @Override
+            public void operationFailure(JChannel channel, Throwable cause) throws Exception {
+                logger.warn("Service rejection sent failed: {}, {}, {}.", invokeId, channel, cause);
             }
         });
     }
@@ -240,18 +241,22 @@ public class MessageTask implements RejectedRunnable {
             _channel.write(response, new JFutureListener<JChannel>() {
 
                 @Override
-                public void operationComplete(JChannel channel, boolean isSuccess) throws Exception {
+                public void operationSuccess(JChannel channel) throws Exception {
                     long duration = SystemClock.millisClock().now() - timestamp;
-                    if (isSuccess) {
-                        responseSizeHistogram.update(bodyLength);
-                        processingTimer.update(duration, MILLISECONDS);
 
-                        logger.debug("Service response[id: {}, length: {}] sent out, duration: {} millis.",
-                                invokeId, bodyLength, duration);
-                    } else {
-                        logger.warn("Service response[id: {}, length: {}] sent failed, duration: {} millis.",
-                                invokeId, bodyLength, duration);
-                    }
+                    responseSizeHistogram.update(bodyLength);
+                    processingTimer.update(duration, MILLISECONDS);
+
+                    logger.debug("Service response[id: {}, length: {}] sent out, duration: {} millis.",
+                            invokeId, bodyLength, duration);
+                }
+
+                @Override
+                public void operationFailure(JChannel channel, Throwable cause) throws Exception {
+                    long duration = SystemClock.millisClock().now() - timestamp;
+
+                    logger.warn("Service response[id: {}, length: {}] sent failed, duration: {} millis, {}, {}.",
+                            invokeId, bodyLength, duration, channel, cause);
                 }
             });
         } catch (Throwable t) {

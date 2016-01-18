@@ -125,7 +125,11 @@ public class NettyChannel implements JChannel {
 
             @Override
             public void operationComplete(ChannelFuture future) throws Exception {
-                listener.operationComplete(jChannel, future.isSuccess());
+                if (future.isSuccess()) {
+                    listener.operationSuccess(jChannel);
+                } else {
+                    listener.operationFailure(jChannel, future.cause());
+                }
             }
         });
         return jChannel;
@@ -145,7 +149,11 @@ public class NettyChannel implements JChannel {
 
                     @Override
                     public void operationComplete(ChannelFuture future) throws Exception {
-                        listener.operationComplete(jChannel, future.isSuccess());
+                        if (future.isSuccess()) {
+                            listener.operationSuccess(jChannel);
+                        } else {
+                            listener.operationFailure(jChannel, future.cause());
+                        }
                     }
                 });
         return jChannel;

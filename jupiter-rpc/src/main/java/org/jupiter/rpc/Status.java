@@ -27,8 +27,9 @@ package org.jupiter.rpc;
 public enum Status {
 
     OK(                         (byte) 0x20, "OK"),                             // 正常 - 请求已完成
-    CLIENT_TIMEOUT(             (byte) 0x30, "CLIENT_TIMEOUT"),                 // 超时 - 客户端超时
-    SERVER_TIMEOUT(             (byte) 0x31, "SERVER_TIMEOUT"),                 // 超时 - 服务端超时
+    CLIENT_ERROR(               (byte) 0x30, "CLIENT_ERROR"),                   // 内部错误 — 因为意外情况, 客户端不能发送请求
+    CLIENT_TIMEOUT(             (byte) 0x31, "CLIENT_TIMEOUT"),                 // 超时 - 客户端超时
+    SERVER_TIMEOUT(             (byte) 0x32, "SERVER_TIMEOUT"),                 // 超时 - 服务端超时
     BAD_REQUEST(                (byte) 0x40, "BAD_REQUEST"),                    // 错误请求 — 请求中有语法问题, 或不能满足请求
     SERVICE_NOT_FOUND(          (byte) 0x44, "SERVICE_NOT_FOUND"),              // 找不到 - 指定服务不存在
     SERVER_ERROR(               (byte) 0x50, "SERVER_ERROR"),                   // 内部错误 — 因为意外情况, 服务器不能完成请求

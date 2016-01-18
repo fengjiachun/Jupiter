@@ -21,13 +21,16 @@ import org.jupiter.common.util.internal.logging.InternalLoggerFactory;
 import org.jupiter.rpc.ConsumerHook;
 import org.jupiter.rpc.JClient;
 import org.jupiter.rpc.JRequest;
+import org.jupiter.rpc.JResponse;
 import org.jupiter.rpc.channel.JChannel;
 import org.jupiter.rpc.channel.JFutureListener;
 import org.jupiter.rpc.consumer.future.DefaultInvokeFuture;
 import org.jupiter.rpc.consumer.future.InvokeFuture;
 import org.jupiter.rpc.model.metadata.MessageWrapper;
+import org.jupiter.rpc.model.metadata.ResultWrapper;
 import org.jupiter.rpc.model.metadata.ServiceMetadata;
 
+import static org.jupiter.rpc.Status.CLIENT_ERROR;
 import static org.jupiter.serialization.SerializerHolder.serializerImpl;
 
 /**
@@ -69,18 +72,26 @@ public class DefaultRoundDispatcher extends AbstractDispatcher {
         channel.write(request, new JFutureListener<JChannel>() {
 
             @Override
-            public void operationComplete(JChannel channel, boolean isSuccess) throws Exception {
-                if (isSuccess) {
-                    invokeFuture.setSentOutTimestamp();
+            public void operationSuccess(JChannel channel) throws Exception {
+                invokeFuture.setSentOutTimestamp();
 
-                    if (_hooks != null) {
-                        for (ConsumerHook h : _hooks) {
-                            h.before(request);
-                        }
+                if (_hooks != null) {
+                    for (ConsumerHook h : _hooks) {
+                        h.before(request);
                     }
-                } else {
-                    logger.warn("Writes {} fail on {}.", request, channel);
                 }
+            }
+
+            @Override
+            public void operationFailure(JChannel channel, Throwable cause) throws Exception {
+                logger.warn("Writes {} fail on {}.", request, channel);
+
+                ResultWrapper result = new ResultWrapper();
+                result.setError(cause);
+                JResponse response = new JResponse(request.invokeId());
+                response.status(CLIENT_ERROR.value());
+                response.result(result);
+                DefaultInvokeFuture.received(channel, response);
             }
         });
 
