@@ -289,7 +289,7 @@ public class ConfigClient extends NettyTcpConnector {
     static class MessageDecoder extends ReplayingDecoder<MessageDecoder.State> {
 
         public MessageDecoder() {
-            super(State.HEADER);
+            super(State.HEADER_MAGIC);
         }
 
         // 协议头
@@ -300,18 +300,22 @@ public class ConfigClient extends NettyTcpConnector {
             Channel ch = ctx.channel();
 
             switch (state()) {
-                case HEADER:
-                    ByteBuf buf = in.readSlice(HEAD_LENGTH);
-
-                    if (MAGIC != buf.readShort()) {          // MAGIC
+                case HEADER_MAGIC:
+                    if (MAGIC != in.readShort()) {          // MAGIC
                         throw ILLEGAL_MAGIC;
                     }
-
-                    header.sign(buf.readByte());            // 消息标志位
-                    buf.readByte();                         // no-op
-                    header.id(buf.readLong());              // 消息id
-                    header.bodyLength(buf.readInt());       // 消息体长度
-
+                    checkpoint(State.HEADER_SIGN);
+                case HEADER_SIGN:
+                    header.sign(in.readByte());             // 消息标志位
+                    checkpoint(State.HEADER_STATUS);
+                case HEADER_STATUS:
+                    in.readByte();                          // no-op
+                    checkpoint(State.HEADER_ID);
+                case HEADER_ID:
+                    header.id(in.readLong());               // 消息id
+                    checkpoint(State.HEADER_BODY_LENGTH);
+                case HEADER_BODY_LENGTH:
+                    header.bodyLength(in.readInt());        // 消息体长度
                     checkpoint(State.BODY);
                 case BODY:
                     switch (header.sign()) {
@@ -338,12 +342,16 @@ public class ConfigClient extends NettyTcpConnector {
                             throw ILLEGAL_SIGN;
 
                     }
-                    checkpoint(State.HEADER);
+                    checkpoint(State.HEADER_MAGIC);
             }
         }
 
         enum State {
-            HEADER,
+            HEADER_MAGIC,
+            HEADER_SIGN,
+            HEADER_STATUS,
+            HEADER_ID,
+            HEADER_BODY_LENGTH,
             BODY
         }
     }
