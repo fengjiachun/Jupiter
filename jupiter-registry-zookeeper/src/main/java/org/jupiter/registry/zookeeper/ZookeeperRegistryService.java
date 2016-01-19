@@ -129,6 +129,7 @@ public class ZookeeperRegistryService extends AbstractRegistryService {
         try {
             meta.setHost(providerHost);
 
+            // The znode will be deleted upon the client's disconnect.
             configClient.create().withMode(CreateMode.EPHEMERAL).inBackground(new BackgroundCallback() {
 
                 @Override
