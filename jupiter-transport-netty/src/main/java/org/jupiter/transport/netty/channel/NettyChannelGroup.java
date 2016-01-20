@@ -49,6 +49,8 @@ import static org.jupiter.common.util.internal.UnsafeAccess.UNSAFE;
  */
 public class NettyChannelGroup implements JChannelGroup {
 
+    private static long LOSS_INTERVAL = SystemPropertyUtil.getLong("jupiter.channel.group.loss.interval.millis", 5 * 60 * 60);
+
     private static final long ELEMENTS_OFFSET;
     static {
         long offset;
@@ -65,8 +67,6 @@ public class NettyChannelGroup implements JChannelGroup {
             AtomicUpdater.newAtomicIntegerFieldUpdater(NettyChannelGroup.class, "signalNeeded");
     private static final AtomicIntegerFieldUpdater<NettyChannelGroup> indexUpdater =
             AtomicUpdater.newAtomicIntegerFieldUpdater(NettyChannelGroup.class, "index");
-
-    private static long LOSS_INTERVAL = SystemPropertyUtil.getLong("jupiter.channel.group.loss.interval.millis", 5 * 60 * 60);
 
     private final CopyOnWriteArrayList<NettyChannel> channels = new CopyOnWriteArrayList<>();
 
@@ -165,7 +165,7 @@ public class NettyChannelGroup implements JChannelGroup {
     public boolean remove(JChannel channel) {
         boolean removed = channel instanceof NettyChannel && channels.remove(channel);
         if (removed && channels.isEmpty()) {
-            deadlineMillis = LOSS_INTERVAL + SystemClock.millisClock().now();
+            deadlineMillis = SystemClock.millisClock().now() + LOSS_INTERVAL;
         }
         return removed;
     }
