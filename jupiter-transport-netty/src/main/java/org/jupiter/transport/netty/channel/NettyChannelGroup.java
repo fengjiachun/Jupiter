@@ -32,12 +32,12 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
-import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicIntegerFieldUpdater;
 import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.ReentrantLock;
 
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
+import static java.util.concurrent.TimeUnit.MINUTES;
 import static org.jupiter.common.util.JConstants.DEFAULT_WARM_UP;
 import static org.jupiter.common.util.JConstants.DEFAULT_WEIGHT;
 import static org.jupiter.common.util.internal.UnsafeAccess.UNSAFE;
@@ -51,7 +51,7 @@ import static org.jupiter.common.util.internal.UnsafeAccess.UNSAFE;
 public class NettyChannelGroup implements JChannelGroup {
 
     private static long LOSS_INTERVAL = SystemPropertyUtil.getLong(
-            "jupiter.channel.group.loss.interval.millis", TimeUnit.MINUTES.toMillis(5));
+            "jupiter.channel.group.loss.interval.millis", MINUTES.toMillis(5));
 
     private static final long ELEMENTS_OFFSET;
     static {
