@@ -22,6 +22,7 @@ import org.jupiter.common.concurrent.atomic.AtomicUpdater;
 import org.jupiter.common.util.Lists;
 import org.jupiter.common.util.Reflects;
 import org.jupiter.common.util.SystemClock;
+import org.jupiter.common.util.SystemPropertyUtil;
 import org.jupiter.rpc.UnresolvedAddress;
 import org.jupiter.rpc.channel.JChannel;
 import org.jupiter.rpc.channel.JChannelGroup;
@@ -65,6 +66,8 @@ public class NettyChannelGroup implements JChannelGroup {
     private static final AtomicIntegerFieldUpdater<NettyChannelGroup> indexUpdater =
             AtomicUpdater.newAtomicIntegerFieldUpdater(NettyChannelGroup.class, "index");
 
+    private static long LOSS_INTERVAL = SystemPropertyUtil.getLong("jupiter.channel.group.loss.interval.millis", 5 * 60 * 60);
+
     private final CopyOnWriteArrayList<NettyChannel> channels = new CopyOnWriteArrayList<>();
 
     // 连接断开时自动被移除
@@ -90,7 +93,7 @@ public class NettyChannelGroup implements JChannelGroup {
     private volatile int weight = DEFAULT_WEIGHT; // the weight if this group
     private volatile int warmUp = DEFAULT_WARM_UP; // warm-up time
     private volatile long timestamp = SystemClock.millisClock().now();
-    private volatile long lossTimestamp = -1;
+    private volatile long deadlineMillis = -1;
 
     public NettyChannelGroup(UnresolvedAddress address) {
         this.address = address;
@@ -143,7 +146,7 @@ public class NettyChannelGroup implements JChannelGroup {
         boolean added = channel instanceof NettyChannel && channels.add((NettyChannel) channel);
         if (added) {
             ((NettyChannel) channel).channel().closeFuture().addListener(remover);
-            lossTimestamp = -1;
+            deadlineMillis = -1;
 
             if (signalNeededUpdater.getAndSet(this, 0) != 0) { // signal needed: true
                 final ReentrantLock _look = lock;
@@ -162,7 +165,7 @@ public class NettyChannelGroup implements JChannelGroup {
     public boolean remove(JChannel channel) {
         boolean removed = channel instanceof NettyChannel && channels.remove(channel);
         if (removed && channels.isEmpty()) {
-            lossTimestamp = SystemClock.millisClock().now();
+            deadlineMillis = LOSS_INTERVAL + SystemClock.millisClock().now();
         }
         return removed;
     }
@@ -248,8 +251,8 @@ public class NettyChannelGroup implements JChannelGroup {
     }
 
     @Override
-    public long getLossTimestamp() {
-        return lossTimestamp;
+    public long deadlineMillis() {
+        return deadlineMillis;
     }
 
     @Override

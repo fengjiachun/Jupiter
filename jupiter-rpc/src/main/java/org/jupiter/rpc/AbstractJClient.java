@@ -16,7 +16,9 @@
 
 package org.jupiter.rpc;
 
-import org.jupiter.common.util.*;
+import org.jupiter.common.util.JServiceLoader;
+import org.jupiter.common.util.Maps;
+import org.jupiter.common.util.SystemClock;
 import org.jupiter.common.util.internal.logging.InternalLogger;
 import org.jupiter.common.util.internal.logging.InternalLoggerFactory;
 import org.jupiter.registry.*;
@@ -29,8 +31,7 @@ import java.util.Collection;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 
-import static java.util.concurrent.TimeUnit.MILLISECONDS;
-import static org.jupiter.common.util.JConstants.*;
+import static org.jupiter.common.util.JConstants.UNKNOWN_APP_NAME;
 import static org.jupiter.common.util.Preconditions.checkNotNull;
 import static org.jupiter.registry.RegisterMeta.Address;
 import static org.jupiter.registry.RegisterMeta.ServiceMeta;
@@ -53,7 +54,6 @@ public abstract class AbstractJClient implements JClient {
     private final DirectoryJChannelGroup directoryGroup = new DirectoryJChannelGroup();
     private final ConcurrentMap<UnresolvedAddress, JChannelGroup> addressGroups = Maps.newConcurrentHashMap();
 
-    private final long lossTimeMinutesLimit = SystemPropertyUtil.getLong("jupiter.channel.group.loss.time.minutes.limit", 5);
     private final String appName;
 
     public AbstractJClient() {
@@ -136,10 +136,9 @@ public abstract class AbstractJClient implements JClient {
             return group.next();
         }
 
-        // group死亡时间(无可用channel)超过限制
-        long lossTime = group.getLossTimestamp();
-        if (lossTime > 0 &&
-                MILLISECONDS.toMinutes(SystemClock.millisClock().now() - lossTime) > lossTimeMinutesLimit) {
+        // group死期到(无可用channel), 时间超过预定限制
+        long deadline = group.deadlineMillis();
+        if (deadline > 0 && SystemClock.millisClock().now() > deadline) {
             boolean removed = groupList.remove(group);
             if (removed) {
                 logger.warn("Removed channel group: {} in directory: {}.", group, directory.directory());

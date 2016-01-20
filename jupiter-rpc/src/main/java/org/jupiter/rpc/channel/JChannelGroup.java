@@ -117,7 +117,7 @@ public interface JChannelGroup {
     void resetTimestamp();
 
     /**
-     * Loss time.
+     * Deadline millis.
      */
-    long getLossTimestamp();
+    long deadlineMillis();
 }
