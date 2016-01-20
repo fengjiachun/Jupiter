@@ -149,8 +149,7 @@ public class MessageTask implements RejectedRunnable {
     }
 
     private void rejected(Status status, Object signal) {
-        // stack copy
-        final JRequest _request = request;
+        final JRequest _request = request; // stack copy
 
         rejectionMeter.mark();
         ResultWrapper result = new ResultWrapper();
@@ -197,9 +196,7 @@ public class MessageTask implements RejectedRunnable {
     }
 
     private void process(ServiceWrapper service) {
-        // stack copy
-        final JChannel _channel = channel;
-        final JRequest _request = request;
+        final JRequest _request = request; // stack copy
 
         try {
             MessageWrapper msg = _request.message();
@@ -232,7 +229,7 @@ public class MessageTask implements RejectedRunnable {
 
             final long timestamp = _request.timestamp();
             final int bodyLength = bytes.length;
-            _channel.write(JResponse.getInstance(invokeId, OK, bytes), new JFutureListener<JChannel>() {
+            channel.write(JResponse.getInstance(invokeId, OK, bytes), new JFutureListener<JChannel>() {
 
                 @Override
                 public void operationSuccess(JChannel channel) throws Exception {
@@ -254,7 +251,7 @@ public class MessageTask implements RejectedRunnable {
                 }
             });
         } catch (Throwable t) {
-            processor.handleException(_channel, _request, t);
+            processor.handleException(channel, _request, t);
         }
     }
 }
