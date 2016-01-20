@@ -140,9 +140,9 @@ public abstract class AbstractJClient implements JClient {
         long deadline = group.deadlineMillis();
         if (deadline > 0 && SystemClock.millisClock().now() > deadline) {
             boolean removed = groupList.remove(group);
-            if (removed) {
-                logger.warn("Removed channel group: {} in directory: {}.", group, directory.directory());
-            }
+
+            logger.warn("Removed group: {} in directory: {}, {}.",
+                    group, directory.directory(), removed ? "succeed" : "failed");
         }
 
         for (JChannelGroup g : groupList) {
