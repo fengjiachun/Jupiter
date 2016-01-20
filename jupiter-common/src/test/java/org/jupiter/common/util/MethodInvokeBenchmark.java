@@ -45,17 +45,18 @@ public class MethodInvokeBenchmark {
         new Runner(opt).run();
     }
 
+    static final Class[] params = new Class[] { String.class };
+
     @Benchmark
     public void cglibFastInvoke() {
-        // RecyclableTask中有类似代码
         ReflectClass1 obj = new ReflectClass1();
-        Reflects.fastInvoke(obj, "method", new Class[] { String.class }, new Object[] { "Jupiter" });
+        Reflects.fastInvoke(obj, "method", params, new Object[] { "Jupiter" });
     }
 
     @Benchmark
     public void jdkReflectInvoke() {
         ReflectClass1 obj = new ReflectClass1();
-        Reflects.invoke(obj, "method", new Class[] { String.class }, new Object[] { "Jupiter" });
+        Reflects.invoke(obj, "method", params, new Object[] { "Jupiter" });
     }
 
     @Benchmark
