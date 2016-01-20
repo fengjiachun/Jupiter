@@ -32,6 +32,7 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicIntegerFieldUpdater;
 import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.ReentrantLock;
@@ -49,7 +50,8 @@ import static org.jupiter.common.util.internal.UnsafeAccess.UNSAFE;
  */
 public class NettyChannelGroup implements JChannelGroup {
 
-    private static long LOSS_INTERVAL = SystemPropertyUtil.getLong("jupiter.channel.group.loss.interval.millis", 5 * 60 * 60);
+    private static long LOSS_INTERVAL = SystemPropertyUtil.getLong(
+            "jupiter.channel.group.loss.interval.millis", TimeUnit.MINUTES.toMillis(5));
 
     private static final long ELEMENTS_OFFSET;
     static {
