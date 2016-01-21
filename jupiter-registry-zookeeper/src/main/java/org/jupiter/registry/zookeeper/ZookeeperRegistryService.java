@@ -39,7 +39,6 @@ import org.jupiter.registry.RegisterMeta;
 import java.io.IOException;
 import java.util.concurrent.ConcurrentMap;
 
-import static org.jupiter.common.util.Preconditions.checkArgument;
 import static org.jupiter.common.util.Preconditions.checkNotNull;
 import static org.jupiter.common.util.StackTraceUtil.stackTrace;
 import static org.jupiter.registry.NotifyListener.NotifyEvent;
@@ -157,9 +156,6 @@ public class ZookeeperRegistryService extends AbstractRegistryService {
 
     @Override
     protected void doUnregister(final RegisterMeta meta) {
-        checkArgument(Strings.isNotBlank(address), "If use zookeeper as a config server, " +
-                "\'jupiter.server.provider.host\' must be set with System.setProperty().");
-
         String directory = String.format("/jupiter/provider/%s/%s/%s",
                 meta.getGroup(),
                 meta.getVersion(),
