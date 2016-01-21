@@ -108,9 +108,9 @@ public class Tracing {
     }
 
     private static String getIP_16(String ip) {
-        String[] ips = ip.split("\\.");
+        String[] array = ip.split("\\.");
         StringBuilder buf = StringBuilderHelper.get();
-        for (String column : ips) {
+        for (String column : array) {
             String hex = Integer.toHexString(Integer.parseInt(column));
             if (hex.length() == 1) {
                 buf.append('0').append(hex);
@@ -121,9 +121,9 @@ public class Tracing {
         return buf.toString();
     }
 
-    private static String getTraceId(String ip, long timestamp, int nextId) {
+    private static String getTraceId(String ip_16, long timestamp, int nextId) {
         StringBuilder buf = StringBuilderHelper.get();
-        buf.append(ip)
+        buf.append(ip_16)
                 .append(timestamp)
                 .append(nextId)
                 .append(PID_FLAG)
