@@ -39,6 +39,8 @@ public class MessageWrapper implements Serializable {
     private String methodName;
     // 方法参数
     private Object[] args;
+    // TraceId
+    private String traceId;
 
     public MessageWrapper(ServiceMetadata metadata) {
         this.metadata = metadata;
@@ -84,6 +86,14 @@ public class MessageWrapper implements Serializable {
         this.args = args;
     }
 
+    public String getTraceId() {
+        return traceId;
+    }
+
+    public void setTraceId(String traceId) {
+        this.traceId = traceId;
+    }
+
     @Override
     public String toString() {
         return "MessageWrapper{" +
@@ -91,6 +101,7 @@ public class MessageWrapper implements Serializable {
                 ", metadata=" + metadata +
                 ", methodName='" + methodName + '\'' +
                 ", args=" + Arrays.toString(args) +
+                ", traceId='" + traceId + '\'' +
                 '}';
     }
 }

@@ -16,6 +16,8 @@
 
 package org.jupiter.rpc;
 
+import org.jupiter.rpc.channel.JChannel;
+
 /**
  * Consumer's hook.
  *
@@ -29,10 +31,10 @@ public interface ConsumerHook {
     /**
      * Will be triggered when the request data sent to the network.
      */
-    void before(JRequest request);
+    void before(JRequest request, JChannel channel);
 
     /**
      * Will be triggered when the server returns the result.
      */
-    void after(JRequest request);
+    void after(JRequest request, JChannel channel);
 }

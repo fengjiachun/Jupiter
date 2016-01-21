@@ -83,7 +83,7 @@ public abstract class ConnectionWatchdog extends ChannelInboundHandlerAdapter im
 
     @Override
     public void channelInactive(ChannelHandlerContext ctx) throws Exception {
-        boolean doReconnect = reconnect && group.size() < group.getCapacity();
+        boolean doReconnect = reconnect && (group == null || (group.size() < group.getCapacity()));
         if (doReconnect) {
             if (attempts < 12) {
                 attempts++;
@@ -109,7 +109,7 @@ public abstract class ConnectionWatchdog extends ChannelInboundHandlerAdapter im
 
     @Override
     public void run(Timeout timeout) throws Exception {
-        if (group.size() >= group.getCapacity()) {
+        if (group != null && group.size() >= group.getCapacity()) {
             logger.warn("Cancel reconnecting with [{}].", remoteAddress);
             return;
         }

@@ -18,10 +18,7 @@ package org.jupiter.rpc.consumer.dispatcher;
 
 import org.jupiter.common.util.internal.logging.InternalLogger;
 import org.jupiter.common.util.internal.logging.InternalLoggerFactory;
-import org.jupiter.rpc.ConsumerHook;
-import org.jupiter.rpc.JClient;
-import org.jupiter.rpc.JRequest;
-import org.jupiter.rpc.JResponse;
+import org.jupiter.rpc.*;
 import org.jupiter.rpc.channel.JChannel;
 import org.jupiter.rpc.channel.JFutureListener;
 import org.jupiter.rpc.consumer.future.DefaultInvokeFuture;
@@ -58,6 +55,7 @@ public class DefaultRoundDispatcher extends AbstractDispatcher {
         message.setAppName(proxy.appName());
         message.setMethodName(methodName);
         message.setArgs(args);
+        message.setTraceId(Tracing.generateTraceId());
 
         JChannel channel = proxy.select(_metadata);
 
@@ -77,7 +75,7 @@ public class DefaultRoundDispatcher extends AbstractDispatcher {
 
                 if (_hooks != null) {
                     for (ConsumerHook h : _hooks) {
-                        h.before(request);
+                        h.before(request, channel);
                     }
                 }
             }

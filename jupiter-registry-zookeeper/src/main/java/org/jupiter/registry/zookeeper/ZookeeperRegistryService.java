@@ -27,6 +27,7 @@ import org.apache.curator.framework.state.ConnectionState;
 import org.apache.curator.framework.state.ConnectionStateListener;
 import org.apache.curator.retry.ExponentialBackoffRetry;
 import org.apache.zookeeper.CreateMode;
+import org.jupiter.common.util.IPv4Util;
 import org.jupiter.common.util.Maps;
 import org.jupiter.common.util.Strings;
 import org.jupiter.common.util.SystemPropertyUtil;
@@ -56,7 +57,14 @@ public class ZookeeperRegistryService extends AbstractRegistryService {
 
     private static final InternalLogger logger = InternalLoggerFactory.getInstance(ZookeeperRegistryService.class);
 
-    private final String providerHost = SystemPropertyUtil.get("jupiter.server.provider.host");
+    private final String address;
+    {
+        String _address = SystemPropertyUtil.get("jupiter.server.address");
+        if (Strings.isNullOrEmpty(_address)) {
+            _address = IPv4Util.getLocalAddress();
+        }
+        address = _address;
+    }
 
     private final int sessionTimeoutMs = SystemPropertyUtil.getInt("jupiter.registry.zookeeper.sessionTimeoutMs", 60 * 1000);
     private final int connectionTimeoutMs = SystemPropertyUtil.getInt("jupiter.registry.zookeeper.connectionTimeoutMs", 15 * 1000);
@@ -110,9 +118,6 @@ public class ZookeeperRegistryService extends AbstractRegistryService {
 
     @Override
     protected void doRegister(final RegisterMeta meta) {
-        checkArgument(Strings.isNotBlank(providerHost), "If use zookeeper as a config server, " +
-                "\'jupiter.server.provider.host\' must be set with System.setProperty().");
-
         String directory = String.format("/jupiter/provider/%s/%s/%s",
                 meta.getGroup(),
                 meta.getVersion(),
@@ -127,7 +132,7 @@ public class ZookeeperRegistryService extends AbstractRegistryService {
         }
 
         try {
-            meta.setHost(providerHost);
+            meta.setHost(address);
 
             // The znode will be deleted upon the client's disconnect.
             configClient.create().withMode(CreateMode.EPHEMERAL).inBackground(new BackgroundCallback() {
@@ -152,7 +157,7 @@ public class ZookeeperRegistryService extends AbstractRegistryService {
 
     @Override
     protected void doUnregister(final RegisterMeta meta) {
-        checkArgument(Strings.isNotBlank(providerHost), "If use zookeeper as a config server, " +
+        checkArgument(Strings.isNotBlank(address), "If use zookeeper as a config server, " +
                 "\'jupiter.server.provider.host\' must be set with System.setProperty().");
 
         String directory = String.format("/jupiter/provider/%s/%s/%s",
@@ -169,7 +174,7 @@ public class ZookeeperRegistryService extends AbstractRegistryService {
         }
 
         try {
-            meta.setHost(providerHost);
+            meta.setHost(address);
 
             configClient.delete().inBackground(new BackgroundCallback() {
 

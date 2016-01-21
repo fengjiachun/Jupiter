@@ -27,6 +27,7 @@ import org.jupiter.common.util.internal.logging.InternalLoggerFactory;
 import org.jupiter.rpc.JRequest;
 import org.jupiter.rpc.JResponse;
 import org.jupiter.rpc.Status;
+import org.jupiter.rpc.Tracing;
 import org.jupiter.rpc.channel.JChannel;
 import org.jupiter.rpc.channel.JFutureListener;
 import org.jupiter.rpc.error.BadRequestException;
@@ -196,7 +197,9 @@ public class MessageTask implements RejectedRunnable {
     }
 
     private void process(ServiceWrapper service) {
-        final JRequest _request = request; // stack copy
+        // stack copy
+        final JRequest _request = request;
+        final JChannel _channel = channel;
 
         try {
             MessageWrapper msg = _request.message();
@@ -216,6 +219,7 @@ public class MessageTask implements RejectedRunnable {
                 }
                 Class<?>[] parameterTypes = findMatchingParameterTypes(parameterTypesList, args);
 
+                Tracing.setCurrent(msg); // tracing...
                 invokeResult = fastInvoke(service.getServiceProvider(), methodName, parameterTypes, args);
             } finally {
                 timeCtx.stop();
@@ -228,7 +232,7 @@ public class MessageTask implements RejectedRunnable {
             final long invokeId = _request.invokeId();
             final long timestamp = _request.timestamp();
             final int bodyLength = bytes.length;
-            channel.write(JResponse.getInstance(invokeId, OK, bytes), new JFutureListener<JChannel>() {
+            _channel.write(JResponse.getInstance(invokeId, OK, bytes), new JFutureListener<JChannel>() {
 
                 @Override
                 public void operationSuccess(JChannel channel) throws Exception {

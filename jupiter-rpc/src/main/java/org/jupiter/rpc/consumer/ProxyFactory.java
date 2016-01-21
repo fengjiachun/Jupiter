@@ -19,8 +19,6 @@ package org.jupiter.rpc.consumer;
 import org.jupiter.common.util.Lists;
 import org.jupiter.common.util.Reflects;
 import org.jupiter.common.util.Strings;
-import org.jupiter.common.util.internal.logging.InternalLogger;
-import org.jupiter.common.util.internal.logging.InternalLoggerFactory;
 import org.jupiter.rpc.*;
 import org.jupiter.rpc.consumer.dispatcher.DefaultBroadcastDispatcher;
 import org.jupiter.rpc.consumer.dispatcher.DefaultRoundDispatcher;
@@ -49,8 +47,6 @@ import static org.jupiter.rpc.DispatchMode.ROUND;
  */
 public class ProxyFactory<I> {
 
-    private static final InternalLogger logger = InternalLoggerFactory.getInstance(ProxyFactory.class);
-
     private final Class<I> interfaceClass;
 
     private JClient client;
@@ -62,13 +58,13 @@ public class ProxyFactory<I> {
     private List<ConsumerHook> hooks;
 
     public static <I> ProxyFactory<I> factory(Class<I> interfaceClass) {
-        ProxyFactory<I> fac = new ProxyFactory<>(interfaceClass);
-
+        ProxyFactory<I> factory = new ProxyFactory<>(interfaceClass);
+        ConsumerHook tracingHook = new TraceLoggingHook();
         // 初始化数据
-        fac.addresses = Lists.newArrayList();
-        fac.hooks = Lists.newArrayList(logConsumerHook);
+        factory.addresses = Lists.newArrayList();
+        factory.hooks = Lists.newArrayList(tracingHook);
 
-        return fac;
+        return factory;
     }
 
     private ProxyFactory(Class<I> interfaceClass) {
@@ -188,17 +184,4 @@ public class ProxyFactory<I> {
 
         throw new IllegalStateException("DispatchMode: " + dispatchMode);
     }
-
-    private static final ConsumerHook logConsumerHook = new ConsumerHook() {
-
-        @Override
-        public void before(JRequest request) {
-            logger.debug("Request: [{}], {}.", request.invokeId(), request.message());
-        }
-
-        @Override
-        public void after(JRequest request) {
-            logger.debug("Request: [{}], has respond.", request.invokeId());
-        }
-    };
 }

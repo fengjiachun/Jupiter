@@ -191,7 +191,7 @@ public class DefaultInvokeFuture implements InvokeFuture {
         // call hook's after method
         if (hooks != null) {
             for (ConsumerHook h : hooks) {
-                h.after(request);
+                h.after(request, channel);
             }
         }
     }

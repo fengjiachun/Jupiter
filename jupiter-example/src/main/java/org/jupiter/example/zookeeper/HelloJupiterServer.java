@@ -47,7 +47,7 @@ public class HelloJupiterServer {
             return;
         }
 
-        SystemPropertyUtil.setProperty("jupiter.server.provider.host", "127.0.0.1");
+        SystemPropertyUtil.setProperty("jupiter.server.address", "127.0.0.1");
 
         NettyAcceptor server = new JNettyTcpAcceptor(18090);
         MonitorServer monitor = new MonitorServer();

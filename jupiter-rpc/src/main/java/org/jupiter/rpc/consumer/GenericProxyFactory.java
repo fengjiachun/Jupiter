@@ -66,10 +66,10 @@ public class GenericProxyFactory {
 
     public static GenericProxyFactory factory() {
         GenericProxyFactory fac = new GenericProxyFactory();
-
+        ConsumerHook tracingHook = new TraceLoggingHook();
         // 初始化数据
         fac.addresses = Lists.newArrayList();
-        fac.hooks = Lists.newArrayList(logConsumerHook);
+        fac.hooks = Lists.newArrayList(tracingHook);
 
         return fac;
     }
@@ -219,17 +219,4 @@ public class GenericProxyFactory {
 
         throw new IllegalStateException("DispatchMode: " + dispatchMode);
     }
-
-    private static final ConsumerHook logConsumerHook = new ConsumerHook() {
-
-        @Override
-        public void before(JRequest request) {
-            logger.debug("Request: [{}], {}.", request.invokeId(), request.message());
-        }
-
-        @Override
-        public void after(JRequest request) {
-            logger.debug("Request: [{}], has respond.", request.invokeId());
-        }
-    };
 }

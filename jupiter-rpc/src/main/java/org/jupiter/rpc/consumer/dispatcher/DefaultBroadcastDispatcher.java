@@ -89,7 +89,7 @@ public class DefaultBroadcastDispatcher extends AbstractDispatcher {
 
                     if (_hooks != null) {
                         for (ConsumerHook h : _hooks) {
-                            h.before(request);
+                            h.before(request, channel);
                         }
                     }
                 }
