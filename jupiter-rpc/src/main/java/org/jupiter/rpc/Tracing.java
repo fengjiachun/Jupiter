@@ -20,7 +20,6 @@ import org.jupiter.common.util.IPv4Util;
 import org.jupiter.common.util.StringBuilderHelper;
 import org.jupiter.common.util.SystemClock;
 import org.jupiter.common.util.SystemPropertyUtil;
-import org.jupiter.rpc.model.metadata.MessageWrapper;
 
 import java.lang.management.ManagementFactory;
 import java.lang.management.RuntimeMXBean;
@@ -37,7 +36,7 @@ public class Tracing {
     private static final boolean IS_TRACING_NEEDED = SystemPropertyUtil.getBoolean("jupiter.tracing.needed", true);
     private static final String EMPTY_TRACE_ID = "";
 
-    private static final ThreadLocal<MessageWrapper> traceThreadLocal = new ThreadLocal<>();
+    private static final ThreadLocal<String> traceThreadLocal = new ThreadLocal<>();
 
     private static final char PID_FLAG = 'd';
     private static final AtomicInteger id = new AtomicInteger(1000);
@@ -65,11 +64,11 @@ public class Tracing {
         return EMPTY_TRACE_ID;
     }
 
-    public static void setCurrent(MessageWrapper message) {
-        traceThreadLocal.set(message);
+    public static void setCurrent(String traceId) {
+        traceThreadLocal.set(traceId);
     }
 
-    public static MessageWrapper getCurrent() {
+    public static String getCurrent() {
         return traceThreadLocal.get();
     }
 

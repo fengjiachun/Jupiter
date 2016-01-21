@@ -61,7 +61,14 @@ public class DefaultBroadcastDispatcher extends AbstractDispatcher {
         message.setAppName(proxy.appName());
         message.setMethodName(methodName);
         message.setArgs(args);
-        message.setTraceId(Tracing.generateTraceId());
+        // tracing [允许在业务代码里设置traceId]
+        String traceId = Tracing.getCurrent();
+        if (traceId == null) {
+            traceId = Tracing.generateTraceId();
+        } else {
+            Tracing.setCurrent(null);
+        }
+        message.setTraceId(traceId);
 
         List<JChannelGroup> groupList = proxy.directory(_metadata);
         List<JChannel> channels = Lists.transform(groupList, new Function<JChannelGroup, JChannel>() {

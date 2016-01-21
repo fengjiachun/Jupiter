@@ -219,7 +219,7 @@ public class MessageTask implements RejectedRunnable {
                 }
                 Class<?>[] parameterTypes = findMatchingParameterTypes(parameterTypesList, args);
 
-                Tracing.setCurrent(msg); // tracing...
+                Tracing.setCurrent(msg.getTraceId()); // tracing...
                 invokeResult = fastInvoke(service.getServiceProvider(), methodName, parameterTypes, args);
             } finally {
                 timeCtx.stop();
