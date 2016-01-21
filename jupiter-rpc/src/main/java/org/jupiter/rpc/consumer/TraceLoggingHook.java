@@ -34,15 +34,11 @@ public class TraceLoggingHook implements ConsumerHook {
 
     @Override
     public void before(JRequest request, JChannel channel) {
-        if (logger.isInfoEnabled()) {
-            logger.info("Request before: [{}] on {}.", request.message().getTraceId(), channel);
-        }
+        logger.info("Request tracing: {}, invokeId: {}, on {}].", request.message().getTraceId(), request.invokeId(), channel);
     }
 
     @Override
     public void after(JRequest request, JChannel channel) {
-        if (logger.isInfoEnabled()) {
-            logger.info("Request after: [{}] on {}.", request.message().getTraceId(), channel);
-        }
+        logger.info("Response: {} on {}.", request.invokeId(), channel);
     }
 }
