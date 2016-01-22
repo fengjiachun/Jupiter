@@ -22,7 +22,6 @@ import org.jupiter.common.util.SystemClock;
 import org.jupiter.common.util.SystemPropertyUtil;
 
 import java.lang.management.ManagementFactory;
-import java.lang.management.RuntimeMXBean;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
@@ -39,22 +38,28 @@ public class Tracing {
     private static final ThreadLocal<String> traceThreadLocal = new ThreadLocal<>();
 
     private static final char PID_FLAG = 'd';
-    private static final AtomicInteger id = new AtomicInteger(1000);
-
-    private static String IP_16 = "ffffffff";
-    private static String PID = "0000";
+    private static final String IP_16;
+    private static final String PID;
+    private static final int MIN_ID = 1000;
+    private static final int MAX_ID = 9000;
+    private static final AtomicInteger id = new AtomicInteger(MIN_ID);
 
     static {
+        String _ip_16;
         try {
-            String address = SystemPropertyUtil.get("jupiter.server.address");
-            if (address == null) {
-                address = IPv4Util.getLocalAddress();
-            }
-            if (address != null) {
-                IP_16 = getIP_16(address);
-            }
-            PID = getHexPid(getPid());
-        } catch (Throwable ignored) {}
+            _ip_16 = getIP_16(SystemPropertyUtil.get("jupiter.address", IPv4Util.getLocalAddress()));
+        } catch (Exception e) {
+            _ip_16 = "ffffffff";
+        }
+        IP_16 = _ip_16;
+
+        String _pid;
+        try {
+            _pid = getHexPid(getPid());
+        } catch (Exception e) {
+            _pid = "0000";
+        }
+        PID = _pid;
     }
 
     public static String generateTraceId() {
@@ -95,8 +100,7 @@ public class Tracing {
      * http://stackoverflow.com/questions/35842/how-can-a-java-program-get-its-own-process-id
      */
     private static int getPid() {
-        RuntimeMXBean runtime = ManagementFactory.getRuntimeMXBean();
-        String name = runtime.getName();
+        String name = ManagementFactory.getRuntimeMXBean().getName();
         int pid;
         try {
             pid = Integer.parseInt(name.substring(0, name.indexOf('@')));
@@ -107,22 +111,21 @@ public class Tracing {
     }
 
     private static String getIP_16(String ip) {
-        String[] array = ip.split("\\.");
+        String[] segments = ip.split("\\.");
         StringBuilder buf = StringBuilderHelper.get();
-        for (String column : array) {
-            String hex = Integer.toHexString(Integer.parseInt(column));
+        for (String s : segments) {
+            String hex = Integer.toHexString(Integer.parseInt(s));
             if (hex.length() == 1) {
-                buf.append('0').append(hex);
-            } else {
-                buf.append(hex);
+                buf.append('0');
             }
+            buf.append(hex);
         }
         return buf.toString();
     }
 
     private static String getTraceId(String ip_16, long timestamp, int nextId) {
-        StringBuilder buf = StringBuilderHelper.get();
-        buf.append(ip_16)
+        StringBuilder buf = StringBuilderHelper.get()
+                .append(ip_16)
                 .append(timestamp)
                 .append(nextId)
                 .append(PID_FLAG)
@@ -130,10 +133,10 @@ public class Tracing {
         return buf.toString();
     }
 
-    private static int getNextId(){
+    private static int getNextId() {
         for (;;) {
             int current = id.get();
-            int next = (current > 9000) ? 1000 : current + 1;
+            int next = (current > MAX_ID) ? MIN_ID : current + 1;
             if (id.compareAndSet(current, next)) {
                 return next;
             }
