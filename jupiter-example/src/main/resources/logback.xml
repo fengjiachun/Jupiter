@@ -24,12 +24,12 @@
         </layout>
     </appender>
 
-    <appender name="FILE_OUT" class="ch.qos.logback.core.FileAppender">
-        <File>logs/log.log</File>
-        <layout class="ch.qos.logback.classic.PatternLayout">
-            <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} %-5level [%thread] [%logger{0}] - %msg%n</pattern>
-        </layout>
-    </appender>
+    <!--<appender name="FILE_OUT" class="ch.qos.logback.core.FileAppender">-->
+        <!--<File>logs/log.log</File>-->
+        <!--<layout class="ch.qos.logback.classic.PatternLayout">-->
+            <!--<pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} %-5level [%thread] [%logger{0}] - %msg%n</pattern>-->
+        <!--</layout>-->
+    <!--</appender>-->
 
     <appender name="ASYNC_OUT" class="ch.qos.logback.classic.AsyncAppender">
         <!-- 如果队列元素超过容量80%，丢掉WARN级别以下的新日志 -->
