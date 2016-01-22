@@ -242,7 +242,7 @@ public class MessageTask implements RejectedRunnable {
                     responseSizeHistogram.update(bodyLength);
                     processingTimer.update(duration, MILLISECONDS);
 
-                    logger.info("Service response[id: {}, length: {}] sent out, duration: {} millis.",
+                    logger.debug("Service response[id: {}, length: {}] sent out, duration: {} millis.",
                             invokeId, bodyLength, duration);
                 }
 
