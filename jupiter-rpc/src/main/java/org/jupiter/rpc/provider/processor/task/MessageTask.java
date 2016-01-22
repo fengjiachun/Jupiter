@@ -197,20 +197,23 @@ public class MessageTask implements RejectedRunnable {
     }
 
     private void process(ServiceWrapper service) {
-        // stack copy
-        final JRequest _request = request;
-        final JChannel _channel = channel;
+        final JRequest _request = request; // stack copy
 
         try {
-            MessageWrapper msg = _request.message();
-            String methodName = msg.getMethodName();
+            final MessageWrapper msg = _request.message();
+            final String methodName = msg.getMethodName();
+            final String traceId = msg.getTraceId();
+            final long invokeId = _request.invokeId();
 
             Object invokeResult = null;
-            StringBuilder nameBuf = StringBuilderHelper.get();
-            nameBuf.append(msg.getMetadata().directory())
+            String callInfo = StringBuilderHelper.get()
+                    .append(msg.getMetadata().directory())
                     .append('#')
-                    .append(methodName);
-            Timer.Context timeCtx = Metrics.timer(nameBuf.toString()).time();
+                    .append(methodName).toString();
+            Timer.Context timeCtx = Metrics.timer(callInfo).time();
+
+            logger.info("Tracing: {}, {}, {}.", traceId, invokeId, callInfo);
+
             try {
                 Object[] args = msg.getArgs();
                 List<Class<?>[]> parameterTypesList = service.getMethodParameterTypes(methodName);
@@ -218,8 +221,7 @@ public class MessageTask implements RejectedRunnable {
                     throw new NoSuchMethodException(methodName);
                 }
                 Class<?>[] parameterTypes = findMatchingParameterTypes(parameterTypesList, args);
-
-                Tracing.setCurrent(msg.getTraceId()); // tracing...
+                Tracing.setCurrent(traceId);
                 invokeResult = fastInvoke(service.getServiceProvider(), methodName, parameterTypes, args);
             } finally {
                 timeCtx.stop();
@@ -229,10 +231,9 @@ public class MessageTask implements RejectedRunnable {
             result.setResult(invokeResult);
             byte[] bytes = serializerImpl().writeObject(result);
 
-            final long invokeId = _request.invokeId();
             final long timestamp = _request.timestamp();
             final int bodyLength = bytes.length;
-            _channel.write(JResponse.getInstance(invokeId, OK, bytes), new JFutureListener<JChannel>() {
+            channel.write(JResponse.getInstance(invokeId, OK, bytes), new JFutureListener<JChannel>() {
 
                 @Override
                 public void operationSuccess(JChannel channel) throws Exception {
@@ -241,7 +242,7 @@ public class MessageTask implements RejectedRunnable {
                     responseSizeHistogram.update(bodyLength);
                     processingTimer.update(duration, MILLISECONDS);
 
-                    logger.debug("Service response[id: {}, length: {}] sent out, duration: {} millis.",
+                    logger.info("Service response[id: {}, length: {}] sent out, duration: {} millis.",
                             invokeId, bodyLength, duration);
                 }
 
