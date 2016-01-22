@@ -40,7 +40,8 @@ public class UnsafeUtil {
 
     public static final boolean SUPPORTS_GET_AND_SET;
     public static final int JAVA_VERSION = javaVersion0();
-    public static final long CWL_ELEMENTS_OFFSET;
+    public static final long CWL_ARRAY_OFFSET; // CopyOnWriteArrayList's array offset
+    public static final long STRING_BUILDER_VALUE_OFFSET;
 
     private static final long ADDRESS_FIELD_OFFSET;
 
@@ -62,7 +63,22 @@ public class UnsafeUtil {
 
         try {
             Field field = java.util.concurrent.CopyOnWriteArrayList.class.getDeclaredField("array");
-            CWL_ELEMENTS_OFFSET = UNSAFE.objectFieldOffset(field);
+            CWL_ARRAY_OFFSET = UNSAFE.objectFieldOffset(field);
+        } catch (Throwable t) {
+            throw new UnsupportedOperationException(t);
+        }
+
+        try {
+            Field field = null;
+            Class<?> cls = StringBuilder.class;
+            while (cls != null) {
+                try {
+                    field = cls.getDeclaredField("value");
+                } catch (Throwable ignored) {}
+
+                cls = cls.getSuperclass();
+            }
+            STRING_BUILDER_VALUE_OFFSET = UNSAFE.objectFieldOffset(field);
         } catch (Throwable t) {
             throw new UnsupportedOperationException(t);
         }

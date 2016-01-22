@@ -16,8 +16,7 @@
 
 package org.jupiter.common.util;
 
-import java.lang.reflect.Field;
-
+import static org.jupiter.common.util.internal.UnsafeUtil.STRING_BUILDER_VALUE_OFFSET;
 import static org.jupiter.common.util.internal.UnsafeUtil.UNSAFE;
 
 /**
@@ -31,17 +30,6 @@ import static org.jupiter.common.util.internal.UnsafeUtil.UNSAFE;
 public class StringBuilderHelper {
 
     private static final int DISCARD_LIMIT = 1024 << 3; // 8k
-    private static final long VALUE_OFFSET;
-    static {
-        long offset;
-        try {
-            Field field = Reflects.getField(StringBuilder.class, "value");
-            offset = UNSAFE.objectFieldOffset(field);
-        } catch (Exception e) {
-            offset = 0;
-        }
-        VALUE_OFFSET = offset;
-    }
 
     private static final ThreadLocal<StringBuilderHolder>
             threadLocalStringBuilderHolder = new ThreadLocal<StringBuilderHolder>() {
@@ -73,11 +61,7 @@ public class StringBuilderHelper {
 
         private void truncate() {
             if (buf.capacity() > DISCARD_LIMIT) {
-                if (VALUE_OFFSET > 0) {
-                    UNSAFE.putObject(buf, VALUE_OFFSET, new char[1024]);
-                } else {
-                    Reflects.setValue(buf, "value", new char[1024]);
-                }
+                UNSAFE.putObject(buf, STRING_BUILDER_VALUE_OFFSET, new char[1024]);
             }
             buf.setLength(0);
         }
