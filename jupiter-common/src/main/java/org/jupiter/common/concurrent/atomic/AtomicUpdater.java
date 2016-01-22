@@ -20,7 +20,7 @@ import java.util.concurrent.atomic.AtomicIntegerFieldUpdater;
 import java.util.concurrent.atomic.AtomicLongFieldUpdater;
 import java.util.concurrent.atomic.AtomicReferenceFieldUpdater;
 
-import static org.jupiter.common.util.internal.UnsafeAccess.UNSAFE;
+import static org.jupiter.common.util.internal.UnsafeUtil.UNSAFE;
 
 /**
  * A tool utility that enables atomic updates to designated {@code volatile} fields of designated classes.

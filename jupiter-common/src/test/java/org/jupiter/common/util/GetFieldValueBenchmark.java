@@ -24,7 +24,7 @@ import org.openjdk.jmh.runner.options.OptionsBuilder;
 
 import java.util.concurrent.TimeUnit;
 
-import static org.jupiter.common.util.internal.UnsafeAccess.UNSAFE;
+import static org.jupiter.common.util.internal.UnsafeUtil.UNSAFE;
 
 /**
  * jupiter

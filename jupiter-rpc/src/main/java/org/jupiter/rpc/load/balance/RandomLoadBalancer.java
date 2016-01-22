@@ -16,13 +16,7 @@
 
 package org.jupiter.rpc.load.balance;
 
-import org.jupiter.common.util.Reflects;
-
-import java.lang.reflect.Field;
-import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.ThreadLocalRandom;
-
-import static org.jupiter.common.util.internal.UnsafeAccess.UNSAFE;
 
 /**
  * Random load balancer with weight.
@@ -34,28 +28,9 @@ import static org.jupiter.common.util.internal.UnsafeAccess.UNSAFE;
  */
 public abstract class RandomLoadBalancer<T> implements LoadBalancer<T> {
 
-    private static final long ELEMENTS_OFFSET;
-    static {
-        long offset;
-        try {
-            Field field = Reflects.getField(CopyOnWriteArrayList.class, "array");
-            offset = UNSAFE.objectFieldOffset(field);
-        } catch (Exception e) {
-            offset = 0;
-        }
-        ELEMENTS_OFFSET = offset;
-    }
-
-    @SuppressWarnings({"unchecked", "ForLoopReplaceableByForEach"})
+    @SuppressWarnings("unchecked")
     @Override
-    public T select(CopyOnWriteArrayList<T> list) {
-        Object[] array; // The snapshot of elements array
-        if (ELEMENTS_OFFSET > 0) {
-            array = (Object[]) UNSAFE.getObjectVolatile(list, ELEMENTS_OFFSET);
-        } else {
-            array = (Object[]) Reflects.getValue(list, "array");
-        }
-
+    public T select(Object[] array) {
         final int arrayLength = array.length;
         if (arrayLength == 0) {
             throw new IllegalArgumentException("empty elements for select");

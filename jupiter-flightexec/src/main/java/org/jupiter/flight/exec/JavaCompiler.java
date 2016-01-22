@@ -26,7 +26,7 @@ import java.io.OutputStream;
 import java.net.URI;
 import java.util.List;
 
-import static org.jupiter.common.util.internal.UnsafeAccess.UNSAFE;
+import static org.jupiter.common.util.internal.UnsafeUtil.UNSAFE;
 
 /**
  * Java compiler, base on javac.

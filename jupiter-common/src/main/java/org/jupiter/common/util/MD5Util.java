@@ -19,7 +19,7 @@ package org.jupiter.common.util;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
-import static org.jupiter.common.util.internal.UnsafeAccess.UNSAFE;
+import static org.jupiter.common.util.internal.UnsafeUtil.UNSAFE;
 
 /**
  * MD5转换工具

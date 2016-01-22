@@ -27,7 +27,7 @@ import java.util.concurrent.ConcurrentMap;
 
 import static org.jupiter.common.util.Preconditions.checkArgument;
 import static org.jupiter.common.util.Preconditions.checkNotNull;
-import static org.jupiter.common.util.internal.UnsafeAccess.UNSAFE;
+import static org.jupiter.common.util.internal.UnsafeUtil.UNSAFE;
 
 /**
  * Static utility methods pertaining to reflection.

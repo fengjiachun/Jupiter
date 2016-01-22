@@ -16,8 +16,6 @@
 
 package org.jupiter.rpc.load.balance;
 
-import java.util.concurrent.CopyOnWriteArrayList;
-
 /**
  * Load balancer.
  *
@@ -31,5 +29,5 @@ public interface LoadBalancer<T> {
     /**
      * Select one in this list.
      */
-    T select(CopyOnWriteArrayList<T> list);
+    T select(Object[] array);
 }

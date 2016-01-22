@@ -33,6 +33,8 @@ import java.util.concurrent.CopyOnWriteArrayList;
 
 import static org.jupiter.common.util.JConstants.UNKNOWN_APP_NAME;
 import static org.jupiter.common.util.Preconditions.checkNotNull;
+import static org.jupiter.common.util.internal.UnsafeUtil.CWL_ELEMENTS_OFFSET;
+import static org.jupiter.common.util.internal.UnsafeUtil.UNSAFE;
 import static org.jupiter.registry.RegisterMeta.Address;
 import static org.jupiter.registry.RegisterMeta.ServiceMeta;
 
@@ -131,7 +133,9 @@ public abstract class AbstractJClient implements JClient {
     @Override
     public JChannel select(Directory directory) {
         CopyOnWriteArrayList<JChannelGroup> groupList = directory(directory);
-        JChannelGroup group = loadBalancer.select(groupList);
+        // the snapshot of groupList
+        Object[] array = (Object[]) UNSAFE.getObjectVolatile(groupList, CWL_ELEMENTS_OFFSET);
+        JChannelGroup group = loadBalancer.select(array);
         if (group.isAvailable()) {
             return group.next();
         }

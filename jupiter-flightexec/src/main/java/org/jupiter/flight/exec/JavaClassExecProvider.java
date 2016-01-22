@@ -16,7 +16,7 @@
 
 package org.jupiter.flight.exec;
 
-import static org.jupiter.common.util.internal.UnsafeAccess.UNSAFE;
+import static org.jupiter.common.util.internal.UnsafeUtil.UNSAFE;
 
 /**
  * jupiter

@@ -32,7 +32,7 @@
 
 package org.jupiter.common.util;
 
-import org.jupiter.common.util.internal.UnsafeAccess;
+import org.jupiter.common.util.internal.UnsafeUtil;
 
 import java.nio.ByteBuffer;
 
@@ -111,7 +111,7 @@ public abstract class AbstractConstant<T extends AbstractConstant<T>> implements
             synchronized (this) {
                 while ((uniqueKey = this.uniqueKey) == 0) {
                     ByteBuffer directBuffer = ByteBuffer.allocateDirect(1);
-                    this.uniqueKey = UnsafeAccess.directBufferAddress(directBuffer); // direct buf的内存地址是唯一的
+                    this.uniqueKey = UnsafeUtil.directBufferAddress(directBuffer); // direct buf的内存地址是唯一的
                 }
             }
         }

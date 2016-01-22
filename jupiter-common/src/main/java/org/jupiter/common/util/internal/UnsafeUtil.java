@@ -23,7 +23,6 @@ import sun.misc.Unsafe;
 import java.lang.reflect.Field;
 import java.nio.Buffer;
 import java.nio.ByteBuffer;
-import java.util.concurrent.BlockingQueue;
 
 /**
  * For the {@link sun.misc.Unsafe} access.
@@ -33,15 +32,15 @@ import java.util.concurrent.BlockingQueue;
  *
  * @author jiachun.fjc
  */
-public class UnsafeAccess {
+public class UnsafeUtil {
 
-    private static final InternalLogger logger = InternalLoggerFactory.getInstance(UnsafeAccess.class);
+    private static final InternalLogger logger = InternalLoggerFactory.getInstance(UnsafeUtil.class);
 
     public static final Unsafe UNSAFE;
 
     public static final boolean SUPPORTS_GET_AND_SET;
-
     public static final int JAVA_VERSION = javaVersion0();
+    public static final long CWL_ELEMENTS_OFFSET;
 
     private static final long ADDRESS_FIELD_OFFSET;
 
@@ -50,9 +49,8 @@ public class UnsafeAccess {
             final Field field = Unsafe.class.getDeclaredField("theUnsafe");
             field.setAccessible(true);
             UNSAFE = (Unsafe) field.get(null);
-        } catch (Exception e) {
-            SUPPORTS_GET_AND_SET = false;
-            throw new RuntimeException(e);
+        } catch (Throwable t) {
+            throw new UnsupportedOperationException("Unsafe", t);
         }
 
         boolean getAndSetSupport = false;
@@ -61,6 +59,13 @@ public class UnsafeAccess {
             getAndSetSupport = true;
         } catch (Throwable ignored) {}
         SUPPORTS_GET_AND_SET = getAndSetSupport;
+
+        try {
+            Field field = java.util.concurrent.CopyOnWriteArrayList.class.getDeclaredField("array");
+            CWL_ELEMENTS_OFFSET = UNSAFE.objectFieldOffset(field);
+        } catch (Throwable t) {
+            throw new UnsupportedOperationException(t);
+        }
 
         ByteBuffer direct = ByteBuffer.allocateDirect(1);
         Field addressField;
@@ -103,7 +108,10 @@ public class UnsafeAccess {
             } catch (Exception ignored) {}
 
             try {
-                Class.forName("java.util.concurrent.LinkedTransferQueue", false, BlockingQueue.class.getClassLoader());
+                Class.forName(
+                        "java.util.concurrent.LinkedTransferQueue",
+                        false,
+                        java.util.concurrent.BlockingQueue.class.getClassLoader());
                 javaVersion = 7;
                 break;
             } catch (Exception ignored) {}

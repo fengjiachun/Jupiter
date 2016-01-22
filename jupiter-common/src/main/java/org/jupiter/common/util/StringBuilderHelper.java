@@ -18,7 +18,7 @@ package org.jupiter.common.util;
 
 import java.lang.reflect.Field;
 
-import static org.jupiter.common.util.internal.UnsafeAccess.UNSAFE;
+import static org.jupiter.common.util.internal.UnsafeUtil.UNSAFE;
 
 /**
  * 基于 {@link ThreadLocal} 的 {@link StringBuilder} 重复利用

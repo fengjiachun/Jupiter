@@ -20,14 +20,12 @@ import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelFutureListener;
 import org.jupiter.common.concurrent.atomic.AtomicUpdater;
 import org.jupiter.common.util.Lists;
-import org.jupiter.common.util.Reflects;
 import org.jupiter.common.util.SystemClock;
 import org.jupiter.common.util.SystemPropertyUtil;
 import org.jupiter.rpc.UnresolvedAddress;
 import org.jupiter.rpc.channel.JChannel;
 import org.jupiter.rpc.channel.JChannelGroup;
 
-import java.lang.reflect.Field;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
@@ -40,7 +38,8 @@ import static java.util.concurrent.TimeUnit.MILLISECONDS;
 import static java.util.concurrent.TimeUnit.MINUTES;
 import static org.jupiter.common.util.JConstants.DEFAULT_WARM_UP;
 import static org.jupiter.common.util.JConstants.DEFAULT_WEIGHT;
-import static org.jupiter.common.util.internal.UnsafeAccess.UNSAFE;
+import static org.jupiter.common.util.internal.UnsafeUtil.CWL_ELEMENTS_OFFSET;
+import static org.jupiter.common.util.internal.UnsafeUtil.UNSAFE;
 
 /**
  * jupiter
@@ -52,18 +51,6 @@ public class NettyChannelGroup implements JChannelGroup {
 
     private static long LOSS_INTERVAL = SystemPropertyUtil.getLong(
             "jupiter.channel.group.loss.interval.millis", MINUTES.toMillis(5));
-
-    private static final long ELEMENTS_OFFSET;
-    static {
-        long offset;
-        try {
-            Field field = Reflects.getField(CopyOnWriteArrayList.class, "array");
-            offset = UNSAFE.objectFieldOffset(field);
-        } catch (Exception e) {
-            offset = 0;
-        }
-        ELEMENTS_OFFSET = offset;
-    }
 
     private static final AtomicIntegerFieldUpdater<NettyChannelGroup> signalNeededUpdater =
             AtomicUpdater.newAtomicIntegerFieldUpdater(NettyChannelGroup.class, "signalNeeded");
@@ -109,13 +96,8 @@ public class NettyChannelGroup implements JChannelGroup {
     @Override
     public JChannel next() {
         for (;;) {
-            Object[] array; // the snapshot of channels array
-            if (ELEMENTS_OFFSET > 0) {
-                array = (Object[]) UNSAFE.getObjectVolatile(channels, ELEMENTS_OFFSET);
-            } else {
-                array = (Object[]) Reflects.getValue(channels, "array");
-            }
-
+            // the snapshot of channels array
+            Object[] array = (Object[]) UNSAFE.getObjectVolatile(channels, CWL_ELEMENTS_OFFSET);
             final int arrayLength = array.length;
             if (arrayLength == 0) {
                 if (waitForAvailable(1500)) { // wait a moment

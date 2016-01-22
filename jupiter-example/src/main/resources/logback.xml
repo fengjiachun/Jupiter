@@ -30,7 +30,7 @@
         <appender-ref ref="STD_OUT" />
     </appender>
 
-    <root level="WARN">
+    <root level="INFO">
         <appender-ref ref="ASYNC_STD_OUT" />
     </root>
 </configuration>
