@@ -61,6 +61,7 @@ public class BenchmarkClient {
         int processors = Runtime.getRuntime().availableProcessors();
         SystemPropertyUtil
                 .setProperty("jupiter.processor.executor.core.num.workers", String.valueOf(processors));
+        SystemPropertyUtil.getBoolean("jupiter.tracing.needed", false);
 
         NettyConnector connector = new JNettyTcpConnector();
         UnresolvedAddress[] addresses = new UnresolvedAddress[processors];
@@ -82,7 +83,7 @@ public class BenchmarkClient {
             }
         }
 
-        final int t = 50000;
+        final int t = 500000;
         final int step = 6;
         long start = System.currentTimeMillis();
         final CountDownLatch latch = new CountDownLatch(processors << step);
