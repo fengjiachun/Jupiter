@@ -96,22 +96,22 @@ public class NettyChannelGroup implements JChannelGroup {
     @Override
     public JChannel next() {
         for (;;) {
-            // the snapshot of channels array
-            Object[] array = (Object[]) UNSAFE.getObjectVolatile(channels, CWL_ARRAY_OFFSET);
-            final int arrayLength = array.length;
-            if (arrayLength == 0) {
-                if (waitForAvailable(1500)) { // wait a moment
+            // snapshot of channels array
+            Object[] elements = (Object[]) UNSAFE.getObjectVolatile(channels, CWL_ARRAY_OFFSET);
+            int length = elements.length;
+            if (length == 0) {
+                if (waitForAvailable(1000)) { // wait a moment
                     continue;
                 }
                 throw new IllegalStateException("no channel");
             }
-            if (arrayLength == 1) {
-                return (JChannel) array[0];
+            if (length == 1) {
+                return (JChannel) elements[0];
             }
 
-            int offset = Math.abs(indexUpdater.getAndIncrement(this) % arrayLength);
+            int offset = Math.abs(indexUpdater.getAndIncrement(this) % length);
 
-            return (JChannel) array[offset];
+            return (JChannel) elements[offset];
         }
     }
 

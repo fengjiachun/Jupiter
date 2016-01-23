@@ -30,43 +30,43 @@ public abstract class RandomLoadBalancer<T> implements LoadBalancer<T> {
 
     @SuppressWarnings("unchecked")
     @Override
-    public T select(Object[] array) {
-        final int arrayLength = array.length;
-        if (arrayLength == 0) {
+    public T select(Object[] elements) {
+        int length = elements.length;
+        if (length == 0) {
             throw new IllegalArgumentException("empty elements for select");
         }
-        if (arrayLength == 1) {
-            return (T) array[0];
+        if (length == 1) {
+            return (T) elements[0];
         }
 
         int totalWeight = 0;
-        int[] weightSnapshots = new int[arrayLength];
-        for (int i = 0; i < arrayLength; i++) {
-            totalWeight += (weightSnapshots[i] = getWeight((T) array[i]));
+        int[] weightSnapshots = new int[length];
+        for (int i = 0; i < length; i++) {
+            totalWeight += (weightSnapshots[i] = getWeight((T) elements[i]));
         }
 
-        boolean sameWeight = true;
-        for (int i = 1; i < arrayLength; i++) {
+        boolean allSameWeight = true;
+        for (int i = 1; i < length; i++) {
             if (weightSnapshots[0] != weightSnapshots[i]) {
-                sameWeight = false;
+                allSameWeight = false;
                 break;
             }
         }
 
         ThreadLocalRandom random = ThreadLocalRandom.current();
         // 如果权重不相同且总权重大于0, 则按总权重数随机
-        if (!sameWeight && totalWeight > 0) {
+        if (!allSameWeight && totalWeight > 0) {
             int offset = random.nextInt(totalWeight);
             // 确定随机值落在哪个片
-            for (int i = 0; i < arrayLength; i++) {
+            for (int i = 0; i < length; i++) {
                 offset -= weightSnapshots[i];
                 if (offset < 0) {
-                    return (T) array[i];
+                    return (T) elements[i];
                 }
             }
         }
 
-        return (T) array[random.nextInt(arrayLength)];
+        return (T) elements[random.nextInt(length)];
     }
 
     protected abstract int getWeight(T t);

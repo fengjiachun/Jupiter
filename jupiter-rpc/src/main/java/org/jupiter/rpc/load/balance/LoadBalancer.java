@@ -27,7 +27,7 @@ package org.jupiter.rpc.load.balance;
 public interface LoadBalancer<T> {
 
     /**
-     * Select one in this list.
+     * Select one in elements array.
      */
-    T select(Object[] array);
+    T select(Object[] elements);
 }

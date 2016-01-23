@@ -133,9 +133,11 @@ public abstract class AbstractJClient implements JClient {
     @Override
     public JChannel select(Directory directory) {
         CopyOnWriteArrayList<JChannelGroup> groupList = directory(directory);
-        // the snapshot of groupList
-        Object[] array = (Object[]) UNSAFE.getObjectVolatile(groupList, CWL_ARRAY_OFFSET);
-        JChannelGroup group = loadBalancer.select(array);
+        // snapshot of groupList
+        Object[] elements = (Object[]) UNSAFE.getObjectVolatile(groupList, CWL_ARRAY_OFFSET);
+
+        JChannelGroup group = loadBalancer.select(elements);
+
         if (group.isAvailable()) {
             return group.next();
         }

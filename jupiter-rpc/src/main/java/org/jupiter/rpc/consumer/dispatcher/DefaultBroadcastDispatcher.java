@@ -54,8 +54,7 @@ public class DefaultBroadcastDispatcher extends AbstractDispatcher {
 
     @Override
     public InvokeFuture dispatch(JClient proxy, String methodName, Object[] args) {
-        // stack copy
-        final ServiceMetadata _metadata = metadata;
+        final ServiceMetadata _metadata = metadata; // stack copy
 
         MessageWrapper message = new MessageWrapper(_metadata);
         message.setAppName(proxy.appName());
