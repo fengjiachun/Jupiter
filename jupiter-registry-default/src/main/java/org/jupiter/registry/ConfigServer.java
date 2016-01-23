@@ -443,9 +443,7 @@ public class ConfigServer extends NettyTcpAcceptor implements RegistryMonitor {
 
             switch (state()) {
                 case HEADER_MAGIC:
-                    if (MAGIC != in.readShort()) {          // MAGIC
-                        throw ILLEGAL_MAGIC;
-                    }
+                    checkMagic(in.readShort());             // MAGIC
                     checkpoint(State.HEADER_SIGN);
                 case HEADER_SIGN:
                     header.sign(in.readByte());             // 消息标志位
@@ -462,7 +460,7 @@ public class ConfigServer extends NettyTcpAcceptor implements RegistryMonitor {
                 case BODY:
                     switch (header.sign()) {
                         case HEARTBEAT:
-                            logger.debug("Heartbeat on channel {}.", ch);
+                            logger.info("Heartbeat on channel {}.", ch);
 
                             break;
                         case PUBLISH_SERVICE:
@@ -491,6 +489,12 @@ public class ConfigServer extends NettyTcpAcceptor implements RegistryMonitor {
                             throw ILLEGAL_SIGN;
                     }
                     checkpoint(State.HEADER_MAGIC);
+            }
+        }
+
+        private static void checkMagic(short magic) throws Signal {
+            if (MAGIC != magic) {
+                throw ILLEGAL_MAGIC;
             }
         }
 

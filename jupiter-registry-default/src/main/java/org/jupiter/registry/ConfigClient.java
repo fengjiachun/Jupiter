@@ -301,9 +301,7 @@ public class ConfigClient extends NettyTcpConnector {
 
             switch (state()) {
                 case HEADER_MAGIC:
-                    if (MAGIC != in.readShort()) {          // MAGIC
-                        throw ILLEGAL_MAGIC;
-                    }
+                    checkMagic(in.readShort());             // MAGIC
                     checkpoint(State.HEADER_SIGN);
                 case HEADER_SIGN:
                     header.sign(in.readByte());             // 消息标志位
@@ -343,6 +341,12 @@ public class ConfigClient extends NettyTcpConnector {
 
                     }
                     checkpoint(State.HEADER_MAGIC);
+            }
+        }
+
+        private static void checkMagic(short magic) throws Signal {
+            if (MAGIC != magic) {
+                throw ILLEGAL_MAGIC;
             }
         }
 

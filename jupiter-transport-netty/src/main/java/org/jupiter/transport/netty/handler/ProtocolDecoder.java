@@ -20,6 +20,7 @@ import io.netty.buffer.ByteBuf;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.ReplayingDecoder;
+import org.jupiter.common.util.Signal;
 import org.jupiter.common.util.SystemClock;
 import org.jupiter.common.util.SystemPropertyUtil;
 import org.jupiter.common.util.internal.logging.InternalLogger;
@@ -78,9 +79,7 @@ public class ProtocolDecoder extends ReplayingDecoder<ProtocolDecoder.State> {
 
         switch (state()) {
             case HEADER_MAGIC:
-                if (MAGIC != in.readShort()) {      // MAGIC
-                    throw ILLEGAL_MAGIC;
-                }
+                checkMagic(in.readShort());         // MAGIC
                 checkpoint(State.HEADER_SIGN);
             case HEADER_SIGN:
                 header.sign(in.readByte());         // 消息标志位
@@ -97,17 +96,12 @@ public class ProtocolDecoder extends ReplayingDecoder<ProtocolDecoder.State> {
             case BODY:
                 switch (header.sign()) {
                     case HEARTBEAT:
-
-                        logger.debug("Heartbeat on channel {}.", ch);
+                        logger.info("Heartbeat on channel {}.", ch);
 
                         break;
                     case REQUEST: {
-                        int bodyLen = header.bodyLength();
-                        if (bodyLen > MAX_BODY_SIZE) {
-                            throw BODY_TOO_LARGE;
-                        }
-
-                        byte[] bytes = new byte[bodyLen];
+                        int bodyLength = checkBodyLength(header.bodyLength());
+                        byte[] bytes = new byte[bodyLength];
                         in.readBytes(bytes);
 
                         JRequest request = new JRequest(header.id());
@@ -120,12 +114,8 @@ public class ProtocolDecoder extends ReplayingDecoder<ProtocolDecoder.State> {
                         break;
                     }
                     case RESPONSE: {
-                        int bodyLen = header.bodyLength();
-                        if (bodyLen > MAX_BODY_SIZE) {
-                            throw BODY_TOO_LARGE;
-                        }
-
-                        byte[] bytes = new byte[bodyLen];
+                        int bodyLength = checkBodyLength(header.bodyLength());
+                        byte[] bytes = new byte[bodyLength];
                         in.readBytes(bytes);
 
                         out.add(JResponse.getInstance(header.id(), header.status(), bytes));
@@ -139,6 +129,19 @@ public class ProtocolDecoder extends ReplayingDecoder<ProtocolDecoder.State> {
                 }
                 checkpoint(State.HEADER_MAGIC);
         }
+    }
+
+    private static void checkMagic(short magic) throws Signal {
+        if (MAGIC != magic) {
+            throw ILLEGAL_MAGIC;
+        }
+    }
+
+    private static int checkBodyLength(int size) throws Signal {
+        if (size > MAX_BODY_SIZE) {
+            throw BODY_TOO_LARGE;
+        }
+        return size;
     }
 
     enum State {
