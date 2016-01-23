@@ -21,6 +21,8 @@ import org.jupiter.common.util.internal.logging.InternalLogger;
 import org.jupiter.common.util.internal.logging.InternalLoggerFactory;
 import org.jupiter.rpc.channel.JChannel;
 
+import static org.jupiter.common.util.Signal.*;
+
 /**
  * jupiter
  * org.jupiter.transport.error
@@ -33,13 +35,13 @@ public class IoSignals {
     private static final InternalLogger logger = InternalLoggerFactory.getInstance(IoSignals.class);
 
     /** 错误的MAGIC */
-    public static final Signal ILLEGAL_MAGIC    = Signal.valueOf(IoSignals.class, "ILLEGAL_MAGIC");
+    public static final Signal ILLEGAL_MAGIC    = valueOf(IoSignals.class, "ILLEGAL_MAGIC");
     /** 错误的消息标志位 */
-    public static final Signal ILLEGAL_SIGN     = Signal.valueOf(IoSignals.class, "ILLEGAL_SIGN");
-    /** Read idel 链路检测 */
-    public static final Signal READER_IDLE      = Signal.valueOf(IoSignals.class, "READER_IDLE");
+    public static final Signal ILLEGAL_SIGN     = valueOf(IoSignals.class, "ILLEGAL_SIGN");
+    /** Read idle 链路检测 */
+    public static final Signal READER_IDLE      = valueOf(IoSignals.class, "READER_IDLE");
     /** Protocol body 太大 */
-    public static final Signal BODY_TOO_LARAGE  = Signal.valueOf(IoSignals.class, "BODY_TOO_LARAGE");
+    public static final Signal BODY_TOO_LARGE   = valueOf(IoSignals.class, "BODY_TOO_LARGE");
 
     public static void handleSignal(Signal signal, JChannel channel) {
         logger.error("{} on {}, will force to close this channel.", signal.name(), channel);

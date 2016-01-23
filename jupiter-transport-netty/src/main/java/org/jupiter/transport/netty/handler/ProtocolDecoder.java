@@ -31,7 +31,7 @@ import org.jupiter.transport.JProtocolHeader;
 import java.util.List;
 
 import static org.jupiter.transport.JProtocolHeader.*;
-import static org.jupiter.transport.error.IoSignals.BODY_TOO_LARAGE;
+import static org.jupiter.transport.error.IoSignals.BODY_TOO_LARGE;
 import static org.jupiter.transport.error.IoSignals.ILLEGAL_MAGIC;
 import static org.jupiter.transport.error.IoSignals.ILLEGAL_SIGN;
 
@@ -104,7 +104,7 @@ public class ProtocolDecoder extends ReplayingDecoder<ProtocolDecoder.State> {
                     case REQUEST: {
                         int bodyLen = header.bodyLength();
                         if (bodyLen > MAX_BODY_SIZE) {
-                            throw BODY_TOO_LARAGE;
+                            throw BODY_TOO_LARGE;
                         }
 
                         byte[] bytes = new byte[bodyLen];
@@ -122,7 +122,7 @@ public class ProtocolDecoder extends ReplayingDecoder<ProtocolDecoder.State> {
                     case RESPONSE: {
                         int bodyLen = header.bodyLength();
                         if (bodyLen > MAX_BODY_SIZE) {
-                            throw BODY_TOO_LARAGE;
+                            throw BODY_TOO_LARGE;
                         }
 
                         byte[] bytes = new byte[bodyLen];
