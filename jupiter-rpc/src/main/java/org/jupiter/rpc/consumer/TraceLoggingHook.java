@@ -16,6 +16,7 @@
 
 package org.jupiter.rpc.consumer;
 
+import org.jupiter.common.util.StringBuilderHelper;
 import org.jupiter.common.util.internal.logging.InternalLogger;
 import org.jupiter.common.util.internal.logging.InternalLoggerFactory;
 import org.jupiter.rpc.ConsumerHook;
@@ -34,11 +35,29 @@ public class TraceLoggingHook implements ConsumerHook {
 
     @Override
     public void before(JRequest request, JChannel channel) {
-        logger.info("TraceId: {}, invokeId: {}, on {}].", request.message().getTraceId(), request.invokeId(), channel);
+        if (logger.isInfoEnabled()) {
+            String traceInfo = StringBuilderHelper.get()
+                    .append("TraceId: ")
+                    .append(request.message().getTraceId())
+                    .append(", invokeId: ")
+                    .append(request.invokeId())
+                    .append(", on ")
+                    .append(channel).toString();
+
+            logger.info(traceInfo);
+        }
     }
 
     @Override
     public void after(JRequest request, JChannel channel) {
-        logger.info("Response: {} on {}.", request.invokeId(), channel);
+        if (logger.isInfoEnabled()) {
+            String responseInfo = StringBuilderHelper.get()
+                    .append("Response: ")
+                    .append(request.invokeId())
+                    .append(", on ")
+                    .append(channel).toString();
+
+            logger.info(responseInfo);
+        }
     }
 }

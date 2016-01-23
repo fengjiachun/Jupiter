@@ -212,7 +212,18 @@ public class MessageTask implements RejectedRunnable {
                     .append(methodName).toString();
             Timer.Context timeCtx = Metrics.timer(callInfo).time();
 
-            logger.info("Tracing: {}, {}, {}.", traceId, invokeId, callInfo);
+            // tracing log
+            if (logger.isInfoEnabled()) {
+                String traceInfo = StringBuilderHelper.get()
+                        .append("Tracing: ")
+                        .append(traceId)
+                        .append(", ")
+                        .append(invokeId)
+                        .append(", ")
+                        .append(callInfo).toString();
+
+                logger.info(traceInfo);
+            }
 
             try {
                 Object[] args = msg.getArgs();

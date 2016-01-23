@@ -48,6 +48,8 @@ Jupiter
         1. 小数据包同步调用qps: 10w+ (测试代码见jupiter-example[BenchmarkClient/BenchmarkServer])
         2. 客户端发送 1K String, 服务端原样返回, 同步调用qps: 7w+ (测试代码见jupiter-example[BenchmarkClient_1KString/BenchmarkServer_1KString])
 
+        测试前最好将logger设置为warn级别, 一个是log文件会很大(一千万次调用大概3G日志), 一个是logger性能较差, 会影响测试结果.
+
   -------------------------------------------------------------------------------------------------------
 
     测试机器:
