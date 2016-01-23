@@ -42,17 +42,8 @@ public class IoSignals {
     public static final Signal BODY_TOO_LARAGE  = Signal.valueOf(IoSignals.class, "BODY_TOO_LARAGE");
 
     public static void handleSignal(Signal signal, JChannel channel) {
-        if (signal == ILLEGAL_MAGIC) {
-            logger.error("Illegal protocol magic on {}, will force to close this channel.", channel);
-        } else if (signal == ILLEGAL_SIGN) {
-            logger.error("Illegal protocol sign on {}, will force to close this channel.", channel);
-        } else if (signal == READER_IDLE) {
-            logger.error("Read timeout on {}, will force to close this channel.", channel);
-        } else if (signal == BODY_TOO_LARAGE) {
-            logger.error("Protocol body is too larage on {}, will force to close this channel.", channel);
-        } else {
-            logger.error("Unknow signal on {}, will force to close this channel.", channel);
-        }
+        logger.error("{} on {}, will force to close this channel.", signal.name(), channel);
+
         channel.close();
     }
 }
