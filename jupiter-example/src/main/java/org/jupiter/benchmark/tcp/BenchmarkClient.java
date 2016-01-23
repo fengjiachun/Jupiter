@@ -94,7 +94,7 @@ public class BenchmarkClient {
                 public void run() {
                     for (int i = 0; i < t; i++) {
                         try {
-                            String result = service.hello("jupiter");
+                            service.hello("jupiter");
 
                             if (count.getAndIncrement() % 10000 == 0) {
                                 logger.warn("count=" + count.get());

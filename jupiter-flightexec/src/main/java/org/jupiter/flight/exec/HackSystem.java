@@ -37,9 +37,9 @@ public class HackSystem {
     public final static InputStream in = System.in;
 
     private static ByteArrayOutputStream buf = new ByteArrayOutputStream(1024);
-    private static PrintStream tmpOut = new PrintStream(buf);
 
     public final static PrintStream out = new PrintStream(buf);
+    @SuppressWarnings("unused")
     public final static PrintStream err = out;
 
     public static String getBufString() {

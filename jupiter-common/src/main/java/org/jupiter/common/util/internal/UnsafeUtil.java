@@ -23,7 +23,6 @@ import sun.misc.Unsafe;
 import java.lang.reflect.Field;
 import java.nio.Buffer;
 import java.nio.ByteBuffer;
-import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 /**
@@ -40,7 +39,6 @@ public class UnsafeUtil {
 
     public static final Unsafe UNSAFE;
 
-    public static final int JAVA_VERSION = javaVersion0();
     public static final long CWL_ARRAY_FIELD_OFFSET;
     public static final long STRING_BUILDER_VALUE_FIELD_OFFSET;
 
@@ -111,31 +109,6 @@ public class UnsafeUtil {
 
     public static long directBufferAddress(ByteBuffer buffer) {
         return UNSAFE.getLong(buffer, ADDRESS_FIELD_OFFSET);
-    }
-
-    @SuppressWarnings("all")
-    private static int javaVersion0() {
-        int javaVersion;
-        for (;;) {
-            try {
-                Class.forName("java.time.Clock", false, Object.class.getClassLoader());
-                javaVersion = 8;
-                break;
-            } catch (Exception ignored) {}
-
-            try {
-                Class.forName("java.util.concurrent.LinkedTransferQueue", false, BlockingQueue.class.getClassLoader());
-                javaVersion = 7;
-                break;
-            } catch (Exception ignored) {}
-
-            javaVersion = 6;
-            break;
-        }
-
-        logger.debug("Java version: {}.", javaVersion);
-
-        return javaVersion;
     }
 
     private UnsafeUtil() {}

@@ -17,7 +17,6 @@
 package org.jupiter.example.broadcast;
 
 import org.jupiter.example.ServiceTestImpl;
-import org.jupiter.rpc.model.metadata.ServiceWrapper;
 import org.jupiter.transport.netty.JNettyTcpAcceptor;
 import org.jupiter.transport.netty.NettyAcceptor;
 
@@ -42,7 +41,7 @@ public class HelloJupiterServer {
                 @Override
                 public void run() {
                     try {
-                        ServiceWrapper provider = acceptor.serviceRegistry()
+                        acceptor.serviceRegistry()
                                 .provider(new ServiceTestImpl())
                                 .register();
 

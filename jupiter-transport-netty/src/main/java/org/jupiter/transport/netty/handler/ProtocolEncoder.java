@@ -20,7 +20,6 @@ import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.MessageToByteEncoder;
-import io.netty.util.ReferenceCountUtil;
 import org.jupiter.common.util.Reflects;
 import org.jupiter.rpc.BytesHolder;
 import org.jupiter.rpc.JRequest;
@@ -57,29 +56,33 @@ public class ProtocolEncoder extends MessageToByteEncoder<BytesHolder> {
     @Override
     protected void encode(ChannelHandlerContext ctx, BytesHolder msg, ByteBuf out) throws Exception {
         if (msg instanceof JRequest) {
-            JRequest request = (JRequest) msg;
-            byte[] bytes = request.bytes();
-            out.writeShort(MAGIC)
-                    .writeByte(REQUEST)
-                    .writeByte(0x00)
-                    .writeLong(request.invokeId())
-                    .writeInt(bytes.length)
-                    .writeBytes(bytes);
+            doEncodeRequest((JRequest) msg, out);
         } else if (msg instanceof JResponse) {
-            JResponse response = (JResponse) msg;
-            byte[] bytes = response.bytes();
-            out.writeShort(MAGIC)
-                    .writeByte(RESPONSE)
-                    .writeByte(response.status())
-                    .writeLong(response.id())
-                    .writeInt(bytes.length)
-                    .writeBytes(bytes);
+            doEncodeResponse((JResponse) msg, out);
         } else {
-            try {
-                throw new IllegalArgumentException(Reflects.simpleClassName(msg));
-            } finally {
-                ReferenceCountUtil.release(msg);
-            }
+            throw new IllegalArgumentException(Reflects.simpleClassName(msg));
         }
+    }
+
+    private void doEncodeRequest(JRequest request, ByteBuf out) {
+        byte[] bytes = request.bytes();
+
+        out.writeShort(MAGIC)
+                .writeByte(REQUEST)
+                .writeByte(0x00)
+                .writeLong(request.invokeId())
+                .writeInt(bytes.length)
+                .writeBytes(bytes);
+    }
+
+    private void doEncodeResponse(JResponse response, ByteBuf out) {
+        byte[] bytes = response.bytes();
+
+        out.writeShort(MAGIC)
+                .writeByte(RESPONSE)
+                .writeByte(response.status())
+                .writeLong(response.id())
+                .writeInt(bytes.length)
+                .writeBytes(bytes);
     }
 }

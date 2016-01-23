@@ -207,7 +207,7 @@ public class DefaultInvokeFuture implements InvokeFuture {
         throw new RemoteException(_response.toString(), channel.remoteAddress());
     }
 
-    private void notifyListener(JListener responseListener) {
+    private void notifyListener(JListener listener) {
         final JResponse _response = this.response;
         byte status = _response.status();
         ResultWrapper wrapper = _response.result();

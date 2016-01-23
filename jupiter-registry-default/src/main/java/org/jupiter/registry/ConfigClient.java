@@ -128,6 +128,7 @@ public class ConfigClient extends NettyTcpConnector {
                         idleStateTrigger,
                         new MessageDecoder(),
                         encoder,
+                        ackEncoder,
                         handler
                 };
             }};
@@ -176,7 +177,8 @@ public class ConfigClient extends NettyTcpConnector {
         Channel ch = channel;
         // 与MessageHandler#channelActive()中的write有竞争
         if (attachSubscribeEventOnChannel(serviceMeta, ch)) {
-            ch.writeAndFlush(msg);
+            ch.writeAndFlush(msg)
+                    .addListener(ChannelFutureListener.FIRE_EXCEPTION_ON_FAILURE);
 
             MessageNonAck msgNonAck = new MessageNonAck(msg, ch);
             messagesNonAck.put(msgNonAck.id, msgNonAck);
@@ -196,7 +198,8 @@ public class ConfigClient extends NettyTcpConnector {
         Channel ch = channel;
         // 与MessageHandler#channelActive()中的write有竞争
         if (attachPublishEventOnChannel(meta, ch)) {
-            ch.writeAndFlush(msg);
+            ch.writeAndFlush(msg)
+                    .addListener(ChannelFutureListener.FIRE_EXCEPTION_ON_FAILURE);
 
             MessageNonAck msgNonAck = new MessageNonAck(msg, ch);
             messagesNonAck.put(msgNonAck.id, msgNonAck);
@@ -213,7 +216,8 @@ public class ConfigClient extends NettyTcpConnector {
         msg.sign(PUBLISH_CANCEL_SERVICE);
         msg.data(meta);
 
-        channel.writeAndFlush(msg);
+        channel.writeAndFlush(msg)
+                .addListener(ChannelFutureListener.FIRE_EXCEPTION_ON_FAILURE);
 
         MessageNonAck msgNonAck = new MessageNonAck(msg, channel);
         messagesNonAck.put(msgNonAck.id, msgNonAck);
@@ -297,8 +301,6 @@ public class ConfigClient extends NettyTcpConnector {
 
         @Override
         protected void decode(ChannelHandlerContext ctx, ByteBuf in, List<Object> out) throws Exception {
-            Channel ch = ctx.channel();
-
             switch (state()) {
                 case HEADER_MAGIC:
                     checkMagic(in.readShort());             // MAGIC
@@ -384,6 +386,7 @@ public class ConfigClient extends NettyTcpConnector {
         @Override
         protected void encode(ChannelHandlerContext ctx, Message msg, ByteBuf out) throws Exception {
             byte[] bytes = serializerImpl().writeObject(msg);
+
             out.writeShort(MAGIC)
                     .writeByte(msg.sign())
                     .writeByte(0)
@@ -407,9 +410,12 @@ public class ConfigClient extends NettyTcpConnector {
                         Pair<ServiceMeta, List<RegisterMeta>> data = (Pair<ServiceMeta, List<RegisterMeta>>) obj.data();
                         registryService.notify(data.getKey(), data.getValue(), obj.getVersion());
 
-                        ctx.channel().writeAndFlush(new Acknowledge(obj.sequence())); // 回复ACK
+                        ctx.channel()
+                                .writeAndFlush(new Acknowledge(obj.sequence()))  // 回复ACK
+                                .addListener(ChannelFutureListener.FIRE_EXCEPTION_ON_FAILURE);
 
-                        logger.info("Publish from ConfigServer {}, version: {}.", data.getKey(), obj.getVersion());
+                        logger.info("Publish from ConfigServer {}, provider count: {}, version: {}.",
+                                data.getKey(), data.getValue().size(), obj.getVersion());
 
                         break;
                     case OFFLINE_NOTICE:
@@ -423,7 +429,7 @@ public class ConfigClient extends NettyTcpConnector {
             } else if (msg instanceof Acknowledge) {
                 handleAcknowledge((Acknowledge) msg);
             } else {
-                logger.warn("Unexpected msg type received:{}.", msg.getClass());
+                logger.warn("Unexpected msg type received: {}.", msg.getClass());
 
                 ReferenceCountUtil.release(msg);
             }
@@ -444,7 +450,8 @@ public class ConfigClient extends NettyTcpConnector {
                 msg.sign(SUBSCRIBE_SERVICE);
                 msg.data(serviceMeta);
 
-                ch.writeAndFlush(msg);
+                ch.writeAndFlush(msg)
+                        .addListener(ChannelFutureListener.FIRE_EXCEPTION_ON_FAILURE);
 
                 MessageNonAck msgNonAck = new MessageNonAck(msg, ch);
                 messagesNonAck.put(msgNonAck.id, msgNonAck);
@@ -461,7 +468,8 @@ public class ConfigClient extends NettyTcpConnector {
                 msg.sign(PUBLISH_SERVICE);
                 msg.data(meta);
 
-                ch.writeAndFlush(msg);
+                ch.writeAndFlush(msg)
+                        .addListener(ChannelFutureListener.FIRE_EXCEPTION_ON_FAILURE);
 
                 MessageNonAck msgNonAck = new MessageNonAck(msg, ch);
                 messagesNonAck.put(msgNonAck.id, msgNonAck);
@@ -497,7 +505,8 @@ public class ConfigClient extends NettyTcpConnector {
                             if (m.channel.isActive()) {
                                 MessageNonAck msgNonAck = new MessageNonAck(m.msg, m.channel);
                                 messagesNonAck.put(msgNonAck.id, msgNonAck);
-                                m.channel.writeAndFlush(m);
+                                m.channel.writeAndFlush(m.msg)
+                                        .addListener(ChannelFutureListener.FIRE_EXCEPTION_ON_FAILURE);
                             }
                         }
                     }

@@ -156,8 +156,6 @@ public final class JOption<T> extends AbstractConstant<JOption<T>> {
      */
     public static final JOption<Integer> SO_BACKLOG = valueOf("SO_BACKLOG");
 
-    public static final JOption<Integer> SO_TIMEOUT = valueOf("SO_TIMEOUT");
-
     public static final JOption<Integer> IP_TOS = valueOf("IP_TOS");
 
     public static final JOption<Boolean> ALLOW_HALF_CLOSURE = valueOf("ALLOW_HALF_CLOSURE");

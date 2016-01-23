@@ -84,7 +84,6 @@ public class TaskDispatcher implements Dispatcher<Runnable>, Executor {
         this(numWorkers, "task.dispatcher", BUFFER_SIZE, 0, BLOCKING_WAIT);
     }
 
-    @SuppressWarnings("unchecked")
     public TaskDispatcher(int numWorkers, String threadFactoryName, int bufSize, int numReserveWorkers, WaitStrategyType waitStrategyType) {
         checkArgument(bufSize > 0, "bufSize must be larger than 0");
         if (!Pow2.isPowerOfTwo(bufSize)) {
@@ -168,7 +167,6 @@ public class TaskDispatcher implements Dispatcher<Runnable>, Executor {
         }
     }
 
-    @SuppressWarnings("NullableProblems")
     @Override
     public void execute(Runnable message) {
         if (!dispatch(message)) {

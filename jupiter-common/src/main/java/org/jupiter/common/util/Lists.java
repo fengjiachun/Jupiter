@@ -153,7 +153,6 @@ public final class Lists {
             return fromList.size();
         }
 
-        @SuppressWarnings("NullableProblems")
         @Override
         public ListIterator<T> listIterator(final int index) {
             return new TransformedListIterator<F, T>(fromList.listIterator(index)) {

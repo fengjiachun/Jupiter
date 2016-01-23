@@ -50,7 +50,6 @@ public class SystemClock {
     private void scheduleClockUpdating() {
         ScheduledExecutorService scheduler = Executors.newSingleThreadScheduledExecutor(new ThreadFactory() {
 
-            @SuppressWarnings("NullableProblems")
             @Override
             public Thread newThread(Runnable runnable) {
                 Thread t = new Thread(runnable, "system.clock");

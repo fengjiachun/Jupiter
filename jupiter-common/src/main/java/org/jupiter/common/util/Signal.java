@@ -113,7 +113,6 @@ public final class Signal extends Exception implements Constant<Signal> {
         return System.identityHashCode(this);
     }
 
-    @SuppressWarnings("NullableProblems")
     @Override
     public int compareTo(Signal other) {
         if (this == other) {

@@ -58,7 +58,6 @@ public class NamedThreadFactory implements ThreadFactory {
         group = (s == null) ? Thread.currentThread().getThreadGroup() : s.getThreadGroup();
     }
 
-    @SuppressWarnings("NullableProblems")
     @Override
     public Thread newThread(Runnable r) {
         checkNotNull(r, "runnable");

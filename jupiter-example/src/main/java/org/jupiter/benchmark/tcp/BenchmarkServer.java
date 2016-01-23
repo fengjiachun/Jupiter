@@ -18,9 +18,8 @@ package org.jupiter.benchmark.tcp;
 
 import org.jupiter.common.util.SystemPropertyUtil;
 import org.jupiter.monitor.MonitorServer;
-import org.jupiter.rpc.model.metadata.ServiceWrapper;
-import org.jupiter.transport.netty.NettyAcceptor;
 import org.jupiter.transport.netty.JNettyTcpAcceptor;
+import org.jupiter.transport.netty.NettyAcceptor;
 
 /**
  * 飞行记录: -XX:+UnlockCommercialFeatures -XX:+FlightRecorder
@@ -46,7 +45,7 @@ public class BenchmarkServer {
         try {
             monitor.start();
 
-            ServiceWrapper provider = server.serviceRegistry()
+            server.serviceRegistry()
                     .provider(new ServiceImpl())
                     .register();
 

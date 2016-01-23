@@ -18,7 +18,6 @@ package org.jupiter.benchmark.tcp;
 
 import org.jupiter.common.util.SystemPropertyUtil;
 import org.jupiter.monitor.MonitorServer;
-import org.jupiter.rpc.model.metadata.ServiceWrapper;
 import org.jupiter.transport.netty.JNettyTcpAcceptor;
 import org.jupiter.transport.netty.NettyAcceptor;
 
@@ -46,7 +45,7 @@ public class BenchmarkServer_1KString {
         try {
             monitor.start();
 
-            ServiceWrapper provider = server.serviceRegistry()
+            server.serviceRegistry()
                     .provider(new ServiceImpl_1KString())
                     .register();
 

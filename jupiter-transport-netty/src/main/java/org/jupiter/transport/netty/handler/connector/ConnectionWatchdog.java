@@ -29,7 +29,6 @@ import org.jupiter.transport.netty.channel.NettyChannel;
 import org.jupiter.transport.netty.handler.ChannelHandlerHolder;
 
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
-import static org.jupiter.common.util.StackTraceUtil.stackTrace;
 
 /**
  * Connections watchdog.
@@ -96,15 +95,6 @@ public abstract class ConnectionWatchdog extends ChannelInboundHandlerAdapter im
                 ctx.channel(), remoteAddress.getHost(), remoteAddress.getPort(), doReconnect);
 
         ctx.fireChannelInactive();
-    }
-
-    @Override
-    public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
-        Channel ch = ctx.channel();
-
-        logger.error("An exception has been caught {}, on {}.", stackTrace(cause), ch);
-
-        ch.close();
     }
 
     @Override

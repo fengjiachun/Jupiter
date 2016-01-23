@@ -60,7 +60,6 @@ public abstract class AbstractConstant<T extends AbstractConstant<T>> implements
         return name;
     }
 
-    @SuppressWarnings("NullableProblems")
     public int compareTo(T o) {
         if (this == o) {
             return 0;

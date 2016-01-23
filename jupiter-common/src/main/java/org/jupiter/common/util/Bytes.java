@@ -24,6 +24,7 @@ package org.jupiter.common.util;
  *
  * @author jiachun.fjc
  */
+@SuppressWarnings("unused")
 public final class Bytes {
 
     /**

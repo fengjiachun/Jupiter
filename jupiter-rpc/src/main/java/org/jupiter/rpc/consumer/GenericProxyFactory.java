@@ -17,8 +17,6 @@
 package org.jupiter.rpc.consumer;
 
 import org.jupiter.common.util.Lists;
-import org.jupiter.common.util.internal.logging.InternalLogger;
-import org.jupiter.common.util.internal.logging.InternalLoggerFactory;
 import org.jupiter.rpc.*;
 import org.jupiter.rpc.consumer.dispatcher.DefaultBroadcastDispatcher;
 import org.jupiter.rpc.consumer.dispatcher.DefaultRoundDispatcher;
@@ -49,8 +47,6 @@ import static org.jupiter.rpc.DispatchMode.ROUND;
  * @author jiachun.fjc
  */
 public class GenericProxyFactory {
-
-    private static final InternalLogger logger = InternalLoggerFactory.getInstance(GenericProxyFactory.class);
 
     private String group;
     private String version;

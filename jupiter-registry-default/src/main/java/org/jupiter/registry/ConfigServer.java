@@ -39,7 +39,6 @@ import org.jupiter.transport.Acknowledge;
 import org.jupiter.transport.JConfig;
 import org.jupiter.transport.JOption;
 import org.jupiter.transport.JProtocolHeader;
-import org.jupiter.common.util.Signal;
 import org.jupiter.transport.error.IoSignals;
 import org.jupiter.transport.netty.NettyTcpAcceptor;
 import org.jupiter.transport.netty.channel.NettyChannel;
@@ -439,8 +438,6 @@ public class ConfigServer extends NettyTcpAcceptor implements RegistryMonitor {
 
         @Override
         protected void decode(ChannelHandlerContext ctx, ByteBuf in, List<Object> out) throws Exception {
-            Channel ch = ctx.channel();
-
             switch (state()) {
                 case HEADER_MAGIC:
                     checkMagic(in.readShort());             // MAGIC
@@ -460,8 +457,6 @@ public class ConfigServer extends NettyTcpAcceptor implements RegistryMonitor {
                 case BODY:
                     switch (header.sign()) {
                         case HEARTBEAT:
-                            logger.info("Heartbeat on channel {}.", ch);
-
                             break;
                         case PUBLISH_SERVICE:
                         case PUBLISH_CANCEL_SERVICE:
@@ -570,12 +565,14 @@ public class ConfigServer extends NettyTcpAcceptor implements RegistryMonitor {
                         } else if (obj.sign() == PUBLISH_CANCEL_SERVICE) {
                             handlePublishCancel(meta, channel);
                         }
-                        channel.writeAndFlush(new Acknowledge(obj.sequence())); // 回复ACK
+                        channel.writeAndFlush(new Acknowledge(obj.sequence())) // 回复ACK
+                                .addListener(ChannelFutureListener.FIRE_EXCEPTION_ON_FAILURE);
 
                         break;
                     case SUBSCRIBE_SERVICE:
                         handleSubscribe((ServiceMeta) obj.data(), channel);
-                        channel.writeAndFlush(new Acknowledge(obj.sequence())); // 回复ACK
+                        channel.writeAndFlush(new Acknowledge(obj.sequence())) // 回复ACK
+                                .addListener(ChannelFutureListener.FIRE_EXCEPTION_ON_FAILURE);
 
                         break;
                     case OFFLINE_NOTICE:
@@ -670,7 +667,8 @@ public class ConfigServer extends NettyTcpAcceptor implements RegistryMonitor {
                             if (m.channel.isActive()) {
                                 MessageNonAck msgNonAck = new MessageNonAck(m.serviceMeta, m.msg, m.channel);
                                 messagesNonAck.put(msgNonAck.id, msgNonAck);
-                                m.channel.writeAndFlush(m);
+                                m.channel.writeAndFlush(m.msg)
+                                        .addListener(ChannelFutureListener.FIRE_EXCEPTION_ON_FAILURE);
                             }
                         }
                     }

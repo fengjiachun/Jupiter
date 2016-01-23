@@ -17,14 +17,11 @@
 package org.jupiter.transport.netty.handler;
 
 import io.netty.buffer.ByteBuf;
-import io.netty.channel.Channel;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.ReplayingDecoder;
 import org.jupiter.common.util.Signal;
 import org.jupiter.common.util.SystemClock;
 import org.jupiter.common.util.SystemPropertyUtil;
-import org.jupiter.common.util.internal.logging.InternalLogger;
-import org.jupiter.common.util.internal.logging.InternalLoggerFactory;
 import org.jupiter.rpc.JRequest;
 import org.jupiter.rpc.JResponse;
 import org.jupiter.transport.JProtocolHeader;
@@ -32,9 +29,7 @@ import org.jupiter.transport.JProtocolHeader;
 import java.util.List;
 
 import static org.jupiter.transport.JProtocolHeader.*;
-import static org.jupiter.transport.error.IoSignals.BODY_TOO_LARGE;
-import static org.jupiter.transport.error.IoSignals.ILLEGAL_MAGIC;
-import static org.jupiter.transport.error.IoSignals.ILLEGAL_SIGN;
+import static org.jupiter.transport.error.IoSignals.*;
 
 /**
  * **************************************************************************************************
@@ -61,8 +56,6 @@ import static org.jupiter.transport.error.IoSignals.ILLEGAL_SIGN;
  */
 public class ProtocolDecoder extends ReplayingDecoder<ProtocolDecoder.State> {
 
-    private static final InternalLogger logger = InternalLoggerFactory.getInstance(ProtocolDecoder.class);
-
     // 协议体最大限制, 默认5M
     private static final int MAX_BODY_SIZE = SystemPropertyUtil.getInt("jupiter.protocol.max.body.size", 1024 * 1024 * 5);
 
@@ -75,8 +68,6 @@ public class ProtocolDecoder extends ReplayingDecoder<ProtocolDecoder.State> {
 
     @Override
     protected void decode(ChannelHandlerContext ctx, ByteBuf in, List<Object> out) throws Exception {
-        Channel ch = ctx.channel();
-
         switch (state()) {
             case HEADER_MAGIC:
                 checkMagic(in.readShort());         // MAGIC
@@ -96,8 +87,6 @@ public class ProtocolDecoder extends ReplayingDecoder<ProtocolDecoder.State> {
             case BODY:
                 switch (header.sign()) {
                     case HEARTBEAT:
-                        logger.info("Heartbeat on channel {}.", ch);
-
                         break;
                     case REQUEST: {
                         int bodyLength = checkBodyLength(header.bodyLength());
@@ -109,8 +98,6 @@ public class ProtocolDecoder extends ReplayingDecoder<ProtocolDecoder.State> {
                         request.bytes(bytes);
                         out.add(request);
 
-                        logger.debug("Request [{}], on channel {}.", header, ch);
-
                         break;
                     }
                     case RESPONSE: {
@@ -119,8 +106,6 @@ public class ProtocolDecoder extends ReplayingDecoder<ProtocolDecoder.State> {
                         in.readBytes(bytes);
 
                         out.add(JResponse.getInstance(header.id(), header.status(), bytes));
-
-                        logger.debug("Response [{}], on channel {}.", header, ch);
 
                         break;
                     }

@@ -39,8 +39,6 @@ package org.jupiter.common.util.internal.logging;
  */
 class FormattingTuple {
 
-    static final FormattingTuple NULL = new FormattingTuple(null);
-
     private final String message;
     private final Throwable throwable;
     private final Object[] argArray;

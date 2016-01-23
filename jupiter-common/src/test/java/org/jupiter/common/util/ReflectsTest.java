@@ -44,7 +44,7 @@ public class ReflectsTest {
 
     @Test
     public void testNewInstance() {
-        ReflectClass0 obj = Reflects.newInstance(ReflectClass0.class);
+        Reflects.newInstance(ReflectClass0.class);
     }
 
     @Test
