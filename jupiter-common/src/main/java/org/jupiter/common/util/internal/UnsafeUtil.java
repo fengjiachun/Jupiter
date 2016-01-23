@@ -41,7 +41,7 @@ public class UnsafeUtil {
     public static final Unsafe UNSAFE;
 
     public static final int JAVA_VERSION = javaVersion0();
-    public static final long CWL_ARRAY_FIELD_OFFSET; // CopyOnWriteArrayList's array offset
+    public static final long CWL_ARRAY_FIELD_OFFSET;
     public static final long STRING_BUILDER_VALUE_FIELD_OFFSET;
 
     private static final long ADDRESS_FIELD_OFFSET;
