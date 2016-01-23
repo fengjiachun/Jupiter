@@ -33,7 +33,6 @@ import java.util.concurrent.atomic.AtomicInteger;
 public class Tracing {
 
     private static final boolean IS_TRACING_NEEDED = SystemPropertyUtil.getBoolean("jupiter.tracing.needed", true);
-    private static final String EMPTY_TRACE_ID = "";
 
     private static final ThreadLocal<String> traceThreadLocal = new ThreadLocal<>();
 
@@ -66,7 +65,7 @@ public class Tracing {
         if (IS_TRACING_NEEDED) {
             return getTraceId(IP_16, SystemClock.millisClock().now(), getNextId());
         }
-        return EMPTY_TRACE_ID;
+        return null;
     }
 
     public static void setCurrent(String traceId) {
