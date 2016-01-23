@@ -47,53 +47,48 @@ public class UnsafeUtil {
     private static final long ADDRESS_FIELD_OFFSET;
 
     static {
-        ByteBuffer direct = ByteBuffer.allocateDirect(1);
-        Field addressField;
+        Field address_field;
         try {
-            addressField = Buffer.class.getDeclaredField("address");
-            addressField.setAccessible(true);
-            if (addressField.getLong(ByteBuffer.allocate(1)) != 0) {
+            address_field = Buffer.class.getDeclaredField("address");
+            address_field.setAccessible(true);
+            if (address_field.getLong(ByteBuffer.allocate(1)) != 0) {
                 // A heap buffer must have 0 address.
-                addressField = null;
+                address_field = null;
             } else {
-                if (addressField.getLong(direct) == 0) {
+                if (address_field.getLong(ByteBuffer.allocateDirect(1)) == 0) {
                     // A direct buffer must have non-zero address.
-                    addressField = null;
+                    address_field = null;
                 }
             }
         } catch (Throwable e) {
             // Failed to access the address field.
-            addressField = null;
+            address_field = null;
         }
 
-        Field arrayField;
+        Field array_field;
         try {
-            arrayField = CopyOnWriteArrayList.class.getDeclaredField("array");
+            array_field = CopyOnWriteArrayList.class.getDeclaredField("array");
         } catch (Throwable t) {
-            arrayField = null;
+            array_field = null;
         }
 
-        Field valueField = null;
-        Class<?> cls = StringBuilder.class;
-        while (cls != null) {
-            try {
-                valueField = cls.getDeclaredField("value");
-                break;
-            } catch (Throwable t) {
-                cls = cls.getSuperclass();
-            }
+        Field value_field;
+        try {
+            value_field = StringBuilder.class.getSuperclass().getDeclaredField("value");
+        } catch (Throwable t) {
+            value_field = null;
         }
 
         Unsafe unsafe;
-        if (addressField == null || arrayField == null || valueField == null) {
-            // If we cannot access addressField/arrayField/valueField, there's no point of using unsafe.
+        if (address_field == null || array_field == null || value_field == null) {
+            // If we cannot access address_field/array_field/value_field, there's no point of using unsafe.
             // Let's just pretend unsafe is unavailable for overall simplicity.
             unsafe = null;
         } else {
             try {
-                Field unsafeField = Unsafe.class.getDeclaredField("theUnsafe");
-                unsafeField.setAccessible(true);
-                unsafe = (Unsafe) unsafeField.get(null);
+                Field unsafe_field = Unsafe.class.getDeclaredField("theUnsafe");
+                unsafe_field.setAccessible(true);
+                unsafe = (Unsafe) unsafe_field.get(null);
             } catch (Throwable t) {
                 unsafe = null;
             }
@@ -108,9 +103,9 @@ public class UnsafeUtil {
 
             logger.warn("sun.misc.Unsafe.theUnsafe: unavailable");
         } else {
-            ADDRESS_FIELD_OFFSET = UNSAFE.objectFieldOffset(addressField);
-            CWL_ARRAY_FIELD_OFFSET = UNSAFE.objectFieldOffset(arrayField);
-            STRING_BUILDER_VALUE_FIELD_OFFSET = UNSAFE.objectFieldOffset(valueField);
+            ADDRESS_FIELD_OFFSET = UNSAFE.objectFieldOffset(address_field);
+            CWL_ARRAY_FIELD_OFFSET = UNSAFE.objectFieldOffset(array_field);
+            STRING_BUILDER_VALUE_FIELD_OFFSET = UNSAFE.objectFieldOffset(value_field);
         }
     }
 
@@ -142,4 +137,6 @@ public class UnsafeUtil {
 
         return javaVersion;
     }
+
+    private UnsafeUtil() {}
 }
