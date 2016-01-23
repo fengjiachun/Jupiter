@@ -61,7 +61,7 @@ public class BenchmarkClient {
         int processors = Runtime.getRuntime().availableProcessors();
         SystemPropertyUtil
                 .setProperty("jupiter.processor.executor.core.num.workers", String.valueOf(processors));
-        SystemPropertyUtil.getBoolean("jupiter.tracing.needed", false);
+        SystemPropertyUtil.setProperty("jupiter.tracing.needed", "false");
 
         NettyConnector connector = new JNettyTcpConnector();
         UnresolvedAddress[] addresses = new UnresolvedAddress[processors];
