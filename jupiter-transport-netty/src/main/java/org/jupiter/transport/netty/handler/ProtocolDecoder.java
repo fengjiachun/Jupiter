@@ -31,9 +31,9 @@ import org.jupiter.transport.JProtocolHeader;
 import java.util.List;
 
 import static org.jupiter.transport.JProtocolHeader.*;
-import static org.jupiter.transport.error.Signals.BODY_TOO_LARAGE;
-import static org.jupiter.transport.error.Signals.ILLEGAL_MAGIC;
-import static org.jupiter.transport.error.Signals.ILLEGAL_SIGN;
+import static org.jupiter.transport.error.IoSignals.BODY_TOO_LARAGE;
+import static org.jupiter.transport.error.IoSignals.ILLEGAL_MAGIC;
+import static org.jupiter.transport.error.IoSignals.ILLEGAL_SIGN;
 
 /**
  * **************************************************************************************************

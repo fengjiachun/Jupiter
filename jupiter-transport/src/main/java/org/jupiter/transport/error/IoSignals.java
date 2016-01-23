@@ -16,6 +16,7 @@
 
 package org.jupiter.transport.error;
 
+import org.jupiter.common.util.Signal;
 import org.jupiter.common.util.internal.logging.InternalLogger;
 import org.jupiter.common.util.internal.logging.InternalLoggerFactory;
 import org.jupiter.rpc.channel.JChannel;
@@ -27,18 +28,18 @@ import org.jupiter.rpc.channel.JChannel;
  * @author jiachun.fjc
  */
 @SuppressWarnings("all")
-public class Signals {
+public class IoSignals {
 
-    private static final InternalLogger logger = InternalLoggerFactory.getInstance(Signals.class);
+    private static final InternalLogger logger = InternalLoggerFactory.getInstance(IoSignals.class);
 
     /** 错误的MAGIC */
-    public static final Signal ILLEGAL_MAGIC    = Signal.valueOf(Signals.class, "ILLEGAL_MAGIC");
+    public static final Signal ILLEGAL_MAGIC    = Signal.valueOf(IoSignals.class, "ILLEGAL_MAGIC");
     /** 错误的消息标志位 */
-    public static final Signal ILLEGAL_SIGN     = Signal.valueOf(Signals.class, "ILLEGAL_SIGN");
+    public static final Signal ILLEGAL_SIGN     = Signal.valueOf(IoSignals.class, "ILLEGAL_SIGN");
     /** Read idel 链路检测 */
-    public static final Signal READER_IDLE      = Signal.valueOf(Signals.class, "READER_IDLE");
+    public static final Signal READER_IDLE      = Signal.valueOf(IoSignals.class, "READER_IDLE");
     /** Protocol body 太大 */
-    public static final Signal BODY_TOO_LARAGE  = Signal.valueOf(Signals.class, "BODY_TOO_LARAGE");
+    public static final Signal BODY_TOO_LARAGE  = Signal.valueOf(IoSignals.class, "BODY_TOO_LARAGE");
 
     public static void handleSignal(Signal signal, JChannel channel) {
         if (signal == ILLEGAL_MAGIC) {

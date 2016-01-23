@@ -38,8 +38,8 @@ import org.jupiter.transport.JConnection;
 import org.jupiter.transport.JOption;
 import org.jupiter.transport.JProtocolHeader;
 import org.jupiter.transport.error.ConnectFailedException;
-import org.jupiter.transport.error.Signal;
-import org.jupiter.transport.error.Signals;
+import org.jupiter.common.util.Signal;
+import org.jupiter.transport.error.IoSignals;
 import org.jupiter.transport.netty.NettyTcpConnector;
 import org.jupiter.transport.netty.channel.NettyChannel;
 import org.jupiter.transport.netty.handler.AcknowledgeEncoder;
@@ -58,8 +58,8 @@ import static org.jupiter.registry.RegisterMeta.Address;
 import static org.jupiter.registry.RegisterMeta.ServiceMeta;
 import static org.jupiter.serialization.SerializerHolder.serializerImpl;
 import static org.jupiter.transport.JProtocolHeader.*;
-import static org.jupiter.transport.error.Signals.ILLEGAL_MAGIC;
-import static org.jupiter.transport.error.Signals.ILLEGAL_SIGN;
+import static org.jupiter.transport.error.IoSignals.ILLEGAL_MAGIC;
+import static org.jupiter.transport.error.IoSignals.ILLEGAL_SIGN;
 
 /**
  * The client of registration center.
@@ -468,7 +468,7 @@ public class ConfigClient extends NettyTcpConnector {
         public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
             JChannel jChannel = NettyChannel.attachChannel(ctx.channel());
             if (cause instanceof Signal) {
-                Signals.handleSignal((Signal) cause, jChannel);
+                IoSignals.handleSignal((Signal) cause, jChannel);
             } else {
                 logger.error("An exception has been caught {}, on {}.", stackTrace(cause), jChannel);
             }

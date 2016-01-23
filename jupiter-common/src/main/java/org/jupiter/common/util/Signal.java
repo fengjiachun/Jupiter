@@ -30,11 +30,7 @@
  * under the License.
  */
 
-package org.jupiter.transport.error;
-
-import org.jupiter.common.util.AbstractConstant;
-import org.jupiter.common.util.Constant;
-import org.jupiter.common.util.ConstantPool;
+package org.jupiter.common.util;
 
 /**
  * A special {@link Exception} which is used to signal some state or request by throwing it.

@@ -21,7 +21,7 @@ import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
 import io.netty.handler.timeout.IdleState;
 import io.netty.handler.timeout.IdleStateEvent;
-import org.jupiter.transport.error.Signals;
+import org.jupiter.transport.error.IoSignals;
 
 /**
  * jupiter
@@ -37,7 +37,7 @@ public class AcceptorIdleStateTrigger extends ChannelInboundHandlerAdapter {
         if (evt instanceof IdleStateEvent) {
             IdleState state = ((IdleStateEvent) evt).state();
             if (state == IdleState.READER_IDLE) {
-                throw Signals.READER_IDLE;
+                throw IoSignals.READER_IDLE;
             }
         } else {
             super.userEventTriggered(ctx, evt);

@@ -26,8 +26,8 @@ import org.jupiter.common.util.internal.logging.InternalLoggerFactory;
 import org.jupiter.rpc.JRequest;
 import org.jupiter.rpc.channel.JChannel;
 import org.jupiter.rpc.provider.processor.ProviderProcessor;
-import org.jupiter.transport.error.Signal;
-import org.jupiter.transport.error.Signals;
+import org.jupiter.common.util.Signal;
+import org.jupiter.transport.error.IoSignals;
 import org.jupiter.transport.netty.channel.NettyChannel;
 
 import java.util.concurrent.atomic.AtomicInteger;
@@ -113,7 +113,7 @@ public class AcceptorHandler extends ChannelInboundHandlerAdapter {
     public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
         JChannel jChannel = NettyChannel.attachChannel(ctx.channel());
         if (cause instanceof Signal) {
-            Signals.handleSignal((Signal) cause, jChannel);
+            IoSignals.handleSignal((Signal) cause, jChannel);
         } else {
             logger.error("An exception has been caught {}, on {}.", stackTrace(cause), jChannel);
         }
