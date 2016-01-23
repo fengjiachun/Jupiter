@@ -16,7 +16,7 @@
 
 package org.jupiter.common.util;
 
-import static org.jupiter.common.util.internal.UnsafeUtil.STRING_BUILDER_VALUE_OFFSET;
+import static org.jupiter.common.util.internal.UnsafeUtil.STRING_BUILDER_VALUE_FIELD_OFFSET;
 import static org.jupiter.common.util.internal.UnsafeUtil.UNSAFE;
 
 /**
@@ -61,7 +61,7 @@ public class StringBuilderHelper {
 
         private void truncate() {
             if (buf.capacity() > DISCARD_LIMIT) {
-                UNSAFE.putObject(buf, STRING_BUILDER_VALUE_OFFSET, new char[1024]);
+                UNSAFE.putObject(buf, STRING_BUILDER_VALUE_FIELD_OFFSET, new char[1024]);
             }
             buf.setLength(0);
         }

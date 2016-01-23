@@ -38,7 +38,7 @@ import static java.util.concurrent.TimeUnit.MILLISECONDS;
 import static java.util.concurrent.TimeUnit.MINUTES;
 import static org.jupiter.common.util.JConstants.DEFAULT_WARM_UP;
 import static org.jupiter.common.util.JConstants.DEFAULT_WEIGHT;
-import static org.jupiter.common.util.internal.UnsafeUtil.CWL_ARRAY_OFFSET;
+import static org.jupiter.common.util.internal.UnsafeUtil.CWL_ARRAY_FIELD_OFFSET;
 import static org.jupiter.common.util.internal.UnsafeUtil.UNSAFE;
 
 /**
@@ -97,7 +97,7 @@ public class NettyChannelGroup implements JChannelGroup {
     public JChannel next() {
         for (;;) {
             // snapshot of channels array
-            Object[] elements = (Object[]) UNSAFE.getObjectVolatile(channels, CWL_ARRAY_OFFSET);
+            Object[] elements = (Object[]) UNSAFE.getObjectVolatile(channels, CWL_ARRAY_FIELD_OFFSET);
             int length = elements.length;
             if (length == 0) {
                 if (waitForAvailable(1000)) { // wait a moment
