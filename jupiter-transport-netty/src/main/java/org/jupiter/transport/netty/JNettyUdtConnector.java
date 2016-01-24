@@ -35,6 +35,9 @@ import org.jupiter.transport.netty.handler.connector.ConnectionWatchdog;
 import org.jupiter.transport.netty.handler.connector.ConnectorHandler;
 import org.jupiter.transport.netty.handler.connector.ConnectorIdleStateTrigger;
 
+import java.net.InetSocketAddress;
+import java.net.SocketAddress;
+
 import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.jupiter.common.util.JConstants.WRITER_IDLE_TIME_SECONDS;
 
@@ -126,15 +129,15 @@ public class JNettyUdtConnector extends NettyUdtConnector {
     }
 
     @Override
-    public JConnection connect(UnresolvedAddress remoteAddress, boolean async) {
+    public JConnection connect(UnresolvedAddress address, boolean async) {
         setOptions();
 
-        Bootstrap boot = bootstrap();
-
-        JChannelGroup group = group(remoteAddress);
+        final Bootstrap boot = bootstrap();
+        final SocketAddress socketAddress = InetSocketAddress.createUnresolved(address.getHost(), address.getPort());
+        final JChannelGroup group = group(address);
 
         // 重连watchdog
-        final ConnectionWatchdog watchdog = new ConnectionWatchdog(boot, timer, remoteAddress, group) {
+        final ConnectionWatchdog watchdog = new ConnectionWatchdog(boot, timer, socketAddress, group) {
 
             @Override
             public ChannelHandler[] handlers() {
@@ -160,7 +163,7 @@ public class JNettyUdtConnector extends NettyUdtConnector {
                     }
                 });
 
-                future = boot.connect(remoteAddress.getHost(), remoteAddress.getPort());
+                future = boot.connect(socketAddress);
             }
 
             // 以下代码在synchronized同步块外面是安全的
@@ -168,10 +171,10 @@ public class JNettyUdtConnector extends NettyUdtConnector {
                 future.sync();
             }
         } catch (Throwable t) {
-            throw new ConnectFailedException("connects to [" + remoteAddress + "] fails", t);
+            throw new ConnectFailedException("connects to [" + address + "] fails", t);
         }
 
-        return new JConnection(remoteAddress) {
+        return new JConnection(address) {
 
             @Override
             public void setReconnect(boolean reconnect) {

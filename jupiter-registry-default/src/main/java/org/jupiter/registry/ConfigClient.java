@@ -47,6 +47,8 @@ import org.jupiter.transport.netty.handler.IdleStateChecker;
 import org.jupiter.transport.netty.handler.connector.ConnectionWatchdog;
 import org.jupiter.transport.netty.handler.connector.ConnectorIdleStateTrigger;
 
+import java.net.InetSocketAddress;
+import java.net.SocketAddress;
 import java.util.List;
 import java.util.concurrent.ConcurrentMap;
 
@@ -112,13 +114,14 @@ public class ConfigClient extends NettyTcpConnector {
      * ConfigClient不支持异步连接行为, async参数无效
      */
     @Override
-    public JConnection connect(UnresolvedAddress remoteAddress, boolean async) {
+    public JConnection connect(UnresolvedAddress address, boolean async) {
         setOptions();
 
-        Bootstrap boot = bootstrap();
+        final Bootstrap boot = bootstrap();
+        final SocketAddress socketAddress = InetSocketAddress.createUnresolved(address.getHost(), address.getPort());
 
         // 重连watchdog
-        final ConnectionWatchdog watchdog = new ConnectionWatchdog(boot, timer, remoteAddress, null) {
+        final ConnectionWatchdog watchdog = new ConnectionWatchdog(boot, timer, socketAddress, null) {
 
             @Override
             public ChannelHandler[] handlers() {
@@ -145,17 +148,17 @@ public class ConfigClient extends NettyTcpConnector {
                     }
                 });
 
-                future = boot.connect(remoteAddress.getHost(), remoteAddress.getPort());
+                future = boot.connect(socketAddress);
             }
 
             // 以下代码在synchronized同步块外面是安全的
             future.sync();
             channel = future.channel();
         } catch (Throwable t) {
-            throw new ConnectFailedException("connects to [" + remoteAddress + "] fails", t);
+            throw new ConnectFailedException("connects to [" + address + "] fails", t);
         }
 
-        return new JConnection(remoteAddress) {
+        return new JConnection(address) {
 
             @Override
             public void setReconnect(boolean reconnect) {

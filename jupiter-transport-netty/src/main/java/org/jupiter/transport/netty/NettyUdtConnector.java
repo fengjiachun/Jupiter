@@ -82,8 +82,8 @@ public abstract class NettyUdtConnector extends NettyConnector {
     }
 
     @Override
-    public JConnection connect(UnresolvedAddress remoteAddress) {
-        return connect(remoteAddress, false);
+    public JConnection connect(UnresolvedAddress address) {
+        return connect(address, false);
     }
 
     @Override

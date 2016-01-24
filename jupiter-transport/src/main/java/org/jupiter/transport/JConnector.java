@@ -30,12 +30,12 @@ public interface JConnector<C> extends Transporter {
     /**
      * Connects to the remote peer.
      */
-    C connect(UnresolvedAddress remoteAddress);
+    C connect(UnresolvedAddress address);
 
     /**
      * Connects to the remote peer.
      */
-    C connect(UnresolvedAddress remoteAddress, boolean async);
+    C connect(UnresolvedAddress address, boolean async);
 
     /**
      * Sets auto manage the connections

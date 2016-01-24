@@ -23,10 +23,11 @@ import io.netty.util.Timer;
 import io.netty.util.TimerTask;
 import org.jupiter.common.util.internal.logging.InternalLogger;
 import org.jupiter.common.util.internal.logging.InternalLoggerFactory;
-import org.jupiter.rpc.UnresolvedAddress;
 import org.jupiter.rpc.channel.JChannelGroup;
 import org.jupiter.transport.netty.channel.NettyChannel;
 import org.jupiter.transport.netty.handler.ChannelHandlerHolder;
+
+import java.net.SocketAddress;
 
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
 
@@ -45,13 +46,13 @@ public abstract class ConnectionWatchdog extends ChannelInboundHandlerAdapter im
 
     private final Bootstrap bootstrap;
     private final Timer timer;
-    private final UnresolvedAddress remoteAddress;
+    private final SocketAddress remoteAddress;
     private final JChannelGroup group;
 
     private volatile boolean reconnect = true;
     private int attempts;
 
-    public ConnectionWatchdog(Bootstrap bootstrap, Timer timer, UnresolvedAddress remoteAddress, JChannelGroup group) {
+    public ConnectionWatchdog(Bootstrap bootstrap, Timer timer, SocketAddress remoteAddress, JChannelGroup group) {
         this.bootstrap = bootstrap;
         this.timer = timer;
         this.remoteAddress = remoteAddress;
@@ -91,8 +92,7 @@ public abstract class ConnectionWatchdog extends ChannelInboundHandlerAdapter im
             timer.newTimeout(this, timeout, MILLISECONDS);
         }
 
-        logger.warn("Disconnects with {}, address: [{}:{}], reconnect: {}.",
-                ctx.channel(), remoteAddress.getHost(), remoteAddress.getPort(), doReconnect);
+        logger.warn("Disconnects with {}, address: {}, reconnect: {}.", ctx.channel(), remoteAddress, doReconnect);
 
         ctx.fireChannelInactive();
     }
@@ -100,13 +100,11 @@ public abstract class ConnectionWatchdog extends ChannelInboundHandlerAdapter im
     @Override
     public void run(Timeout timeout) throws Exception {
         if (group != null && group.size() >= group.getCapacity()) {
-            logger.warn("Cancel reconnecting with [{}].", remoteAddress);
+            logger.warn("Cancel reconnecting with {}.", remoteAddress);
             return;
         }
 
         ChannelFuture future;
-        final String host = remoteAddress.getHost();
-        final int port = remoteAddress.getPort();
         synchronized (bootstrap) {
             bootstrap.handler(new ChannelInitializer<Channel>() {
 
@@ -115,7 +113,7 @@ public abstract class ConnectionWatchdog extends ChannelInboundHandlerAdapter im
                     ch.pipeline().addLast(handlers());
                 }
             });
-            future = bootstrap.connect(host, port);
+            future = bootstrap.connect(remoteAddress);
         }
 
         future.addListener(new ChannelFutureListener() {
@@ -124,7 +122,7 @@ public abstract class ConnectionWatchdog extends ChannelInboundHandlerAdapter im
             public void operationComplete(ChannelFuture f) throws Exception {
                 boolean succeed = f.isSuccess();
 
-                logger.warn("Reconnects with [{}] {}.", remoteAddress, succeed ? "succeed" : "failed");
+                logger.warn("Reconnects with {}, {}.", remoteAddress, succeed ? "succeed" : "failed");
 
                 if (!succeed) {
                     f.channel().pipeline().fireChannelInactive();
