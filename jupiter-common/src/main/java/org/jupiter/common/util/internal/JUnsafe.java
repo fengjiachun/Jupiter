@@ -31,7 +31,7 @@ import java.lang.reflect.Field;
  * @author jiachun.fjc
  */
 @SuppressWarnings("all")
-public class JUnsafe {
+public final class JUnsafe {
 
     private static final InternalLogger logger = InternalLoggerFactory.getInstance(JUnsafe.class);
 
