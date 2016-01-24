@@ -52,6 +52,9 @@ public class JUnsafe {
         UNSAFE = unsafe;
     }
 
+    /**
+     * Returns the {@link sun.misc.Unsafe}'s instance.
+     */
     public static Unsafe getUnsafe() {
         return UNSAFE;
     }
