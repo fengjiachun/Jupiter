@@ -44,7 +44,7 @@ import java.util.concurrent.atomic.AtomicReferenceFieldUpdater;
  *
  * Forked from <a href="https://github.com/netty/netty">Netty</a>.
  */
-@SuppressWarnings("all")
+@SuppressWarnings("unchecked")
 final class UnsafeAtomicReferenceFieldUpdater<U, W> extends AtomicReferenceFieldUpdater<U, W> {
     private final long offset;
     private final Unsafe unsafe;
@@ -53,6 +53,9 @@ final class UnsafeAtomicReferenceFieldUpdater<U, W> extends AtomicReferenceField
         Field field = tClass.getDeclaredField(fieldName);
         if (!Modifier.isVolatile(field.getModifiers())) {
             throw new IllegalArgumentException("must be volatile");
+        }
+        if (unsafe == null) {
+            throw new NullPointerException("unsafe");
         }
         this.unsafe = unsafe;
         offset = unsafe.objectFieldOffset(field);

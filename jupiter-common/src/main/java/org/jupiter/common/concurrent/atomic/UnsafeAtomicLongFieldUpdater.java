@@ -53,6 +53,9 @@ final class UnsafeAtomicLongFieldUpdater<U> extends AtomicLongFieldUpdater<U> {
         if (!Modifier.isVolatile(field.getModifiers())) {
             throw new IllegalArgumentException("must be volatile");
         }
+        if (unsafe == null) {
+            throw new NullPointerException("unsafe");
+        }
         this.unsafe = unsafe;
         offset = unsafe.objectFieldOffset(field);
     }

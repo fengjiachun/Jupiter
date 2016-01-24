@@ -18,6 +18,7 @@ package org.jupiter.flight.exec;
 
 import org.jupiter.common.util.Function;
 import org.jupiter.common.util.Lists;
+import org.jupiter.common.util.internal.JUnsafe;
 
 import javax.tools.*;
 import java.io.ByteArrayOutputStream;
@@ -25,8 +26,6 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.net.URI;
 import java.util.List;
-
-import static org.jupiter.common.util.internal.UnsafeUtil.UNSAFE;
 
 /**
  * Java compiler, base on javac.
@@ -65,7 +64,7 @@ public class JavaCompiler {
                 return classFileManager.getJavaClassObject().classBytes();
             }
         } catch (Throwable t) {
-            UNSAFE.throwException(t);
+            JUnsafe.throwException(t);
         } finally {
             if (javaFileManager != null) {
                 try {

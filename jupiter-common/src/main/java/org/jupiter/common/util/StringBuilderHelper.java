@@ -16,8 +16,8 @@
 
 package org.jupiter.common.util;
 
-import static org.jupiter.common.util.internal.UnsafeUtil.STRING_BUILDER_VALUE_FIELD_OFFSET;
-import static org.jupiter.common.util.internal.UnsafeUtil.UNSAFE;
+import org.jupiter.common.util.internal.UnsafeReferenceFieldUpdater;
+import org.jupiter.common.util.internal.UnsafeUpdater;
 
 /**
  * 基于 {@link ThreadLocal} 的 {@link StringBuilder} 重复利用
@@ -28,6 +28,9 @@ import static org.jupiter.common.util.internal.UnsafeUtil.UNSAFE;
  * @author jiachun.fjc
  */
 public class StringBuilderHelper {
+
+    private static final UnsafeReferenceFieldUpdater<StringBuilder, char[]> stringBuilderValueUpdater =
+            UnsafeUpdater.newReferenceFieldUpdater(StringBuilder.class.getSuperclass(), "value");
 
     private static final int DISCARD_LIMIT = 1024 << 3; // 8k
 
@@ -61,7 +64,7 @@ public class StringBuilderHelper {
 
         private void truncate() {
             if (buf.capacity() > DISCARD_LIMIT) {
-                UNSAFE.putObject(buf, STRING_BUILDER_VALUE_FIELD_OFFSET, new char[1024]);
+                stringBuilderValueUpdater.set(buf, new char[1024]);
             }
             buf.setLength(0);
         }

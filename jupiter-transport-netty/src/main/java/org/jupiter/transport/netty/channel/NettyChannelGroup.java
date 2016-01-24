@@ -22,6 +22,7 @@ import org.jupiter.common.concurrent.atomic.AtomicUpdater;
 import org.jupiter.common.util.Lists;
 import org.jupiter.common.util.SystemClock;
 import org.jupiter.common.util.SystemPropertyUtil;
+import org.jupiter.common.util.internal.JUnsafe;
 import org.jupiter.rpc.UnresolvedAddress;
 import org.jupiter.rpc.channel.JChannel;
 import org.jupiter.rpc.channel.JChannelGroup;
@@ -31,6 +32,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.atomic.AtomicIntegerFieldUpdater;
+import java.util.concurrent.atomic.AtomicReferenceFieldUpdater;
 import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.ReentrantLock;
 
@@ -38,8 +40,6 @@ import static java.util.concurrent.TimeUnit.MILLISECONDS;
 import static java.util.concurrent.TimeUnit.MINUTES;
 import static org.jupiter.common.util.JConstants.DEFAULT_WARM_UP;
 import static org.jupiter.common.util.JConstants.DEFAULT_WEIGHT;
-import static org.jupiter.common.util.internal.UnsafeUtil.CWL_ARRAY_FIELD_OFFSET;
-import static org.jupiter.common.util.internal.UnsafeUtil.UNSAFE;
 
 /**
  * jupiter
@@ -52,6 +52,8 @@ public class NettyChannelGroup implements JChannelGroup {
     private static long LOSS_INTERVAL = SystemPropertyUtil.getLong(
             "jupiter.channel.group.loss.interval.millis", MINUTES.toMillis(5));
 
+    private static final AtomicReferenceFieldUpdater<CopyOnWriteArrayList, Object[]> copyOnWriteArrayListUpdater
+            = AtomicUpdater.newAtomicReferenceFieldUpdater(CopyOnWriteArrayList.class, Object[].class, "array");
     private static final AtomicIntegerFieldUpdater<NettyChannelGroup> signalNeededUpdater =
             AtomicUpdater.newAtomicIntegerFieldUpdater(NettyChannelGroup.class, "signalNeeded");
     private static final AtomicIntegerFieldUpdater<NettyChannelGroup> indexUpdater =
@@ -97,7 +99,7 @@ public class NettyChannelGroup implements JChannelGroup {
     public JChannel next() {
         for (;;) {
             // snapshot of channels array
-            Object[] elements = (Object[]) UNSAFE.getObjectVolatile(channels, CWL_ARRAY_FIELD_OFFSET);
+            Object[] elements = copyOnWriteArrayListUpdater.get(channels);
             int length = elements.length;
             if (length == 0) {
                 if (waitForAvailable(1000)) { // wait a moment
@@ -196,7 +198,7 @@ public class NettyChannelGroup implements JChannelGroup {
                 }
             }
         } catch (InterruptedException e) {
-            UNSAFE.throwException(e);
+            JUnsafe.throwException(e);
         } finally {
             _look.unlock();
         }

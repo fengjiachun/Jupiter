@@ -32,9 +32,7 @@
 
 package org.jupiter.common.util;
 
-import org.jupiter.common.util.internal.UnsafeUtil;
-
-import java.nio.ByteBuffer;
+import java.util.concurrent.ThreadLocalRandom;
 
 /**
  * Base implementation of {@link Constant}.
@@ -109,8 +107,7 @@ public abstract class AbstractConstant<T extends AbstractConstant<T>> implements
         if ((uniqueKey = this.uniqueKey) == 0) {
             synchronized (this) {
                 while ((uniqueKey = this.uniqueKey) == 0) {
-                    ByteBuffer directBuffer = ByteBuffer.allocateDirect(1);
-                    this.uniqueKey = UnsafeUtil.directBufferAddress(directBuffer); // direct buf的内存地址是唯一的
+                    this.uniqueKey = ThreadLocalRandom.current().nextLong();
                 }
             }
         }

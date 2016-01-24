@@ -16,6 +16,7 @@
 
 package org.jupiter.rpc;
 
+import org.jupiter.common.concurrent.atomic.AtomicUpdater;
 import org.jupiter.common.util.JServiceLoader;
 import org.jupiter.common.util.Maps;
 import org.jupiter.common.util.SystemClock;
@@ -30,11 +31,10 @@ import org.jupiter.rpc.load.balance.LoadBalancer;
 import java.util.Collection;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.concurrent.atomic.AtomicReferenceFieldUpdater;
 
 import static org.jupiter.common.util.JConstants.UNKNOWN_APP_NAME;
 import static org.jupiter.common.util.Preconditions.checkNotNull;
-import static org.jupiter.common.util.internal.UnsafeUtil.CWL_ARRAY_FIELD_OFFSET;
-import static org.jupiter.common.util.internal.UnsafeUtil.UNSAFE;
 import static org.jupiter.registry.RegisterMeta.Address;
 import static org.jupiter.registry.RegisterMeta.ServiceMeta;
 
@@ -47,6 +47,9 @@ import static org.jupiter.registry.RegisterMeta.ServiceMeta;
 public abstract class AbstractJClient implements JClient {
 
     private static final InternalLogger logger = InternalLoggerFactory.getInstance(AbstractJClient.class);
+
+    private static final AtomicReferenceFieldUpdater<CopyOnWriteArrayList, Object[]> copyOnWriteArrayListUpdater
+            = AtomicUpdater.newAtomicReferenceFieldUpdater(CopyOnWriteArrayList.class, Object[].class, "array");
 
     // SPI
     private final RegistryService registryService = JServiceLoader.load(RegistryService.class);
@@ -134,7 +137,7 @@ public abstract class AbstractJClient implements JClient {
     public JChannel select(Directory directory) {
         CopyOnWriteArrayList<JChannelGroup> groupList = directory(directory);
         // snapshot of groupList
-        Object[] elements = (Object[]) UNSAFE.getObjectVolatile(groupList, CWL_ARRAY_FIELD_OFFSET);
+        Object[] elements = copyOnWriteArrayListUpdater.get(groupList);
 
         JChannelGroup group = loadBalancer.select(elements);
 

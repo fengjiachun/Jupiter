@@ -17,6 +17,7 @@
 package org.jupiter.common.util;
 
 import net.sf.cglib.reflect.FastClass;
+import org.jupiter.common.util.internal.JUnsafe;
 import org.objenesis.Objenesis;
 import org.objenesis.ObjenesisStd;
 
@@ -27,7 +28,6 @@ import java.util.concurrent.ConcurrentMap;
 
 import static org.jupiter.common.util.Preconditions.checkArgument;
 import static org.jupiter.common.util.Preconditions.checkNotNull;
-import static org.jupiter.common.util.internal.UnsafeUtil.UNSAFE;
 
 /**
  * Static utility methods pertaining to reflection.
@@ -113,7 +113,7 @@ public final class Reflects {
             method.setAccessible(true);
             value = method.invoke(obj, args);
         } catch (Exception e) {
-            UNSAFE.throwException(e);
+            JUnsafe.throwException(e);
         }
         return value;
     }
@@ -142,7 +142,7 @@ public final class Reflects {
         try {
             value = fastClass.invoke(methodName, parameterTypes, obj, args);
         } catch (InvocationTargetException e) {
-            UNSAFE.throwException(e);
+            JUnsafe.throwException(e);
         }
         return value;
     }
@@ -184,7 +184,7 @@ public final class Reflects {
             Field fd = setAccessible(getField(clazz, name));
             value = fd.get(null);
         } catch (Exception e) {
-            UNSAFE.throwException(e);
+            JUnsafe.throwException(e);
         }
         return value;
     }
@@ -203,7 +203,7 @@ public final class Reflects {
             Field fd = setAccessible(getField(clazz, name));
             fd.set(null, value);
         } catch (Exception e) {
-            UNSAFE.throwException(e);
+            JUnsafe.throwException(e);
         }
     }
 
@@ -221,7 +221,7 @@ public final class Reflects {
             Field fd = setAccessible(getField(o.getClass(), name));
             value = fd.get(o);
         } catch (Exception e) {
-            UNSAFE.throwException(e);
+            JUnsafe.throwException(e);
         }
         return value;
     }
@@ -239,7 +239,7 @@ public final class Reflects {
             Field fd = setAccessible(getField(o.getClass(), name));
             fd.set(o, value);
         } catch (Exception e) {
-            UNSAFE.throwException(e);
+            JUnsafe.throwException(e);
         }
     }
 
