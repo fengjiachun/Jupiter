@@ -21,7 +21,7 @@ import org.jupiter.rpc.Directory;
 import org.jupiter.rpc.consumer.ProxyFactory;
 import org.jupiter.rpc.model.metadata.ServiceMetadata;
 import org.jupiter.transport.JConnector;
-import org.jupiter.transport.error.ConnectFailedException;
+import org.jupiter.transport.exception.ConnectFailedException;
 import org.jupiter.transport.netty.JNettyTcpConnector;
 import org.jupiter.transport.netty.NettyConnector;
 

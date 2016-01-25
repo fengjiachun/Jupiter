@@ -14,33 +14,33 @@
  * limitations under the License.
  */
 
-package org.jupiter.rpc.error;
+package org.jupiter.rpc.exception;
 
 /**
- * Usually it means that the server can not handle the new request.
+ * Request content deserialize failure.
  *
  * For efficiency this exception will not have a stack trace.
  *
  * jupiter
- * org.jupiter.rpc.error
+ * org.jupiter.rpc.exception
  *
  * @author jiachun.fjc
  */
-public class ServerBusyException extends RuntimeException {
+public class BadRequestException extends RuntimeException {
 
-    private static final long serialVersionUID = 4812626729436624336L;
+    private static final long serialVersionUID = -6603241073638657127L;
 
-    public ServerBusyException() {}
+    public BadRequestException() {}
 
-    public ServerBusyException(String message) {
+    public BadRequestException(String message) {
         super(message);
     }
 
-    public ServerBusyException(String message, Throwable cause) {
+    public BadRequestException(String message, Throwable cause) {
         super(message, cause);
     }
 
-    public ServerBusyException(Throwable cause) {
+    public BadRequestException(Throwable cause) {
         super(cause);
     }
 

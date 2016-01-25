@@ -14,33 +14,33 @@
  * limitations under the License.
  */
 
-package org.jupiter.rpc.error;
+package org.jupiter.rpc.exception;
 
 /**
- * Traffic restrictions by server.
+ * Usually it means that the server can not handle the new request.
  *
  * For efficiency this exception will not have a stack trace.
  *
  * jupiter
- * org.jupiter.rpc.error
+ * org.jupiter.rpc.exception
  *
  * @author jiachun.fjc
  */
-public class FlowControlException extends RuntimeException {
+public class ServerBusyException extends RuntimeException {
 
-    private static final long serialVersionUID = 3478741195763320940L;
+    private static final long serialVersionUID = 4812626729436624336L;
 
-    public FlowControlException() {}
+    public ServerBusyException() {}
 
-    public FlowControlException(String message) {
+    public ServerBusyException(String message) {
         super(message);
     }
 
-    public FlowControlException(String message, Throwable cause) {
+    public ServerBusyException(String message, Throwable cause) {
         super(message, cause);
     }
 
-    public FlowControlException(Throwable cause) {
+    public ServerBusyException(Throwable cause) {
         super(cause);
     }
 

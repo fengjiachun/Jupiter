@@ -21,7 +21,7 @@ import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
 import io.netty.handler.timeout.IdleState;
 import io.netty.handler.timeout.IdleStateEvent;
-import org.jupiter.transport.error.IoSignals;
+import org.jupiter.transport.exception.IoSignals;
 
 /**
  * jupiter

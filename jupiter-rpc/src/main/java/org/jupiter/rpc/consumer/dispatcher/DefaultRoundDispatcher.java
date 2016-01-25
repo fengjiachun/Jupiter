@@ -54,7 +54,7 @@ public class DefaultRoundDispatcher extends AbstractDispatcher {
         message.setAppName(proxy.appName());
         message.setMethodName(methodName);
         message.setArgs(args);
-        message.setTraceId(Tracing.generateTraceId()); // tracing
+        message.setTraceId(TracingEye.generateTraceId()); // tracing
 
         JChannel channel = proxy.select(_metadata);
 

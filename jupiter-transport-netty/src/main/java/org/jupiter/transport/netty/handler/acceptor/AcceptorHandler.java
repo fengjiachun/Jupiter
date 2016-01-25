@@ -27,7 +27,7 @@ import org.jupiter.rpc.JRequest;
 import org.jupiter.rpc.channel.JChannel;
 import org.jupiter.rpc.provider.processor.ProviderProcessor;
 import org.jupiter.common.util.Signal;
-import org.jupiter.transport.error.IoSignals;
+import org.jupiter.transport.exception.IoSignals;
 import org.jupiter.transport.netty.channel.NettyChannel;
 
 import java.util.concurrent.atomic.AtomicInteger;

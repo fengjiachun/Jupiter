@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.jupiter.rpc.error;
+package org.jupiter.rpc.exception;
 
 import java.net.SocketAddress;
 
@@ -24,7 +24,7 @@ import java.net.SocketAddress;
  * For efficiency this exception will not have a stack trace.
  *
  * jupiter
- * org.jupiter.rpc.error
+ * org.jupiter.rpc.exception
  *
  * @author jiachun.fjc
  */

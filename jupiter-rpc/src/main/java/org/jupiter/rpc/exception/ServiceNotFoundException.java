@@ -14,33 +14,33 @@
  * limitations under the License.
  */
 
-package org.jupiter.rpc.error;
+package org.jupiter.rpc.exception;
 
 /**
- * Request content deserialize failure.
+ * The corresponding service was not be found.
  *
  * For efficiency this exception will not have a stack trace.
  *
  * jupiter
- * org.jupiter.rpc.error
+ * org.jupiter.rpc.exception
  *
  * @author jiachun.fjc
  */
-public class BadRequestException extends RuntimeException {
+public class ServiceNotFoundException extends RuntimeException {
 
-    private static final long serialVersionUID = -6603241073638657127L;
+    private static final long serialVersionUID = -2277731243490443074L;
 
-    public BadRequestException() {}
+    public ServiceNotFoundException() {}
 
-    public BadRequestException(String message) {
+    public ServiceNotFoundException(String message) {
         super(message);
     }
 
-    public BadRequestException(String message, Throwable cause) {
+    public ServiceNotFoundException(String message, Throwable cause) {
         super(message, cause);
     }
 
-    public BadRequestException(Throwable cause) {
+    public ServiceNotFoundException(Throwable cause) {
         super(cause);
     }
 

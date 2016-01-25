@@ -39,7 +39,7 @@ import org.jupiter.transport.Acknowledge;
 import org.jupiter.transport.JConfig;
 import org.jupiter.transport.JOption;
 import org.jupiter.transport.JProtocolHeader;
-import org.jupiter.transport.error.IoSignals;
+import org.jupiter.transport.exception.IoSignals;
 import org.jupiter.transport.netty.NettyTcpAcceptor;
 import org.jupiter.transport.netty.channel.NettyChannel;
 import org.jupiter.transport.netty.handler.AcknowledgeEncoder;
@@ -58,8 +58,8 @@ import static org.jupiter.registry.RegisterMeta.Address;
 import static org.jupiter.registry.RegisterMeta.ServiceMeta;
 import static org.jupiter.serialization.SerializerHolder.serializerImpl;
 import static org.jupiter.transport.JProtocolHeader.*;
-import static org.jupiter.transport.error.IoSignals.ILLEGAL_MAGIC;
-import static org.jupiter.transport.error.IoSignals.ILLEGAL_SIGN;
+import static org.jupiter.transport.exception.IoSignals.ILLEGAL_MAGIC;
+import static org.jupiter.transport.exception.IoSignals.ILLEGAL_SIGN;
 
 /**
  * The server of registration center.

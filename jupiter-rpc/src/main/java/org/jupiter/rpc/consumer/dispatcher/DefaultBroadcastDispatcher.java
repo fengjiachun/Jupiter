@@ -60,7 +60,7 @@ public class DefaultBroadcastDispatcher extends AbstractDispatcher {
         message.setAppName(proxy.appName());
         message.setMethodName(methodName);
         message.setArgs(args);
-        message.setTraceId(Tracing.generateTraceId()); // tracing
+        message.setTraceId(TracingEye.generateTraceId()); // tracing
 
         List<JChannelGroup> groupList = proxy.directory(_metadata);
         List<JChannel> channels = Lists.transform(groupList, new Function<JChannelGroup, JChannel>() {

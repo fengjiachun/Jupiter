@@ -14,31 +14,38 @@
  * limitations under the License.
  */
 
-package org.jupiter.transport.error;
+package org.jupiter.rpc.exception;
 
 /**
+ * Traffic restrictions by server.
+ *
+ * For efficiency this exception will not have a stack trace.
+ *
  * jupiter
- * org.jupiter.transport.error
+ * org.jupiter.rpc.exception
  *
  * @author jiachun.fjc
  */
-public class ConnectFailedException extends RuntimeException {
+public class FlowControlException extends RuntimeException {
 
-    private static final long serialVersionUID = -2890742743547564900L;
+    private static final long serialVersionUID = 3478741195763320940L;
 
-    public ConnectFailedException() {
-        super();
-    }
+    public FlowControlException() {}
 
-    public ConnectFailedException(String message) {
+    public FlowControlException(String message) {
         super(message);
     }
 
-    public ConnectFailedException(String message, Throwable cause) {
+    public FlowControlException(String message, Throwable cause) {
         super(message, cause);
     }
 
-    public ConnectFailedException(Throwable cause) {
+    public FlowControlException(Throwable cause) {
         super(cause);
+    }
+
+    @Override
+    public synchronized Throwable fillInStackTrace() {
+        return this;
     }
 }

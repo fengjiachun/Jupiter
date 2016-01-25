@@ -22,8 +22,8 @@ import org.jupiter.common.util.internal.logging.InternalLogger;
 import org.jupiter.common.util.internal.logging.InternalLoggerFactory;
 import org.jupiter.rpc.*;
 import org.jupiter.rpc.channel.JChannel;
-import org.jupiter.rpc.error.RemoteException;
-import org.jupiter.rpc.error.TimeoutException;
+import org.jupiter.rpc.exception.RemoteException;
+import org.jupiter.rpc.exception.TimeoutException;
 import org.jupiter.rpc.model.metadata.ResultWrapper;
 
 import java.util.concurrent.ConcurrentMap;

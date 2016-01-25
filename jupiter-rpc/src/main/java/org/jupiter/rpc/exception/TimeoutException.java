@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.jupiter.rpc.error;
+package org.jupiter.rpc.exception;
 
 import org.jupiter.rpc.Status;
 
@@ -24,7 +24,7 @@ import java.net.SocketAddress;
  * Call timeout, usually thrown by client.
  *
  * jupiter
- * org.jupiter.rpc.error
+ * org.jupiter.rpc.exception
  *
  * @author jiachun.fjc
  */

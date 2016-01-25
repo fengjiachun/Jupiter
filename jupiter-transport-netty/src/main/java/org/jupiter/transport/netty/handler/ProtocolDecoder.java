@@ -29,7 +29,7 @@ import org.jupiter.transport.JProtocolHeader;
 import java.util.List;
 
 import static org.jupiter.transport.JProtocolHeader.*;
-import static org.jupiter.transport.error.IoSignals.*;
+import static org.jupiter.transport.exception.IoSignals.*;
 
 /**
  * **************************************************************************************************

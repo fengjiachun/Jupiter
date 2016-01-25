@@ -14,38 +14,31 @@
  * limitations under the License.
  */
 
-package org.jupiter.rpc.error;
+package org.jupiter.transport.exception;
 
 /**
- * The corresponding service was not be found.
- *
- * For efficiency this exception will not have a stack trace.
- *
  * jupiter
- * org.jupiter.rpc.error
+ * org.jupiter.transport.exception
  *
  * @author jiachun.fjc
  */
-public class ServiceNotFoundException extends RuntimeException {
+public class ConnectFailedException extends RuntimeException {
 
-    private static final long serialVersionUID = -2277731243490443074L;
+    private static final long serialVersionUID = -2890742743547564900L;
 
-    public ServiceNotFoundException() {}
+    public ConnectFailedException() {
+        super();
+    }
 
-    public ServiceNotFoundException(String message) {
+    public ConnectFailedException(String message) {
         super(message);
     }
 
-    public ServiceNotFoundException(String message, Throwable cause) {
+    public ConnectFailedException(String message, Throwable cause) {
         super(message, cause);
     }
 
-    public ServiceNotFoundException(Throwable cause) {
+    public ConnectFailedException(Throwable cause) {
         super(cause);
-    }
-
-    @Override
-    public synchronized Throwable fillInStackTrace() {
-        return this;
     }
 }

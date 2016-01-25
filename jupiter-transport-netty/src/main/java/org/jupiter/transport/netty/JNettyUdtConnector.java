@@ -27,7 +27,7 @@ import org.jupiter.rpc.channel.JChannelGroup;
 import org.jupiter.rpc.consumer.processor.DefaultConsumerProcessor;
 import org.jupiter.transport.JConnection;
 import org.jupiter.transport.JOption;
-import org.jupiter.transport.error.ConnectFailedException;
+import org.jupiter.transport.exception.ConnectFailedException;
 import org.jupiter.transport.netty.handler.IdleStateChecker;
 import org.jupiter.transport.netty.handler.ProtocolDecoder;
 import org.jupiter.transport.netty.handler.ProtocolEncoder;

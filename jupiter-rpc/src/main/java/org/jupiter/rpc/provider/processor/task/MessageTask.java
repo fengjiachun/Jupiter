@@ -27,13 +27,13 @@ import org.jupiter.common.util.internal.logging.InternalLoggerFactory;
 import org.jupiter.rpc.JRequest;
 import org.jupiter.rpc.JResponse;
 import org.jupiter.rpc.Status;
-import org.jupiter.rpc.Tracing;
+import org.jupiter.rpc.TracingEye;
 import org.jupiter.rpc.channel.JChannel;
 import org.jupiter.rpc.channel.JFutureListener;
-import org.jupiter.rpc.error.BadRequestException;
-import org.jupiter.rpc.error.FlowControlException;
-import org.jupiter.rpc.error.ServerBusyException;
-import org.jupiter.rpc.error.ServiceNotFoundException;
+import org.jupiter.rpc.exception.BadRequestException;
+import org.jupiter.rpc.exception.FlowControlException;
+import org.jupiter.rpc.exception.ServerBusyException;
+import org.jupiter.rpc.exception.ServiceNotFoundException;
 import org.jupiter.rpc.flow.control.ControlResult;
 import org.jupiter.rpc.flow.control.FlowController;
 import org.jupiter.rpc.metric.Metrics;
@@ -232,7 +232,7 @@ public class MessageTask implements RejectedRunnable {
                     throw new NoSuchMethodException(methodName);
                 }
                 Class<?>[] parameterTypes = findMatchingParameterTypes(parameterTypesList, args);
-                Tracing.setCurrent(traceId);
+                TracingEye.setCurrent(traceId);
                 invokeResult = fastInvoke(service.getServiceProvider(), methodName, parameterTypes, args);
             } finally {
                 timeCtx.stop();

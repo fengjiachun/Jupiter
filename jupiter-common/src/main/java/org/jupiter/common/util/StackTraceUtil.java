@@ -31,16 +31,16 @@ public final class StackTraceUtil {
         if (t == null) {
             return "null";
         }
-        StringWriter sw;
-        PrintWriter pw = null;
+        StringWriter stringWriter;
+        PrintWriter printWriter = null;
         try {
-            sw = new StringWriter();
-            pw = new PrintWriter(sw);
-            t.printStackTrace(pw);
-            return sw.toString();
+            stringWriter = new StringWriter();
+            printWriter = new PrintWriter(stringWriter);
+            t.printStackTrace(printWriter);
+            return stringWriter.toString();
         } finally {
-            if (pw != null) {
-                pw.close();
+            if (printWriter != null) {
+                printWriter.close();
             }
         }
     }

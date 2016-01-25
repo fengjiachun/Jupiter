@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.jupiter.transport.error;
+package org.jupiter.transport.exception;
 
 import org.jupiter.common.util.Signal;
 import org.jupiter.common.util.internal.logging.InternalLogger;
@@ -25,7 +25,7 @@ import static org.jupiter.common.util.Signal.*;
 
 /**
  * jupiter
- * org.jupiter.transport.error
+ * org.jupiter.transport.exception
  *
  * @author jiachun.fjc
  */

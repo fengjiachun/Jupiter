@@ -24,7 +24,7 @@ import org.jupiter.rpc.JResponse;
 import org.jupiter.rpc.channel.JChannel;
 import org.jupiter.rpc.consumer.processor.ConsumerProcessor;
 import org.jupiter.common.util.Signal;
-import org.jupiter.transport.error.IoSignals;
+import org.jupiter.transport.exception.IoSignals;
 import org.jupiter.transport.netty.channel.NettyChannel;
 
 import static org.jupiter.common.util.StackTraceUtil.stackTrace;
