@@ -96,7 +96,8 @@ public class DefaultRoundDispatcher extends AbstractDispatcher {
             }
         });
 
-        if (logger.isInfoEnabled() && TracingEye.isTracingNeeded()) {
+        // tracing log
+        if (TracingEye.isTracingNeeded() && logger.isInfoEnabled()) {
             String traceInfo = StringBuilderHelper.get()
                     .append("TraceId: ")
                     .append(traceId)
