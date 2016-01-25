@@ -41,6 +41,8 @@ public class TraceLoggingHook implements ConsumerHook {
                     .append(request.message().getTraceId())
                     .append(", invokeId: ")
                     .append(request.invokeId())
+                    .append(", ")
+                    .append(request.message().getMetadata())
                     .append(", on ")
                     .append(channel).toString();
 
