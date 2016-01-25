@@ -45,7 +45,7 @@ import static org.jupiter.rpc.Status.*;
  *
  * @author jiachun.fjc
  */
-public class DefaultInvokeFuture implements InvokeFuture {
+public class DefaultInvokeFuture extends InvokeFuture {
 
     private static final InternalLogger logger = InternalLoggerFactory.getInstance(DefaultInvokeFuture.class);
 

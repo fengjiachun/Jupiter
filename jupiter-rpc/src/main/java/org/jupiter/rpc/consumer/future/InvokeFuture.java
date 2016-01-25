@@ -22,25 +22,28 @@ import org.jupiter.rpc.JListener;
 /**
  * A {@link InvokeFuture} represents the result of an rpc invocation.
  *
+ * This interface provides an abstract view.
+ *
  * jupiter
  * org.jupiter.rpc.consumer.future
  *
  * @author jiachun.fjc
  */
-public interface InvokeFuture extends JFuture {
+@SuppressWarnings("ClassMayBeInterface")
+public abstract class InvokeFuture implements JFuture {
 
     /**
      * Sets hooks for consumer.
      */
-    InvokeFuture hooks(ConsumerHook[] hooks);
+    public abstract InvokeFuture hooks(ConsumerHook[] hooks);
 
     /**
      * Sets listener for asynchronous rpc.
      */
-    InvokeFuture listener(JListener listener);
+    public abstract InvokeFuture listener(JListener listener);
 
     /**
      * Sets timestamp on message sent out.
      */
-    void chalkUpSentTimestamp();
+    public abstract void chalkUpSentTimestamp();
 }
