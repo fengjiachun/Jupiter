@@ -32,7 +32,7 @@ import java.util.concurrent.atomic.AtomicInteger;
  */
 public class TracingEye {
 
-    private static final boolean IS_TRACING_NEEDED = SystemPropertyUtil.getBoolean("jupiter.tracing.needed", true);
+    private static final boolean TRACING_NEEDED = SystemPropertyUtil.getBoolean("jupiter.tracing.needed", true);
 
     private static final ThreadLocal<String> traceThreadLocal = new ThreadLocal<>();
 
@@ -61,19 +61,27 @@ public class TracingEye {
         PID = _pid;
     }
 
+    public static boolean isTracingNeeded() {
+        return TRACING_NEEDED;
+    }
+
     public static String generateTraceId() {
-        if (IS_TRACING_NEEDED) {
+        if (TRACING_NEEDED) {
             return getTraceId(IP_16, SystemClock.millisClock().now(), getNextId());
         }
         return null;
+    }
+
+    public static String getCurrent() {
+        return traceThreadLocal.get();
     }
 
     public static void setCurrent(String traceId) {
         traceThreadLocal.set(traceId);
     }
 
-    public static String getCurrent() {
-        return traceThreadLocal.get();
+    public static void removeCurrent() {
+        traceThreadLocal.remove();
     }
 
     private static String getHexPid(int pid) {

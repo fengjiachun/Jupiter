@@ -63,7 +63,7 @@ public class DefaultInvokeFuture implements InvokeFuture {
     private final int timeoutMillis;
     private final long startTimestamp = SystemClock.millisClock().now();
 
-    private volatile long sentOutTimestamp;
+    private volatile long sentTimestamp;
     private volatile JResponse response;
     private volatile JListener listener;
     private volatile ConsumerHook[] hooks;
@@ -138,12 +138,12 @@ public class DefaultInvokeFuture implements InvokeFuture {
     }
 
     @Override
-    public void setSentOutTimestamp() {
-        sentOutTimestamp = SystemClock.millisClock().now();
+    public void initSentTimestamp() {
+        sentTimestamp = SystemClock.millisClock().now();
     }
 
     @Override
-    public Object singleResult() throws Throwable {
+    public Object getResult() throws Throwable {
         if (!isDone()) {
             long start = System.nanoTime();
             final ReentrantLock _lock = lock;
@@ -161,7 +161,7 @@ public class DefaultInvokeFuture implements InvokeFuture {
             }
 
             if (!isDone()) {
-                throw new TimeoutException(channel.remoteAddress(), sentOutTimestamp > 0 ? SERVER_TIMEOUT : CLIENT_TIMEOUT);
+                throw new TimeoutException(channel.remoteAddress(), sentTimestamp > 0 ? SERVER_TIMEOUT : CLIENT_TIMEOUT);
             }
         }
         return resultFromResponse();
@@ -261,7 +261,7 @@ public class DefaultInvokeFuture implements InvokeFuture {
 
         private void processingTimeoutFuture(DefaultInvokeFuture future) {
             ResultWrapper result = new ResultWrapper();
-            Status status = future.sentOutTimestamp > 0 ? SERVER_TIMEOUT : CLIENT_TIMEOUT;
+            Status status = future.sentTimestamp > 0 ? SERVER_TIMEOUT : CLIENT_TIMEOUT;
             result.setError(new TimeoutException(future.channel.remoteAddress(), status));
 
             JResponse r = JResponse.getInstance(future.invokeId, status, result);

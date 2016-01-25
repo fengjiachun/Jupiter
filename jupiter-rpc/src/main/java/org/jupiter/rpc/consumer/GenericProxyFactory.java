@@ -21,7 +21,8 @@ import org.jupiter.rpc.*;
 import org.jupiter.rpc.consumer.dispatcher.DefaultBroadcastDispatcher;
 import org.jupiter.rpc.consumer.dispatcher.DefaultRoundDispatcher;
 import org.jupiter.rpc.consumer.dispatcher.Dispatcher;
-import org.jupiter.rpc.consumer.invoker.AsyncGenericInvoker;
+import org.jupiter.rpc.consumer.invoker.CallbackGenericInvoker;
+import org.jupiter.rpc.consumer.invoker.FutureGenericInvoker;
 import org.jupiter.rpc.consumer.invoker.GenericInvoker;
 import org.jupiter.rpc.consumer.invoker.SyncGenericInvoker;
 import org.jupiter.rpc.model.metadata.ServiceMetadata;
@@ -29,12 +30,11 @@ import org.jupiter.rpc.model.metadata.ServiceMetadata;
 import java.util.Collections;
 import java.util.List;
 
-import static org.jupiter.common.util.Preconditions.checkArgument;
 import static org.jupiter.common.util.Preconditions.checkNotNull;
-import static org.jupiter.rpc.AsyncMode.ASYNC_CALLBACK;
-import static org.jupiter.rpc.AsyncMode.SYNC;
 import static org.jupiter.rpc.DispatchMode.BROADCAST;
 import static org.jupiter.rpc.DispatchMode.ROUND;
+import static org.jupiter.rpc.InvokeMode.CALLBACK;
+import static org.jupiter.rpc.InvokeMode.SYNC;
 
 /**
  * 泛化ProxyFactory
@@ -54,7 +54,7 @@ public class GenericProxyFactory {
 
     private JClient client;
     private List<UnresolvedAddress> addresses;
-    private AsyncMode asyncMode = SYNC;
+    private InvokeMode invokeMode = SYNC;
     private DispatchMode dispatchMode = ROUND;
     private int timeoutMills;
     private JListener listener;
@@ -62,10 +62,9 @@ public class GenericProxyFactory {
 
     public static GenericProxyFactory factory() {
         GenericProxyFactory fac = new GenericProxyFactory();
-        ConsumerHook tracingHook = new TraceLoggingHook();
         // 初始化数据
         fac.addresses = Lists.newArrayList();
-        fac.hooks = Lists.newArrayList(tracingHook);
+        fac.hooks = Lists.newArrayList();
 
         return fac;
     }
@@ -130,10 +129,11 @@ public class GenericProxyFactory {
     }
 
     /**
-     * Synchronous blocking or asynchronous callback, the default is synchronous.
+     * Synchronous blocking, asynchronous with future or asynchronous with callback,
+     * the default is synchronous.
      */
-    public GenericProxyFactory asyncMode(AsyncMode asyncMode) {
-        this.asyncMode = checkNotNull(asyncMode);
+    public GenericProxyFactory invokeMode(InvokeMode invokeMode) {
+        this.invokeMode = checkNotNull(invokeMode);
         return this;
     }
 
@@ -157,8 +157,8 @@ public class GenericProxyFactory {
      * Asynchronous callback listener.
      */
     public GenericProxyFactory listener(JListener listener) {
-        if (asyncMode != ASYNC_CALLBACK) {
-            throw new UnsupportedOperationException("asyncMode should first be set to ASYNC_CALLBACK");
+        if (invokeMode != CALLBACK) {
+            throw new UnsupportedOperationException("InvokeMode should first be set to CALLBACK");
         }
         this.listener = listener;
         return this;
@@ -178,7 +178,9 @@ public class GenericProxyFactory {
         checkNotNull(group, "group");
         checkNotNull(version, "version");
         checkNotNull(providerName, "providerName");
-        checkArgument(!(asyncMode == SYNC && dispatchMode == BROADCAST), "illegal mode, [SYNC & BROADCAST] unsupported");
+        if (dispatchMode == BROADCAST && invokeMode != CALLBACK) {
+            throw new UnsupportedOperationException("illegal mode, BROADCAST only support CALLBACK");
+        }
 
         // metadata
         ServiceMetadata metadata = new ServiceMetadata(group, version, providerName);
@@ -194,25 +196,27 @@ public class GenericProxyFactory {
         }
         dispatcher.setHooks(hooks);
 
-        if (SYNC == asyncMode) {
-            return new SyncGenericInvoker(client, dispatcher);
+        switch (invokeMode) {
+            case SYNC:
+                return new SyncGenericInvoker(client, dispatcher);
+            case FUTURE:
+                return new FutureGenericInvoker(client, dispatcher);
+            case CALLBACK:
+                dispatcher.setListener(checkNotNull(listener, "listener"));
+                return new CallbackGenericInvoker(client, dispatcher);
+            default:
+                throw new IllegalStateException("InvokeMode: " + invokeMode);
         }
-        if (ASYNC_CALLBACK == asyncMode) {
-            dispatcher.setListener(checkNotNull(listener, "listener"));
-            return new AsyncGenericInvoker(client, dispatcher);
-        }
-
-        throw new IllegalStateException("AsyncMode: " + asyncMode);
     }
 
     protected Dispatcher asDispatcher(DispatchMode dispatchMode, ServiceMetadata metadata) {
-        if (ROUND == dispatchMode) {
-            return new DefaultRoundDispatcher(metadata);
+        switch (dispatchMode) {
+            case ROUND:
+                return new DefaultRoundDispatcher(metadata);
+            case BROADCAST:
+                return new DefaultBroadcastDispatcher(metadata);
+            default:
+                throw new IllegalStateException("DispatchMode: " + dispatchMode);
         }
-        if (BROADCAST == dispatchMode) {
-            return new DefaultBroadcastDispatcher(metadata);
-        }
-
-        throw new IllegalStateException("DispatchMode: " + dispatchMode);
     }
 }

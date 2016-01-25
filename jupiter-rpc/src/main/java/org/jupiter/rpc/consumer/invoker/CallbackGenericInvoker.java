@@ -18,7 +18,6 @@ package org.jupiter.rpc.consumer.invoker;
 
 import org.jupiter.rpc.JClient;
 import org.jupiter.rpc.consumer.dispatcher.Dispatcher;
-import org.jupiter.rpc.consumer.future.InvokeFuture;
 
 /**
  * jupiter
@@ -26,19 +25,19 @@ import org.jupiter.rpc.consumer.future.InvokeFuture;
  *
  * @author jiachun.fjc
  */
-public class SyncGenericInvoker implements GenericInvoker {
+public class CallbackGenericInvoker implements GenericInvoker {
 
     private final JClient client;
     private final Dispatcher dispatcher;
 
-    public SyncGenericInvoker(JClient client, Dispatcher dispatcher) {
+    public CallbackGenericInvoker(JClient client, Dispatcher dispatcher) {
         this.client = client;
         this.dispatcher = dispatcher;
     }
 
     @Override
     public Object $invoke(String methodName, Object... args) throws Throwable {
-        InvokeFuture future = dispatcher.dispatch(client, methodName, args);
-        return future.getResult();
+        dispatcher.dispatch(client, methodName, args);
+        return null;
     }
 }

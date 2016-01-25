@@ -22,7 +22,8 @@ package org.jupiter.rpc;
  *
  * @author jiachun.fjc
  */
-public enum AsyncMode {
+public enum InvokeMode {
     SYNC,
-    ASYNC_CALLBACK // 异步回调的方式
+    FUTURE,
+    CALLBACK // 异步回调的方式
 }

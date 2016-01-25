@@ -60,7 +60,6 @@ public class DefaultBroadcastDispatcher extends AbstractDispatcher {
         message.setAppName(proxy.appName());
         message.setMethodName(methodName);
         message.setArgs(args);
-        message.setTraceId(TracingEye.generateTraceId()); // tracing
 
         List<JChannelGroup> groupList = proxy.directory(_metadata);
         List<JChannel> channels = Lists.transform(groupList, new Function<JChannelGroup, JChannel>() {
@@ -77,7 +76,7 @@ public class DefaultBroadcastDispatcher extends AbstractDispatcher {
         final ConsumerHook[] _hooks = getHooks();
         final JListener _listener = getListener();
         for (JChannel ch : channels) {
-            final InvokeFuture invokeFuture = asInvokeFuture(ch, request)
+            final InvokeFuture invokeFuture = asFuture(ch, request)
                     .hooks(_hooks)
                     .listener(_listener);
 
@@ -85,7 +84,7 @@ public class DefaultBroadcastDispatcher extends AbstractDispatcher {
 
                 @Override
                 public void operationSuccess(JChannel channel) throws Exception {
-                    invokeFuture.setSentOutTimestamp();
+                    invokeFuture.initSentTimestamp();
 
                     if (_hooks != null) {
                         for (ConsumerHook h : _hooks) {
@@ -111,7 +110,7 @@ public class DefaultBroadcastDispatcher extends AbstractDispatcher {
     }
 
     @Override
-    protected InvokeFuture asInvokeFuture(JChannel channel, JRequest request) {
+    protected InvokeFuture asFuture(JChannel channel, JRequest request) {
         return new DefaultInvokeFuture(channel, request, getTimeoutMills(), BROADCAST);
     }
 }

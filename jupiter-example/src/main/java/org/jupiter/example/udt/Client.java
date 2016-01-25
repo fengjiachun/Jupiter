@@ -38,7 +38,7 @@ public class Client {
         ServiceTest service = ProxyFactory.factory(ServiceTest.class)
                 .connector(connector)
                 .addProviderAddress(address)
-//                .asyncMode(AsyncMode.ASYNC_CALLBACK)
+//                .invokeMode(InvokeMode.CALLBACK)
 //                .listener(new JListener() {
 //
 //                    @Override

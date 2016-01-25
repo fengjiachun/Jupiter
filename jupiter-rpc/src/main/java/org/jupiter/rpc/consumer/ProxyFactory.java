@@ -23,19 +23,19 @@ import org.jupiter.rpc.*;
 import org.jupiter.rpc.consumer.dispatcher.DefaultBroadcastDispatcher;
 import org.jupiter.rpc.consumer.dispatcher.DefaultRoundDispatcher;
 import org.jupiter.rpc.consumer.dispatcher.Dispatcher;
-import org.jupiter.rpc.consumer.invoker.AsyncInvoker;
+import org.jupiter.rpc.consumer.invoker.CallbackInvoker;
+import org.jupiter.rpc.consumer.invoker.FutureInvoker;
 import org.jupiter.rpc.consumer.invoker.SyncInvoker;
 import org.jupiter.rpc.model.metadata.ServiceMetadata;
 
 import java.util.Collections;
 import java.util.List;
 
-import static org.jupiter.common.util.Preconditions.checkArgument;
 import static org.jupiter.common.util.Preconditions.checkNotNull;
-import static org.jupiter.rpc.AsyncMode.ASYNC_CALLBACK;
-import static org.jupiter.rpc.AsyncMode.SYNC;
 import static org.jupiter.rpc.DispatchMode.BROADCAST;
 import static org.jupiter.rpc.DispatchMode.ROUND;
+import static org.jupiter.rpc.InvokeMode.CALLBACK;
+import static org.jupiter.rpc.InvokeMode.SYNC;
 
 /**
  * Proxy factory
@@ -51,7 +51,7 @@ public class ProxyFactory<I> {
 
     private JClient client;
     private List<UnresolvedAddress> addresses;
-    private AsyncMode asyncMode = SYNC;
+    private InvokeMode invokeMode = SYNC;
     private DispatchMode dispatchMode = ROUND;
     private int timeoutMills;
     private JListener listener;
@@ -59,10 +59,9 @@ public class ProxyFactory<I> {
 
     public static <I> ProxyFactory<I> factory(Class<I> interfaceClass) {
         ProxyFactory<I> factory = new ProxyFactory<>(interfaceClass);
-        ConsumerHook tracingHook = new TraceLoggingHook();
         // 初始化数据
         factory.addresses = Lists.newArrayList();
-        factory.hooks = Lists.newArrayList(tracingHook);
+        factory.hooks = Lists.newArrayList();
 
         return factory;
     }
@@ -96,10 +95,11 @@ public class ProxyFactory<I> {
     }
 
     /**
-     * Synchronous blocking or asynchronous callback, the default is synchronous.
+     * Synchronous blocking, asynchronous with future or asynchronous with callback,
+     * the default is synchronous.
      */
-    public ProxyFactory<I> asyncMode(AsyncMode asyncMode) {
-        this.asyncMode = checkNotNull(asyncMode);
+    public ProxyFactory<I> invokeMode(InvokeMode invokeMode) {
+        this.invokeMode = checkNotNull(invokeMode);
         return this;
     }
 
@@ -123,8 +123,8 @@ public class ProxyFactory<I> {
      * Asynchronous callback listener.
      */
     public ProxyFactory<I> listener(JListener listener) {
-        if (asyncMode != ASYNC_CALLBACK) {
-            throw new UnsupportedOperationException("asyncMode should first be set to ASYNC_CALLBACK");
+        if (invokeMode != CALLBACK) {
+            throw new UnsupportedOperationException("invokeMode should first be set to CALLBACK");
         }
         this.listener = listener;
         return this;
@@ -142,7 +142,9 @@ public class ProxyFactory<I> {
         // check arguments
         checkNotNull(client, "connector");
         checkNotNull(interfaceClass, "interfaceClass");
-        checkArgument(!(asyncMode == SYNC && dispatchMode == BROADCAST), "illegal mode, [SYNC & BROADCAST] unsupported");
+        if (dispatchMode == BROADCAST && invokeMode != CALLBACK) {
+            throw new UnsupportedOperationException("illegal mode, BROADCAST only support CALLBACK");
+        }
         ServiceProvider annotation = interfaceClass.getAnnotation(ServiceProvider.class);
         checkNotNull(annotation, interfaceClass + " is not a ServiceProvider interface");
         String providerName = annotation.value();
@@ -163,25 +165,27 @@ public class ProxyFactory<I> {
         dispatcher.setHooks(hooks);
 
         // invocation handler
-        if (SYNC == asyncMode) {
-            return Reflects.newProxy(interfaceClass, new SyncInvoker(client, dispatcher));
+        switch (invokeMode) {
+            case SYNC:
+                return Reflects.newProxy(interfaceClass, new SyncInvoker(client, dispatcher));
+            case FUTURE:
+                return Reflects.newProxy(interfaceClass, new FutureInvoker(client, dispatcher));
+            case CALLBACK:
+                dispatcher.setListener(checkNotNull(listener, "listener"));
+                return Reflects.newProxy(interfaceClass, new CallbackInvoker(client, dispatcher));
+            default:
+                throw new IllegalStateException("InvokeMode: " + invokeMode);
         }
-        if (ASYNC_CALLBACK == asyncMode) {
-            dispatcher.setListener(checkNotNull(listener, "listener"));
-            return Reflects.newProxy(interfaceClass, new AsyncInvoker(client, dispatcher));
-        }
-
-        throw new IllegalStateException("AsyncMode: " + asyncMode);
     }
 
     protected Dispatcher asDispatcher(DispatchMode dispatchMode, ServiceMetadata metadata) {
-        if (ROUND == dispatchMode) {
-            return new DefaultRoundDispatcher(metadata);
+        switch (dispatchMode) {
+            case ROUND:
+                return new DefaultRoundDispatcher(metadata);
+            case BROADCAST:
+                return new DefaultBroadcastDispatcher(metadata);
+            default:
+                throw new IllegalStateException("DispatchMode: " + dispatchMode);
         }
-        if (BROADCAST == dispatchMode) {
-            return new DefaultBroadcastDispatcher(metadata);
-        }
-
-        throw new IllegalStateException("DispatchMode: " + dispatchMode);
     }
 }

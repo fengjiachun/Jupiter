@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016 The Jupiter Project
+ * Copyright (c) 2015 The Jupiter Project
  *
  * Licensed under the Apache License, version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,28 +16,35 @@
 
 package org.jupiter.rpc.consumer.invoker;
 
+import org.jupiter.common.util.Reflects;
 import org.jupiter.rpc.JClient;
 import org.jupiter.rpc.consumer.dispatcher.Dispatcher;
 
+import java.lang.reflect.InvocationHandler;
+import java.lang.reflect.Method;
+
 /**
+ * Asynchronous call, {@link CallbackInvoker#invoke(Object, Method, Object[])}
+ * returns a default value of the corresponding method.
+ *
  * jupiter
  * org.jupiter.rpc.consumer.invoker
  *
  * @author jiachun.fjc
  */
-public class AsyncGenericInvoker implements GenericInvoker {
+public class CallbackInvoker implements InvocationHandler {
 
     private final JClient client;
     private final Dispatcher dispatcher;
 
-    public AsyncGenericInvoker(JClient client, Dispatcher dispatcher) {
+    public CallbackInvoker(JClient client, Dispatcher dispatcher) {
         this.client = client;
         this.dispatcher = dispatcher;
     }
 
     @Override
-    public Object $invoke(String methodName, Object... args) throws Throwable {
-        dispatcher.dispatch(client, methodName, args);
-        return null;
+    public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
+        dispatcher.dispatch(client, method.getName(), args);
+        return Reflects.getTypeDefaultValue(method.getReturnType());
     }
 }

@@ -52,7 +52,9 @@ public abstract class AbstractDispatcher implements Dispatcher {
 
     @Override
     public void setHooks(List<ConsumerHook> hooks) {
-        this.hooks = hooks.toArray(new ConsumerHook[hooks.size()]);
+        if (!hooks.isEmpty()) {
+            this.hooks = hooks.toArray(new ConsumerHook[hooks.size()]);
+        }
     }
 
     @Override
@@ -75,5 +77,5 @@ public abstract class AbstractDispatcher implements Dispatcher {
         this.timeoutMills = timeoutMills;
     }
 
-    protected abstract InvokeFuture asInvokeFuture(JChannel channel, JRequest request);
+    protected abstract InvokeFuture asFuture(JChannel channel, JRequest request);
 }

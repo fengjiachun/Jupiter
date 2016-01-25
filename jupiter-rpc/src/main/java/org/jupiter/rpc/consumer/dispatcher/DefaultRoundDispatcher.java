@@ -16,6 +16,7 @@
 
 package org.jupiter.rpc.consumer.dispatcher;
 
+import org.jupiter.common.util.StringBuilderHelper;
 import org.jupiter.common.util.internal.logging.InternalLogger;
 import org.jupiter.common.util.internal.logging.InternalLoggerFactory;
 import org.jupiter.rpc.*;
@@ -54,7 +55,11 @@ public class DefaultRoundDispatcher extends AbstractDispatcher {
         message.setAppName(proxy.appName());
         message.setMethodName(methodName);
         message.setArgs(args);
-        message.setTraceId(TracingEye.generateTraceId()); // tracing
+        String traceId = TracingEye.getCurrent();
+        if (traceId == null) {
+            traceId = TracingEye.generateTraceId();
+        }
+        message.setTraceId(traceId); // tracing
 
         JChannel channel = proxy.select(_metadata);
 
@@ -62,7 +67,7 @@ public class DefaultRoundDispatcher extends AbstractDispatcher {
         request.message(message);
         request.bytes(serializerImpl().writeObject(message));
         final ConsumerHook[] _hooks = getHooks();
-        final InvokeFuture invokeFuture = asInvokeFuture(channel, request)
+        final InvokeFuture future = asFuture(channel, request)
                 .hooks(_hooks)
                 .listener(getListener());
 
@@ -70,7 +75,7 @@ public class DefaultRoundDispatcher extends AbstractDispatcher {
 
             @Override
             public void operationSuccess(JChannel channel) throws Exception {
-                invokeFuture.setSentOutTimestamp();
+                future.initSentTimestamp();
 
                 if (_hooks != null) {
                     for (ConsumerHook h : _hooks) {
@@ -91,11 +96,25 @@ public class DefaultRoundDispatcher extends AbstractDispatcher {
             }
         });
 
-        return invokeFuture;
+        if (logger.isInfoEnabled() && TracingEye.isTracingNeeded()) {
+            String traceInfo = StringBuilderHelper.get()
+                    .append("TraceId: ")
+                    .append(traceId)
+                    .append(", invokeId: ")
+                    .append(request.invokeId())
+                    .append(", ")
+                    .append(_metadata)
+                    .append(", on ")
+                    .append(channel).toString();
+
+            logger.info(traceInfo);
+        }
+
+        return future;
     }
 
     @Override
-    protected InvokeFuture asInvokeFuture(JChannel channel, JRequest request) {
+    protected InvokeFuture asFuture(JChannel channel, JRequest request) {
         return new DefaultInvokeFuture(channel, request, getTimeoutMills());
     }
 }

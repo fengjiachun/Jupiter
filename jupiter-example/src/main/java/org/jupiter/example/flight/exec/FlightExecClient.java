@@ -32,7 +32,7 @@ import org.jupiter.transport.netty.JNettyTcpConnector;
 import org.jupiter.transport.netty.NettyConnector;
 
 import static org.jupiter.common.util.JConstants.DEFAULT_VERSION;
-import static org.jupiter.rpc.AsyncMode.ASYNC_CALLBACK;
+import static org.jupiter.rpc.InvokeMode.CALLBACK;
 import static org.jupiter.rpc.DispatchMode.BROADCAST;
 
 /**
@@ -61,7 +61,7 @@ public class FlightExecClient {
         JavaClassExec service = ProxyFactory.factory(JavaClassExec.class)
                 .connector(connector)
                 .dispatchMode(BROADCAST)
-                .asyncMode(ASYNC_CALLBACK)
+                .invokeMode(CALLBACK)
                 .listener(new JListener() {
 
                     @Override

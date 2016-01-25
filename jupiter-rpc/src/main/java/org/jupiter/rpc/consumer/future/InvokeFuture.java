@@ -27,7 +27,7 @@ import org.jupiter.rpc.JListener;
  *
  * @author jiachun.fjc
  */
-public interface InvokeFuture {
+public interface InvokeFuture extends JFuture {
 
     /**
      * Sets hooks for consumer.
@@ -42,10 +42,5 @@ public interface InvokeFuture {
     /**
      * Sets timestamp on message sent out.
      */
-    void setSentOutTimestamp();
-
-    /**
-     * Returns the result of rpc.
-     */
-    Object singleResult() throws Throwable;
+    void initSentTimestamp();
 }

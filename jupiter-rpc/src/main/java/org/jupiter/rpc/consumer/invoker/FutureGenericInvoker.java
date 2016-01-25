@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015 The Jupiter Project
+ * Copyright (c) 2016 The Jupiter Project
  *
  * Licensed under the Apache License, version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,35 +16,41 @@
 
 package org.jupiter.rpc.consumer.invoker;
 
-import org.jupiter.common.util.Reflects;
 import org.jupiter.rpc.JClient;
 import org.jupiter.rpc.consumer.dispatcher.Dispatcher;
-
-import java.lang.reflect.InvocationHandler;
-import java.lang.reflect.Method;
+import org.jupiter.rpc.consumer.future.JFuture;
 
 /**
- * Asynchronous call, {@link AsyncInvoker#invoke(Object, Method, Object[])}
- * returns a default value of the corresponding method.
- *
  * jupiter
  * org.jupiter.rpc.consumer.invoker
  *
  * @author jiachun.fjc
  */
-public class AsyncInvoker implements InvocationHandler {
+public class FutureGenericInvoker implements GenericInvoker {
+
+    private static final ThreadLocal<JFuture> futureThreadLocal = new ThreadLocal<>();
 
     private final JClient client;
     private final Dispatcher dispatcher;
 
-    public AsyncInvoker(JClient client, Dispatcher dispatcher) {
+    public FutureGenericInvoker(JClient client, Dispatcher dispatcher) {
         this.client = client;
         this.dispatcher = dispatcher;
     }
 
+    public static JFuture future() {
+        JFuture future = futureThreadLocal.get();
+        if (future == null) {
+            throw new UnsupportedOperationException("future");
+        }
+        futureThreadLocal.remove();
+        return future;
+    }
+
     @Override
-    public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
-        dispatcher.dispatch(client, method.getName(), args);
-        return Reflects.getTypeDefaultValue(method.getReturnType());
+    public Object $invoke(String methodName, Object... args) throws Throwable {
+        JFuture future = dispatcher.dispatch(client, methodName, args);
+        futureThreadLocal.set(future);
+        return null;
     }
 }
