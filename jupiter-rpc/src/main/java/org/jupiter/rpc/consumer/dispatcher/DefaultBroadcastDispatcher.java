@@ -76,7 +76,7 @@ public class DefaultBroadcastDispatcher extends AbstractDispatcher {
         final ConsumerHook[] _hooks = getHooks();
         final JListener _listener = getListener();
         for (JChannel ch : channels) {
-            final InvokeFuture invokeFuture = asFuture(ch, request)
+            final InvokeFuture future = asFuture(ch, request)
                     .hooks(_hooks)
                     .listener(_listener);
 
@@ -84,7 +84,7 @@ public class DefaultBroadcastDispatcher extends AbstractDispatcher {
 
                 @Override
                 public void operationSuccess(JChannel channel) throws Exception {
-                    invokeFuture.initSentTimestamp();
+                    future.chalkUpSentTimestamp();
 
                     if (_hooks != null) {
                         for (ConsumerHook h : _hooks) {

@@ -42,5 +42,5 @@ public interface InvokeFuture extends JFuture {
     /**
      * Sets timestamp on message sent out.
      */
-    void initSentTimestamp();
+    void chalkUpSentTimestamp();
 }

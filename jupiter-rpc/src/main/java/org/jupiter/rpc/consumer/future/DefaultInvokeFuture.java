@@ -138,7 +138,7 @@ public class DefaultInvokeFuture implements InvokeFuture {
     }
 
     @Override
-    public void initSentTimestamp() {
+    public void chalkUpSentTimestamp() {
         sentTimestamp = SystemClock.millisClock().now();
     }
 

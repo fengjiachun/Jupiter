@@ -75,7 +75,7 @@ public class DefaultRoundDispatcher extends AbstractDispatcher {
 
             @Override
             public void operationSuccess(JChannel channel) throws Exception {
-                future.initSentTimestamp();
+                future.chalkUpSentTimestamp();
 
                 if (_hooks != null) {
                     for (ConsumerHook h : _hooks) {
