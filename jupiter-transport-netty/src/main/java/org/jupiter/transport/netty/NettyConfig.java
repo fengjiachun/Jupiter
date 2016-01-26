@@ -236,6 +236,8 @@ public class NettyConfig implements JConfig {
             private volatile int linger = -1;
             private volatile int ipTos = -1;
             private volatile int connectTimeoutMillis = -1;
+            private volatile int writeBufferHighWaterMark = -1;
+            private volatile int writeBufferLowWaterMark = -1;
             private volatile boolean reuseAddress = true;
             private volatile boolean keepAlive = true;
             private volatile boolean tcpNoDelay = true;
@@ -249,6 +251,8 @@ public class NettyConfig implements JConfig {
                         JOption.SO_LINGER,
                         JOption.SO_REUSEADDR,
                         JOption.CONNECT_TIMEOUT_MILLIS,
+                        JOption.WRITE_BUFFER_HIGH_WATER_MARK,
+                        JOption.WRITE_BUFFER_LOW_WATER_MARK,
                         JOption.KEEP_ALIVE,
                         JOption.TCP_NODELAY,
                         JOption.IP_TOS,
@@ -283,6 +287,12 @@ public class NettyConfig implements JConfig {
                 if (option == JOption.CONNECT_TIMEOUT_MILLIS) {
                     return (T) Integer.valueOf(getConnectTimeoutMillis());
                 }
+                if (option == JOption.WRITE_BUFFER_HIGH_WATER_MARK) {
+                    return (T) Integer.valueOf(getWriteBufferHighWaterMark());
+                }
+                if (option == JOption.WRITE_BUFFER_LOW_WATER_MARK) {
+                    return (T) Integer.valueOf(getWriteBufferLowWaterMark());
+                }
                 if (option == JOption.SO_REUSEADDR) {
                     return (T) Boolean.valueOf(isReuseAddress());
                 }
@@ -313,6 +323,10 @@ public class NettyConfig implements JConfig {
                     setIpTos((Integer) value);
                 } else if (option == JOption.CONNECT_TIMEOUT_MILLIS) {
                     setConnectTimeoutMillis((Integer) value);
+                } else if (option == JOption.WRITE_BUFFER_HIGH_WATER_MARK) {
+                    setWriteBufferHighWaterMark((Integer) value);
+                } else if (option == JOption.WRITE_BUFFER_LOW_WATER_MARK) {
+                    setWriteBufferLowWaterMark((Integer) value);
                 } else if (option == JOption.SO_REUSEADDR) {
                     setReuseAddress((Boolean) value);
                 } else if (option == JOption.KEEP_ALIVE) {
@@ -366,6 +380,22 @@ public class NettyConfig implements JConfig {
 
             public void setConnectTimeoutMillis(int connectTimeoutMillis) {
                 this.connectTimeoutMillis = connectTimeoutMillis;
+            }
+
+            public int getWriteBufferHighWaterMark() {
+                return writeBufferHighWaterMark;
+            }
+
+            public void setWriteBufferHighWaterMark(int writeBufferHighWaterMark) {
+                this.writeBufferHighWaterMark = writeBufferHighWaterMark;
+            }
+
+            public int getWriteBufferLowWaterMark() {
+                return writeBufferLowWaterMark;
+            }
+
+            public void setWriteBufferLowWaterMark(int writeBufferLowWaterMark) {
+                this.writeBufferLowWaterMark = writeBufferLowWaterMark;
             }
 
             public boolean isReuseAddress() {
@@ -482,6 +512,8 @@ public class NettyConfig implements JConfig {
             private volatile int sndBuf = -1;
             private volatile int linger = -1;
             private volatile int connectTimeoutMillis = -1;
+            private volatile int writeBufferHighWaterMark = -1;
+            private volatile int writeBufferLowWaterMark = -1;
             private volatile boolean reuseAddress = true;
 
             @Override
@@ -491,6 +523,8 @@ public class NettyConfig implements JConfig {
                         JOption.SO_SNDBUF,
                         JOption.SO_LINGER,
                         JOption.CONNECT_TIMEOUT_MILLIS,
+                        JOption.WRITE_BUFFER_HIGH_WATER_MARK,
+                        JOption.WRITE_BUFFER_LOW_WATER_MARK,
                         JOption.SO_REUSEADDR);
             }
 
@@ -519,6 +553,12 @@ public class NettyConfig implements JConfig {
                 if (option == JOption.CONNECT_TIMEOUT_MILLIS) {
                     return (T) Integer.valueOf(getConnectTimeoutMillis());
                 }
+                if (option == JOption.WRITE_BUFFER_HIGH_WATER_MARK) {
+                    return (T) Integer.valueOf(getWriteBufferHighWaterMark());
+                }
+                if (option == JOption.WRITE_BUFFER_LOW_WATER_MARK) {
+                    return (T) Integer.valueOf(getWriteBufferLowWaterMark());
+                }
                 if (option == JOption.SO_REUSEADDR) {
                     return (T) Boolean.valueOf(isReuseAddress());
                 }
@@ -538,6 +578,10 @@ public class NettyConfig implements JConfig {
                     setLinger((Integer) value);
                 } else if (option == JOption.CONNECT_TIMEOUT_MILLIS) {
                     setConnectTimeoutMillis((Integer) value);
+                } else if (option == JOption.WRITE_BUFFER_HIGH_WATER_MARK) {
+                    setWriteBufferHighWaterMark((Integer) value);
+                } else if (option == JOption.WRITE_BUFFER_LOW_WATER_MARK) {
+                    setWriteBufferLowWaterMark((Integer) value);
                 } else if (option == JOption.SO_REUSEADDR) {
                     setReuseAddress((Boolean) value);
                 } else {
@@ -577,6 +621,22 @@ public class NettyConfig implements JConfig {
 
             public void setConnectTimeoutMillis(int connectTimeoutMillis) {
                 this.connectTimeoutMillis = connectTimeoutMillis;
+            }
+
+            public int getWriteBufferHighWaterMark() {
+                return writeBufferHighWaterMark;
+            }
+
+            public void setWriteBufferHighWaterMark(int writeBufferHighWaterMark) {
+                this.writeBufferHighWaterMark = writeBufferHighWaterMark;
+            }
+
+            public int getWriteBufferLowWaterMark() {
+                return writeBufferLowWaterMark;
+            }
+
+            public void setWriteBufferLowWaterMark(int writeBufferLowWaterMark) {
+                this.writeBufferLowWaterMark = writeBufferLowWaterMark;
             }
 
             public boolean isReuseAddress() {

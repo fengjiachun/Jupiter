@@ -80,7 +80,7 @@ public final class JConstants {
             "jupiter.processor.executor.core.num.workers", AVAILABLE_PROCESSORS << 1);
     /** Processor.executor 队列的容量限制 **/
     public static final int PROCESSOR_WORKER_QUEUE_CAPACITY = SystemPropertyUtil.getInt(
-            "jupiter.processor.executor.worker.queue.capacity", 1024);
+            "jupiter.processor.executor.worker.queue.capacity", 65536);
     /** Processor.executor 最大线程数的限制 **/
     public static final int PROCESSOR_MAX_NUM_WORKS = SystemPropertyUtil.getInt(
             "jupiter.processor.executor.max.num.workers", 256);

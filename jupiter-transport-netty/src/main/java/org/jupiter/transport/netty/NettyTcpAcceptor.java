@@ -125,6 +125,12 @@ public abstract class NettyTcpAcceptor extends NettyAcceptor {
         if (child.getIpTos() > 0) {
             boot.childOption(ChannelOption.IP_TOS, child.getIpTos());
         }
+        if (child.getWriteBufferHighWaterMark() > 0) {
+            boot.childOption(ChannelOption.WRITE_BUFFER_HIGH_WATER_MARK, child.getWriteBufferHighWaterMark());
+        }
+        if (child.getWriteBufferLowWaterMark() > 0) {
+            boot.childOption(ChannelOption.WRITE_BUFFER_LOW_WATER_MARK, child.getWriteBufferLowWaterMark());
+        }
     }
 
     @Override

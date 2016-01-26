@@ -18,6 +18,7 @@ package org.jupiter.benchmark.tcp;
 
 import org.jupiter.common.util.SystemPropertyUtil;
 import org.jupiter.monitor.MonitorServer;
+import org.jupiter.transport.JOption;
 import org.jupiter.transport.netty.JNettyTcpAcceptor;
 import org.jupiter.transport.netty.NettyAcceptor;
 
@@ -41,6 +42,8 @@ public class BenchmarkServer {
                 .setProperty("jupiter.metric.report.period", "1");
 
         NettyAcceptor server = new JNettyTcpAcceptor(18099);
+        server.configGroup().child().setOption(JOption.WRITE_BUFFER_HIGH_WATER_MARK, 256 * 1024);
+        server.configGroup().child().setOption(JOption.WRITE_BUFFER_LOW_WATER_MARK, 128 * 1024);
         MonitorServer monitor = new MonitorServer();
         try {
             monitor.start();

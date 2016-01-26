@@ -43,7 +43,7 @@ public class HelloJupiterFutureClient {
             System.out.println(result);
 
             JFuture future = FutureInvoker.future();
-            System.out.println("future.get: " + future.getResult());
+            System.out.println("future.get: " + future.get());
         } catch (Throwable e) {
             e.printStackTrace();
         }

@@ -86,6 +86,12 @@ public abstract class NettyUdtAcceptor extends NettyAcceptor {
         if (child.getLinger() > 0) {
             boot.childOption(ChannelOption.SO_LINGER, child.getLinger());
         }
+        if (child.getWriteBufferHighWaterMark() > 0) {
+            boot.childOption(ChannelOption.WRITE_BUFFER_HIGH_WATER_MARK, child.getWriteBufferHighWaterMark());
+        }
+        if (child.getWriteBufferLowWaterMark() > 0) {
+            boot.childOption(ChannelOption.WRITE_BUFFER_LOW_WATER_MARK, child.getWriteBufferLowWaterMark());
+        }
     }
 
     @Override

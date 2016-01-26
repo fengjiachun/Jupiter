@@ -79,6 +79,12 @@ public abstract class NettyUdtConnector extends NettyConnector {
         if (child.getConnectTimeoutMillis() > 0) {
             boot.option(ChannelOption.CONNECT_TIMEOUT_MILLIS, child.getConnectTimeoutMillis());
         }
+        if (child.getWriteBufferHighWaterMark() > 0) {
+            boot.option(ChannelOption.WRITE_BUFFER_HIGH_WATER_MARK, child.getWriteBufferHighWaterMark());
+        }
+        if (child.getWriteBufferLowWaterMark() > 0) {
+            boot.option(ChannelOption.WRITE_BUFFER_LOW_WATER_MARK, child.getWriteBufferLowWaterMark());
+        }
     }
 
     @Override

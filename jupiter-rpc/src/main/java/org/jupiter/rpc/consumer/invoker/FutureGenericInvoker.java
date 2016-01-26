@@ -20,6 +20,8 @@ import org.jupiter.rpc.JClient;
 import org.jupiter.rpc.consumer.dispatcher.Dispatcher;
 import org.jupiter.rpc.consumer.future.JFuture;
 
+import static org.jupiter.common.util.Preconditions.checkNotNull;
+
 /**
  * jupiter
  * org.jupiter.rpc.consumer.invoker
@@ -39,10 +41,7 @@ public class FutureGenericInvoker implements GenericInvoker {
     }
 
     public static JFuture future() {
-        JFuture future = futureThreadLocal.get();
-        if (future == null) {
-            throw new UnsupportedOperationException("future");
-        }
+        JFuture future = checkNotNull(futureThreadLocal.get(), "future");
         futureThreadLocal.remove();
         return future;
     }

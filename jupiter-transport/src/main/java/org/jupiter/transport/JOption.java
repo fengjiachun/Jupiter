@@ -171,6 +171,16 @@ public final class JOption<T> extends AbstractConstant<JOption<T>> {
     public static final JOption<Boolean> USE_POOLED_ALLOCATOR = valueOf("USE_POOLED_ALLOCATOR");
 
     /**
+     * Netty的选项, write高水位线.
+     */
+    public static final JOption<Integer> WRITE_BUFFER_HIGH_WATER_MARK = valueOf("WRITE_BUFFER_HIGH_WATER_MARK");
+
+    /**
+     * Netty的选项, write低水位线.
+     */
+    public static final JOption<Integer> WRITE_BUFFER_LOW_WATER_MARK = valueOf("WRITE_BUFFER_LOW_WATER_MARK");
+
+    /**
      * Sets the percentage of the desired amount of time spent for I/O in the child event loops.
      * The default value is {@code 50}, which means the event loop will try to spend the same
      * amount of time for I/O as for non-I/O tasks.

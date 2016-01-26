@@ -16,14 +16,20 @@
 
 package org.jupiter.benchmark.tcp;
 
+import org.jupiter.common.util.Lists;
 import org.jupiter.common.util.SystemPropertyUtil;
 import org.jupiter.common.util.internal.logging.InternalLogger;
 import org.jupiter.common.util.internal.logging.InternalLoggerFactory;
+import org.jupiter.rpc.InvokeMode;
 import org.jupiter.rpc.UnresolvedAddress;
 import org.jupiter.rpc.consumer.ProxyFactory;
+import org.jupiter.rpc.consumer.future.JFuture;
+import org.jupiter.rpc.consumer.invoker.FutureInvoker;
+import org.jupiter.transport.JOption;
 import org.jupiter.transport.netty.JNettyTcpConnector;
 import org.jupiter.transport.netty.NettyConnector;
 
+import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.atomic.AtomicLong;
 
@@ -64,12 +70,22 @@ public class BenchmarkClient {
         SystemPropertyUtil.setProperty("jupiter.tracing.needed", "false");
 
         NettyConnector connector = new JNettyTcpConnector();
+        connector.config().setOption(JOption.WRITE_BUFFER_HIGH_WATER_MARK, 256 * 1024);
+        connector.config().setOption(JOption.WRITE_BUFFER_LOW_WATER_MARK, 128 * 1024);
         UnresolvedAddress[] addresses = new UnresolvedAddress[processors];
         for (int i = 0; i < processors; i++) {
             addresses[i] = new UnresolvedAddress("192.168.77.83", 18099);
             connector.connect(addresses[i]);
         }
 
+        if (SystemPropertyUtil.getBoolean("jupiter.test.async", true)) {
+            futureCall(connector, addresses, processors);
+        } else {
+            syncCall(connector, addresses, processors);
+        }
+    }
+
+    private static void syncCall(NettyConnector connector, UnresolvedAddress[] addresses, int processors) {
         final Service service = ProxyFactory.factory(Service.class)
                 .connector(connector)
                 .addProviderAddress(addresses)
@@ -102,6 +118,79 @@ public class BenchmarkClient {
                             }
                         } catch (Exception e) {
                             e.printStackTrace();
+                        }
+                    }
+                    latch.countDown();
+                }
+            }).start();
+        }
+        try {
+            latch.await();
+            logger.warn("count=" + count.get());
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        long second = (System.currentTimeMillis() - start) / 1000;
+        logger.warn("Request count: " + count.get() + ", time: " + second + " second, qps: " + count.get() / second);
+    }
+
+    private static void futureCall(NettyConnector connector, UnresolvedAddress[] addresses, int processors) {
+        final Service service = ProxyFactory.factory(Service.class)
+                .connector(connector)
+                .invokeMode(InvokeMode.FUTURE)
+                .addProviderAddress(addresses)
+                .newProxyInstance();
+
+        for (int i = 0; i < 10000; i++) {
+            try {
+                service.hello("jupiter");
+                FutureInvoker.future().get();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+
+        final int t = 200000;
+        long start = System.currentTimeMillis();
+        final CountDownLatch latch = new CountDownLatch(processors << 4);
+        final AtomicLong count = new AtomicLong();
+        final int futureSize = 32;
+        for (int i = 0; i < (processors << 4); i++) {
+            new Thread(new Runnable() {
+                List<JFuture> futures = Lists.newArrayListWithCapacity(futureSize);
+                @SuppressWarnings("ForLoopReplaceableByForEach")
+                @Override
+                public void run() {
+                    for (int i = 0; i < t; i++) {
+                        try {
+                            service.hello("jupiter");
+                            futures.add(FutureInvoker.future());
+                            if (futures.size() == futureSize) {
+                                int fSize = futures.size();
+                                for (int j = 0; j < fSize; j++) {
+                                    try {
+                                        futures.get(j).get();
+                                    } catch (Throwable t) {
+                                        t.printStackTrace();
+                                    }
+                                }
+                                futures.clear();
+                            }
+                            if (count.getAndIncrement() % 10000 == 0) {
+                                logger.warn("count=" + count.get());
+                            }
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
+                    }
+                    if (!futures.isEmpty()) {
+                        int fSize = futures.size();
+                        for (int j = 0; j < fSize; j++) {
+                            try {
+                                futures.get(j).get();
+                            } catch (Throwable t) {
+                                t.printStackTrace();
+                            }
                         }
                     }
                     latch.countDown();

@@ -19,17 +19,17 @@ package org.jupiter.rpc.consumer.future;
 import org.jupiter.rpc.ConsumerHook;
 import org.jupiter.rpc.JListener;
 
+import java.util.concurrent.ExecutionException;
+
 /**
- * A {@link InvokeFuture} represents the result of an rpc invocation.
- *
- * This interface provides an abstract view.
+ * A {@link InvokeFuture} represents the result of an rpc invocation,
+ * an abstract view for performance.
  *
  * jupiter
  * org.jupiter.rpc.consumer.future
  *
  * @author jiachun.fjc
  */
-@SuppressWarnings("ClassMayBeInterface")
 public abstract class InvokeFuture implements JFuture {
 
     /**
@@ -46,4 +46,22 @@ public abstract class InvokeFuture implements JFuture {
      * Sets timestamp on message sent out.
      */
     public abstract void chalkUpSentTimestamp();
+
+    /**
+     * Returns the result of rpc.
+     */
+    public abstract Object getResult() throws Throwable;
+
+    @Override
+    public Object get() throws InterruptedException, ExecutionException {
+        Object result;
+        try {
+            result = getResult();
+        } catch (InterruptedException e) {
+            throw e;
+        } catch (Throwable t) {
+            throw new ExecutionException(t);
+        }
+        return result;
+    }
 }

@@ -616,18 +616,18 @@ public class ConfigServer extends NettyTcpAcceptor implements RegistryMonitor {
         public void channelWritabilityChanged(ChannelHandlerContext ctx) throws Exception {
             Channel ch = ctx.channel();
 
-            // 高水位线: ChannelOption.WRITE_BUFFER_HIGH_WATER_MARK (默认值 64 * 1024)
-            // 低水位线: ChannelOption.WRITE_BUFFER_LOW_WATER_MARK(默认值 32 * 1024)
+            // 高水位线: ChannelOption.WRITE_BUFFER_HIGH_WATER_MARK
+            // 低水位线: ChannelOption.WRITE_BUFFER_LOW_WATER_MARK
             if (!ch.isWritable()) {
                 // 当前channel的缓冲区(OutboundBuffer)大小超过了WRITE_BUFFER_HIGH_WATER_MARK
-                logger.warn("{} is not writable, the number of flushed entries that are not written yet: {}.",
-                        ch, ch.unsafe().outboundBuffer().size());
+                logger.warn("{} is not writable, high water mask: {}, the number of flushed entries that are not written yet: {}.",
+                        ch, ch.config().getWriteBufferHighWaterMark(), ch.unsafe().outboundBuffer().size());
 
                 ch.config().setAutoRead(false);
             } else {
                 // 曾经高于高水位线的OutboundBuffer现在已经低于WRITE_BUFFER_LOW_WATER_MARK了
-                logger.warn("{} is writable(rehabilitate), the number of flushed entries that are not written yet: {}.",
-                        ch, ch.unsafe().outboundBuffer().size());
+                logger.warn("{} is writable(rehabilitate), low water mask: {}, the number of flushed entries that are not written yet: {}.",
+                        ch, ch.config().getWriteBufferLowWaterMark(), ch.unsafe().outboundBuffer().size());
 
                 ch.config().setAutoRead(true);
             }

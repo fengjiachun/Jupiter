@@ -24,6 +24,8 @@ import org.jupiter.rpc.consumer.future.JFuture;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 
+import static org.jupiter.common.util.Preconditions.checkNotNull;
+
 /**
  * Asynchronous call, {@link FutureInvoker#invoke(Object, Method, Object[])}
  * returns a default value of the corresponding method.
@@ -46,10 +48,7 @@ public class FutureInvoker implements InvocationHandler {
     }
 
     public static JFuture future() {
-        JFuture future = futureThreadLocal.get();
-        if (future == null) {
-            throw new UnsupportedOperationException("future");
-        }
+        JFuture future = checkNotNull(futureThreadLocal.get(), "future");
         futureThreadLocal.remove();
         return future;
     }

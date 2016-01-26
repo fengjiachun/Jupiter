@@ -1,5 +1,7 @@
 package org.jupiter.rpc.consumer.future;
 
+import java.util.concurrent.ExecutionException;
+
 /**
  * jupiter
  * org.jupiter.rpc.consumer.future
@@ -9,7 +11,8 @@ package org.jupiter.rpc.consumer.future;
 public interface JFuture {
 
     /**
-     * Returns the result of rpc.
+     * Waits if necessary for the computation to complete, and then
+     * retrieves its result.
      */
-    Object getResult() throws Throwable;
+    Object get() throws InterruptedException, ExecutionException;
 }
