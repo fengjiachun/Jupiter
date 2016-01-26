@@ -150,11 +150,11 @@ public class BenchmarkClient {
             }
         }
 
-        final int t = 200000;
+        final int t = 1000000;
         long start = System.currentTimeMillis();
         final CountDownLatch latch = new CountDownLatch(processors << 4);
         final AtomicLong count = new AtomicLong();
-        final int futureSize = 32;
+        final int futureSize = 80;
         for (int i = 0; i < (processors << 4); i++) {
             new Thread(new Runnable() {
                 List<JFuture> futures = Lists.newArrayListWithCapacity(futureSize);
@@ -192,6 +192,7 @@ public class BenchmarkClient {
                                 t.printStackTrace();
                             }
                         }
+                        futures.clear();
                     }
                     latch.countDown();
                 }

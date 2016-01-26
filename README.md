@@ -4,7 +4,19 @@ Jupiter
 
   -------------------------------------------------------------------------------------------------------
 
-    Example: jupiter-example#org.jupiter.example.round.*
+    . 支持同步阻塞调用, 异步Future, Callback方式调用
+    . 支持单播和广播
+    . 支持泛化调用
+    . 支持udt(有点鸡肋)
+    . 序列化/反序列化: 默认使用protostuff(基于SPI, 可扩展)
+    . 服务发布/订阅: 提供默认注册中心实现, 也支持zookeeper(基于SPI, 可扩展), 支持线上发布新服务或调整已有服务线程池等(通过flightexec)
+    . 软负载均衡: 随机, 按权重和预热时间设置随机概率(基于SPI, 可扩展)
+    . 流量控制: 提供app级别和provider级别两种粒度流控, 支持线上调整(通过flightexec)
+    . 监控服务: 只能使用telnet, 有点鸡肋, 因为我不会做网页
+    . 性能指标度量: log, csv, telnet
+    . 链路跟踪: 链路最前端会生成全局唯一的traceId, 后边需要业务代码埋点, 和业务代码之间通过ThreadLocal透传traceId
+
+    示例代码: jupiter-example#org.jupiter.example.*
 
   -------------------------------------------------------------------------------------------------------
 
@@ -46,7 +58,7 @@ Jupiter
     性能报告:
 
         小数据包同步阻塞调用qps: 10w+ (测试代码见jupiter-example[BenchmarkClient/BenchmarkServer])
-        小数据包Future方式调用qps: 16w+ (比同步阻塞调用qps高一些是因为客户端阻塞导致瓶颈在客户端, 如果有多台机器作为客户端测试理论上也能达到这个值)
+        小数据包Future方式调用qps: 17w+ (比同步阻塞调用qps高一些是因为阻塞调用导致瓶颈在客户端, 如果有多台机器作为客户端测试理论上也能达到这个值)
 
   -------------------------------------------------------------------------------------------------------
 
@@ -62,6 +74,98 @@ Jupiter
 
       网络环境: 局域网
     ------------------------------------------------------------------
+ ------------------------------------------------------------------------------------------------------
+
+2016-1-26的最新一次测试结果(小数据包6400w+次调用[Future方式, 64个client线程, 每80个request阻塞一次批量获取结果]):
+
+  ------------------------------------------------------------------------------------------------------
+
+    测试结果:
+
+        2016-01-26 23:02:26.471 WARN  [main] [BenchmarkClient] - count=64000000
+        2016-01-26 23:02:26.471 WARN  [main] [BenchmarkClient] - Request count: 64000000, time: 376 second, qps: 170212
+
+        processing统计时间(从request被解码开始, 到response数据被刷到OS内核缓冲区为止)有25%超过了15毫秒,
+        感觉已经到极限了, 不知道换好点的机器测试会不会有改善:(
+
+  ------------------------------------------------------------------------------------------------------
+
+    监控数据:
+    ------------------------------------------------------------------
+        telnet 127.0.0.1 19999
+        >: auth 123456
+        >: metrics -report
+    ------------------------------------------------------------------
+
+        16-1-26 23:02:38 ===============================================================
+
+        -- Histograms ------------------------------------------------------------------
+        request.size [请求数据大小(byte)统计(不包括Jupiter协议头的16个字节)]
+                     count = 60533408
+                       min = 101
+                       max = 101
+                      mean = 101.00
+                    stddev = 0.00
+                    median = 101.00
+                      75% <= 101.00
+                      95% <= 101.00
+                      98% <= 101.00
+                      99% <= 101.00
+                    99.9% <= 101.00
+        response.size [响应数据大小(byte)统计(不包括Jupiter协议头的16个字节)]
+                     count = 60533263
+                       min = 17
+                       max = 17
+                      mean = 17.00
+                    stddev = 0.00
+                    median = 17.00
+                      75% <= 17.00
+                      95% <= 17.00
+                      98% <= 17.00
+                      99% <= 17.00
+                    99.9% <= 17.00
+
+        -- Meters ----------------------------------------------------------------------
+        rejection [请求被拒绝次数统计]
+                     count = 0
+                 mean rate = 0.00 events/second
+             1-minute rate = 0.00 events/second
+             5-minute rate = 0.00 events/second
+            15-minute rate = 0.00 events/second
+
+        -- Timers ----------------------------------------------------------------------
+        Jupiter-1.0.0-Service#hello [参与此次测试的provider方法执行时间统计]
+                     count = 60534238
+                 mean rate = 168186.49 calls/second
+             1-minute rate = 170176.61 calls/second
+             5-minute rate = 121206.03 calls/second
+            15-minute rate = 63163.80 calls/second
+                       min = 0.00 milliseconds
+                       max = 0.01 milliseconds
+                      mean = 0.00 milliseconds
+                    stddev = 0.00 milliseconds
+                    median = 0.00 milliseconds
+                      75% <= 0.00 milliseconds
+                      95% <= 0.00 milliseconds
+                      98% <= 0.00 milliseconds
+                      99% <= 0.00 milliseconds
+                    99.9% <= 0.01 milliseconds
+        processing [请求处理耗时统计(从request被解码开始, 到response数据被刷到OS内核缓冲区为止)]
+                     count = 60533683
+                 mean rate = 168149.93 calls/second
+             1-minute rate = 170317.20 calls/second
+             5-minute rate = 121493.91 calls/second
+            15-minute rate = 62562.01 calls/second
+                       min = 0.00 milliseconds
+                       max = 26.00 milliseconds
+                      mean = 5.28 milliseconds
+                    stddev = 4.75 milliseconds
+                    median = 4.00 milliseconds
+                      75% <= 7.00 milliseconds
+                      95% <= 15.00 milliseconds
+                      98% <= 19.00 milliseconds
+                      99% <= 20.00 milliseconds
+                    99.9% <= 26.00 milliseconds
 
   ------------------------------------------------------------------------------------------------------
 
