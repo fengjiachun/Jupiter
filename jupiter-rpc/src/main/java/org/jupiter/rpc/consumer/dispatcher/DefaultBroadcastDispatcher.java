@@ -73,9 +73,10 @@ public class DefaultBroadcastDispatcher extends AbstractDispatcher {
         final JRequest request = new JRequest();
         request.message(message);
         request.bytes(serializerImpl().writeObject(message));
-        final ConsumerHook[] _hooks = getHooks();
-        final JListener _listener = getListener();
+
         int timeoutMillis = getMethodSpecialTimeoutMillis(methodName);
+        final ConsumerHook[] _hooks = getHooks();
+        JListener _listener = getListener();
         for (JChannel ch : channels) {
             final InvokeFuture future = asFuture(ch, request, timeoutMillis)
                     .hooks(_hooks)
