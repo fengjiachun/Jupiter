@@ -81,17 +81,17 @@ Jupiter
     ------------------------------------------------------------------
  ------------------------------------------------------------------------------------------------------
 
-2016-1-26的最新一次测试结果(小数据包6400w+次调用[Future方式, 64个client线程, 每80个request阻塞一次批量获取结果]):
+2016-1-28的最新一次测试结果(小数据包6400w+次调用[Future方式, 64个client线程, 每80个request阻塞一次批量获取结果]):
 
   ------------------------------------------------------------------------------------------------------
 
     测试结果:
 
-        2016-01-26 23:02:26.471 WARN  [main] [BenchmarkClient] - count=64000000
-        2016-01-26 23:02:26.471 WARN  [main] [BenchmarkClient] - Request count: 64000000, time: 376 second, qps: 170212
+        2016-01-28 00:35:33.364 WARN  [main] [BenchmarkClient] - count=64000000
+        2016-01-28 00:35:33.364 WARN  [main] [BenchmarkClient] - Request count: 64000000, time: 362 second, qps: 176795
 
-        processing统计时间(从request被解码开始, 到response数据被刷到OS内核缓冲区为止)有25%超过了15毫秒,
-        感觉已经到极限了, 不知道换好点的机器测试会不会有改善:(
+        processing统计时间(从request被解码开始, 到response数据被刷到OS内核缓冲区为止)有25%超过了5毫秒,
+        可能已经到极限了, 不知道换好点的机器测试会不会有改善:(
 
   ------------------------------------------------------------------------------------------------------
 
@@ -102,11 +102,11 @@ Jupiter
         >: metrics -report
     ------------------------------------------------------------------
 
-        16-1-26 23:02:38 ===============================================================
+        16-1-28 0:35:59 ================================================================
 
         -- Histograms ------------------------------------------------------------------
         request.size [请求数据大小(byte)统计(不包括Jupiter协议头的16个字节)]
-                     count = 60533408
+                     count = 62746736
                        min = 101
                        max = 101
                       mean = 101.00
@@ -118,7 +118,7 @@ Jupiter
                       99% <= 101.00
                     99.9% <= 101.00
         response.size [响应数据大小(byte)统计(不包括Jupiter协议头的16个字节)]
-                     count = 60533263
+                     count = 62745900
                        min = 17
                        max = 17
                       mean = 17.00
@@ -140,11 +140,11 @@ Jupiter
 
         -- Timers ----------------------------------------------------------------------
         Jupiter-1.0.0-Service#hello [参与此次测试的provider方法执行时间统计]
-                     count = 60534238
-                 mean rate = 168186.49 calls/second
-             1-minute rate = 170176.61 calls/second
-             5-minute rate = 121206.03 calls/second
-            15-minute rate = 63163.80 calls/second
+                     count = 62746969
+                 mean rate = 174334.62 calls/second
+             1-minute rate = 177709.14 calls/second
+             5-minute rate = 123894.09 calls/second
+            15-minute rate = 61011.98 calls/second
                        min = 0.00 milliseconds
                        max = 0.01 milliseconds
                       mean = 0.00 milliseconds
@@ -156,21 +156,21 @@ Jupiter
                       99% <= 0.00 milliseconds
                     99.9% <= 0.01 milliseconds
         processing [请求处理耗时统计(从request被解码开始, 到response数据被刷到OS内核缓冲区为止)]
-                     count = 60533683
-                 mean rate = 168149.93 calls/second
-             1-minute rate = 170317.20 calls/second
-             5-minute rate = 121493.91 calls/second
-            15-minute rate = 62562.01 calls/second
+                     count = 62746577
+                 mean rate = 174295.64 calls/second
+             1-minute rate = 178072.06 calls/second
+             5-minute rate = 124844.86 calls/second
+            15-minute rate = 61673.15 calls/second
                        min = 0.00 milliseconds
-                       max = 26.00 milliseconds
-                      mean = 5.28 milliseconds
-                    stddev = 4.75 milliseconds
-                    median = 4.00 milliseconds
-                      75% <= 7.00 milliseconds
-                      95% <= 15.00 milliseconds
-                      98% <= 19.00 milliseconds
-                      99% <= 20.00 milliseconds
-                    99.9% <= 26.00 milliseconds
+                       max = 23.00 milliseconds
+                      mean = 3.84 milliseconds
+                    stddev = 3.79 milliseconds
+                    median = 3.00 milliseconds
+                      75% <= 5.00 milliseconds
+                      95% <= 12.00 milliseconds
+                      98% <= 15.00 milliseconds
+                      99% <= 17.00 milliseconds
+                    99.9% <= 22.97 milliseconds
 
   ------------------------------------------------------------------------------------------------------
 
