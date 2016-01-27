@@ -83,7 +83,7 @@ public abstract class AbstractDispatcher implements Dispatcher {
     @Override
     public int getMethodSpecialTimeoutMillis(String methodName) {
         Integer methodSpecialTimeoutMillis = methodsSpecialTimeoutMillis.get(methodName);
-        if (methodSpecialTimeoutMillis != null) {
+        if (methodSpecialTimeoutMillis != null && methodSpecialTimeoutMillis > 0) {
             return methodSpecialTimeoutMillis;
         }
         return timeoutMillis;
