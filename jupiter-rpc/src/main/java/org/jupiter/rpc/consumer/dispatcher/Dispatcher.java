@@ -22,6 +22,7 @@ import org.jupiter.rpc.ConsumerHook;
 import org.jupiter.rpc.consumer.future.InvokeFuture;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * Dispatcher for consumer.
@@ -43,7 +44,11 @@ public interface Dispatcher {
 
     void setListener(JListener listener);
 
-    int getTimeoutMills();
+    int getTimeoutMillis();
 
-    void setTimeoutMills(int timeoutMills);
+    void setTimeoutMillis(int timeoutMillis);
+
+    int getMethodSpecialTimeoutMillis(String methodName);
+
+    void setMethodsSpecialTimeoutMillis(Map<String, Integer> methodsSpecialTimeoutMillis);
 }

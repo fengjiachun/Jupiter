@@ -16,6 +16,7 @@
 
 package org.jupiter.rpc.consumer.dispatcher;
 
+import org.jupiter.common.util.Maps;
 import org.jupiter.rpc.ConsumerHook;
 import org.jupiter.rpc.JListener;
 import org.jupiter.rpc.JRequest;
@@ -24,6 +25,7 @@ import org.jupiter.rpc.consumer.future.InvokeFuture;
 import org.jupiter.rpc.model.metadata.ServiceMetadata;
 
 import java.util.List;
+import java.util.Map;
 
 import static org.jupiter.common.util.JConstants.DEFAULT_TIMEOUT;
 
@@ -39,7 +41,8 @@ public abstract class AbstractDispatcher implements Dispatcher {
 
     private ConsumerHook[] hooks;
     private JListener listener;
-    private int timeoutMills = DEFAULT_TIMEOUT;
+    private int timeoutMillis = DEFAULT_TIMEOUT;
+    private Map<String, Integer> methodsSpecialTimeoutMillis = Maps.newHashMap();
 
     public AbstractDispatcher(ServiceMetadata metadata) {
         this.metadata = metadata;
@@ -68,14 +71,28 @@ public abstract class AbstractDispatcher implements Dispatcher {
     }
 
     @Override
-    public int getTimeoutMills() {
-        return timeoutMills;
+    public int getTimeoutMillis() {
+        return timeoutMillis;
     }
 
     @Override
-    public void setTimeoutMills(int timeoutMills) {
-        this.timeoutMills = timeoutMills;
+    public void setTimeoutMillis(int timeoutMillis) {
+        this.timeoutMillis = timeoutMillis;
     }
 
-    protected abstract InvokeFuture asFuture(JChannel channel, JRequest request);
+    @Override
+    public int getMethodSpecialTimeoutMillis(String methodName) {
+        Integer timeoutMillis = methodsSpecialTimeoutMillis.get(methodName);
+        if (timeoutMillis == null) {
+            return Integer.MIN_VALUE;
+        }
+        return timeoutMillis;
+    }
+
+    @Override
+    public void setMethodsSpecialTimeoutMillis(Map<String, Integer> methodsSpecialTimeoutMillis) {
+        this.methodsSpecialTimeoutMillis.putAll(methodsSpecialTimeoutMillis);
+    }
+
+    protected abstract InvokeFuture asFuture(JChannel channel, JRequest request, int timeoutMillis);
 }

@@ -17,6 +17,7 @@
 package org.jupiter.rpc.consumer;
 
 import org.jupiter.common.util.Lists;
+import org.jupiter.common.util.Maps;
 import org.jupiter.rpc.*;
 import org.jupiter.rpc.consumer.dispatcher.DefaultBroadcastDispatcher;
 import org.jupiter.rpc.consumer.dispatcher.DefaultRoundDispatcher;
@@ -29,6 +30,7 @@ import org.jupiter.rpc.model.metadata.ServiceMetadata;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 
 import static org.jupiter.common.util.Preconditions.checkNotNull;
 import static org.jupiter.rpc.DispatchMode.BROADCAST;
@@ -56,17 +58,19 @@ public class GenericProxyFactory {
     private List<UnresolvedAddress> addresses;
     private InvokeMode invokeMode = SYNC;
     private DispatchMode dispatchMode = ROUND;
-    private int timeoutMills;
+    private int timeoutMillis;
+    private Map<String, Integer> methodsSpecialTimeoutMillis;
     private JListener listener;
     private List<ConsumerHook> hooks;
 
     public static GenericProxyFactory factory() {
-        GenericProxyFactory fac = new GenericProxyFactory();
+        GenericProxyFactory factory = new GenericProxyFactory();
         // 初始化数据
-        fac.addresses = Lists.newArrayList();
-        fac.hooks = Lists.newArrayList();
+        factory.addresses = Lists.newArrayList();
+        factory.hooks = Lists.newArrayList();
+        factory.methodsSpecialTimeoutMillis = Maps.newTreeMap();
 
-        return fac;
+        return factory;
     }
 
     private GenericProxyFactory() {}
@@ -148,8 +152,16 @@ public class GenericProxyFactory {
     /**
      * Timeout milliseconds.
      */
-    public GenericProxyFactory timeoutMills(int timeoutMills) {
-        this.timeoutMills = timeoutMills;
+    public GenericProxyFactory timeoutMillis(int timeoutMillis) {
+        this.timeoutMillis = timeoutMillis;
+        return this;
+    }
+
+    /**
+     * Method special timeout milliseconds.
+     */
+    public GenericProxyFactory methodSpecialTimeoutMillis(String methodName, int timeoutMillis) {
+        methodsSpecialTimeoutMillis.put(methodName, timeoutMillis);
         return this;
     }
 
@@ -191,8 +203,11 @@ public class GenericProxyFactory {
 
         // dispatcher
         Dispatcher dispatcher = asDispatcher(dispatchMode, metadata);
-        if (timeoutMills > 0) {
-            dispatcher.setTimeoutMills(timeoutMills);
+        if (timeoutMillis > 0) {
+            dispatcher.setTimeoutMillis(timeoutMillis);
+        }
+        if (!methodsSpecialTimeoutMillis.isEmpty()) {
+            dispatcher.setMethodsSpecialTimeoutMillis(methodsSpecialTimeoutMillis);
         }
         dispatcher.setHooks(hooks);
 

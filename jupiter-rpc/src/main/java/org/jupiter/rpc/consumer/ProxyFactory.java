@@ -17,6 +17,7 @@
 package org.jupiter.rpc.consumer;
 
 import org.jupiter.common.util.Lists;
+import org.jupiter.common.util.Maps;
 import org.jupiter.common.util.Reflects;
 import org.jupiter.common.util.Strings;
 import org.jupiter.rpc.*;
@@ -30,6 +31,7 @@ import org.jupiter.rpc.model.metadata.ServiceMetadata;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 
 import static org.jupiter.common.util.Preconditions.checkNotNull;
 import static org.jupiter.rpc.DispatchMode.BROADCAST;
@@ -53,7 +55,8 @@ public class ProxyFactory<I> {
     private List<UnresolvedAddress> addresses;
     private InvokeMode invokeMode = SYNC;
     private DispatchMode dispatchMode = ROUND;
-    private int timeoutMills;
+    private int timeoutMillis;
+    private Map<String, Integer> methodsSpecialTimeoutMillis;
     private JListener listener;
     private List<ConsumerHook> hooks;
 
@@ -62,6 +65,7 @@ public class ProxyFactory<I> {
         // 初始化数据
         factory.addresses = Lists.newArrayList();
         factory.hooks = Lists.newArrayList();
+        factory.methodsSpecialTimeoutMillis = Maps.newTreeMap();
 
         return factory;
     }
@@ -114,8 +118,16 @@ public class ProxyFactory<I> {
     /**
      * Timeout milliseconds.
      */
-    public ProxyFactory<I> timeoutMills(int timeoutMills) {
-        this.timeoutMills = timeoutMills;
+    public ProxyFactory<I> timeoutMillis(int timeoutMillis) {
+        this.timeoutMillis = timeoutMillis;
+        return this;
+    }
+
+    /**
+     * Method special timeout milliseconds.
+     */
+    public ProxyFactory<I> methodSpecialTimeoutMillis(String methodName, int timeoutMillis) {
+        methodsSpecialTimeoutMillis.put(methodName, timeoutMillis);
         return this;
     }
 
@@ -159,8 +171,11 @@ public class ProxyFactory<I> {
 
         // dispatcher
         Dispatcher dispatcher = asDispatcher(dispatchMode, metadata);
-        if (timeoutMills > 0) {
-            dispatcher.setTimeoutMills(timeoutMills);
+        if (timeoutMillis > 0) {
+            dispatcher.setTimeoutMillis(timeoutMillis);
+        }
+        if (!methodsSpecialTimeoutMillis.isEmpty()) {
+            dispatcher.setMethodsSpecialTimeoutMillis(methodsSpecialTimeoutMillis);
         }
         dispatcher.setHooks(hooks);
 
