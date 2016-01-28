@@ -66,10 +66,7 @@ public class TracingEye {
     }
 
     public static String generateTraceId() {
-        if (TRACING_NEEDED) {
-            return getTraceId(IP_16, SystemClock.millisClock().now(), getNextId());
-        }
-        return null;
+        return getTraceId(IP_16, SystemClock.millisClock().now(), getNextId());
     }
 
     public static String getCurrent() {

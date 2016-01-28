@@ -55,15 +55,33 @@ public class DefaultRoundDispatcher extends AbstractDispatcher {
         message.setAppName(proxy.appName());
         message.setMethodName(methodName);
         message.setArgs(args);
-        String traceId = TracingEye.getCurrent();
-        if (traceId == null) {
-            traceId = TracingEye.generateTraceId();
-        }
-        message.setTraceId(traceId); // tracing
 
         JChannel channel = proxy.select(_metadata);
-
         final JRequest request = new JRequest();
+
+        // tracing
+        if (TracingEye.isTracingNeeded()) {
+            String traceId = TracingEye.getCurrent();
+            if (traceId == null) {
+                traceId = TracingEye.generateTraceId();
+            }
+            message.setTraceId(traceId);
+
+            if (logger.isInfoEnabled()) {
+                String traceInfo = StringBuilderHelper.get()
+                        .append("TraceId: ")
+                        .append(traceId)
+                        .append(", invokeId: ")
+                        .append(request.invokeId())
+                        .append(", ")
+                        .append(_metadata)
+                        .append(", on ")
+                        .append(channel).toString();
+
+                logger.info(traceInfo);
+            }
+        }
+
         request.message(message);
         request.bytes(serializerImpl().writeObject(message));
 
@@ -97,21 +115,6 @@ public class DefaultRoundDispatcher extends AbstractDispatcher {
                 DefaultInvokeFuture.received(channel, response);
             }
         });
-
-        // tracing log
-        if (TracingEye.isTracingNeeded() && logger.isInfoEnabled()) {
-            String traceInfo = StringBuilderHelper.get()
-                    .append("TraceId: ")
-                    .append(traceId)
-                    .append(", invokeId: ")
-                    .append(request.invokeId())
-                    .append(", ")
-                    .append(_metadata)
-                    .append(", on ")
-                    .append(channel).toString();
-
-            logger.info(traceInfo);
-        }
 
         return future;
     }
