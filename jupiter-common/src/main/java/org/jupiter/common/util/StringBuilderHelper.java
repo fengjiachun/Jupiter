@@ -22,6 +22,8 @@ import org.jupiter.common.util.internal.UnsafeUpdater;
 /**
  * 基于 {@link ThreadLocal} 的 {@link StringBuilder} 重复利用
  *
+ * 注意不要在相同的线程中嵌套使用
+ *
  * jupiter
  * org.jupiter.common.util
  *

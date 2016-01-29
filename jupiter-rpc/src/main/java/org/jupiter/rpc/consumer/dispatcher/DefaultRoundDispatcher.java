@@ -68,13 +68,16 @@ public class DefaultRoundDispatcher extends AbstractDispatcher {
             message.setTraceId(traceId);
 
             if (logger.isInfoEnabled()) {
+                String directory = _metadata.directory(); // 避免StringBuilderHelper被嵌套使用
                 String traceInfo = StringBuilderHelper.get()
                         .append("TraceId: ")
                         .append(traceId)
                         .append(", invokeId: ")
                         .append(request.invokeId())
-                        .append(", ")
-                        .append(_metadata)
+                        .append(", callInfo: ")
+                        .append(directory)
+                        .append('#')
+                        .append(methodName)
                         .append(", on ")
                         .append(channel).toString();
 

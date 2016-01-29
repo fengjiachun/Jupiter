@@ -200,69 +200,74 @@ public class MessageTask implements RejectedRunnable {
         final JRequest _request = request; // stack copy
 
         try {
-            final MessageWrapper msg = _request.message();
-            final String methodName = msg.getMethodName();
-            final String traceId = msg.getTraceId();
-            final long invokeId = _request.invokeId();
-
-            Object invokeResult = null;
+            MessageWrapper msg = _request.message();
+            String methodName = msg.getMethodName();
+            String traceId = msg.getTraceId();
+            String directory = msg.getMetadata().directory(); // 避免StringBuilderHelper被嵌套使用
             String callInfo = StringBuilderHelper.get()
-                    .append(msg.getMetadata().directory())
+                    .append(directory)
                     .append('#')
                     .append(methodName).toString();
-            Timer.Context timeCtx = Metrics.timer(callInfo).time();
 
-            // tracing log
-            if (traceId != null && logger.isInfoEnabled()) {
-                String traceInfo = StringBuilderHelper.get()
-                        .append("Tracing: ")
-                        .append(traceId)
-                        .append(", ")
-                        .append(invokeId)
-                        .append(", ")
-                        .append(callInfo).toString();
+            final long invokeId = _request.invokeId();
 
-                logger.info(traceInfo);
+            // tracing
+            if (traceId != null) {
+                TracingEye.setCurrent(traceId);
+
+                if (logger.isInfoEnabled()) {
+                    String traceInfo = StringBuilderHelper.get()
+                            .append("TraceId: ")
+                            .append(traceId)
+                            .append(", invokeId: ")
+                            .append(invokeId)
+                            .append(", callInfo: ")
+                            .append(callInfo).toString();
+
+                    logger.info(traceInfo);
+                }
             }
 
+            Object invokeResult = null;
+            Timer.Context timeCtx = Metrics.timer(callInfo).time();
             try {
                 Object[] args = msg.getArgs();
                 List<Class<?>[]> parameterTypesList = service.getMethodParameterTypes(methodName);
                 if (parameterTypesList == null) {
                     throw new NoSuchMethodException(methodName);
                 }
-                Class<?>[] parameterTypes = findMatchingParameterTypes(parameterTypesList, args);
-                TracingEye.setCurrent(traceId);
-                invokeResult = fastInvoke(service.getServiceProvider(), methodName, parameterTypes, args);
+                invokeResult = fastInvoke(
+                        service.getServiceProvider(),
+                        methodName,
+                        findMatchingParameterTypes(parameterTypesList, args),
+                        args);
             } finally {
                 timeCtx.stop();
             }
 
             ResultWrapper result = new ResultWrapper();
             result.setResult(invokeResult);
-            byte[] bytes = serializerImpl().writeObject(result);
+            final byte[] bytes = serializerImpl().writeObject(result);
 
-            final long timestamp = _request.timestamp();
-            final int bodyLength = bytes.length;
             channel.write(JResponse.getInstance(invokeId, OK, bytes), new JFutureListener<JChannel>() {
 
                 @Override
                 public void operationSuccess(JChannel channel) throws Exception {
-                    long duration = SystemClock.millisClock().now() - timestamp;
+                    long duration = SystemClock.millisClock().now() - _request.timestamp();
 
-                    responseSizeHistogram.update(bodyLength);
+                    responseSizeHistogram.update(bytes.length);
                     processingTimer.update(duration, MILLISECONDS);
 
                     logger.debug("Service response[id: {}, length: {}] sent out, duration: {} millis.",
-                            invokeId, bodyLength, duration);
+                            invokeId, bytes.length, duration);
                 }
 
                 @Override
                 public void operationFailure(JChannel channel, Throwable cause) throws Exception {
-                    long duration = SystemClock.millisClock().now() - timestamp;
+                    long duration = SystemClock.millisClock().now() - _request.timestamp();
 
                     logger.warn("Service response[id: {}, length: {}] sent failed, duration: {} millis, {}, {}.",
-                            invokeId, bodyLength, duration, channel, cause);
+                            invokeId, bytes.length, duration, channel, cause);
                 }
             });
         } catch (Throwable t) {
