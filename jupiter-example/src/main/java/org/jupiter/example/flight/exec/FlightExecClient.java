@@ -21,19 +21,16 @@ import org.jupiter.common.util.SystemPropertyUtil;
 import org.jupiter.flight.exec.ExecResult;
 import org.jupiter.flight.exec.JavaClassExec;
 import org.jupiter.flight.exec.JavaCompiler;
-import org.jupiter.rpc.Directory;
 import org.jupiter.rpc.JListener;
 import org.jupiter.rpc.JRequest;
 import org.jupiter.rpc.consumer.ProxyFactory;
-import org.jupiter.rpc.model.metadata.ServiceMetadata;
 import org.jupiter.transport.JConnector;
 import org.jupiter.transport.exception.ConnectFailedException;
 import org.jupiter.transport.netty.JNettyTcpConnector;
 import org.jupiter.transport.netty.NettyConnector;
 
-import static org.jupiter.common.util.JConstants.DEFAULT_VERSION;
-import static org.jupiter.rpc.InvokeMode.CALLBACK;
 import static org.jupiter.rpc.DispatchMode.BROADCAST;
+import static org.jupiter.rpc.InvokeMode.CALLBACK;
 
 /**
  * 客户端编译, 服务端执行, 以java的方式, 留一个方便线上调试的口子.
@@ -46,13 +43,11 @@ import static org.jupiter.rpc.DispatchMode.BROADCAST;
 public class FlightExecClient {
 
     public static void main(String[] args) {
-        Directory directory = new ServiceMetadata("exec", DEFAULT_VERSION, "JavaClassExec");
-
         NettyConnector connector = new JNettyTcpConnector();
         // 连接ConfigServer
         connector.connectToConfigServer("127.0.0.1:20001");
         // 自动管理可用连接
-        JConnector.ConnectionManager manager = connector.manageConnections(directory);
+        JConnector.ConnectionManager manager = connector.manageConnections(JavaClassExec.class);
         // 等待连接可用
         if (!manager.waitForAvailable(3000)) {
             throw new ConnectFailedException("waitForAvailable() timeout");

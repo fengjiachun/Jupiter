@@ -16,14 +16,15 @@
 
 package org.jupiter.example.round;
 
+import org.jupiter.example.ServiceTest2Impl;
 import org.jupiter.example.ServiceTestImpl;
 import org.jupiter.monitor.MonitorServer;
 import org.jupiter.rpc.JRequest;
 import org.jupiter.rpc.flow.control.ControlResult;
 import org.jupiter.rpc.flow.control.FlowController;
 import org.jupiter.rpc.model.metadata.ServiceWrapper;
-import org.jupiter.transport.netty.NettyAcceptor;
 import org.jupiter.transport.netty.JNettyTcpAcceptor;
+import org.jupiter.transport.netty.NettyAcceptor;
 
 import java.util.concurrent.atomic.AtomicLong;
 
@@ -41,8 +42,12 @@ public class HelloJupiterServer {
         try {
             monitor.start();
 
-            ServiceWrapper provider = server.serviceRegistry()
+            ServiceWrapper provider1 = server.serviceRegistry()
                     .provider(new ServiceTestImpl())
+                    .register();
+
+            ServiceWrapper provider2 = server.serviceRegistry()
+                    .provider(new ServiceTest2Impl())
                     .flowController(new FlowController<JRequest>() { // Provider级别限流器, 可以不设置
 
                         private AtomicLong count = new AtomicLong();
@@ -59,7 +64,8 @@ public class HelloJupiterServer {
 
 //            server.setFlowController(); // App级别限流器
             server.connectToConfigServer("127.0.0.1:20001");
-            server.publish(provider);
+            server.publish(provider1);
+            server.publish(provider2);
             server.start();
         } catch (InterruptedException e) {
             e.printStackTrace();

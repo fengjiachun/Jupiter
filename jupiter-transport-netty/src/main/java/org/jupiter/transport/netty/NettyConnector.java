@@ -26,14 +26,17 @@ import io.netty.util.HashedWheelTimer;
 import io.netty.util.concurrent.DefaultThreadFactory;
 import io.netty.util.internal.PlatformDependent;
 import org.jupiter.common.concurrent.NamedThreadFactory;
+import org.jupiter.common.util.Strings;
 import org.jupiter.common.util.internal.JUnsafe;
 import org.jupiter.registry.NotifyListener;
 import org.jupiter.registry.OfflineListener;
 import org.jupiter.registry.RegisterMeta;
 import org.jupiter.rpc.AbstractJClient;
 import org.jupiter.rpc.Directory;
+import org.jupiter.rpc.ServiceProvider;
 import org.jupiter.rpc.UnresolvedAddress;
 import org.jupiter.rpc.channel.JChannelGroup;
+import org.jupiter.rpc.model.metadata.ServiceMetadata;
 import org.jupiter.transport.*;
 import org.jupiter.transport.netty.channel.NettyChannelGroup;
 import org.jupiter.transport.netty.estimator.JMessageSizeEstimator;
@@ -46,6 +49,7 @@ import java.util.concurrent.locks.ReentrantLock;
 
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
 import static org.jupiter.common.util.JConstants.AVAILABLE_PROCESSORS;
+import static org.jupiter.common.util.Preconditions.checkNotNull;
 
 /**
  * jupiter
@@ -102,6 +106,17 @@ public abstract class NettyConnector extends AbstractJClient implements JConnect
     @Override
     public Protocol protocol() {
         return protocol;
+    }
+
+    @Override
+    public ConnectionManager manageConnections(Class<?> interfaceClass) {
+        checkNotNull(interfaceClass, "interfaceClass");
+        ServiceProvider annotation = interfaceClass.getAnnotation(ServiceProvider.class);
+        checkNotNull(annotation, interfaceClass + " is not a ServiceProvider interface");
+        String providerName = annotation.value();
+        providerName = Strings.isNotBlank(providerName) ? providerName : interfaceClass.getSimpleName();
+
+        return manageConnections(new ServiceMetadata(annotation.group(), annotation.version(), providerName));
     }
 
     @Override

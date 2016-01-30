@@ -40,6 +40,11 @@ public interface JConnector<C> extends Transporter {
     /**
      * Sets auto manage the connections
      */
+    ConnectionManager manageConnections(Class<?> interfaceClass);
+
+    /**
+     * Sets auto manage the connections
+     */
     ConnectionManager manageConnections(Directory directory);
 
     /**
