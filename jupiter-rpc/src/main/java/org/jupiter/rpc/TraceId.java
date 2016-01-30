@@ -31,7 +31,7 @@ public class TraceId implements Serializable {
     private static final long serialVersionUID = 2901824755629719770L;
 
     private final String id;
-    private short node;
+    private int node;
 
     public static TraceId newInstance(String id) {
         return new TraceId(id);
@@ -46,17 +46,8 @@ public class TraceId implements Serializable {
         return id;
     }
 
-    public short getNode() {
+    public int getNode() {
         return node;
-    }
-
-    public void setNode(short node) {
-        this.node = node;
-    }
-
-    public TraceId incrementNodeAndGet() {
-        ++node;
-        return this;
     }
 
     public String asText() {
@@ -83,7 +74,7 @@ public class TraceId implements Serializable {
     @Override
     public int hashCode() {
         int result = id.hashCode();
-        result = 31 * result + (int) node;
+        result = 31 * result + node;
         return result;
     }
 

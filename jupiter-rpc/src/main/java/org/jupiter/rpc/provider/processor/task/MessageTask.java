@@ -22,6 +22,8 @@ import com.codahale.metrics.Timer;
 import org.jupiter.common.concurrent.RejectedRunnable;
 import org.jupiter.common.util.StringBuilderHelper;
 import org.jupiter.common.util.SystemClock;
+import org.jupiter.common.util.internal.UnsafeIntegerFieldUpdater;
+import org.jupiter.common.util.internal.UnsafeUpdater;
 import org.jupiter.common.util.internal.logging.InternalLogger;
 import org.jupiter.common.util.internal.logging.InternalLoggerFactory;
 import org.jupiter.rpc.*;
@@ -68,6 +70,8 @@ public class MessageTask implements RejectedRunnable {
     private static final Histogram requestSizeHistogram     = Metrics.histogram("request.size");
     // 响应数据大小统计(不包括Jupiter协议头的16个字节)
     private static final Histogram responseSizeHistogram    = Metrics.histogram("response.size");
+
+    private static final UnsafeIntegerFieldUpdater<TraceId> traceNodeUpdater = UnsafeUpdater.newIntegerFieldUpdater(TraceId.class, "node");
 
     private final ProviderProcessor processor;
     private final JChannel channel;
@@ -210,7 +214,8 @@ public class MessageTask implements RejectedRunnable {
 
             // tracing
             if (traceId != null) {
-                TracingEye.setCurrent(traceId.incrementNodeAndGet());
+                traceNodeUpdater.set(traceId, traceNodeUpdater.get(traceId) + 1);
+                TracingEye.setCurrent(traceId);
 
                 if (logger.isInfoEnabled()) {
                     String traceText = traceId.asText(); // 避免StringBuilderHelper被嵌套使用
