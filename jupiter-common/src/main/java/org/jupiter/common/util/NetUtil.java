@@ -26,7 +26,7 @@ import java.util.Enumeration;
  *
  * @author jiachun.fjc
  */
-public class IPv4Util {
+public class NetUtil {
 
     private static final String LOCAL_IP_ADDRESS = getFirstLocalAddress();
 

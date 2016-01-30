@@ -27,7 +27,7 @@ import org.apache.curator.framework.state.ConnectionState;
 import org.apache.curator.framework.state.ConnectionStateListener;
 import org.apache.curator.retry.ExponentialBackoffRetry;
 import org.apache.zookeeper.CreateMode;
-import org.jupiter.common.util.IPv4Util;
+import org.jupiter.common.util.NetUtil;
 import org.jupiter.common.util.Maps;
 import org.jupiter.common.util.Strings;
 import org.jupiter.common.util.SystemPropertyUtil;
@@ -56,7 +56,7 @@ public class ZookeeperRegistryService extends AbstractRegistryService {
 
     private static final InternalLogger logger = InternalLoggerFactory.getInstance(ZookeeperRegistryService.class);
 
-    private final String address = SystemPropertyUtil.get("jupiter.address", IPv4Util.getLocalAddress());
+    private final String address = SystemPropertyUtil.get("jupiter.address", NetUtil.getLocalAddress());
 
     private final int sessionTimeoutMs = SystemPropertyUtil.getInt("jupiter.registry.zookeeper.sessionTimeoutMs", 60 * 1000);
     private final int connectionTimeoutMs = SystemPropertyUtil.getInt("jupiter.registry.zookeeper.connectionTimeoutMs", 15 * 1000);
