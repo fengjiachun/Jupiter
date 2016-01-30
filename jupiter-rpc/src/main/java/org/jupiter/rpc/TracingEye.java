@@ -16,12 +16,13 @@
 
 package org.jupiter.rpc;
 
-import org.jupiter.common.util.IPv4Util;
-import org.jupiter.common.util.StringBuilderHelper;
-import org.jupiter.common.util.SystemClock;
-import org.jupiter.common.util.SystemPropertyUtil;
+import org.jupiter.common.util.*;
+import org.jupiter.common.util.internal.JUnsafe;
+import org.jupiter.common.util.internal.logging.InternalLogger;
+import org.jupiter.common.util.internal.logging.InternalLoggerFactory;
 
-import java.lang.management.ManagementFactory;
+import java.lang.reflect.Method;
+import java.util.concurrent.ThreadLocalRandom;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
@@ -32,10 +33,14 @@ import java.util.concurrent.atomic.AtomicInteger;
  */
 public class TracingEye {
 
+    private static final InternalLogger logger = InternalLoggerFactory.getInstance(TracingEye.class);
+
     private static final boolean TRACING_NEEDED = SystemPropertyUtil.getBoolean("jupiter.tracing.needed", true);
 
-    private static final ThreadLocal<String> traceThreadLocal = new ThreadLocal<>();
+    private static final ThreadLocal<TraceId> traceThreadLocal = new ThreadLocal<>();
 
+    // Maximal value for 64bit systems is 2^22.  See man 5 proc.
+    private static final int MAX_PROCESS_ID = 4194304;
     private static final char PID_FLAG = 'd';
     private static final String IP_16;
     private static final String PID;
@@ -69,11 +74,11 @@ public class TracingEye {
         return getTraceId(IP_16, SystemClock.millisClock().now(), getNextId());
     }
 
-    public static String getCurrent() {
+    public static TraceId getCurrent() {
         return traceThreadLocal.get();
     }
 
-    public static void setCurrent(String traceId) {
+    public static void setCurrent(TraceId traceId) {
         traceThreadLocal.set(traceId);
     }
 
@@ -104,13 +109,42 @@ public class TracingEye {
      * http://stackoverflow.com/questions/35842/how-can-a-java-program-get-its-own-process-id
      */
     private static int getPid() {
-        String name = ManagementFactory.getRuntimeMXBean().getName();
+        String value;
+        try {
+            ClassLoader loader = JUnsafe.getSystemClassLoader();
+            // Invoke java.lang.management.ManagementFactory.getRuntimeMXBean().getName()
+            Class<?> managementFactoryType = Class.forName("java.lang.management.ManagementFactory", true, loader);
+            Class<?> runtimeMxBeanType = Class.forName("java.lang.management.RuntimeMXBean", true, loader);
+
+            Method getRuntimeMXBean = managementFactoryType.getMethod("getRuntimeMXBean");
+            Object bean = getRuntimeMXBean.invoke(null);
+            Method getName = runtimeMxBeanType.getDeclaredMethod("getName");
+
+            value = (String) getName.invoke(bean);
+        } catch (Exception e) {
+            logger.debug("Could not invoke ManagementFactory.getRuntimeMXBean().getName(), {}.", StackTraceUtil.stackTrace(e));
+
+            value = "";
+        }
+        int atIndex = value.indexOf('@');
+        if (atIndex >= 0) {
+            value = value.substring(0, atIndex);
+        }
+
         int pid;
         try {
-            pid = Integer.parseInt(name.substring(0, name.indexOf('@')));
-        } catch (Exception e) {
-            pid = 0;
+            pid = Integer.parseInt(value);
+        } catch (NumberFormatException e) {
+            // value did not contain an integer.
+            pid = -1;
         }
+
+        if (pid < 0 || pid > MAX_PROCESS_ID) {
+            pid = ThreadLocalRandom.current().nextInt(MAX_PROCESS_ID + 1);
+
+            logger.warn("Failed to find the current process ID from '{}'; using a random value: {}.",  value, pid);
+        }
+
         return pid;
     }
 

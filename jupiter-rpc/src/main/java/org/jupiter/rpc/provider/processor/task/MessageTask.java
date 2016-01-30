@@ -24,10 +24,7 @@ import org.jupiter.common.util.StringBuilderHelper;
 import org.jupiter.common.util.SystemClock;
 import org.jupiter.common.util.internal.logging.InternalLogger;
 import org.jupiter.common.util.internal.logging.InternalLoggerFactory;
-import org.jupiter.rpc.JRequest;
-import org.jupiter.rpc.JResponse;
-import org.jupiter.rpc.Status;
-import org.jupiter.rpc.TracingEye;
+import org.jupiter.rpc.*;
 import org.jupiter.rpc.channel.JChannel;
 import org.jupiter.rpc.channel.JFutureListener;
 import org.jupiter.rpc.exception.BadRequestException;
@@ -202,7 +199,7 @@ public class MessageTask implements RejectedRunnable {
         try {
             MessageWrapper msg = _request.message();
             String methodName = msg.getMethodName();
-            String traceId = msg.getTraceId();
+            TraceId traceId = msg.getTraceId();
             String directory = msg.getMetadata().directory(); // 避免StringBuilderHelper被嵌套使用
             String callInfo = StringBuilderHelper.get()
                     .append(directory)
@@ -213,12 +210,14 @@ public class MessageTask implements RejectedRunnable {
 
             // tracing
             if (traceId != null) {
-                TracingEye.setCurrent(traceId);
+                TracingEye.setCurrent(traceId.incrementNodeAndGet());
 
                 if (logger.isInfoEnabled()) {
+                    String traceText = traceId.asText(); // 避免StringBuilderHelper被嵌套使用
+
                     String traceInfo = StringBuilderHelper.get()
-                            .append("[Provider] - TraceId: ")
-                            .append(traceId)
+                            .append("[Provider] - ")
+                            .append(traceText)
                             .append(", invokeId: ")
                             .append(invokeId)
                             .append(", callInfo: ")

@@ -16,6 +16,8 @@
 
 package org.jupiter.rpc.model.metadata;
 
+import org.jupiter.rpc.TraceId;
+
 import java.io.Serializable;
 import java.util.Arrays;
 
@@ -40,7 +42,7 @@ public class MessageWrapper implements Serializable {
     // 方法参数
     private Object[] args;
     // TraceId
-    private String traceId;
+    private TraceId traceId;
 
     public MessageWrapper(ServiceMetadata metadata) {
         this.metadata = metadata;
@@ -86,11 +88,11 @@ public class MessageWrapper implements Serializable {
         this.args = args;
     }
 
-    public String getTraceId() {
+    public TraceId getTraceId() {
         return traceId;
     }
 
-    public void setTraceId(String traceId) {
+    public void setTraceId(TraceId traceId) {
         this.traceId = traceId;
     }
 

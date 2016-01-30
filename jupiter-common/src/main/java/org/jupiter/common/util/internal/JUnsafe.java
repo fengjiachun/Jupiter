@@ -21,6 +21,8 @@ import org.jupiter.common.util.internal.logging.InternalLoggerFactory;
 import sun.misc.Unsafe;
 
 import java.lang.reflect.Field;
+import java.security.AccessController;
+import java.security.PrivilegedAction;
 
 /**
  * For the {@link sun.misc.Unsafe} access.
@@ -57,6 +59,23 @@ public final class JUnsafe {
      */
     public static Unsafe getUnsafe() {
         return UNSAFE;
+    }
+
+    /**
+     * Returns the system {@link ClassLoader}.
+     */
+    public static ClassLoader getSystemClassLoader() {
+        if (System.getSecurityManager() == null) {
+            return ClassLoader.getSystemClassLoader();
+        } else {
+            return AccessController.doPrivileged(new PrivilegedAction<ClassLoader>() {
+
+                @Override
+                public ClassLoader run() {
+                    return ClassLoader.getSystemClassLoader();
+                }
+            });
+        }
     }
 
     /**

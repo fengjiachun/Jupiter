@@ -61,17 +61,20 @@ public class DefaultRoundDispatcher extends AbstractDispatcher {
 
         // tracing
         if (TracingEye.isTracingNeeded()) {
-            String traceId = TracingEye.getCurrent();
+            TraceId traceId = TracingEye.getCurrent();
             if (traceId == null) {
-                traceId = TracingEye.generateTraceId();
+                traceId = TraceId.newInstance(TracingEye.generateTraceId());
             }
             message.setTraceId(traceId);
 
             if (logger.isInfoEnabled()) {
-                String directory = _metadata.directory(); // 避免StringBuilderHelper被嵌套使用
+                // 避免StringBuilderHelper被嵌套使用
+                String directory = _metadata.directory();
+                String traceText = traceId.asText();
+
                 String traceInfo = StringBuilderHelper.get()
-                        .append("[Consumer] - TraceId: ")
-                        .append(traceId)
+                        .append("[Consumer] - ")
+                        .append(traceText)
                         .append(", invokeId: ")
                         .append(request.invokeId())
                         .append(", callInfo: ")
