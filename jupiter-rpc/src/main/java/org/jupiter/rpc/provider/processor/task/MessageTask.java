@@ -214,7 +214,7 @@ public class MessageTask implements RejectedRunnable {
 
             // tracing
             if (traceId != null) {
-                traceNodeUpdater.set(traceId, traceNodeUpdater.get(traceId) + 1);
+                traceNodeUpdater.set(traceId, traceId.getNode() + 1);
                 TracingEye.setCurrent(traceId);
 
                 if (logger.isInfoEnabled()) {
