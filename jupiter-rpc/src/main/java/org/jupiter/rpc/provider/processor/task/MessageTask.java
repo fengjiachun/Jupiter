@@ -217,12 +217,14 @@ public class MessageTask implements RejectedRunnable {
 
                 if (logger.isInfoEnabled()) {
                     String traceInfo = StringBuilderHelper.get()
-                            .append("TraceId: ")
+                            .append("[Provider] - TraceId: ")
                             .append(traceId)
                             .append(", invokeId: ")
                             .append(invokeId)
                             .append(", callInfo: ")
-                            .append(callInfo).toString();
+                            .append(callInfo)
+                            .append(", on ")
+                            .append(channel).toString();
 
                     logger.info(traceInfo);
                 }

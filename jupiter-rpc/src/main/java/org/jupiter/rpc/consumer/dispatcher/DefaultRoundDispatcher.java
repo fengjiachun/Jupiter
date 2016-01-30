@@ -70,7 +70,7 @@ public class DefaultRoundDispatcher extends AbstractDispatcher {
             if (logger.isInfoEnabled()) {
                 String directory = _metadata.directory(); // 避免StringBuilderHelper被嵌套使用
                 String traceInfo = StringBuilderHelper.get()
-                        .append("TraceId: ")
+                        .append("[Consumer] - TraceId: ")
                         .append(traceId)
                         .append(", invokeId: ")
                         .append(request.invokeId())
