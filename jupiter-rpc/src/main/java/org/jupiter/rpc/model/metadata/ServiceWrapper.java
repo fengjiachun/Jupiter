@@ -36,7 +36,7 @@ import static org.jupiter.common.util.Preconditions.checkNotNull;
  */
 public class ServiceWrapper implements Serializable {
 
-    private static final long serialVersionUID = 4525569114144366337L;
+    private static final long serialVersionUID = 6690575889849847348L;
 
     private final ServiceMetadata metadata;
     private final Object serviceProvider;
