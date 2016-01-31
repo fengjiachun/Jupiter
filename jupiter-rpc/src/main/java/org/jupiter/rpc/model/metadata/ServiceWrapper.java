@@ -24,6 +24,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Executor;
 
+import static org.jupiter.common.util.JConstants.DEFAULT_CONNECTION_COUNT;
+import static org.jupiter.common.util.JConstants.DEFAULT_WEIGHT;
+import static org.jupiter.common.util.Preconditions.checkArgument;
 import static org.jupiter.common.util.Preconditions.checkNotNull;
 
 /**
@@ -43,6 +46,10 @@ public class ServiceWrapper implements Serializable {
 
     private transient Map<String, List<Class<?>[]>> methodsParameterTypes;
 
+    // 权重 hashCode()与equals()不把weight计算在内
+    private volatile int weight = DEFAULT_WEIGHT;
+    // 建议连接数 hashCode()与equals()不把connCount计算在内
+    private volatile int connCount = DEFAULT_CONNECTION_COUNT;
     private volatile Executor executor;
     private volatile FlowController<JRequest> flowController;
 
@@ -60,6 +67,24 @@ public class ServiceWrapper implements Serializable {
 
     public Object getServiceProvider() {
         return serviceProvider;
+    }
+
+    public int getWeight() {
+        return weight;
+    }
+
+    public void setWeight(int weight) {
+        checkArgument(weight <= 0, "weight must > 0");
+        this.weight = weight;
+    }
+
+    public int getConnCount() {
+        return connCount;
+    }
+
+    public void setConnCount(int connCount) {
+        checkArgument(connCount <= 0, "connCount must > 0");
+        this.connCount = connCount;
     }
 
     public Executor getExecutor() {

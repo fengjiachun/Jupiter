@@ -17,6 +17,8 @@
 package org.jupiter.transport;
 
 import org.jupiter.common.util.Maps;
+import org.jupiter.common.util.internal.logging.InternalLogger;
+import org.jupiter.common.util.internal.logging.InternalLoggerFactory;
 import org.jupiter.rpc.UnresolvedAddress;
 
 import java.util.concurrent.ConcurrentMap;
@@ -29,6 +31,8 @@ import java.util.concurrent.CopyOnWriteArrayList;
  * @author jiachun.fjc
  */
 public class JConnectionManager {
+
+    private static final InternalLogger logger = InternalLoggerFactory.getInstance(JConnectionManager.class);
 
     private static final ConcurrentMap<UnresolvedAddress, CopyOnWriteArrayList<JConnection>> connections = Maps.newConcurrentHashMap();
 
@@ -51,6 +55,7 @@ public class JConnectionManager {
             for (JConnection c : list) {
                 c.setReconnect(false);
             }
+            logger.info("Cancel reconnect to: {}.", address);
         }
     }
 }

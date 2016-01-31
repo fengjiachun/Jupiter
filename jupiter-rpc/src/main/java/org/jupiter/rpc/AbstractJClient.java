@@ -110,7 +110,8 @@ public abstract class AbstractJClient implements JClient {
 
     @Override
     public boolean removeChannelGroup(Directory directory, JChannelGroup group) {
-        boolean removed = directory(directory).remove(group);
+        CopyOnWriteArrayList<JChannelGroup> groups = directory(directory);
+        boolean removed = groups.remove(group);
         if (removed) {
             logger.warn("Removed channel group: {} in directory: {}.", group, directory.directory());
         }

@@ -27,14 +27,16 @@ import org.apache.curator.framework.state.ConnectionState;
 import org.apache.curator.framework.state.ConnectionStateListener;
 import org.apache.curator.retry.ExponentialBackoffRetry;
 import org.apache.zookeeper.CreateMode;
-import org.jupiter.common.util.NetUtil;
+import org.jupiter.common.concurrent.ConcurrentSet;
 import org.jupiter.common.util.Maps;
+import org.jupiter.common.util.NetUtil;
 import org.jupiter.common.util.Strings;
 import org.jupiter.common.util.SystemPropertyUtil;
 import org.jupiter.common.util.internal.logging.InternalLogger;
 import org.jupiter.common.util.internal.logging.InternalLoggerFactory;
 import org.jupiter.registry.AbstractRegistryService;
 import org.jupiter.registry.RegisterMeta;
+import org.jupiter.registry.RegisterMeta.Address;
 
 import java.io.IOException;
 import java.util.concurrent.ConcurrentMap;
@@ -62,6 +64,8 @@ public class ZookeeperRegistryService extends AbstractRegistryService {
     private final int connectionTimeoutMs = SystemPropertyUtil.getInt("jupiter.registry.zookeeper.connectionTimeoutMs", 15 * 1000);
 
     private final ConcurrentMap<ServiceMeta, PathChildrenCache> pathChildrenCaches = Maps.newConcurrentHashMap();
+    // 指定节点都提供了哪些服务
+    private final ConcurrentMap<Address, ConcurrentSet<ServiceMeta>> serviceMetaMap = Maps.newConcurrentHashMap();
 
     private CuratorFramework configClient;
 
@@ -86,14 +90,24 @@ public class ZookeeperRegistryService extends AbstractRegistryService {
 
                         logger.info("Child event: {}", event);
 
+                        RegisterMeta registerMeta = parseRegisterMeta(event.getData().getPath());
+                        Address address = registerMeta.getAddress();
+                        ServiceMeta serviceMeta = registerMeta.getServiceMeta();
+
+                        ConcurrentSet<ServiceMeta> serviceMetaSet = getServiceMeta(address);
                         switch (event.getType()) {
                             case CHILD_ADDED:
-                                ZookeeperRegistryService.this.notify(
-                                        serviceMeta, parseRegisterMeta(event.getData().getPath()), NotifyEvent.CHILD_ADDED);
+                                serviceMetaSet.add(serviceMeta);
+                                ZookeeperRegistryService.this.notify(serviceMeta, registerMeta, NotifyEvent.CHILD_ADDED);
                                 break;
                             case CHILD_REMOVED:
-                                ZookeeperRegistryService.this.notify(
-                                        serviceMeta, parseRegisterMeta(event.getData().getPath()), NotifyEvent.CHILD_REMOVED);
+                                serviceMetaSet.remove(serviceMeta);
+                                ZookeeperRegistryService.this.notify(serviceMeta, registerMeta, NotifyEvent.CHILD_REMOVED);
+                                if (serviceMetaSet.isEmpty()) {
+                                    logger.info("Offline notify: {}.", address);
+
+                                    ZookeeperRegistryService.this.offline(address);
+                                }
                                 break;
                         }
                     }
@@ -230,7 +244,7 @@ public class ZookeeperRegistryService extends AbstractRegistryService {
         configClient.close();
     }
 
-    private static RegisterMeta parseRegisterMeta(String data) {
+    private RegisterMeta parseRegisterMeta(String data) {
         String[] array_0 = Strings.split(data, '/');
         RegisterMeta meta = new RegisterMeta();
         meta.setGroup(array_0[2]);
@@ -244,5 +258,17 @@ public class ZookeeperRegistryService extends AbstractRegistryService {
         meta.setConnCount(Integer.parseInt(array_1[3]));
 
         return meta;
+    }
+
+    private ConcurrentSet<ServiceMeta> getServiceMeta(Address address) {
+        ConcurrentSet<ServiceMeta> serviceMetaSet = serviceMetaMap.get(address);
+        if (serviceMetaSet == null) {
+            ConcurrentSet<ServiceMeta> newServiceMetaSet = new ConcurrentSet<>();
+            serviceMetaSet = serviceMetaMap.putIfAbsent(address, newServiceMetaSet);
+            if (serviceMetaSet == null) {
+                serviceMetaSet = newServiceMetaSet;
+            }
+        }
+        return serviceMetaSet;
     }
 }

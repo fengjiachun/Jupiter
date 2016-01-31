@@ -34,8 +34,6 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.Executor;
 
-import static org.jupiter.common.util.JConstants.DEFAULT_CONNECTION_COUNT;
-import static org.jupiter.common.util.JConstants.DEFAULT_WEIGHT;
 import static org.jupiter.common.util.Preconditions.checkArgument;
 import static org.jupiter.common.util.Preconditions.checkNotNull;
 
@@ -92,11 +90,6 @@ public abstract class AbstractJServer implements JServer {
 
     @Override
     public void publish(ServiceWrapper serviceWrapper) {
-        publish(serviceWrapper, -1, -1);
-    }
-
-    @Override
-    public void publish(ServiceWrapper serviceWrapper, int weight, int connCount) {
         ServiceMetadata metadata = serviceWrapper.getMetadata();
 
         RegisterMeta meta = new RegisterMeta();
@@ -104,21 +97,45 @@ public abstract class AbstractJServer implements JServer {
         meta.setGroup(metadata.getGroup());
         meta.setVersion(metadata.getVersion());
         meta.setServiceProviderName(metadata.getServiceProviderName());
-        meta.setWeight(weight <= 0 ? DEFAULT_WEIGHT : weight);
-        meta.setConnCount(connCount <= 0 ? DEFAULT_CONNECTION_COUNT : connCount);
+        meta.setWeight(serviceWrapper.getWeight());
+        meta.setConnCount(serviceWrapper.getConnCount());
 
         registryService.register(meta);
     }
 
     @Override
-    public void publishAll() {
-        publishAll(-1, -1);
+    public void publish(ServiceWrapper... serviceWrappers) {
+        for (ServiceWrapper wrapper : serviceWrappers) {
+            publish(wrapper);
+        }
     }
 
     @Override
-    public void publishAll(int weight, int connCount) {
+    public void publishAll() {
         for (ServiceWrapper wrapper : providerContainer.getAllServices()) {
-            publish(wrapper, weight, connCount);
+            publish(wrapper);
+        }
+    }
+
+    @Override
+    public void unpublish(ServiceWrapper serviceWrapper) {
+        ServiceMetadata metadata = serviceWrapper.getMetadata();
+
+        RegisterMeta meta = new RegisterMeta();
+        meta.setPort(bindPort());
+        meta.setGroup(metadata.getGroup());
+        meta.setVersion(metadata.getVersion());
+        meta.setServiceProviderName(metadata.getServiceProviderName());
+        meta.setWeight(serviceWrapper.getWeight());
+        meta.setConnCount(serviceWrapper.getConnCount());
+
+        registryService.unregister(meta);
+    }
+
+    @Override
+    public void unpublishAll() {
+        for (ServiceWrapper wrapper : providerContainer.getAllServices()) {
+            unpublish(wrapper);
         }
     }
 
@@ -130,10 +147,14 @@ public abstract class AbstractJServer implements JServer {
             String providerName,
             Object serviceProvider,
             Map<String, List<Class<?>[]>> methodsParameterTypes,
+            int weight,
+            int connCount,
             Executor executor,
             FlowController<JRequest> flowController) {
 
         ServiceWrapper serviceWrapper = new ServiceWrapper(group, version, providerName, serviceProvider, methodsParameterTypes);
+        serviceWrapper.setWeight(weight);
+        serviceWrapper.setConnCount(connCount);
         serviceWrapper.setExecutor(executor);
         serviceWrapper.setFlowController(flowController);
 
@@ -145,12 +166,26 @@ public abstract class AbstractJServer implements JServer {
     class DefaultServiceRegistry implements ServiceRegistry {
 
         private Object serviceProvider;
+        private int weight;
+        private int connCount;
         protected Executor executor;
         protected FlowController<JRequest> flowController;
 
         @Override
         public ServiceRegistry provider(Object serviceProvider) {
             this.serviceProvider = serviceProvider;
+            return this;
+        }
+
+        @Override
+        public ServiceRegistry weight(int weight) {
+            this.weight = weight;
+            return this;
+        }
+
+        @Override
+        public ServiceRegistry connCount(int connCount) {
+            this.connCount = connCount;
             return this;
         }
 
@@ -205,7 +240,16 @@ public abstract class AbstractJServer implements JServer {
             checkNotNull(group, "group");
             checkNotNull(version, "version");
 
-            return registerService(group, version, providerName, serviceProvider, methodsParameterTypes, executor, flowController);
+            return registerService(
+                    group,
+                    version,
+                    providerName,
+                    serviceProvider,
+                    methodsParameterTypes,
+                    weight,
+                    connCount,
+                    executor,
+                    flowController);
         }
     }
 

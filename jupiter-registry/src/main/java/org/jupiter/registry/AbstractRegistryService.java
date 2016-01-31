@@ -48,7 +48,7 @@ public abstract class AbstractRegistryService implements RegistryService {
 
     private static final InternalLogger logger = InternalLoggerFactory.getInstance(AbstractRegistryService.class);
 
-    private final LinkedBlockingQueue<RegisterMeta> queue = new LinkedBlockingQueue<>(1204);
+    private final LinkedBlockingQueue<RegisterMeta> queue = new LinkedBlockingQueue<>(1024);
     private final ExecutorService executor =
             Executors.newSingleThreadExecutor(new NamedThreadFactory("registry.executor"));
     private final AtomicBoolean shutdown = new AtomicBoolean(false);
@@ -57,6 +57,7 @@ public abstract class AbstractRegistryService implements RegistryService {
     private final ReentrantReadWriteLock registriesLock = new ReentrantReadWriteLock();
 
     private final ConcurrentMap<ServiceMeta, CopyOnWriteArrayList<NotifyListener>> subscribeListeners = Maps.newConcurrentHashMap();
+    private final ConcurrentMap<Address, CopyOnWriteArrayList<OfflineListener>> offlineListeners = Maps.newConcurrentHashMap();
 
     // Consumer已订阅的信息
     private final ConcurrentSet<ServiceMeta> subscribeSet = new ConcurrentSet<>();
@@ -128,11 +129,27 @@ public abstract class AbstractRegistryService implements RegistryService {
         return Collections.emptyList();
     }
 
-    // 对端下线监听, 子类根据需要作为钩子实现
-    public void offlineListening(Address address, OfflineListener listener) {}
+    public void offlineListening(Address address, OfflineListener listener) {
+        CopyOnWriteArrayList<OfflineListener> listeners = offlineListeners.get(address);
+        if (listeners == null) {
+            CopyOnWriteArrayList<OfflineListener> newListeners = new CopyOnWriteArrayList<>();
+            listeners = offlineListeners.putIfAbsent(address, newListeners);
+            if (listeners == null) {
+                listeners = newListeners;
+            }
+        }
+        listeners.add(listener);
+    }
 
-    // 通知对应地址的机器下线, 子类根据需要作为钩子实现
-    public void offline(Address address) {}
+    public void offline(Address address) {
+        // remove and notify
+        CopyOnWriteArrayList<OfflineListener> listeners = offlineListeners.remove(address);
+        if (listeners != null) {
+            for (OfflineListener l : listeners) {
+                l.offline();
+            }
+        }
+    }
 
     public ConcurrentSet<ServiceMeta> subscribeSet() {
         return subscribeSet;

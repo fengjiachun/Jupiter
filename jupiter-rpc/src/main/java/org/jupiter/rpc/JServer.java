@@ -44,6 +44,16 @@ public interface JServer extends Registry {
         ServiceRegistry provider(Object serviceProvider);
 
         /**
+         * Sets the weight of this provider at current server(0 < weight <= 100).
+         */
+        ServiceRegistry weight(int weight);
+
+        /**
+         * suggest that the number of connections
+         */
+        ServiceRegistry connCount(int connCount);
+
+        /**
          * Sets a private {@link Executor} to this provider.
          */
         ServiceRegistry executor(Executor executor);
@@ -90,31 +100,32 @@ public interface JServer extends Registry {
     List<ServiceWrapper> getRegisteredServices();
 
     /**
-     * Publishing a service.
+     * Publish a service.
      *
      * @param serviceWrapper service provider wrapper, created by {@link ServiceRegistry}
      */
     void publish(ServiceWrapper serviceWrapper);
 
     /**
-     * Publishing a service.
+     * Publish  services.
      *
-     * @param serviceWrapper   service provider wrapper, created by {@link ServiceRegistry}
-     * @param weight           the weight of this provider at current server
-     * @param connCount        suggest that the number of connections
+     * @param serviceWrappers service provider wrapper, created by {@link ServiceRegistry}
      */
-    void publish(ServiceWrapper serviceWrapper, int weight, int connCount);
+    void publish(ServiceWrapper... serviceWrappers);
 
     /**
-     * Publishing all services.
+     * Publish all services.
      */
     void publishAll();
 
     /**
-     * Publishing all services.
-     *
-     * @param weight           the weight of these providers at current server
-     * @param connCount        suggest that the number of connections
+     * Unpublish a service.
+     * @param serviceWrapper service provider wrapper, created by {@link ServiceRegistry}
      */
-    void publishAll(int weight, int connCount);
+    void unpublish(ServiceWrapper serviceWrapper);
+
+    /**
+     * unpublish all services.
+     */
+    void unpublishAll();
 }

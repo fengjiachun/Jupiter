@@ -24,11 +24,10 @@ import org.jupiter.rpc.UnresolvedAddress;
 
 import java.util.Collection;
 import java.util.concurrent.ConcurrentMap;
-import java.util.concurrent.CopyOnWriteArrayList;
 
 import static org.jupiter.common.util.Preconditions.checkArgument;
 import static org.jupiter.common.util.Preconditions.checkNotNull;
-import static org.jupiter.registry.RegisterMeta.*;
+import static org.jupiter.registry.RegisterMeta.ServiceMeta;
 
 /**
  * Default registry service.
@@ -43,8 +42,6 @@ public class DefaultRegistryService extends AbstractRegistryService {
     private static final InternalLogger logger = InternalLoggerFactory.getInstance(DefaultRegistryService.class);
 
     private final ConcurrentMap<UnresolvedAddress, ConfigClient> clients = Maps.newConcurrentHashMap();
-
-    private final ConcurrentMap<Address, CopyOnWriteArrayList<OfflineListener>> offlineListeners = Maps.newConcurrentHashMap();
 
     @Override
     protected void doSubscribe(ServiceMeta serviceMeta) {
@@ -108,30 +105,6 @@ public class DefaultRegistryService extends AbstractRegistryService {
     public void destroy() {
         for (ConfigClient c : clients.values()) {
             c.shutdownGracefully();
-        }
-    }
-
-    @Override
-    public void offlineListening(Address address, OfflineListener listener) {
-        CopyOnWriteArrayList<OfflineListener> listeners = offlineListeners.get(address);
-        if (listeners == null) {
-            CopyOnWriteArrayList<OfflineListener> newListeners = new CopyOnWriteArrayList<>();
-            listeners = offlineListeners.putIfAbsent(address, newListeners);
-            if (listeners == null) {
-                listeners = newListeners;
-            }
-        }
-        listeners.add(listener);
-    }
-
-    @Override
-    public void offline(Address address) {
-        // remove and notify
-        CopyOnWriteArrayList<OfflineListener> listeners = offlineListeners.remove(address);
-        if (listeners != null) {
-            for (OfflineListener l : listeners) {
-                l.offline();
-            }
         }
     }
 }
