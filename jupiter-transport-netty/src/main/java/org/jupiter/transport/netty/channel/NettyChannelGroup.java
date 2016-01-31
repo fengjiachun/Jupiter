@@ -52,8 +52,8 @@ public class NettyChannelGroup implements JChannelGroup {
     private static long LOSS_INTERVAL = SystemPropertyUtil.getLong(
             "jupiter.channel.group.loss.interval.millis", MINUTES.toMillis(5));
 
-    private static final AtomicReferenceFieldUpdater<CopyOnWriteArrayList, Object[]> copyOnWriteArrayListUpdater
-            = AtomicUpdater.newAtomicReferenceFieldUpdater(CopyOnWriteArrayList.class, Object[].class, "array");
+    private static final AtomicReferenceFieldUpdater<CopyOnWriteArrayList, Object[]> copyOnWriteArrayListUpdater =
+            AtomicUpdater.newAtomicReferenceFieldUpdater(CopyOnWriteArrayList.class, Object[].class, "array");
     private static final AtomicIntegerFieldUpdater<NettyChannelGroup> signalNeededUpdater =
             AtomicUpdater.newAtomicIntegerFieldUpdater(NettyChannelGroup.class, "signalNeeded");
     private static final AtomicIntegerFieldUpdater<NettyChannelGroup> indexUpdater =
