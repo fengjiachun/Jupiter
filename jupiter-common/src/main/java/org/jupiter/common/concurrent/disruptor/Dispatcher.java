@@ -28,7 +28,7 @@ import static org.jupiter.common.util.JConstants.AVAILABLE_PROCESSORS;
  */
 public interface Dispatcher<T> {
 
-    int BUFFER_SIZE = 2048;
+    int BUFFER_SIZE = 65536;
     int MAX_NUM_WORKERS = AVAILABLE_PROCESSORS << 3;
 
     /**
