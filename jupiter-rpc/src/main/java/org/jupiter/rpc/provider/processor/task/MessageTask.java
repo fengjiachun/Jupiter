@@ -45,6 +45,7 @@ import java.util.List;
 import java.util.concurrent.Executor;
 
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
+import static java.util.concurrent.TimeUnit.NANOSECONDS;
 import static org.jupiter.common.util.Reflects.fastInvoke;
 import static org.jupiter.common.util.Reflects.findMatchingParameterTypes;
 import static org.jupiter.rpc.Status.*;
@@ -213,29 +214,13 @@ public class MessageTask implements RejectedRunnable {
             final long invokeId = _request.invokeId();
 
             // tracing
-            if (traceId != null) {
+            if (traceId != null && TracingEye.isTracingNeeded()) {
                 traceNodeUpdater.set(traceId, traceId.getNode() + 1);
                 TracingEye.setCurrent(traceId);
-
-                if (logger.isInfoEnabled()) {
-                    String traceText = traceId.asText(); // 避免StringBuilderHelper被嵌套使用
-
-                    String traceInfo = StringBuilderHelper.get()
-                            .append("[Provider] - ")
-                            .append(traceText)
-                            .append(", invokeId: ")
-                            .append(invokeId)
-                            .append(", callInfo: ")
-                            .append(callInfo)
-                            .append(", on ")
-                            .append(channel).toString();
-
-                    logger.info(traceInfo);
-                }
             }
 
             Object invokeResult = null;
-            Timer.Context timeCtx = Metrics.timer(callInfo).time();
+            Timer.Context timerCtx = Metrics.timer(callInfo).time();
             try {
                 Object[] args = msg.getArgs();
                 List<Class<?>[]> parameterTypesList = service.getMethodParameterTypes(methodName);
@@ -248,7 +233,28 @@ public class MessageTask implements RejectedRunnable {
                         findMatchingParameterTypes(parameterTypesList, args),
                         args);
             } finally {
-                timeCtx.stop();
+                long elapsed = timerCtx.stop();
+
+                // tracing
+                if (traceId != null && TracingEye.isTracingNeeded()) {
+                    if (logger.isInfoEnabled()) {
+                        String traceText = traceId.asText(); // 避免StringBuilderHelper被嵌套使用
+
+                        String traceInfo = StringBuilderHelper.get()
+                                .append("[Provider] - ")
+                                .append(traceText)
+                                .append(", invokeId: ")
+                                .append(invokeId)
+                                .append(", callInfo: ")
+                                .append(callInfo)
+                                .append(", elapsed: ")
+                                .append(NANOSECONDS.toMillis(elapsed))
+                                .append(" millis, on ")
+                                .append(channel).toString();
+
+                        logger.info(traceInfo);
+                    }
+                }
             }
 
             ResultWrapper result = new ResultWrapper();
@@ -260,21 +266,21 @@ public class MessageTask implements RejectedRunnable {
 
                 @Override
                 public void operationSuccess(JChannel channel) throws Exception {
-                    long duration = SystemClock.millisClock().now() - _request.timestamp();
+                    long elapsed = SystemClock.millisClock().now() - _request.timestamp();
 
                     responseSizeHistogram.update(bodyLength);
-                    processingTimer.update(duration, MILLISECONDS);
+                    processingTimer.update(elapsed, MILLISECONDS);
 
-                    logger.debug("Service response[id: {}, length: {}] sent out, duration: {} millis.",
-                            invokeId, bodyLength, duration);
+                    logger.debug("Service response[id: {}, length: {}] sent out, elapsed: {} millis.",
+                            invokeId, bodyLength, elapsed);
                 }
 
                 @Override
                 public void operationFailure(JChannel channel, Throwable cause) throws Exception {
-                    long duration = SystemClock.millisClock().now() - _request.timestamp();
+                    long elapsed = SystemClock.millisClock().now() - _request.timestamp();
 
-                    logger.error("Service response[id: {}, length: {}] sent failed, duration: {} millis, {}, {}.",
-                            invokeId, bodyLength, duration, channel, cause);
+                    logger.error("Service response[id: {}, length: {}] sent failed, elapsed: {} millis, {}, {}.",
+                            invokeId, bodyLength, elapsed, channel, cause);
                 }
             });
         } catch (Throwable t) {
