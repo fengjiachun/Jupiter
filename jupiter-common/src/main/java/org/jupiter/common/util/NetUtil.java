@@ -68,8 +68,7 @@ public class NetUtil {
                     }
                 }
             }
-        } catch (Throwable ignored) {
-        }
+        } catch (Throwable ignored) {}
 
         return "127.0.0.1";
     }
