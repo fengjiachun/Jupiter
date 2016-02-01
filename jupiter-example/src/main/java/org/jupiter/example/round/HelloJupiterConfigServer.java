@@ -20,6 +20,10 @@ import org.jupiter.monitor.MonitorServer;
 import org.jupiter.registry.ConfigServer;
 
 /**
+ * 1.启动 HelloJupiterConfigServer
+ * 2.再启动 HelloJupiterServer
+ * 3.最后启动 HelloJupiterClient / HelloJupiterFutureClient / HelloJupiterCallbackClient
+ *
  * jupiter
  * org.jupiter.example.round
  *

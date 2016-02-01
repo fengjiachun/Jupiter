@@ -57,7 +57,11 @@ Jupiter
         . 性能指标度量: log, csv, telnet
         . 链路跟踪: 链路最前端会生成全局唯一的traceId, 后边需要业务代码埋点, 和业务代码之间通过ThreadLocal透传traceId
 
-    示例代码: jupiter-example#org.jupiter.example.*
+    想做却没做的:
+        . Spring融合: 暂时没搞, 主要因为不想依赖Spring特定版本, 其实只需要两个类(SpringProviderBean和SpringConsumerBean), 可自行扩展
+
+    示例代码(挺全的):
+        . jupiter-example#org.jupiter.example.*
 
     闲暇时间写着玩的, 娱乐性质, 不过如有人希望尝试使用, 我承诺会一直维护
         1.qq交流: 71287116

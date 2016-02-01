@@ -29,6 +29,10 @@ import org.jupiter.transport.netty.NettyAcceptor;
 import java.util.concurrent.atomic.AtomicLong;
 
 /**
+ * 1.启动 HelloJupiterConfigServer
+ * 2.再启动 HelloJupiterServer
+ * 3.最后启动 HelloJupiterClient / HelloJupiterFutureClient / HelloJupiterCallbackClient
+ *
  * jupiter
  * org.jupiter.example.round
  *

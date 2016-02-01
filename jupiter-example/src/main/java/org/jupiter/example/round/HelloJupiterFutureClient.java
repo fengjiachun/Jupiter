@@ -28,6 +28,10 @@ import org.jupiter.transport.netty.JNettyTcpConnector;
 import org.jupiter.transport.netty.NettyConnector;
 
 /**
+ * 1.启动 HelloJupiterConfigServer
+ * 2.再启动 HelloJupiterServer
+ * 3.最后启动 HelloJupiterFutureClient
+ *
  * jupiter
  * org.jupiter.example.round
  *
