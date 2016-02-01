@@ -90,7 +90,7 @@ public class MessageTask implements RejectedRunnable {
         final JRequest _request = request;
 
         // deserialization
-        final MessageWrapper msg;
+        MessageWrapper msg;
         try {
             byte[] bytes = _request.bytes();
             _request.bytes(null);
@@ -253,7 +253,8 @@ public class MessageTask implements RejectedRunnable {
 
             ResultWrapper result = new ResultWrapper();
             result.setResult(invokeResult);
-            final byte[] bytes = serializerImpl().writeObject(result);
+            byte[] bytes = serializerImpl().writeObject(result);
+            final int bodyLength = bytes.length;
 
             channel.write(JResponse.newInstance(invokeId, OK, bytes), new JFutureListener<JChannel>() {
 
@@ -261,8 +262,11 @@ public class MessageTask implements RejectedRunnable {
                 public void operationSuccess(JChannel channel) throws Exception {
                     long duration = SystemClock.millisClock().now() - _request.timestamp();
 
-                    responseSizeHistogram.update(bytes.length);
+                    responseSizeHistogram.update(bodyLength);
                     processingTimer.update(duration, MILLISECONDS);
+
+                    logger.debug("Service response[id: {}, length: {}] sent out, duration: {} millis.",
+                            invokeId, bodyLength, duration);
                 }
 
                 @Override
@@ -270,7 +274,7 @@ public class MessageTask implements RejectedRunnable {
                     long duration = SystemClock.millisClock().now() - _request.timestamp();
 
                     logger.error("Service response[id: {}, length: {}] sent failed, duration: {} millis, {}, {}.",
-                            invokeId, bytes.length, duration, channel, cause);
+                            invokeId, bodyLength, duration, channel, cause);
                 }
             });
         } catch (Throwable t) {
