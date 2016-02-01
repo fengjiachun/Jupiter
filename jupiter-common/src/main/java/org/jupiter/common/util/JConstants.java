@@ -73,23 +73,24 @@ public final class JConstants {
     public static final int DEFAULT_WEIGHT = SystemPropertyUtil.getInt("jupiter.load-balancer.weight", 50);
 
     /** Suggest that the count of connections **/
-    public static final int DEFAULT_CONNECTION_COUNT = SystemPropertyUtil.getInt("jupiter.suggest.connection.count", AVAILABLE_PROCESSORS);
+    public static final int DEFAULT_CONNECTION_COUNT = SystemPropertyUtil
+            .getInt("jupiter.suggest.connection.count", AVAILABLE_PROCESSORS);
 
     /** Processor.executor 核心线程数 **/
-    public static final int PROCESSOR_CORE_NUM_WORKERS = SystemPropertyUtil.getInt(
-            "jupiter.processor.executor.core.num.workers", AVAILABLE_PROCESSORS << 1);
+    public static final int PROCESSOR_CORE_NUM_WORKERS = SystemPropertyUtil
+            .getInt("jupiter.processor.executor.core.num.workers", AVAILABLE_PROCESSORS << 1);
     /** Processor.executor 队列的容量限制 **/
-    public static final int PROCESSOR_WORKER_QUEUE_CAPACITY = SystemPropertyUtil.getInt(
-            "jupiter.processor.executor.worker.queue.capacity", 65536);
+    public static final int PROCESSOR_WORKER_QUEUE_CAPACITY = SystemPropertyUtil
+            .getInt("jupiter.processor.executor.worker.queue.capacity", 32768);
     /** Processor.executor 最大线程数的限制 **/
-    public static final int PROCESSOR_MAX_NUM_WORKS = SystemPropertyUtil.getInt(
-            "jupiter.processor.executor.max.num.workers", 256);
+    public static final int PROCESSOR_MAX_NUM_WORKS = SystemPropertyUtil
+            .getInt("jupiter.processor.executor.max.num.workers", 512);
 
     /** Metrics csv reporter */
     public static final boolean METRIC_CSV_REPORTER = SystemPropertyUtil.getBoolean("jupiter.metric.csv.reporter", false);
     /** Metrics csv reporter directory */
-    public static final String METRIC_CSV_REPORTER_DIRECTORY = SystemPropertyUtil.get(
-            "jupiter.metric.csv.reporter.directory", SystemPropertyUtil.get("user.dir"));
+    public static final String METRIC_CSV_REPORTER_DIRECTORY = SystemPropertyUtil
+            .get("jupiter.metric.csv.reporter.directory", SystemPropertyUtil.get("user.dir"));
     /** Metrics reporter period */
     public static final int METRIC_REPORT_PERIOD = SystemPropertyUtil.getInt("jupiter.metric.report.period", 15);
 }

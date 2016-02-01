@@ -48,8 +48,9 @@ public class ProtoStuffSerializer implements Serializer {
 
     static {
         // RuntimeEnv
-        SystemPropertyUtil.setProperty(
-                "protostuff.runtime.always_use_sun_reflection_factory", String.valueOf(ALWAYS_USE_SUN_REFLECTION_FACTORY));
+        String value = String.valueOf(ALWAYS_USE_SUN_REFLECTION_FACTORY);
+        SystemPropertyUtil
+                .setProperty("protostuff.runtime.always_use_sun_reflection_factory", value);
     }
 
     private final ConcurrentMap<Class<?>, Schema<?>> schemaCache = Maps.newConcurrentHashMap();
