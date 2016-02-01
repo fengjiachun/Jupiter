@@ -183,7 +183,7 @@ public class MessageTask implements RejectedRunnable {
         byte[] bytes = serializerImpl().writeObject(result);
 
         final long invokeId = _request.invokeId();
-        channel.write(JResponse.getInstance(invokeId, status, bytes), new JFutureListener<JChannel>() {
+        channel.write(JResponse.newInstance(invokeId, status, bytes), new JFutureListener<JChannel>() {
 
             @Override
             public void operationSuccess(JChannel channel) throws Exception {
@@ -255,7 +255,7 @@ public class MessageTask implements RejectedRunnable {
             result.setResult(invokeResult);
             final byte[] bytes = serializerImpl().writeObject(result);
 
-            channel.write(JResponse.getInstance(invokeId, OK, bytes), new JFutureListener<JChannel>() {
+            channel.write(JResponse.newInstance(invokeId, OK, bytes), new JFutureListener<JChannel>() {
 
                 @Override
                 public void operationSuccess(JChannel channel) throws Exception {
@@ -263,16 +263,13 @@ public class MessageTask implements RejectedRunnable {
 
                     responseSizeHistogram.update(bytes.length);
                     processingTimer.update(duration, MILLISECONDS);
-
-                    logger.debug("Service response[id: {}, length: {}] sent out, duration: {} millis.",
-                            invokeId, bytes.length, duration);
                 }
 
                 @Override
                 public void operationFailure(JChannel channel, Throwable cause) throws Exception {
                     long duration = SystemClock.millisClock().now() - _request.timestamp();
 
-                    logger.warn("Service response[id: {}, length: {}] sent failed, duration: {} millis, {}, {}.",
+                    logger.error("Service response[id: {}, length: {}] sent failed, duration: {} millis, {}, {}.",
                             invokeId, bytes.length, duration, channel, cause);
                 }
             });

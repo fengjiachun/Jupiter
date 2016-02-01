@@ -105,7 +105,7 @@ public class ProtocolDecoder extends ReplayingDecoder<ProtocolDecoder.State> {
                         byte[] bytes = new byte[bodyLength];
                         in.readBytes(bytes);
 
-                        out.add(JResponse.getInstance(header.id(), header.status(), bytes));
+                        out.add(JResponse.newInstance(header.id(), header.status(), bytes));
 
                         break;
                     }

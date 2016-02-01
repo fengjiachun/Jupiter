@@ -44,6 +44,6 @@ public abstract class AbstractProviderProcessor implements ProviderProcessor {
         logger.error("An exception has been caught while processing request: {}.", result.getError());
 
         byte[] bytes = serializerImpl().writeObject(result);
-        channel.write(JResponse.getInstance(request.invokeId(), SERVER_ERROR, bytes));
+        channel.write(JResponse.newInstance(request.invokeId(), SERVER_ERROR, bytes));
     }
 }

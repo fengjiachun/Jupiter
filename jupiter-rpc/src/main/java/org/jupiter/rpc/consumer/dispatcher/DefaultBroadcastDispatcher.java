@@ -102,7 +102,7 @@ public class DefaultBroadcastDispatcher extends AbstractDispatcher {
                     ResultWrapper result = new ResultWrapper();
                     result.setError(cause);
 
-                    JResponse response = JResponse.getInstance(request.invokeId(), CLIENT_ERROR, result);
+                    JResponse response = JResponse.newInstance(request.invokeId(), CLIENT_ERROR, result);
                     DefaultInvokeFuture.received(channel, response);
                 }
             });

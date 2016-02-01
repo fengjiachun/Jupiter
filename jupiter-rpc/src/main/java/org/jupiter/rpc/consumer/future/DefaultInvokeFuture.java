@@ -264,7 +264,7 @@ public class DefaultInvokeFuture extends InvokeFuture {
             Status status = future.sentTimestamp > 0 ? SERVER_TIMEOUT : CLIENT_TIMEOUT;
             result.setError(new TimeoutException(future.channel.remoteAddress(), status));
 
-            JResponse r = JResponse.getInstance(future.invokeId, status, result);
+            JResponse r = JResponse.newInstance(future.invokeId, status, result);
             DefaultInvokeFuture.received(future.channel, r);
         }
     }
