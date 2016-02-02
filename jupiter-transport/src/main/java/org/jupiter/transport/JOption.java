@@ -128,7 +128,7 @@ public final class JOption<T> extends AbstractConstant<JOption<T>> {
      *    到ServerSocket上, 也就是Option(Option.SO_RCVBUF, XX), 一个连接被ServerSocket
      *    accept后会clone一个此连接对应的socket, 这个值会继承过来.
      *
-     * 2. 跟TCP通告窗口的关系? 其实并不是rcv_buf设置多大, 通告窗口就多大的, 他们之间有非比寻常的关系,
+     * 2. 跟TCP通告窗口的关系? 其实并不是rcv_buf设置多大, 通告窗口就多大的, 他们之间的关系非比寻常,
      *    但绝对不是一一对应的关系, TCP是一种慢启动的协议, linux2.6.39版本之前, 在以太网环境中初始通告
      *    窗口是的3个MSS(MSS即最大的segment size, 以太网环境中是1460个字节)然后根据拥塞避免
      *    算法一点一点增加, 3.x内核初始通告窗口是直接在代码中写死的10个MSS(google一篇论文的建议).
