@@ -42,8 +42,8 @@
 ###性能报告:
 [BenchmarkClient](https://github.com/fengjiachun/Jupiter/blob/master/jupiter-example/src/main/java/org/jupiter/benchmark/tcp/BenchmarkClient.java)<br />
 [BenchmarkServer](https://github.com/fengjiachun/Jupiter/blob/master/jupiter-example/src/main/java/org/jupiter/benchmark/tcp/BenchmarkServer.java)<br />
-    小数据包同步阻塞调用qps: 10w+
-    小数据包Future方式调用qps: 17w+ (比同步阻塞调用qps高一些是因为阻塞调用导致瓶颈在客户端, 如果有多台机器作为客户端测试理论上也能达到这个值)
+#小数据包同步阻塞调用qps: 10w+
+#小数据包Future方式调用qps: 17w+ (比同步阻塞调用qps高一些是因为阻塞调用导致瓶颈在客户端, 如果有多台机器作为客户端测试理论上也能达到这个值)
 
 ###一些特性:
         . 支持同步阻塞调用, 异步Future, Callback方式调用
