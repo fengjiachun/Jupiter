@@ -55,7 +55,7 @@
 - Spring融合: 暂时没搞, 主要因为不想依赖Spring特定版本, 其实只需要两个类(SpringProviderBean和SpringConsumerBean), 可自行扩展
 
 ######Jupiter使用, 请参考示例代码(挺全的):
-- jupiter-example#org.jupiter.example.*
+- [jupiter-example#org.jupiter.example.*](https://github.com/fengjiachun/Jupiter/tree/master/jupiter-example/src/main/java/org/jupiter/example)
 
 ######其他:
     - 闲暇时间写着玩的, 娱乐性质, 不过如有人希望尝试使用, 我承诺会一直维护
