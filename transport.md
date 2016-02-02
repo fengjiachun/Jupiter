@@ -73,23 +73,23 @@
          ┌ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ┐      ┌ ─ ─ ─ ─ ─ ─▽─ ─ ─ ─ ─ ─ ─
        │  ConnectionWatchdog#outbound        ConnectionWatchdog#inbound│  │
          └ ─ ─ ─ ─ ─ ─ △ ─ ─ ─ ─ ─ ─ ┘      └ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─
-       │                                                 │                │
-                       │
-       │  ┌ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ┐       ┌ ─ ─ ─ ─ ─ ─▽─ ─ ─ ─ ─ ─ ┐   │
-           IdleStateChecker#outBound         IdleStateChecker#inBound
-       │  └ ─ ─ ─ ─ ─ ─△─ ─ ─ ─ ─ ─ ┘       └ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ┘   │
-                                                         │
-       │               │                                                  │
-                                            ┌ ─ ─ ─ ─ ─ ─▽─ ─ ─ ─ ─ ─ ┐
-       │               │                     AcceptorIdleStateTrigger     │
-                                            └ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ┘
        │               │                                 │                │
 
-       │               │                    ┌ ─ ─ ─ ─ ─ ─▽─ ─ ─ ─ ─ ─ ┐   │
-                                                  ProtocolDecoder
+       │               │                                 │                │
+          ┌ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ┐                    ▽
+       │   IdleStateChecker#outBound        ┌ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ┐   │
+          └ ─ ─ ─ ─ ─ ─△─ ─ ─ ─ ─ ─ ┘        IdleStateChecker#inBound
        │               │                    └ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ┘   │
                                                          │
        │               │                                                  │
+                                                         │
+       │               │                                                  │
+          ┌ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ┐       ┌ ─ ─ ─ ─ ─ ─▽─ ─ ─ ─ ─ ─ ┐
+       │   ConnectorIdleStateTrigger              ProtocolDecoder         │
+          └ ─ ─ ─ ─ ─ ─△─ ─ ─ ─ ─ ─ ┘       └ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ┘
+       │               │                                 │                │
+
+       │               │                                 │                │
                                             ┌ ─ ─ ─ ─ ─ ─▽─ ─ ─ ─ ─ ─ ┐
        │               │                         ConnectorHandler         │
           ┌ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ┐       └ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ┘
