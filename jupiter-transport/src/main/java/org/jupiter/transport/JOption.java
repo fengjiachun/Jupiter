@@ -121,6 +121,25 @@ public final class JOption<T> extends AbstractConstant<JOption<T>> {
     /**
      * 设置rcv_buf
      * 一般对于要建立大量连接的应用, 不建议设置这个值, 因为linux内核对rcv_buf的大小是动态调整的, 内核是很聪明的.
+     *
+     * 需要注意的是Netty中.childOption(ChannelOption.SO_RCVBUF, XX)是无效的
+     * 1. TCP在三次握手建立连接期间就会通过ACK分组通告自己的初始接收窗口(通告窗口)大小,
+     *    而.childOption是netty在连接建立成功后才设置的, 所以必然是无效的设置. 正确的方法是设置
+     *    到ServerSocket上, 也就是Option(Option.SO_RCVBUF, XX), 一个连接被ServerSocket
+     *    accept后会clone一个此连接对应的socket, 这个值会继承过来.
+     *
+     * 2. 跟TCP通告窗口的关系? 其实并不是rcv_buf设置多大, 通告窗口就多大的, 他们之间有非比寻常的关系,
+     *    但绝对不是一一对应的关系, TCP是一种慢启动的协议, linux2.6.39版本之前, 在以太网环境中初始通告
+     *    窗口是的3个MSS(MSS即最大的segment size, 以太网环境中是1460个字节)然后根据拥塞避免
+     *    算法一点一点增加, 3.x内核初始通告窗口是直接在代码中写死的10个MSS(google一篇论文的建议).
+     *
+     * 3. 还有就是recv_buf并不是个数组啥的(内核buf的数据结构大致是一个segment queue), 也不会预先
+     *    分配内存, 只是个接收缓冲区size的最大限制, 对端不给你发数据, 内核不会自作多情分配内存给你,
+     *    要不然现在动辄单机上百万个长连接就是痴人说梦了
+     *
+     * 4. 通常情况下, 我个人经验是不建议设置rcv_buf, linux内核会对每一个连接做动态的调整, 一般情况下
+     *    足够智能, 如果设置死了, 就失去了这个特性, 尤其是大量长连接的应用, 我觉得这个设置就忘记吧, 要调优,
+     *    也最好到linux内核里面去配置对应参数.
      */
     public static final JOption<Integer> SO_RCVBUF = valueOf("SO_RCVBUF");
 
