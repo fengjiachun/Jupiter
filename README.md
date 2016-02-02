@@ -4,7 +4,7 @@
 
   -------------------------------------------------------------------------------------------------------
 
-#####Jupiter Architecture:
+######Jupiter Architecture:
 
            ═ ═ ═▷ init         ─ ─ ─ ▷ async       ──────▶ sync
       ***********************************************************************************
@@ -39,13 +39,13 @@
 
   -------------------------------------------------------------------------------------------------------
 
-#####性能报告:
+######性能报告:
     - 小数据包同步阻塞调用qps: 11w+
     - 小数据包Future方式调用qps: 17w+ (比同步阻塞调用qps高一些是因为阻塞调用导致瓶颈在客户端, 如果有多台机器作为客户端测试理论上也能达到这个值)
 [BenchmarkClient](https://github.com/fengjiachun/Jupiter/blob/master/jupiter-example/src/main/java/org/jupiter/benchmark/tcp/BenchmarkClient.java)<br />
 [BenchmarkServer](https://github.com/fengjiachun/Jupiter/blob/master/jupiter-example/src/main/java/org/jupiter/benchmark/tcp/BenchmarkServer.java)<br />
 
-#####一些特性:
+######一些特性:
     - 支持同步阻塞调用, 异步Future, Callback方式调用
     - 支持单播和广播
     - 支持泛化调用
@@ -58,13 +58,13 @@
     - 性能指标度量: log, csv, telnet
     - 链路跟踪: 链路最前端会生成全局唯一的traceId, 后边需要业务代码埋点, 和业务代码之间通过ThreadLocal透传traceId
 
-#####想做却没做的:
+######想做却没做的:
     - Spring融合: 暂时没搞, 主要因为不想依赖Spring特定版本, 其实只需要两个类(SpringProviderBean和SpringConsumerBean), 可自行扩展
 
-#####示例代码(挺全的):
+######示例代码(挺全的):
     - jupiter-example#org.jupiter.example.*
 
-#####其他:
+######其他:
     - 闲暇时间写着玩的, 娱乐性质, 不过如有人希望尝试使用, 我承诺会一直维护
      1. qq交流: 71287116
      2. 邮件交流: jiachun_fjc@163.com
