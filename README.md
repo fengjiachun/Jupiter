@@ -27,7 +27,7 @@
       ***********************************************************************************
 
   -------------------------------------------------------------------------------------------------------
-- [传输层工作流程](https://github.com/fengjiachun/Jupiter/blob/master/transport.md)
+- [传输层](https://github.com/fengjiachun/Jupiter/blob/master/transport.md)
 - [Option参数](https://github.com/fengjiachun/Jupiter/blob/master/jupiter-transport/src/main/java/org/jupiter/transport/JOption.java)
 
 ######性能报告:
@@ -43,7 +43,7 @@
 - 支持泛化调用
 - 支持udt(有点鸡肋)
 - 序列化/反序列化: 基于SPI并可扩展, 默认使用protostuff
-- 服务发布/订阅: 基于SPI并可扩展, 提供默认注册中心实现(开发环境用), 也支持zookeeper, 支持线上调整已有服务(通过flightexec)
+- 服务发布/订阅: 基于SPI并可扩展, 提供默认注册中心实现, 也支持zookeeper, 支持线上调整已有服务(通过flightexec)
 - 软负载均衡: 随机, 按权重和预热时间设置随机概率(基于SPI, 可扩展)
 - 流量控制: 提供app级别和provider级别两种粒度流控, 支持线上调整(通过flightexec)
 - 监控服务: 只能使用telnet, 有点鸡肋, 因为我不会做网页
