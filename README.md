@@ -54,7 +54,7 @@
 ######想做却没做的:
 - Spring融合: 暂时没搞, 主要因为不想依赖Spring特定版本, 其实只需要两个类(SpringProviderBean和SpringConsumerBean), 可自行扩展
 
-######示例代码(挺全的):
+######Jupiter使用, 请参考示例代码(挺全的):
 - jupiter-example#org.jupiter.example.*
 
 ######其他:
