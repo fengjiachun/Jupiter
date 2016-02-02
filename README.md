@@ -58,7 +58,7 @@
 - [jupiter-example#org.jupiter.example.*](https://github.com/fengjiachun/Jupiter/tree/master/jupiter-example/src/main/java/org/jupiter/example)
 
 ######其他:
-    - 闲暇时间写着玩的, 娱乐性质, 不过如有人希望尝试使用, 我承诺会一直维护
+- 闲暇时间写着玩的, 娱乐性质, 不过如有人希望尝试使用, 我承诺会一直维护
      1. qq交流: 71287116
      2. 邮件交流: jiachun_fjc@163.com
 
