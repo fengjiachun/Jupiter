@@ -28,6 +28,7 @@
 
   -------------------------------------------------------------------------------------------------------
 - [传输层工作流程](https://github.com/fengjiachun/Jupiter/blob/master/transport.md)
+- [Option参数](https://github.com/fengjiachun/Jupiter/blob/master/jupiter-transport/src/main/java/org/jupiter/transport/JOption.java)
 
   -------------------------------------------------------------------------------------------------------
 
