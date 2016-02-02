@@ -24,7 +24,7 @@
  *      {@link org.jupiter.rpc.JServer.ServiceRegistry#executor(java.util.concurrent.Executor)}
  *      将线程池注册到该provider上供其单独使用(需重新调用register).
  *
- * 使用方式:
+ * 使用方式(参照jupiter-example#org.jupiter.example.flight.exec*):
  *      1. 服务端注册 {@link org.jupiter.flight.exec.JavaClassExecProvider} 作为一个provider.
  *
  *      2. 客户端使用 {@link org.jupiter.flight.exec.JavaCompiler} 编译需要执行的类, 将编译返回的字节码byte数组
