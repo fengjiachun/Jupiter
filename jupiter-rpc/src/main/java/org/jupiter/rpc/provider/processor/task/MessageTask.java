@@ -26,7 +26,9 @@ import org.jupiter.common.util.internal.UnsafeIntegerFieldUpdater;
 import org.jupiter.common.util.internal.UnsafeUpdater;
 import org.jupiter.common.util.internal.logging.InternalLogger;
 import org.jupiter.common.util.internal.logging.InternalLoggerFactory;
-import org.jupiter.rpc.*;
+import org.jupiter.rpc.JRequest;
+import org.jupiter.rpc.JResponse;
+import org.jupiter.rpc.Status;
 import org.jupiter.rpc.channel.JChannel;
 import org.jupiter.rpc.channel.JFutureListener;
 import org.jupiter.rpc.exception.BadRequestException;
@@ -40,15 +42,18 @@ import org.jupiter.rpc.model.metadata.MessageWrapper;
 import org.jupiter.rpc.model.metadata.ResultWrapper;
 import org.jupiter.rpc.model.metadata.ServiceWrapper;
 import org.jupiter.rpc.provider.processor.ProviderProcessor;
+import org.jupiter.rpc.tracing.TraceId;
+import org.jupiter.rpc.tracing.TracingEye;
+import org.jupiter.rpc.tracing.TracingRecorder;
 
 import java.util.List;
 import java.util.concurrent.Executor;
 
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
-import static java.util.concurrent.TimeUnit.NANOSECONDS;
 import static org.jupiter.common.util.Reflects.fastInvoke;
 import static org.jupiter.common.util.Reflects.findMatchingParameterTypes;
 import static org.jupiter.rpc.Status.*;
+import static org.jupiter.rpc.tracing.TracingRecorder.Role.PROVIDER;
 import static org.jupiter.serialization.SerializerHolder.serializerImpl;
 
 /**
@@ -237,23 +242,8 @@ public class MessageTask implements RejectedRunnable {
 
                 // tracing
                 if (traceId != null && TracingEye.isTracingNeeded()) {
-                    if (logger.isInfoEnabled()) {
-                        String traceText = traceId.asText(); // 避免StringBuilderHelper被嵌套使用
-
-                        String traceInfo = StringBuilderHelper.get()
-                                .append("[Provider] - ")
-                                .append(traceText)
-                                .append(", invokeId: ")
-                                .append(invokeId)
-                                .append(", callInfo: ")
-                                .append(callInfo)
-                                .append(", elapsed: ")
-                                .append(NANOSECONDS.toMillis(elapsed))
-                                .append(" millis, on ")
-                                .append(channel).toString();
-
-                        logger.info(traceInfo);
-                    }
+                    TracingRecorder recorder = TracingEye.getRecorder();
+                    recorder.record(PROVIDER, traceId.asText(), invokeId, callInfo, elapsed, channel);
                 }
             }
 

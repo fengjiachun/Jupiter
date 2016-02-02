@@ -16,7 +16,7 @@
 
 package org.jupiter.rpc.model.metadata;
 
-import org.jupiter.rpc.TraceId;
+import org.jupiter.rpc.tracing.TraceId;
 
 import java.io.Serializable;
 import java.util.Arrays;

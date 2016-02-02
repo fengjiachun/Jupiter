@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.jupiter.rpc;
+package org.jupiter.rpc.tracing;
 
 import org.jupiter.common.util.StringBuilderHelper;
 

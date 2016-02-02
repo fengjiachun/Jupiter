@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.jupiter.rpc;
+package org.jupiter.rpc.tracing;
 
 import org.jupiter.common.util.*;
 import org.jupiter.common.util.internal.JUnsafe;
@@ -27,7 +27,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * jupiter
- * org.jupiter.rpc
+ * org.jupiter.rpc.tracing
  *
  * @author jiachun.fjc
  */
@@ -36,6 +36,8 @@ public class TracingEye {
     private static final InternalLogger logger = InternalLoggerFactory.getInstance(TracingEye.class);
 
     private static final boolean TRACING_NEEDED = SystemPropertyUtil.getBoolean("jupiter.tracing.needed", true);
+
+    private static final TracingRecorder tracingRecorder = JServiceLoader.load(TracingRecorder.class);
 
     private static final ThreadLocal<TraceId> traceThreadLocal = new ThreadLocal<>();
 
@@ -84,6 +86,10 @@ public class TracingEye {
 
     public static void removeCurrent() {
         traceThreadLocal.remove();
+    }
+
+    public static TracingRecorder getRecorder() {
+        return tracingRecorder;
     }
 
     private static String getHexPid(int pid) {

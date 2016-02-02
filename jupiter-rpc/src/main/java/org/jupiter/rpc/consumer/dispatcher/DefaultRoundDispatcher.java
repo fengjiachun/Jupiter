@@ -16,10 +16,12 @@
 
 package org.jupiter.rpc.consumer.dispatcher;
 
-import org.jupiter.common.util.StringBuilderHelper;
 import org.jupiter.common.util.internal.logging.InternalLogger;
 import org.jupiter.common.util.internal.logging.InternalLoggerFactory;
-import org.jupiter.rpc.*;
+import org.jupiter.rpc.ConsumerHook;
+import org.jupiter.rpc.JClient;
+import org.jupiter.rpc.JRequest;
+import org.jupiter.rpc.JResponse;
 import org.jupiter.rpc.channel.JChannel;
 import org.jupiter.rpc.channel.JFutureListener;
 import org.jupiter.rpc.consumer.future.DefaultInvokeFuture;
@@ -27,8 +29,12 @@ import org.jupiter.rpc.consumer.future.InvokeFuture;
 import org.jupiter.rpc.model.metadata.MessageWrapper;
 import org.jupiter.rpc.model.metadata.ResultWrapper;
 import org.jupiter.rpc.model.metadata.ServiceMetadata;
+import org.jupiter.rpc.tracing.TraceId;
+import org.jupiter.rpc.tracing.TracingEye;
+import org.jupiter.rpc.tracing.TracingRecorder;
 
 import static org.jupiter.rpc.Status.CLIENT_ERROR;
+import static org.jupiter.rpc.tracing.TracingRecorder.Role.CONSUMER;
 import static org.jupiter.serialization.SerializerHolder.serializerImpl;
 
 /**
@@ -67,25 +73,8 @@ public class DefaultRoundDispatcher extends AbstractDispatcher {
             }
             message.setTraceId(traceId);
 
-            if (logger.isInfoEnabled()) {
-                // 避免StringBuilderHelper被嵌套使用
-                String directory = _metadata.directory();
-                String traceText = traceId.asText();
-
-                String traceInfo = StringBuilderHelper.get()
-                        .append("[Consumer] - ")
-                        .append(traceText)
-                        .append(", invokeId: ")
-                        .append(request.invokeId())
-                        .append(", callInfo: ")
-                        .append(directory)
-                        .append('#')
-                        .append(methodName)
-                        .append(", on ")
-                        .append(channel).toString();
-
-                logger.info(traceInfo);
-            }
+            TracingRecorder recorder = TracingEye.getRecorder();
+            recorder.record(CONSUMER, traceId.asText(), request.invokeId(), _metadata.directory(), methodName, channel);
         }
 
         request.message(message);
