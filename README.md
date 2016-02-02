@@ -42,32 +42,32 @@
 #####性能报告:
 [BenchmarkClient](https://github.com/fengjiachun/Jupiter/blob/master/jupiter-example/src/main/java/org/jupiter/benchmark/tcp/BenchmarkClient.java)<br />
 [BenchmarkServer](https://github.com/fengjiachun/Jupiter/blob/master/jupiter-example/src/main/java/org/jupiter/benchmark/tcp/BenchmarkServer.java)<br />
-- 小数据包同步阻塞调用qps: 11w+
-- 小数据包Future方式调用qps: 17w+ (比同步阻塞调用qps高一些是因为阻塞调用导致瓶颈在客户端, 如果有多台机器作为客户端测试理论上也能达到这个值)
+        - 小数据包同步阻塞调用qps: 11w+
+        - 小数据包Future方式调用qps: 17w+ (比同步阻塞调用qps高一些是因为阻塞调用导致瓶颈在客户端, 如果有多台机器作为客户端测试理论上也能达到这个值)
 
 #####一些特性:
-- 支持同步阻塞调用, 异步Future, Callback方式调用
-- 支持单播和广播
-- 支持泛化调用
-- 支持udt(有点鸡肋)
-- 序列化/反序列化: 默认使用protostuff(基于SPI, 可扩展)
-- 服务发布/订阅: 提供默认注册中心实现, 也支持zookeeper(基于SPI, 可扩展), 支持线上发布新服务或调整已有服务线程池等(通过flightexec)
-- 软负载均衡: 随机, 按权重和预热时间设置随机概率(基于SPI, 可扩展)
-- 流量控制: 提供app级别和provider级别两种粒度流控, 支持线上调整(通过flightexec)
-- 监控服务: 只能使用telnet, 有点鸡肋, 因为我不会做网页
-- 性能指标度量: log, csv, telnet
-- 链路跟踪: 链路最前端会生成全局唯一的traceId, 后边需要业务代码埋点, 和业务代码之间通过ThreadLocal透传traceId
+        - 支持同步阻塞调用, 异步Future, Callback方式调用
+        - 支持单播和广播
+        - 支持泛化调用
+        - 支持udt(有点鸡肋)
+        - 序列化/反序列化: 默认使用protostuff(基于SPI, 可扩展)
+        - 服务发布/订阅: 提供默认注册中心实现, 也支持zookeeper(基于SPI, 可扩展), 支持线上发布新服务或调整已有服务线程池等(通过flightexec)
+        - 软负载均衡: 随机, 按权重和预热时间设置随机概率(基于SPI, 可扩展)
+        - 流量控制: 提供app级别和provider级别两种粒度流控, 支持线上调整(通过flightexec)
+        - 监控服务: 只能使用telnet, 有点鸡肋, 因为我不会做网页
+        - 性能指标度量: log, csv, telnet
+        - 链路跟踪: 链路最前端会生成全局唯一的traceId, 后边需要业务代码埋点, 和业务代码之间通过ThreadLocal透传traceId
 
 #####想做却没做的:
-- Spring融合: 暂时没搞, 主要因为不想依赖Spring特定版本, 其实只需要两个类(SpringProviderBean和SpringConsumerBean), 可自行扩展
+        - Spring融合: 暂时没搞, 主要因为不想依赖Spring特定版本, 其实只需要两个类(SpringProviderBean和SpringConsumerBean), 可自行扩展
 
 #####示例代码(挺全的):
-- jupiter-example#org.jupiter.example.*
+        - jupiter-example#org.jupiter.example.*
 
 #####其他:
-- 闲暇时间写着玩的, 娱乐性质, 不过如有人希望尝试使用, 我承诺会一直维护
- + qq交流: 71287116
- + 邮件交流: jiachun_fjc@163.com
+        - 闲暇时间写着玩的, 娱乐性质, 不过如有人希望尝试使用, 我承诺会一直维护
+         + qq交流: 71287116
+         + 邮件交流: jiachun_fjc@163.com
 
   -------------------------------------------------------------------------------------------------------
 
