@@ -14,5 +14,5 @@
 # limitations under the License.
 #
 
-org.jupiter.rpc.tracing.DefaultTracingRecorder
+org.jupiter.rpc.tracing.DefaultInternalTracingRecorder
 

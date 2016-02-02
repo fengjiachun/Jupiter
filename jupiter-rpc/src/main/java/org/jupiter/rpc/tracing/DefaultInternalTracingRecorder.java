@@ -28,9 +28,9 @@ import static java.util.concurrent.TimeUnit.NANOSECONDS;
  *
  * @author jiachun.fjc
  */
-public class DefaultTracingRecorder extends TracingRecorder {
+public class DefaultInternalTracingRecorder extends TracingRecorder {
 
-    private static final InternalLogger logger = InternalLoggerFactory.getInstance(DefaultTracingRecorder.class);
+    private static final InternalLogger logger = InternalLoggerFactory.getInstance(DefaultInternalTracingRecorder.class);
 
     @Override
     public void record(Role role, Object... args) {
