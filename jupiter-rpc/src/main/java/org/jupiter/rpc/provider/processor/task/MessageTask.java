@@ -243,7 +243,7 @@ public class MessageTask implements RejectedRunnable {
                 // tracing
                 if (traceId != null && TracingEye.isTracingNeeded()) {
                     TracingRecorder recorder = TracingEye.getRecorder();
-                    recorder.record(PROVIDER, traceId.asText(), invokeId, callInfo, elapsed, channel);
+                    recorder.recording(PROVIDER, traceId.asText(), invokeId, callInfo, elapsed, channel);
                 }
             }
 

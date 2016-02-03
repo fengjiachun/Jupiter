@@ -74,7 +74,7 @@ public class DefaultRoundDispatcher extends AbstractDispatcher {
             message.setTraceId(traceId);
 
             TracingRecorder recorder = TracingEye.getRecorder();
-            recorder.record(CONSUMER, traceId.asText(), request.invokeId(), _metadata.directory(), methodName, channel);
+            recorder.recording(CONSUMER, traceId.asText(), request.invokeId(), _metadata.directory(), methodName, channel);
         }
 
         request.message(message);

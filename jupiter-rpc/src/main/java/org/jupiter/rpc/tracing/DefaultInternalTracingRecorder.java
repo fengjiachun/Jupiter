@@ -33,7 +33,7 @@ public class DefaultInternalTracingRecorder extends TracingRecorder {
     private static final InternalLogger logger = InternalLoggerFactory.getInstance(DefaultInternalTracingRecorder.class);
 
     @Override
-    public void record(Role role, Object... args) {
+    public void recording(Role role, Object... args) {
         if (logger.isInfoEnabled()) {
             if (role == Role.CONSUMER) {
                 String traceInfo = StringBuilderHelper.get()

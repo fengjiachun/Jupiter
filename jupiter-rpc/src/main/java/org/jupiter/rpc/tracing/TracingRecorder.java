@@ -26,7 +26,7 @@ package org.jupiter.rpc.tracing;
  */
 public abstract class TracingRecorder {
 
-    public abstract void record(Role role, Object... args);
+    public abstract void recording(Role role, Object... args);
 
     public enum Role {
         CONSUMER,
