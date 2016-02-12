@@ -77,7 +77,8 @@ public class MessageTask implements RejectedRunnable {
     // 响应数据大小统计(不包括Jupiter协议头的16个字节)
     private static final Histogram responseSizeHistogram    = Metrics.histogram("response.size");
 
-    private static final UnsafeIntegerFieldUpdater<TraceId> traceNodeUpdater = UnsafeUpdater.newIntegerFieldUpdater(TraceId.class, "node");
+    private static final UnsafeIntegerFieldUpdater<TraceId> traceNodeUpdater =
+            UnsafeUpdater.newIntegerFieldUpdater(TraceId.class, "node");
 
     private final ProviderProcessor processor;
     private final JChannel channel;
