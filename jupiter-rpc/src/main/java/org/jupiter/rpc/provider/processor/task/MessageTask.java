@@ -227,16 +227,15 @@ public class MessageTask implements RejectedRunnable {
             Object invokeResult = null;
             Timer.Context timerCtx = Metrics.timer(callInfo).time();
             try {
+                Object provider = service.getServiceProvider();
                 Object[] args = msg.getArgs();
                 List<Class<?>[]> parameterTypesList = service.getMethodParameterTypes(methodName);
                 if (parameterTypesList == null) {
                     throw new NoSuchMethodException(methodName);
                 }
-                invokeResult = fastInvoke(
-                        service.getServiceProvider(),
-                        methodName,
-                        findMatchingParameterTypes(parameterTypesList, args),
-                        args);
+                Class<?>[] parameterTypes = findMatchingParameterTypes(parameterTypesList, args);
+
+                invokeResult = fastInvoke(provider, methodName, parameterTypes, args);
             } finally {
                 long elapsed = timerCtx.stop();
 
