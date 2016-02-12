@@ -28,10 +28,7 @@ import org.apache.curator.framework.state.ConnectionStateListener;
 import org.apache.curator.retry.ExponentialBackoffRetry;
 import org.apache.zookeeper.CreateMode;
 import org.jupiter.common.concurrent.ConcurrentSet;
-import org.jupiter.common.util.Maps;
-import org.jupiter.common.util.NetUtil;
-import org.jupiter.common.util.Strings;
-import org.jupiter.common.util.SystemPropertyUtil;
+import org.jupiter.common.util.*;
 import org.jupiter.common.util.internal.logging.InternalLogger;
 import org.jupiter.common.util.internal.logging.InternalLoggerFactory;
 import org.jupiter.registry.AbstractRegistryService;
@@ -39,6 +36,7 @@ import org.jupiter.registry.RegisterMeta;
 import org.jupiter.registry.RegisterMeta.Address;
 
 import java.io.IOException;
+import java.util.List;
 import java.util.concurrent.ConcurrentMap;
 
 import static org.jupiter.common.util.Preconditions.checkNotNull;
@@ -242,6 +240,20 @@ public class ZookeeperRegistryService extends AbstractRegistryService {
         }
 
         configClient.close();
+    }
+
+    public List<ServiceMeta> getMetadataByAddress(Address address) {
+        return Lists.transform(Lists.newArrayList(getServiceMeta(address)), new Function<ServiceMeta, ServiceMeta>() {
+
+            @Override
+            public ServiceMeta apply(ServiceMeta input) {
+                ServiceMeta copy = new ServiceMeta();
+                copy.setGroup(input.getGroup());
+                copy.setVersion(input.getVersion());
+                copy.setServiceProviderName(input.getServiceProviderName());
+                return copy;
+            }
+        });
     }
 
     private RegisterMeta parseRegisterMeta(String data) {
