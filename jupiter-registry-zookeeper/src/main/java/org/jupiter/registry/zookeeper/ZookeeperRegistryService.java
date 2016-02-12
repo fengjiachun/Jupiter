@@ -242,7 +242,7 @@ public class ZookeeperRegistryService extends AbstractRegistryService {
         configClient.close();
     }
 
-    public List<ServiceMeta> getMetadataByAddress(Address address) {
+    public List<ServiceMeta> findServiceMetaByAddress(Address address) {
         return Lists.transform(Lists.newArrayList(getServiceMeta(address)), new Function<ServiceMeta, ServiceMeta>() {
 
             @Override
