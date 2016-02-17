@@ -114,7 +114,7 @@ public class NettyChannel implements JChannel {
 
     @Override
     public JChannel close() {
-        channel.close();
+        channel.close(channel.voidPromise());
         return this;
     }
 
@@ -137,7 +137,7 @@ public class NettyChannel implements JChannel {
 
     @Override
     public JChannel write(Object msg) {
-        channel.writeAndFlush(msg);
+        channel.writeAndFlush(msg, channel.voidPromise());
         return this;
     }
 
