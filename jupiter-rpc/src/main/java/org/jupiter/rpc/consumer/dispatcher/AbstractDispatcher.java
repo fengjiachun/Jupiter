@@ -24,6 +24,7 @@ import org.jupiter.rpc.channel.JChannel;
 import org.jupiter.rpc.consumer.future.InvokeFuture;
 import org.jupiter.rpc.model.metadata.ServiceMetadata;
 
+import java.lang.reflect.Method;
 import java.util.List;
 import java.util.Map;
 
@@ -37,6 +38,7 @@ import static org.jupiter.common.util.JConstants.DEFAULT_TIMEOUT;
  */
 public abstract class AbstractDispatcher implements Dispatcher {
 
+    protected final Class<?> interfaceClass;
     protected final ServiceMetadata metadata;
 
     private ConsumerHook[] hooks;
@@ -44,8 +46,23 @@ public abstract class AbstractDispatcher implements Dispatcher {
     private int timeoutMillis = DEFAULT_TIMEOUT;
     private Map<String, Integer> methodsSpecialTimeoutMillis = Maps.newHashMap();
 
-    public AbstractDispatcher(ServiceMetadata metadata) {
+    public AbstractDispatcher(Class<?> interfaceClass, ServiceMetadata metadata) {
+        this.interfaceClass = interfaceClass;
         this.metadata = metadata;
+    }
+
+    public Object invokeObjectMethod(Object proxy, Method method, Object[] args) {
+        final String methodName = method.getName();
+
+        if ("toString".equals(methodName)) {
+            return interfaceClass.getName() + '[' + metadata + ']';
+        } else if ("hashCode".equals(methodName)) {
+            return System.identityHashCode(proxy);
+        } else if ("equals".equals(methodName)) {
+            return proxy == args[0];
+        } else {
+            throw new UnsupportedOperationException("unsupported method: " + methodName);
+        }
     }
 
     @Override

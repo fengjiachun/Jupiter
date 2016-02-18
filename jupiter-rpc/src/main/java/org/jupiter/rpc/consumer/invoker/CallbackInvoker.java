@@ -44,7 +44,7 @@ public class CallbackInvoker implements InvocationHandler {
 
     @Override
     public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
-        dispatcher.dispatch(client, method.getName(), args);
+        dispatcher.dispatch(proxy, client, method, args);
         return Reflects.getTypeDefaultValue(method.getReturnType());
     }
 }

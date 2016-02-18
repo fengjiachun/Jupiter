@@ -55,7 +55,7 @@ public class FutureInvoker implements InvocationHandler {
 
     @Override
     public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
-        JFuture future = dispatcher.dispatch(client, method.getName(), args);
+        JFuture future = dispatcher.dispatch(proxy, client, method, args);
         futureThreadLocal.set(future);
         return Reflects.getTypeDefaultValue(method.getReturnType());
     }

@@ -196,9 +196,9 @@ public class ProxyFactory<I> {
     protected Dispatcher asDispatcher(DispatchMode dispatchMode, ServiceMetadata metadata) {
         switch (dispatchMode) {
             case ROUND:
-                return new DefaultRoundDispatcher(metadata);
+                return new DefaultRoundDispatcher(interfaceClass, metadata);
             case BROADCAST:
-                return new DefaultBroadcastDispatcher(metadata);
+                return new DefaultBroadcastDispatcher(interfaceClass, metadata);
             default:
                 throw new IllegalStateException("DispatchMode: " + dispatchMode);
         }

@@ -43,7 +43,7 @@ public class SyncInvoker implements InvocationHandler {
 
     @Override
     public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
-        InvokeFuture future = dispatcher.dispatch(client, method.getName(), args);
+        InvokeFuture future = dispatcher.dispatch(proxy, client, method, args);
         return future.getResult();
     }
 }
