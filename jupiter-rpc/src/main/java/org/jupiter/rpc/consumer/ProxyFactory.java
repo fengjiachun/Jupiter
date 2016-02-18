@@ -75,6 +75,10 @@ public class ProxyFactory<I> {
         this.interfaceClass = interfaceClass;
     }
 
+    public Class<I> getInterfaceClass() {
+        return interfaceClass;
+    }
+
     /**
      * Sets the connector.
      */
@@ -171,7 +175,7 @@ public class ProxyFactory<I> {
         }
 
         // dispatcher
-        Dispatcher dispatcher = asDispatcher(dispatchMode, metadata);
+        Dispatcher dispatcher = asDispatcher(metadata);
         if (timeoutMillis > 0) {
             dispatcher.setTimeoutMillis(timeoutMillis);
         }
@@ -200,7 +204,7 @@ public class ProxyFactory<I> {
         return Reflects.newProxy(interfaceClass, handler);
     }
 
-    protected Dispatcher asDispatcher(DispatchMode dispatchMode, ServiceMetadata metadata) {
+    protected Dispatcher asDispatcher(ServiceMetadata metadata) {
         switch (dispatchMode) {
             case ROUND:
                 return new DefaultRoundDispatcher(interfaceClass, metadata);

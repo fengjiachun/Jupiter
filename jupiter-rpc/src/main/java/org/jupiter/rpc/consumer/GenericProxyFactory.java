@@ -202,7 +202,7 @@ public class GenericProxyFactory {
         }
 
         // dispatcher
-        Dispatcher dispatcher = asDispatcher(dispatchMode, metadata);
+        Dispatcher dispatcher = asDispatcher(metadata);
         if (timeoutMillis > 0) {
             dispatcher.setTimeoutMillis(timeoutMillis);
         }
@@ -224,7 +224,7 @@ public class GenericProxyFactory {
         }
     }
 
-    protected Dispatcher asDispatcher(DispatchMode dispatchMode, ServiceMetadata metadata) {
+    protected Dispatcher asDispatcher(ServiceMetadata metadata) {
         switch (dispatchMode) {
             case ROUND:
                 return new DefaultRoundDispatcher(GenericInvoker.class, metadata);
