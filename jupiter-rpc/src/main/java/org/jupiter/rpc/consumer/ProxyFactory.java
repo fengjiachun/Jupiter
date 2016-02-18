@@ -29,6 +29,7 @@ import org.jupiter.rpc.consumer.invoker.FutureInvoker;
 import org.jupiter.rpc.consumer.invoker.SyncInvoker;
 import org.jupiter.rpc.model.metadata.ServiceMetadata;
 
+import java.lang.reflect.InvocationHandler;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -180,17 +181,23 @@ public class ProxyFactory<I> {
         dispatcher.setHooks(hooks);
 
         // invocation handler
+        InvocationHandler handler;
         switch (invokeMode) {
             case SYNC:
-                return Reflects.newProxy(interfaceClass, new SyncInvoker(client, dispatcher));
+                handler = new SyncInvoker(client, dispatcher);
+                break;
             case FUTURE:
-                return Reflects.newProxy(interfaceClass, new FutureInvoker(client, dispatcher));
+                handler = new FutureInvoker(client, dispatcher);
+                break;
             case CALLBACK:
                 dispatcher.setListener(checkNotNull(listener, "listener"));
-                return Reflects.newProxy(interfaceClass, new CallbackInvoker(client, dispatcher));
+                handler = new CallbackInvoker(client, dispatcher);
+                break;
             default:
                 throw new IllegalStateException("InvokeMode: " + invokeMode);
         }
+
+        return Reflects.newProxy(interfaceClass, handler);
     }
 
     protected Dispatcher asDispatcher(DispatchMode dispatchMode, ServiceMetadata metadata) {
