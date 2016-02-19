@@ -38,7 +38,7 @@ public class SyncGenericInvoker implements GenericInvoker {
 
     @Override
     public Object $invoke(String methodName, Object... args) throws Throwable {
-        InvokePromise future = dispatcher.dispatch(client, methodName, args);
-        return future.getResult();
+        InvokePromise promise = dispatcher.dispatch(client, methodName, args);
+        return promise.getResult();
     }
 }

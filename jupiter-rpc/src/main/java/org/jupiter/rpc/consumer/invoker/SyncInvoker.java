@@ -45,7 +45,7 @@ public class SyncInvoker {
 
     @RuntimeType
     public Object invoke(@Origin Method method, @AllArguments @RuntimeType Object[] args) throws Throwable {
-        InvokePromise future = dispatcher.dispatch(client, method.getName(), args);
-        return future.getResult();
+        InvokePromise promise = dispatcher.dispatch(client, method.getName(), args);
+        return promise.getResult();
     }
 }

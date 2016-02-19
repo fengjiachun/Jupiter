@@ -82,7 +82,7 @@ public class DefaultRoundDispatcher extends AbstractDispatcher {
 
         int timeoutMillis = getMethodSpecialTimeoutMillis(methodName);
         final ConsumerHook[] _hooks = getHooks();
-        final InvokePromise future = asFuture(channel, request, timeoutMillis)
+        final InvokePromise promise = asFuture(channel, request, timeoutMillis)
                 .hooks(_hooks)
                 .listener(getListener());
 
@@ -90,7 +90,7 @@ public class DefaultRoundDispatcher extends AbstractDispatcher {
 
             @Override
             public void operationSuccess(JChannel channel) throws Exception {
-                future.chalkUpSentTimestamp();
+                promise.chalkUpSentTimestamp();
 
                 if (_hooks != null) {
                     for (ConsumerHook h : _hooks) {
@@ -111,7 +111,7 @@ public class DefaultRoundDispatcher extends AbstractDispatcher {
             }
         });
 
-        return future;
+        return promise;
     }
 
     @Override

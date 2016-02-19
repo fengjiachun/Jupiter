@@ -49,10 +49,10 @@ public class DefaultInvokePromise extends InvokePromise {
 
     private static final InternalLogger logger = InternalLoggerFactory.getInstance(DefaultInvokePromise.class);
 
-    // 单播场景的future, Long作为Key hashCode和equals效率都更高
-    private static final ConcurrentMap<Long, DefaultInvokePromise> roundFutures = Maps.newConcurrentHashMap();
-    // 组播场景的future, 组播都是一个invokeId, 所以要把Key再加一个前缀
-    private static final ConcurrentMap<String, DefaultInvokePromise> broadcastFutures = Maps.newConcurrentHashMap();
+    // 单播场景的promise, Long作为Key hashCode和equals效率都更高
+    private static final ConcurrentMap<Long, DefaultInvokePromise> roundPromises = Maps.newConcurrentHashMap();
+    // 组播场景的promise, 组播都是一个invokeId, 所以要把Key再加一个前缀
+    private static final ConcurrentMap<String, DefaultInvokePromise> broadcastPromises = Maps.newConcurrentHashMap();
 
     private final ReentrantLock lock = new ReentrantLock();
     private final Condition doneCondition = lock.newCondition();
@@ -79,25 +79,25 @@ public class DefaultInvokePromise extends InvokePromise {
         this.timeoutMillis = timeoutMillis > 0 ? timeoutMillis : DEFAULT_TIMEOUT;
 
         if (dispatchMode == BROADCAST) {
-            broadcastFutures.put(broadcastChildInvokeId(channel, invokeId), this);
+            broadcastPromises.put(broadcastChildInvokeId(channel, invokeId), this);
         } else {
-            roundFutures.put(invokeId, this);
+            roundPromises.put(invokeId, this);
         }
     }
 
     public static boolean received(JChannel channel, JResponse response) {
         long invokeId = response.id();
         // 在不知道是组播还是单播的情况下需要组播做出性能让步, 查询两次Map
-        DefaultInvokePromise future = roundFutures.remove(invokeId);
-        if (future == null) {
-            future = broadcastFutures.remove(broadcastChildInvokeId(channel, invokeId));
+        DefaultInvokePromise promise = roundPromises.remove(invokeId);
+        if (promise == null) {
+            promise = broadcastPromises.remove(broadcastChildInvokeId(channel, invokeId));
         }
-        if (future == null) {
+        if (promise == null) {
             logger.warn("A timeout response [{}] finally returned on {}.", response, channel);
             return false;
         }
 
-        future.doReceived(response);
+        promise.doReceived(response);
         return true;
     }
 
@@ -250,22 +250,22 @@ public class DefaultInvokePromise extends InvokePromise {
             for (;;) {
                 try {
                     // 单播
-                    for (DefaultInvokePromise future : roundFutures.values()) {
-                        if (future == null || future.isDone()) {
+                    for (DefaultInvokePromise promise : roundPromises.values()) {
+                        if (promise == null || promise.isDone()) {
                             continue;
                         }
-                        if (SystemClock.millisClock().now() - future.startTimestamp > future.timeoutMillis) {
-                            processingTimeoutFuture(future);
+                        if (SystemClock.millisClock().now() - promise.startTimestamp > promise.timeoutMillis) {
+                            processingTimeoutFuture(promise);
                         }
                     }
 
                     // 组播
-                    for (DefaultInvokePromise future : broadcastFutures.values()) {
-                        if (future == null || future.isDone()) {
+                    for (DefaultInvokePromise promise : broadcastPromises.values()) {
+                        if (promise == null || promise.isDone()) {
                             continue;
                         }
-                        if (SystemClock.millisClock().now() - future.startTimestamp > future.timeoutMillis) {
-                            processingTimeoutFuture(future);
+                        if (SystemClock.millisClock().now() - promise.startTimestamp > promise.timeoutMillis) {
+                            processingTimeoutFuture(promise);
                         }
                     }
 
