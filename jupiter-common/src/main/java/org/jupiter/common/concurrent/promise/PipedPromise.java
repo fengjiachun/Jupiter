@@ -28,6 +28,7 @@ public class PipedPromise<D, F, D_OUT, F_OUT> extends DefaultPromise<D_OUT, F_OU
     public PipedPromise(Promise<D, F> promise, final DonePipe<D, D_OUT, F_OUT> donePipe, final FailPipe<F, D_OUT, F_OUT> failPipe) {
         promise.then(
                 new DoneCallback<D>() {
+
                     @Override
                     public void onDone(D result) {
                         if (donePipe != null) {
@@ -38,6 +39,7 @@ public class PipedPromise<D, F, D_OUT, F_OUT> extends DefaultPromise<D_OUT, F_OU
                     }
                 },
                 new FailCallback<F>() {
+
                     @Override
                     public void onFail(F cause) {
                         if (failPipe != null) {
@@ -52,12 +54,14 @@ public class PipedPromise<D, F, D_OUT, F_OUT> extends DefaultPromise<D_OUT, F_OU
     protected Promise<D_OUT, F_OUT> pipe(Promise<D_OUT, F_OUT> promise) {
         return promise.then(
                 new DoneCallback<D_OUT>() {
+
                     @Override
                     public void onDone(D_OUT result) {
                         resolve(result);
                     }
                 },
                 new FailCallback<F_OUT>() {
+
                     @Override
                     public void onFail(F_OUT cause) {
                         reject(cause);
