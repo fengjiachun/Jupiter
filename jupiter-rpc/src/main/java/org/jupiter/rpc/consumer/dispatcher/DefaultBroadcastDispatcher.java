@@ -78,7 +78,7 @@ public class DefaultBroadcastDispatcher extends AbstractDispatcher {
         final ConsumerHook[] _hooks = getHooks();
         JListener _listener = getListener();
         for (JChannel ch : channels) {
-            final InvokePromise promise = asFuture(ch, request, timeoutMillis)
+            final InvokePromise promise = asPromise(ch, request, timeoutMillis)
                     .hooks(_hooks)
                     .listener(_listener);
 
@@ -112,7 +112,7 @@ public class DefaultBroadcastDispatcher extends AbstractDispatcher {
     }
 
     @Override
-    protected InvokePromise asFuture(JChannel channel, JRequest request, int timeoutMillis) {
+    protected InvokePromise asPromise(JChannel channel, JRequest request, int timeoutMillis) {
         return new DefaultInvokePromise(channel, request, timeoutMillis, BROADCAST);
     }
 }

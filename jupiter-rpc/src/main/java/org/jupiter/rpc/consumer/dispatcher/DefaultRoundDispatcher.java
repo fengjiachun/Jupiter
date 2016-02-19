@@ -82,7 +82,7 @@ public class DefaultRoundDispatcher extends AbstractDispatcher {
 
         int timeoutMillis = getMethodSpecialTimeoutMillis(methodName);
         final ConsumerHook[] _hooks = getHooks();
-        final InvokePromise promise = asFuture(channel, request, timeoutMillis)
+        final InvokePromise promise = asPromise(channel, request, timeoutMillis)
                 .hooks(_hooks)
                 .listener(getListener());
 
@@ -115,7 +115,7 @@ public class DefaultRoundDispatcher extends AbstractDispatcher {
     }
 
     @Override
-    protected InvokePromise asFuture(JChannel channel, JRequest request, int timeoutMillis) {
+    protected InvokePromise asPromise(JChannel channel, JRequest request, int timeoutMillis) {
         return new DefaultInvokePromise(channel, request, timeoutMillis);
     }
 }
