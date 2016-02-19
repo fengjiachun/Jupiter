@@ -14,15 +14,15 @@
  * limitations under the License.
  */
 
-package org.jupiter.common.concurrent.promise;
+package org.jupiter.common.promise;
 
 /**
  * jupiter
- * org.jupiter.common.concurrent.promise
+ * org.jupiter.common.promise
  *
  * @author jiachun.fjc
  */
-public interface DonePipe<D, D_OUT, F_OUT> {
+public interface FailCallback<F> {
 
-    Promise<D_OUT, F_OUT> pipeDone(D result);
+    void onFail(F cause);
 }

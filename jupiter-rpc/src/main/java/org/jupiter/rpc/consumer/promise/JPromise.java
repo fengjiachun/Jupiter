@@ -16,7 +16,7 @@
 
 package org.jupiter.rpc.consumer.promise;
 
-import org.jupiter.common.concurrent.promise.DefaultPromise;
+import org.jupiter.common.promise.DefaultPromise;
 
 import java.util.concurrent.ExecutionException;
 

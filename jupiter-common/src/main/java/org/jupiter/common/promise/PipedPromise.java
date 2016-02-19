@@ -14,11 +14,11 @@
  * limitations under the License.
  */
 
-package org.jupiter.common.concurrent.promise;
+package org.jupiter.common.promise;
 
 /**
  * jupiter
- * org.jupiter.common.concurrent.promise
+ * org.jupiter.common.promise
  *
  * @author jiachun.fjc
  */

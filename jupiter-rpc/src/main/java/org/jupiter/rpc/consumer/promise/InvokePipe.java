@@ -16,7 +16,7 @@
 
 package org.jupiter.rpc.consumer.promise;
 
-import org.jupiter.common.concurrent.promise.DonePipe;
+import org.jupiter.common.promise.DonePipe;
 import org.jupiter.rpc.consumer.invoker.PromiseInvoker;
 
 /**

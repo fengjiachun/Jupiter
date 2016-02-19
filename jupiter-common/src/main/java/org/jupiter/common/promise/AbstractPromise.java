@@ -14,14 +14,14 @@
  * limitations under the License.
  */
 
-package org.jupiter.common.concurrent.promise;
+package org.jupiter.common.promise;
 
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 /**
  * jupiter
- * org.jupiter.common.concurrent.promise
+ * org.jupiter.common.promise
  *
  * @author jiachun.fjc
  */

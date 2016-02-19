@@ -16,7 +16,7 @@
 
 package org.jupiter.rpc.consumer.promise;
 
-import org.jupiter.common.concurrent.promise.DoneCallback;
+import org.jupiter.common.promise.DoneCallback;
 
 /**
  * jupiter
