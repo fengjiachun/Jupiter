@@ -51,24 +51,25 @@
 - 链路跟踪: 链路最前端会生成全局唯一的traceId, 后边需要业务代码埋点, 和业务代码之间通过ThreadLocal透传traceId
 - 调用超时设置支持两种粒度: provider级别和方法级别
 - [线上调试(flightexec)](https://github.com/fengjiachun/Jupiter/blob/master/jupiter-flightexec/src/main/java/org/jupiter/flight/exec/package-info.java)
-- 异步链式调用:
 
-        service1.method1();
+- 异步链式调用使用:
+
+        service1.method1(); // 1.先调用service1
         PromiseInvoker.promise()
                 .then(new InvokePipe() {
 
                     @Override
-                    public void doInPipe(Object result) {
-                        // ...
+                    public void doInPipe(Object result1) {
+                        // result1为service1的调用返回值
 
-                        service2.method2();
+                        service2.method2(); // 2.再调用service2
                     }
                 })
                 .then(new InvokeDone() {
 
                     @Override
-                    public void onDone(Object result) {
-                        // ...
+                    public void onDone(Object result2) {
+                        // result2为service2的调用返回值
                     }
                 });
 
