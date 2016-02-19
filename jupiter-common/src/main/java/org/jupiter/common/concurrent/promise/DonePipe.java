@@ -14,21 +14,15 @@
  * limitations under the License.
  */
 
-package org.jupiter.rpc.consumer.future;
-
-import java.util.concurrent.ExecutionException;
+package org.jupiter.common.concurrent.promise;
 
 /**
  * jupiter
- * org.jupiter.rpc.consumer.future
+ * org.jupiter.common.concurrent.promise
  *
  * @author jiachun.fjc
  */
-public interface JFuture {
+public interface DonePipe<D, D_OUT, F_OUT> {
 
-    /**
-     * Waits if necessary for the computation to complete, and then
-     * retrieves its result.
-     */
-    Object get() throws InterruptedException, ExecutionException;
+    Promise<D_OUT, F_OUT> pipeDone(D result);
 }

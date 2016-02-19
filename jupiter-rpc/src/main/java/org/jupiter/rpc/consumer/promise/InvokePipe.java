@@ -14,16 +14,24 @@
  * limitations under the License.
  */
 
-package org.jupiter.rpc;
+package org.jupiter.rpc.consumer.promise;
+
+import org.jupiter.common.concurrent.promise.DonePipe;
+import org.jupiter.rpc.consumer.invoker.PromiseInvoker;
 
 /**
  * jupiter
- * org.jupiter.rpc
+ * org.jupiter.rpc.consumer.promise
  *
  * @author jiachun.fjc
  */
-public enum InvokeMode {
-    SYNC,
-    PROMISE,
-    CALLBACK // 异步回调的方式
+public abstract class InvokePipe implements DonePipe<Object, Object, Throwable> {
+
+    @Override
+    public JPromise pipeDone(Object result) {
+        doInPipe(result);
+        return PromiseInvoker.promise();
+    }
+
+    public abstract void doInPipe(Object result);
 }

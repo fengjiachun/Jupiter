@@ -19,7 +19,7 @@ package org.jupiter.rpc.consumer.dispatcher;
 import org.jupiter.rpc.ConsumerHook;
 import org.jupiter.rpc.JClient;
 import org.jupiter.rpc.JListener;
-import org.jupiter.rpc.consumer.future.InvokeFuture;
+import org.jupiter.rpc.consumer.promise.InvokePromise;
 
 import java.util.List;
 import java.util.Map;
@@ -34,7 +34,7 @@ import java.util.Map;
  */
 public interface Dispatcher {
 
-    InvokeFuture dispatch(JClient client, String methodName, Object[] args);
+    InvokePromise dispatch(JClient client, String methodName, Object[] args);
 
     ConsumerHook[] getHooks();
 

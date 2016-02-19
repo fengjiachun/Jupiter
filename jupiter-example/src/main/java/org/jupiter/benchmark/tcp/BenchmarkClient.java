@@ -23,8 +23,8 @@ import org.jupiter.common.util.internal.logging.InternalLoggerFactory;
 import org.jupiter.rpc.InvokeMode;
 import org.jupiter.rpc.UnresolvedAddress;
 import org.jupiter.rpc.consumer.ProxyFactory;
-import org.jupiter.rpc.consumer.future.JFuture;
-import org.jupiter.rpc.consumer.invoker.FutureInvoker;
+import org.jupiter.rpc.consumer.promise.JPromise;
+import org.jupiter.rpc.consumer.invoker.PromiseInvoker;
 import org.jupiter.transport.JOption;
 import org.jupiter.transport.netty.JNettyTcpConnector;
 import org.jupiter.transport.netty.NettyConnector;
@@ -137,14 +137,14 @@ public class BenchmarkClient {
     private static void futureCall(NettyConnector connector, UnresolvedAddress[] addresses, int processors) {
         final Service service = ProxyFactory.factory(Service.class)
                 .connector(connector)
-                .invokeMode(InvokeMode.FUTURE)
+                .invokeMode(InvokeMode.PROMISE)
                 .addProviderAddress(addresses)
                 .newProxyInstance();
 
         for (int i = 0; i < 10000; i++) {
             try {
                 service.hello("jupiter");
-                FutureInvoker.future().get();
+                PromiseInvoker.promise().get();
             } catch (Exception e) {
                 e.printStackTrace();
             }
@@ -157,14 +157,14 @@ public class BenchmarkClient {
         final int futureSize = 80;
         for (int i = 0; i < (processors << 4); i++) {
             new Thread(new Runnable() {
-                List<JFuture> futures = Lists.newArrayListWithCapacity(futureSize);
+                List<JPromise> futures = Lists.newArrayListWithCapacity(futureSize);
                 @SuppressWarnings("ForLoopReplaceableByForEach")
                 @Override
                 public void run() {
                     for (int i = 0; i < t; i++) {
                         try {
                             service.hello("jupiter");
-                            futures.add(FutureInvoker.future());
+                            futures.add(PromiseInvoker.promise());
                             if (futures.size() == futureSize) {
                                 int fSize = futures.size();
                                 for (int j = 0; j < fSize; j++) {

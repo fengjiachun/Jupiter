@@ -18,7 +18,7 @@ package org.jupiter.rpc.consumer.invoker;
 
 import org.jupiter.rpc.JClient;
 import org.jupiter.rpc.consumer.dispatcher.Dispatcher;
-import org.jupiter.rpc.consumer.future.InvokeFuture;
+import org.jupiter.rpc.consumer.promise.InvokePromise;
 
 /**
  * jupiter
@@ -38,7 +38,7 @@ public class SyncGenericInvoker implements GenericInvoker {
 
     @Override
     public Object $invoke(String methodName, Object... args) throws Throwable {
-        InvokeFuture future = dispatcher.dispatch(client, methodName, args);
+        InvokePromise future = dispatcher.dispatch(client, methodName, args);
         return future.getResult();
     }
 }

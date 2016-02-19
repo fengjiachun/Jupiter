@@ -24,8 +24,8 @@ import org.jupiter.rpc.*;
 import org.jupiter.rpc.channel.JChannel;
 import org.jupiter.rpc.channel.JChannelGroup;
 import org.jupiter.rpc.channel.JFutureListener;
-import org.jupiter.rpc.consumer.future.DefaultInvokeFuture;
-import org.jupiter.rpc.consumer.future.InvokeFuture;
+import org.jupiter.rpc.consumer.promise.DefaultInvokePromise;
+import org.jupiter.rpc.consumer.promise.InvokePromise;
 import org.jupiter.rpc.model.metadata.MessageWrapper;
 import org.jupiter.rpc.model.metadata.ResultWrapper;
 import org.jupiter.rpc.model.metadata.ServiceMetadata;
@@ -53,7 +53,7 @@ public class DefaultBroadcastDispatcher extends AbstractDispatcher {
     }
 
     @Override
-    public InvokeFuture dispatch(JClient client, String methodName, Object[] args) {
+    public InvokePromise dispatch(JClient client, String methodName, Object[] args) {
         final ServiceMetadata _metadata = metadata; // stack copy
 
         MessageWrapper message = new MessageWrapper(_metadata);
@@ -78,7 +78,7 @@ public class DefaultBroadcastDispatcher extends AbstractDispatcher {
         final ConsumerHook[] _hooks = getHooks();
         JListener _listener = getListener();
         for (JChannel ch : channels) {
-            final InvokeFuture future = asFuture(ch, request, timeoutMillis)
+            final InvokePromise future = asFuture(ch, request, timeoutMillis)
                     .hooks(_hooks)
                     .listener(_listener);
 
@@ -103,7 +103,7 @@ public class DefaultBroadcastDispatcher extends AbstractDispatcher {
                     result.setError(cause);
 
                     JResponse response = JResponse.newInstance(request.invokeId(), CLIENT_ERROR, result);
-                    DefaultInvokeFuture.received(channel, response);
+                    DefaultInvokePromise.received(channel, response);
                 }
             });
         }
@@ -112,7 +112,7 @@ public class DefaultBroadcastDispatcher extends AbstractDispatcher {
     }
 
     @Override
-    protected InvokeFuture asFuture(JChannel channel, JRequest request, int timeoutMillis) {
-        return new DefaultInvokeFuture(channel, request, timeoutMillis, BROADCAST);
+    protected InvokePromise asFuture(JChannel channel, JRequest request, int timeoutMillis) {
+        return new DefaultInvokePromise(channel, request, timeoutMillis, BROADCAST);
     }
 }

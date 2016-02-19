@@ -14,16 +14,15 @@
  * limitations under the License.
  */
 
-package org.jupiter.rpc;
+package org.jupiter.common.concurrent.promise;
 
 /**
  * jupiter
- * org.jupiter.rpc
+ * org.jupiter.common.concurrent.promise
  *
  * @author jiachun.fjc
  */
-public enum InvokeMode {
-    SYNC,
-    PROMISE,
-    CALLBACK // 异步回调的方式
+public interface FailPipe<F, D_OUT, F_OUT> {
+
+    Promise<D_OUT, F_OUT> pipeFail(F cause);
 }

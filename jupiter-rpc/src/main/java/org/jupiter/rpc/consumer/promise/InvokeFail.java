@@ -14,16 +14,14 @@
  * limitations under the License.
  */
 
-package org.jupiter.rpc;
+package org.jupiter.rpc.consumer.promise;
+
+import org.jupiter.common.concurrent.promise.FailCallback;
 
 /**
  * jupiter
- * org.jupiter.rpc
+ * org.jupiter.rpc.consumer.promise
  *
  * @author jiachun.fjc
  */
-public enum InvokeMode {
-    SYNC,
-    PROMISE,
-    CALLBACK // 异步回调的方式
-}
+public interface InvokeFail extends FailCallback<Throwable> {}

@@ -51,6 +51,25 @@
 - 链路跟踪: 链路最前端会生成全局唯一的traceId, 后边需要业务代码埋点, 和业务代码之间通过ThreadLocal透传traceId
 - 调用超时设置支持两种粒度: provider级别和方法级别
 - [线上调试(flightexec)](https://github.com/fengjiachun/Jupiter/blob/master/jupiter-flightexec/src/main/java/org/jupiter/flight/exec/package-info.java)
+- 异步链式调用:
+    service1.method1();
+    PromiseInvoker.promise()
+            .then(new InvokePipe() {
+
+                @Override
+                public void doInPipe(Object result) {
+                    // ...
+
+                    service2.method2();
+                }
+            })
+            .then(new InvokeDone() {
+
+                @Override
+                public void onDone(Object result) {
+                    // ...
+                }
+            });
 
 ######想做却没做的:
 - Spring融合: 暂时没搞, 主要因为不想依赖Spring特定版本, 其实只需要两个类(SpringProviderBean和SpringConsumerBean), 可自行扩展

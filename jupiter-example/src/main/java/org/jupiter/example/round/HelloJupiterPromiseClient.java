@@ -20,8 +20,9 @@ import org.jupiter.example.ServiceTest;
 import org.jupiter.example.ServiceTest2;
 import org.jupiter.rpc.InvokeMode;
 import org.jupiter.rpc.consumer.ProxyFactory;
-import org.jupiter.rpc.consumer.future.JFuture;
-import org.jupiter.rpc.consumer.invoker.FutureInvoker;
+import org.jupiter.rpc.consumer.invoker.PromiseInvoker;
+import org.jupiter.rpc.consumer.promise.InvokeDone;
+import org.jupiter.rpc.consumer.promise.InvokePipe;
 import org.jupiter.transport.JConnector;
 import org.jupiter.transport.exception.ConnectFailedException;
 import org.jupiter.transport.netty.JNettyTcpConnector;
@@ -30,14 +31,14 @@ import org.jupiter.transport.netty.NettyConnector;
 /**
  * 1.启动 HelloJupiterConfigServer
  * 2.再启动 HelloJupiterServer
- * 3.最后启动 HelloJupiterFutureClient
+ * 3.最后启动 HelloJupiterPromiseClient
  *
  * jupiter
  * org.jupiter.example.round
  *
  * @author jiachun.fjc
  */
-public class HelloJupiterFutureClient {
+public class HelloJupiterPromiseClient {
 
     public static void main(String[] args) {
         NettyConnector connector = new JNettyTcpConnector();
@@ -51,25 +52,34 @@ public class HelloJupiterFutureClient {
             throw new ConnectFailedException();
         }
 
-        ServiceTest service1 = ProxyFactory.factory(ServiceTest.class)
+        final ServiceTest service1 = ProxyFactory.factory(ServiceTest.class)
                 .connector(connector)
-                .invokeMode(InvokeMode.FUTURE)
+                .invokeMode(InvokeMode.PROMISE)
                 .newProxyInstance();
-        ServiceTest2 service2 = ProxyFactory.factory(ServiceTest2.class)
+        final ServiceTest2 service2 = ProxyFactory.factory(ServiceTest2.class)
                 .connector(connector)
-                .invokeMode(InvokeMode.FUTURE)
+                .invokeMode(InvokeMode.PROMISE)
                 .newProxyInstance();
 
         try {
-            ServiceTest.ResultClass result1 = service1.sayHello();
-            System.out.println(result1);
-            JFuture future1 = FutureInvoker.future();
+            service1.sayHello();
+            PromiseInvoker.promise()
+                    .then(new InvokePipe() {
 
-            String result2 = service2.sayHelloString();
-            System.out.println(result2);
-            JFuture future2 = FutureInvoker.future();
+                        @Override
+                        public void doInPipe(Object result) {
+                            System.err.println("service1.sayHello(): " + result);
 
-            System.out.println("future.get: " + future1.get() + " | " + future2.get());
+                            service2.sayHelloString();
+                        }
+                    })
+                    .then(new InvokeDone() {
+
+                        @Override
+                        public void onDone(Object result) {
+                            System.err.println("service2.sayHelloString(): " + result);
+                        }
+                    });
         } catch (Throwable e) {
             e.printStackTrace();
         }

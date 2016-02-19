@@ -18,7 +18,7 @@ package org.jupiter.rpc.consumer.invoker;
 
 import org.jupiter.rpc.JClient;
 import org.jupiter.rpc.consumer.dispatcher.Dispatcher;
-import org.jupiter.rpc.consumer.future.JFuture;
+import org.jupiter.rpc.consumer.promise.JPromise;
 
 import static org.jupiter.common.util.Preconditions.checkNotNull;
 
@@ -28,28 +28,28 @@ import static org.jupiter.common.util.Preconditions.checkNotNull;
  *
  * @author jiachun.fjc
  */
-public class FutureGenericInvoker implements GenericInvoker {
+public class PromiseGenericInvoker implements GenericInvoker {
 
-    private static final ThreadLocal<JFuture> futureThreadLocal = new ThreadLocal<>();
+    private static final ThreadLocal<JPromise> promiseThreadLocal = new ThreadLocal<>();
 
     private final JClient client;
     private final Dispatcher dispatcher;
 
-    public FutureGenericInvoker(JClient client, Dispatcher dispatcher) {
+    public PromiseGenericInvoker(JClient client, Dispatcher dispatcher) {
         this.client = client;
         this.dispatcher = dispatcher;
     }
 
-    public static JFuture future() {
-        JFuture future = checkNotNull(futureThreadLocal.get(), "future");
-        futureThreadLocal.remove();
-        return future;
+    public static JPromise promise() {
+        JPromise promise = checkNotNull(promiseThreadLocal.get(), "promise");
+        promiseThreadLocal.remove();
+        return promise;
     }
 
     @Override
     public Object $invoke(String methodName, Object... args) throws Throwable {
-        JFuture future = dispatcher.dispatch(client, methodName, args);
-        futureThreadLocal.set(future);
+        JPromise promise = dispatcher.dispatch(client, methodName, args);
+        promiseThreadLocal.set(promise);
         return null;
     }
 }

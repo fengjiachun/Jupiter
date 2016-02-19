@@ -25,7 +25,7 @@ import org.jupiter.rpc.consumer.dispatcher.DefaultBroadcastDispatcher;
 import org.jupiter.rpc.consumer.dispatcher.DefaultRoundDispatcher;
 import org.jupiter.rpc.consumer.dispatcher.Dispatcher;
 import org.jupiter.rpc.consumer.invoker.CallbackInvoker;
-import org.jupiter.rpc.consumer.invoker.FutureInvoker;
+import org.jupiter.rpc.consumer.invoker.PromiseInvoker;
 import org.jupiter.rpc.consumer.invoker.SyncInvoker;
 import org.jupiter.rpc.model.metadata.ServiceMetadata;
 
@@ -188,8 +188,8 @@ public class ProxyFactory<I> {
             case SYNC:
                 handler = new SyncInvoker(client, dispatcher);
                 break;
-            case FUTURE:
-                handler = new FutureInvoker(client, dispatcher);
+            case PROMISE:
+                handler = new PromiseInvoker(client, dispatcher);
                 break;
             case CALLBACK:
                 dispatcher.setListener(checkNotNull(listener, "listener"));

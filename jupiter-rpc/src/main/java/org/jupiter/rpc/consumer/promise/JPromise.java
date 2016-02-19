@@ -14,16 +14,23 @@
  * limitations under the License.
  */
 
-package org.jupiter.rpc;
+package org.jupiter.rpc.consumer.promise;
+
+import org.jupiter.common.concurrent.promise.DefaultPromise;
+
+import java.util.concurrent.ExecutionException;
 
 /**
  * jupiter
- * org.jupiter.rpc
+ * org.jupiter.rpc.consumer.promise
  *
  * @author jiachun.fjc
  */
-public enum InvokeMode {
-    SYNC,
-    PROMISE,
-    CALLBACK // 异步回调的方式
+public abstract class JPromise extends DefaultPromise<Object, Throwable> {
+
+    /**
+     * Waits if necessary for the computation to complete, and then
+     * retrieves its result.
+     */
+    public abstract Object get() throws InterruptedException, ExecutionException;
 }

@@ -24,8 +24,8 @@ import org.jupiter.rpc.JRequest;
 import org.jupiter.rpc.JResponse;
 import org.jupiter.rpc.channel.JChannel;
 import org.jupiter.rpc.channel.JFutureListener;
-import org.jupiter.rpc.consumer.future.DefaultInvokeFuture;
-import org.jupiter.rpc.consumer.future.InvokeFuture;
+import org.jupiter.rpc.consumer.promise.DefaultInvokePromise;
+import org.jupiter.rpc.consumer.promise.InvokePromise;
 import org.jupiter.rpc.model.metadata.MessageWrapper;
 import org.jupiter.rpc.model.metadata.ResultWrapper;
 import org.jupiter.rpc.model.metadata.ServiceMetadata;
@@ -54,7 +54,7 @@ public class DefaultRoundDispatcher extends AbstractDispatcher {
     }
 
     @Override
-    public InvokeFuture dispatch(JClient client, String methodName, Object[] args) {
+    public InvokePromise dispatch(JClient client, String methodName, Object[] args) {
         final ServiceMetadata _metadata = metadata; // stack copy
 
         MessageWrapper message = new MessageWrapper(_metadata);
@@ -82,7 +82,7 @@ public class DefaultRoundDispatcher extends AbstractDispatcher {
 
         int timeoutMillis = getMethodSpecialTimeoutMillis(methodName);
         final ConsumerHook[] _hooks = getHooks();
-        final InvokeFuture future = asFuture(channel, request, timeoutMillis)
+        final InvokePromise future = asFuture(channel, request, timeoutMillis)
                 .hooks(_hooks)
                 .listener(getListener());
 
@@ -107,7 +107,7 @@ public class DefaultRoundDispatcher extends AbstractDispatcher {
                 result.setError(cause);
 
                 JResponse response = JResponse.newInstance(request.invokeId(), CLIENT_ERROR, result);
-                DefaultInvokeFuture.received(channel, response);
+                DefaultInvokePromise.received(channel, response);
             }
         });
 
@@ -115,7 +115,7 @@ public class DefaultRoundDispatcher extends AbstractDispatcher {
     }
 
     @Override
-    protected InvokeFuture asFuture(JChannel channel, JRequest request, int timeoutMillis) {
-        return new DefaultInvokeFuture(channel, request, timeoutMillis);
+    protected InvokePromise asFuture(JChannel channel, JRequest request, int timeoutMillis) {
+        return new DefaultInvokePromise(channel, request, timeoutMillis);
     }
 }

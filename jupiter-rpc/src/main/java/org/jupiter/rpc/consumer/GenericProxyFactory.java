@@ -23,7 +23,7 @@ import org.jupiter.rpc.consumer.dispatcher.DefaultBroadcastDispatcher;
 import org.jupiter.rpc.consumer.dispatcher.DefaultRoundDispatcher;
 import org.jupiter.rpc.consumer.dispatcher.Dispatcher;
 import org.jupiter.rpc.consumer.invoker.CallbackGenericInvoker;
-import org.jupiter.rpc.consumer.invoker.FutureGenericInvoker;
+import org.jupiter.rpc.consumer.invoker.PromiseGenericInvoker;
 import org.jupiter.rpc.consumer.invoker.GenericInvoker;
 import org.jupiter.rpc.consumer.invoker.SyncGenericInvoker;
 import org.jupiter.rpc.model.metadata.ServiceMetadata;
@@ -214,8 +214,8 @@ public class GenericProxyFactory {
         switch (invokeMode) {
             case SYNC:
                 return new SyncGenericInvoker(client, dispatcher);
-            case FUTURE:
-                return new FutureGenericInvoker(client, dispatcher);
+            case PROMISE:
+                return new PromiseGenericInvoker(client, dispatcher);
             case CALLBACK:
                 dispatcher.setListener(checkNotNull(listener, "listener"));
                 return new CallbackGenericInvoker(client, dispatcher);

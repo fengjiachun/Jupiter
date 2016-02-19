@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.jupiter.rpc.consumer.future;
+package org.jupiter.rpc.consumer.promise;
 
 import org.jupiter.rpc.ConsumerHook;
 import org.jupiter.rpc.JListener;
@@ -22,25 +22,25 @@ import org.jupiter.rpc.JListener;
 import java.util.concurrent.ExecutionException;
 
 /**
- * A {@link InvokeFuture} represents the result of an rpc invocation,
+ * A {@link InvokePromise} represents the result of an rpc invocation,
  * an abstract view for performance.
  *
  * jupiter
- * org.jupiter.rpc.consumer.future
+ * org.jupiter.rpc.consumer.promise
  *
  * @author jiachun.fjc
  */
-public abstract class InvokeFuture implements JFuture {
+public abstract class InvokePromise extends JPromise {
 
     /**
      * Sets hooks for consumer.
      */
-    public abstract InvokeFuture hooks(ConsumerHook[] hooks);
+    public abstract InvokePromise hooks(ConsumerHook[] hooks);
 
     /**
      * Sets listener for asynchronous rpc.
      */
-    public abstract InvokeFuture listener(JListener listener);
+    public abstract InvokePromise listener(JListener listener);
 
     /**
      * Sets timestamp on message sent out.

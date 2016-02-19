@@ -22,15 +22,15 @@ import net.bytebuddy.implementation.bind.annotation.RuntimeType;
 import org.jupiter.common.util.Reflects;
 import org.jupiter.rpc.JClient;
 import org.jupiter.rpc.consumer.dispatcher.Dispatcher;
-import org.jupiter.rpc.consumer.future.InvokeFuture;
-import org.jupiter.rpc.consumer.future.JFuture;
+import org.jupiter.rpc.consumer.promise.InvokePromise;
+import org.jupiter.rpc.consumer.promise.JPromise;
 
 import java.lang.reflect.Method;
 
 import static org.jupiter.common.util.Preconditions.checkNotNull;
 
 /**
- * Asynchronous call, {@link FutureInvoker#invoke(Method, Object[])}
+ * Asynchronous call, {@link PromiseInvoker#invoke(Method, Object[])}
  * returns a default value of the corresponding method.
  *
  * jupiter
@@ -38,28 +38,28 @@ import static org.jupiter.common.util.Preconditions.checkNotNull;
  *
  * @author jiachun.fjc
  */
-public class FutureInvoker {
+public class PromiseInvoker {
 
-    private static final ThreadLocal<JFuture> futureThreadLocal = new ThreadLocal<>();
+    private static final ThreadLocal<JPromise> promiseThreadLocal = new ThreadLocal<>();
 
     private final JClient client;
     private final Dispatcher dispatcher;
 
-    public FutureInvoker(JClient client, Dispatcher dispatcher) {
+    public PromiseInvoker(JClient client, Dispatcher dispatcher) {
         this.client = client;
         this.dispatcher = dispatcher;
     }
 
-    public static JFuture future() {
-        JFuture future = checkNotNull(futureThreadLocal.get(), "future");
-        futureThreadLocal.remove();
-        return future;
+    public static JPromise promise() {
+        JPromise promise = checkNotNull(promiseThreadLocal.get(), "promise");
+        promiseThreadLocal.remove();
+        return promise;
     }
 
     @RuntimeType
     public Object invoke(@Origin Method method, @AllArguments @RuntimeType Object[] args) throws Throwable {
-        InvokeFuture future = dispatcher.dispatch(client, method.getName(), args);
-        futureThreadLocal.set(future);
+        InvokePromise promise = dispatcher.dispatch(client, method.getName(), args);
+        promiseThreadLocal.set(promise);
         return Reflects.getTypeDefaultValue(method.getReturnType());
     }
 }
