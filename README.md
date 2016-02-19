@@ -54,15 +54,15 @@
 
 - 异步链式调用使用:
 
-        service1.method1(); // 1.先调用service1
-        PromiseInvoker.promise()
+        service1.method1(); // step1.先调用service1
+        PromiseInvoker.currentPromise()
                 .then(new InvokePipe() {
 
                     @Override
                     public void doInPipe(Object result1) {
                         // result1为service1的调用返回值
 
-                        service2.method2(); // 2.再调用service2
+                        service2.method2(); // step2.再调用service2
                     }
                 })
                 .then(new InvokeDone() {

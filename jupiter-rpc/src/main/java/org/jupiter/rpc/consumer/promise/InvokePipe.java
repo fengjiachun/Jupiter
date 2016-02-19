@@ -30,7 +30,7 @@ public abstract class InvokePipe implements DonePipe<Object, Object, Throwable> 
     @Override
     public JPromise pipeDone(Object result) {
         doInPipe(result);
-        return PromiseInvoker.promise();
+        return PromiseInvoker.currentPromise();
     }
 
     public abstract void doInPipe(Object result);

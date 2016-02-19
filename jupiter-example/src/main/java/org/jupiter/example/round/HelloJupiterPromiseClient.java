@@ -63,12 +63,12 @@ public class HelloJupiterPromiseClient {
 
         try {
             service1.sayHello();
-            PromiseInvoker.promise()
+            PromiseInvoker.currentPromise()
                     .then(new InvokePipe() {
 
                         @Override
                         public void doInPipe(Object result) {
-                            System.err.println("service1.sayHello(): " + result);
+                            System.err.println("step1. service1.sayHello(): " + result);
 
                             service2.sayHelloString();
                         }
@@ -77,7 +77,7 @@ public class HelloJupiterPromiseClient {
 
                         @Override
                         public void onDone(Object result) {
-                            System.err.println("service2.sayHelloString(): " + result);
+                            System.err.println("step2. service2.sayHelloString(): " + result);
                         }
                     });
         } catch (Throwable e) {

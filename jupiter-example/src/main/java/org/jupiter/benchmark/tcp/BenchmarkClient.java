@@ -144,7 +144,7 @@ public class BenchmarkClient {
         for (int i = 0; i < 10000; i++) {
             try {
                 service.hello("jupiter");
-                PromiseInvoker.promise().get();
+                PromiseInvoker.currentPromise().get();
             } catch (Exception e) {
                 e.printStackTrace();
             }
@@ -164,7 +164,7 @@ public class BenchmarkClient {
                     for (int i = 0; i < t; i++) {
                         try {
                             service.hello("jupiter");
-                            futures.add(PromiseInvoker.promise());
+                            futures.add(PromiseInvoker.currentPromise());
                             if (futures.size() == futureSize) {
                                 int fSize = futures.size();
                                 for (int j = 0; j < fSize; j++) {

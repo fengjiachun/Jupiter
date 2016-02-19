@@ -50,7 +50,7 @@ public class PromiseInvoker {
         this.dispatcher = dispatcher;
     }
 
-    public static JPromise promise() {
+    public static JPromise currentPromise() {
         JPromise promise = checkNotNull(promiseThreadLocal.get(), "promise");
         promiseThreadLocal.remove();
         return promise;
