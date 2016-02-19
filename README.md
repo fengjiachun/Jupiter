@@ -52,6 +52,7 @@
 - 调用超时设置支持两种粒度: provider级别和方法级别
 - [线上调试(flightexec)](https://github.com/fengjiachun/Jupiter/blob/master/jupiter-flightexec/src/main/java/org/jupiter/flight/exec/package-info.java)
 - 异步链式调用:
+
     service1.method1();
     PromiseInvoker.promise()
             .then(new InvokePipe() {
