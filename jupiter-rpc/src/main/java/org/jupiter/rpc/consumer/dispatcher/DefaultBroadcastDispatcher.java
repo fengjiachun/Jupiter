@@ -30,7 +30,6 @@ import org.jupiter.rpc.model.metadata.MessageWrapper;
 import org.jupiter.rpc.model.metadata.ResultWrapper;
 import org.jupiter.rpc.model.metadata.ServiceMetadata;
 
-import java.lang.reflect.Method;
 import java.util.List;
 
 import static org.jupiter.rpc.DispatchMode.BROADCAST;
@@ -49,30 +48,8 @@ public class DefaultBroadcastDispatcher extends AbstractDispatcher {
 
     private static final InternalLogger logger = InternalLoggerFactory.getInstance(DefaultBroadcastDispatcher.class);
 
-    public DefaultBroadcastDispatcher(Class<?> interfaceClass, ServiceMetadata metadata) {
-        super(interfaceClass, metadata);
-    }
-
-    @Override
-    public InvokeFuture dispatch(Object proxy, JClient client, Method method, Object[] args) {
-        final Class<?> declaringClass = method.getDeclaringClass();
-
-        if (declaringClass == Object.class) {
-            // handle the methods in Object
-            final Object value = invokeObjectMethod(proxy, method, args);
-
-            JListener listener = getListener();
-            JRequest emptyRequest = new JRequest();
-            try {
-                listener.complete(emptyRequest, new JListener.JResult(null, value));
-            } catch (Throwable t) {
-                listener.failure(emptyRequest, t);
-            }
-            return null;
-        }
-
-        // handle the methods in the interface.
-        return dispatch(client, method.getName(), args);
+    public DefaultBroadcastDispatcher(ServiceMetadata metadata) {
+        super(metadata);
     }
 
     @Override

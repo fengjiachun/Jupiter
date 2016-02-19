@@ -16,18 +16,21 @@
 
 package org.jupiter.rpc.consumer.invoker;
 
+import net.bytebuddy.implementation.bind.annotation.AllArguments;
+import net.bytebuddy.implementation.bind.annotation.Origin;
+import net.bytebuddy.implementation.bind.annotation.RuntimeType;
 import org.jupiter.common.util.Reflects;
 import org.jupiter.rpc.JClient;
 import org.jupiter.rpc.consumer.dispatcher.Dispatcher;
+import org.jupiter.rpc.consumer.future.InvokeFuture;
 import org.jupiter.rpc.consumer.future.JFuture;
 
-import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 
 import static org.jupiter.common.util.Preconditions.checkNotNull;
 
 /**
- * Asynchronous call, {@link FutureInvoker#invoke(Object, Method, Object[])}
+ * Asynchronous call, {@link FutureInvoker#invoke(Method, Object[])}
  * returns a default value of the corresponding method.
  *
  * jupiter
@@ -35,7 +38,7 @@ import static org.jupiter.common.util.Preconditions.checkNotNull;
  *
  * @author jiachun.fjc
  */
-public class FutureInvoker implements InvocationHandler {
+public class FutureInvoker {
 
     private static final ThreadLocal<JFuture> futureThreadLocal = new ThreadLocal<>();
 
@@ -53,9 +56,9 @@ public class FutureInvoker implements InvocationHandler {
         return future;
     }
 
-    @Override
-    public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
-        JFuture future = dispatcher.dispatch(proxy, client, method, args);
+    @RuntimeType
+    public Object invoke(@Origin Method method, @AllArguments @RuntimeType Object[] args) throws Throwable {
+        InvokeFuture future = dispatcher.dispatch(client, method.getName(), args);
         futureThreadLocal.set(future);
         return Reflects.getTypeDefaultValue(method.getReturnType());
     }

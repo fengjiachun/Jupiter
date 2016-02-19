@@ -16,11 +16,13 @@
 
 package org.jupiter.rpc.consumer.invoker;
 
+import net.bytebuddy.implementation.bind.annotation.AllArguments;
+import net.bytebuddy.implementation.bind.annotation.Origin;
+import net.bytebuddy.implementation.bind.annotation.RuntimeType;
 import org.jupiter.rpc.JClient;
 import org.jupiter.rpc.consumer.dispatcher.Dispatcher;
 import org.jupiter.rpc.consumer.future.InvokeFuture;
 
-import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 
 /**
@@ -31,7 +33,7 @@ import java.lang.reflect.Method;
  *
  * @author jiachun.fjc
  */
-public class SyncInvoker implements InvocationHandler {
+public class SyncInvoker {
 
     private final JClient client;
     private final Dispatcher dispatcher;
@@ -41,9 +43,9 @@ public class SyncInvoker implements InvocationHandler {
         this.dispatcher = dispatcher;
     }
 
-    @Override
-    public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
-        InvokeFuture future = dispatcher.dispatch(proxy, client, method, args);
+    @RuntimeType
+    public Object invoke(@Origin Method method, @AllArguments @RuntimeType Object[] args) throws Throwable {
+        InvokeFuture future = dispatcher.dispatch(client, method.getName(), args);
         return future.getResult();
     }
 }

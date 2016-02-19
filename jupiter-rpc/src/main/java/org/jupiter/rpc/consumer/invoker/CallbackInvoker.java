@@ -16,15 +16,17 @@
 
 package org.jupiter.rpc.consumer.invoker;
 
+import net.bytebuddy.implementation.bind.annotation.AllArguments;
+import net.bytebuddy.implementation.bind.annotation.Origin;
+import net.bytebuddy.implementation.bind.annotation.RuntimeType;
 import org.jupiter.common.util.Reflects;
 import org.jupiter.rpc.JClient;
 import org.jupiter.rpc.consumer.dispatcher.Dispatcher;
 
-import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 
 /**
- * Asynchronous call, {@link CallbackInvoker#invoke(Object, Method, Object[])}
+ * Asynchronous call, {@link CallbackInvoker#invoke(Method, Object[])}
  * returns a default value of the corresponding method.
  *
  * jupiter
@@ -32,7 +34,7 @@ import java.lang.reflect.Method;
  *
  * @author jiachun.fjc
  */
-public class CallbackInvoker implements InvocationHandler {
+public class CallbackInvoker {
 
     private final JClient client;
     private final Dispatcher dispatcher;
@@ -42,9 +44,9 @@ public class CallbackInvoker implements InvocationHandler {
         this.dispatcher = dispatcher;
     }
 
-    @Override
-    public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
-        dispatcher.dispatch(proxy, client, method, args);
+    @RuntimeType
+    public Object invoke(@Origin Method method, @AllArguments @RuntimeType Object[] args) throws Throwable {
+        dispatcher.dispatch(client, method.getName(), args);
         return Reflects.getTypeDefaultValue(method.getReturnType());
     }
 }

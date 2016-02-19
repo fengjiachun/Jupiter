@@ -29,7 +29,6 @@ import org.jupiter.rpc.consumer.invoker.FutureInvoker;
 import org.jupiter.rpc.consumer.invoker.SyncInvoker;
 import org.jupiter.rpc.model.metadata.ServiceMetadata;
 
-import java.lang.reflect.InvocationHandler;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -184,8 +183,7 @@ public class ProxyFactory<I> {
         }
         dispatcher.setHooks(hooks);
 
-        // invocation handler
-        InvocationHandler handler;
+        Object handler;
         switch (invokeMode) {
             case SYNC:
                 handler = new SyncInvoker(client, dispatcher);
@@ -201,15 +199,15 @@ public class ProxyFactory<I> {
                 throw new IllegalStateException("InvokeMode: " + invokeMode);
         }
 
-        return Reflects.newProxy(interfaceClass, handler);
+        return Reflects.newProxyWithBuddy(interfaceClass, handler);
     }
 
     protected Dispatcher asDispatcher(ServiceMetadata metadata) {
         switch (dispatchMode) {
             case ROUND:
-                return new DefaultRoundDispatcher(interfaceClass, metadata);
+                return new DefaultRoundDispatcher(metadata);
             case BROADCAST:
-                return new DefaultBroadcastDispatcher(interfaceClass, metadata);
+                return new DefaultBroadcastDispatcher(metadata);
             default:
                 throw new IllegalStateException("DispatchMode: " + dispatchMode);
         }

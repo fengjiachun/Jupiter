@@ -18,11 +18,13 @@ package org.jupiter.rpc.consumer.dispatcher;
 
 import org.jupiter.common.util.internal.logging.InternalLogger;
 import org.jupiter.common.util.internal.logging.InternalLoggerFactory;
-import org.jupiter.rpc.*;
+import org.jupiter.rpc.ConsumerHook;
+import org.jupiter.rpc.JClient;
+import org.jupiter.rpc.JRequest;
+import org.jupiter.rpc.JResponse;
 import org.jupiter.rpc.channel.JChannel;
 import org.jupiter.rpc.channel.JFutureListener;
 import org.jupiter.rpc.consumer.future.DefaultInvokeFuture;
-import org.jupiter.rpc.consumer.future.FakeInvokeFuture;
 import org.jupiter.rpc.consumer.future.InvokeFuture;
 import org.jupiter.rpc.model.metadata.MessageWrapper;
 import org.jupiter.rpc.model.metadata.ResultWrapper;
@@ -30,8 +32,6 @@ import org.jupiter.rpc.model.metadata.ServiceMetadata;
 import org.jupiter.rpc.tracing.TraceId;
 import org.jupiter.rpc.tracing.TracingEye;
 import org.jupiter.rpc.tracing.TracingRecorder;
-
-import java.lang.reflect.Method;
 
 import static org.jupiter.rpc.Status.CLIENT_ERROR;
 import static org.jupiter.rpc.tracing.TracingRecorder.Role.CONSUMER;
@@ -49,34 +49,8 @@ public class DefaultRoundDispatcher extends AbstractDispatcher {
 
     private static final InternalLogger logger = InternalLoggerFactory.getInstance(DefaultRoundDispatcher.class);
 
-    public DefaultRoundDispatcher(Class<?> interfaceClass, ServiceMetadata metadata) {
-        super(interfaceClass, metadata);
-    }
-
-    @Override
-    public InvokeFuture dispatch(Object proxy, JClient client, Method method, Object[] args) {
-        final Class<?> declaringClass = method.getDeclaringClass();
-
-        if (declaringClass == Object.class) {
-            // handle the methods in Object
-            final Object value = invokeObjectMethod(proxy, method, args);
-
-            JListener listener = getListener();
-            if (listener != null) {
-                JRequest emptyRequest = new JRequest();
-                try {
-                    listener.complete(emptyRequest, new JListener.JResult(null, value));
-                } catch (Throwable t) {
-                    listener.failure(emptyRequest, t);
-                }
-                return null;
-            } else {
-                return new FakeInvokeFuture(value);
-            }
-        }
-
-        // handle the methods in the interface.
-        return dispatch(client, method.getName(), args);
+    public DefaultRoundDispatcher(ServiceMetadata metadata) {
+        super(metadata);
     }
 
     @Override

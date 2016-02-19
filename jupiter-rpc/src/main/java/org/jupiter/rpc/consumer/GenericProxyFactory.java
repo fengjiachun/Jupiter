@@ -227,9 +227,9 @@ public class GenericProxyFactory {
     protected Dispatcher asDispatcher(ServiceMetadata metadata) {
         switch (dispatchMode) {
             case ROUND:
-                return new DefaultRoundDispatcher(GenericInvoker.class, metadata);
+                return new DefaultRoundDispatcher(metadata);
             case BROADCAST:
-                return new DefaultBroadcastDispatcher(GenericInvoker.class, metadata);
+                return new DefaultBroadcastDispatcher(metadata);
             default:
                 throw new IllegalStateException("DispatchMode: " + dispatchMode);
         }
