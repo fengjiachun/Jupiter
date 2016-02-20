@@ -18,6 +18,7 @@ package org.jupiter.rpc.consumer;
 
 import org.jupiter.common.util.Lists;
 import org.jupiter.common.util.Maps;
+import org.jupiter.common.util.ProxyGenerator;
 import org.jupiter.common.util.Strings;
 import org.jupiter.rpc.*;
 import org.jupiter.rpc.consumer.dispatcher.DefaultBroadcastDispatcher;
@@ -33,7 +34,6 @@ import java.util.List;
 import java.util.Map;
 
 import static org.jupiter.common.util.Preconditions.checkNotNull;
-import static org.jupiter.common.util.Reflects.ProxyGenerator.BYTE_BUDDY;
 import static org.jupiter.rpc.DispatchMode.BROADCAST;
 import static org.jupiter.rpc.DispatchMode.ROUND;
 import static org.jupiter.rpc.InvokeMode.CALLBACK;
@@ -199,7 +199,7 @@ public class ProxyFactory<I> {
                 throw new IllegalStateException("InvokeMode: " + invokeMode);
         }
 
-        return BYTE_BUDDY.newProxy(interfaceClass, handler);
+        return ProxyGenerator.BYTE_BUDDY.newProxy(interfaceClass, handler);
     }
 
     protected Dispatcher asDispatcher(ServiceMetadata metadata) {

@@ -16,7 +16,6 @@
 
 package org.jupiter.common.util;
 
-import net.bytebuddy.ByteBuddy;
 import net.sf.cglib.reflect.FastClass;
 import org.jupiter.common.util.internal.JUnsafe;
 import org.objenesis.Objenesis;
@@ -27,11 +26,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentMap;
 
-import static net.bytebuddy.dynamic.loading.ClassLoadingStrategy.Default.INJECTION;
-import static net.bytebuddy.implementation.MethodDelegation.to;
-import static net.bytebuddy.matcher.ElementMatchers.isDeclaredBy;
-import static net.bytebuddy.matcher.ElementMatchers.not;
-import static org.jupiter.common.util.Preconditions.checkArgument;
 import static org.jupiter.common.util.Preconditions.checkNotNull;
 
 /**
@@ -91,62 +85,6 @@ public final class Reflects {
             Float.TYPE,
             Double.TYPE
     };
-
-    public enum ProxyGenerator {
-        JDK_PROXY(new ProxyDelegate() {
-
-            @Override
-            public <T> T newProxy(Class<T> interfaceType, Object handler) {
-                checkArgument(handler instanceof InvocationHandler, "handler must be a InvocationHandler");
-
-                Object object = Proxy.newProxyInstance(
-                        interfaceType.getClassLoader(), new Class<?>[] { interfaceType }, (InvocationHandler) handler);
-
-                return interfaceType.cast(object);
-            }
-        }),
-        BYTE_BUDDY(new ProxyDelegate() {
-
-            @Override
-            public <T> T newProxy(Class<T> interfaceType, Object handler) {
-                try {
-                    return new ByteBuddy()
-                            .subclass(interfaceType)
-                            .method(isDeclaredBy(interfaceType))
-                            .intercept(to(handler, "handler").filter(not(isDeclaredBy(Object.class))))
-                            .make()
-                            .load(interfaceType.getClassLoader(), INJECTION)
-                            .getLoaded()
-                            .newInstance();
-                } catch (InstantiationException | IllegalAccessException e) {
-                    JUnsafe.throwException(e);
-                }
-
-                // should never get here
-                return null;
-            }
-        });
-
-        private final ProxyDelegate delegate;
-
-        ProxyGenerator(ProxyDelegate delegate) {
-            this.delegate = delegate;
-        }
-
-        public <T> T newProxy(Class<T> interfaceType, Object handler) {
-            return delegate.newProxy(interfaceType, handler);
-        }
-
-        interface ProxyDelegate {
-
-            /**
-             * Returns a proxy instance that implements {@code interfaceType} by dispatching
-             * method invocations to {@code handler}. The class loader of {@code interfaceType}
-             * will be used to define the proxy class.
-             */
-            <T> T newProxy(Class<T> interfaceType, Object handler);
-        }
-    }
 
     /**
      * Creates a new object without any constructor being called.

@@ -29,8 +29,6 @@ import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 import java.util.concurrent.TimeUnit;
 
-import static org.jupiter.common.util.Reflects.ProxyGenerator.*;
-
 /**
  * Benchmark                   Mode     Cnt     Score      Error   Units
  * ProxyTest.byteBuddyProxy   thrpt      10     1.065 ±    0.035  ops/ns
@@ -77,8 +75,8 @@ public class ProxyTest {
             return method.getName();
         }
     }
-    static TestInterface jdkProxyObj = JDK_PROXY.newProxy(TestInterface.class, jdkProxyHandler);
-    static TestInterface byteBuddyProxyObj = BYTE_BUDDY.newProxy(TestInterface.class, new ByteBuddyProxyHandler());
+    static TestInterface jdkProxyObj = ProxyGenerator.JDK_PROXY.newProxy(TestInterface.class, jdkProxyHandler);
+    static TestInterface byteBuddyProxyObj = ProxyGenerator.BYTE_BUDDY.newProxy(TestInterface.class, new ByteBuddyProxyHandler());
 
     @Benchmark
     public static void jdkProxy() {
