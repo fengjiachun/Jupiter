@@ -32,6 +32,16 @@ import java.util.concurrent.TimeUnit;
 import static org.jupiter.common.util.Reflects.ProxyGenerator.*;
 
 /**
+ * Benchmark                   Mode     Cnt     Score      Error   Units
+ * ProxyTest.byteBuddyProxy   thrpt      10     1.065 ±    0.035  ops/ns
+ * ProxyTest.jdkProxy         thrpt      10     0.712 ±    0.023  ops/ns
+ * ProxyTest.byteBuddyProxy    avgt      10     0.932 ±    0.023   ns/op
+ * ProxyTest.jdkProxy          avgt      10     1.388 ±    0.028   ns/op
+ * ProxyTest.byteBuddyProxy  sample  116019    50.095 ±    2.512   ns/op
+ * ProxyTest.jdkProxy        sample  125231    85.375 ±   63.679   ns/op
+ * ProxyTest.byteBuddyProxy      ss      10  2300.000 ± 1020.426   ns/op
+ * ProxyTest.jdkProxy            ss      10  2200.000 ±  956.183   ns/op
+ *
  * jupiter
  * org.jupiter.common.util
  *
