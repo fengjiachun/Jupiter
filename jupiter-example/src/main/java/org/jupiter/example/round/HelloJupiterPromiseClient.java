@@ -22,7 +22,8 @@ import org.jupiter.rpc.InvokeMode;
 import org.jupiter.rpc.consumer.ProxyFactory;
 import org.jupiter.rpc.consumer.invoker.PromiseInvoker;
 import org.jupiter.rpc.consumer.promise.InvokeDone;
-import org.jupiter.rpc.consumer.promise.InvokePipe;
+import org.jupiter.rpc.consumer.promise.InvokeDonePipe;
+import org.jupiter.rpc.consumer.promise.InvokeFail;
 import org.jupiter.transport.JConnector;
 import org.jupiter.transport.exception.ConnectFailedException;
 import org.jupiter.transport.netty.JNettyTcpConnector;
@@ -64,12 +65,22 @@ public class HelloJupiterPromiseClient {
         try {
             service1.sayHello();
             PromiseInvoker.currentPromise()
-                    .then(new InvokePipe() {
+                    .then(new InvokeDonePipe() {
 
                         @Override
                         public void doInPipe(Object result) {
-                            System.err.println("step1. service1.sayHello(): " + result);
+                            System.err.println("step1. " + result);
 
+                            service2.sayHelloString();
+                        }
+                    })
+                    .then(new InvokeDonePipe() {
+
+                        @Override
+                        public void doInPipe(Object result) {
+                            System.err.println("step2. " + result);
+
+                            // call service2 again
                             service2.sayHelloString();
                         }
                     })
@@ -77,7 +88,13 @@ public class HelloJupiterPromiseClient {
 
                         @Override
                         public void onDone(Object result) {
-                            System.err.println("step2. service2.sayHelloString(): " + result);
+                            System.err.println("step3. " + result);
+                        }
+                    }, new InvokeFail() {
+
+                        @Override
+                        public void onFail(Throwable cause) {
+                            System.err.println("step3. fail:" + cause);
                         }
                     });
         } catch (Throwable e) {

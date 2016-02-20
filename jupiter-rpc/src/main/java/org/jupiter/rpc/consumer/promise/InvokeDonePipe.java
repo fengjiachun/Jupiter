@@ -16,7 +16,9 @@
 
 package org.jupiter.rpc.consumer.promise;
 
+import org.jupiter.common.promise.DefaultPromise;
 import org.jupiter.common.promise.DonePipe;
+import org.jupiter.common.promise.Promise;
 import org.jupiter.rpc.consumer.invoker.PromiseInvoker;
 
 /**
@@ -25,12 +27,17 @@ import org.jupiter.rpc.consumer.invoker.PromiseInvoker;
  *
  * @author jiachun.fjc
  */
-public abstract class InvokePipe implements DonePipe<Object, Object, Throwable> {
+public abstract class InvokeDonePipe implements DonePipe<Object, Object, Throwable> {
 
     @Override
-    public JPromise pipeDone(Object result) {
-        doInPipe(result);
-        return PromiseInvoker.currentPromise();
+    public Promise<Object, Throwable> pipeDone(Object result) {
+        try {
+            doInPipe(result);
+
+            return PromiseInvoker.currentPromise();
+        } catch (Throwable t) {
+            return new DefaultPromise<Object, Throwable>().reject(t);
+        }
     }
 
     public abstract void doInPipe(Object result);
