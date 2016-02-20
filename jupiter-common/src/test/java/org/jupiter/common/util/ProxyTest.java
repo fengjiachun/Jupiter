@@ -33,6 +33,7 @@ import java.lang.reflect.Method;
 import java.util.concurrent.TimeUnit;
 
 import static net.bytebuddy.matcher.ElementMatchers.isDeclaredBy;
+import static net.bytebuddy.matcher.ElementMatchers.not;
 
 /**
  * jupiter
@@ -77,9 +78,7 @@ public class ProxyTest {
             byteBuddyProxyObj = new ByteBuddy()
                     .subclass(TestInterface.class)
                     .method(isDeclaredBy(TestInterface.class))
-                    .intercept(MethodDelegation.to(new ByteBuddyProxyHandler(), "handler")
-//                            .filter(not(isDeclaredBy(Object.class)))
-                    )
+                    .intercept(MethodDelegation.to(new ByteBuddyProxyHandler(), "handler").filter(not(isDeclaredBy(Object.class))))
                     .make()
                     .load(TestInterface.class.getClassLoader(), ClassLoadingStrategy.Default.INJECTION)
                     .getLoaded()
