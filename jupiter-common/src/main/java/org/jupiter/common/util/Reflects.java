@@ -92,10 +92,62 @@ public final class Reflects {
             Double.TYPE
     };
 
-    public enum ProxyGeneratorOption {
-        JDK_PROXY,
-        BYTE_BUDDY
+    public enum ProxyGenerator {
+        JDK_PROXY(new ProxyDelegate() {
+
+            @Override
+            public <T> T newProxy(Class<T> interfaceType, Object handler) {
+                checkArgument(handler instanceof InvocationHandler, "handler must be a InvocationHandler");
+
+                Object object = Proxy.newProxyInstance(
+                        interfaceType.getClassLoader(), new Class<?>[] { interfaceType }, (InvocationHandler) handler);
+
+                return interfaceType.cast(object);
+            }
+        }),
+        BYTE_BUDDY(new ProxyDelegate() {
+
+            @Override
+            public <T> T newProxy(Class<T> interfaceType, Object handler) {
+                try {
+                    return new ByteBuddy()
+                            .subclass(interfaceType)
+                            .method(isDeclaredBy(interfaceType))
+                            .intercept(MethodDelegation.to(handler, "handler").filter(not(isDeclaredBy(Object.class))))
+                            .make()
+                            .load(interfaceType.getClassLoader(), ClassLoadingStrategy.Default.INJECTION)
+                            .getLoaded()
+                            .newInstance();
+                } catch (InstantiationException | IllegalAccessException e) {
+                    JUnsafe.throwException(e);
+                }
+
+                // should never get here
+                return null;
+            }
+        });
+
+        private final ProxyDelegate delegate;
+
+        ProxyGenerator(ProxyDelegate delegate) {
+            this.delegate = delegate;
+        }
+
+        public <T> T newProxy(Class<T> interfaceType, Object handler) {
+            return delegate.newProxy(interfaceType, handler);
+        }
+
+        interface ProxyDelegate {
+
+            /**
+             * Returns a proxy instance that implements {@code interfaceType} by dispatching
+             * method invocations to {@code handler}. The class loader of {@code interfaceType}
+             * will be used to define the proxy class.
+             */
+            <T> T newProxy(Class<T> interfaceType, Object handler);
+        }
     }
+
     /**
      * Creates a new object without any constructor being called.
      *
@@ -249,26 +301,6 @@ public final class Reflects {
             fd.set(o, value);
         } catch (Exception e) {
             JUnsafe.throwException(e);
-        }
-    }
-
-    /**
-     * Returns a proxy instance that implements {@code interfaceType} by dispatching
-     * method invocations to {@code handler}. The class loader of {@code interfaceType}
-     * will be used to define the proxy class.
-     */
-    public static <T> T newProxy(Class<T> interfaceType, Object handler, ProxyGeneratorOption option) {
-        checkNotNull(handler, "handler");
-        checkArgument(interfaceType.isInterface(), interfaceType + " is not an interface");
-
-        switch (option) {
-            case JDK_PROXY:
-                checkArgument(handler instanceof InvocationHandler, "handler must be a InvocationHandler");
-                return newJdkProxy(interfaceType, (InvocationHandler) handler);
-            case BYTE_BUDDY:
-                return newBuddyProxy(interfaceType, handler);
-            default:
-                throw new UnsupportedOperationException("unsupported generator option: " + option.name());
         }
     }
 
@@ -590,31 +622,6 @@ public final class Reflects {
             fd.setAccessible(true);
         }
         return fd;
-    }
-
-    private static <T> T newJdkProxy(Class<T> interfaceType, InvocationHandler handler) {
-        Object object = Proxy.newProxyInstance(
-                interfaceType.getClassLoader(), new Class<?>[] { interfaceType }, handler);
-
-        return interfaceType.cast(object);
-    }
-
-    private static <T> T newBuddyProxy(Class<T> interfaceType, Object handler) {
-        try {
-            return new ByteBuddy()
-                    .subclass(interfaceType)
-                    .method(isDeclaredBy(interfaceType))
-                    .intercept(MethodDelegation.to(handler, "handler").filter(not(isDeclaredBy(Object.class))))
-                    .make()
-                    .load(interfaceType.getClassLoader(), ClassLoadingStrategy.Default.INJECTION)
-                    .getLoaded()
-                    .newInstance();
-        } catch (InstantiationException | IllegalAccessException e) {
-            JUnsafe.throwException(e);
-        }
-
-        // should never get here
-        return null;
     }
 
     private Reflects() {}

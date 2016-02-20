@@ -29,7 +29,7 @@ import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 import java.util.concurrent.TimeUnit;
 
-import static org.jupiter.common.util.Reflects.ProxyGeneratorOption.*;
+import static org.jupiter.common.util.Reflects.ProxyGenerator.*;
 
 /**
  * jupiter
@@ -67,8 +67,8 @@ public class ProxyTest {
             return method.getName();
         }
     }
-    static TestInterface jdkProxyObj = Reflects.newProxy(TestInterface.class, jdkProxyHandler, JDK_PROXY);
-    static TestInterface byteBuddyProxyObj = Reflects.newProxy(TestInterface.class, new ByteBuddyProxyHandler(), BYTE_BUDDY);
+    static TestInterface jdkProxyObj = JDK_PROXY.newProxy(TestInterface.class, jdkProxyHandler);
+    static TestInterface byteBuddyProxyObj = BYTE_BUDDY.newProxy(TestInterface.class, new ByteBuddyProxyHandler());
 
     @Benchmark
     public static void jdkProxy() {
