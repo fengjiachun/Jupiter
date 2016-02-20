@@ -63,9 +63,7 @@ public enum ProxyGenerator {
             } catch (InstantiationException | IllegalAccessException e) {
                 JUnsafe.throwException(e);
             }
-
-            // should never get here
-            return null;
+            return null; // should never get here
         }
     });
 
