@@ -34,6 +34,7 @@ import java.util.List;
 import java.util.Map;
 
 import static org.jupiter.common.util.Preconditions.checkNotNull;
+import static org.jupiter.common.util.Reflects.ProxyGeneratorOption.*;
 import static org.jupiter.rpc.DispatchMode.BROADCAST;
 import static org.jupiter.rpc.DispatchMode.ROUND;
 import static org.jupiter.rpc.InvokeMode.CALLBACK;
@@ -199,7 +200,7 @@ public class ProxyFactory<I> {
                 throw new IllegalStateException("InvokeMode: " + invokeMode);
         }
 
-        return Reflects.newProxyWithBuddy(interfaceClass, handler);
+        return Reflects.newProxy(interfaceClass, handler, BYTE_BUDDY);
     }
 
     protected Dispatcher asDispatcher(ServiceMetadata metadata) {

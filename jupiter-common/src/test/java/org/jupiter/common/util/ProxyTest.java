@@ -16,9 +16,6 @@
 
 package org.jupiter.common.util;
 
-import net.bytebuddy.ByteBuddy;
-import net.bytebuddy.dynamic.loading.ClassLoadingStrategy;
-import net.bytebuddy.implementation.MethodDelegation;
 import net.bytebuddy.implementation.bind.annotation.AllArguments;
 import net.bytebuddy.implementation.bind.annotation.Origin;
 import net.bytebuddy.implementation.bind.annotation.RuntimeType;
@@ -32,8 +29,7 @@ import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 import java.util.concurrent.TimeUnit;
 
-import static net.bytebuddy.matcher.ElementMatchers.isDeclaredBy;
-import static net.bytebuddy.matcher.ElementMatchers.not;
+import static org.jupiter.common.util.Reflects.ProxyGeneratorOption.*;
 
 /**
  * jupiter
@@ -71,22 +67,8 @@ public class ProxyTest {
             return method.getName();
         }
     }
-    static TestInterface jdkProxyObj = Reflects.newProxy(TestInterface.class, jdkProxyHandler);
-    static TestInterface byteBuddyProxyObj;
-    static {
-        try {
-            byteBuddyProxyObj = new ByteBuddy()
-                    .subclass(TestInterface.class)
-                    .method(isDeclaredBy(TestInterface.class))
-                    .intercept(MethodDelegation.to(new ByteBuddyProxyHandler(), "handler").filter(not(isDeclaredBy(Object.class))))
-                    .make()
-                    .load(TestInterface.class.getClassLoader(), ClassLoadingStrategy.Default.INJECTION)
-                    .getLoaded()
-                    .newInstance();
-        } catch (Exception e) {
-            throw new IllegalArgumentException(e);
-        }
-    }
+    static TestInterface jdkProxyObj = Reflects.newProxy(TestInterface.class, jdkProxyHandler, JDK_PROXY);
+    static TestInterface byteBuddyProxyObj = Reflects.newProxy(TestInterface.class, new ByteBuddyProxyHandler(), BYTE_BUDDY);
 
     @Benchmark
     public static void jdkProxy() {

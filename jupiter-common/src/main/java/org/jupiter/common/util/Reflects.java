@@ -92,6 +92,10 @@ public final class Reflects {
             Double.TYPE
     };
 
+    public enum ProxyGeneratorOption {
+        JDK_PROXY,
+        BYTE_BUDDY
+    }
     /**
      * Creates a new object without any constructor being called.
      *
@@ -251,47 +255,21 @@ public final class Reflects {
     /**
      * Returns a proxy instance that implements {@code interfaceType} by dispatching
      * method invocations to {@code handler}. The class loader of {@code interfaceType}
-     * will be used to define the proxy class. To implement multiple interfaces or
-     * specify a class loader, use {@link Proxy#newProxyInstance}.
-     *
-     * @throws IllegalArgumentException if {@code interfaceType} does not specify
-     *                                  the type of a Java interface
+     * will be used to define the proxy class.
      */
-    public static <T> T newProxy(Class<T> interfaceType, InvocationHandler handler) {
+    public static <T> T newProxy(Class<T> interfaceType, Object handler, ProxyGeneratorOption option) {
         checkNotNull(handler, "handler");
         checkArgument(interfaceType.isInterface(), interfaceType + " is not an interface");
 
-        Object object = Proxy.newProxyInstance(
-                interfaceType.getClassLoader(), new Class<?>[] { interfaceType }, handler);
-
-        return interfaceType.cast(object);
-    }
-
-    /**
-     * Returns a proxy instance that implements {@code interfaceType} by dispatching
-     * method invocations to {@code handler}. The class loader of {@code interfaceType}
-     * will be used to define the proxy class. To implement multiple interfaces or
-     * specify a class loader, use {@link ByteBuddy}.
-     */
-    public static <T> T newProxyWithBuddy(Class<T> interfaceType, Object handler) {
-        checkNotNull(handler, "handler");
-        checkArgument(interfaceType.isInterface(), interfaceType + " is not an interface");
-
-        try {
-            return new ByteBuddy()
-                    .subclass(interfaceType)
-                    .method(isDeclaredBy(interfaceType))
-                    .intercept(MethodDelegation.to(handler, "handler").filter(not(isDeclaredBy(Object.class))))
-                    .make()
-                    .load(interfaceType.getClassLoader(), ClassLoadingStrategy.Default.INJECTION)
-                    .getLoaded()
-                    .newInstance();
-        } catch (InstantiationException | IllegalAccessException e) {
-            JUnsafe.throwException(e);
+        switch (option) {
+            case JDK_PROXY:
+                checkArgument(handler instanceof InvocationHandler, "handler must be a InvocationHandler");
+                return newJdkProxy(interfaceType, (InvocationHandler) handler);
+            case BYTE_BUDDY:
+                return newBuddyProxy(interfaceType, handler);
+            default:
+                throw new UnsupportedOperationException("unsupported generator option: " + option.name());
         }
-
-        // should never get here
-        return null;
     }
 
     /**
@@ -612,6 +590,31 @@ public final class Reflects {
             fd.setAccessible(true);
         }
         return fd;
+    }
+
+    private static <T> T newJdkProxy(Class<T> interfaceType, InvocationHandler handler) {
+        Object object = Proxy.newProxyInstance(
+                interfaceType.getClassLoader(), new Class<?>[] { interfaceType }, handler);
+
+        return interfaceType.cast(object);
+    }
+
+    private static <T> T newBuddyProxy(Class<T> interfaceType, Object handler) {
+        try {
+            return new ByteBuddy()
+                    .subclass(interfaceType)
+                    .method(isDeclaredBy(interfaceType))
+                    .intercept(MethodDelegation.to(handler, "handler").filter(not(isDeclaredBy(Object.class))))
+                    .make()
+                    .load(interfaceType.getClassLoader(), ClassLoadingStrategy.Default.INJECTION)
+                    .getLoaded()
+                    .newInstance();
+        } catch (InstantiationException | IllegalAccessException e) {
+            JUnsafe.throwException(e);
+        }
+
+        // should never get here
+        return null;
     }
 
     private Reflects() {}
