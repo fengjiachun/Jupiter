@@ -42,7 +42,7 @@ public enum ProxyGenerator {
             checkArgument(handler instanceof InvocationHandler, "handler must be a InvocationHandler");
 
             Object object = Proxy.newProxyInstance(
-                    interfaceType.getClassLoader(), new Class<?>[]{interfaceType}, (InvocationHandler) handler);
+                    interfaceType.getClassLoader(), new Class<?>[] { interfaceType }, (InvocationHandler) handler);
 
             return interfaceType.cast(object);
         }
