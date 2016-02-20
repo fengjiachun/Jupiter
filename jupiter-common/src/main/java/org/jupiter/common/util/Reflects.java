@@ -17,7 +17,6 @@
 package org.jupiter.common.util;
 
 import net.bytebuddy.ByteBuddy;
-import net.bytebuddy.dynamic.loading.ClassLoadingStrategy;
 import net.sf.cglib.reflect.FastClass;
 import org.jupiter.common.util.internal.JUnsafe;
 import org.objenesis.Objenesis;
@@ -28,6 +27,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentMap;
 
+import static net.bytebuddy.dynamic.loading.ClassLoadingStrategy.Default.INJECTION;
 import static net.bytebuddy.implementation.MethodDelegation.to;
 import static net.bytebuddy.matcher.ElementMatchers.isDeclaredBy;
 import static net.bytebuddy.matcher.ElementMatchers.not;
@@ -115,7 +115,7 @@ public final class Reflects {
                             .method(isDeclaredBy(interfaceType))
                             .intercept(to(handler, "handler").filter(not(isDeclaredBy(Object.class))))
                             .make()
-                            .load(interfaceType.getClassLoader(), ClassLoadingStrategy.Default.INJECTION)
+                            .load(interfaceType.getClassLoader(), INJECTION)
                             .getLoaded()
                             .newInstance();
                 } catch (InstantiationException | IllegalAccessException e) {
