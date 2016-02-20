@@ -91,14 +91,14 @@ public class ProxyTest {
 
     @Benchmark
     public static void jdkProxy() {
-        jdkProxyObj.test1();
+        jdkProxyObj.test1("hello");
     }
 
     @Benchmark
     public static void byteBuddyProxy() {
-        byteBuddyProxyObj.test1();
+        byteBuddyProxyObj.test1("hello");
     }
 }
 interface TestInterface {
-    void test1();
+    void test1(String arg);
 }
