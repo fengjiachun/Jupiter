@@ -17,6 +17,8 @@
 package org.jupiter.common.util;
 
 import net.bytebuddy.ByteBuddy;
+import net.sf.cglib.proxy.Enhancer;
+import net.sf.cglib.proxy.MethodInterceptor;
 import org.jupiter.common.util.internal.JUnsafe;
 
 import java.lang.reflect.InvocationHandler;
@@ -45,6 +47,20 @@ public enum ProxyGenerator {
                     interfaceType.getClassLoader(), new Class<?>[] { interfaceType }, (InvocationHandler) handler);
 
             return interfaceType.cast(object);
+        }
+    }),
+    CG_LIB(new ProxyDelegate() {
+
+        @Override
+        public <T> T newProxy(Class<T> interfaceType, Object handler) {
+            checkArgument(handler instanceof MethodInterceptor, "handler must be a MethodInterceptor");
+
+            Enhancer enhancer = new Enhancer();
+            enhancer.setSuperclass(interfaceType);
+            enhancer.setCallback((MethodInterceptor) handler);
+            enhancer.setClassLoader(interfaceType.getClassLoader());
+
+            return interfaceType.cast(enhancer.create());
         }
     }),
     BYTE_BUDDY(new ProxyDelegate() {
