@@ -97,11 +97,13 @@ public abstract class AbstractPromise<D, F> implements Promise<D, F> {
         for (DoneCallback<D> callback : doneCallbacks) {
             callback.onDone(resolved);
         }
+        doneCallbacks.clear();
     }
 
     protected void triggerFail(F rejected) {
         for (FailCallback<F> callback : failCallbacks) {
             callback.onFail(rejected);
         }
+        failCallbacks.clear();
     }
 }
