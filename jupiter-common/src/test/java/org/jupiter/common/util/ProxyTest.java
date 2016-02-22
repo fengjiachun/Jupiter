@@ -32,9 +32,9 @@ import java.lang.reflect.Method;
 import java.util.concurrent.TimeUnit;
 
 /**
- * 这个测试只针对客户端创建代理对象的场景, 不必考虑对Method进行反射调用的开销
- * 从测试数据上看, byteBuddy性能更优一些, cglib其次, jdkProxy和cglib差距不大,
- * 而且byteBuddy过滤掉Object类方法的代理(toString, hashCode, equals)很方便,
+ * 这个测试只针对客户端创建代理对象的场景, 不必考虑对Method进行反射调用的开销,
+ * 从测试数据上看, byteBuddy性能更优一些, cglib次之, jdkProxy和cglib差距不大,
+ * 并且byteBuddy过滤掉Object类方法的代理(toString, hashCode, equals)很方便,
  * jdkProxy和cglib需要在拦截方法里面硬编码单独处理.
  *
  * 另外如果接着需要在拦截方法里进行Method.invoke的话, cglib的FastClass有一些优势.
