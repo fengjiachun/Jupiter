@@ -30,12 +30,7 @@
  * limitations under the License.
  */
 
-package org.jupiter.common.promise;
-
 /**
  * Forked from <a href="https://github.com/jdeferred">JDeferred</a>.
  */
-public interface FailCallback<F> {
-
-    void onFail(F cause);
-}
+package org.jupiter.common.promise;
