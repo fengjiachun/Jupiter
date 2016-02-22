@@ -32,15 +32,26 @@ import java.lang.reflect.Method;
 import java.util.concurrent.TimeUnit;
 
 /**
+ * 这个测试只针对客户端创建代理对象的场景, 不必考虑对Method进行反射调用的开销
+ * 从测试数据上看, byteBuddy性能更优一些, cglib其次, jdkProxy和cglib差距不大,
+ * 而且byteBuddy过滤掉Object类方法的代理(toString, hashCode, equals)很方便,
+ * jdkProxy和cglib需要在拦截方法里面硬编码单独处理.
+ *
+ * 另外如果接着需要在拦截方法里进行Method.invoke的话, cglib的FastClass有一些优势.
+ *
  * Benchmark                   Mode     Cnt     Score      Error   Units
- * ProxyTest.byteBuddyProxy   thrpt      10     1.065 ±    0.035  ops/ns
- * ProxyTest.jdkProxy         thrpt      10     0.712 ±    0.023  ops/ns
- * ProxyTest.byteBuddyProxy    avgt      10     0.932 ±    0.023   ns/op
- * ProxyTest.jdkProxy          avgt      10     1.388 ±    0.028   ns/op
- * ProxyTest.byteBuddyProxy  sample  116019    50.095 ±    2.512   ns/op
- * ProxyTest.jdkProxy        sample  125231    85.375 ±   63.679   ns/op
- * ProxyTest.byteBuddyProxy      ss      10  2300.000 ± 1020.426   ns/op
- * ProxyTest.jdkProxy            ss      10  2200.000 ±  956.183   ns/op
+ * ProxyTest.byteBuddyProxy   thrpt      10     1.100 ±    0.022  ops/ns
+ * ProxyTest.cglibProxy       thrpt      10     0.811 ±    0.010  ops/ns
+ * ProxyTest.jdkProxy         thrpt      10     0.744 ±    0.026  ops/ns
+ * ProxyTest.byteBuddyProxy    avgt      10     0.885 ±    0.020   ns/op
+ * ProxyTest.cglibProxy        avgt      10     1.178 ±    0.017   ns/op
+ * ProxyTest.jdkProxy          avgt      10     1.302 ±    0.026   ns/op
+ * ProxyTest.byteBuddyProxy  sample  124182    43.944 ±    1.977   ns/op
+ * ProxyTest.cglibProxy      sample  146889    48.397 ±    1.911   ns/op
+ * ProxyTest.jdkProxy        sample  145234    46.235 ±    1.956   ns/op
+ * ProxyTest.byteBuddyProxy      ss      10  2400.000 ±  780.720   ns/op
+ * ProxyTest.cglibProxy          ss      10  3400.000 ± 1912.365   ns/op
+ * ProxyTest.jdkProxy            ss      10  2400.000 ±  780.720   ns/op
  *
  * jupiter
  * org.jupiter.common.util
@@ -62,13 +73,13 @@ public class ProxyTest {
         new Runner(opt).run();
     }
 
-    static InvocationHandler jdkProxyHandler = new InvocationHandler() {
+    static class JdkProxyHandler implements InvocationHandler {
 
         @Override
         public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
             return method.getName();
         }
-    };
+    }
     static class ByteBuddyProxyHandler {
 
         @SuppressWarnings("UnusedParameters")
@@ -84,7 +95,7 @@ public class ProxyTest {
             return method.getName();
         }
     }
-    static TestInterface jdkProxyObj = ProxyGenerator.JDK_PROXY.newProxy(TestInterface.class, jdkProxyHandler);
+    static TestInterface jdkProxyObj = ProxyGenerator.JDK_PROXY.newProxy(TestInterface.class, new JdkProxyHandler());
     static TestInterface byteBuddyProxyObj = ProxyGenerator.BYTE_BUDDY.newProxy(TestInterface.class, new ByteBuddyProxyHandler());
     static TestInterface cglibProxyObj = ProxyGenerator.CG_LIB.newProxy(TestInterface.class, new CGLibProxyHandler());
 
@@ -104,5 +115,5 @@ public class ProxyTest {
     }
 }
 interface TestInterface {
-    void test1(String arg);
+    String test1(String arg);
 }
