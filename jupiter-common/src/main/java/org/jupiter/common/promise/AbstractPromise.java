@@ -78,17 +78,23 @@ public abstract class AbstractPromise<D, F> implements Promise<D, F> {
     }
 
     public Promise<D, F> done(DoneCallback<D> callback) {
-        doneCallbacks.add(callback);
-        if (isResolved()) { // read volatile, see DefaultPromise#resolve
-            callback.onDone(resolveResult);
+        synchronized (this) {
+            if (isResolved()) {
+                callback.onDone(resolveResult);
+            } else {
+                doneCallbacks.add(callback);
+            }
         }
         return this;
     }
 
     public Promise<D, F> fail(FailCallback<F> callback) {
-        failCallbacks.add(callback);
-        if (isRejected()) { // read volatile, see DefaultPromise#reject
-            callback.onFail(rejectResult);
+        synchronized (this) {
+            if (isRejected()) {
+                callback.onFail(rejectResult);
+            } else {
+                failCallbacks.add(callback);
+            }
         }
         return this;
     }

@@ -26,25 +26,31 @@ public class DefaultPromise<D, F> extends AbstractPromise<D, F> {
 
     @Override
     public Promise<D, F> resolve(D resolve) {
-        if (!isPending()) {
-            throw new IllegalStateException("already finished, could not be resolve again");
-        }
+        synchronized (this) {
+            if (!isPending()) {
+                throw new IllegalStateException("already finished, could not be resolve again");
+            }
 
-        resolveResult = resolve;
-        state = State.RESOLVED; // write volatile, see AbstractPromise#done
-        triggerDone(resolve);
+            resolveResult = resolve;
+            state = State.RESOLVED;
+
+            triggerDone(resolve);
+        }
         return this;
     }
 
     @Override
     public Promise<D, F> reject(F reject) {
-        if (!isPending()) {
-            throw new IllegalStateException("already finished, could not be reject again");
-        }
+        synchronized (this) {
+            if (!isPending()) {
+                throw new IllegalStateException("already finished, could not be reject again");
+            }
 
-        rejectResult = reject;
-        state = State.REJECTED; // write volatile, see AbstractPromise#fail
-        triggerFail(reject);
+            rejectResult = reject;
+            state = State.REJECTED;
+
+            triggerFail(reject);
+        }
         return this;
     }
 
