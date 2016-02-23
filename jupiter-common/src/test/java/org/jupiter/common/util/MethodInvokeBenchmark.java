@@ -16,12 +16,16 @@
 
 package org.jupiter.common.util;
 
+import net.bytebuddy.implementation.bind.annotation.AllArguments;
+import net.bytebuddy.implementation.bind.annotation.RuntimeType;
+import net.bytebuddy.implementation.bind.annotation.SuperCall;
 import org.openjdk.jmh.annotations.*;
 import org.openjdk.jmh.runner.Runner;
 import org.openjdk.jmh.runner.RunnerException;
 import org.openjdk.jmh.runner.options.Options;
 import org.openjdk.jmh.runner.options.OptionsBuilder;
 
+import java.util.concurrent.Callable;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -45,29 +49,42 @@ public class MethodInvokeBenchmark {
         new Runner(opt).run();
     }
 
-    static final Class[] params = new Class[] { String.class };
+    static final Class[] parameterTypes = new Class[] { String.class };
+    static final Object[] args = new Object[] { "Jupiter" };
+    static class ByteBuddyProxyHandler {
+
+        @SuppressWarnings("UnusedParameters")
+        @RuntimeType
+        public Object invoke(@SuperCall Callable<?> superMethod, @AllArguments @RuntimeType Object[] args) throws Throwable {
+            return superMethod.call();
+        }
+    }
+    static ReflectClass1 byteBuddyProxyObj = ProxyGenerator.BYTE_BUDDY.newProxy(ReflectClass1.class, new ByteBuddyProxyHandler());
+    static ReflectClass1 reflectClass1 = new ReflectClass1();
 
     @Benchmark
     public void cglibFastInvoke() {
-        ReflectClass1 obj = new ReflectClass1();
-        Reflects.fastInvoke(obj, "method", params, new Object[] { "Jupiter" });
+        Reflects.fastInvoke(reflectClass1, "method", parameterTypes, args);
     }
 
     @Benchmark
     public void jdkReflectInvoke() {
-        ReflectClass1 obj = new ReflectClass1();
-        Reflects.invoke(obj, "method", params, new Object[] { "Jupiter" });
+        Reflects.invoke(reflectClass1, "method", parameterTypes, args);
     }
 
     @Benchmark
     public void commonInvoke() {
-        ReflectClass1 obj = new ReflectClass1();
-        obj.method("Jupiter");
+        reflectClass1.method("Jupiter");
+    }
+
+    @Benchmark
+    public void buddyInvoke() {
+        byteBuddyProxyObj.method("Jupiter");
     }
 }
 
 class ReflectClass1 {
     public String method(String arg) {
-        return "Hello " + arg;
+        return arg;
     }
 }

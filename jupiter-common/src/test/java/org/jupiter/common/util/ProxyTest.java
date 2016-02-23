@@ -114,6 +114,7 @@ public class ProxyTest {
         cglibProxyObj.test1("hello");
     }
 }
+
 interface TestInterface {
     String test1(String arg);
 }
