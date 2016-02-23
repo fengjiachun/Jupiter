@@ -68,14 +68,15 @@ public enum ProxyGenerator {
         @Override
         public <T> T newProxy(Class<T> interfaceType, Object handler) {
             try {
-                return new ByteBuddy()
+                Class<? extends T> cls = new ByteBuddy()
                         .subclass(interfaceType)
                         .method(isDeclaredBy(interfaceType))
                         .intercept(to(handler, "handler").filter(not(isDeclaredBy(Object.class))))
                         .make()
                         .load(interfaceType.getClassLoader(), INJECTION)
-                        .getLoaded()
-                        .newInstance();
+                        .getLoaded();
+
+                return cls.newInstance();
             } catch (InstantiationException | IllegalAccessException e) {
                 JUnsafe.throwException(e);
             }
@@ -87,6 +88,10 @@ public enum ProxyGenerator {
 
     ProxyGenerator(ProxyDelegate delegate) {
         this.delegate = delegate;
+    }
+
+    public static ProxyGenerator getDefault() {
+        return BYTE_BUDDY;
     }
 
     public <T> T newProxy(Class<T> interfaceType, Object handler) {

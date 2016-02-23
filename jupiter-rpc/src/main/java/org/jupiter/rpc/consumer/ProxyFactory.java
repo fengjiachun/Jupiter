@@ -199,7 +199,7 @@ public class ProxyFactory<I> {
                 throw new IllegalStateException("InvokeMode: " + invokeMode);
         }
 
-        return ProxyGenerator.BYTE_BUDDY.newProxy(interfaceClass, handler);
+        return ProxyGenerator.getDefault().newProxy(interfaceClass, handler);
     }
 
     protected Dispatcher asDispatcher(ServiceMetadata metadata) {
