@@ -38,7 +38,7 @@
 - [BenchmarkServer](https://github.com/fengjiachun/Jupiter/blob/master/jupiter-example/src/main/java/org/jupiter/benchmark/tcp/BenchmarkServer.java)
 
 ######一些特性:
-- 支持同步阻塞调用, 异步Future, Callback方式调用, [异步链式调用](https://github.com/fengjiachun/Jupiter/blob/master/transport.md)
+- 支持同步阻塞调用, 异步Future, Callback方式调用, [异步链式调用](https://github.com/fengjiachun/Jupiter/blob/master/promise.md)
 - 支持单播和广播
 - 支持泛化调用
 - 支持udt(有点鸡肋)
