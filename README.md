@@ -38,7 +38,7 @@
 - [BenchmarkServer](https://github.com/fengjiachun/Jupiter/blob/master/jupiter-example/src/main/java/org/jupiter/benchmark/tcp/BenchmarkServer.java)
 
 ######一些特性:
-- 支持同步阻塞调用, 异步Future, Callback方式调用
+- 支持同步阻塞调用, 异步Future, Callback方式调用, [异步链式调用](https://github.com/fengjiachun/Jupiter/blob/master/transport.md)
 - 支持单播和广播
 - 支持泛化调用
 - 支持udt(有点鸡肋)
@@ -51,45 +51,7 @@
 - 链路跟踪: 链路最前端会生成全局唯一的traceId, 后边需要业务代码埋点, 和业务代码之间通过ThreadLocal透传traceId
 - 调用超时设置支持两种粒度: provider级别和方法级别
 - [线上调试(flightexec)](https://github.com/fengjiachun/Jupiter/blob/master/jupiter-flightexec/src/main/java/org/jupiter/flight/exec/package-info.java)
-- [异步链式调用使用](https://github.com/fengjiachun/Jupiter/blob/master/jupiter-example/src/main/java/org/jupiter/example/round/HelloJupiterPromiseClient.java):
 
-        // service2依赖service1的返回结果
-        // service3依赖service2的返回结果
-
-        service1.method1(); // step1. 先调用service1
-
-        PromiseInvoker.currentPromise()
-                .then(new InvokeDonePipe() {
-
-                    @Override
-                    public void doInPipe(Object result1) {
-                        // result1为service1的调用返回值
-                        Object parameter2 = result1;
-                        service2.method2(parameter2); // step2. 再调用service2
-                    }
-                })
-                .then(new InvokeDonePipe() {
-
-                    @Override
-                    public void doInPipe(Object result2) {
-                        // result2为service2的调用返回值
-                        Object parameter3 = result2;
-                        service3.method3(parameter3); // step3. 再调用service3
-                    }
-                })
-                .then(new InvokeDone() {
-
-                    @Override
-                    public void onDone(Object result3) {
-                        // result3为service3的调用返回值
-                    }
-                }, new InvokeFail() {
-
-                    @Override
-                    public void onFail(Throwable cause) {
-                        // 处理失败
-                    }
-                });
 
 ######想做却没做的:
 - Spring融合: 暂时没搞, 主要因为不想依赖Spring特定版本, 其实只需要两个类(SpringProviderBean和SpringConsumerBean), 可自行扩展
