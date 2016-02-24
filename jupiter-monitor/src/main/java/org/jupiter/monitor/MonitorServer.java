@@ -49,8 +49,8 @@ import static org.jupiter.common.util.StackTraceUtil.stackTrace;
  *
  * metrics -report                      // 输出当前节点所有指标度量信息
  *
- * registry -localAddress -p            // 输出所有provider地址
- * registry -localAddress -s            // 输出所有consumer地址
+ * registry -address -p                 // 输出所有provider地址
+ * registry -address -s                 // 输出所有consumer地址
  * registry -by_service                 // 根据服务(group version providerServiceName)查找所有提供当前服务的机器地址列表
  * registry -by_address                 // 根据地址(host port)查找该地址对用provider提供的所有服务
  *

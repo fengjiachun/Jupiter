@@ -38,7 +38,7 @@
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
-            <artifactId>jupiter-registry-default</artifactId>
+            <artifactId>jupiter-registry</artifactId>
         </dependency>
     </dependencies>
 </project>
