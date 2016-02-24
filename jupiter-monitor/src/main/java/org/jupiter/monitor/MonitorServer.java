@@ -110,6 +110,9 @@ public class MonitorServer extends NettyTcpAcceptor {
         super.start(false);
     }
 
+    /**
+     * For jupiter-registry-default
+     */
     public void setRegistryMonitor(RegistryMonitor registryMonitor) {
         this.registryMonitor = registryMonitor;
     }
