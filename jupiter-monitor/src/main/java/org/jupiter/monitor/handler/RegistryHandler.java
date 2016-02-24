@@ -30,14 +30,14 @@ import static org.jupiter.common.util.JConstants.NEWLINE;
  */
 public class RegistryHandler implements CommandHandler {
 
-    private volatile RegistryMonitor monitor;
+    private volatile RegistryMonitor registryMonitor;
 
-    public RegistryMonitor getMonitor() {
-        return monitor;
+    public RegistryMonitor getRegistryMonitor() {
+        return registryMonitor;
     }
 
-    public void setMonitor(RegistryMonitor monitor) {
-        this.monitor = monitor;
+    public void setRegistryMonitor(RegistryMonitor registryMonitor) {
+        this.registryMonitor = registryMonitor;
     }
 
     @SuppressWarnings("unchecked")

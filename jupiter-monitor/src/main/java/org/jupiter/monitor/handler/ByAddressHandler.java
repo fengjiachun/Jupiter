@@ -32,7 +32,7 @@ public class ByAddressHandler extends ChildCommandHandler<RegistryHandler> {
 
     @Override
     public void handle(Channel channel, Command command, String... args) {
-        RegistryMonitor monitor = getParent().getMonitor();
+        RegistryMonitor monitor = getParent().getRegistryMonitor();
         if (monitor == null) {
             return;
         }

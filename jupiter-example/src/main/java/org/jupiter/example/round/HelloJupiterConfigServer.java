@@ -35,7 +35,7 @@ public class HelloJupiterConfigServer {
         ConfigServer configServer = new ConfigServer(20001, 1); // 注册中心
         MonitorServer monitor = new MonitorServer(19998);       // 监控服务
         try {
-            monitor.setMonitor(configServer);
+            monitor.setRegistryMonitor(configServer);
             monitor.start();
             configServer.start();
         } catch (InterruptedException e) {

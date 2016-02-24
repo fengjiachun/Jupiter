@@ -74,7 +74,7 @@ public class MonitorServer extends NettyTcpAcceptor {
     private final TelnetHandler handler = new TelnetHandler();
     private final StringEncoder encoder = new StringEncoder(UTF8);
 
-    private volatile RegistryMonitor monitor;
+    private volatile RegistryMonitor registryMonitor;
 
     public MonitorServer() {
         this(DEFAULT_PORT);
@@ -110,8 +110,8 @@ public class MonitorServer extends NettyTcpAcceptor {
         super.start(false);
     }
 
-    public void setMonitor(RegistryMonitor monitor) {
-        this.monitor = monitor;
+    public void setRegistryMonitor(RegistryMonitor registryMonitor) {
+        this.registryMonitor = registryMonitor;
     }
 
     @ChannelHandler.Sharable
@@ -133,8 +133,8 @@ public class MonitorServer extends NettyTcpAcceptor {
 
                 CommandHandler handler = command.handler();
                 if (handler instanceof RegistryHandler) {
-                    if (((RegistryHandler) handler).getMonitor() != monitor) {
-                        ((RegistryHandler) handler).setMonitor(monitor);
+                    if (((RegistryHandler) handler).getRegistryMonitor() != registryMonitor) {
+                        ((RegistryHandler) handler).setRegistryMonitor(registryMonitor);
                     }
                 }
                 handler.handle(ctx.channel(), command, args);
