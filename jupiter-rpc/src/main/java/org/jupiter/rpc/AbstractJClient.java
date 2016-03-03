@@ -48,7 +48,7 @@ public abstract class AbstractJClient implements JClient {
 
     private static final InternalLogger logger = InternalLoggerFactory.getInstance(AbstractJClient.class);
 
-    private static final AtomicReferenceFieldUpdater<CopyOnWriteArrayList, Object[]> copyOnWriteArrayListUpdater
+    private static final AtomicReferenceFieldUpdater<CopyOnWriteArrayList, Object[]> groupsUpdater
             = AtomicUpdater.newAtomicReferenceFieldUpdater(CopyOnWriteArrayList.class, Object[].class, "array");
 
     // SPI
@@ -138,7 +138,7 @@ public abstract class AbstractJClient implements JClient {
     public JChannel select(Directory directory) {
         CopyOnWriteArrayList<JChannelGroup> groupList = directory(directory);
         // snapshot of groupList
-        Object[] elements = copyOnWriteArrayListUpdater.get(groupList);
+        Object[] elements = groupsUpdater.get(groupList);
 
         JChannelGroup group = loadBalancer.select(elements);
 

@@ -16,10 +16,9 @@
 
 package org.jupiter.rpc;
 
-import org.jupiter.common.util.JServiceLoader;
-import org.jupiter.common.util.Lists;
-import org.jupiter.common.util.Maps;
-import org.jupiter.common.util.Strings;
+import net.bytebuddy.ByteBuddy;
+import org.jupiter.common.util.*;
+import org.jupiter.common.util.internal.JUnsafe;
 import org.jupiter.common.util.internal.logging.InternalLogger;
 import org.jupiter.common.util.internal.logging.InternalLoggerFactory;
 import org.jupiter.registry.RegisterMeta;
@@ -27,6 +26,7 @@ import org.jupiter.registry.RegistryService;
 import org.jupiter.rpc.flow.control.FlowController;
 import org.jupiter.rpc.model.metadata.ServiceMetadata;
 import org.jupiter.rpc.model.metadata.ServiceWrapper;
+import org.jupiter.rpc.provider.ProviderProxyHandler;
 
 import java.lang.reflect.Method;
 import java.util.List;
@@ -34,6 +34,10 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.Executor;
 
+import static net.bytebuddy.dynamic.loading.ClassLoadingStrategy.Default.INJECTION;
+import static net.bytebuddy.implementation.MethodDelegation.to;
+import static net.bytebuddy.matcher.ElementMatchers.isDeclaredBy;
+import static net.bytebuddy.matcher.ElementMatchers.not;
 import static org.jupiter.common.util.Preconditions.checkArgument;
 import static org.jupiter.common.util.Preconditions.checkNotNull;
 
@@ -51,11 +55,22 @@ public abstract class AbstractJServer implements JServer {
     // SPI
     private final RegistryService registryService = JServiceLoader.load(RegistryService.class);
 
+    private volatile ProviderProxyHandler providerProxyHandler;
     private volatile FlowController<JRequest> flowController;
 
     @Override
     public void connectToConfigServer(String connectString) {
         registryService.connectToConfigServer(connectString);
+    }
+
+    @Override
+    public ProviderProxyHandler getProviderProxyHandler() {
+        return providerProxyHandler;
+    }
+
+    @Override
+    public void setProviderProxyHandler(ProviderProxyHandler providerProxyHandler) {
+        this.providerProxyHandler = providerProxyHandler;
     }
 
     @Override
@@ -173,7 +188,24 @@ public abstract class AbstractJServer implements JServer {
 
         @Override
         public ServiceRegistry provider(Object serviceProvider) {
-            this.serviceProvider = serviceProvider;
+            if (providerProxyHandler == null) {
+                this.serviceProvider = serviceProvider;
+            } else {
+                try {
+                    Class<?> providerCls = serviceProvider.getClass();
+                    Class<?> cls = new ByteBuddy()
+                            .subclass(providerCls)
+                            .method(isDeclaredBy(providerCls))
+                            .intercept(to(providerProxyHandler, "handler").filter(not(isDeclaredBy(Object.class))))
+                            .make()
+                            .load(providerCls.getClassLoader(), INJECTION)
+                            .getLoaded();
+
+                    this.serviceProvider = cls.newInstance();
+                } catch (InstantiationException | IllegalAccessException e) {
+                    JUnsafe.throwException(e);
+                }
+            }
             return this;
         }
 
@@ -205,33 +237,39 @@ public abstract class AbstractJServer implements JServer {
         public ServiceWrapper register() {
             checkNotNull(serviceProvider, "serviceProvider");
 
-            Class<?>[] interfaces = serviceProvider.getClass().getInterfaces();
             ServiceProvider annotation = null;
             String providerName = null;
             Map<String, List<Class<?>[]>> methodsParameterTypes = Maps.newHashMap();
-            if (interfaces != null) {
-                for (Class<?> providerInterface : interfaces) {
-                    annotation = providerInterface.getAnnotation(ServiceProvider.class);
-                    if (annotation == null) {
-                        continue;
-                    }
-
-                    providerName = annotation.value();
-                    providerName = Strings.isNotBlank(providerName) ? providerName : providerInterface.getSimpleName();
-
-                    // method's parameterTypes
-                    for (Method method : providerInterface.getMethods()) {
-                        String methodName = method.getName();
-                        List<Class<?>[]> list = methodsParameterTypes.get(methodName);
-                        if (list == null) {
-                            list = Lists.newArrayList();
-                            methodsParameterTypes.put(methodName, list);
+            for (Class<?> cls = serviceProvider.getClass(); cls != Object.class; cls = cls.getSuperclass()) {
+                Class<?>[] interfaces = cls.getInterfaces();
+                if (interfaces != null) {
+                    for (Class<?> providerInterface : interfaces) {
+                        annotation = providerInterface.getAnnotation(ServiceProvider.class);
+                        if (annotation == null) {
+                            continue;
                         }
-                        list.add(method.getParameterTypes());
+
+                        providerName = annotation.value();
+                        providerName = Strings.isNotBlank(providerName) ? providerName : providerInterface.getSimpleName();
+
+                        // method's parameterTypes
+                        for (Method method : providerInterface.getMethods()) {
+                            String methodName = method.getName();
+                            List<Class<?>[]> list = methodsParameterTypes.get(methodName);
+                            if (list == null) {
+                                list = Lists.newArrayList();
+                                methodsParameterTypes.put(methodName, list);
+                            }
+                            list.add(method.getParameterTypes());
+                        }
+                        break;
                     }
+                }
+                if (annotation != null) {
                     break;
                 }
             }
+
             checkArgument(annotation != null, serviceProvider.getClass() + " is not a ServiceProvider");
 
             String group = annotation.group();

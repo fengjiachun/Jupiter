@@ -31,7 +31,7 @@ import org.jupiter.common.util.internal.UnsafeUpdater;
  */
 public class StringBuilderHelper {
 
-    private static final UnsafeReferenceFieldUpdater<StringBuilder, char[]> stringBuilderValueUpdater =
+    private static final UnsafeReferenceFieldUpdater<StringBuilder, char[]> bufferUpdater =
             UnsafeUpdater.newReferenceFieldUpdater(StringBuilder.class.getSuperclass(), "value");
 
     private static final int DISCARD_LIMIT = 1024 << 3; // 8k
@@ -66,7 +66,7 @@ public class StringBuilderHelper {
 
         private void truncate() {
             if (buf.capacity() > DISCARD_LIMIT) {
-                stringBuilderValueUpdater.set(buf, new char[1024]);
+                bufferUpdater.set(buf, new char[1024]);
             }
             buf.setLength(0);
         }

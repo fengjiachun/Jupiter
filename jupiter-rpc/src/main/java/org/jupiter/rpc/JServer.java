@@ -19,6 +19,7 @@ package org.jupiter.rpc;
 import org.jupiter.registry.Registry;
 import org.jupiter.rpc.flow.control.FlowController;
 import org.jupiter.rpc.model.metadata.ServiceWrapper;
+import org.jupiter.rpc.provider.ProviderProxyHandler;
 
 import java.util.List;
 import java.util.concurrent.Executor;
@@ -68,6 +69,16 @@ public interface JServer extends Registry {
          */
         ServiceWrapper register();
     }
+
+    /**
+     * Returns the global {@link ProviderProxyHandler} if have one.
+     */
+    ProviderProxyHandler getProviderProxyHandler();
+
+    /**
+     * Sets a global {@link ProviderProxyHandler} to this server.
+     */
+    void setProviderProxyHandler(ProviderProxyHandler providerProxyHandler);
 
     /**
      * Returns the global {@link FlowController} if have one.

@@ -23,9 +23,13 @@ import org.jupiter.rpc.JRequest;
 import org.jupiter.rpc.flow.control.ControlResult;
 import org.jupiter.rpc.flow.control.FlowController;
 import org.jupiter.rpc.model.metadata.ServiceWrapper;
+import org.jupiter.rpc.provider.ProviderInterceptor;
+import org.jupiter.rpc.provider.ProviderProxyHandler;
+import org.jupiter.rpc.tracing.TraceId;
 import org.jupiter.transport.netty.JNettyTcpAcceptor;
 import org.jupiter.transport.netty.NettyAcceptor;
 
+import java.util.Arrays;
 import java.util.concurrent.atomic.AtomicLong;
 
 /**
@@ -46,10 +50,28 @@ public class HelloJupiterServer {
         try {
             monitor.start();
 
+            // provider的通用interceptor, 可不设置
+            ProviderProxyHandler proxyHandler = new ProviderProxyHandler();
+            proxyHandler.addProviderInterceptor(new ProviderInterceptor() {
+
+                @Override
+                public void before(TraceId traceId, String methodName, Object[] args) {
+                    System.out.println("before: " + methodName + " args: " + Arrays.toString(args));
+                }
+
+                @Override
+                public void after(TraceId traceId, String methodName, Object[] args, Object result) {
+                    System.out.println("after: " + methodName + " args: " + Arrays.toString(args) + " result: " + result);
+                }
+            });
+            server.setProviderProxyHandler(proxyHandler);
+
+            // provider1
             ServiceWrapper provider1 = server.serviceRegistry()
                     .provider(new ServiceTestImpl())
                     .register();
 
+            // provider2
             ServiceWrapper provider2 = server.serviceRegistry()
                     .provider(new ServiceTest2Impl())
                     .flowController(new FlowController<JRequest>() { // Provider级别限流器, 可以不设置
