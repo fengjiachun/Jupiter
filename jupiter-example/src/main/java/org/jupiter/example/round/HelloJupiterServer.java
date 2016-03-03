@@ -50,7 +50,7 @@ public class HelloJupiterServer {
         try {
             monitor.start();
 
-            // provider的通用interceptor, 可不设置
+            // provider的通用interceptors, 可不设置
             ProviderProxyHandler proxyHandler = new ProviderProxyHandler();
             proxyHandler.addProviderInterceptor(new ProviderInterceptor() {
 
