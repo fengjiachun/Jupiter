@@ -26,7 +26,22 @@ import org.jupiter.rpc.tracing.TraceId;
  */
 public interface ProviderInterceptor {
 
-    void before(TraceId traceId, String methodName, Object[] args);
+    /**
+     * This code is executed before the method is optionally called.
+     *
+     * @param traceId       id for tracing
+     * @param methodName    name of the method to call
+     * @param args          arguments to the method call
+     */
+    void beforeInvoke(TraceId traceId, String methodName, Object[] args);
 
-    void after(TraceId traceId, String methodName, Object[] args, Object result);
+    /**
+     * This code is executed after the method is optionally called.
+     *
+     * @param traceId       id for tracing
+     * @param methodName    name of the called method
+     * @param args          arguments to the called method
+     * @param result        result of the executed method call
+     */
+    void afterInvoke(TraceId traceId, String methodName, Object[] args, Object result);
 }

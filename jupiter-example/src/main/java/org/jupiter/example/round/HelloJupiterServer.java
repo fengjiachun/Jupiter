@@ -51,12 +51,12 @@ public class HelloJupiterServer {
 //            proxyHandler.addProviderInterceptor(new ProviderInterceptor() {
 //
 //                @Override
-//                public void before(TraceId traceId, String methodName, Object[] args) {
+//                public void beforeInvoke(TraceId traceId, String methodName, Object[] args) {
 //                    System.out.println("before: " + methodName + " args: " + Arrays.toString(args));
 //                }
 //
 //                @Override
-//                public void after(TraceId traceId, String methodName, Object[] args, Object result) {
+//                public void afterInvoke(TraceId traceId, String methodName, Object[] args, Object result) {
 //                    System.out.println("after: " + methodName + " args: " + Arrays.toString(args) + " result: " + result);
 //                }
 //            });

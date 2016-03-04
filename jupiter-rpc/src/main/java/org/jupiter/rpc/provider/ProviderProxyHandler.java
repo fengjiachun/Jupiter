@@ -63,9 +63,9 @@ public class ProviderProxyHandler {
         for (int i = elements.length - 1; i >= 0; i--) {
             ProviderInterceptor interceptor = (ProviderInterceptor) elements[i];
             try {
-                interceptor.before(traceId, methodName, args);
+                interceptor.beforeInvoke(traceId, methodName, args);
             } catch (Throwable t) {
-                logger.warn("Interceptor[{}#before]: {}.", interceptor.getClass().getName(), stackTrace(t));
+                logger.warn("Interceptor[{}#beforeInvoke]: {}.", interceptor.getClass().getName(), stackTrace(t));
             }
         }
         Object result = null;
@@ -75,9 +75,9 @@ public class ProviderProxyHandler {
             for (int i = 0; i < elements.length; i++) {
                 ProviderInterceptor interceptor = (ProviderInterceptor) elements[i];
                 try {
-                    interceptor.after(traceId, methodName, args, result);
+                    interceptor.afterInvoke(traceId, methodName, args, result);
                 } catch (Throwable t) {
-                    logger.warn("Interceptor[{}#after]: {}.", interceptor.getClass().getName(), stackTrace(t));
+                    logger.warn("Interceptor[{}#afterInvoke]: {}.", interceptor.getClass().getName(), stackTrace(t));
                 }
             }
         }
