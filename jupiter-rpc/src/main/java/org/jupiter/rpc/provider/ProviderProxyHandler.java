@@ -44,23 +44,24 @@ public class ProviderProxyHandler {
 
     private final CopyOnWriteArrayList<ProviderInterceptor> interceptors = new CopyOnWriteArrayList<>();
 
+    @SuppressWarnings("all")
     @RuntimeType
-    public Object invoke(@SuperCall Callable<?> superMethod, @Origin Method method, @AllArguments @RuntimeType Object[] args) throws Throwable {
+    public Object invoke(
+            @SuperCall Callable<?> superMethod,
+            @Origin Method method,
+            @AllArguments @RuntimeType Object[] args) throws Throwable {
         TraceId traceId = TracingEye.getCurrent();
         String methodName = method.getName();
-
-        // snapshot 保证before和after调用相同版本的interceptors
+        // snapshot, 保证before和after使用相同版本的interceptors
         Object[] elements = interceptorsUpdater.get(interceptors);
 
         for (int i = elements.length - 1; i >= 0; i--) {
             ((ProviderInterceptor) elements[i]).before(traceId, methodName, args);
         }
-
         Object result = null;
         try {
             result = superMethod.call();
         } finally {
-            // noinspection ForLoopReplaceableByForEach
             for (int i = 0; i < elements.length; i++) {
                 ((ProviderInterceptor) elements[i]).after(traceId, methodName, args, result);
             }
@@ -68,7 +69,8 @@ public class ProviderProxyHandler {
         return result;
     }
 
-    public void addProviderInterceptor(ProviderInterceptor interceptor) {
+    public ProviderProxyHandler addProviderInterceptor(ProviderInterceptor interceptor) {
         interceptors.add(checkNotNull(interceptor, "interceptor"));
+        return this;
     }
 }
