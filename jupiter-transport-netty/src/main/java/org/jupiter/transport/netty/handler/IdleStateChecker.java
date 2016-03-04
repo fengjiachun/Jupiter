@@ -179,14 +179,18 @@ public class IdleStateChecker extends ChannelDuplexHandler {
 
     @Override
     public void write(ChannelHandlerContext ctx, Object msg, ChannelPromise promise) throws Exception {
-        promise.addListener(new ChannelFutureListener() {
+        try {
+            promise.addListener(new ChannelFutureListener() {
 
-            @Override
-            public void operationComplete(ChannelFuture future) throws Exception {
-                firstWriterIdleEvent = firstAllIdleEvent = true;
-                lastWriteTime = SystemClock.millisClock().now(); // make hb for firstWriterIdleEvent and firstAllIdleEvent
-            }
-        });
+                @Override
+                public void operationComplete(ChannelFuture future) throws Exception {
+                    firstWriterIdleEvent = firstAllIdleEvent = true;
+                    lastWriteTime = SystemClock.millisClock().now(); // make hb for firstWriterIdleEvent and firstAllIdleEvent
+                }
+            });
+        } catch (Exception ignored) {
+            // VoidChannelPromise
+        }
         ctx.write(msg, promise);
     }
 
