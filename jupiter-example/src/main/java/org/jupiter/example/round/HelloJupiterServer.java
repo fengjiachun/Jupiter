@@ -23,13 +23,9 @@ import org.jupiter.rpc.JRequest;
 import org.jupiter.rpc.flow.control.ControlResult;
 import org.jupiter.rpc.flow.control.FlowController;
 import org.jupiter.rpc.model.metadata.ServiceWrapper;
-import org.jupiter.rpc.provider.ProviderInterceptor;
-import org.jupiter.rpc.provider.ProviderProxyHandler;
-import org.jupiter.rpc.tracing.TraceId;
 import org.jupiter.transport.netty.JNettyTcpAcceptor;
 import org.jupiter.transport.netty.NettyAcceptor;
 
-import java.util.Arrays;
 import java.util.concurrent.atomic.AtomicLong;
 
 /**
@@ -51,20 +47,20 @@ public class HelloJupiterServer {
             monitor.start();
 
             // provider的通用interceptors, 可不设置
-            ProviderProxyHandler proxyHandler = new ProviderProxyHandler();
-            proxyHandler.addProviderInterceptor(new ProviderInterceptor() {
-
-                @Override
-                public void before(TraceId traceId, String methodName, Object[] args) {
-                    System.out.println("before: " + methodName + " args: " + Arrays.toString(args));
-                }
-
-                @Override
-                public void after(TraceId traceId, String methodName, Object[] args, Object result) {
-                    System.out.println("after: " + methodName + " args: " + Arrays.toString(args) + " result: " + result);
-                }
-            });
-            server.setProviderProxyHandler(proxyHandler);
+//            ProviderProxyHandler proxyHandler = new ProviderProxyHandler();
+//            proxyHandler.addProviderInterceptor(new ProviderInterceptor() {
+//
+//                @Override
+//                public void before(TraceId traceId, String methodName, Object[] args) {
+//                    System.out.println("before: " + methodName + " args: " + Arrays.toString(args));
+//                }
+//
+//                @Override
+//                public void after(TraceId traceId, String methodName, Object[] args, Object result) {
+//                    System.out.println("after: " + methodName + " args: " + Arrays.toString(args) + " result: " + result);
+//                }
+//            });
+//            server.setGlobalProviderProxyHandler(proxyHandler);
 
             // provider1
             ServiceWrapper provider1 = server.serviceRegistry()
@@ -88,7 +84,7 @@ public class HelloJupiterServer {
                     })
                     .register();
 
-//            server.setFlowController(); // App级别限流器
+//            server.setGlobalFlowController(); // App级别限流器
             server.connectToConfigServer("127.0.0.1:20001");
             server.publish(provider1, provider2);
             server.start();

@@ -45,6 +45,11 @@ public interface JServer extends Registry {
         ServiceRegistry provider(Object serviceProvider);
 
         /**
+         * Sets up the service provider.
+         */
+        ServiceRegistry provider(ProviderProxyHandler proxyHandler, Object serviceProvider);
+
+        /**
          * Sets the weight of this provider at current server(0 < weight <= 100).
          */
         ServiceRegistry weight(int weight);
@@ -71,24 +76,29 @@ public interface JServer extends Registry {
     }
 
     /**
+     * Wraps service provider with a proxy.
+     */
+    <T> T createProviderProxy(ProviderProxyHandler proxyHandler, T providerObject);
+
+    /**
      * Returns the global {@link ProviderProxyHandler} if have one.
      */
-    ProviderProxyHandler getProviderProxyHandler();
+    ProviderProxyHandler getGlobalProviderProxyHandler();
 
     /**
      * Sets a global {@link ProviderProxyHandler} to this server.
      */
-    void setProviderProxyHandler(ProviderProxyHandler providerProxyHandler);
+    void setGlobalProviderProxyHandler(ProviderProxyHandler providerProxyHandler);
 
     /**
      * Returns the global {@link FlowController} if have one.
      */
-    FlowController<JRequest> getFlowController();
+    FlowController<JRequest> getGlobalFlowController();
 
     /**
      * Sets a global {@link FlowController} to this server.
      */
-    void setFlowController(FlowController<JRequest> flowController);
+    void setGlobalFlowController(FlowController<JRequest> flowController);
 
     /**
      * To obtains a service registry.

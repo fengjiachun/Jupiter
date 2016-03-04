@@ -46,23 +46,23 @@ public class ProviderProxyHandler {
 
     @RuntimeType
     public Object invoke(@SuperCall Callable<?> superMethod, @Origin Method method, @AllArguments @RuntimeType Object[] args) throws Throwable {
-        String methodName = method.getName();
         TraceId traceId = TracingEye.getCurrent();
+        String methodName = method.getName();
 
-        // snapshot of interceptors array
-        // 保证before和after调用相同版本的interceptors
+        // snapshot 保证before和after调用相同版本的interceptors
         Object[] elements = interceptorsUpdater.get(interceptors);
 
-        for (Object i : elements) {
-            ((ProviderInterceptor) i).before(traceId, methodName, args);
+        for (int i = elements.length - 1; i >= 0; i--) {
+            ((ProviderInterceptor) elements[i]).before(traceId, methodName, args);
         }
 
         Object result = null;
         try {
             result = superMethod.call();
         } finally {
-            for (Object i : elements) {
-                ((ProviderInterceptor) i).after(traceId, methodName, args, result);
+            // noinspection ForLoopReplaceableByForEach
+            for (int i = 0; i < elements.length; i++) {
+                ((ProviderInterceptor) elements[i]).after(traceId, methodName, args, result);
             }
         }
         return result;

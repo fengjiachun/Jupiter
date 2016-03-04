@@ -18,7 +18,6 @@ package org.jupiter.rpc;
 
 import net.bytebuddy.ByteBuddy;
 import org.jupiter.common.util.*;
-import org.jupiter.common.util.internal.JUnsafe;
 import org.jupiter.common.util.internal.logging.InternalLogger;
 import org.jupiter.common.util.internal.logging.InternalLoggerFactory;
 import org.jupiter.registry.RegisterMeta;
@@ -55,32 +54,56 @@ public abstract class AbstractJServer implements JServer {
     // SPI
     private final RegistryService registryService = JServiceLoader.load(RegistryService.class);
 
-    private volatile ProviderProxyHandler providerProxyHandler;
-    private volatile FlowController<JRequest> flowController;
+    private volatile ProviderProxyHandler globalProviderProxyHandler;
+    private volatile FlowController<JRequest> globalFlowController;
 
     @Override
     public void connectToConfigServer(String connectString) {
         registryService.connectToConfigServer(connectString);
     }
 
+    @SuppressWarnings("unchecked")
     @Override
-    public ProviderProxyHandler getProviderProxyHandler() {
-        return providerProxyHandler;
+    public <T> T createProviderProxy(ProviderProxyHandler proxyHandler, T providerObject) {
+        if (proxyHandler == null) {
+            return providerObject;
+        }
+
+        try {
+            Class<T> providerCls = (Class<T>) providerObject.getClass();
+            Class<? extends T> proxyCls = new ByteBuddy()
+                    .subclass(providerCls)
+                    .method(isDeclaredBy(providerCls))
+                    .intercept(to(proxyHandler, "handler").filter(not(isDeclaredBy(Object.class))))
+                    .make()
+                    .load(providerCls.getClassLoader(), INJECTION)
+                    .getLoaded();
+
+            return proxyCls.newInstance();
+        } catch (InstantiationException | IllegalAccessException e) {
+            logger.warn("Create provider proxy {} failed {}.", providerObject, StackTraceUtil.stackTrace(e));
+        }
+        return providerObject;
     }
 
     @Override
-    public void setProviderProxyHandler(ProviderProxyHandler providerProxyHandler) {
-        this.providerProxyHandler = providerProxyHandler;
+    public ProviderProxyHandler getGlobalProviderProxyHandler() {
+        return globalProviderProxyHandler;
     }
 
     @Override
-    public FlowController<JRequest> getFlowController() {
-        return flowController;
+    public void setGlobalProviderProxyHandler(ProviderProxyHandler globalProviderProxyHandler) {
+        this.globalProviderProxyHandler = globalProviderProxyHandler;
     }
 
     @Override
-    public void setFlowController(FlowController<JRequest> flowController) {
-        this.flowController = flowController;
+    public FlowController<JRequest> getGlobalFlowController() {
+        return globalFlowController;
+    }
+
+    @Override
+    public void setGlobalFlowController(FlowController<JRequest> globalFlowController) {
+        this.globalFlowController = globalFlowController;
     }
 
     @Override
@@ -188,23 +211,21 @@ public abstract class AbstractJServer implements JServer {
 
         @Override
         public ServiceRegistry provider(Object serviceProvider) {
-            if (providerProxyHandler == null) {
+            if (globalProviderProxyHandler == null) {
                 this.serviceProvider = serviceProvider;
             } else {
-                try {
-                    Class<?> providerCls = serviceProvider.getClass();
-                    Class<?> cls = new ByteBuddy()
-                            .subclass(providerCls)
-                            .method(isDeclaredBy(providerCls))
-                            .intercept(to(providerProxyHandler, "handler").filter(not(isDeclaredBy(Object.class))))
-                            .make()
-                            .load(providerCls.getClassLoader(), INJECTION)
-                            .getLoaded();
+                this.serviceProvider = createProviderProxy(globalProviderProxyHandler, serviceProvider);
+            }
+            return this;
+        }
 
-                    this.serviceProvider = cls.newInstance();
-                } catch (InstantiationException | IllegalAccessException e) {
-                    JUnsafe.throwException(e);
-                }
+        @Override
+        public ServiceRegistry provider(ProviderProxyHandler proxyHandler, Object serviceProvider) {
+            Object proxyProvider = createProviderProxy(proxyHandler, serviceProvider);
+            if (globalProviderProxyHandler == null) {
+                this.serviceProvider = proxyProvider;
+            } else {
+                this.serviceProvider = createProviderProxy(globalProviderProxyHandler, proxyProvider);
             }
             return this;
         }
