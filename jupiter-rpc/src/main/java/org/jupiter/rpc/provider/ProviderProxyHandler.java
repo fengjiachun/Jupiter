@@ -21,6 +21,8 @@ import net.bytebuddy.implementation.bind.annotation.Origin;
 import net.bytebuddy.implementation.bind.annotation.RuntimeType;
 import net.bytebuddy.implementation.bind.annotation.SuperCall;
 import org.jupiter.common.concurrent.atomic.AtomicUpdater;
+import org.jupiter.common.util.internal.logging.InternalLogger;
+import org.jupiter.common.util.internal.logging.InternalLoggerFactory;
 import org.jupiter.rpc.tracing.TraceId;
 import org.jupiter.rpc.tracing.TracingEye;
 
@@ -30,6 +32,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.atomic.AtomicReferenceFieldUpdater;
 
 import static org.jupiter.common.util.Preconditions.checkNotNull;
+import static org.jupiter.common.util.StackTraceUtil.stackTrace;
 
 /**
  * jupiter
@@ -38,6 +41,8 @@ import static org.jupiter.common.util.Preconditions.checkNotNull;
  * @author jiachun.fjc
  */
 public class ProviderProxyHandler {
+
+    private static final InternalLogger logger = InternalLoggerFactory.getInstance(ProviderProxyHandler.class);
 
     private static final AtomicReferenceFieldUpdater<CopyOnWriteArrayList, Object[]> interceptorsUpdater =
             AtomicUpdater.newAtomicReferenceFieldUpdater(CopyOnWriteArrayList.class, Object[].class, "array");
@@ -56,14 +61,24 @@ public class ProviderProxyHandler {
         Object[] elements = interceptorsUpdater.get(interceptors);
 
         for (int i = elements.length - 1; i >= 0; i--) {
-            ((ProviderInterceptor) elements[i]).before(traceId, methodName, args);
+            ProviderInterceptor interceptor = (ProviderInterceptor) elements[i];
+            try {
+                interceptor.before(traceId, methodName, args);
+            } catch (Throwable t) {
+                logger.warn("Interceptor[{}#before]: {}.", interceptor.getClass().getName(), stackTrace(t));
+            }
         }
         Object result = null;
         try {
             result = superMethod.call();
         } finally {
             for (int i = 0; i < elements.length; i++) {
-                ((ProviderInterceptor) elements[i]).after(traceId, methodName, args, result);
+                ProviderInterceptor interceptor = (ProviderInterceptor) elements[i];
+                try {
+                    interceptor.after(traceId, methodName, args, result);
+                } catch (Throwable t) {
+                    logger.warn("Interceptor[{}#after]: {}.", interceptor.getClass().getName(), stackTrace(t));
+                }
             }
         }
         return result;
