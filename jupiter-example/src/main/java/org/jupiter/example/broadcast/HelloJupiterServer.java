@@ -44,8 +44,6 @@ public class HelloJupiterServer {
                         acceptor.serviceRegistry()
                                 .provider(new ServiceTestImpl())
                                 .register();
-
-//                        acceptor.publish(provider);
                         acceptor.start();
                     } catch (InterruptedException e) {
                         e.printStackTrace();

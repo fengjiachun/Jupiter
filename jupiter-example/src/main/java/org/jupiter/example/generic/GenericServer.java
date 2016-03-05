@@ -43,7 +43,7 @@ public class GenericServer {
 
             ServiceWrapper provider = server.serviceRegistry()
                     .provider(new GenericServiceTestImpl())
-                    .flowController(new FlowController<JRequest>() { // Provider级别限流器, 可以不设置
+                    .flowController(new FlowController<JRequest>() { // provider级别限流器, 可不设置
 
                         private AtomicLong count = new AtomicLong();
 
@@ -57,7 +57,7 @@ public class GenericServer {
                     })
                     .register();
 
-//            server.setFlowController(); // App级别限流器
+//            server.setGlobalFlowController(); // 全局限流器
             server.connectToConfigServer("127.0.0.1:20001");
             server.publish(provider);
             server.start();
