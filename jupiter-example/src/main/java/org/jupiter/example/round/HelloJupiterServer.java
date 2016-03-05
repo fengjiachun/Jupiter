@@ -66,7 +66,7 @@ public class HelloJupiterServer {
             // provider2
             ServiceWrapper provider2 = server.serviceRegistry()
                     .provider(new ServiceTest2Impl())
-                    .flowController(new PrivateFlowController()) // Provider级别限流器, 可不设置
+                    .flowController(new PrivateFlowController()) // provider级别限流器, 可不设置
                     .register();
 
 //            server.setGlobalFlowController(); // 全局限流器
