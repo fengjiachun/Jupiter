@@ -62,30 +62,6 @@ public abstract class AbstractJServer implements JServer {
         registryService.connectToConfigServer(connectString);
     }
 
-    @SuppressWarnings("unchecked")
-    @Override
-    public <T> T createProviderProxy(ProviderProxyHandler proxyHandler, T providerObject) {
-        if (proxyHandler == null) {
-            return providerObject;
-        }
-
-        try {
-            Class<T> providerCls = (Class<T>) providerObject.getClass();
-            Class<? extends T> proxyCls = new ByteBuddy()
-                    .subclass(providerCls)
-                    .method(isDeclaredBy(providerCls))
-                    .intercept(to(proxyHandler, "handler").filter(not(isDeclaredBy(Object.class))))
-                    .make()
-                    .load(providerCls.getClassLoader(), INJECTION)
-                    .getLoaded();
-
-            return proxyCls.newInstance();
-        } catch (InstantiationException | IllegalAccessException e) {
-            logger.warn("Create provider proxy {} failed {}.", providerObject, StackTraceUtil.stackTrace(e));
-        }
-        return providerObject;
-    }
-
     @Override
     public ProviderProxyHandler getGlobalProviderProxyHandler() {
         return globalProviderProxyHandler;
@@ -201,6 +177,19 @@ public abstract class AbstractJServer implements JServer {
         return serviceWrapper;
     }
 
+    private static <T> Class<? extends T> generateProviderProxyClass(ProviderProxyHandler proxyHandler, Class<T> providerCls) {
+        if (proxyHandler == null) {
+            return providerCls;
+        }
+        return new ByteBuddy()
+                .subclass(providerCls)
+                .method(isDeclaredBy(providerCls))
+                .intercept(to(proxyHandler, "handler").filter(not(isDeclaredBy(Object.class))))
+                .make()
+                .load(providerCls.getClassLoader(), INJECTION)
+                .getLoaded();
+    }
+
     class DefaultServiceRegistry implements ServiceRegistry {
 
         private Object serviceProvider;
@@ -214,18 +203,20 @@ public abstract class AbstractJServer implements JServer {
             if (globalProviderProxyHandler == null) {
                 this.serviceProvider = serviceProvider;
             } else {
-                this.serviceProvider = createProviderProxy(globalProviderProxyHandler, serviceProvider);
+                Class<?> globalProxyCls = generateProviderProxyClass(globalProviderProxyHandler, serviceProvider.getClass());
+                this.serviceProvider = Reflects.newInstance(globalProxyCls);
             }
             return this;
         }
 
         @Override
         public ServiceRegistry provider(ProviderProxyHandler proxyHandler, Object serviceProvider) {
-            Object proxyProvider = createProviderProxy(proxyHandler, serviceProvider);
+            Class<?> proxyCls = generateProviderProxyClass(proxyHandler, serviceProvider.getClass());
             if (globalProviderProxyHandler == null) {
-                this.serviceProvider = proxyProvider;
+                this.serviceProvider = Reflects.newInstance(proxyCls);
             } else {
-                this.serviceProvider = createProviderProxy(globalProviderProxyHandler, proxyProvider);
+                Class<?> globalProxyCls = generateProviderProxyClass(globalProviderProxyHandler, proxyCls);
+                this.serviceProvider = Reflects.newInstance(globalProxyCls);
             }
             return this;
         }

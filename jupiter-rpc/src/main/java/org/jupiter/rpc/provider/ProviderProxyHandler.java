@@ -84,8 +84,15 @@ public class ProviderProxyHandler {
         return result;
     }
 
-    public ProviderProxyHandler addProviderInterceptor(ProviderInterceptor interceptor) {
+    public ProviderProxyHandler withIntercept(ProviderInterceptor interceptor) {
         interceptors.add(checkNotNull(interceptor, "interceptor"));
+        return this;
+    }
+
+    public ProviderProxyHandler withIntercept(ProviderInterceptor... interceptors) {
+        for (ProviderInterceptor interceptor : interceptors) {
+            withIntercept(interceptor);
+        }
         return this;
     }
 }

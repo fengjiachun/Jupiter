@@ -48,7 +48,7 @@ public class NewInstanceBenchmark {
     @Benchmark
     public void objenesisNewInstance() {
         // ProtoStuffSerializer中有类似代码
-        Reflects.newInstance(ForInstanceClass.class);
+        Reflects.newInstance(ForInstanceClass.class, false);
     }
 
     @Benchmark

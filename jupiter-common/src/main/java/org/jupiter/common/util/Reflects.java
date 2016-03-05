@@ -87,13 +87,34 @@ public final class Reflects {
     };
 
     /**
-     * Creates a new object without any constructor being called.
+     * Creates a new object.
      *
      * @param clazz ths class to instantiate
      * @return new instance of clazz
      */
     public static <T> T newInstance(Class<T> clazz) {
-        return objenesis.newInstance(clazz);
+        return newInstance(clazz, true);
+    }
+
+    /**
+     * Creates a new object.
+     *
+     * @param clazz             ths class to instantiate
+     * @param constructorCalled whether or not any constructor being called
+     * @return new instance of clazz
+     */
+    public static <T> T newInstance(Class<T> clazz, boolean constructorCalled) {
+        if (constructorCalled) {
+            try {
+                return clazz.newInstance();
+            } catch (Exception e) {
+                JUnsafe.throwException(e);
+            }
+        } else {
+            // without any constructor being called
+            return objenesis.newInstance(clazz);
+        }
+        return null; // should never get here
     }
 
     /**

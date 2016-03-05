@@ -19,7 +19,6 @@ package org.jupiter.common.util;
 import net.bytebuddy.ByteBuddy;
 import net.sf.cglib.proxy.Enhancer;
 import net.sf.cglib.proxy.MethodInterceptor;
-import org.jupiter.common.util.internal.JUnsafe;
 
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Proxy;
@@ -67,20 +66,15 @@ public enum ProxyGenerator {
 
         @Override
         public <T> T newProxy(Class<T> interfaceType, Object handler) {
-            try {
-                Class<? extends T> cls = new ByteBuddy()
-                        .subclass(interfaceType)
-                        .method(isDeclaredBy(interfaceType))
-                        .intercept(to(handler, "handler").filter(not(isDeclaredBy(Object.class))))
-                        .make()
-                        .load(interfaceType.getClassLoader(), INJECTION)
-                        .getLoaded();
+            Class<? extends T> cls = new ByteBuddy()
+                    .subclass(interfaceType)
+                    .method(isDeclaredBy(interfaceType))
+                    .intercept(to(handler, "handler").filter(not(isDeclaredBy(Object.class))))
+                    .make()
+                    .load(interfaceType.getClassLoader(), INJECTION)
+                    .getLoaded();
 
-                return cls.newInstance();
-            } catch (InstantiationException | IllegalAccessException e) {
-                JUnsafe.throwException(e);
-            }
-            return null; // should never get here
+            return Reflects.newInstance(cls);
         }
     });
 

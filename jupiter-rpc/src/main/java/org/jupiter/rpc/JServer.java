@@ -76,11 +76,6 @@ public interface JServer extends Registry {
     }
 
     /**
-     * Wraps service provider with a proxy.
-     */
-    <T> T createProviderProxy(ProviderProxyHandler proxyHandler, T providerObject);
-
-    /**
      * Returns the global {@link ProviderProxyHandler} if have one.
      */
     ProviderProxyHandler getGlobalProviderProxyHandler();

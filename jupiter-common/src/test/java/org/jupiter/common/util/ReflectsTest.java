@@ -44,7 +44,7 @@ public class ReflectsTest {
 
     @Test
     public void testNewInstance() {
-        Reflects.newInstance(ReflectClass0.class);
+        Reflects.newInstance(ReflectClass0.class, false);
     }
 
     @Test
