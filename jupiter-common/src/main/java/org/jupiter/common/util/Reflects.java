@@ -89,7 +89,7 @@ public final class Reflects {
     /**
      * Creates a new object.
      *
-     * @param clazz ths class to instantiate
+     * @param clazz the class to instantiate
      * @return new instance of clazz
      */
     public static <T> T newInstance(Class<T> clazz) {
@@ -99,7 +99,7 @@ public final class Reflects {
     /**
      * Creates a new object.
      *
-     * @param clazz             ths class to instantiate
+     * @param clazz             the class to instantiate
      * @param constructorCalled whether or not any constructor being called
      * @return new instance of clazz
      */
