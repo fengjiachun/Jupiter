@@ -49,6 +49,16 @@ public class IdleStateChecker extends ChannelDuplexHandler {
 
     private static final long MIN_TIMEOUT_MILLIS = 1;
 
+    // do not create a new ChannelFutureListener per write operation to reduce GC pressure.
+    private final ChannelFutureListener writeListener = new ChannelFutureListener() {
+
+        @Override
+        public void operationComplete(ChannelFuture future) throws Exception {
+            firstWriterIdleEvent = firstAllIdleEvent = true;
+            lastWriteTime = SystemClock.millisClock().now(); // make hb for firstWriterIdleEvent and firstAllIdleEvent
+        }
+    };
+
     private final HashedWheelTimer timer;
 
     private final long readerIdleTimeMillis;
@@ -56,6 +66,7 @@ public class IdleStateChecker extends ChannelDuplexHandler {
     private final long allIdleTimeMillis;
 
     private volatile int state; // 0 - none, 1 - initialized, 2 - destroyed
+    private volatile boolean reading;
 
     private volatile Timeout readerIdleTimeout;
     private volatile long lastReadTime;
@@ -172,22 +183,31 @@ public class IdleStateChecker extends ChannelDuplexHandler {
 
     @Override
     public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
-        firstReaderIdleEvent = firstAllIdleEvent = true;
-        lastReadTime = SystemClock.millisClock().now(); // make hb for firstReaderIdleEvent and firstAllIdleEvent
+        if (readerIdleTimeMillis > 0 || allIdleTimeMillis > 0) {
+            firstReaderIdleEvent = firstAllIdleEvent = true;
+            reading = true; // make hb for firstReaderIdleEvent and firstAllIdleEvent
+        }
         ctx.fireChannelRead(msg);
     }
 
     @Override
-    public void write(ChannelHandlerContext ctx, Object msg, ChannelPromise promise) throws Exception {
-        if (!promise.isVoid()) {
-            promise.addListener(new ChannelFutureListener() {
+    public void channelReadComplete(ChannelHandlerContext ctx) throws Exception {
+        if (readerIdleTimeMillis > 0 || allIdleTimeMillis > 0) {
+            lastReadTime = SystemClock.millisClock().now(); // make hb for firstReaderIdleEvent and firstAllIdleEvent
+            reading = false;
+        }
+        ctx.fireChannelReadComplete();
+    }
 
-                @Override
-                public void operationComplete(ChannelFuture future) throws Exception {
-                    firstWriterIdleEvent = firstAllIdleEvent = true;
-                    lastWriteTime = SystemClock.millisClock().now(); // make hb for firstWriterIdleEvent and firstAllIdleEvent
-                }
-            });
+    @Override
+    public void write(ChannelHandlerContext ctx, Object msg, ChannelPromise promise) throws Exception {
+        if (writerIdleTimeMillis > 0 || allIdleTimeMillis > 0) {
+            if (promise.isVoid()) {
+                firstWriterIdleEvent = firstAllIdleEvent = true;
+                lastWriteTime = SystemClock.millisClock().now(); // make hb for firstWriterIdleEvent and firstAllIdleEvent
+            } else {
+                promise.addListener(writeListener);
+            }
         }
         ctx.write(msg, promise);
     }
@@ -256,9 +276,11 @@ public class IdleStateChecker extends ChannelDuplexHandler {
                 return;
             }
 
-            long currentTime = SystemClock.millisClock().now();
             long lastReadTime = IdleStateChecker.this.lastReadTime;
-            long nextDelay = readerIdleTimeMillis - (currentTime - lastReadTime);
+            long nextDelay = readerIdleTimeMillis;
+            if (!reading) {
+                nextDelay -= SystemClock.millisClock().now() - lastReadTime;
+            }
             if (nextDelay <= 0) {
                 // Reader is idle - set a new timeout and notify the callback.
                 readerIdleTimeout = timer.newTimeout(this, readerIdleTimeMillis, MILLISECONDS);
@@ -295,9 +317,8 @@ public class IdleStateChecker extends ChannelDuplexHandler {
                 return;
             }
 
-            long currentTime = SystemClock.millisClock().now();
             long lastWriteTime = IdleStateChecker.this.lastWriteTime;
-            long nextDelay = writerIdleTimeMillis - (currentTime - lastWriteTime);
+            long nextDelay = writerIdleTimeMillis - (SystemClock.millisClock().now() - lastWriteTime);
             if (nextDelay <= 0) {
                 // Writer is idle - set a new timeout and notify the callback.
                 writerIdleTimeout = timer.newTimeout(this, writerIdleTimeMillis, MILLISECONDS);
@@ -334,9 +355,11 @@ public class IdleStateChecker extends ChannelDuplexHandler {
                 return;
             }
 
-            long currentTime = SystemClock.millisClock().now();
-            long lastIoTime = Math.max(lastReadTime, lastWriteTime);
-            long nextDelay = allIdleTimeMillis - (currentTime - lastIoTime);
+            long nextDelay = allIdleTimeMillis;
+            if (!reading) {
+                long lastIoTime = Math.max(lastReadTime, lastWriteTime);
+                nextDelay -= SystemClock.millisClock().now() - lastIoTime;
+            }
             if (nextDelay <= 0) {
                 // Both reader and writer are idle - set a new timeout and
                 // notify the callback.
