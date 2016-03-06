@@ -59,8 +59,11 @@ public class HelloJupiterServer {
             ProviderProxyHandler privateHandler = new ProviderProxyHandler()
                     .withIntercept(new PrivateInterceptor());
             // provider1
+            ServiceTestImpl service = new ServiceTestImpl();
+            service.setStrValue("provider1");
+            service.setIntValue(111);
             ServiceWrapper provider1 = server.serviceRegistry()
-                    .provider(privateHandler, new ServiceTestImpl())
+                    .provider(privateHandler, service)
                     .register();
 
             // provider2

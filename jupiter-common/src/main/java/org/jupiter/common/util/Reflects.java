@@ -179,13 +179,10 @@ public final class Reflects {
      * @throws NoSuchFieldException
      */
     public static Field getField(Class<?> clazz, String name) throws NoSuchFieldException {
-        Class<?> cls = checkNotNull(clazz, "class");
-        while (cls != null) {
+        for (Class<?> cls = checkNotNull(clazz, "class"); cls != null; cls = cls.getSuperclass()) {
             try {
                 return cls.getDeclaredField(name);
             } catch (Throwable ignored) {}
-
-            cls = cls.getSuperclass();
         }
         throw new NoSuchFieldException(clazz.getName() + "#" + name);
     }

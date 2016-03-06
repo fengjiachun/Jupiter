@@ -16,33 +16,21 @@
 
 package org.jupiter.example;
 
-import java.util.Arrays;
-
 /**
  * jupiter
  * org.jupiter.example
  *
  * @author jiachun.fjc
  */
-public class ServiceTestImpl extends BaseService implements ServiceTest {
+public class BaseService {
 
-    private String strValue;
+    private Integer intValue;
 
-    public String getStrValue() {
-        return strValue;
+    public Integer getIntValue() {
+        return intValue;
     }
 
-    public void setStrValue(String strValue) {
-        this.strValue = strValue;
-    }
-
-    @Override
-    public ResultClass sayHello() {
-        ResultClass result = new ResultClass();
-        result.lon = 1L;
-        result.num = 2;
-        result.str = "Hello jupiter";
-        result.list = Arrays.asList("H", "e", "l", "l", "o");
-        return result;
+    public void setIntValue(Integer intValue) {
+        this.intValue = intValue;
     }
 }

@@ -27,6 +27,7 @@ import org.jupiter.rpc.model.metadata.ServiceMetadata;
 import org.jupiter.rpc.model.metadata.ServiceWrapper;
 import org.jupiter.rpc.provider.ProviderProxyHandler;
 
+import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.List;
 import java.util.Map;
@@ -39,6 +40,7 @@ import static net.bytebuddy.matcher.ElementMatchers.isDeclaredBy;
 import static net.bytebuddy.matcher.ElementMatchers.not;
 import static org.jupiter.common.util.Preconditions.checkArgument;
 import static org.jupiter.common.util.Preconditions.checkNotNull;
+import static org.jupiter.common.util.Reflects.*;
 
 /**
  * jupiter
@@ -178,9 +180,8 @@ public abstract class AbstractJServer implements JServer {
     }
 
     private static <T> Class<? extends T> generateProviderProxyClass(ProviderProxyHandler proxyHandler, Class<T> providerCls) {
-        if (proxyHandler == null) {
-            return providerCls;
-        }
+        checkNotNull(proxyHandler, "ProviderProxyHandler");
+
         return new ByteBuddy()
                 .subclass(providerCls)
                 .method(isDeclaredBy(providerCls))
@@ -188,6 +189,27 @@ public abstract class AbstractJServer implements JServer {
                 .make()
                 .load(providerCls.getClassLoader(), INJECTION)
                 .getLoaded();
+    }
+
+    private static <F, T> T copyProviderProperties(F provider, T proxy) {
+        checkNotNull(provider, "provider");
+        checkNotNull(proxy, "providerProxy");
+
+        List<String> providerFieldNames = Lists.newArrayList();
+        for (Class<?> cls = provider.getClass(); cls != null; cls = cls.getSuperclass()) {
+            try {
+                for (Field f : cls.getDeclaredFields()) {
+                    providerFieldNames.add(f.getName());
+                }
+            } catch (Throwable ignored) {}
+        }
+
+        for (String name : providerFieldNames) {
+            try {
+                setValue(proxy, name, getValue(provider, name));
+            } catch (Throwable ignored) {}
+        }
+        return proxy;
     }
 
     class DefaultServiceRegistry implements ServiceRegistry {
@@ -204,7 +226,7 @@ public abstract class AbstractJServer implements JServer {
                 this.serviceProvider = serviceProvider;
             } else {
                 Class<?> globalProxyCls = generateProviderProxyClass(globalProviderProxyHandler, serviceProvider.getClass());
-                this.serviceProvider = Reflects.newInstance(globalProxyCls);
+                this.serviceProvider = copyProviderProperties(serviceProvider, newInstance(globalProxyCls));
             }
             return this;
         }
@@ -213,10 +235,10 @@ public abstract class AbstractJServer implements JServer {
         public ServiceRegistry provider(ProviderProxyHandler proxyHandler, Object serviceProvider) {
             Class<?> proxyCls = generateProviderProxyClass(proxyHandler, serviceProvider.getClass());
             if (globalProviderProxyHandler == null) {
-                this.serviceProvider = Reflects.newInstance(proxyCls);
+                this.serviceProvider = copyProviderProperties(serviceProvider, newInstance(proxyCls));
             } else {
                 Class<?> globalProxyCls = generateProviderProxyClass(globalProviderProxyHandler, proxyCls);
-                this.serviceProvider = Reflects.newInstance(globalProxyCls);
+                this.serviceProvider = copyProviderProperties(serviceProvider, newInstance(globalProxyCls));
             }
             return this;
         }
