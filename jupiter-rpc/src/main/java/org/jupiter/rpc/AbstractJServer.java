@@ -127,6 +127,20 @@ public abstract class AbstractJServer implements JServer {
     }
 
     @Override
+    public <T> void publishWithInitializer(final ServiceWrapper serviceWrapper, final ProviderInitializer<T> initializer) {
+        new Thread(new Runnable() {
+
+            @SuppressWarnings("unchecked")
+            @Override
+            public void run() {
+                initializer.init((T) serviceWrapper.getServiceProvider());
+
+                publish(serviceWrapper);
+            }
+        }, "Initializer-thread-" + serviceWrapper.getMetadata().getServiceProviderName()).start();
+    }
+
+    @Override
     public void publishAll() {
         for (ServiceWrapper wrapper : providerContainer.getAllServices()) {
             publish(wrapper);

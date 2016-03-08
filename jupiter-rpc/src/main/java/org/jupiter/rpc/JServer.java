@@ -55,7 +55,7 @@ public interface JServer extends Registry {
         ServiceRegistry weight(int weight);
 
         /**
-         * suggest that the number of connections
+         * Suggest that the number of connections
          */
         ServiceRegistry connCount(int connCount);
 
@@ -73,6 +73,14 @@ public interface JServer extends Registry {
          * Register this provider to local scope.
          */
         ServiceWrapper register();
+    }
+
+    interface ProviderInitializer<T> {
+
+        /**
+         * Init service provider bean
+         */
+        void init(T provider);
     }
 
     /**
@@ -123,11 +131,19 @@ public interface JServer extends Registry {
     void publish(ServiceWrapper serviceWrapper);
 
     /**
-     * Publish  services.
+     * Publish services.
      *
      * @param serviceWrappers service provider wrapper, created by {@link ServiceRegistry}
      */
     void publish(ServiceWrapper... serviceWrappers);
+
+    /**
+     * When initialization is complete, then publish the service.
+     *
+     * @param serviceWrapper    service provider wrapper, created by {@link ServiceRegistry}
+     * @param initializer       provider initializer
+     */
+    <T> void publishWithInitializer(ServiceWrapper serviceWrapper, ProviderInitializer<T> initializer);
 
     /**
      * Publish all services.

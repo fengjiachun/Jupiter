@@ -20,6 +20,7 @@ import org.jupiter.example.ServiceTest2Impl;
 import org.jupiter.example.ServiceTestImpl;
 import org.jupiter.monitor.MonitorServer;
 import org.jupiter.rpc.JRequest;
+import org.jupiter.rpc.JServer;
 import org.jupiter.rpc.flow.control.ControlResult;
 import org.jupiter.rpc.flow.control.FlowController;
 import org.jupiter.rpc.model.metadata.ServiceWrapper;
@@ -60,8 +61,7 @@ public class HelloJupiterServer {
                     .withIntercept(new PrivateInterceptor());
             // provider1
             ServiceTestImpl service = new ServiceTestImpl();
-            service.setStrValue("provider1");
-            service.setIntValue(111);
+
             ServiceWrapper provider1 = server.serviceRegistry()
                     .provider(privateHandler, service)
                     .register();
@@ -74,7 +74,16 @@ public class HelloJupiterServer {
 
 //            server.setGlobalFlowController(); // 全局限流器
             server.connectToConfigServer("127.0.0.1:20001");
-            server.publish(provider1, provider2);
+            server.publishWithInitializer(provider1, new JServer.ProviderInitializer<ServiceTestImpl>() {
+
+                @Override
+                public void init(ServiceTestImpl provider) {
+                    // 初始化成功后再发布服务
+                    provider.setStrValue("provider1");
+                    provider.setIntValue(111);
+                }
+            });
+            server.publish(provider2);
             server.start();
         } catch (InterruptedException e) {
             e.printStackTrace();
