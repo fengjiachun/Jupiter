@@ -95,9 +95,9 @@ public class ProxyTest {
             return method.getName();
         }
     }
-    static TestInterface jdkProxyObj = ProxyGenerator.JDK_PROXY.newProxy(TestInterface.class, new JdkProxyHandler());
-    static TestInterface byteBuddyProxyObj = ProxyGenerator.BYTE_BUDDY.newProxy(TestInterface.class, new ByteBuddyProxyHandler());
-    static TestInterface cglibProxyObj = ProxyGenerator.CG_LIB.newProxy(TestInterface.class, new CGLibProxyHandler());
+    static TestInterface jdkProxyObj = Proxies.JDK_PROXY.newProxy(TestInterface.class, new JdkProxyHandler());
+    static TestInterface byteBuddyProxyObj = Proxies.BYTE_BUDDY.newProxy(TestInterface.class, new ByteBuddyProxyHandler());
+    static TestInterface cglibProxyObj = Proxies.CG_LIB.newProxy(TestInterface.class, new CGLibProxyHandler());
 
     @Benchmark
     public static void jdkProxy() {

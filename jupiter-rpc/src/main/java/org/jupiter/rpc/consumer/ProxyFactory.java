@@ -18,7 +18,7 @@ package org.jupiter.rpc.consumer;
 
 import org.jupiter.common.util.Lists;
 import org.jupiter.common.util.Maps;
-import org.jupiter.common.util.ProxyGenerator;
+import org.jupiter.common.util.Proxies;
 import org.jupiter.common.util.Strings;
 import org.jupiter.rpc.*;
 import org.jupiter.rpc.consumer.dispatcher.DefaultBroadcastDispatcher;
@@ -199,7 +199,7 @@ public class ProxyFactory<I> {
                 throw new IllegalStateException("InvokeMode: " + invokeMode);
         }
 
-        return ProxyGenerator.getDefault().newProxy(interfaceClass, handler);
+        return Proxies.getDefault().newProxy(interfaceClass, handler);
     }
 
     protected Dispatcher asDispatcher(ServiceMetadata metadata) {

@@ -35,7 +35,7 @@ import static org.jupiter.common.util.Preconditions.checkArgument;
  *
  * @author jiachun.fjc
  */
-public enum ProxyGenerator {
+public enum Proxies {
     JDK_PROXY(new ProxyDelegate() {
 
         @Override
@@ -80,11 +80,11 @@ public enum ProxyGenerator {
 
     private final ProxyDelegate delegate;
 
-    ProxyGenerator(ProxyDelegate delegate) {
+    Proxies(ProxyDelegate delegate) {
         this.delegate = delegate;
     }
 
-    public static ProxyGenerator getDefault() {
+    public static Proxies getDefault() {
         return BYTE_BUDDY;
     }
 

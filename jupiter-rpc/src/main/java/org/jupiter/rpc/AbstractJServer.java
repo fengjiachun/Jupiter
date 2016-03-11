@@ -17,7 +17,10 @@
 package org.jupiter.rpc;
 
 import net.bytebuddy.ByteBuddy;
-import org.jupiter.common.util.*;
+import org.jupiter.common.util.JServiceLoader;
+import org.jupiter.common.util.Lists;
+import org.jupiter.common.util.Maps;
+import org.jupiter.common.util.Strings;
 import org.jupiter.common.util.internal.logging.InternalLogger;
 import org.jupiter.common.util.internal.logging.InternalLoggerFactory;
 import org.jupiter.registry.RegisterMeta;
@@ -37,7 +40,6 @@ import java.util.concurrent.Executor;
 import static net.bytebuddy.dynamic.loading.ClassLoadingStrategy.Default.INJECTION;
 import static net.bytebuddy.implementation.MethodDelegation.to;
 import static net.bytebuddy.matcher.ElementMatchers.isDeclaredBy;
-import static net.bytebuddy.matcher.ElementMatchers.not;
 import static org.jupiter.common.util.Preconditions.checkArgument;
 import static org.jupiter.common.util.Preconditions.checkNotNull;
 import static org.jupiter.common.util.Reflects.*;
@@ -199,7 +201,7 @@ public abstract class AbstractJServer implements JServer {
         return new ByteBuddy()
                 .subclass(providerCls)
                 .method(isDeclaredBy(providerCls))
-                .intercept(to(proxyHandler, "handler").filter(not(isDeclaredBy(Object.class))))
+                .intercept(to(proxyHandler, "handler"))
                 .make()
                 .load(providerCls.getClassLoader(), INJECTION)
                 .getLoaded();

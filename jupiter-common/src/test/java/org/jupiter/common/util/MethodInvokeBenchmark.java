@@ -59,7 +59,7 @@ public class MethodInvokeBenchmark {
             return superMethod.call();
         }
     }
-    static ReflectClass1 byteBuddyProxyObj = ProxyGenerator.BYTE_BUDDY.newProxy(ReflectClass1.class, new ByteBuddyProxyHandler());
+    static ReflectClass1 byteBuddyProxyObj = Proxies.BYTE_BUDDY.newProxy(ReflectClass1.class, new ByteBuddyProxyHandler());
     static ReflectClass1 reflectClass1 = new ReflectClass1();
 
     @Benchmark
