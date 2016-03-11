@@ -17,7 +17,7 @@
 package org.jupiter.example.round;
 
 import org.jupiter.example.ServiceTest;
-import org.jupiter.rpc.InvokeMode;
+import org.jupiter.rpc.InvokeType;
 import org.jupiter.rpc.JListener;
 import org.jupiter.rpc.JRequest;
 import org.jupiter.rpc.consumer.ProxyFactory;
@@ -51,7 +51,7 @@ public class HelloJupiterCallbackClient {
 
         ServiceTest service = ProxyFactory.factory(ServiceTest.class)
                 .connector(connector)
-                .invokeMode(InvokeMode.CALLBACK)
+                .invokeType(InvokeType.CALLBACK)
                 .listener(new JListener() {
                     @Override
                     public void complete(JRequest request, JResult result) throws Exception {

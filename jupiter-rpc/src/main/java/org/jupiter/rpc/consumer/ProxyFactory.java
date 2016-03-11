@@ -34,10 +34,10 @@ import java.util.List;
 import java.util.Map;
 
 import static org.jupiter.common.util.Preconditions.checkNotNull;
-import static org.jupiter.rpc.DispatchMode.BROADCAST;
-import static org.jupiter.rpc.DispatchMode.ROUND;
-import static org.jupiter.rpc.InvokeMode.CALLBACK;
-import static org.jupiter.rpc.InvokeMode.SYNC;
+import static org.jupiter.rpc.DispatchType.BROADCAST;
+import static org.jupiter.rpc.DispatchType.ROUND;
+import static org.jupiter.rpc.InvokeType.CALLBACK;
+import static org.jupiter.rpc.InvokeType.SYNC;
 
 /**
  * Proxy factory
@@ -53,8 +53,8 @@ public class ProxyFactory<I> {
 
     private JClient client;
     private List<UnresolvedAddress> addresses;
-    private InvokeMode invokeMode = SYNC;
-    private DispatchMode dispatchMode = ROUND;
+    private InvokeType invokeType = SYNC;
+    private DispatchType dispatchType = ROUND;
     private int timeoutMillis;
     private Map<String, Integer> methodsSpecialTimeoutMillis;
     private JListener listener;
@@ -106,16 +106,16 @@ public class ProxyFactory<I> {
      * Synchronous blocking, asynchronous with future or asynchronous with callback,
      * the default is synchronous.
      */
-    public ProxyFactory<I> invokeMode(InvokeMode invokeMode) {
-        this.invokeMode = checkNotNull(invokeMode);
+    public ProxyFactory<I> invokeType(InvokeType invokeType) {
+        this.invokeType = checkNotNull(invokeType);
         return this;
     }
 
     /**
-     * Sets the mode of dispatch, the default is {@link DispatchMode#ROUND}
+     * Sets the type of dispatch, the default is {@link DispatchType#ROUND}
      */
-    public ProxyFactory<I> dispatchMode(DispatchMode dispatchMode) {
-        this.dispatchMode = checkNotNull(dispatchMode);
+    public ProxyFactory<I> dispatchType(DispatchType dispatchType) {
+        this.dispatchType = checkNotNull(dispatchType);
         return this;
     }
 
@@ -139,8 +139,8 @@ public class ProxyFactory<I> {
      * Asynchronous callback listener.
      */
     public ProxyFactory<I> listener(JListener listener) {
-        if (invokeMode != CALLBACK) {
-            throw new UnsupportedOperationException("invokeMode should first be set to CALLBACK");
+        if (invokeType != CALLBACK) {
+            throw new UnsupportedOperationException("InvokeType should first be set to CALLBACK");
         }
         this.listener = listener;
         return this;
@@ -158,8 +158,8 @@ public class ProxyFactory<I> {
         // check arguments
         checkNotNull(client, "connector");
         checkNotNull(interfaceClass, "interfaceClass");
-        if (dispatchMode == BROADCAST && invokeMode != CALLBACK) {
-            throw new UnsupportedOperationException("illegal mode, BROADCAST only support CALLBACK");
+        if (dispatchType == BROADCAST && invokeType != CALLBACK) {
+            throw new UnsupportedOperationException("illegal type, BROADCAST only support CALLBACK");
         }
         ServiceProvider annotation = interfaceClass.getAnnotation(ServiceProvider.class);
         checkNotNull(annotation, interfaceClass + " is not a ServiceProvider interface");
@@ -184,7 +184,7 @@ public class ProxyFactory<I> {
         dispatcher.setHooks(hooks);
 
         Object handler;
-        switch (invokeMode) {
+        switch (invokeType) {
             case SYNC:
                 handler = new SyncInvoker(client, dispatcher);
                 break;
@@ -196,20 +196,20 @@ public class ProxyFactory<I> {
                 handler = new CallbackInvoker(client, dispatcher);
                 break;
             default:
-                throw new IllegalStateException("InvokeMode: " + invokeMode);
+                throw new IllegalStateException("InvokeType: " + invokeType);
         }
 
         return Proxies.getDefault().newProxy(interfaceClass, handler);
     }
 
     protected Dispatcher asDispatcher(ServiceMetadata metadata) {
-        switch (dispatchMode) {
+        switch (dispatchType) {
             case ROUND:
                 return new DefaultRoundDispatcher(metadata);
             case BROADCAST:
                 return new DefaultBroadcastDispatcher(metadata);
             default:
-                throw new IllegalStateException("DispatchMode: " + dispatchMode);
+                throw new IllegalStateException("DispatchType: " + dispatchType);
         }
     }
 }

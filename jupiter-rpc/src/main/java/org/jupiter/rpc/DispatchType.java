@@ -22,7 +22,7 @@ package org.jupiter.rpc;
  *
  * @author jiachun.fjc
  */
-public enum DispatchMode {
+public enum DispatchType {
     ROUND, // 单播
     BROADCAST // 组播
 }

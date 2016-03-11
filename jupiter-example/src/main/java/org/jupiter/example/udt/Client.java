@@ -38,19 +38,6 @@ public class Client {
         ServiceTest service = ProxyFactory.factory(ServiceTest.class)
                 .connector(connector)
                 .addProviderAddress(address)
-//                .invokeMode(InvokeMode.CALLBACK)
-//                .listener(new JListener() {
-//
-//                    @Override
-//                    public void complete(JRequest request, Object result) throws Exception {
-//                        System.out.println(request + ":" + result.toString());
-//                    }
-//
-//                    @Override
-//                    public void failure(JRequest request, Throwable cause) {
-//                        System.out.println(request + ":" + cause);
-//                    }
-//                })
                 .newProxyInstance();
 
         ServiceTest.ResultClass result = service.sayHello();

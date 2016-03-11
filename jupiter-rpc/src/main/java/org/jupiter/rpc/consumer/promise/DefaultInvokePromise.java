@@ -32,8 +32,8 @@ import java.util.concurrent.locks.ReentrantLock;
 
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
 import static org.jupiter.common.util.JConstants.DEFAULT_TIMEOUT;
-import static org.jupiter.rpc.DispatchMode.BROADCAST;
-import static org.jupiter.rpc.DispatchMode.ROUND;
+import static org.jupiter.rpc.DispatchType.BROADCAST;
+import static org.jupiter.rpc.DispatchType.ROUND;
 import static org.jupiter.rpc.JListener.JResult;
 import static org.jupiter.rpc.Status.*;
 
@@ -72,13 +72,13 @@ public class DefaultInvokePromise extends InvokePromise {
         this(channel, request, timeoutMillis, ROUND);
     }
 
-    public DefaultInvokePromise(JChannel channel, JRequest request, int timeoutMillis, DispatchMode dispatchMode) {
+    public DefaultInvokePromise(JChannel channel, JRequest request, int timeoutMillis, DispatchType dispatchType) {
         invokeId = request.invokeId();
         this.channel = channel;
         this.request = request;
         this.timeoutMillis = timeoutMillis > 0 ? timeoutMillis : DEFAULT_TIMEOUT;
 
-        if (dispatchMode == BROADCAST) {
+        if (dispatchType == BROADCAST) {
             broadcastPromises.put(broadcastChildInvokeId(channel, invokeId), this);
         } else {
             roundPromises.put(invokeId, this);

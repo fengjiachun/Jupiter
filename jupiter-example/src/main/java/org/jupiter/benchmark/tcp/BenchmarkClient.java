@@ -20,7 +20,7 @@ import org.jupiter.common.util.Lists;
 import org.jupiter.common.util.SystemPropertyUtil;
 import org.jupiter.common.util.internal.logging.InternalLogger;
 import org.jupiter.common.util.internal.logging.InternalLoggerFactory;
-import org.jupiter.rpc.InvokeMode;
+import org.jupiter.rpc.InvokeType;
 import org.jupiter.rpc.UnresolvedAddress;
 import org.jupiter.rpc.consumer.ProxyFactory;
 import org.jupiter.rpc.consumer.promise.JPromise;
@@ -137,7 +137,7 @@ public class BenchmarkClient {
     private static void futureCall(NettyConnector connector, UnresolvedAddress[] addresses, int processors) {
         final Service service = ProxyFactory.factory(Service.class)
                 .connector(connector)
-                .invokeMode(InvokeMode.PROMISE)
+                .invokeType(InvokeType.PROMISE)
                 .addProviderAddress(addresses)
                 .newProxyInstance();
 

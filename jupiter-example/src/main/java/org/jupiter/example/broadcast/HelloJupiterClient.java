@@ -22,8 +22,8 @@ import org.jupiter.rpc.consumer.ProxyFactory;
 import org.jupiter.transport.netty.JNettyTcpConnector;
 import org.jupiter.transport.netty.NettyConnector;
 
-import static org.jupiter.rpc.InvokeMode.*;
-import static org.jupiter.rpc.DispatchMode.*;
+import static org.jupiter.rpc.InvokeType.*;
+import static org.jupiter.rpc.DispatchType.*;
 
 /**
  * jupiter
@@ -44,8 +44,8 @@ public class HelloJupiterClient {
 
         ServiceTest service = ProxyFactory.factory(ServiceTest.class)
                 .connector(connector)
-                .dispatchMode(BROADCAST)
-                .invokeMode(CALLBACK)
+                .dispatchType(BROADCAST)
+                .invokeType(CALLBACK)
                 .addProviderAddress(address1, address2, address2)
                 .listener(new JListener() {
 

@@ -32,7 +32,7 @@ import org.jupiter.rpc.model.metadata.ServiceMetadata;
 
 import java.util.List;
 
-import static org.jupiter.rpc.DispatchMode.BROADCAST;
+import static org.jupiter.rpc.DispatchType.BROADCAST;
 import static org.jupiter.rpc.Status.CLIENT_ERROR;
 import static org.jupiter.serialization.SerializerHolder.serializerImpl;
 

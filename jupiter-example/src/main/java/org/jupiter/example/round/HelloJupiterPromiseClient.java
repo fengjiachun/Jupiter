@@ -18,7 +18,7 @@ package org.jupiter.example.round;
 
 import org.jupiter.example.ServiceTest;
 import org.jupiter.example.ServiceTest2;
-import org.jupiter.rpc.InvokeMode;
+import org.jupiter.rpc.InvokeType;
 import org.jupiter.rpc.consumer.ProxyFactory;
 import org.jupiter.rpc.consumer.invoker.PromiseInvoker;
 import org.jupiter.rpc.consumer.promise.InvokeDone;
@@ -55,11 +55,11 @@ public class HelloJupiterPromiseClient {
 
         final ServiceTest service1 = ProxyFactory.factory(ServiceTest.class)
                 .connector(connector)
-                .invokeMode(InvokeMode.PROMISE)
+                .invokeType(InvokeType.PROMISE)
                 .newProxyInstance();
         final ServiceTest2 service2 = ProxyFactory.factory(ServiceTest2.class)
                 .connector(connector)
-                .invokeMode(InvokeMode.PROMISE)
+                .invokeType(InvokeType.PROMISE)
                 .newProxyInstance();
 
         try {
