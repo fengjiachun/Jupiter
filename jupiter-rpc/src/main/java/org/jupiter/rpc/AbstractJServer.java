@@ -17,10 +17,8 @@
 package org.jupiter.rpc;
 
 import net.bytebuddy.ByteBuddy;
-import org.jupiter.common.util.JServiceLoader;
-import org.jupiter.common.util.Lists;
-import org.jupiter.common.util.Maps;
-import org.jupiter.common.util.Strings;
+import org.jupiter.common.concurrent.NamedThreadFactory;
+import org.jupiter.common.util.*;
 import org.jupiter.common.util.internal.logging.InternalLogger;
 import org.jupiter.common.util.internal.logging.InternalLoggerFactory;
 import org.jupiter.registry.RegisterMeta;
@@ -36,6 +34,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.Executor;
+import java.util.concurrent.Executors;
 
 import static net.bytebuddy.dynamic.loading.ClassLoadingStrategy.Default.INJECTION;
 import static net.bytebuddy.implementation.MethodDelegation.to;
@@ -43,6 +42,7 @@ import static net.bytebuddy.matcher.ElementMatchers.isDeclaredBy;
 import static org.jupiter.common.util.Preconditions.checkArgument;
 import static org.jupiter.common.util.Preconditions.checkNotNull;
 import static org.jupiter.common.util.Reflects.*;
+import static org.jupiter.common.util.StackTraceUtil.*;
 
 /**
  * jupiter
@@ -54,6 +54,8 @@ public abstract class AbstractJServer implements JServer {
 
     private static final InternalLogger logger = InternalLoggerFactory.getInstance(AbstractJServer.class);
 
+    private final Executor defaultInitializerExecutor =
+            Executors.newSingleThreadExecutor(new NamedThreadFactory("Initializer-thread"));
     private final ServiceProviderContainer providerContainer = new DefaultServiceProviderContainer();
     // SPI
     private final RegistryService registryService = JServiceLoader.load(RegistryService.class);
@@ -129,17 +131,31 @@ public abstract class AbstractJServer implements JServer {
     }
 
     @Override
-    public <T> void publishWithInitializer(final ServiceWrapper serviceWrapper, final ProviderInitializer<T> initializer) {
-        new Thread(new Runnable() {
+    public <T> void publishWithInitializer(ServiceWrapper serviceWrapper, ProviderInitializer<T> initializer) {
+        publishWithInitializer(serviceWrapper, initializer, null);
+    }
+
+    @Override
+    public <T> void publishWithInitializer(
+            final ServiceWrapper serviceWrapper, final ProviderInitializer<T> initializer, Executor executor) {
+        Runnable r = new Runnable() {
 
             @SuppressWarnings("unchecked")
             @Override
             public void run() {
-                initializer.init((T) serviceWrapper.getServiceProvider());
-
-                publish(serviceWrapper);
+                try {
+                    initializer.init((T) serviceWrapper.getServiceProvider());
+                    publish(serviceWrapper);
+                } catch (Exception e) {
+                    logger.error("Error on #publishWithInitializer: {}.", stackTrace(e));
+                }
             }
-        }, "Initializer-thread-" + serviceWrapper.getMetadata().getServiceProviderName()).start();
+        };
+        if (executor == null) {
+            defaultInitializerExecutor.execute(r);
+        } else {
+            executor.execute(r);
+        }
     }
 
     @Override

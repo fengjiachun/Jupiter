@@ -146,6 +146,15 @@ public interface JServer extends Registry {
     <T> void publishWithInitializer(ServiceWrapper serviceWrapper, ProviderInitializer<T> initializer);
 
     /**
+     * When initialization is complete, then publish the service.
+     *
+     * @param serviceWrapper    service provider wrapper, created by {@link ServiceRegistry}
+     * @param initializer       provider initializer
+     * @param executor          executor for initializer
+     */
+    <T> void publishWithInitializer(ServiceWrapper serviceWrapper, ProviderInitializer<T> initializer, Executor executor);
+
+    /**
      * Publish all services.
      */
     void publishAll();
