@@ -55,7 +55,7 @@ public abstract class AbstractJServer implements JServer {
     private static final InternalLogger logger = InternalLoggerFactory.getInstance(AbstractJServer.class);
 
     private final Executor defaultInitializerExecutor =
-            Executors.newSingleThreadExecutor(new NamedThreadFactory("Initializer-thread"));
+            Executors.newSingleThreadExecutor(new NamedThreadFactory("initializer"));
     private final ServiceProviderContainer providerContainer = new DefaultServiceProviderContainer();
     // SPI
     private final RegistryService registryService = JServiceLoader.load(RegistryService.class);
@@ -138,7 +138,7 @@ public abstract class AbstractJServer implements JServer {
     @Override
     public <T> void publishWithInitializer(
             final ServiceWrapper serviceWrapper, final ProviderInitializer<T> initializer, Executor executor) {
-        Runnable r = new Runnable() {
+        Runnable task = new Runnable() {
 
             @SuppressWarnings("unchecked")
             @Override
@@ -147,14 +147,14 @@ public abstract class AbstractJServer implements JServer {
                     initializer.init((T) serviceWrapper.getServiceProvider());
                     publish(serviceWrapper);
                 } catch (Exception e) {
-                    logger.error("Error on #publishWithInitializer: {}.", stackTrace(e));
+                    logger.error("Error on {} #publishWithInitializer: {}.", serviceWrapper.getMetadata(), stackTrace(e));
                 }
             }
         };
         if (executor == null) {
-            defaultInitializerExecutor.execute(r);
+            defaultInitializerExecutor.execute(task);
         } else {
-            executor.execute(r);
+            executor.execute(task);
         }
     }
 
