@@ -213,7 +213,9 @@ public class NettyChannelGroup implements JChannelGroup {
 
     @Override
     public void setWeight(int weight) {
-        this.weight = weight;
+        if (weight > 0) {
+            this.weight = weight;
+        }
     }
 
     @Override
