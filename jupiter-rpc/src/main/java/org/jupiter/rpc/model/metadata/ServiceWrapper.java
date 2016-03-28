@@ -74,7 +74,7 @@ public class ServiceWrapper implements Serializable {
     }
 
     public void setWeight(int weight) {
-        checkArgument(weight <= 0, "weight must > 0");
+        checkArgument(weight > 0, "weight must > 0");
         this.weight = weight;
     }
 
@@ -83,7 +83,7 @@ public class ServiceWrapper implements Serializable {
     }
 
     public void setConnCount(int connCount) {
-        checkArgument(connCount <= 0, "connCount must > 0");
+        checkArgument(connCount > 0, "connCount must > 0");
         this.connCount = connCount;
     }
 
