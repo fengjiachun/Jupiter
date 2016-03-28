@@ -16,8 +16,14 @@
 
 package org.jupiter.registry;
 
+import org.jupiter.common.util.Lists;
+import org.jupiter.common.util.internal.JUnsafe;
+
 import java.lang.reflect.Constructor;
 import java.net.SocketAddress;
+import java.util.List;
+
+import static org.jupiter.common.util.Reflects.findMatchingParameterTypes;
 
 /**
  * jupiter
@@ -29,50 +35,66 @@ public interface RegistryServer extends RegistryMonitor {
 
     void startRegistryServer();
 
-    @SuppressWarnings({"all"})
+    @SuppressWarnings("unchecked")
     class Default {
 
-        public static RegistryServer newDefault(int port) {
+        private static final Class<RegistryServer> defaultRegistryClass;
+        private static final List<Class<?>[]> allConstructorsParameterTypes;
+
+        static {
+            Class<RegistryServer> cls;
             try {
-                return getConstructor(int.class).newInstance(port);
-            } catch (Exception e) {
-                throw new RuntimeException(e);
+                cls = (Class<RegistryServer>) Class.forName("org.jupiter.registry.DefaultRegistryServer");
+            } catch (ClassNotFoundException e) {
+                cls = null;
+            }
+            defaultRegistryClass = cls;
+
+            if (defaultRegistryClass != null) {
+                allConstructorsParameterTypes = Lists.newArrayList();
+                Constructor<?>[] array = defaultRegistryClass.getDeclaredConstructors();
+                for (Constructor<?> c : array) {
+                    allConstructorsParameterTypes.add(c.getParameterTypes());
+                }
+            } else {
+                allConstructorsParameterTypes = null;
             }
         }
 
-        public static RegistryServer newDefault(SocketAddress address) {
-            try {
-                return getConstructor(SocketAddress.class).newInstance(address);
-            } catch (Exception e) {
-                throw new RuntimeException(e);
-            }
+        public static RegistryServer createRegistryServer(int port) {
+            return newInstance(port);
         }
 
-        public static RegistryServer newDefault(int port, int nWorks) {
-            try {
-                return getConstructor(int.class, int.class).newInstance(port, nWorks);
-            } catch (Exception e) {
-                throw new RuntimeException(e);
-            }
+        public static RegistryServer createRegistryServer(SocketAddress address) {
+            return newInstance(address);
         }
 
-        public static RegistryServer newDefault(SocketAddress address, int nWorks) {
-            try {
-                return getConstructor(SocketAddress.class, int.class).newInstance(address, nWorks);
-            } catch (Exception e) {
-                throw new RuntimeException(e);
-            }
+        public static RegistryServer createRegistryServer(int port, int nWorks) {
+            return newInstance(port, nWorks);
         }
 
-        private static Constructor<RegistryServer> getConstructor(Class<?>... classes) {
-            try {
-                Class<RegistryServer> cls = (Class<RegistryServer>) Class.forName("org.jupiter.registry.DefaultRegistryServer");
-                Constructor<RegistryServer> constructor = cls.getConstructor(classes);
-                constructor.setAccessible(true);
-                return constructor;
-            } catch (Exception e) {
-                throw new RuntimeException(e);
+        public static RegistryServer createRegistryServer(SocketAddress address, int nWorks) {
+            return newInstance(address, nWorks);
+        }
+
+        private static RegistryServer newInstance(Object... parameters) {
+            if (defaultRegistryClass == null || allConstructorsParameterTypes == null) {
+                throw new UnsupportedOperationException("unsupported default registry");
             }
+
+            Class<?>[] parameterTypes = findMatchingParameterTypes(allConstructorsParameterTypes, parameters);
+            if (parameterTypes == null) {
+                throw new IllegalArgumentException("parameter types");
+            }
+
+            try {
+                Constructor<RegistryServer> c = defaultRegistryClass.getConstructor(parameterTypes);
+                c.setAccessible(true);
+                return c.newInstance(parameters);
+            } catch (Exception e) {
+                JUnsafe.throwException(e);
+            }
+            return null; // should never get here
         }
     }
 }

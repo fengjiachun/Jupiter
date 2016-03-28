@@ -27,7 +27,7 @@ import org.jupiter.registry.RegistryServer;
 public class FlightExecRegistryServer {
 
     public static void main(String[] args) {
-        RegistryServer registryServer = RegistryServer.Default.newDefault(20001, 1); // 注册中心
+        RegistryServer registryServer = RegistryServer.Default.createRegistryServer(20001, 1); // 注册中心
         registryServer.startRegistryServer();
     }
 }
