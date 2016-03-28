@@ -31,17 +31,17 @@ import static org.jupiter.registry.RegisterMeta.*;
 public interface RegistryService extends Registry {
 
     /**
-     * Register Service to config server.
+     * Register Service to registry server.
      */
     void register(RegisterMeta meta);
 
     /**
-     * Unregister service to config server.
+     * Unregister service to registry server.
      */
     void unregister(RegisterMeta meta);
 
     /**
-     * Subscribe a service from config server.
+     * Subscribe a service from registry server.
      */
     void subscribe(ServiceMeta serviceMeta, NotifyListener listener);
 

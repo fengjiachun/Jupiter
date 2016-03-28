@@ -41,46 +41,46 @@ public class DefaultRegistryService extends AbstractRegistryService {
 
     private static final InternalLogger logger = InternalLoggerFactory.getInstance(DefaultRegistryService.class);
 
-    private final ConcurrentMap<UnresolvedAddress, ConfigClient> clients = Maps.newConcurrentHashMap();
+    private final ConcurrentMap<UnresolvedAddress, DefaultRegistry> clients = Maps.newConcurrentHashMap();
 
     @Override
     protected void doSubscribe(ServiceMeta serviceMeta) {
-        Collection<ConfigClient> allClients = clients.values();
+        Collection<DefaultRegistry> allClients = clients.values();
         checkArgument(!allClients.isEmpty(), "init needed");
 
         logger.info("Subscribe: {}.", serviceMeta);
 
-        for (ConfigClient c : allClients) {
+        for (DefaultRegistry c : allClients) {
             c.doSubscribe(serviceMeta);
         }
     }
 
     @Override
     protected void doRegister(RegisterMeta meta) {
-        Collection<ConfigClient> allClients = clients.values();
+        Collection<DefaultRegistry> allClients = clients.values();
         checkArgument(!allClients.isEmpty(), "init needed");
 
         logger.info("Register: {}.", meta);
 
-        for (ConfigClient c : allClients) {
+        for (DefaultRegistry c : allClients) {
             c.doRegister(meta);
         }
     }
 
     @Override
     protected void doUnregister(RegisterMeta meta) {
-        Collection<ConfigClient> allClients = clients.values();
+        Collection<DefaultRegistry> allClients = clients.values();
         checkArgument(!allClients.isEmpty(), "init needed");
 
         logger.info("Unregister: {}.", meta);
 
-        for (ConfigClient c : allClients) {
+        for (DefaultRegistry c : allClients) {
             c.doUnregister(meta);
         }
     }
 
     @Override
-    public void connectToConfigServer(String connectString) {
+    public void connectToRegistryServer(String connectString) {
         checkNotNull(connectString, "connectString");
 
         String[] array = Strings.split(connectString, ',');
@@ -89,9 +89,9 @@ public class DefaultRegistryService extends AbstractRegistryService {
             String host = addressStr[0];
             int port = Integer.parseInt(addressStr[1]);
             UnresolvedAddress address = new UnresolvedAddress(host, port);
-            ConfigClient client = clients.get(address);
+            DefaultRegistry client = clients.get(address);
             if (client == null) {
-                ConfigClient newClient = new ConfigClient(this);
+                DefaultRegistry newClient = new DefaultRegistry(this);
                 client = clients.putIfAbsent(address, newClient);
                 if (client == null) {
                     client = newClient;
@@ -103,7 +103,7 @@ public class DefaultRegistryService extends AbstractRegistryService {
 
     @Override
     public void destroy() {
-        for (ConfigClient c : clients.values()) {
+        for (DefaultRegistry c : clients.values()) {
             c.shutdownGracefully();
         }
     }

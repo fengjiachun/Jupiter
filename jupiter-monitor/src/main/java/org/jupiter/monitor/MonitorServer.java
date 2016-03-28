@@ -38,7 +38,7 @@ import static org.jupiter.common.util.JConstants.UTF8;
 import static org.jupiter.common.util.StackTraceUtil.stackTrace;
 
 /**
- * 监控服务, ConfigServer与ProviderServer都应该启用
+ * 监控服务, RegistryServer与ProviderServer都应该启用
  *
  * 常用的monitor command说明:
  * ---------------------------------------------------------------------------------------------------------------------

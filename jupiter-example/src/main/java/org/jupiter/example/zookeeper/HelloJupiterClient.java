@@ -24,7 +24,7 @@ import org.jupiter.transport.netty.JNettyTcpConnector;
 import org.jupiter.transport.netty.NettyConnector;
 
 /**
- * ConfigServer是基于SPI的, 使用zookeeper的话maven引入jupiter-registry-zookeeper即可
+ * RegistryServer是基于SPI的, 使用zookeeper的话maven引入jupiter-registry-zookeeper即可
  *
  * jupiter
  * org.jupiter.example.zookeeper
@@ -35,8 +35,8 @@ public class HelloJupiterClient {
 
     public static void main(String[] args) {
         NettyConnector connector = new JNettyTcpConnector();
-        // 连接ConfigServer
-        connector.connectToConfigServer("127.0.0.1:2181,127.0.0.1:2182,127.0.0.1:2183");
+        // 连接RegistryServer
+        connector.connectToRegistryServer("127.0.0.1:2181,127.0.0.1:2182,127.0.0.1:2183");
         // 自动管理可用连接
         JConnector.ConnectionManager manager = connector.manageConnections(ServiceTest.class);
         // 等待连接可用

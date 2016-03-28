@@ -27,7 +27,7 @@ import org.jupiter.transport.netty.JNettyTcpConnector;
 import org.jupiter.transport.netty.NettyConnector;
 
 /**
- * 1.启动 HelloJupiterConfigServer
+ * 1.启动 HelloJupiterRegistryServer
  * 2.再启动 HelloJupiterServer
  * 3.最后启动 HelloJupiterCallbackClient
  *
@@ -40,8 +40,8 @@ public class HelloJupiterCallbackClient {
 
     public static void main(String[] args) {
         NettyConnector connector = new JNettyTcpConnector();
-        // 连接ConfigServer
-        connector.connectToConfigServer("127.0.0.1:20001");
+        // 连接RegistryServer
+        connector.connectToRegistryServer("127.0.0.1:20001");
         // 自动管理可用连接
         JConnector.ConnectionManager manager = connector.manageConnections(ServiceTest.class);
         // 等待连接可用

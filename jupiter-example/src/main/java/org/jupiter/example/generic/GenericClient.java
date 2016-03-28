@@ -37,8 +37,8 @@ public class GenericClient {
         Directory directory = new ServiceMetadata("test", "1.0.0.daily", "GenericServiceTest");
 
         NettyConnector connector = new JNettyTcpConnector();
-        // 连接ConfigServer
-        connector.connectToConfigServer("127.0.0.1:20001");
+        // 连接RegistryServer
+        connector.connectToRegistryServer("127.0.0.1:20001");
         // 自动管理可用连接
         JConnector.ConnectionManager manager = connector.manageConnections(directory);
         // 等待连接可用

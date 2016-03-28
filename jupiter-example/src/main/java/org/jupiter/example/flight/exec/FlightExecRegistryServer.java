@@ -16,7 +16,7 @@
 
 package org.jupiter.example.flight.exec;
 
-import org.jupiter.registry.ConfigServer;
+import org.jupiter.registry.RegistryServer;
 
 /**
  * jupiter
@@ -24,14 +24,10 @@ import org.jupiter.registry.ConfigServer;
  *
  * @author jiachun.fjc
  */
-public class FlightExecConfigServer {
+public class FlightExecRegistryServer {
 
     public static void main(String[] args) {
-        ConfigServer configServer = new ConfigServer(20001, 1); // 注册中心
-        try {
-            configServer.start();
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
+        RegistryServer registryServer = RegistryServer.Default.newDefault(20001, 1); // 注册中心
+        registryServer.startRegistryServer();
     }
 }

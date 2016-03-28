@@ -198,7 +198,7 @@ public class ZookeeperRegistryService extends AbstractRegistryService {
     }
 
     @Override
-    public void connectToConfigServer(String connectString) {
+    public void connectToRegistryServer(String connectString) {
         checkNotNull(connectString, "connectString");
 
         configClient = CuratorFrameworkFactory.newClient(

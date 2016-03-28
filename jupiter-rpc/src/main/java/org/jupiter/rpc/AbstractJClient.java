@@ -70,8 +70,8 @@ public abstract class AbstractJClient implements JClient {
     }
 
     @Override
-    public void connectToConfigServer(String connectString) {
-        registryService.connectToConfigServer(connectString);
+    public void connectToRegistryServer(String connectString) {
+        registryService.connectToRegistryServer(connectString);
     }
 
     @Override

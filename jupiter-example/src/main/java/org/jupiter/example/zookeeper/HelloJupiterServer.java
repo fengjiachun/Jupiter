@@ -29,7 +29,7 @@ import org.jupiter.transport.netty.NettyAcceptor;
 import java.util.concurrent.atomic.AtomicLong;
 
 /**
- * ConfigServer是基于SPI的, 使用zookeeper的话maven引入jupiter-registry-zookeeper即可
+ * RegistryServer是基于SPI的, 使用zookeeper的话maven引入jupiter-registry-zookeeper即可
  *
  * jupiter
  * org.jupiter.example.zookeeper
@@ -43,7 +43,7 @@ public class HelloJupiterServer {
             Class.forName("org.jupiter.registry.zookeeper.ZookeeperRegistryService");
         } catch (ClassNotFoundException e) {
             e.printStackTrace();
-            System.err.println("ConfigServer是基于SPI的, 使用zookeeper的话maven引入jupiter-registry-zookeeper即可");
+            System.err.println("RegistryServer是基于SPI的, 使用zookeeper的话maven引入jupiter-registry-zookeeper即可");
             return;
         }
 
@@ -73,7 +73,7 @@ public class HelloJupiterServer {
                     .register();
 
 //            server.setFlowController(); // App级别限流器
-            server.connectToConfigServer("127.0.0.1:2181,127.0.0.1:2182,127.0.0.1:2183");
+            server.connectToRegistryServer("127.0.0.1:2181,127.0.0.1:2182,127.0.0.1:2183");
             server.publish(provider);
 
             Runtime.getRuntime().addShutdownHook(new Thread() {

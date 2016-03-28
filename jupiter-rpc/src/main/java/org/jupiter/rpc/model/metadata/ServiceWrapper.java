@@ -26,7 +26,6 @@ import java.util.concurrent.Executor;
 
 import static org.jupiter.common.util.JConstants.DEFAULT_CONNECTION_COUNT;
 import static org.jupiter.common.util.JConstants.DEFAULT_WEIGHT;
-import static org.jupiter.common.util.Preconditions.checkArgument;
 import static org.jupiter.common.util.Preconditions.checkNotNull;
 
 /**
@@ -74,7 +73,6 @@ public class ServiceWrapper implements Serializable {
     }
 
     public void setWeight(int weight) {
-        checkArgument(weight > 0, "weight must > 0");
         this.weight = weight;
     }
 
@@ -83,7 +81,6 @@ public class ServiceWrapper implements Serializable {
     }
 
     public void setConnCount(int connCount) {
-        checkArgument(connCount > 0, "connCount must > 0");
         this.connCount = connCount;
     }
 

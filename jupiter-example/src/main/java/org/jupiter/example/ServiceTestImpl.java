@@ -40,7 +40,8 @@ public class ServiceTestImpl extends BaseService implements ServiceTest {
     public ResultClass sayHello() {
         ResultClass result = new ResultClass();
         result.lon = 1L;
-        result.num = getIntValue();
+        Integer i = getIntValue();
+        result.num = (i == null ? 0 : i);
         result.str = strValue;
         result.list = Arrays.asList("H", "e", "l", "l", "o");
         return result;

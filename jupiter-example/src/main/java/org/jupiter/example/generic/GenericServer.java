@@ -58,7 +58,7 @@ public class GenericServer {
                     .register();
 
 //            server.setGlobalFlowController(); // 全局限流器
-            server.connectToConfigServer("127.0.0.1:20001");
+            server.connectToRegistryServer("127.0.0.1:20001");
             server.publish(provider);
             server.start();
         } catch (InterruptedException e) {

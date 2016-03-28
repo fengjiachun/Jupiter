@@ -44,8 +44,8 @@ public class FlightExecClient {
 
     public static void main(String[] args) {
         NettyConnector connector = new JNettyTcpConnector();
-        // 连接ConfigServer
-        connector.connectToConfigServer("127.0.0.1:20001");
+        // 连接RegistryServer
+        connector.connectToRegistryServer("127.0.0.1:20001");
         // 自动管理可用连接
         JConnector.ConnectionManager manager = connector.manageConnections(JavaClassExec.class);
         // 等待连接可用

@@ -64,8 +64,8 @@ public abstract class AbstractJServer implements JServer {
     private volatile FlowController<JRequest> globalFlowController;
 
     @Override
-    public void connectToConfigServer(String connectString) {
-        registryService.connectToConfigServer(connectString);
+    public void connectToRegistryServer(String connectString) {
+        registryService.connectToRegistryServer(connectString);
     }
 
     @Override

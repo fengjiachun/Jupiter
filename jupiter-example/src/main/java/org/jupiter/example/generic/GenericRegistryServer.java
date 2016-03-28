@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015 The Jupiter Project
+ * Copyright (c) 2016 The Jupiter Project
  *
  * Licensed under the Apache License, version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,30 +14,26 @@
  * limitations under the License.
  */
 
-package org.jupiter.example.round;
+package org.jupiter.example.generic;
 
 import org.jupiter.monitor.MonitorServer;
-import org.jupiter.registry.ConfigServer;
+import org.jupiter.registry.RegistryServer;
 
 /**
- * 1.启动 HelloJupiterConfigServer
- * 2.再启动 HelloJupiterServer
- * 3.最后启动 HelloJupiterClient / HelloJupiterPromiseClient / HelloJupiterCallbackClient
- *
  * jupiter
- * org.jupiter.example.round
+ * org.jupiter.example.generic
  *
  * @author jiachun.fjc
  */
-public class HelloJupiterConfigServer {
+public class GenericRegistryServer {
 
     public static void main(String[] args) {
-        ConfigServer configServer = new ConfigServer(20001, 1); // 注册中心
-        MonitorServer monitor = new MonitorServer(19998);       // 监控服务
+        RegistryServer registryServer = RegistryServer.Default.newDefault(20001, 1);    // 注册中心
+        MonitorServer monitor = new MonitorServer(19998);                               // 监控服务
         try {
-            monitor.setRegistryMonitor(configServer);
+            monitor.setRegistryMonitor(registryServer);
             monitor.start();
-            configServer.start();
+            registryServer.startRegistryServer();
         } catch (InterruptedException e) {
             e.printStackTrace();
         }

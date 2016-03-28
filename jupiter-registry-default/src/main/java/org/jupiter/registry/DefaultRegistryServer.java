@@ -32,6 +32,7 @@ import io.netty.util.ReferenceCountUtil;
 import io.netty.util.concurrent.GlobalEventExecutor;
 import org.jupiter.common.concurrent.ConcurrentSet;
 import org.jupiter.common.util.*;
+import org.jupiter.common.util.internal.JUnsafe;
 import org.jupiter.common.util.internal.logging.InternalLogger;
 import org.jupiter.common.util.internal.logging.InternalLoggerFactory;
 import org.jupiter.rpc.channel.JChannel;
@@ -76,9 +77,9 @@ import static org.jupiter.transport.exception.IoSignals.ILLEGAL_SIGN;
  *
  * @author jiachun.fjc
  */
-public class ConfigServer extends NettyTcpAcceptor implements RegistryMonitor {
+public class DefaultRegistryServer extends NettyTcpAcceptor implements RegistryServer {
 
-    private static final InternalLogger logger = InternalLoggerFactory.getInstance(ConfigServer.class);
+    private static final InternalLogger logger = InternalLoggerFactory.getInstance(DefaultRegistryServer.class);
 
     private static final AttributeKey<ConcurrentSet<ServiceMeta>> S_SUBSCRIBE_KEY = AttributeKey.valueOf("server.subscribed");
     private static final AttributeKey<ConcurrentSet<RegisterMeta>> S_PUBLISH_KEY = AttributeKey.valueOf("server.published");
@@ -96,19 +97,19 @@ public class ConfigServer extends NettyTcpAcceptor implements RegistryMonitor {
     private final MessageEncoder encoder = new MessageEncoder();
     private final AcknowledgeEncoder ackEncoder = new AcknowledgeEncoder();
 
-    public ConfigServer(int port) {
+    public DefaultRegistryServer(int port) {
         super(port, false);
     }
 
-    public ConfigServer(SocketAddress address) {
+    public DefaultRegistryServer(SocketAddress address) {
         super(address, false);
     }
 
-    public ConfigServer(int port, int nWorks) {
+    public DefaultRegistryServer(int port, int nWorks) {
         super(port, nWorks, false);
     }
 
-    public ConfigServer(SocketAddress address, int nWorks) {
+    public DefaultRegistryServer(SocketAddress address, int nWorks) {
         super(address, nWorks, false);
     }
 
@@ -203,6 +204,15 @@ public class ConfigServer extends NettyTcpAcceptor implements RegistryMonitor {
                 return input.toString();
             }
         });
+    }
+
+    @Override
+    public void startRegistryServer() {
+        try {
+            start();
+        } catch (InterruptedException e) {
+            JUnsafe.throwException(e);
+        }
     }
 
     // 添加指定机器指定服务, 然后全量发布到所有客户端

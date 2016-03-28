@@ -81,7 +81,7 @@ public interface JClient extends Registry {
     Collection<RegisterMeta> lookup(Directory directory);
 
     /**
-     * Subscribe a service from config server.
+     * Subscribe a service from registry server.
      */
     void subscribe(Directory directory, NotifyListener listener);
 

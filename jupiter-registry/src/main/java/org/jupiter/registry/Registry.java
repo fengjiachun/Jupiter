@@ -25,9 +25,9 @@ package org.jupiter.registry;
 public interface Registry {
 
     /**
-     * Establish connections with config server.
+     * Establish connections with registry server.
      *
      * @param connectString list of servers to connect to [host1:port1,host2:port2....]
      */
-    void connectToConfigServer(String connectString);
+    void connectToRegistryServer(String connectString);
 }

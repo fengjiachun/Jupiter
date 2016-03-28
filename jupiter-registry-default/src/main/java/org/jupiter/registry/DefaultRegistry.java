@@ -71,9 +71,9 @@ import static org.jupiter.transport.exception.IoSignals.ILLEGAL_SIGN;
  *
  * @author jiachun.fjc
  */
-public class ConfigClient extends NettyTcpConnector {
+public class DefaultRegistry extends NettyTcpConnector {
 
-    private static final InternalLogger logger = InternalLoggerFactory.getInstance(ConfigClient.class);
+    private static final InternalLogger logger = InternalLoggerFactory.getInstance(DefaultRegistry.class);
 
     private static final AttributeKey<ConcurrentSet<ServiceMeta>> C_SUBSCRIBE_KEY = AttributeKey.valueOf("client.subscribed");
     private static final AttributeKey<ConcurrentSet<RegisterMeta>> C_PUBLISH_KEY = AttributeKey.valueOf("client.published");
@@ -92,11 +92,11 @@ public class ConfigClient extends NettyTcpConnector {
 
     private AbstractRegistryService registryService;
 
-    public ConfigClient(AbstractRegistryService registryService) {
+    public DefaultRegistry(AbstractRegistryService registryService) {
         this(registryService, 1);
     }
 
-    public ConfigClient(AbstractRegistryService registryService, int nWorkers) {
+    public DefaultRegistry(AbstractRegistryService registryService, int nWorkers) {
         super(nWorkers);
         this.registryService = checkNotNull(registryService, "registryService");
     }
@@ -168,7 +168,7 @@ public class ConfigClient extends NettyTcpConnector {
     }
 
     /**
-     * Sent the subscription information to config server.
+     * Sent the subscription information to registry server.
      */
     public void doSubscribe(ServiceMeta serviceMeta) {
         registryService.subscribeSet().add(serviceMeta);
@@ -189,7 +189,7 @@ public class ConfigClient extends NettyTcpConnector {
     }
 
     /**
-     * Publishing service to config server.
+     * Publishing service to registry server.
      */
     public void doRegister(RegisterMeta meta) {
         registryService.registerMetaSet().add(meta);
@@ -210,7 +210,7 @@ public class ConfigClient extends NettyTcpConnector {
     }
 
     /**
-     * Notify to config server unpublish corresponding service.
+     * Notify to registry server unpublish corresponding service.
      */
     public void doUnregister(RegisterMeta meta) {
         registryService.registerMetaSet().remove(meta);
@@ -417,7 +417,7 @@ public class ConfigClient extends NettyTcpConnector {
                                 .writeAndFlush(new Acknowledge(obj.sequence()))  // 回复ACK
                                 .addListener(ChannelFutureListener.FIRE_EXCEPTION_ON_FAILURE);
 
-                        logger.info("Publish from ConfigServer {}, provider count: {}, version: {}.",
+                        logger.info("Publish from RegistryServer {}, provider count: {}, version: {}.",
                                 data.getKey(), data.getValue().size(), obj.getVersion());
 
                         break;

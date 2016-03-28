@@ -34,7 +34,7 @@ import java.util.Arrays;
 import java.util.concurrent.atomic.AtomicLong;
 
 /**
- * 1.启动 HelloJupiterConfigServer
+ * 1.启动 HelloJupiterRegistryServer
  * 2.再启动 HelloJupiterServer
  * 3.最后启动 HelloJupiterClient / HelloJupiterPromiseClient / HelloJupiterCallbackClient
  *
@@ -73,7 +73,7 @@ public class HelloJupiterServer {
                     .register();
 
 //            server.setGlobalFlowController(); // 全局限流器
-            server.connectToConfigServer("127.0.0.1:20001");
+            server.connectToRegistryServer("127.0.0.1:20001");
             server.publishWithInitializer(provider1, new JServer.ProviderInitializer<ServiceTestImpl>() {
 
                 @Override
