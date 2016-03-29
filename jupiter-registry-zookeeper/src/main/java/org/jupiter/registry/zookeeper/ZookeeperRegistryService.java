@@ -88,17 +88,23 @@ public class ZookeeperRegistryService extends AbstractRegistryService {
 
                         logger.info("Child event: {}", event);
 
-                        RegisterMeta registerMeta = parseRegisterMeta(event.getData().getPath());
-                        Address address = registerMeta.getAddress();
-                        ServiceMeta serviceMeta = registerMeta.getServiceMeta();
-
-                        ConcurrentSet<ServiceMeta> serviceMetaSet = getServiceMeta(address);
                         switch (event.getType()) {
-                            case CHILD_ADDED:
+                            case CHILD_ADDED: {
+                                RegisterMeta registerMeta = parseRegisterMeta(event.getData().getPath());
+                                Address address = registerMeta.getAddress();
+                                ServiceMeta serviceMeta = registerMeta.getServiceMeta();
+                                ConcurrentSet<ServiceMeta> serviceMetaSet = getServiceMeta(address);
+
                                 serviceMetaSet.add(serviceMeta);
                                 ZookeeperRegistryService.this.notify(serviceMeta, registerMeta, NotifyEvent.CHILD_ADDED);
                                 break;
-                            case CHILD_REMOVED:
+                            }
+                            case CHILD_REMOVED: {
+                                RegisterMeta registerMeta = parseRegisterMeta(event.getData().getPath());
+                                Address address = registerMeta.getAddress();
+                                ServiceMeta serviceMeta = registerMeta.getServiceMeta();
+                                ConcurrentSet<ServiceMeta> serviceMetaSet = getServiceMeta(address);
+
                                 serviceMetaSet.remove(serviceMeta);
                                 ZookeeperRegistryService.this.notify(serviceMeta, registerMeta, NotifyEvent.CHILD_REMOVED);
                                 if (serviceMetaSet.isEmpty()) {
@@ -107,6 +113,7 @@ public class ZookeeperRegistryService extends AbstractRegistryService {
                                     ZookeeperRegistryService.this.offline(address);
                                 }
                                 break;
+                            }
                         }
                     }
                 });
