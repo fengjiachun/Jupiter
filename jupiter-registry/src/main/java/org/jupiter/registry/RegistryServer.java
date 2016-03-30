@@ -17,6 +17,7 @@
 package org.jupiter.registry;
 
 import org.jupiter.common.util.Lists;
+import org.jupiter.common.util.SystemPropertyUtil;
 import org.jupiter.common.util.internal.JUnsafe;
 
 import java.lang.reflect.Constructor;
@@ -44,7 +45,8 @@ public interface RegistryServer extends RegistryMonitor {
         static {
             Class<RegistryServer> cls;
             try {
-                cls = (Class<RegistryServer>) Class.forName("org.jupiter.registry.DefaultRegistryServer");
+                cls = (Class<RegistryServer>) Class.forName(
+                        SystemPropertyUtil.get("jupiter.registry.default", "org.jupiter.registry.DefaultRegistryServer"));
             } catch (ClassNotFoundException e) {
                 cls = null;
             }
