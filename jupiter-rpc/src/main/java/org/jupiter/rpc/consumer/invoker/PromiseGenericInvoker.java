@@ -18,9 +18,8 @@ package org.jupiter.rpc.consumer.invoker;
 
 import org.jupiter.rpc.JClient;
 import org.jupiter.rpc.consumer.dispatcher.Dispatcher;
+import org.jupiter.rpc.consumer.promise.InvokePromiseContext;
 import org.jupiter.rpc.consumer.promise.JPromise;
-
-import static org.jupiter.common.util.Preconditions.checkNotNull;
 
 /**
  * jupiter
@@ -30,8 +29,6 @@ import static org.jupiter.common.util.Preconditions.checkNotNull;
  */
 public class PromiseGenericInvoker implements GenericInvoker {
 
-    private static final ThreadLocal<JPromise<?>> promiseThreadLocal = new ThreadLocal<>();
-
     private final JClient client;
     private final Dispatcher dispatcher;
 
@@ -40,21 +37,10 @@ public class PromiseGenericInvoker implements GenericInvoker {
         this.dispatcher = dispatcher;
     }
 
-    public static JPromise<?> currentPromise() {
-        JPromise<?> promise = checkNotNull(promiseThreadLocal.get(), "promise");
-        promiseThreadLocal.remove();
-        return promise;
-    }
-
-    @SuppressWarnings("all")
-    public static <T> JPromise<T> currentPromise(Class<T> genericType) {
-        return (JPromise<T>) currentPromise();
-    }
-
     @Override
     public Object $invoke(String methodName, Object... args) throws Throwable {
         JPromise<?> promise = dispatcher.dispatch(client, methodName, args);
-        promiseThreadLocal.set(promise);
+        InvokePromiseContext.setPromise(promise);
         return null;
     }
 }

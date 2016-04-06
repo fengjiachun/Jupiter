@@ -16,9 +16,7 @@
 
 package org.jupiter.rpc.consumer.promise;
 
-import org.jupiter.common.promise.DefaultPromise;
-import org.jupiter.common.promise.DonePipe;
-import org.jupiter.common.promise.Promise;
+import static org.jupiter.common.util.Preconditions.checkNotNull;
 
 /**
  * jupiter
@@ -26,19 +24,22 @@ import org.jupiter.common.promise.Promise;
  *
  * @author jiachun.fjc
  */
-public abstract class InvokeDonePipe<D, D_OUT> implements DonePipe<D, D_OUT, Throwable> {
+public class InvokePromiseContext {
 
-    @SuppressWarnings("unchecked")
-    @Override
-    public Promise<D_OUT, Throwable> pipeDone(D result) {
-        try {
-            doInPipe(result);
+    private static final ThreadLocal<JPromise<?>> promiseThreadLocal = new ThreadLocal<>();
 
-            return (Promise<D_OUT, Throwable>) InvokePromiseContext.currentPromise();
-        } catch (Throwable t) {
-            return new DefaultPromise<D_OUT, Throwable>().reject(t);
-        }
+    public static JPromise<?> currentPromise() {
+        JPromise<?> promise = checkNotNull(promiseThreadLocal.get(), "promise");
+        promiseThreadLocal.remove();
+        return promise;
     }
 
-    public abstract void doInPipe(D result);
+    @SuppressWarnings("all")
+    public static <T> JPromise<T> currentPromise(Class<T> genericType) {
+        return (JPromise<T>) currentPromise();
+    }
+
+    public static void setPromise(JPromise<?> promise) {
+        promiseThreadLocal.set(promise);
+    }
 }

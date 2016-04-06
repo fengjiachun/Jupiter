@@ -20,10 +20,10 @@ import org.jupiter.example.ServiceTest;
 import org.jupiter.example.ServiceTest2;
 import org.jupiter.rpc.InvokeType;
 import org.jupiter.rpc.consumer.ProxyFactory;
-import org.jupiter.rpc.consumer.invoker.PromiseInvoker;
 import org.jupiter.rpc.consumer.promise.InvokeDone;
 import org.jupiter.rpc.consumer.promise.InvokeDonePipe;
 import org.jupiter.rpc.consumer.promise.InvokeFail;
+import org.jupiter.rpc.consumer.promise.InvokePromiseContext;
 import org.jupiter.transport.JConnector;
 import org.jupiter.transport.exception.ConnectFailedException;
 import org.jupiter.transport.netty.JNettyTcpConnector;
@@ -64,7 +64,7 @@ public class HelloJupiterPromiseClient {
 
         try {
             service1.sayHello();
-            PromiseInvoker.currentPromise(ServiceTest.ResultClass.class)
+            InvokePromiseContext.currentPromise(ServiceTest.ResultClass.class)
                     .then(new InvokeDonePipe<ServiceTest.ResultClass, String>() {
 
                         @Override

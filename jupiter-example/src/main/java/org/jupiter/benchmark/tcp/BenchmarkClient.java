@@ -23,8 +23,8 @@ import org.jupiter.common.util.internal.logging.InternalLoggerFactory;
 import org.jupiter.rpc.InvokeType;
 import org.jupiter.rpc.UnresolvedAddress;
 import org.jupiter.rpc.consumer.ProxyFactory;
+import org.jupiter.rpc.consumer.promise.InvokePromiseContext;
 import org.jupiter.rpc.consumer.promise.JPromise;
-import org.jupiter.rpc.consumer.invoker.PromiseInvoker;
 import org.jupiter.transport.JOption;
 import org.jupiter.transport.netty.JNettyTcpConnector;
 import org.jupiter.transport.netty.NettyConnector;
@@ -144,7 +144,7 @@ public class BenchmarkClient {
         for (int i = 0; i < 10000; i++) {
             try {
                 service.hello("jupiter");
-                PromiseInvoker.currentPromise(String.class).get();
+                InvokePromiseContext.currentPromise(String.class).get();
             } catch (Exception e) {
                 e.printStackTrace();
             }
@@ -164,7 +164,7 @@ public class BenchmarkClient {
                     for (int i = 0; i < t; i++) {
                         try {
                             service.hello("jupiter");
-                            futures.add(PromiseInvoker.currentPromise());
+                            futures.add(InvokePromiseContext.currentPromise());
                             if (futures.size() == futureSize) {
                                 int fSize = futures.size();
                                 for (int j = 0; j < fSize; j++) {

@@ -23,11 +23,9 @@ import org.jupiter.common.util.Reflects;
 import org.jupiter.rpc.JClient;
 import org.jupiter.rpc.consumer.dispatcher.Dispatcher;
 import org.jupiter.rpc.consumer.promise.InvokePromise;
-import org.jupiter.rpc.consumer.promise.JPromise;
+import org.jupiter.rpc.consumer.promise.InvokePromiseContext;
 
 import java.lang.reflect.Method;
-
-import static org.jupiter.common.util.Preconditions.checkNotNull;
 
 /**
  * Asynchronous call, {@link PromiseInvoker#invoke(Method, Object[])}
@@ -40,8 +38,6 @@ import static org.jupiter.common.util.Preconditions.checkNotNull;
  */
 public class PromiseInvoker {
 
-    private static final ThreadLocal<JPromise<?>> promiseThreadLocal = new ThreadLocal<>();
-
     private final JClient client;
     private final Dispatcher dispatcher;
 
@@ -50,21 +46,10 @@ public class PromiseInvoker {
         this.dispatcher = dispatcher;
     }
 
-    public static JPromise<?> currentPromise() {
-        JPromise<?> promise = checkNotNull(promiseThreadLocal.get(), "promise");
-        promiseThreadLocal.remove();
-        return promise;
-    }
-
-    @SuppressWarnings("all")
-    public static <T> JPromise<T> currentPromise(Class<T> genericType) {
-        return (JPromise<T>) currentPromise();
-    }
-
     @RuntimeType
     public Object invoke(@Origin Method method, @AllArguments @RuntimeType Object[] args) throws Throwable {
         InvokePromise<?> promise = dispatcher.dispatch(client, method.getName(), args);
-        promiseThreadLocal.set(promise);
+        InvokePromiseContext.setPromise(promise);
         return Reflects.getTypeDefaultValue(method.getReturnType());
     }
 }

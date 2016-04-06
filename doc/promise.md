@@ -4,7 +4,7 @@
 
         service1.method1(); // step1. 先调用service1
 
-        PromiseInvoker.currentPromise()
+        InvokePromiseContext.currentPromise()
                 .then(new InvokeDonePipe() {
 
                     @Override

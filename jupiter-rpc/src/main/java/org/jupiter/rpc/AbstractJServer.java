@@ -214,13 +214,19 @@ public abstract class AbstractJServer implements JServer {
     private static <T> Class<? extends T> generateProviderProxyClass(ProviderProxyHandler proxyHandler, Class<T> providerCls) {
         checkNotNull(proxyHandler, "ProviderProxyHandler");
 
-        return new ByteBuddy()
-                .subclass(providerCls)
-                .method(isDeclaredBy(providerCls))
-                .intercept(to(proxyHandler, "handler"))
-                .make()
-                .load(providerCls.getClassLoader(), INJECTION)
-                .getLoaded();
+        try {
+            return new ByteBuddy()
+                    .subclass(providerCls)
+                    .method(isDeclaredBy(providerCls))
+                    .intercept(to(proxyHandler, "handler"))
+                    .make()
+                    .load(providerCls.getClassLoader(), INJECTION)
+                    .getLoaded();
+        } catch (Exception e) {
+            logger.error("Generate proxy [{}, handler: {}] fail: {}.", providerCls, proxyHandler, stackTrace(e));
+
+            return providerCls;
+        }
     }
 
     private static <F, T> T copyProviderProperties(F provider, T proxy) {
