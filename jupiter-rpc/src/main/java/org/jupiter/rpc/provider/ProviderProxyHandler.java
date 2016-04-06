@@ -52,7 +52,7 @@ public class ProviderProxyHandler {
     @SuppressWarnings("all")
     @RuntimeType
     public Object invoke(
-            @SuperCall Callable<?> superMethod,
+            @SuperCall Callable<Object> superMethod,
             @Origin Method method,
             @AllArguments @RuntimeType Object[] args) throws Throwable {
         TraceId traceId = TracingEye.getCurrent();

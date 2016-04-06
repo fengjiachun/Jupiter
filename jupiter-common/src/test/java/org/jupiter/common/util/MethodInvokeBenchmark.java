@@ -55,7 +55,7 @@ public class MethodInvokeBenchmark {
 
         @SuppressWarnings("UnusedParameters")
         @RuntimeType
-        public Object invoke(@SuperCall Callable<?> superMethod, @AllArguments @RuntimeType Object[] args) throws Throwable {
+        public Object invoke(@SuperCall Callable<Object> superMethod, @AllArguments @RuntimeType Object[] args) throws Throwable {
             return superMethod.call();
         }
     }
