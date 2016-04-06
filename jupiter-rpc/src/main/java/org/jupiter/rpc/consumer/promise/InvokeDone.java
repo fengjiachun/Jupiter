@@ -24,4 +24,4 @@ import org.jupiter.common.promise.DoneCallback;
  *
  * @author jiachun.fjc
  */
-public interface InvokeDone extends DoneCallback<Object> {}
+public interface InvokeDone<T> extends DoneCallback<T> {}

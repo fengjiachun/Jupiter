@@ -26,11 +26,11 @@ import java.util.concurrent.ExecutionException;
  *
  * @author jiachun.fjc
  */
-public abstract class JPromise extends DefaultPromise<Object, Throwable> {
+public abstract class JPromise<T> extends DefaultPromise<T, Throwable> {
 
     /**
      * Waits if necessary for the computation to complete, and then
      * retrieves its result.
      */
-    public abstract Object get() throws InterruptedException, ExecutionException;
+    public abstract T get() throws InterruptedException, ExecutionException;
 }

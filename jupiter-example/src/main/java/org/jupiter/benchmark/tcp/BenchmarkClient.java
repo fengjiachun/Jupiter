@@ -144,7 +144,7 @@ public class BenchmarkClient {
         for (int i = 0; i < 10000; i++) {
             try {
                 service.hello("jupiter");
-                PromiseInvoker.currentPromise().get();
+                PromiseInvoker.currentPromise(String.class).get();
             } catch (Exception e) {
                 e.printStackTrace();
             }
@@ -157,7 +157,7 @@ public class BenchmarkClient {
         final int futureSize = 80;
         for (int i = 0; i < (processors << 4); i++) {
             new Thread(new Runnable() {
-                List<JPromise> futures = Lists.newArrayListWithCapacity(futureSize);
+                List<JPromise<?>> futures = Lists.newArrayListWithCapacity(futureSize);
                 @SuppressWarnings("ForLoopReplaceableByForEach")
                 @Override
                 public void run() {

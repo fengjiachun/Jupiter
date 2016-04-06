@@ -53,7 +53,7 @@ public class DefaultBroadcastDispatcher extends AbstractDispatcher {
     }
 
     @Override
-    public InvokePromise dispatch(JClient client, String methodName, Object[] args) {
+    public InvokePromise<?> dispatch(JClient client, String methodName, Object[] args) {
         final ServiceMetadata _metadata = metadata; // stack copy
 
         MessageWrapper message = new MessageWrapper(_metadata);
@@ -78,7 +78,7 @@ public class DefaultBroadcastDispatcher extends AbstractDispatcher {
         final ConsumerHook[] _hooks = getHooks();
         JListener _listener = getListener();
         for (JChannel ch : channels) {
-            final InvokePromise promise = asPromise(ch, request, timeoutMillis)
+            final InvokePromise<?> promise = asPromise(ch, request, timeoutMillis)
                     .hooks(_hooks)
                     .listener(_listener);
 
@@ -112,7 +112,7 @@ public class DefaultBroadcastDispatcher extends AbstractDispatcher {
     }
 
     @Override
-    protected InvokePromise asPromise(JChannel channel, JRequest request, int timeoutMillis) {
+    protected InvokePromise<?> asPromise(JChannel channel, JRequest request, int timeoutMillis) {
         return new DefaultInvokePromise(channel, request, timeoutMillis, BROADCAST);
     }
 }

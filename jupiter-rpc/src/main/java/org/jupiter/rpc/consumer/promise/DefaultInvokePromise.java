@@ -45,7 +45,7 @@ import static org.jupiter.rpc.Status.*;
  *
  * @author jiachun.fjc
  */
-public class DefaultInvokePromise extends InvokePromise {
+public class DefaultInvokePromise extends InvokePromise<Object> {
 
     private static final InternalLogger logger = InternalLoggerFactory.getInstance(DefaultInvokePromise.class);
 

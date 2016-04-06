@@ -64,30 +64,30 @@ public class HelloJupiterPromiseClient {
 
         try {
             service1.sayHello();
-            PromiseInvoker.currentPromise()
-                    .then(new InvokeDonePipe() {
+            PromiseInvoker.currentPromise(ServiceTest.ResultClass.class)
+                    .then(new InvokeDonePipe<ServiceTest.ResultClass, String>() {
 
                         @Override
-                        public void doInPipe(Object result) {
+                        public void doInPipe(ServiceTest.ResultClass result) {
                             System.err.println("step1. " + result);
 
                             service2.sayHelloString();
                         }
                     })
-                    .then(new InvokeDonePipe() {
+                    .then(new InvokeDonePipe<String, String>() {
 
                         @Override
-                        public void doInPipe(Object result) {
+                        public void doInPipe(String result) {
                             System.err.println("step2. " + result);
 
                             // call service2 again
                             service2.sayHelloString();
                         }
                     })
-                    .then(new InvokeDone() {
+                    .then(new InvokeDone<String>() {
 
                         @Override
-                        public void onDone(Object result) {
+                        public void onDone(String result) {
                             System.err.println("step3. " + result);
                         }
                     }, new InvokeFail() {

@@ -94,5 +94,5 @@ public abstract class AbstractDispatcher implements Dispatcher {
         this.methodsSpecialTimeoutMillis.putAll(methodsSpecialTimeoutMillis);
     }
 
-    protected abstract InvokePromise asPromise(JChannel channel, JRequest request, int timeoutMillis);
+    protected abstract InvokePromise<?> asPromise(JChannel channel, JRequest request, int timeoutMillis);
 }

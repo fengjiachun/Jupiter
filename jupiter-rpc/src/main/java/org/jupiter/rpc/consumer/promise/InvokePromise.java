@@ -30,17 +30,17 @@ import java.util.concurrent.ExecutionException;
  *
  * @author jiachun.fjc
  */
-public abstract class InvokePromise extends JPromise {
+public abstract class InvokePromise<T> extends JPromise<T> {
 
     /**
      * Sets hooks for consumer.
      */
-    public abstract InvokePromise hooks(ConsumerHook[] hooks);
+    public abstract InvokePromise<T> hooks(ConsumerHook[] hooks);
 
     /**
      * Sets listener for asynchronous rpc.
      */
-    public abstract InvokePromise listener(JListener listener);
+    public abstract InvokePromise<T> listener(JListener listener);
 
     /**
      * Sets timestamp on message sent out.
@@ -52,11 +52,12 @@ public abstract class InvokePromise extends JPromise {
      */
     public abstract Object getResult() throws Throwable;
 
+    @SuppressWarnings("unchecked")
     @Override
-    public Object get() throws InterruptedException, ExecutionException {
-        Object result;
+    public T get() throws InterruptedException, ExecutionException {
+        T result;
         try {
-            result = getResult();
+            result = (T) getResult();
         } catch (InterruptedException e) {
             throw e;
         } catch (Throwable t) {

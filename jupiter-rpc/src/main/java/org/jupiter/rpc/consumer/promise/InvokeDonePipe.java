@@ -27,18 +27,19 @@ import org.jupiter.rpc.consumer.invoker.PromiseInvoker;
  *
  * @author jiachun.fjc
  */
-public abstract class InvokeDonePipe implements DonePipe<Object, Object, Throwable> {
+public abstract class InvokeDonePipe<D, D_OUT> implements DonePipe<D, D_OUT, Throwable> {
 
+    @SuppressWarnings("unchecked")
     @Override
-    public Promise<Object, Throwable> pipeDone(Object result) {
+    public Promise<D_OUT, Throwable> pipeDone(D result) {
         try {
             doInPipe(result);
 
-            return PromiseInvoker.currentPromise();
+            return (Promise<D_OUT, Throwable>) PromiseInvoker.currentPromise();
         } catch (Throwable t) {
-            return new DefaultPromise<Object, Throwable>().reject(t);
+            return new DefaultPromise<D_OUT, Throwable>().reject(t);
         }
     }
 
-    public abstract void doInPipe(Object result);
+    public abstract void doInPipe(D result);
 }

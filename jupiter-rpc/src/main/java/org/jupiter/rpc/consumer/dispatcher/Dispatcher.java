@@ -34,7 +34,7 @@ import java.util.Map;
  */
 public interface Dispatcher {
 
-    InvokePromise dispatch(JClient client, String methodName, Object[] args);
+    InvokePromise<?> dispatch(JClient client, String methodName, Object[] args);
 
     ConsumerHook[] getHooks();
 

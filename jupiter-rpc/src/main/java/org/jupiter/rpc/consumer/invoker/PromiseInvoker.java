@@ -40,7 +40,7 @@ import static org.jupiter.common.util.Preconditions.checkNotNull;
  */
 public class PromiseInvoker {
 
-    private static final ThreadLocal<JPromise> promiseThreadLocal = new ThreadLocal<>();
+    private static final ThreadLocal<JPromise<?>> promiseThreadLocal = new ThreadLocal<>();
 
     private final JClient client;
     private final Dispatcher dispatcher;
@@ -50,15 +50,20 @@ public class PromiseInvoker {
         this.dispatcher = dispatcher;
     }
 
-    public static JPromise currentPromise() {
-        JPromise promise = checkNotNull(promiseThreadLocal.get(), "promise");
+    public static JPromise<?> currentPromise() {
+        JPromise<?> promise = checkNotNull(promiseThreadLocal.get(), "promise");
         promiseThreadLocal.remove();
         return promise;
     }
 
+    @SuppressWarnings("all")
+    public static <T> JPromise<T> currentPromise(Class<T> genericType) {
+        return (JPromise<T>) currentPromise();
+    }
+
     @RuntimeType
     public Object invoke(@Origin Method method, @AllArguments @RuntimeType Object[] args) throws Throwable {
-        InvokePromise promise = dispatcher.dispatch(client, method.getName(), args);
+        InvokePromise<?> promise = dispatcher.dispatch(client, method.getName(), args);
         promiseThreadLocal.set(promise);
         return Reflects.getTypeDefaultValue(method.getReturnType());
     }
