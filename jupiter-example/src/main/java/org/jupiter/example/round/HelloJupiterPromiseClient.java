@@ -23,7 +23,7 @@ import org.jupiter.rpc.consumer.ProxyFactory;
 import org.jupiter.rpc.consumer.promise.InvokeDone;
 import org.jupiter.rpc.consumer.promise.InvokeDonePipe;
 import org.jupiter.rpc.consumer.promise.InvokeFail;
-import org.jupiter.rpc.consumer.promise.InvokePromiseContext;
+import org.jupiter.rpc.consumer.promise.DeferredVoidPromise;
 import org.jupiter.transport.JConnector;
 import org.jupiter.transport.exception.ConnectFailedException;
 import org.jupiter.transport.netty.JNettyTcpConnector;
@@ -63,40 +63,53 @@ public class HelloJupiterPromiseClient {
                 .newProxyInstance();
 
         try {
-            service1.sayHello();
-            InvokePromiseContext.currentPromise(ServiceTest.ResultClass.class)
-                    .then(new InvokeDonePipe<ServiceTest.ResultClass, String>() {
+            DeferredVoidPromise promise = new DeferredVoidPromise();
+            promise.then(new InvokeDonePipe<Void, ServiceTest.ResultClass>() {
 
-                        @Override
-                        public void doInPipe(ServiceTest.ResultClass result) {
-                            System.err.println("step1. " + result);
+                @Override
+                public void doInPipe(Void result) {
+                    System.err.println("step1 doing...");
 
-                            service2.sayHelloString();
-                        }
-                    })
-                    .then(new InvokeDonePipe<String, String>() {
+                    service1.sayHello();
+                }
+            }).then(new InvokeDonePipe<ServiceTest.ResultClass, String>() {
 
-                        @Override
-                        public void doInPipe(String result) {
-                            System.err.println("step2. " + result);
+                @Override
+                public void doInPipe(ServiceTest.ResultClass result) {
+                    System.err.println("step1 result = " + result);
 
-                            // call service2 again
-                            service2.sayHelloString();
-                        }
-                    })
-                    .then(new InvokeDone<String>() {
+                    System.err.println("step2 doing...");
+                    service2.sayHelloString();
+                }
+            }).then(new InvokeDonePipe<String, String>() {
 
-                        @Override
-                        public void onDone(String result) {
-                            System.err.println("step3. " + result);
-                        }
-                    }, new InvokeFail() {
+                @Override
+                public void doInPipe(String result) {
+                    System.err.println("step2 result =  " + result);
 
-                        @Override
-                        public void onFail(Throwable cause) {
-                            System.err.println("step3. fail:" + cause);
-                        }
-                    });
+                    System.err.println("step3 doing");
+                    // call service2 again
+                    service2.sayHelloString();
+                }
+            })
+            .then(new InvokeDone<String>() {
+
+                @Override
+                public void onDone(String result) {
+                    System.err.println("step3 result =  " + result);
+                }
+            }, new InvokeFail() {
+
+                @Override
+                public void onFail(Throwable cause) {
+                    System.err.println("step3 fail:" + cause);
+                }
+            });
+
+            promise.resolve(); // start
+
+            System.out.println("start");
+
         } catch (Throwable e) {
             e.printStackTrace();
         }
