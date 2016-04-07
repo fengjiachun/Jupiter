@@ -25,7 +25,7 @@
 
             @Override
             public void doInPipe(String service2Result) {
-                System.err.println("step2 result =  " + service2Result);
+                System.err.println("step2 result = " + service2Result);
 
                 System.err.println("step3 doing");
                 service3.hello3(service2Result);
@@ -35,7 +35,7 @@
 
             @Override
             public void onDone(String service3Result) {
-                System.err.println("step3 result =  " + service3Result);
+                System.err.println("step3 result = " + service3Result);
             }
         }, new InvokeFail() {
 
