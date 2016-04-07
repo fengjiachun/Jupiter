@@ -6,10 +6,10 @@
 
         promise.then(new InvokeDonePipe<Void, String>() {
 
-                    @Override
-                    public void doInPipe(Void result) {
-                        service1.hello1();
-                    }
+            @Override
+            public void doInPipe(Void result) {
+                service1.hello1();
+            }
         }).then(new InvokeDonePipe<String, String>() {
 
             @Override
