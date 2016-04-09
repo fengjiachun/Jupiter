@@ -57,5 +57,14 @@ public enum WaitStrategyType {
     PHASED_BACK_OFF_WAIT,
     SLEEPING_WAIT,
     YIELDING_WAIT,
-    BUSY_SPIN_WAIT
+    BUSY_SPIN_WAIT;
+
+    public static WaitStrategyType parse(String name) {
+        for (WaitStrategyType strategy : values()) {
+            if (strategy.name().equals(name)) {
+                return strategy;
+            }
+        }
+        return null;
+    }
 }

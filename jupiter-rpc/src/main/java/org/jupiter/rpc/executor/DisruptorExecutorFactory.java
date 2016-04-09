@@ -37,13 +37,10 @@ public class DisruptorExecutorFactory implements ExecutorFactory {
 
     @Override
     public Executor newExecutor(int parallelism) {
-        String waitStrategyTypeString = SystemPropertyUtil.get("jupiter.executor.disruptor.wait.strategy.type");
-        WaitStrategyType waitStrategyType = WaitStrategyType.LITE_BLOCKING_WAIT;
-        for (WaitStrategyType strategyType : WaitStrategyType.values()) {
-            if (strategyType.name().equals(waitStrategyTypeString)) {
-                waitStrategyType = strategyType;
-                break;
-            }
+        String strategyString = SystemPropertyUtil.get("jupiter.executor.disruptor.wait.strategy.type");
+        WaitStrategyType waitStrategyType = WaitStrategyType.parse(strategyString);
+        if (waitStrategyType == null) {
+            waitStrategyType = WaitStrategyType.LITE_BLOCKING_WAIT;
         }
 
         return new TaskDispatcher(

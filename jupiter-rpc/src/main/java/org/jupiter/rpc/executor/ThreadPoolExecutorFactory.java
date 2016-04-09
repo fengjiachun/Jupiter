@@ -18,13 +18,18 @@ package org.jupiter.rpc.executor;
 
 import org.jupiter.common.concurrent.NamedThreadFactory;
 import org.jupiter.common.concurrent.RejectedTaskPolicyWithReport;
+import org.jupiter.common.util.Strings;
 import org.jupiter.common.util.SystemPropertyUtil;
+import org.jupiter.common.util.internal.logging.InternalLogger;
+import org.jupiter.common.util.internal.logging.InternalLoggerFactory;
 
+import java.lang.reflect.Constructor;
 import java.util.concurrent.*;
 
-import static java.util.concurrent.TimeUnit.*;
+import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.jupiter.common.util.JConstants.PROCESSOR_MAX_NUM_WORKS;
 import static org.jupiter.common.util.JConstants.PROCESSOR_WORKER_QUEUE_CAPACITY;
+import static org.jupiter.common.util.StackTraceUtil.stackTrace;
 
 /**
  * Provide a {@link ThreadPoolExecutor} implementation of executor.
@@ -37,19 +42,18 @@ import static org.jupiter.common.util.JConstants.PROCESSOR_WORKER_QUEUE_CAPACITY
  */
 public class ThreadPoolExecutorFactory implements ExecutorFactory {
 
+    private static final InternalLogger logger = InternalLoggerFactory.getInstance(ThreadPoolExecutorFactory.class);
+
     @Override
     public Executor newExecutor(int parallelism) {
         BlockingQueue<Runnable> workQueue = null;
 
-        String workerQueueTypeString = SystemPropertyUtil.get("jupiter.executor.thread.pool.queue.type");
-        WorkerQueueType workerQueueType = WorkerQueueType.ARRAY_BLOCKING_QUEUE;
-        for (WorkerQueueType qType : WorkerQueueType.values()) {
-            if (qType.name().equals(workerQueueTypeString)) {
-                workerQueueType = qType;
-                break;
-            }
+        String queueTypeString = SystemPropertyUtil.get("jupiter.executor.thread.pool.queue.type");
+        WorkerQueueType queueType = WorkerQueueType.parse(queueTypeString);
+        if (queueType == null) {
+            queueType = WorkerQueueType.ARRAY_BLOCKING_QUEUE;
         }
-        switch (workerQueueType) {
+        switch (queueType) {
             case LINKED_BLOCKING_QUEUE:
                 workQueue = new LinkedBlockingQueue<>(PROCESSOR_WORKER_QUEUE_CAPACITY);
                 break;
@@ -65,11 +69,44 @@ public class ThreadPoolExecutorFactory implements ExecutorFactory {
                 SECONDS,
                 workQueue,
                 new NamedThreadFactory("processor"),
-                new RejectedTaskPolicyWithReport("processor"));
+                createRejectedPolicy());
     }
 
-    public enum WorkerQueueType {
+    private RejectedExecutionHandler createRejectedPolicy() {
+        RejectedExecutionHandler handler = null;
+
+        String handlerClass = SystemPropertyUtil.get("jupiter.executor.thread.pool.rejected.handler");
+        if (Strings.isNotBlank(handlerClass)) {
+            try {
+                Class<?> cls = Class.forName(handlerClass);
+                try {
+                    Constructor<?> constructor = cls.getConstructor(String.class);
+                    handler = (RejectedExecutionHandler) constructor.newInstance("processor");
+                } catch (NoSuchMethodException e) {
+                    handler = (RejectedExecutionHandler) cls.newInstance();
+                }
+            } catch (Exception e) {
+                logger.warn("Construct {} failed, {}.", handlerClass, stackTrace(e));
+            }
+        }
+        if (handler == null) {
+            handler = new RejectedTaskPolicyWithReport("processor");
+        }
+
+        return handler;
+    }
+
+    enum WorkerQueueType {
         LINKED_BLOCKING_QUEUE,
-        ARRAY_BLOCKING_QUEUE
+        ARRAY_BLOCKING_QUEUE;
+
+       static WorkerQueueType parse(String name) {
+            for (WorkerQueueType type : values()) {
+                if (type.name().equals(name)) {
+                    return type;
+                }
+            }
+            return null;
+        }
     }
 }
