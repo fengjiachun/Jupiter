@@ -102,7 +102,7 @@ public class ThreadPoolExecutorFactory implements ExecutorFactory {
 
        static WorkerQueueType parse(String name) {
             for (WorkerQueueType type : values()) {
-                if (type.name().equals(name)) {
+                if (type.name().equalsIgnoreCase(name)) {
                     return type;
                 }
             }

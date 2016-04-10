@@ -152,8 +152,8 @@ public class JNettyUdtConnector extends NettyUdtConnector {
             }};
         watchdog.setReconnect(true);
 
+        ChannelFuture future;
         try {
-            ChannelFuture future;
             synchronized (bootstrapLock()) {
                 boot.handler(new ChannelInitializer<UdtChannel>() {
 
@@ -174,7 +174,7 @@ public class JNettyUdtConnector extends NettyUdtConnector {
             throw new ConnectFailedException("connects to [" + address + "] fails", t);
         }
 
-        return new JConnection(address) {
+        return new JNettyConnection(address, future) {
 
             @Override
             public void setReconnect(boolean reconnect) {

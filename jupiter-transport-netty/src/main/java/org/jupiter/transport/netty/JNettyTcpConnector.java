@@ -17,10 +17,7 @@
 package org.jupiter.transport.netty;
 
 import io.netty.bootstrap.Bootstrap;
-import io.netty.channel.Channel;
-import io.netty.channel.ChannelFuture;
-import io.netty.channel.ChannelHandler;
-import io.netty.channel.ChannelInitializer;
+import io.netty.channel.*;
 import io.netty.channel.epoll.EpollSocketChannel;
 import io.netty.channel.socket.nio.NioSocketChannel;
 import org.jupiter.rpc.UnresolvedAddress;
@@ -174,8 +171,8 @@ public class JNettyTcpConnector extends NettyTcpConnector {
         };
         watchdog.setReconnect(true);
 
+        ChannelFuture future;
         try {
-            ChannelFuture future;
             synchronized (bootstrapLock()) {
                 boot.handler(new ChannelInitializer<Channel>() {
 
@@ -196,7 +193,7 @@ public class JNettyTcpConnector extends NettyTcpConnector {
             throw new ConnectFailedException("connects to [" + address + "] fails", t);
         }
 
-        return new JConnection(address) {
+        return new JNettyConnection(address, future) {
 
             @Override
             public void setReconnect(boolean reconnect) {

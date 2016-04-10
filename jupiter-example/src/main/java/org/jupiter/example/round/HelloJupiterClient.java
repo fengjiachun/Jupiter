@@ -44,7 +44,10 @@ public class HelloJupiterClient {
         JConnector.ConnectionManager manager1 = connector.manageConnections(ServiceTest.class);
         JConnector.ConnectionManager manager2 = connector.manageConnections(ServiceTest2.class);
         // 等待连接可用
-        if (!manager1.waitForAvailable(3000) && !manager2.waitForAvailable(3000)) {
+        if (!manager1.waitForAvailable(3000)) {
+            throw new ConnectFailedException();
+        }
+        if (!manager2.waitForAvailable(3000)) {
             throw new ConnectFailedException();
         }
 

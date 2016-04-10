@@ -61,7 +61,7 @@ public enum WaitStrategyType {
 
     public static WaitStrategyType parse(String name) {
         for (WaitStrategyType strategy : values()) {
-            if (strategy.name().equals(name)) {
+            if (strategy.name().equalsIgnoreCase(name)) {
                 return strategy;
             }
         }

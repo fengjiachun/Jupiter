@@ -20,6 +20,8 @@ import io.netty.bootstrap.Bootstrap;
 import io.netty.buffer.ByteBufAllocator;
 import io.netty.buffer.PooledByteBufAllocator;
 import io.netty.buffer.UnpooledByteBufAllocator;
+import io.netty.channel.ChannelFuture;
+import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelOption;
 import io.netty.channel.EventLoopGroup;
 import io.netty.util.HashedWheelTimer;
@@ -134,24 +136,27 @@ public abstract class NettyConnector extends AbstractJClient implements JConnect
                 subscribe(directory, new NotifyListener() {
 
                     @Override
-                    public void notify(List<RegisterMeta> allRegisterMeta) {
+                    public void notify(final List<RegisterMeta> allRegisterMeta) {
                         for (RegisterMeta meta : allRegisterMeta) {
                             UnresolvedAddress address = new UnresolvedAddress(meta.getHost(), meta.getPort());
-                            JChannelGroup group = group(address);
+                            final JChannelGroup group = group(address);
                             if (!group.isAvailable()) {
-                                connectTo(address, group, meta);
-                            }
-                            // 添加ChannelGroup到指定directory
-                            addChannelGroup(directory, group);
-                        }
+                                JConnection[] connections = connectTo(address, group, meta, true);
+                                for (JConnection c : connections) {
+                                    if (c instanceof JNettyConnection) {
+                                        ((JNettyConnection) c).getFuture().addListener(new ChannelFutureListener() {
 
-                        if (!allRegisterMeta.isEmpty() && signalNeeded.getAndSet(false)) {
-                            final ReentrantLock _look = lock;
-                            _look.lock();
-                            try {
-                                notifyCondition.signalAll();
-                            } finally {
-                                _look.unlock();
+                                            @Override
+                                            public void operationComplete(ChannelFuture future) throws Exception {
+                                                if (future.isSuccess()) {
+                                                    onSucceed(group, !allRegisterMeta.isEmpty() && signalNeeded.getAndSet(false));
+                                                }
+                                            }
+                                        });
+                                    }
+                                }
+                            } else {
+                                onSucceed(group, !allRegisterMeta.isEmpty() && signalNeeded.getAndSet(false));
                             }
                         }
                     }
@@ -159,22 +164,25 @@ public abstract class NettyConnector extends AbstractJClient implements JConnect
                     @Override
                     public void notify(RegisterMeta registerMeta, NotifyEvent event) {
                         UnresolvedAddress address = new UnresolvedAddress(registerMeta.getHost(), registerMeta.getPort());
-                        JChannelGroup group = group(address);
+                        final JChannelGroup group = group(address);
                         if (event == NotifyEvent.CHILD_ADDED) {
                             if (!group.isAvailable()) {
-                                connectTo(address, group, registerMeta);
-                            }
-                            // 添加ChannelGroup到指定directory
-                            addChannelGroup(directory, group);
+                                JConnection[] connections = connectTo(address, group, registerMeta, true);
+                                for (JConnection c : connections) {
+                                    if (c instanceof JNettyConnection) {
+                                        ((JNettyConnection) c).getFuture().addListener(new ChannelFutureListener() {
 
-                            if (signalNeeded.getAndSet(false)) {
-                                final ReentrantLock _look = lock;
-                                _look.lock();
-                                try {
-                                    notifyCondition.signalAll();
-                                } finally {
-                                    _look.unlock();
+                                            @Override
+                                            public void operationComplete(ChannelFuture future) throws Exception {
+                                                if (future.isSuccess()) {
+                                                    onSucceed(group, signalNeeded.getAndSet(false));
+                                                }
+                                            }
+                                        });
+                                    }
                                 }
+                            } else {
+                                onSucceed(group, signalNeeded.getAndSet(false));
                             }
                         } else if (event == NotifyEvent.CHILD_REMOVED) {
                             removeChannelGroup(directory, group);
@@ -184,14 +192,16 @@ public abstract class NettyConnector extends AbstractJClient implements JConnect
                         }
                     }
 
-                    private void connectTo(final UnresolvedAddress address, final JChannelGroup group, RegisterMeta registerMeta) {
+                    private JConnection[] connectTo(final UnresolvedAddress address, final JChannelGroup group, RegisterMeta registerMeta, boolean async) {
                         int connCount = registerMeta.getConnCount();
                         connCount = connCount < 1 ? 1 : connCount;
 
+                        JConnection[] connections = new JConnection[connCount];
                         group.setWeight(registerMeta.getWeight()); // 设置权重
                         group.setCapacity(connCount);
                         for (int i = 0; i < connCount; i++) {
-                            JConnection connection = connect(address);
+                            JConnection connection = connect(address, async);
+                            connections[i] = connection;
                             JConnectionManager.manage(connection);
 
                             offlineListening(address, new OfflineListener() {
@@ -204,6 +214,22 @@ public abstract class NettyConnector extends AbstractJClient implements JConnect
                                     }
                                 }
                             });
+                        }
+
+                        return connections;
+                    }
+
+                    private void onSucceed(JChannelGroup group, boolean doSignal) {
+                        addChannelGroup(directory, group);
+
+                        if (doSignal) {
+                            final ReentrantLock _look = lock;
+                            _look.lock();
+                            try {
+                                notifyCondition.signalAll();
+                            } finally {
+                                _look.unlock();
+                            }
                         }
                     }
                 });
