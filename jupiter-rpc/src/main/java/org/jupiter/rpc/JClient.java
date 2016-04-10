@@ -81,6 +81,17 @@ public interface JClient extends Registry {
     Collection<RegisterMeta> lookup(Directory directory);
 
     /**
+     * Wait until the connections is available or timeout,
+     * if available return true, otherwise return false.
+     */
+    boolean awaitConnections(Directory directory, long timeoutMillis);
+
+    /**
+     * Refresh the connections.
+     */
+    void refreshConnections(Directory directory);
+
+    /**
      * Subscribe a service from registry server.
      */
     void subscribe(Directory directory, NotifyListener listener);

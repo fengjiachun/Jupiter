@@ -111,6 +111,17 @@ public abstract class NettyConnector extends AbstractJClient implements JConnect
     }
 
     @Override
+    public boolean awaitConnections(Directory directory, long timeoutMillis) {
+        ConnectionManager manager = manageConnections(directory);
+        return manager.waitForAvailable(timeoutMillis);
+    }
+
+    @Override
+    public void refreshConnections(Directory directory) {
+        manageConnections(directory);
+    }
+
+    @Override
     public ConnectionManager manageConnections(Class<?> interfaceClass) {
         checkNotNull(interfaceClass, "interfaceClass");
         ServiceProvider annotation = interfaceClass.getAnnotation(ServiceProvider.class);

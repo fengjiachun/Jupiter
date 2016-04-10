@@ -36,6 +36,7 @@ import org.jupiter.registry.RegisterMeta;
 import org.jupiter.registry.RegisterMeta.Address;
 
 import java.io.IOException;
+import java.util.Collection;
 import java.util.List;
 import java.util.concurrent.ConcurrentMap;
 
@@ -66,6 +67,25 @@ public class ZookeeperRegistryService extends AbstractRegistryService {
     private final ConcurrentMap<Address, ConcurrentSet<ServiceMeta>> serviceMetaMap = Maps.newConcurrentHashMap();
 
     private CuratorFramework configClient;
+
+    @Override
+    public Collection<RegisterMeta> lookup(ServiceMeta serviceMeta) {
+        String directory = String.format("/jupiter/provider/%s/%s/%s",
+                serviceMeta.getGroup(),
+                serviceMeta.getVersion(),
+                serviceMeta.getServiceProviderName());
+
+        List<RegisterMeta> registerMetaList = Lists.newArrayList();
+        try {
+            List<String> paths = configClient.getChildren().forPath(directory);
+            for (String p : paths) {
+                registerMetaList.add(parseRegisterMeta(String.format("%s/%s", directory, p)));
+            }
+        } catch (Exception e) {
+            logger.warn("Lookup service meta: {} path failed, {}.", serviceMeta, stackTrace(e));
+        }
+        return registerMetaList;
+    }
 
     @Override
     protected void doSubscribe(final ServiceMeta serviceMeta) {
@@ -121,7 +141,7 @@ public class ZookeeperRegistryService extends AbstractRegistryService {
                 try {
                     childrenCache.start();
                 } catch (Exception e) {
-                    logger.warn("Subscribe {} failed, {}.", directory, e);
+                    logger.warn("Subscribe {} failed, {}.", directory, stackTrace(e));
                 }
             }
         }
@@ -162,7 +182,7 @@ public class ZookeeperRegistryService extends AbstractRegistryService {
                             String.valueOf(meta.getWeight()),
                             String.valueOf(meta.getConnCount())));
         } catch (Exception e) {
-            logger.warn("Create register meta: {} path failed.", meta, stackTrace(e));
+            logger.warn("Create register meta: {} path failed, {}.", meta, stackTrace(e));
         }
     }
 
@@ -200,7 +220,7 @@ public class ZookeeperRegistryService extends AbstractRegistryService {
                             String.valueOf(meta.getWeight()),
                             String.valueOf(meta.getConnCount())));
         } catch (Exception e) {
-            logger.warn("Delete register meta: {} path failed.", meta, stackTrace(e));
+            logger.warn("Delete register meta: {} path failed, {}.", meta, stackTrace(e));
         }
     }
 

@@ -139,12 +139,20 @@ public abstract class AbstractJClient implements JClient {
         CopyOnWriteArrayList<JChannelGroup> groupList = directory(directory);
         // snapshot of groupList
         Object[] elements = groupsUpdater.get(groupList);
+        if (elements.length == 0) {
+            if (!awaitConnections(directory, 3000)) {
+                throw new IllegalStateException("no connections");
+            }
+            elements = groupsUpdater.get(groupList);
+        }
 
         JChannelGroup group = loadBalancer.select(elements);
 
         if (group.isAvailable()) {
             return group.next();
         }
+
+        refreshConnections(directory);
 
         // group死期到(无可用channel), 时间超过预定限制
         long deadline = group.deadlineMillis();
