@@ -59,8 +59,18 @@ public class ProtocolDecoder extends ReplayingDecoder<ProtocolDecoder.State> {
     // 协议体最大限制, 默认5M
     private static final int MAX_BODY_SIZE = SystemPropertyUtil.getInt("jupiter.protocol.max.body.size", 1024 * 1024 * 5);
 
+    /**
+     * Cumulate {@link ByteBuf}s by add them to a CompositeByteBuf and so do no memory copy whenever possible.
+     * Be aware that CompositeByteBuf use a more complex indexing implementation so depending on your use-case
+     * and the decoder implementation this may be slower then just use the {@link #MERGE_CUMULATOR}.
+     */
+    private static final boolean USE_COMPOSITE_BUF = SystemPropertyUtil.getBoolean("jupiter.protocol.decoder.composite.buf", false);
+
     public ProtocolDecoder() {
         super(State.HEADER_MAGIC);
+        if (USE_COMPOSITE_BUF) {
+            setCumulator(COMPOSITE_CUMULATOR);
+        }
     }
 
     // 协议头
