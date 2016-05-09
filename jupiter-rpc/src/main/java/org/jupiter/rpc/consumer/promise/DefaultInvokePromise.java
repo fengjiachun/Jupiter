@@ -276,13 +276,13 @@ public class DefaultInvokePromise extends InvokePromise<Object> {
             }
         }
 
-        private void processingTimeoutFuture(DefaultInvokePromise future) {
+        private void processingTimeoutFuture(DefaultInvokePromise promise) {
             ResultWrapper result = new ResultWrapper();
-            Status status = future.sentTimestamp > 0 ? SERVER_TIMEOUT : CLIENT_TIMEOUT;
-            result.setError(new TimeoutException(future.channel.remoteAddress(), status));
+            Status status = promise.sentTimestamp > 0 ? SERVER_TIMEOUT : CLIENT_TIMEOUT;
+            result.setError(new TimeoutException(promise.channel.remoteAddress(), status));
 
-            JResponse r = JResponse.newInstance(future.invokeId, status, result);
-            DefaultInvokePromise.received(future.channel, r);
+            JResponse r = JResponse.newInstance(promise.invokeId, status, result);
+            DefaultInvokePromise.received(promise.channel, r);
         }
     }
 
