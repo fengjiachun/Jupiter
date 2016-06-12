@@ -54,6 +54,8 @@ public class JupiterSpringProviderBean implements InitializingBean, ApplicationC
     private int connCount;
     private Executor executor;
     private FlowController<JRequest> flowController;
+    private JServer.ProviderInitializer<?> providerInitializer;
+    private Executor providerInitializerExecutor;
 
     @Override
     public void afterPropertiesSet() throws Exception {
@@ -145,13 +147,34 @@ public class JupiterSpringProviderBean implements InitializingBean, ApplicationC
         this.flowController = flowController;
     }
 
+    public JServer.ProviderInitializer<?> getProviderInitializer() {
+        return providerInitializer;
+    }
+
+    public void setProviderInitializer(JServer.ProviderInitializer<?> providerInitializer) {
+        this.providerInitializer = providerInitializer;
+    }
+
+    public Executor getProviderInitializerExecutor() {
+        return providerInitializerExecutor;
+    }
+
+    public void setProviderInitializerExecutor(Executor providerInitializerExecutor) {
+        this.providerInitializerExecutor = providerInitializerExecutor;
+    }
+
     private final class JupiterApplicationListener implements ApplicationListener {
 
         @Override
         public void onApplicationEvent(ApplicationEvent event) {
             if (event instanceof ContextRefreshedEvent) {
                 // 发布服务
-                acceptor.getAcceptor().publish(serviceWrapper);
+                if (providerInitializer == null) {
+                    acceptor.getAcceptor().publish(serviceWrapper);
+                } else {
+                    acceptor.getAcceptor().publishWithInitializer(
+                            serviceWrapper, providerInitializer, providerInitializerExecutor);
+                }
 
                 logger.info("#publish service: {}.", serviceWrapper);
             }
