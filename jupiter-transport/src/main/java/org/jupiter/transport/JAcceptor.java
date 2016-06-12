@@ -16,6 +16,8 @@
 
 package org.jupiter.transport;
 
+import org.jupiter.rpc.JServer;
+
 import java.net.SocketAddress;
 
 /**
@@ -26,7 +28,7 @@ import java.net.SocketAddress;
  *
  * @author jiachun.fjc
  */
-public interface JAcceptor extends Transporter {
+public interface JAcceptor extends JServer, Transporter {
 
     /**
      * Local address.

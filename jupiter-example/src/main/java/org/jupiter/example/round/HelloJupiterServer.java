@@ -27,8 +27,8 @@ import org.jupiter.rpc.model.metadata.ServiceWrapper;
 import org.jupiter.rpc.provider.ProviderInterceptor;
 import org.jupiter.rpc.provider.ProviderProxyHandler;
 import org.jupiter.rpc.tracing.TraceId;
+import org.jupiter.transport.JAcceptor;
 import org.jupiter.transport.netty.JNettyTcpAcceptor;
-import org.jupiter.transport.netty.NettyAcceptor;
 
 import java.util.Arrays;
 import java.util.concurrent.atomic.AtomicLong;
@@ -46,7 +46,7 @@ import java.util.concurrent.atomic.AtomicLong;
 public class HelloJupiterServer {
 
     public static void main(String[] args) {
-        NettyAcceptor server = new JNettyTcpAcceptor(18090);
+        JAcceptor acceptor = new JNettyTcpAcceptor(18090);
         MonitorServer monitor = new MonitorServer();
         try {
             monitor.start();
@@ -54,7 +54,7 @@ public class HelloJupiterServer {
             // 全局interceptors, 可不设置
             ProviderProxyHandler globalHandler = new ProviderProxyHandler()
                     .withIntercept(new GlobalInterceptor());
-            server.setGlobalProviderProxyHandler(globalHandler);
+            acceptor.setGlobalProviderProxyHandler(globalHandler);
 
             // provider1 私有interceptors, 可不设置
             ProviderProxyHandler privateHandler = new ProviderProxyHandler()
@@ -62,19 +62,19 @@ public class HelloJupiterServer {
             // provider1
             ServiceTestImpl service = new ServiceTestImpl();
 
-            ServiceWrapper provider1 = server.serviceRegistry()
+            ServiceWrapper provider1 = acceptor.serviceRegistry()
                     .provider(privateHandler, service)
                     .register();
 
             // provider2
-            ServiceWrapper provider2 = server.serviceRegistry()
+            ServiceWrapper provider2 = acceptor.serviceRegistry()
                     .provider(new ServiceTest2Impl())
                     .flowController(new PrivateFlowController()) // provider级别限流器, 可不设置
                     .register();
 
 //            server.setGlobalFlowController(); // 全局限流器
-            server.connectToRegistryServer("127.0.0.1:20001");
-            server.publishWithInitializer(provider1, new JServer.ProviderInitializer<ServiceTestImpl>() {
+            acceptor.connectToRegistryServer("127.0.0.1:20001");
+            acceptor.publishWithInitializer(provider1, new JServer.ProviderInitializer<ServiceTestImpl>() {
 
                 @Override
                 public void init(ServiceTestImpl provider) {
@@ -83,8 +83,8 @@ public class HelloJupiterServer {
                     provider.setIntValue(111);
                 }
             });
-            server.publish(provider2);
-            server.start();
+            acceptor.publish(provider2);
+            acceptor.start();
         } catch (InterruptedException e) {
             e.printStackTrace();
         }

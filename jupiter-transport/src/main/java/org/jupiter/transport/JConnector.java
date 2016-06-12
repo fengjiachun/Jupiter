@@ -17,6 +17,7 @@
 package org.jupiter.transport;
 
 import org.jupiter.rpc.Directory;
+import org.jupiter.rpc.JClient;
 import org.jupiter.rpc.UnresolvedAddress;
 
 /**
@@ -25,7 +26,7 @@ import org.jupiter.rpc.UnresolvedAddress;
  *
  * @author jiachun.fjc
  */
-public interface JConnector<C> extends Transporter {
+public interface JConnector<C> extends JClient, Transporter {
 
     /**
      * Connects to the remote peer.
