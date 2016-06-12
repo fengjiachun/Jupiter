@@ -19,6 +19,7 @@ package org.jupiter.transport.netty;
 import io.netty.bootstrap.Bootstrap;
 import io.netty.channel.ChannelOption;
 import io.netty.channel.EventLoopGroup;
+import io.netty.channel.WriteBufferWaterMark;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.udt.nio.NioUdtProvider;
 import org.jupiter.rpc.UnresolvedAddress;
@@ -79,11 +80,11 @@ public abstract class NettyUdtConnector extends NettyConnector {
         if (child.getConnectTimeoutMillis() > 0) {
             boot.option(ChannelOption.CONNECT_TIMEOUT_MILLIS, child.getConnectTimeoutMillis());
         }
-        if (child.getWriteBufferHighWaterMark() > 0) {
-            boot.option(ChannelOption.WRITE_BUFFER_HIGH_WATER_MARK, child.getWriteBufferHighWaterMark());
-        }
-        if (child.getWriteBufferLowWaterMark() > 0) {
-            boot.option(ChannelOption.WRITE_BUFFER_LOW_WATER_MARK, child.getWriteBufferLowWaterMark());
+        int bufLowWaterMark = child.getWriteBufferLowWaterMark();
+        int bufHighWaterMark = child.getWriteBufferHighWaterMark();
+        if (bufLowWaterMark >= 0 && bufHighWaterMark > 0) {
+            WriteBufferWaterMark waterMark = new WriteBufferWaterMark(bufLowWaterMark, bufHighWaterMark);
+            boot.option(ChannelOption.WRITE_BUFFER_WATER_MARK, waterMark);
         }
     }
 

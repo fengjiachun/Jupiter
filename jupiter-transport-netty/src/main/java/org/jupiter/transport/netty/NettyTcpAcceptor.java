@@ -20,6 +20,7 @@ import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelOption;
 import io.netty.channel.EventLoopGroup;
+import io.netty.channel.WriteBufferWaterMark;
 import io.netty.channel.epoll.EpollEventLoopGroup;
 import io.netty.channel.nio.NioEventLoopGroup;
 import org.jupiter.common.util.internal.logging.InternalLogger;
@@ -125,11 +126,11 @@ public abstract class NettyTcpAcceptor extends NettyAcceptor {
         if (child.getIpTos() > 0) {
             boot.childOption(ChannelOption.IP_TOS, child.getIpTos());
         }
-        if (child.getWriteBufferHighWaterMark() > 0) {
-            boot.childOption(ChannelOption.WRITE_BUFFER_HIGH_WATER_MARK, child.getWriteBufferHighWaterMark());
-        }
-        if (child.getWriteBufferLowWaterMark() > 0) {
-            boot.childOption(ChannelOption.WRITE_BUFFER_LOW_WATER_MARK, child.getWriteBufferLowWaterMark());
+        int bufLowWaterMark = child.getWriteBufferLowWaterMark();
+        int bufHighWaterMark = child.getWriteBufferHighWaterMark();
+        if (bufLowWaterMark >= 0 && bufHighWaterMark > 0) {
+            WriteBufferWaterMark waterMark = new WriteBufferWaterMark(bufLowWaterMark, bufHighWaterMark);
+            boot.childOption(ChannelOption.WRITE_BUFFER_WATER_MARK, waterMark);
         }
     }
 
