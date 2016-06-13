@@ -39,10 +39,12 @@ import java.io.IOException;
 import java.util.Collection;
 import java.util.List;
 import java.util.concurrent.ConcurrentMap;
+import java.util.concurrent.atomic.AtomicLong;
 
 import static org.jupiter.common.util.Preconditions.checkNotNull;
 import static org.jupiter.common.util.StackTraceUtil.stackTrace;
-import static org.jupiter.registry.NotifyListener.NotifyEvent;
+import static org.jupiter.registry.NotifyListener.NotifyEvent.CHILD_ADDED;
+import static org.jupiter.registry.NotifyListener.NotifyEvent.CHILD_REMOVED;
 import static org.jupiter.registry.RegisterMeta.ServiceMeta;
 
 /**
@@ -56,6 +58,9 @@ import static org.jupiter.registry.RegisterMeta.ServiceMeta;
 public class ZookeeperRegistryService extends AbstractRegistryService {
 
     private static final InternalLogger logger = InternalLoggerFactory.getInstance(ZookeeperRegistryService.class);
+
+    // 没有实际意义, 不要在意这个sequence
+    private static final AtomicLong sequence = new AtomicLong(0);
 
     private final String address = SystemPropertyUtil.get("jupiter.address", NetUtil.getLocalAddress());
 
@@ -116,7 +121,9 @@ public class ZookeeperRegistryService extends AbstractRegistryService {
                                 ConcurrentSet<ServiceMeta> serviceMetaSet = getServiceMeta(address);
 
                                 serviceMetaSet.add(serviceMeta);
-                                ZookeeperRegistryService.this.notify(serviceMeta, registerMeta, NotifyEvent.CHILD_ADDED);
+                                ZookeeperRegistryService.this.notify(
+                                        serviceMeta, registerMeta, CHILD_ADDED, sequence.getAndIncrement());
+
                                 break;
                             }
                             case CHILD_REMOVED: {
@@ -126,7 +133,9 @@ public class ZookeeperRegistryService extends AbstractRegistryService {
                                 ConcurrentSet<ServiceMeta> serviceMetaSet = getServiceMeta(address);
 
                                 serviceMetaSet.remove(serviceMeta);
-                                ZookeeperRegistryService.this.notify(serviceMeta, registerMeta, NotifyEvent.CHILD_REMOVED);
+                                ZookeeperRegistryService.this.notify(
+                                        serviceMeta, registerMeta, CHILD_REMOVED, sequence.getAndIncrement());
+
                                 if (serviceMetaSet.isEmpty()) {
                                     logger.info("Offline notify: {}.", address);
 

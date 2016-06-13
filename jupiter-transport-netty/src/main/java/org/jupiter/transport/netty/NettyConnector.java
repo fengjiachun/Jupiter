@@ -43,7 +43,6 @@ import org.jupiter.transport.*;
 import org.jupiter.transport.netty.channel.NettyChannelGroup;
 import org.jupiter.transport.netty.estimator.JMessageSizeEstimator;
 
-import java.util.List;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.locks.Condition;
@@ -52,6 +51,7 @@ import java.util.concurrent.locks.ReentrantLock;
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
 import static org.jupiter.common.util.JConstants.AVAILABLE_PROCESSORS;
 import static org.jupiter.common.util.Preconditions.checkNotNull;
+import static org.jupiter.registry.NotifyListener.NotifyEvent.*;
 
 /**
  * jupiter
@@ -147,36 +147,10 @@ public abstract class NettyConnector extends AbstractJClient implements JConnect
                 subscribe(directory, new NotifyListener() {
 
                     @Override
-                    public void notify(final List<RegisterMeta> allRegisterMeta) {
-                        for (RegisterMeta meta : allRegisterMeta) {
-                            UnresolvedAddress address = new UnresolvedAddress(meta.getHost(), meta.getPort());
-                            final JChannelGroup group = group(address);
-                            if (!group.isAvailable()) {
-                                JConnection[] connections = connectTo(address, group, meta, true);
-                                for (JConnection c : connections) {
-                                    if (c instanceof JNettyConnection) {
-                                        ((JNettyConnection) c).getFuture().addListener(new ChannelFutureListener() {
-
-                                            @Override
-                                            public void operationComplete(ChannelFuture future) throws Exception {
-                                                if (future.isSuccess()) {
-                                                    onSucceed(group, !allRegisterMeta.isEmpty() && signalNeeded.getAndSet(false));
-                                                }
-                                            }
-                                        });
-                                    }
-                                }
-                            } else {
-                                onSucceed(group, !allRegisterMeta.isEmpty() && signalNeeded.getAndSet(false));
-                            }
-                        }
-                    }
-
-                    @Override
                     public void notify(RegisterMeta registerMeta, NotifyEvent event) {
                         UnresolvedAddress address = new UnresolvedAddress(registerMeta.getHost(), registerMeta.getPort());
                         final JChannelGroup group = group(address);
-                        if (event == NotifyEvent.CHILD_ADDED) {
+                        if (event == CHILD_ADDED) {
                             if (!group.isAvailable()) {
                                 JConnection[] connections = connectTo(address, group, registerMeta, true);
                                 for (JConnection c : connections) {
@@ -195,8 +169,9 @@ public abstract class NettyConnector extends AbstractJClient implements JConnect
                             } else {
                                 onSucceed(group, signalNeeded.getAndSet(false));
                             }
-                        } else if (event == NotifyEvent.CHILD_REMOVED) {
+                        } else if (event == CHILD_REMOVED) {
                             removeChannelGroup(directory, group);
+                            // TODO 这里有一个时间先后的问题, 连接状态还是active(即将inactive), 然后取消自动重连就失败了
                             if (!group.isAvailable()) {
                                 JConnectionManager.cancelReconnect(address); // 取消自动重连
                             }

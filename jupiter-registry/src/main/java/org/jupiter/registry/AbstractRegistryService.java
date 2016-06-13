@@ -35,6 +35,7 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 import static org.jupiter.common.util.StackTraceUtil.stackTrace;
 import static org.jupiter.registry.NotifyListener.*;
+import static org.jupiter.registry.NotifyListener.NotifyEvent.*;
 import static org.jupiter.registry.RegisterMeta.Address;
 import static org.jupiter.registry.RegisterMeta.ServiceMeta;
 
@@ -174,18 +175,36 @@ public abstract class AbstractRegistryService implements RegistryService {
 
     public abstract void destroy();
 
-    // 通知新的全量服务, 总是携带版本号
-    protected void notify(ServiceMeta serviceMeta, List<RegisterMeta> allRegisterMeta, long version) {
+    // 通知新增或删除服务
+    protected void notify(ServiceMeta serviceMeta, RegisterMeta registerMeta, NotifyEvent event, long version) {
         boolean notifyNeeded = false;
 
         final Lock writeLock = registriesLock.writeLock();
         writeLock.lock();
         try {
-            Pair<Long, List<RegisterMeta>> oldData = registries.get(serviceMeta);
-            if (oldData == null || (oldData.getKey() < version)) {
-                registries.put(serviceMeta, new Pair<>(version, allRegisterMeta));
+            Pair<Long, List<RegisterMeta>> data = registries.get(serviceMeta);
+            if (data == null) {
+                if (event == CHILD_REMOVED) {
+                    return;
+                }
+                List<RegisterMeta> metaList = Lists.newArrayList(registerMeta);
+                data = new Pair<>(version, metaList);
                 notifyNeeded = true;
+            } else {
+                long oldVersion = data.getKey();
+                List<RegisterMeta> metaList = data.getValue();
+                if (oldVersion < version || (version < 0 && oldVersion > 0 /* version 溢出 */)) {
+                    if (event == CHILD_REMOVED) {
+                        metaList.remove(registerMeta);
+                    } else if (event == CHILD_ADDED) {
+                        metaList.add(registerMeta);
+                    }
+                    data = new Pair<>(version, metaList);
+                    notifyNeeded = true;
+                }
             }
+
+            registries.put(serviceMeta, data);
         } finally {
             writeLock.unlock();
         }
@@ -194,40 +213,8 @@ public abstract class AbstractRegistryService implements RegistryService {
             CopyOnWriteArrayList<NotifyListener> listeners = subscribeListeners.get(serviceMeta);
             if (listeners != null) {
                 for (NotifyListener l : listeners) {
-                    l.notify(allRegisterMeta);
+                    l.notify(registerMeta, event);
                 }
-            }
-        }
-    }
-
-    // 通知新增或删除服务
-    protected void notify(ServiceMeta serviceMeta, RegisterMeta registerMeta, NotifyEvent event) {
-        final Lock writeLock = registriesLock.writeLock();
-        writeLock.lock();
-        try {
-            Pair<Long, List<RegisterMeta>> data = registries.get(serviceMeta);
-            if (data == null) {
-                if (event == NotifyEvent.CHILD_REMOVED) {
-                    return;
-                }
-                List<RegisterMeta> metaList = Lists.newArrayList(registerMeta);
-                data = new Pair<>(0L, metaList);
-                registries.put(serviceMeta, data);
-            } else {
-                if (event == NotifyEvent.CHILD_REMOVED) {
-                    data.getValue().remove(registerMeta);
-                } else if (event == NotifyEvent.CHILD_ADDED) {
-                    data.getValue().add(registerMeta);
-                }
-            }
-        } finally {
-            writeLock.unlock();
-        }
-
-        CopyOnWriteArrayList<NotifyListener> listeners = subscribeListeners.get(serviceMeta);
-        if (listeners != null) {
-            for (NotifyListener l : listeners) {
-                l.notify(registerMeta, event);
             }
         }
     }

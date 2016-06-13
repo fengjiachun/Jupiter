@@ -14,22 +14,23 @@
  * limitations under the License.
  */
 
-package org.jupiter.registry;
+package org.jupiter.example.spring;
+
+import org.springframework.context.support.ClassPathXmlApplicationContext;
 
 /**
- * Service subscribers listener.
+ * 1.启动 JupiterRegistryServer
+ * 2.再启动 JupiterServer
+ * 3.最后启动 JupiterClient
  *
  * jupiter
- * org.jupiter.registry
+ * org.jupiter.example.spring
  *
  * @author jiachun.fjc
  */
-public interface NotifyListener {
+public class JupiterServer {
 
-    void notify(RegisterMeta registerMeta, NotifyEvent event);
-
-    enum NotifyEvent {
-        CHILD_ADDED,
-        CHILD_REMOVED
+    public static void main(String[] args) {
+        new ClassPathXmlApplicationContext("classpath:spring-provider.xml");
     }
 }

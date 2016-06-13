@@ -60,7 +60,7 @@ public class DefaultInvokePromise extends InvokePromise<Object> {
     private final long invokeId; // request id, 组播的场景可重复
     private final JChannel channel;
     private final JRequest request;
-    private final int timeoutMillis;
+    private final long timeoutMillis;
     private final long startTimestamp = SystemClock.millisClock().now();
 
     private volatile long sentTimestamp;
@@ -68,11 +68,11 @@ public class DefaultInvokePromise extends InvokePromise<Object> {
     private volatile JListener listener;
     private volatile ConsumerHook[] hooks;
 
-    public DefaultInvokePromise(JChannel channel, JRequest request, int timeoutMillis) {
+    public DefaultInvokePromise(JChannel channel, JRequest request, long timeoutMillis) {
         this(channel, request, timeoutMillis, ROUND);
     }
 
-    public DefaultInvokePromise(JChannel channel, JRequest request, int timeoutMillis, DispatchType dispatchType) {
+    public DefaultInvokePromise(JChannel channel, JRequest request, long timeoutMillis, DispatchType dispatchType) {
         invokeId = request.invokeId();
         this.channel = channel;
         this.request = request;

@@ -41,6 +41,10 @@
             <groupId>${project.groupId}</groupId>
             <artifactId>jupiter-registry-default</artifactId>
         </dependency>
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>jupiter-spring-support</artifactId>
+        </dependency>
         <!--<dependency>-->
             <!--<groupId>${project.groupId}</groupId>-->
             <!--<artifactId>jupiter-registry-zookeeper</artifactId>-->
@@ -62,6 +66,10 @@
             <groupId>ch.qos.logback</groupId>
             <artifactId>logback-classic</artifactId>
             <version>1.0.13</version>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-context</artifactId>
         </dependency>
     </dependencies>
 </project>

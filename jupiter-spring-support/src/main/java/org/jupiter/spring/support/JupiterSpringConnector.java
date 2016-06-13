@@ -16,11 +16,89 @@
 
 package org.jupiter.spring.support;
 
+import org.jupiter.common.util.Lists;
+import org.jupiter.common.util.Strings;
+import org.jupiter.rpc.UnresolvedAddress;
+import org.jupiter.transport.JConnection;
+import org.jupiter.transport.JConnector;
+import org.springframework.beans.factory.InitializingBean;
+
+import java.util.Collections;
+import java.util.List;
+
 /**
  * jupiter
  * org.jupiter.spring.support
  *
  * @author jiachun.fjc
  */
-public class JupiterSpringConnector {
+public class JupiterSpringConnector implements InitializingBean {
+
+    private JConnector<JConnection> connector;
+    private String registryServerAddresses;             // 注册中心地址   [host1:port1,host2:port2....]
+    private String providerServerAddresses;             // IP直连        [host1:port1,host2:port2....]
+    private List<UnresolvedAddress> providerServerUnresolvedAddresses = Collections.emptyList();
+    private boolean hasRegistryServer;
+
+    @Override
+    public void afterPropertiesSet() throws Exception {
+        init();
+    }
+
+    private void init() {
+        // 注册中心
+        if (Strings.isNotBlank(registryServerAddresses)) {
+            connector.connectToRegistryServer(registryServerAddresses);
+            hasRegistryServer = true;
+        }
+
+        if (!hasRegistryServer) {
+            // IP直连
+            if (Strings.isNotBlank(providerServerAddresses)) {
+                String[] array = Strings.split(providerServerAddresses, ',');
+                providerServerUnresolvedAddresses = Lists.newArrayList();
+                for (String s : array) {
+                    String[] addressStr = Strings.split(s, ':');
+                    String host = addressStr[0];
+                    int port = Integer.parseInt(addressStr[1]);
+                    UnresolvedAddress address = new UnresolvedAddress(host, port);
+                    providerServerUnresolvedAddresses.add(address);
+
+                    connector.connect(address, true);
+                }
+            }
+        }
+    }
+
+    public JConnector<JConnection> getConnector() {
+        return connector;
+    }
+
+    public void setConnector(JConnector<JConnection> connector) {
+        this.connector = connector;
+    }
+
+    public String getRegistryServerAddresses() {
+        return registryServerAddresses;
+    }
+
+    public void setRegistryServerAddresses(String registryServerAddresses) {
+        this.registryServerAddresses = registryServerAddresses;
+    }
+
+    public String getProviderServerAddresses() {
+        return providerServerAddresses;
+    }
+
+    public void setProviderServerAddresses(String providerServerAddresses) {
+        this.providerServerAddresses = providerServerAddresses;
+    }
+
+    public List<UnresolvedAddress> getProviderServerUnresolvedAddresses() {
+        return providerServerUnresolvedAddresses;
+    }
+
+    public boolean isHasRegistryServer() {
+        return hasRegistryServer;
+    }
 }

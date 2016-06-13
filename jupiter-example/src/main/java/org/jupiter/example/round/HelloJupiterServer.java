@@ -46,7 +46,7 @@ import java.util.concurrent.atomic.AtomicLong;
 public class HelloJupiterServer {
 
     public static void main(String[] args) {
-        JAcceptor acceptor = new JNettyTcpAcceptor(18090);
+        final JAcceptor acceptor = new JNettyTcpAcceptor(18090);
         MonitorServer monitor = new MonitorServer();
         try {
             monitor.start();
@@ -84,6 +84,16 @@ public class HelloJupiterServer {
                 }
             });
             acceptor.publish(provider2);
+
+            Runtime.getRuntime().addShutdownHook(new Thread() {
+
+                @Override
+                public void run() {
+                    acceptor.unpublishAll();
+                    acceptor.shutdownGracefully();
+                }
+            });
+
             acceptor.start();
         } catch (InterruptedException e) {
             e.printStackTrace();

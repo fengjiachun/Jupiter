@@ -44,11 +44,11 @@ public interface Dispatcher {
 
     void setListener(JListener listener);
 
-    int getTimeoutMillis();
+    long getTimeoutMillis();
 
-    void setTimeoutMillis(int timeoutMillis);
+    void setTimeoutMillis(long timeoutMillis);
 
-    int getMethodSpecialTimeoutMillis(String methodName);
+    long getMethodSpecialTimeoutMillis(String methodName);
 
-    void setMethodsSpecialTimeoutMillis(Map<String, Integer> methodsSpecialTimeoutMillis);
+    void setMethodsSpecialTimeoutMillis(Map<String, Long> methodsSpecialTimeoutMillis);
 }

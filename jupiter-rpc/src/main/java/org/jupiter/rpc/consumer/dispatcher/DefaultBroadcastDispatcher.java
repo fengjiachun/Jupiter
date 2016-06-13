@@ -74,7 +74,7 @@ public class DefaultBroadcastDispatcher extends AbstractDispatcher {
         request.message(message);
         request.bytes(serializerImpl().writeObject(message));
 
-        int timeoutMillis = getMethodSpecialTimeoutMillis(methodName);
+        long timeoutMillis = getMethodSpecialTimeoutMillis(methodName);
         final ConsumerHook[] _hooks = getHooks();
         JListener _listener = getListener();
         for (JChannel ch : channels) {
@@ -112,7 +112,7 @@ public class DefaultBroadcastDispatcher extends AbstractDispatcher {
     }
 
     @Override
-    protected InvokePromise<?> asPromise(JChannel channel, JRequest request, int timeoutMillis) {
+    protected InvokePromise<?> asPromise(JChannel channel, JRequest request, long timeoutMillis) {
         return new DefaultInvokePromise(channel, request, timeoutMillis, BROADCAST);
     }
 }

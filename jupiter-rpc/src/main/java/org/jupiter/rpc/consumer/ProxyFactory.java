@@ -55,8 +55,8 @@ public class ProxyFactory<I> {
     private List<UnresolvedAddress> addresses;
     private InvokeType invokeType = SYNC;
     private DispatchType dispatchType = ROUND;
-    private int timeoutMillis;
-    private Map<String, Integer> methodsSpecialTimeoutMillis;
+    private long timeoutMillis;
+    private Map<String, Long> methodsSpecialTimeoutMillis;
     private JListener listener;
     private List<ConsumerHook> hooks;
 
@@ -122,7 +122,7 @@ public class ProxyFactory<I> {
     /**
      * Timeout milliseconds.
      */
-    public ProxyFactory<I> timeoutMillis(int timeoutMillis) {
+    public ProxyFactory<I> timeoutMillis(long timeoutMillis) {
         this.timeoutMillis = timeoutMillis;
         return this;
     }
@@ -130,7 +130,7 @@ public class ProxyFactory<I> {
     /**
      * Method special timeout milliseconds.
      */
-    public ProxyFactory<I> methodSpecialTimeoutMillis(String methodName, int timeoutMillis) {
+    public ProxyFactory<I> methodSpecialTimeoutMillis(String methodName, long timeoutMillis) {
         methodsSpecialTimeoutMillis.put(methodName, timeoutMillis);
         return this;
     }

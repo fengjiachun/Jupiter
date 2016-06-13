@@ -108,6 +108,11 @@
             </dependency>
             <dependency>
                 <groupId>${project.groupId}</groupId>
+                <artifactId>jupiter-spring-support</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>${project.groupId}</groupId>
                 <artifactId>jupiter-transport</artifactId>
                 <version>${project.version}</version>
             </dependency>

@@ -28,6 +28,7 @@ import io.netty.util.ReferenceCountUtil;
 import org.jupiter.common.concurrent.ConcurrentSet;
 import org.jupiter.common.util.Maps;
 import org.jupiter.common.util.Pair;
+import org.jupiter.common.util.Signal;
 import org.jupiter.common.util.SystemClock;
 import org.jupiter.common.util.internal.logging.InternalLogger;
 import org.jupiter.common.util.internal.logging.InternalLoggerFactory;
@@ -38,7 +39,6 @@ import org.jupiter.transport.JConnection;
 import org.jupiter.transport.JOption;
 import org.jupiter.transport.JProtocolHeader;
 import org.jupiter.transport.exception.ConnectFailedException;
-import org.jupiter.common.util.Signal;
 import org.jupiter.transport.exception.IoSignals;
 import org.jupiter.transport.netty.NettyTcpConnector;
 import org.jupiter.transport.netty.channel.NettyChannel;
@@ -56,6 +56,8 @@ import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.jupiter.common.util.JConstants.WRITER_IDLE_TIME_SECONDS;
 import static org.jupiter.common.util.Preconditions.checkNotNull;
 import static org.jupiter.common.util.StackTraceUtil.stackTrace;
+import static org.jupiter.registry.NotifyListener.NotifyEvent.CHILD_ADDED;
+import static org.jupiter.registry.NotifyListener.NotifyEvent.CHILD_REMOVED;
 import static org.jupiter.registry.RegisterMeta.Address;
 import static org.jupiter.registry.RegisterMeta.ServiceMeta;
 import static org.jupiter.serialization.SerializerHolder.serializerImpl;
@@ -323,6 +325,7 @@ public class DefaultRegistry extends NettyTcpConnector {
                 case BODY:
                     switch (header.sign()) {
                         case PUBLISH_SERVICE:
+                        case PUBLISH_CANCEL_SERVICE:
                         case OFFLINE_NOTICE: {
                             byte[] bytes = new byte[header.bodyLength()];
                             in.readBytes(bytes);
@@ -409,23 +412,46 @@ public class DefaultRegistry extends NettyTcpConnector {
                 Message obj = (Message) msg;
 
                 switch (obj.sign()) {
-                    case PUBLISH_SERVICE:
-                        Pair<ServiceMeta, List<RegisterMeta>> data = (Pair<ServiceMeta, List<RegisterMeta>>) obj.data();
-                        registryService.notify(data.getKey(), data.getValue(), obj.getVersion());
+                    case PUBLISH_SERVICE: {
+                        Pair<ServiceMeta, ?> data = (Pair<ServiceMeta, ?>) obj.data();
+                        Object metaObj = data.getValue();
+
+                        if (metaObj instanceof List) {
+                            for (RegisterMeta meta : (List<RegisterMeta>) metaObj) {
+                                registryService.notify(data.getKey(), meta, CHILD_ADDED, obj.getVersion());
+                            }
+                        } else if (metaObj instanceof RegisterMeta) {
+                            registryService.notify(data.getKey(), (RegisterMeta) metaObj, CHILD_ADDED, obj.getVersion());
+                        }
 
                         ctx.channel()
                                 .writeAndFlush(new Acknowledge(obj.sequence()))  // 回复ACK
                                 .addListener(ChannelFutureListener.FIRE_EXCEPTION_ON_FAILURE);
 
-                        logger.info("Publish from RegistryServer {}, provider count: {}, version: {}.",
-                                data.getKey(), data.getValue().size(), obj.getVersion());
+                        logger.info("Publish from RegistryServer {}, metadata : {}, version: {}.",
+                                data.getKey(), metaObj, obj.getVersion());
 
                         break;
+                    }
+                    case PUBLISH_CANCEL_SERVICE: {
+                        Pair<ServiceMeta, RegisterMeta> data = (Pair<ServiceMeta, RegisterMeta>) obj.data();
+                        registryService.notify(data.getKey(), data.getValue(), CHILD_REMOVED, obj.getVersion());
+
+                        ctx.channel()
+                                .writeAndFlush(new Acknowledge(obj.sequence()))  // 回复ACK
+                                .addListener(ChannelFutureListener.FIRE_EXCEPTION_ON_FAILURE);
+
+                        logger.info("Publish cancel from RegistryServer {}, metadata : {}, version: {}.",
+                                data.getKey(), data.getValue(), obj.getVersion());
+
+                        break;
+                    }
                     case OFFLINE_NOTICE:
                         Address address = (Address) obj.data();
-                        registryService.offline(address);
 
                         logger.info("Offline notice on {}.", address);
+
+                        registryService.offline(address);
 
                         break;
                 }

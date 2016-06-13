@@ -23,7 +23,6 @@ import org.jupiter.rpc.flow.control.FlowController;
 import org.jupiter.rpc.provider.ProviderInterceptor;
 import org.jupiter.rpc.provider.ProviderProxyHandler;
 import org.jupiter.transport.JAcceptor;
-import org.springframework.beans.factory.FactoryBean;
 import org.springframework.beans.factory.InitializingBean;
 
 /**
@@ -32,7 +31,7 @@ import org.springframework.beans.factory.InitializingBean;
  *
  * @author jiachun.fjc
  */
-public class JupiterSpringAcceptor implements FactoryBean<JAcceptor>, InitializingBean {
+public class JupiterSpringAcceptor implements InitializingBean {
 
     private static final ProviderInterceptor[] EMPTY_INTERCEPTORS = new ProviderInterceptor[0];
 
@@ -40,21 +39,6 @@ public class JupiterSpringAcceptor implements FactoryBean<JAcceptor>, Initializi
     private String registryServerAddresses;
     private ProviderInterceptor[] providerInterceptors = EMPTY_INTERCEPTORS;
     private FlowController<JRequest> flowController;
-
-    @Override
-    public JAcceptor getObject() throws Exception {
-        return acceptor;
-    }
-
-    @Override
-    public Class<?> getObjectType() {
-        return acceptor.getClass();
-    }
-
-    @Override
-    public boolean isSingleton() {
-        return true;
-    }
 
     @Override
     public void afterPropertiesSet() throws Exception {

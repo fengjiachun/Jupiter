@@ -52,8 +52,12 @@ public class ServiceWrapper implements Serializable {
     private volatile Executor executor;
     private volatile FlowController<JRequest> flowController;
 
-    public ServiceWrapper(String group, String version, String name,
-                          Object serviceProvider, Map<String, List<Class<?>[]>> methodsParameterTypes) {
+    public ServiceWrapper(String group,
+                          String version,
+                          String name,
+                          Object serviceProvider,
+                          Map<String, List<Class<?>[]>> methodsParameterTypes) {
+
         metadata = new ServiceMetadata(group, version, name);
 
         this.methodsParameterTypes = checkNotNull(methodsParameterTypes, "methodsParameterTypes");

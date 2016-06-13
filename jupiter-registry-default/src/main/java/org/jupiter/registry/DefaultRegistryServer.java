@@ -233,9 +233,7 @@ public class DefaultRegistryServer extends NettyTcpAcceptor implements RegistryS
                 final Message msg = new Message();
                 msg.sign(PUBLISH_SERVICE);
                 msg.setVersion(config.newVersion()); // 版本号+1
-                List<RegisterMeta> registerMetaList = Lists.newArrayList(config.getConfig().values());
-                // 每次发布服务都是当前meta的全量信息
-                msg.data(new Pair<>(serviceMeta, registerMetaList));
+                msg.data(new Pair<>(serviceMeta, meta));
 
                 subscriberChannels.writeAndFlush(msg, new ChannelMatcher() {
 
@@ -275,11 +273,9 @@ public class DefaultRegistryServer extends NettyTcpAcceptor implements RegistryS
                 registerInfoContext.getServiceMeta(address).remove(serviceMeta);
 
                 final Message msg = new Message();
-                msg.sign(PUBLISH_SERVICE);
+                msg.sign(PUBLISH_CANCEL_SERVICE);
                 msg.setVersion(config.newVersion()); // 版本号+1
-                List<RegisterMeta> registerMetaList = Lists.newArrayList(config.getConfig().values());
-                // 每次发布服务都是当前meta的全量信息
-                msg.data(new Pair<>(serviceMeta, registerMetaList));
+                msg.data(new Pair<>(serviceMeta, data));
 
                 subscriberChannels.writeAndFlush(msg, new ChannelMatcher() {
 
@@ -606,7 +602,7 @@ public class DefaultRegistryServer extends NettyTcpAcceptor implements RegistryS
             // 取消之前发布的所有服务
             ConcurrentSet<RegisterMeta> registerMetaSet = channel.attr(S_PUBLISH_KEY).get();
 
-            if (registerMetaSet == null) {
+            if (registerMetaSet == null || registerMetaSet.isEmpty()) {
                 return;
             }
 
@@ -618,8 +614,10 @@ public class DefaultRegistryServer extends NettyTcpAcceptor implements RegistryS
                 handlePublishCancel(meta, channel);
             }
 
-            // 通知所有订阅者对应机器下线
-            handleOfflineNotice(address);
+            if (address != null) {
+                // 通知所有订阅者对应机器下线
+                handleOfflineNotice(address);
+            }
         }
 
         @Override

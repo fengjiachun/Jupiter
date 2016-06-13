@@ -232,7 +232,7 @@ public abstract class AbstractJServer implements JServer {
 
     private static <F, T> T copyProviderProperties(F provider, T proxy) {
         checkNotNull(provider, "provider");
-        checkNotNull(proxy, "providerProxy");
+        checkNotNull(proxy, "proxy");
 
         List<String> providerFieldNames = Lists.newArrayList();
         for (Class<?> cls = provider.getClass(); cls != null; cls = cls.getSuperclass()) {

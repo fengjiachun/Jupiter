@@ -59,7 +59,7 @@ public class GenericProxyFactory {
     private InvokeType invokeType = SYNC;
     private DispatchType dispatchType = ROUND;
     private int timeoutMillis;
-    private Map<String, Integer> methodsSpecialTimeoutMillis;
+    private Map<String, Long> methodsSpecialTimeoutMillis;
     private JListener listener;
     private List<ConsumerHook> hooks;
 
@@ -160,7 +160,7 @@ public class GenericProxyFactory {
     /**
      * Method special timeout milliseconds.
      */
-    public GenericProxyFactory methodSpecialTimeoutMillis(String methodName, int timeoutMillis) {
+    public GenericProxyFactory methodSpecialTimeoutMillis(String methodName, long timeoutMillis) {
         methodsSpecialTimeoutMillis.put(methodName, timeoutMillis);
         return this;
     }

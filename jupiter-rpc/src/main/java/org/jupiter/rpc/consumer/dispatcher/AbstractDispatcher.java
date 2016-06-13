@@ -41,8 +41,8 @@ public abstract class AbstractDispatcher implements Dispatcher {
 
     private ConsumerHook[] hooks;
     private JListener listener;
-    private int timeoutMillis = DEFAULT_TIMEOUT;
-    private Map<String, Integer> methodsSpecialTimeoutMillis = Maps.newHashMap();
+    private long timeoutMillis = DEFAULT_TIMEOUT;
+    private Map<String, Long> methodsSpecialTimeoutMillis = Maps.newHashMap();
 
     public AbstractDispatcher(ServiceMetadata metadata) {
         this.metadata = metadata;
@@ -71,18 +71,18 @@ public abstract class AbstractDispatcher implements Dispatcher {
     }
 
     @Override
-    public int getTimeoutMillis() {
+    public long getTimeoutMillis() {
         return timeoutMillis;
     }
 
     @Override
-    public void setTimeoutMillis(int timeoutMillis) {
+    public void setTimeoutMillis(long timeoutMillis) {
         this.timeoutMillis = timeoutMillis;
     }
 
     @Override
-    public int getMethodSpecialTimeoutMillis(String methodName) {
-        Integer methodSpecialTimeoutMillis = methodsSpecialTimeoutMillis.get(methodName);
+    public long getMethodSpecialTimeoutMillis(String methodName) {
+        Long methodSpecialTimeoutMillis = methodsSpecialTimeoutMillis.get(methodName);
         if (methodSpecialTimeoutMillis != null && methodSpecialTimeoutMillis > 0) {
             return methodSpecialTimeoutMillis;
         }
@@ -90,9 +90,9 @@ public abstract class AbstractDispatcher implements Dispatcher {
     }
 
     @Override
-    public void setMethodsSpecialTimeoutMillis(Map<String, Integer> methodsSpecialTimeoutMillis) {
+    public void setMethodsSpecialTimeoutMillis(Map<String, Long> methodsSpecialTimeoutMillis) {
         this.methodsSpecialTimeoutMillis.putAll(methodsSpecialTimeoutMillis);
     }
 
-    protected abstract InvokePromise<?> asPromise(JChannel channel, JRequest request, int timeoutMillis);
+    protected abstract InvokePromise<?> asPromise(JChannel channel, JRequest request, long timeoutMillis);
 }

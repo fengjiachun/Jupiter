@@ -88,7 +88,7 @@ public abstract class ConnectionWatchdog extends ChannelInboundHandlerAdapter im
             if (attempts < 12) {
                 attempts++;
             }
-            int timeout = 2 << attempts;
+            long timeout = 2 << attempts;
             timer.newTimeout(this, timeout, MILLISECONDS);
         }
 
