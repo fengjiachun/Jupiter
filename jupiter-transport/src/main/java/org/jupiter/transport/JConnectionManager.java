@@ -50,12 +50,12 @@ public class JConnectionManager {
     }
 
     public static void cancelReconnect(UnresolvedAddress address) {
-        CopyOnWriteArrayList<JConnection> list = connections.get(address);
+        CopyOnWriteArrayList<JConnection> list = connections.remove(address);
         if (list != null) {
             for (JConnection c : list) {
                 c.setReconnect(false);
             }
-            logger.info("Cancel reconnect to: {}.", address);
+            logger.warn("Cancel reconnect to: {}.", address);
         }
     }
 }

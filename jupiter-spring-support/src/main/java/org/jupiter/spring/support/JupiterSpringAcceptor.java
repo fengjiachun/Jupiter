@@ -89,9 +89,6 @@ public class JupiterSpringAcceptor implements InitializingBean {
         return registryServerAddresses;
     }
 
-    /**
-     * list of servers to connect to [host1:port1,host2:port2....]
-     */
     public void setRegistryServerAddresses(String registryServerAddresses) {
         this.registryServerAddresses = registryServerAddresses;
     }

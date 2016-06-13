@@ -19,8 +19,10 @@ package org.jupiter.rpc.channel;
 import org.jupiter.common.util.Maps;
 import org.jupiter.rpc.Directory;
 
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * jupiter
@@ -30,14 +32,15 @@ import java.util.concurrent.CopyOnWriteArrayList;
  */
 public class DirectoryJChannelGroup {
 
-    private final ConcurrentMap<String, CopyOnWriteArrayList<JChannelGroup>> groups = Maps.newConcurrentHashMap();
+    private static final ConcurrentMap<String, CopyOnWriteGroupList> groups = Maps.newConcurrentHashMap();
+    private static final GroupRefCounterMap groupRefCounter = new GroupRefCounterMap();
 
-    public CopyOnWriteArrayList<JChannelGroup> list(Directory directory) {
+    public static CopyOnWriteGroupList list(Directory directory) {
         String _directory = directory.directory();
 
-        CopyOnWriteArrayList<JChannelGroup> groupList = groups.get(_directory);
+        CopyOnWriteGroupList groupList = groups.get(_directory);
         if (groupList == null) {
-            CopyOnWriteArrayList<JChannelGroup> newGroupList = new CopyOnWriteArrayList<>();
+            CopyOnWriteGroupList newGroupList = new CopyOnWriteGroupList();
             groupList = groups.putIfAbsent(_directory, newGroupList);
             if (groupList == null) {
                 groupList = newGroupList;
@@ -45,5 +48,81 @@ public class DirectoryJChannelGroup {
         }
 
         return groupList;
+    }
+
+    public static CopyOnWriteGroupList remove(Directory directory) {
+        // 一台机器的所有服务全部下线才会走到这里, 并发问题(get与remove并不是原子操作)是可接受的
+        return groups.remove(directory.directory());
+    }
+
+    public static int getGroupRefCount(JChannelGroup group) {
+        AtomicInteger counter = groupRefCounter.get(group);
+        if (counter == null) {
+            return 0;
+        }
+        return counter.get();
+    }
+
+    public static int incrementRefCount(JChannelGroup group) {
+        return groupRefCounter.getOrCreate(group).incrementAndGet();
+    }
+
+    public static int decrementRefCount(JChannelGroup group) {
+        AtomicInteger counter = groupRefCounter.get(group);
+        if (counter == null) {
+            return 0;
+        }
+        int count = counter.decrementAndGet();
+        if (count == 0) {
+            // 一台机器的所有服务全部下线才会走到这里, 并发问题(get与remove并不是原子操作)是可接受的
+            groupRefCounter.remove(group);
+        }
+        return count;
+    }
+
+    public static class CopyOnWriteGroupList extends CopyOnWriteArrayList<JChannelGroup> {
+
+        private static final long serialVersionUID = -666607632499368496L;
+
+        @Override
+        public boolean addIfAbsent(JChannelGroup group) {
+            boolean added = super.addIfAbsent(group);
+            if (added) {
+                incrementRefCount(group);
+            }
+            return added;
+        }
+
+        @Override
+        public boolean remove(Object o) {
+            boolean removed = super.remove(o);
+            if (removed && o instanceof JChannelGroup) {
+                decrementRefCount((JChannelGroup) o);
+            }
+            return removed;
+        }
+
+        @Override
+        public boolean add(JChannelGroup group) {
+            throw new UnsupportedOperationException();
+        }
+    }
+
+    public static class GroupRefCounterMap extends ConcurrentHashMap<JChannelGroup, AtomicInteger> {
+
+        private static final long serialVersionUID = 6590976614405397299L;
+
+        public AtomicInteger getOrCreate(JChannelGroup key) {
+            AtomicInteger counter = super.get(key);
+            if (counter == null) {
+                AtomicInteger newCounter = new AtomicInteger(0);
+                counter = super.putIfAbsent(key, newCounter);
+                if (counter == null) {
+                    counter = newCounter;
+                }
+            }
+
+            return counter;
+        }
     }
 }

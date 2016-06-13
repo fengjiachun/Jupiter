@@ -37,6 +37,7 @@ import static org.jupiter.common.util.JConstants.UNKNOWN_APP_NAME;
 import static org.jupiter.common.util.Preconditions.checkNotNull;
 import static org.jupiter.registry.RegisterMeta.Address;
 import static org.jupiter.registry.RegisterMeta.ServiceMeta;
+import static org.jupiter.rpc.channel.DirectoryJChannelGroup.*;
 
 /**
  * jupiter
@@ -56,7 +57,6 @@ public abstract class AbstractJClient implements JClient {
     @SuppressWarnings("unchecked")
     private final LoadBalancer<JChannelGroup> loadBalancer = JServiceLoader.load(LoadBalancer.class);
 
-    private final DirectoryJChannelGroup directoryGroup = new DirectoryJChannelGroup();
     private final ConcurrentMap<UnresolvedAddress, JChannelGroup> addressGroups = Maps.newConcurrentHashMap();
 
     private final String appName;
@@ -110,22 +110,26 @@ public abstract class AbstractJClient implements JClient {
 
     @Override
     public boolean removeChannelGroup(Directory directory, JChannelGroup group) {
-        CopyOnWriteArrayList<JChannelGroup> groups = directory(directory);
+        CopyOnWriteGroupList groups = directory(directory);
         boolean removed = groups.remove(group);
         if (removed) {
             logger.warn("Removed channel group: {} in directory: {}.", group, directory.directory());
+
+            if (groups.isEmpty()) {
+                DirectoryJChannelGroup.remove(directory);
+            }
         }
         return removed;
     }
 
     @Override
-    public CopyOnWriteArrayList<JChannelGroup> directory(Directory directory) {
-        return directoryGroup.list(directory);
+    public CopyOnWriteGroupList directory(Directory directory) {
+        return DirectoryJChannelGroup.list(directory);
     }
 
     @Override
     public boolean isDirectoryAvailable(Directory directory) {
-        CopyOnWriteArrayList<JChannelGroup> groups = directory(directory);
+        CopyOnWriteGroupList groups = directory(directory);
         for (JChannelGroup g : groups) {
             if (g.isAvailable()) {
                 return true;
@@ -136,7 +140,7 @@ public abstract class AbstractJClient implements JClient {
 
     @Override
     public JChannel select(Directory directory) {
-        CopyOnWriteArrayList<JChannelGroup> groupList = directory(directory);
+        CopyOnWriteGroupList groupList = directory(directory);
         // snapshot of groupList
         Object[] elements = groupsUpdater.get(groupList);
         if (elements.length == 0) {

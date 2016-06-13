@@ -37,6 +37,7 @@ import org.jupiter.rpc.AbstractJClient;
 import org.jupiter.rpc.Directory;
 import org.jupiter.rpc.ServiceProvider;
 import org.jupiter.rpc.UnresolvedAddress;
+import org.jupiter.rpc.channel.DirectoryJChannelGroup;
 import org.jupiter.rpc.channel.JChannelGroup;
 import org.jupiter.rpc.model.metadata.ServiceMetadata;
 import org.jupiter.transport.*;
@@ -171,8 +172,7 @@ public abstract class NettyConnector extends AbstractJClient implements JConnect
                             }
                         } else if (event == CHILD_REMOVED) {
                             removeChannelGroup(directory, group);
-                            // TODO 这里有一个时间先后的问题, 连接状态还是active(即将inactive), 然后取消自动重连就失败了
-                            if (!group.isAvailable()) {
+                            if (DirectoryJChannelGroup.getGroupRefCount(group) <= 0) {
                                 JConnectionManager.cancelReconnect(address); // 取消自动重连
                             }
                         }
