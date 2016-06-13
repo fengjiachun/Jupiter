@@ -41,14 +41,14 @@
             <groupId>${project.groupId}</groupId>
             <artifactId>jupiter-registry-default</artifactId>
         </dependency>
-        <dependency>
-            <groupId>${project.groupId}</groupId>
-            <artifactId>jupiter-spring-support</artifactId>
-        </dependency>
         <!--<dependency>-->
             <!--<groupId>${project.groupId}</groupId>-->
             <!--<artifactId>jupiter-registry-zookeeper</artifactId>-->
         <!--</dependency>-->
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>jupiter-spring-support</artifactId>
+        </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>jupiter-monitor</artifactId>
