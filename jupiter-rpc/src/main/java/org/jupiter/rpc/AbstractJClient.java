@@ -140,14 +140,14 @@ public abstract class AbstractJClient implements JClient {
 
     @Override
     public JChannel select(Directory directory) {
-        CopyOnWriteGroupList groupList = directory(directory);
+        CopyOnWriteGroupList groups = directory(directory);
         // snapshot of groupList
-        Object[] elements = groupsUpdater.get(groupList);
+        Object[] elements = groupsUpdater.get(groups);
         if (elements.length == 0) {
             if (!awaitConnections(directory, 3000)) {
                 throw new IllegalStateException("no connections");
             }
-            elements = groupsUpdater.get(groupList);
+            elements = groupsUpdater.get(groups);
         }
 
         JChannelGroup group = loadBalancer.select(elements);
@@ -161,13 +161,17 @@ public abstract class AbstractJClient implements JClient {
         // group死期到(无可用channel), 时间超过预定限制
         long deadline = group.deadlineMillis();
         if (deadline > 0 && SystemClock.millisClock().now() > deadline) {
-            boolean removed = groupList.remove(group);
+            boolean removed = groups.remove(group);
+            if (removed) {
+                logger.warn("Removed channel group: {} in directory: {} on [select].", group, directory.directory());
 
-            logger.warn("Removed group: {} in directory: {}, {}.",
-                    group, directory.directory(), removed ? "succeed" : "failed");
+                if (groups.isEmpty()) {
+                    DirectoryJChannelGroup.remove(directory);
+                }
+            }
         }
 
-        for (JChannelGroup g : groupList) {
+        for (JChannelGroup g : groups) {
             if (g.isAvailable()) {
                 return g.next();
             }
