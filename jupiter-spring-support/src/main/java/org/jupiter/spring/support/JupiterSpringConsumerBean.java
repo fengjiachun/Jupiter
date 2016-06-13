@@ -63,7 +63,7 @@ public class JupiterSpringConsumerBean<T> implements FactoryBean<T>, Initializin
 
     @Override
     public boolean isSingleton() {
-        return false;
+        return true;
     }
 
     @Override
