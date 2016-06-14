@@ -20,6 +20,14 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.concurrent.locks.ReentrantLock;
 
+import static org.jupiter.common.util.Preconditions.checkNotNull;
+
+/**
+ * jupiter
+ * org.jupiter.rpc.channel
+ *
+ * @author jiachun.fjc
+ */
 @SuppressWarnings("all")
 public class CopyOnWriteGroupList {
 
@@ -155,6 +163,8 @@ public class CopyOnWriteGroupList {
     }
 
     public boolean addIfAbsent(JChannelGroup e) {
+        checkNotNull(e, "group");
+
         final ReentrantLock lock = this.lock;
         lock.lock();
         try {
