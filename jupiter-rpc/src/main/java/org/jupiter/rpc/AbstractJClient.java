@@ -30,14 +30,13 @@ import org.jupiter.rpc.load.balance.LoadBalancer;
 
 import java.util.Collection;
 import java.util.concurrent.ConcurrentMap;
-import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.atomic.AtomicReferenceFieldUpdater;
 
 import static org.jupiter.common.util.JConstants.UNKNOWN_APP_NAME;
 import static org.jupiter.common.util.Preconditions.checkNotNull;
 import static org.jupiter.registry.RegisterMeta.Address;
 import static org.jupiter.registry.RegisterMeta.ServiceMeta;
-import static org.jupiter.rpc.channel.DirectoryJChannelGroup.*;
+import static org.jupiter.rpc.channel.DirectoryJChannelGroup.CopyOnWriteGroupList;
 
 /**
  * jupiter
@@ -49,8 +48,8 @@ public abstract class AbstractJClient implements JClient {
 
     private static final InternalLogger logger = InternalLoggerFactory.getInstance(AbstractJClient.class);
 
-    private static final AtomicReferenceFieldUpdater<CopyOnWriteArrayList, Object[]> groupsUpdater
-            = AtomicUpdater.newAtomicReferenceFieldUpdater(CopyOnWriteArrayList.class, Object[].class, "array");
+    private static final AtomicReferenceFieldUpdater<CopyOnWriteGroupList, Object[]> groupsUpdater
+            = AtomicUpdater.newAtomicReferenceFieldUpdater(CopyOnWriteGroupList.class, Object[].class, "array");
 
     // SPI
     private final RegistryService registryService = JServiceLoader.load(RegistryService.class);
@@ -114,24 +113,20 @@ public abstract class AbstractJClient implements JClient {
         boolean removed = groups.remove(group);
         if (removed) {
             logger.warn("Removed channel group: {} in directory: {}.", group, directory.directory());
-
-            if (groups.isEmpty()) {
-                DirectoryJChannelGroup.remove(directory);
-            }
         }
         return removed;
     }
 
     @Override
     public CopyOnWriteGroupList directory(Directory directory) {
-        return DirectoryJChannelGroup.list(directory);
+        return DirectoryJChannelGroup.find(directory);
     }
 
     @Override
     public boolean isDirectoryAvailable(Directory directory) {
         CopyOnWriteGroupList groups = directory(directory);
-        for (JChannelGroup g : groups) {
-            if (g.isAvailable()) {
+        for (int i = 0; i < groups.size(); i++) {
+            if (groups.get(i).isAvailable()) {
                 return true;
             }
         }
@@ -164,14 +159,11 @@ public abstract class AbstractJClient implements JClient {
             boolean removed = groups.remove(group);
             if (removed) {
                 logger.warn("Removed channel group: {} in directory: {} on [select].", group, directory.directory());
-
-                if (groups.isEmpty()) {
-                    DirectoryJChannelGroup.remove(directory);
-                }
             }
         }
 
-        for (JChannelGroup g : groups) {
+        for (int i = 0; i < groups.size(); i++) {
+            JChannelGroup g = groups.get(i);
             if (g.isAvailable()) {
                 return g.next();
             }

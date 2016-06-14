@@ -24,7 +24,8 @@ import org.jupiter.rpc.channel.JChannel;
 import org.jupiter.rpc.channel.JChannelGroup;
 
 import java.util.Collection;
-import java.util.concurrent.CopyOnWriteArrayList;
+
+import static org.jupiter.rpc.channel.DirectoryJChannelGroup.CopyOnWriteGroupList;
 
 /**
  * jupiter
@@ -62,7 +63,7 @@ public interface JClient extends Registry {
     /**
      * Returns list of {@link JChannelGroup}s by the same {@link Directory}.
      */
-    CopyOnWriteArrayList<JChannelGroup> directory(Directory directory);
+    CopyOnWriteGroupList directory(Directory directory);
 
     /**
      * Returns {@code true} if has available {@link JChannelGroup}s

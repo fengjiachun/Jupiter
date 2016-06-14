@@ -16,13 +16,11 @@
 
 package org.jupiter.rpc.consumer.dispatcher;
 
-import org.jupiter.common.util.Function;
 import org.jupiter.common.util.Lists;
 import org.jupiter.common.util.internal.logging.InternalLogger;
 import org.jupiter.common.util.internal.logging.InternalLoggerFactory;
 import org.jupiter.rpc.*;
 import org.jupiter.rpc.channel.JChannel;
-import org.jupiter.rpc.channel.JChannelGroup;
 import org.jupiter.rpc.channel.JFutureListener;
 import org.jupiter.rpc.consumer.promise.DefaultInvokePromise;
 import org.jupiter.rpc.consumer.promise.InvokePromise;
@@ -34,6 +32,7 @@ import java.util.List;
 
 import static org.jupiter.rpc.DispatchType.BROADCAST;
 import static org.jupiter.rpc.Status.CLIENT_ERROR;
+import static org.jupiter.rpc.channel.DirectoryJChannelGroup.CopyOnWriteGroupList;
 import static org.jupiter.serialization.SerializerHolder.serializerImpl;
 
 /**
@@ -61,14 +60,11 @@ public class DefaultBroadcastDispatcher extends AbstractDispatcher {
         message.setMethodName(methodName);
         message.setArgs(args);
 
-        List<JChannelGroup> groupList = client.directory(_metadata);
-        List<JChannel> channels = Lists.transform(groupList, new Function<JChannelGroup, JChannel>() {
-
-            @Override
-            public JChannel apply(JChannelGroup input) {
-                return input.next();
-            }
-        });
+        CopyOnWriteGroupList groups = client.directory(_metadata);
+        List<JChannel> channels = Lists.newArrayListWithCapacity(groups.size());
+        for (int i = 0; i < groups.size(); i++) {
+            channels.add(groups.get(i).next());
+        }
 
         final JRequest request = new JRequest();
         request.message(message);
