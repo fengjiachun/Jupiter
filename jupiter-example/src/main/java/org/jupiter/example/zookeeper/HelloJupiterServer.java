@@ -23,8 +23,8 @@ import org.jupiter.rpc.JRequest;
 import org.jupiter.rpc.flow.control.ControlResult;
 import org.jupiter.rpc.flow.control.FlowController;
 import org.jupiter.rpc.model.metadata.ServiceWrapper;
+import org.jupiter.transport.JAcceptor;
 import org.jupiter.transport.netty.JNettyTcpAcceptor;
-import org.jupiter.transport.netty.NettyAcceptor;
 
 import java.util.concurrent.atomic.AtomicLong;
 
@@ -49,12 +49,12 @@ public class HelloJupiterServer {
 
         SystemPropertyUtil.setProperty("jupiter.address", "127.0.0.1");
 
-        final NettyAcceptor server = new JNettyTcpAcceptor(18090);
+        final JAcceptor acceptor = new JNettyTcpAcceptor(18090);
         MonitorServer monitor = new MonitorServer();
         try {
             monitor.start();
 
-            ServiceWrapper provider = server.serviceRegistry()
+            ServiceWrapper provider = acceptor.serviceRegistry()
                     .provider(new ServiceTestImpl())
                     .weight(60)
                     .connCount(1)
@@ -73,19 +73,19 @@ public class HelloJupiterServer {
                     .register();
 
 //            server.setFlowController(); // App级别限流器
-            server.connectToRegistryServer("127.0.0.1:2181,127.0.0.1:2182,127.0.0.1:2183");
-            server.publish(provider);
+            acceptor.connectToRegistryServer("127.0.0.1:2181,127.0.0.1:2182,127.0.0.1:2183");
+            acceptor.publish(provider);
 
             Runtime.getRuntime().addShutdownHook(new Thread() {
 
                 @Override
                 public void run() {
-                    server.unpublishAll();
-                    server.shutdownGracefully();
+                    acceptor.unpublishAll();
+                    acceptor.shutdownGracefully();
                 }
             });
 
-            server.start();
+            acceptor.start();
         } catch (InterruptedException e) {
             e.printStackTrace();
         }

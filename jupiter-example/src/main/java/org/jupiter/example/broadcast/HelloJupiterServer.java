@@ -17,8 +17,8 @@
 package org.jupiter.example.broadcast;
 
 import org.jupiter.example.ServiceTestImpl;
+import org.jupiter.transport.JAcceptor;
 import org.jupiter.transport.netty.JNettyTcpAcceptor;
-import org.jupiter.transport.netty.NettyAcceptor;
 
 import java.util.concurrent.CountDownLatch;
 
@@ -31,12 +31,12 @@ import java.util.concurrent.CountDownLatch;
 public class HelloJupiterServer {
 
     public static void main(String[] args) {
-        NettyAcceptor acceptor1 = new JNettyTcpAcceptor(18090);
-        NettyAcceptor acceptor2 = new JNettyTcpAcceptor(18091);
+        JAcceptor acceptor1 = new JNettyTcpAcceptor(18090);
+        JAcceptor acceptor2 = new JNettyTcpAcceptor(18091);
 
-        NettyAcceptor[] servers = { acceptor1, acceptor2 };
+        JAcceptor[] servers = { acceptor1, acceptor2 };
         final CountDownLatch latch = new CountDownLatch(servers.length);
-        for (final NettyAcceptor acceptor : servers) {
+        for (final JAcceptor acceptor : servers) {
             new Thread(new Runnable() {
                 @Override
                 public void run() {

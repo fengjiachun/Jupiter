@@ -17,13 +17,16 @@
 package org.jupiter.example.broadcast;
 
 import org.jupiter.example.ServiceTest;
-import org.jupiter.rpc.*;
+import org.jupiter.rpc.JListener;
+import org.jupiter.rpc.JRequest;
+import org.jupiter.rpc.UnresolvedAddress;
 import org.jupiter.rpc.consumer.ProxyFactory;
+import org.jupiter.transport.JConnection;
+import org.jupiter.transport.JConnector;
 import org.jupiter.transport.netty.JNettyTcpConnector;
-import org.jupiter.transport.netty.NettyConnector;
 
-import static org.jupiter.rpc.InvokeType.*;
-import static org.jupiter.rpc.DispatchType.*;
+import static org.jupiter.rpc.DispatchType.BROADCAST;
+import static org.jupiter.rpc.InvokeType.CALLBACK;
 
 /**
  * jupiter
@@ -34,7 +37,7 @@ import static org.jupiter.rpc.DispatchType.*;
 public class HelloJupiterClient {
 
     public static void main(String[] args) {
-        NettyConnector connector = new JNettyTcpConnector();
+        JConnector<JConnection> connector = new JNettyTcpConnector();
         UnresolvedAddress address1 = new UnresolvedAddress("127.0.0.1", 18090);
         UnresolvedAddress address2 = new UnresolvedAddress("127.0.0.1", 18091);
         UnresolvedAddress address3 = new UnresolvedAddress("127.0.0.1", 18090);

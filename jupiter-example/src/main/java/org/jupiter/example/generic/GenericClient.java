@@ -20,10 +20,10 @@ import org.jupiter.rpc.Directory;
 import org.jupiter.rpc.consumer.GenericProxyFactory;
 import org.jupiter.rpc.consumer.invoker.GenericInvoker;
 import org.jupiter.rpc.model.metadata.ServiceMetadata;
+import org.jupiter.transport.JConnection;
 import org.jupiter.transport.JConnector;
 import org.jupiter.transport.exception.ConnectFailedException;
 import org.jupiter.transport.netty.JNettyTcpConnector;
-import org.jupiter.transport.netty.NettyConnector;
 
 /**
  * jupiter
@@ -36,7 +36,7 @@ public class GenericClient {
     public static void main(String[] args) {
         Directory directory = new ServiceMetadata("test", "1.0.0.daily", "GenericServiceTest");
 
-        NettyConnector connector = new JNettyTcpConnector();
+        JConnector<JConnection> connector = new JNettyTcpConnector();
         // 连接RegistryServer
         connector.connectToRegistryServer("127.0.0.1:20001");
         // 自动管理可用连接

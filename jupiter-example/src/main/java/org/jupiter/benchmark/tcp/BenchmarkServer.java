@@ -18,9 +18,9 @@ package org.jupiter.benchmark.tcp;
 
 import org.jupiter.common.util.SystemPropertyUtil;
 import org.jupiter.monitor.MonitorServer;
+import org.jupiter.transport.JAcceptor;
 import org.jupiter.transport.JOption;
 import org.jupiter.transport.netty.JNettyTcpAcceptor;
-import org.jupiter.transport.netty.NettyAcceptor;
 
 /**
  * 飞行记录: -XX:+UnlockCommercialFeatures -XX:+FlightRecorder
@@ -43,18 +43,18 @@ public class BenchmarkServer {
         SystemPropertyUtil
                 .setProperty("jupiter.processor.executor.worker.queue.capacity", "65536");
 
-        NettyAcceptor server = new JNettyTcpAcceptor(18099);
-        server.configGroup().child().setOption(JOption.WRITE_BUFFER_HIGH_WATER_MARK, 256 * 1024);
-        server.configGroup().child().setOption(JOption.WRITE_BUFFER_LOW_WATER_MARK, 128 * 1024);
+        JAcceptor acceptor = new JNettyTcpAcceptor(18099);
+        acceptor.configGroup().child().setOption(JOption.WRITE_BUFFER_HIGH_WATER_MARK, 256 * 1024);
+        acceptor.configGroup().child().setOption(JOption.WRITE_BUFFER_LOW_WATER_MARK, 128 * 1024);
         MonitorServer monitor = new MonitorServer();
         try {
             monitor.start();
 
-            server.serviceRegistry()
+            acceptor.serviceRegistry()
                     .provider(new ServiceImpl())
                     .register();
 
-            server.start();
+            acceptor.start();
         } catch (InterruptedException e) {
             e.printStackTrace();
         }

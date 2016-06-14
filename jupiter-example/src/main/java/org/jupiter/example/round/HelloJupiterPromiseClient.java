@@ -20,14 +20,14 @@ import org.jupiter.example.ServiceTest;
 import org.jupiter.example.ServiceTest2;
 import org.jupiter.rpc.InvokeType;
 import org.jupiter.rpc.consumer.ProxyFactory;
+import org.jupiter.rpc.consumer.promise.DeferredVoidPromise;
 import org.jupiter.rpc.consumer.promise.InvokeDone;
 import org.jupiter.rpc.consumer.promise.InvokeDonePipe;
 import org.jupiter.rpc.consumer.promise.InvokeFail;
-import org.jupiter.rpc.consumer.promise.DeferredVoidPromise;
+import org.jupiter.transport.JConnection;
 import org.jupiter.transport.JConnector;
 import org.jupiter.transport.exception.ConnectFailedException;
 import org.jupiter.transport.netty.JNettyTcpConnector;
-import org.jupiter.transport.netty.NettyConnector;
 
 /**
  * 1.启动 HelloJupiterRegistryServer
@@ -42,7 +42,7 @@ import org.jupiter.transport.netty.NettyConnector;
 public class HelloJupiterPromiseClient {
 
     public static void main(String[] args) {
-        NettyConnector connector = new JNettyTcpConnector();
+        JConnector<JConnection> connector = new JNettyTcpConnector();
         // 连接RegistryServer
         connector.connectToRegistryServer("127.0.0.1:20001");
         // 自动管理可用连接

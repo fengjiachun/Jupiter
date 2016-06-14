@@ -22,8 +22,8 @@ import org.jupiter.rpc.JRequest;
 import org.jupiter.rpc.flow.control.ControlResult;
 import org.jupiter.rpc.flow.control.FlowController;
 import org.jupiter.rpc.model.metadata.ServiceWrapper;
+import org.jupiter.transport.JAcceptor;
 import org.jupiter.transport.netty.JNettyTcpAcceptor;
-import org.jupiter.transport.netty.NettyAcceptor;
 
 import java.util.concurrent.atomic.AtomicLong;
 
@@ -36,12 +36,12 @@ import java.util.concurrent.atomic.AtomicLong;
 public class GenericServer {
 
     public static void main(String[] args) {
-        NettyAcceptor server = new JNettyTcpAcceptor(18090);
+        JAcceptor acceptor = new JNettyTcpAcceptor(18090);
         MonitorServer monitor = new MonitorServer();
         try {
             monitor.start();
 
-            ServiceWrapper provider = server.serviceRegistry()
+            ServiceWrapper provider = acceptor.serviceRegistry()
                     .provider(new GenericServiceTestImpl())
                     .flowController(new FlowController<JRequest>() { // provider级别限流器, 可不设置
 
@@ -58,9 +58,9 @@ public class GenericServer {
                     .register();
 
 //            server.setGlobalFlowController(); // 全局限流器
-            server.connectToRegistryServer("127.0.0.1:20001");
-            server.publish(provider);
-            server.start();
+            acceptor.connectToRegistryServer("127.0.0.1:20001");
+            acceptor.publish(provider);
+            acceptor.start();
         } catch (InterruptedException e) {
             e.printStackTrace();
         }

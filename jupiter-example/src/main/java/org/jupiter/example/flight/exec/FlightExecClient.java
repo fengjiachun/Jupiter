@@ -24,10 +24,10 @@ import org.jupiter.flight.exec.JavaCompiler;
 import org.jupiter.rpc.JListener;
 import org.jupiter.rpc.JRequest;
 import org.jupiter.rpc.consumer.ProxyFactory;
+import org.jupiter.transport.JConnection;
 import org.jupiter.transport.JConnector;
 import org.jupiter.transport.exception.ConnectFailedException;
 import org.jupiter.transport.netty.JNettyTcpConnector;
-import org.jupiter.transport.netty.NettyConnector;
 
 import static org.jupiter.rpc.DispatchType.BROADCAST;
 import static org.jupiter.rpc.InvokeType.CALLBACK;
@@ -43,7 +43,7 @@ import static org.jupiter.rpc.InvokeType.CALLBACK;
 public class FlightExecClient {
 
     public static void main(String[] args) {
-        NettyConnector connector = new JNettyTcpConnector();
+        JConnector<JConnection> connector = new JNettyTcpConnector();
         // 连接RegistryServer
         connector.connectToRegistryServer("127.0.0.1:20001");
         // 自动管理可用连接

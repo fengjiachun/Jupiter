@@ -25,9 +25,10 @@ import org.jupiter.rpc.UnresolvedAddress;
 import org.jupiter.rpc.consumer.ProxyFactory;
 import org.jupiter.rpc.consumer.promise.InvokePromiseContext;
 import org.jupiter.rpc.consumer.promise.JPromise;
+import org.jupiter.transport.JConnection;
+import org.jupiter.transport.JConnector;
 import org.jupiter.transport.JOption;
 import org.jupiter.transport.netty.JNettyTcpConnector;
-import org.jupiter.transport.netty.NettyConnector;
 
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
@@ -69,7 +70,7 @@ public class BenchmarkClient {
                 .setProperty("jupiter.processor.executor.core.num.workers", String.valueOf(processors));
         SystemPropertyUtil.setProperty("jupiter.tracing.needed", "false");
 
-        NettyConnector connector = new JNettyTcpConnector();
+        JConnector<JConnection> connector = new JNettyTcpConnector();
         connector.config().setOption(JOption.WRITE_BUFFER_HIGH_WATER_MARK, 256 * 1024);
         connector.config().setOption(JOption.WRITE_BUFFER_LOW_WATER_MARK, 128 * 1024);
         UnresolvedAddress[] addresses = new UnresolvedAddress[processors];
@@ -85,7 +86,7 @@ public class BenchmarkClient {
         }
     }
 
-    private static void syncCall(NettyConnector connector, UnresolvedAddress[] addresses, int processors) {
+    private static void syncCall(JConnector<JConnection> connector, UnresolvedAddress[] addresses, int processors) {
         final Service service = ProxyFactory.factory(Service.class)
                 .connector(connector)
                 .addProviderAddress(addresses)
@@ -134,7 +135,7 @@ public class BenchmarkClient {
         logger.warn("Request count: " + count.get() + ", time: " + second + " second, qps: " + count.get() / second);
     }
 
-    private static void futureCall(NettyConnector connector, UnresolvedAddress[] addresses, int processors) {
+    private static void futureCall(JConnector<JConnection> connector, UnresolvedAddress[] addresses, int processors) {
         final Service service = ProxyFactory.factory(Service.class)
                 .connector(connector)
                 .invokeType(InvokeType.PROMISE)

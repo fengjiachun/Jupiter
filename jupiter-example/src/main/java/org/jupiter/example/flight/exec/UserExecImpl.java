@@ -18,7 +18,7 @@ package org.jupiter.example.flight.exec;
 
 import org.jupiter.common.util.Reflects;
 import org.jupiter.flight.exec.UserExecInterface;
-import org.jupiter.transport.netty.NettyAcceptor;
+import org.jupiter.transport.JAcceptor;
 
 /**
  * jupiter
@@ -32,10 +32,10 @@ public class UserExecImpl implements UserExecInterface {
     public Object exec() {
         // System.out输出会返回客户端, 因为服务端执行前将该类的常量池修改了
         System.out.println("get server instance...");
-        NettyAcceptor[] servers = (NettyAcceptor[]) Reflects.getStaticValue(FlightExecServer.class, "servers");
+        JAcceptor[] servers = (JAcceptor[]) Reflects.getStaticValue(FlightExecServer.class, "servers");
         System.out.println("server count=" + servers.length);
 
-        for (NettyAcceptor s : servers) {
+        for (JAcceptor s : servers) {
             System.out.println(s.localAddress() + " -----------------------");
             System.out.println(s.getRegisteredServices());
             System.out.println();

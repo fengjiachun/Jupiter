@@ -18,8 +18,8 @@ package org.jupiter.example.flight.exec;
 
 import org.jupiter.flight.exec.JavaClassExecProvider;
 import org.jupiter.rpc.model.metadata.ServiceWrapper;
+import org.jupiter.transport.JAcceptor;
 import org.jupiter.transport.netty.JNettyTcpAcceptor;
-import org.jupiter.transport.netty.NettyAcceptor;
 
 import java.util.concurrent.CountDownLatch;
 
@@ -33,11 +33,11 @@ import java.util.concurrent.CountDownLatch;
  */
 public class FlightExecServer {
 
-    private static NettyAcceptor[] servers = { new JNettyTcpAcceptor(18090), new JNettyTcpAcceptor(18091) };
+    private static JAcceptor[] servers = { new JNettyTcpAcceptor(18090), new JNettyTcpAcceptor(18091) };
 
     public static void main(String[] args) {
         final CountDownLatch latch = new CountDownLatch(servers.length);
-        for (final NettyAcceptor acceptor : servers) {
+        for (final JAcceptor acceptor : servers) {
             new Thread(new Runnable() {
 
                 @Override

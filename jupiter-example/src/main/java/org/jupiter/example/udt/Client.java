@@ -19,7 +19,8 @@ package org.jupiter.example.udt;
 import org.jupiter.example.ServiceTest;
 import org.jupiter.rpc.UnresolvedAddress;
 import org.jupiter.rpc.consumer.ProxyFactory;
-import org.jupiter.transport.netty.NettyUdtConnector;
+import org.jupiter.transport.JConnection;
+import org.jupiter.transport.JConnector;
 import org.jupiter.transport.netty.JNettyUdtConnector;
 
 /**
@@ -31,7 +32,7 @@ import org.jupiter.transport.netty.JNettyUdtConnector;
 public class Client {
 
     public static void main(String[] args) {
-        NettyUdtConnector connector = new JNettyUdtConnector();
+        JConnector<JConnection> connector = new JNettyUdtConnector();
         UnresolvedAddress address = new UnresolvedAddress("127.0.0.1", 18090);
         connector.connect(address);
 
