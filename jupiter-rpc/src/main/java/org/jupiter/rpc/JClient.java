@@ -20,12 +20,11 @@ import org.jupiter.registry.NotifyListener;
 import org.jupiter.registry.OfflineListener;
 import org.jupiter.registry.RegisterMeta;
 import org.jupiter.registry.Registry;
+import org.jupiter.rpc.channel.CopyOnWriteGroupList;
 import org.jupiter.rpc.channel.JChannel;
 import org.jupiter.rpc.channel.JChannelGroup;
 
 import java.util.Collection;
-
-import static org.jupiter.rpc.channel.DirectoryJChannelGroup.CopyOnWriteGroupList;
 
 /**
  * jupiter

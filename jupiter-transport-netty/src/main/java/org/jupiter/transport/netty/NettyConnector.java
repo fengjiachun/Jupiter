@@ -172,7 +172,7 @@ public abstract class NettyConnector extends AbstractJClient implements JConnect
                             }
                         } else if (event == CHILD_REMOVED) {
                             removeChannelGroup(directory, group);
-                            if (DirectoryJChannelGroup.getGroupRefCount(group) <= 0) {
+                            if (directoryGroup.getRefCount(group) <= 0) {
                                 JConnectionManager.cancelReconnect(address); // 取消自动重连
                             }
                         }

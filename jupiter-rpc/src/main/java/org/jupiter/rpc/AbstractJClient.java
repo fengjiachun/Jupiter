@@ -23,6 +23,7 @@ import org.jupiter.common.util.SystemClock;
 import org.jupiter.common.util.internal.logging.InternalLogger;
 import org.jupiter.common.util.internal.logging.InternalLoggerFactory;
 import org.jupiter.registry.*;
+import org.jupiter.rpc.channel.CopyOnWriteGroupList;
 import org.jupiter.rpc.channel.DirectoryJChannelGroup;
 import org.jupiter.rpc.channel.JChannel;
 import org.jupiter.rpc.channel.JChannelGroup;
@@ -36,7 +37,6 @@ import static org.jupiter.common.util.JConstants.UNKNOWN_APP_NAME;
 import static org.jupiter.common.util.Preconditions.checkNotNull;
 import static org.jupiter.registry.RegisterMeta.Address;
 import static org.jupiter.registry.RegisterMeta.ServiceMeta;
-import static org.jupiter.rpc.channel.DirectoryJChannelGroup.CopyOnWriteGroupList;
 
 /**
  * jupiter
@@ -59,6 +59,8 @@ public abstract class AbstractJClient implements JClient {
     private final ConcurrentMap<UnresolvedAddress, JChannelGroup> addressGroups = Maps.newConcurrentHashMap();
 
     private final String appName;
+
+    protected final DirectoryJChannelGroup directoryGroup = new DirectoryJChannelGroup();
 
     public AbstractJClient() {
         this(UNKNOWN_APP_NAME);
@@ -119,7 +121,7 @@ public abstract class AbstractJClient implements JClient {
 
     @Override
     public CopyOnWriteGroupList directory(Directory directory) {
-        return DirectoryJChannelGroup.find(directory);
+        return directoryGroup.find(directory);
     }
 
     @Override

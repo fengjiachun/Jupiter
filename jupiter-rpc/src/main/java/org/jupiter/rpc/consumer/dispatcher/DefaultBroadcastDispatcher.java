@@ -20,6 +20,7 @@ import org.jupiter.common.util.Lists;
 import org.jupiter.common.util.internal.logging.InternalLogger;
 import org.jupiter.common.util.internal.logging.InternalLoggerFactory;
 import org.jupiter.rpc.*;
+import org.jupiter.rpc.channel.CopyOnWriteGroupList;
 import org.jupiter.rpc.channel.JChannel;
 import org.jupiter.rpc.channel.JFutureListener;
 import org.jupiter.rpc.consumer.promise.DefaultInvokePromise;
@@ -32,7 +33,6 @@ import java.util.List;
 
 import static org.jupiter.rpc.DispatchType.BROADCAST;
 import static org.jupiter.rpc.Status.CLIENT_ERROR;
-import static org.jupiter.rpc.channel.DirectoryJChannelGroup.CopyOnWriteGroupList;
 import static org.jupiter.serialization.SerializerHolder.serializerImpl;
 
 /**
