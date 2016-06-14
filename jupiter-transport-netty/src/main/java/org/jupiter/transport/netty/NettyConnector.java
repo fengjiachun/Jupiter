@@ -37,7 +37,6 @@ import org.jupiter.rpc.AbstractJClient;
 import org.jupiter.rpc.Directory;
 import org.jupiter.rpc.ServiceProvider;
 import org.jupiter.rpc.UnresolvedAddress;
-import org.jupiter.rpc.channel.DirectoryJChannelGroup;
 import org.jupiter.rpc.channel.JChannelGroup;
 import org.jupiter.rpc.model.metadata.ServiceMetadata;
 import org.jupiter.transport.*;
@@ -52,7 +51,8 @@ import java.util.concurrent.locks.ReentrantLock;
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
 import static org.jupiter.common.util.JConstants.AVAILABLE_PROCESSORS;
 import static org.jupiter.common.util.Preconditions.checkNotNull;
-import static org.jupiter.registry.NotifyListener.NotifyEvent.*;
+import static org.jupiter.registry.NotifyListener.NotifyEvent.CHILD_ADDED;
+import static org.jupiter.registry.NotifyListener.NotifyEvent.CHILD_REMOVED;
 
 /**
  * jupiter

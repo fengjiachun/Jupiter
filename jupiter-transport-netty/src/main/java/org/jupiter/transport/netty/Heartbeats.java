@@ -40,7 +40,7 @@ public class Heartbeats {
         buf.writeByte(0);
         buf.writeLong(0);
         buf.writeInt(0);
-        HEARTBEAT_BUF = Unpooled.unmodifiableBuffer(Unpooled.unreleasableBuffer(buf));
+        HEARTBEAT_BUF = Unpooled.unreleasableBuffer(buf).asReadOnly();
     }
 
     /**
