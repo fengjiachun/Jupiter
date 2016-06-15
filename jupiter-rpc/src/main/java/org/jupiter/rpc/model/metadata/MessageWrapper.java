@@ -37,7 +37,7 @@ public class MessageWrapper implements Serializable {
     private final ServiceMetadata metadata; // metadata
     private String methodName;              // 方法名称
     private Object[] args;                  // 目标方法参数
-    private TraceId traceId;                // TraceId
+    private TraceId traceId;                // trace id
 
     public MessageWrapper(ServiceMetadata metadata) {
         this.metadata = metadata;

@@ -26,7 +26,7 @@ import static org.jupiter.common.util.Preconditions.checkNotNull;
  * 相同服务, 不同服务节点的channel group容器,
  * 线程安全(写时复制), 实现原理类似 {@link java.util.concurrent.CopyOnWriteArrayList}
  *
- * update操作仅支持addIfAbsent/remove, update操作会同事更新对应服务节点(group)的引用计数.
+ * update操作仅支持addIfAbsent/remove, update操作会同时更新对应服务节点(group)的引用计数.
  *
  * jupiter
  * org.jupiter.rpc.channel
