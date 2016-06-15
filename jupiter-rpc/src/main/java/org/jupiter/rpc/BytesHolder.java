@@ -17,6 +17,8 @@
 package org.jupiter.rpc;
 
 /**
+ * 用于消息体字节数组的暂存, 为了避免在IO线程中序列化/反序列化.
+ *
  * jupiter
  * org.jupiter.rpc
  *

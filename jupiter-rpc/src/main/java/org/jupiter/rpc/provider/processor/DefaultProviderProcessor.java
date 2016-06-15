@@ -71,6 +71,7 @@ public class DefaultProviderProcessor extends AbstractProviderProcessor {
 
     @Override
     public ControlResult flowControl(JRequest request) {
+        // 全局流量控制
         FlowController<JRequest> controller = server.getGlobalFlowController();
         if (controller == null) {
             return ControlResult.ALLOWED;

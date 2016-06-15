@@ -34,6 +34,13 @@ import java.util.Map;
  */
 public interface Dispatcher {
 
+    /**
+     * Consumer消息派发, 不需要传入目标方法参数类型, 服务端会根据args具体类型按照JLS规则动态dispatch.
+     *
+     * @param client        connector
+     * @param methodName    目标方法名
+     * @param args          目标方法参数值
+     */
     InvokePromise<?> dispatch(JClient client, String methodName, Object[] args);
 
     ConsumerHook[] getHooks();

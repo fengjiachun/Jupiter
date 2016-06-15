@@ -31,7 +31,9 @@ import java.util.concurrent.atomic.AtomicInteger;
  */
 public class DirectoryJChannelGroup {
 
+    // key: 服务标识; value: 提供服务的节点列表(group list)
     private final ConcurrentMap<String, CopyOnWriteGroupList> groups = Maps.newConcurrentHashMap();
+    // 对应服务节点(group)的引用计数
     private final GroupRefCounterMap groupRefCounter = new GroupRefCounterMap();
 
     public CopyOnWriteGroupList find(Directory directory) {
@@ -47,6 +49,9 @@ public class DirectoryJChannelGroup {
         return groupList;
     }
 
+    /**
+     * 获取指定group的引用计数
+     */
     public int getRefCount(JChannelGroup group) {
         AtomicInteger counter = groupRefCounter.get(group);
         if (counter == null) {
@@ -55,10 +60,16 @@ public class DirectoryJChannelGroup {
         return counter.get();
     }
 
+    /**
+     * 指定group的引用计数 +1
+     */
     public int incrementRefCount(JChannelGroup group) {
         return groupRefCounter.getOrCreate(group).incrementAndGet();
     }
 
+    /**
+     * 指定group的引用计数 -1, 如果引用计数为 0 则remove
+     */
     public int decrementRefCount(JChannelGroup group) {
         AtomicInteger counter = groupRefCounter.get(group);
         if (counter == null) {

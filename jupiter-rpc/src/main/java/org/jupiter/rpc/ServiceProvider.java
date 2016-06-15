@@ -27,6 +27,8 @@ import static org.jupiter.common.util.JConstants.DEFAULT_VERSION;
 /**
  * Provider interface annotation.
  *
+ * 强制: 每个服务接口必须通过此注解来指定服务信息
+ *
  * jupiter
  * org.jupiter.rpc
  *
@@ -36,9 +38,18 @@ import static org.jupiter.common.util.JConstants.DEFAULT_VERSION;
 @Retention(RetentionPolicy.RUNTIME)
 public @interface ServiceProvider {
 
+    /**
+     * 服务名
+     */
     String value() default "";
 
+    /**
+     * 服务组别
+     */
     String group() default DEFAULT_GROUP;
 
+    /**
+     * 服务版本号
+     */
     String version() default DEFAULT_VERSION;
 }

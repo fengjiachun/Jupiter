@@ -34,9 +34,9 @@ public class ServiceMetadata extends Directory implements Serializable {
 
     private static final long serialVersionUID = -8908295634641380163L;
 
-    private String group;
-    private String version;
-    private String serviceProviderName;
+    private String group;               // 组别
+    private String version;             // 版本号
+    private String serviceProviderName; // 服务名称
 
     public ServiceMetadata() {}
 

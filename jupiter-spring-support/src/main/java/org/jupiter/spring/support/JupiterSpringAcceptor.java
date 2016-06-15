@@ -26,6 +26,8 @@ import org.jupiter.transport.JAcceptor;
 import org.springframework.beans.factory.InitializingBean;
 
 /**
+ * 服务端 acceptor wrapper, 负责初始化并启动acceptor.
+ *
  * jupiter
  * org.jupiter.spring.support
  *
@@ -33,12 +35,11 @@ import org.springframework.beans.factory.InitializingBean;
  */
 public class JupiterSpringAcceptor implements InitializingBean {
 
-    private static final ProviderInterceptor[] EMPTY_INTERCEPTORS = new ProviderInterceptor[0];
-
     private JAcceptor acceptor;
-    private String registryServerAddresses;
-    private ProviderInterceptor[] providerInterceptors = EMPTY_INTERCEPTORS;
-    private FlowController<JRequest> flowController;
+
+    private String registryServerAddresses;             // 注册中心地址   [host1:port1,host2:port2....]
+    private ProviderInterceptor[] providerInterceptors; // 全局拦截器
+    private FlowController<JRequest> flowController;    // 全局流量控制
 
     @Override
     public void afterPropertiesSet() throws Exception {
@@ -52,7 +53,7 @@ public class JupiterSpringAcceptor implements InitializingBean {
         }
 
         // 全局拦截器
-        if (providerInterceptors.length > 0) {
+        if (providerInterceptors != null && providerInterceptors.length > 0) {
             acceptor.setGlobalProviderProxyHandler(new ProviderProxyHandler().withIntercept(providerInterceptors));
         }
 

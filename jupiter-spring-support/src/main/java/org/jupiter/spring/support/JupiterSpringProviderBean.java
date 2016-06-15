@@ -43,19 +43,17 @@ public class JupiterSpringProviderBean implements InitializingBean, ApplicationC
 
     private static final InternalLogger logger = InternalLoggerFactory.getInstance(JupiterSpringProviderBean.class);
 
-    private static final ProviderInterceptor[] EMPTY_INTERCEPTORS = new ProviderInterceptor[0];
-
-    private ServiceWrapper serviceWrapper;
+    private ServiceWrapper serviceWrapper;                      // 服务元信息
 
     private JupiterSpringAcceptor acceptor;
-    private Object providerImpl;
-    private ProviderInterceptor[] providerInterceptors = EMPTY_INTERCEPTORS;
-    private int weight;
-    private int connCount;
-    private Executor executor;
-    private FlowController<JRequest> flowController;
-    private JServer.ProviderInitializer<?> providerInitializer;
-    private Executor providerInitializerExecutor;
+    private Object providerImpl;                                // 服务对象
+    private ProviderInterceptor[] providerInterceptors;         // 私有拦截器
+    private int weight;                                         // 权重
+    private int connCount;                                      // 建议客户端维持的长连接数量
+    private Executor executor;                                  // 该服务私有的线程池
+    private FlowController<JRequest> flowController;            // 该服务私有的流量控制器
+    private JServer.ProviderInitializer<?> providerInitializer; // 服务延迟初始化
+    private Executor providerInitializerExecutor;               // 服务私有的延迟初始化线程池, 如果未指定则使用全局线程池
 
     @Override
     public void afterPropertiesSet() throws Exception {
@@ -74,8 +72,7 @@ public class JupiterSpringProviderBean implements InitializingBean, ApplicationC
 
         JServer.ServiceRegistry registry = acceptor.getAcceptor().serviceRegistry();
 
-        // Provider粒度拦截器
-        if (providerInterceptors.length > 0) {
+        if (providerInterceptors != null && providerInterceptors.length > 0) {
             registry.provider(
                     new ProviderProxyHandler().withIntercept(providerInterceptors),
                     providerImpl);
@@ -84,10 +81,10 @@ public class JupiterSpringProviderBean implements InitializingBean, ApplicationC
         }
 
         serviceWrapper = registry
-                .weight(weight)                     // 权重 (大于0有效)
-                .connCount(connCount)               // 维持长连接数量 (大于0有效)
-                .executor(executor)                 // 私有线程池
-                .flowController(flowController)     // Provider粒度流控
+                .weight(weight)
+                .connCount(connCount)
+                .executor(executor)
+                .flowController(flowController)
                 .register();
     }
 

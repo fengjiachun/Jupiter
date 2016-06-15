@@ -23,7 +23,7 @@ package org.jupiter.rpc;
  * @author jiachun.fjc
  */
 public enum InvokeType {
-    SYNC,
-    PROMISE,
-    CALLBACK // 异步回调的方式
+    SYNC,       // 同步调用
+    PROMISE,    // 异步链式调用
+    CALLBACK    // 异步回调的方式
 }

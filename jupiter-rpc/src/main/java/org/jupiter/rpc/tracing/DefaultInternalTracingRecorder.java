@@ -23,6 +23,8 @@ import org.jupiter.common.util.internal.logging.InternalLoggerFactory;
 import static java.util.concurrent.TimeUnit.NANOSECONDS;
 
 /**
+ * 默认记录tracing信息的方式是日志
+ *
  * jupiter
  * org.jupiter.rpc.tracing
  *

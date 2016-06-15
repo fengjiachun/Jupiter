@@ -31,6 +31,8 @@ import java.lang.reflect.Method;
  * Asynchronous call, {@link PromiseInvoker#invoke(Method, Object[])}
  * returns a default value of the corresponding method.
  *
+ * 异步链式调用
+ *
  * jupiter
  * org.jupiter.rpc.consumer.invoker
  *

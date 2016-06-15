@@ -59,6 +59,14 @@ public class NettyChannelGroup implements JChannelGroup {
     private static final AtomicIntegerFieldUpdater<NettyChannelGroup> indexUpdater =
             AtomicUpdater.newAtomicIntegerFieldUpdater(NettyChannelGroup.class, "index");
 
+    private static final ThreadLocal<SimpleDateFormat> dateFormatThreadLocal = new ThreadLocal<SimpleDateFormat>() {
+
+        @Override
+        protected SimpleDateFormat initialValue() {
+            return new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSSZ");
+        }
+    };
+
     private final CopyOnWriteArrayList<NettyChannel> channels = new CopyOnWriteArrayList<>();
 
     // 连接断开时自动被移除
@@ -260,13 +268,13 @@ public class NettyChannelGroup implements JChannelGroup {
 
     @Override
     public String toString() {
-        SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSSZ");
+        SimpleDateFormat dateFormat = dateFormatThreadLocal.get();
 
         return "NettyChannelGroup{" +
                 "channels=" + channels +
                 ", weight=" + weight +
                 ", warmUp=" + warmUp +
-                ", time=" + formatter.format(new Date(timestamp)) +
+                ", time=" + dateFormat.format(new Date(timestamp)) +
                 ", address=" + address +
                 '}';
     }

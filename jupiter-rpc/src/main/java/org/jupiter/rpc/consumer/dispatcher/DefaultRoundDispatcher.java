@@ -38,7 +38,7 @@ import static org.jupiter.rpc.tracing.TracingRecorder.Role.CONSUMER;
 import static org.jupiter.serialization.SerializerHolder.serializerImpl;
 
 /**
- * 单播方式派发消息
+ * 单播方式派发消息, 仅支持异步回调, 不支持同步调用.
  *
  * jupiter
  * org.jupiter.rpc.consumer.dispatcher
@@ -62,6 +62,7 @@ public class DefaultRoundDispatcher extends AbstractDispatcher {
         message.setMethodName(methodName);
         message.setArgs(args);
 
+        // 通过软负载选择一个channel
         JChannel channel = client.select(_metadata);
         final JRequest request = new JRequest();
 
@@ -78,6 +79,7 @@ public class DefaultRoundDispatcher extends AbstractDispatcher {
         }
 
         request.message(message);
+        // 在业务线程中序列化, 减轻IO线程负担
         request.bytes(serializerImpl().writeObject(message));
 
         long timeoutMillis = getMethodSpecialTimeoutMillis(methodName);
@@ -90,8 +92,9 @@ public class DefaultRoundDispatcher extends AbstractDispatcher {
 
             @Override
             public void operationSuccess(JChannel channel) throws Exception {
-                promise.chalkUpSentTimestamp();
+                promise.chalkUpSentTimestamp(); // 记录发送时间戳
 
+                // hook.before()
                 if (_hooks != null) {
                     for (ConsumerHook h : _hooks) {
                         h.before(request, channel);

@@ -42,6 +42,8 @@ import static org.jupiter.rpc.InvokeType.SYNC;
 /**
  * Proxy factory
  *
+ * Consumer对象代理工厂
+ *
  * jupiter
  * org.jupiter.rpc.consumer
  *
@@ -49,16 +51,16 @@ import static org.jupiter.rpc.InvokeType.SYNC;
  */
 public class ProxyFactory<I> {
 
-    private final Class<I> interfaceClass;
+    private final Class<I> interfaceClass;                      // 接口类型
 
-    private JClient client;
-    private List<UnresolvedAddress> addresses;
-    private InvokeType invokeType = SYNC;
-    private DispatchType dispatchType = ROUND;
-    private long timeoutMillis;
-    private Map<String, Long> methodsSpecialTimeoutMillis;
-    private JListener listener;
-    private List<ConsumerHook> hooks;
+    private JClient client;                                     // connector
+    private List<UnresolvedAddress> addresses;                  // provider地址
+    private InvokeType invokeType = SYNC;                       // 调用方式 [同步; 异步promise; 异步callback]
+    private DispatchType dispatchType = ROUND;                  // 派发方式 [单播; 组播]
+    private long timeoutMillis;                                 // 调用超时时间设置
+    private Map<String, Long> methodsSpecialTimeoutMillis;      // 指定方法单独设置的超时时间, 方法名为key, 方法参数类型不做区别对待
+    private JListener listener;                                 // 回调函数
+    private List<ConsumerHook> hooks;                           // consumer hook
 
     public static <I> ProxyFactory<I> factory(Class<I> interfaceClass) {
         ProxyFactory<I> factory = new ProxyFactory<>(interfaceClass);
@@ -158,11 +160,14 @@ public class ProxyFactory<I> {
         // check arguments
         checkNotNull(client, "connector");
         checkNotNull(interfaceClass, "interfaceClass");
+
         if (dispatchType == BROADCAST && invokeType != CALLBACK) {
             throw new UnsupportedOperationException("illegal type, BROADCAST only support CALLBACK");
         }
         ServiceProvider annotation = interfaceClass.getAnnotation(ServiceProvider.class);
+
         checkNotNull(annotation, interfaceClass + " is not a ServiceProvider interface");
+
         String providerName = annotation.value();
         providerName = Strings.isNotBlank(providerName) ? providerName : interfaceClass.getSimpleName();
 

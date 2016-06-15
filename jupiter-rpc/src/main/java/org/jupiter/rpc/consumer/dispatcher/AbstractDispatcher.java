@@ -37,11 +37,12 @@ import static org.jupiter.common.util.JConstants.DEFAULT_TIMEOUT;
  */
 public abstract class AbstractDispatcher implements Dispatcher {
 
-    protected final ServiceMetadata metadata;
+    protected final ServiceMetadata metadata;       // 目标服务元信息
 
-    private ConsumerHook[] hooks;
-    private JListener listener;
-    private long timeoutMillis = DEFAULT_TIMEOUT;
+    private ConsumerHook[] hooks;                   // consumer hook
+    private JListener listener;                     // 回调函数
+    private long timeoutMillis = DEFAULT_TIMEOUT;   // 调用超时时间设置
+    // 针对指定方法单独设置的超时时间, 方法名为key, 方法参数类型不做区别对待
     private Map<String, Long> methodsSpecialTimeoutMillis = Maps.newHashMap();
 
     public AbstractDispatcher(ServiceMetadata metadata) {

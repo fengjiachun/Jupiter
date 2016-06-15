@@ -33,16 +33,11 @@ public class MessageWrapper implements Serializable {
 
     private static final long serialVersionUID = 1009813828866652852L;
 
-    // 应用名称
-    private String appName;
-    // metadata
-    private final ServiceMetadata metadata;
-    // 方法名称
-    private String methodName;
-    // 方法参数
-    private Object[] args;
-    // TraceId
-    private TraceId traceId;
+    private String appName;                 // 应用名称
+    private final ServiceMetadata metadata; // metadata
+    private String methodName;              // 方法名称
+    private Object[] args;                  // 目标方法参数
+    private TraceId traceId;                // TraceId
 
     public MessageWrapper(ServiceMetadata metadata) {
         this.metadata = metadata;

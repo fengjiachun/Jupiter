@@ -23,6 +23,8 @@ import io.netty.channel.MessageSizeEstimator;
 import org.jupiter.rpc.BytesHolder;
 
 /**
+ * 消息size计算, 努力反应真实的IO水位线.
+ *
  * jupiter
  * org.jupiter.transport.netty.estimator
  *

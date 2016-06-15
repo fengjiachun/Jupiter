@@ -21,6 +21,8 @@ import org.jupiter.rpc.consumer.dispatcher.Dispatcher;
 import org.jupiter.rpc.consumer.promise.InvokePromise;
 
 /**
+ * 同步泛化调用
+ *
  * jupiter
  * org.jupiter.rpc.consumer.invoker
  *

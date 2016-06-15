@@ -20,6 +20,8 @@ import org.jupiter.rpc.JClient;
 import org.jupiter.rpc.consumer.dispatcher.Dispatcher;
 
 /**
+ * 异步泛化回调
+ *
  * jupiter
  * org.jupiter.rpc.consumer.invoker
  *

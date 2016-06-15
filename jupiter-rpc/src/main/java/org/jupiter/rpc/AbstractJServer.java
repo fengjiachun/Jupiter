@@ -55,13 +55,18 @@ public abstract class AbstractJServer implements JServer {
 
     private static final InternalLogger logger = InternalLoggerFactory.getInstance(AbstractJServer.class);
 
+    // 服务延迟初始化的默认线程池
     private final Executor defaultInitializerExecutor =
             Executors.newSingleThreadExecutor(new NamedThreadFactory("initializer"));
+
+    // provider本地容器
     private final ServiceProviderContainer providerContainer = new DefaultServiceProviderContainer();
-    // SPI
+    // 注册服务(SPI)
     private final RegistryService registryService = JServiceLoader.load(RegistryService.class);
 
+    // 全局拦截代理
     private volatile ProviderProxyHandler globalProviderProxyHandler;
+    // 全局流量控制
     private volatile FlowController<JRequest> globalFlowController;
 
     @Override
@@ -201,17 +206,19 @@ public abstract class AbstractJServer implements JServer {
             Executor executor,
             FlowController<JRequest> flowController) {
 
-        ServiceWrapper serviceWrapper = new ServiceWrapper(group, version, providerName, serviceProvider, methodsParameterTypes);
-        serviceWrapper.setWeight(weight);
-        serviceWrapper.setConnCount(connCount);
-        serviceWrapper.setExecutor(executor);
-        serviceWrapper.setFlowController(flowController);
+        ServiceWrapper wrapper = new ServiceWrapper(
+                group, version, providerName, serviceProvider, methodsParameterTypes);
+        wrapper.setWeight(weight);
+        wrapper.setConnCount(connCount);
+        wrapper.setExecutor(executor);
+        wrapper.setFlowController(flowController);
 
-        providerContainer.registerService(serviceWrapper.getMetadata().directory(), serviceWrapper);
+        providerContainer.registerService(wrapper.getMetadata().directory(), wrapper);
 
-        return serviceWrapper;
+        return wrapper;
     }
 
+    // 生成provider代理类
     private static <T> Class<? extends T> generateProviderProxyClass(ProviderProxyHandler proxyHandler, Class<T> providerCls) {
         checkNotNull(proxyHandler, "ProviderProxyHandler");
 
@@ -253,11 +260,11 @@ public abstract class AbstractJServer implements JServer {
 
     class DefaultServiceRegistry implements ServiceRegistry {
 
-        private Object serviceProvider;
-        private int weight;
-        private int connCount;
-        protected Executor executor;
-        protected FlowController<JRequest> flowController;
+        private Object serviceProvider;                     // 服务对象
+        private int weight;                                 // 权重
+        private int connCount;                              // 建议客户端维持的长连接数量
+        protected Executor executor;                        // 该服务私有的线程池
+        protected FlowController<JRequest> flowController;  // 该服务私有的流量控制器
 
         @Override
         public ServiceRegistry provider(Object serviceProvider) {
@@ -360,24 +367,40 @@ public abstract class AbstractJServer implements JServer {
                     weight,
                     connCount,
                     executor,
-                    flowController);
+                    flowController
+            );
         }
     }
 
     /**
      * Local service provider container.
+     *
+     * 本地provider容器
      */
     interface ServiceProviderContainer {
 
+        /**
+         * 注册服务(注意并不是发布服务到注册中心, 只是注册到本地容器)
+         */
         void registerService(String uniqueKey, ServiceWrapper serviceWrapper);
 
+        /**
+         * 本地容器查找服务
+         */
         ServiceWrapper lookupService(String uniqueKey);
 
+        /**
+         * 从本地容器移除服务
+         */
         ServiceWrapper removeService(String uniqueKey);
 
+        /**
+         * 获取本地容器中所有服务
+         */
         List<ServiceWrapper> getAllServices();
     }
 
+    // 本地provider容器默认实现
     class DefaultServiceProviderContainer implements ServiceProviderContainer {
 
         private final ConcurrentMap<String, ServiceWrapper> serviceProviders = Maps.newConcurrentHashMap();

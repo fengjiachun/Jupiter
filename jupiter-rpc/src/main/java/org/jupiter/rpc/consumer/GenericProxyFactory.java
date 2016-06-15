@@ -50,18 +50,18 @@ import static org.jupiter.rpc.InvokeType.SYNC;
  */
 public class GenericProxyFactory {
 
-    private String group;
-    private String version;
-    private String providerName;
+    private String group;                                       // 组别
+    private String version;                                     // 版本号
+    private String providerName;                                // provider名称
 
-    private JClient client;
-    private List<UnresolvedAddress> addresses;
-    private InvokeType invokeType = SYNC;
-    private DispatchType dispatchType = ROUND;
-    private int timeoutMillis;
-    private Map<String, Long> methodsSpecialTimeoutMillis;
-    private JListener listener;
-    private List<ConsumerHook> hooks;
+    private JClient client;                                     // connector
+    private List<UnresolvedAddress> addresses;                  // provider地址
+    private InvokeType invokeType = SYNC;                       // 调用方式 [同步; 异步promise; 异步callback]
+    private DispatchType dispatchType = ROUND;                  // 派发方式 [单播; 组播]
+    private long timeoutMillis;                                 // 调用超时时间设置
+    private Map<String, Long> methodsSpecialTimeoutMillis;      // 指定方法单独设置的超时时间, 方法名为key, 方法参数类型不做区别对待
+    private JListener listener;                                 // 回调函数
+    private List<ConsumerHook> hooks;                           // consumer hook
 
     public static GenericProxyFactory factory() {
         GenericProxyFactory factory = new GenericProxyFactory();
@@ -152,7 +152,7 @@ public class GenericProxyFactory {
     /**
      * Timeout milliseconds.
      */
-    public GenericProxyFactory timeoutMillis(int timeoutMillis) {
+    public GenericProxyFactory timeoutMillis(long timeoutMillis) {
         this.timeoutMillis = timeoutMillis;
         return this;
     }
@@ -190,6 +190,7 @@ public class GenericProxyFactory {
         checkNotNull(group, "group");
         checkNotNull(version, "version");
         checkNotNull(providerName, "providerName");
+
         if (dispatchType == BROADCAST && invokeType != CALLBACK) {
             throw new UnsupportedOperationException("illegal type, BROADCAST only support CALLBACK");
         }

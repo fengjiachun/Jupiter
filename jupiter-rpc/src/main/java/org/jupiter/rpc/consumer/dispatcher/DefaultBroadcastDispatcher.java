@@ -68,6 +68,7 @@ public class DefaultBroadcastDispatcher extends AbstractDispatcher {
 
         final JRequest request = new JRequest();
         request.message(message);
+        // 在业务线程中序列化, 减轻IO线程负担
         request.bytes(serializerImpl().writeObject(message));
 
         long timeoutMillis = getMethodSpecialTimeoutMillis(methodName);
@@ -82,8 +83,9 @@ public class DefaultBroadcastDispatcher extends AbstractDispatcher {
 
                 @Override
                 public void operationSuccess(JChannel channel) throws Exception {
-                    promise.chalkUpSentTimestamp();
+                    promise.chalkUpSentTimestamp(); // 记录发送时间戳
 
+                    // hook.before()
                     if (_hooks != null) {
                         for (ConsumerHook h : _hooks) {
                             h.before(request, channel);

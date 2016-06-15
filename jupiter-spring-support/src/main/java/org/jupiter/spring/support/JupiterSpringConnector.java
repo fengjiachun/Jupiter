@@ -27,6 +27,8 @@ import java.util.Collections;
 import java.util.List;
 
 /**
+ * 客户端 connector wrapper, 负责初始化并启动客户端.
+ *
  * jupiter
  * org.jupiter.spring.support
  *
@@ -35,10 +37,10 @@ import java.util.List;
 public class JupiterSpringConnector implements InitializingBean {
 
     private JConnector<JConnection> connector;
-    private String registryServerAddresses;             // 注册中心地址   [host1:port1,host2:port2....]
-    private String providerServerAddresses;             // IP直连        [host1:port1,host2:port2....]
-    private List<UnresolvedAddress> providerServerUnresolvedAddresses = Collections.emptyList();
-    private boolean hasRegistryServer;
+    private String registryServerAddresses;                             // 注册中心地址   [host1:port1,host2:port2....]
+    private String providerServerAddresses;                             // IP直连        [host1:port1,host2:port2....]
+    private List<UnresolvedAddress> providerServerUnresolvedAddresses;  // IP直连的地址列表
+    private boolean hasRegistryServer;                                  // true: 需要连接注册中心; false: IP直连方式
 
     @Override
     public void afterPropertiesSet() throws Exception {
@@ -53,7 +55,7 @@ public class JupiterSpringConnector implements InitializingBean {
         }
 
         if (!hasRegistryServer) {
-            // IP直连
+            // IP直连方式
             if (Strings.isNotBlank(providerServerAddresses)) {
                 String[] array = Strings.split(providerServerAddresses, ',');
                 providerServerUnresolvedAddresses = Lists.newArrayList();
@@ -95,7 +97,11 @@ public class JupiterSpringConnector implements InitializingBean {
     }
 
     public List<UnresolvedAddress> getProviderServerUnresolvedAddresses() {
-        return providerServerUnresolvedAddresses;
+        return providerServerUnresolvedAddresses == null
+                ?
+                Collections.<UnresolvedAddress>emptyList()
+                :
+                providerServerUnresolvedAddresses;
     }
 
     public boolean isHasRegistryServer() {

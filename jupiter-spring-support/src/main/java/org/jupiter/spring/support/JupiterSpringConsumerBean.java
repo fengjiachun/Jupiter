@@ -29,6 +29,8 @@ import org.springframework.beans.factory.InitializingBean;
 import java.util.Map;
 
 /**
+ * Consumer bean, 负责构造并初始化 consumer 代理对象.
+ *
  * jupiter
  * org.jupiter.spring.support
  *
@@ -39,17 +41,17 @@ public class JupiterSpringConsumerBean<T> implements FactoryBean<T>, Initializin
     private static final ConsumerHook[] EMPTY_HOOKS = new ConsumerHook[0];
 
     private JupiterSpringConnector connector;
-    private Class<T> interfaceClass;
-    private long waitForAvailableTimeoutMillis = 3000;
+    private Class<T> interfaceClass;                        // 接口类型
+    private long waitForAvailableTimeoutMillis = 3000;      // 默认超时时间
 
-    private transient T proxy;
+    private transient T proxy;                              // consumer代理对象
 
-    private InvokeType invokeType;
-    private DispatchType dispatchType;
-    private long timeoutMillis;
-    private Map<String, Long> methodsSpecialTimeoutMillis;
-    private JListener listener;
-    private ConsumerHook[] hooks = EMPTY_HOOKS;
+    private InvokeType invokeType;                          // 调用方式 [同步; 异步promise; 异步callback]
+    private DispatchType dispatchType;                      // 派发方式 [单播; 组播]
+    private long timeoutMillis;                             // 调用超时时间设置
+    private Map<String, Long> methodsSpecialTimeoutMillis;  // 指定方法单独设置的超时时间, 方法名为key, 方法参数类型不做区别对待
+    private JListener listener;                             // 回调函数
+    private ConsumerHook[] hooks = EMPTY_HOOKS;             // consumer hook
 
     @Override
     public T getObject() throws Exception {

@@ -51,13 +51,12 @@ public abstract class AbstractJClient implements JClient {
     private static final AtomicReferenceFieldUpdater<CopyOnWriteGroupList, Object[]> groupsUpdater
             = AtomicUpdater.newAtomicReferenceFieldUpdater(CopyOnWriteGroupList.class, Object[].class, "array");
 
-    // SPI
+    // 注册服务(SPI)
     private final RegistryService registryService = JServiceLoader.load(RegistryService.class);
+    // 软负载(SPI)
     @SuppressWarnings("unchecked")
     private final LoadBalancer<JChannelGroup> loadBalancer = JServiceLoader.load(LoadBalancer.class);
-
     private final ConcurrentMap<UnresolvedAddress, JChannelGroup> addressGroups = Maps.newConcurrentHashMap();
-
     private final String appName;
 
     protected final DirectoryJChannelGroup directoryGroup = new DirectoryJChannelGroup();

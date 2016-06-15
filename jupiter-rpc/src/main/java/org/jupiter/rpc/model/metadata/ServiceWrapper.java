@@ -31,6 +31,8 @@ import static org.jupiter.common.util.Preconditions.checkNotNull;
 /**
  * Wrapper provider object and service metadata.
  *
+ * 服务元信息
+ *
  * jupiter
  * org.jupiter.rpc.model.metadata
  *
@@ -40,16 +42,19 @@ public class ServiceWrapper implements Serializable {
 
     private static final long serialVersionUID = 6690575889849847348L;
 
-    private final ServiceMetadata metadata;
-    private final Object serviceProvider;
+    private final ServiceMetadata metadata;     // 服务元信息
+    private final Object serviceProvider;       // 服务对象
 
+    // provider中所有接口的参数类型(用于根据JLS规则dispatch method)
     private transient Map<String, List<Class<?>[]>> methodsParameterTypes;
 
     // 权重 hashCode()与equals()不把weight计算在内
     private volatile int weight = DEFAULT_WEIGHT;
     // 建议连接数 hashCode()与equals()不把connCount计算在内
     private volatile int connCount = DEFAULT_CONNECTION_COUNT;
+    // provider私有线程池
     private volatile Executor executor;
+    // provider私有流量控制器
     private volatile FlowController<JRequest> flowController;
 
     public ServiceWrapper(String group,

@@ -22,6 +22,8 @@ import org.jupiter.rpc.consumer.promise.InvokePromiseContext;
 import org.jupiter.rpc.consumer.promise.JPromise;
 
 /**
+ * 异步链式泛化调用
+ *
  * jupiter
  * org.jupiter.rpc.consumer.invoker
  *
