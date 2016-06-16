@@ -68,6 +68,7 @@ public class MessageTask implements RejectedRunnable {
     private static final InternalLogger logger = InternalLoggerFactory.getInstance(MessageTask.class);
 
     // - Metrics -------------------------------------------------------------------------------------------------------
+
     // 请求处理耗时统计(从request被解码开始, 到response数据被刷到OS内核缓冲区为止)
     private static final Timer processingTimer              = Metrics.timer("processing");
     // 请求被拒绝次数统计
@@ -76,6 +77,8 @@ public class MessageTask implements RejectedRunnable {
     private static final Histogram requestSizeHistogram     = Metrics.histogram("request.size");
     // 响应数据大小统计(不包括Jupiter协议头的16个字节)
     private static final Histogram responseSizeHistogram    = Metrics.histogram("response.size");
+
+    // -----------------------------------------------------------------------------------------------------------------
 
     private static final UnsafeIntegerFieldUpdater<TraceId> traceNodeUpdater =
             UnsafeUpdater.newIntegerFieldUpdater(TraceId.class, "node");
@@ -96,7 +99,7 @@ public class MessageTask implements RejectedRunnable {
         final ProviderProcessor _processor = processor;
         final JRequest _request = request;
 
-        // deserialization
+        // 反序列化, 默认不会在IO线程中执行
         MessageWrapper msg;
         try {
             byte[] bytes = _request.bytes();
@@ -109,21 +112,21 @@ public class MessageTask implements RejectedRunnable {
             return;
         }
 
-        // lookup service
+        // 查找服务
         final ServiceWrapper service = _processor.lookupService(msg.getMetadata());
         if (service == null) {
             rejected(SERVICE_NOT_FOUND);
             return;
         }
 
-        // app flow control
+        // 全局流量控制
         ControlResult ctrlResult = _processor.flowControl(_request);
         if (!ctrlResult.isAllowed()) {
             rejected(APP_FLOW_CONTROL, ctrlResult);
             return;
         }
 
-        // child(provider) flow control
+        // provider私有流量控制
         FlowController<JRequest> childController = service.getFlowController();
         if (childController != null) {
             ctrlResult = childController.flowControl(_request);
@@ -138,6 +141,7 @@ public class MessageTask implements RejectedRunnable {
         if (childExecutor == null) {
             process(service);
         } else {
+            // provider私有线程池执行
             childExecutor.execute(new Runnable() {
 
                 @Override
@@ -158,7 +162,8 @@ public class MessageTask implements RejectedRunnable {
     }
 
     private void rejected(Status status, Object signal) {
-        final JRequest _request = request; // stack copy
+        // stack copy
+        final JRequest _request = request;
 
         rejectionMeter.mark();
         ResultWrapper result = new ResultWrapper();
@@ -205,7 +210,8 @@ public class MessageTask implements RejectedRunnable {
     }
 
     private void process(ServiceWrapper service) {
-        final JRequest _request = request; // stack copy
+        // stack copy
+        final JRequest _request = request;
 
         try {
             MessageWrapper msg = _request.message();
@@ -219,7 +225,7 @@ public class MessageTask implements RejectedRunnable {
 
             final long invokeId = _request.invokeId();
 
-            // tracing
+            // current traceId
             if (traceId != null && TracingEye.isTracingNeeded()) {
                 traceNodeUpdater.set(traceId, traceId.getNode() + 1);
                 TracingEye.setCurrent(traceId);
@@ -234,13 +240,15 @@ public class MessageTask implements RejectedRunnable {
                 if (parameterTypesList == null) {
                     throw new NoSuchMethodException(methodName);
                 }
+
+                // 根据JLS规则查找最匹配的方法parameterTypes
                 Class<?>[] parameterTypes = findMatchingParameterTypes(parameterTypesList, args);
 
                 invokeResult = fastInvoke(provider, methodName, parameterTypes, args);
             } finally {
                 long elapsed = timerCtx.stop();
 
-                // tracing
+                // tracing recoding
                 if (traceId != null && TracingEye.isTracingNeeded()) {
                     TracingRecorder recorder = TracingEye.getRecorder();
                     recorder.recording(PROVIDER, traceId.asText(), invokeId, callInfo, elapsed, channel);
