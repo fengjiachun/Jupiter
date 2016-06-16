@@ -99,7 +99,7 @@ public class MessageTask implements RejectedRunnable {
         final ProviderProcessor _processor = processor;
         final JRequest _request = request;
 
-        // 反序列化, 默认不会在IO线程中执行
+        // 反序列化, 不在IO线程中执行
         MessageWrapper msg;
         try {
             byte[] bytes = _request.bytes();
