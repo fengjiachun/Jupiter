@@ -24,6 +24,7 @@
 
     <bean id="connectorWrapper" class="org.jupiter.spring.support.JupiterSpringConnector">
         <property name="connector" ref="nettyTcpConnector" />
+        <!-- 注册中心地址 -->
         <property name="registryServerAddresses" value="127.0.0.1:20001" />
     </bean>
 
