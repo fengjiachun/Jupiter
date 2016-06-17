@@ -90,6 +90,7 @@ public class JupiterSpringConsumerBean<T> implements FactoryBean<T>, Initializin
             if (Strings.isBlank(providerAddresses)) {
                 throw new IllegalArgumentException("provider addresses could not be empty");
             }
+
             String[] array = Strings.split(providerAddresses, ',');
             List<UnresolvedAddress> addresses = Lists.newArrayList();
             for (String s : array) {

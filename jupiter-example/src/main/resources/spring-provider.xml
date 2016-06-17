@@ -26,7 +26,7 @@
 
     <bean id="acceptorWrapper" class="org.jupiter.spring.support.JupiterSpringAcceptor">
         <property name="acceptor" ref="nettyTcpAcceptor" />
-        <!-- 注册中心地址 -->
+        <!-- 注册中心地址, 逗号分隔 -->
         <property name="registryServerAddresses" value="127.0.0.1:20001" />
     </bean>
 
