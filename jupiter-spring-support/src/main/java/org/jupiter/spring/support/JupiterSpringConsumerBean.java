@@ -16,16 +16,15 @@
 
 package org.jupiter.spring.support;
 
-import org.jupiter.rpc.ConsumerHook;
-import org.jupiter.rpc.DispatchType;
-import org.jupiter.rpc.InvokeType;
-import org.jupiter.rpc.JListener;
+import org.jupiter.rpc.*;
 import org.jupiter.rpc.consumer.ProxyFactory;
+import org.jupiter.transport.JConnection;
 import org.jupiter.transport.JConnector;
 import org.jupiter.transport.exception.ConnectFailedException;
 import org.springframework.beans.factory.FactoryBean;
 import org.springframework.beans.factory.InitializingBean;
 
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -42,7 +41,7 @@ public class JupiterSpringConsumerBean<T> implements FactoryBean<T>, Initializin
 
     private JupiterSpringConnector connector;
     private Class<T> interfaceClass;                        // 接口类型
-    private long waitForAvailableTimeoutMillis = 3000;      // 默认超时时间
+    private long waitForAvailableTimeoutMillis = -1;        // 默认建立连接的超时时间 <=0 表示不等待连接建立成功
 
     private transient T proxy;                              // consumer代理对象
 
@@ -75,16 +74,23 @@ public class JupiterSpringConsumerBean<T> implements FactoryBean<T>, Initializin
 
     private void init() {
         ProxyFactory<T> factory = ProxyFactory.factory(interfaceClass);
+        JConnector<JConnection> client = connector.getConnector();
 
         if (connector.isHasRegistryServer()) {
             // 自动管理可用连接
-            JConnector.ConnectionManager manager = connector.getConnector().manageConnections(interfaceClass);
-            // 等待连接可用
-            if (!manager.waitForAvailable(waitForAvailableTimeoutMillis)) {
-                throw new ConnectFailedException();
+            JConnector.ConnectionManager manager = client.manageConnections(interfaceClass);
+            if (waitForAvailableTimeoutMillis > 0) {
+                // 等待连接可用
+                if (!manager.waitForAvailable(waitForAvailableTimeoutMillis)) {
+                    throw new ConnectFailedException();
+                }
             }
         } else {
-            factory.addProviderAddress(connector.getProviderServerUnresolvedAddresses());
+            List<UnresolvedAddress> addresses = connector.getProviderServerUnresolvedAddresses();
+            for (UnresolvedAddress address : addresses) {
+                client.connect(address, true);  // 异步
+            }
+            factory.addProviderAddress(addresses);
         }
 
         if (invokeType != null) {
@@ -114,7 +120,7 @@ public class JupiterSpringConsumerBean<T> implements FactoryBean<T>, Initializin
         }
 
         proxy = factory
-                .connector(connector.getConnector())        // Sets the connector
+                .connector(client)  // Sets the connector
                 .newProxyInstance();
     }
 
