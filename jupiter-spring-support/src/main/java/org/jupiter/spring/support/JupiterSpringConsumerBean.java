@@ -42,7 +42,7 @@ public class JupiterSpringConsumerBean<T> implements FactoryBean<T>, Initializin
 
     private JupiterSpringConnector connector;
     private Class<T> interfaceClass;                        // 接口类型
-    private long waitForAvailableTimeoutMillis = -1;        // 默认建立连接的超时时间 <=0 表示不等待连接建立成功
+    private long waitForAvailableTimeoutMillis = -1;        // 如果大于0, 表示阻塞等待直到连接可用并且该值为等待时间
 
     private transient T proxy;                              // consumer代理对象
 
