@@ -30,7 +30,7 @@
 - [传输层工作流程](https://github.com/fengjiachun/Jupiter/blob/master/doc/transport.md)
 - [Option参数](https://github.com/fengjiachun/Jupiter/blob/master/jupiter-transport/src/main/java/org/jupiter/transport/JOption.java)
 
-######性能报告:
+######性能报告(client, server各一台4核心机器):
     - 小数据包同步阻塞调用qps: 11w+
     - 小数据包Future方式调用qps: 17w+ (比同步阻塞调用qps高一些是因为阻塞调用导致瓶颈在客户端, 如果有多台机器作为客户端测试理论上也能达到这个值)
 - [测试详细数据](https://github.com/fengjiachun/Jupiter/blob/master/doc/benchmark.md)
