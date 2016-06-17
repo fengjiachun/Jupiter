@@ -38,6 +38,7 @@ public class JupiterSpringAcceptor implements InitializingBean {
     private JAcceptor acceptor;
 
     private String registryServerAddresses;             // 注册中心地址   [host1:port1,host2:port2....]
+    private boolean hasRegistryServer;                  // true: 需要连接注册中心; false: IP直连方式
     private ProviderInterceptor[] providerInterceptors; // 全局拦截器
     private FlowController<JRequest> flowController;    // 全局流量控制
 
@@ -50,6 +51,7 @@ public class JupiterSpringAcceptor implements InitializingBean {
         // 注册中心
         if (Strings.isNotBlank(registryServerAddresses)) {
             acceptor.connectToRegistryServer(registryServerAddresses);
+            hasRegistryServer = true;
         }
 
         // 全局拦截器
@@ -63,14 +65,16 @@ public class JupiterSpringAcceptor implements InitializingBean {
         try {
             final JAcceptor acceptor = this.acceptor;
 
-            Runtime.getRuntime().addShutdownHook(new Thread() {
+            if (hasRegistryServer) {
+                Runtime.getRuntime().addShutdownHook(new Thread() {
 
-                @Override
-                public void run() {
-                    acceptor.unpublishAll();
-                    acceptor.shutdownGracefully();
-                }
-            });
+                    @Override
+                    public void run() {
+                        acceptor.unpublishAll();
+                        acceptor.shutdownGracefully();
+                    }
+                });
+            }
 
             acceptor.start(false);
         } catch (Exception e) {
@@ -92,6 +96,14 @@ public class JupiterSpringAcceptor implements InitializingBean {
 
     public void setRegistryServerAddresses(String registryServerAddresses) {
         this.registryServerAddresses = registryServerAddresses;
+    }
+
+    public boolean isHasRegistryServer() {
+        return hasRegistryServer;
+    }
+
+    public void setHasRegistryServer(boolean hasRegistryServer) {
+        this.hasRegistryServer = hasRegistryServer;
     }
 
     public ProviderInterceptor[] getProviderInterceptors() {

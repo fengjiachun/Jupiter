@@ -164,7 +164,7 @@ public class JupiterSpringProviderBean implements InitializingBean, ApplicationC
 
         @Override
         public void onApplicationEvent(ApplicationEvent event) {
-            if (event instanceof ContextRefreshedEvent) {
+            if (acceptor.isHasRegistryServer() && event instanceof ContextRefreshedEvent) {
                 // 发布服务
                 if (providerInitializer == null) {
                     acceptor.getAcceptor().publish(serviceWrapper);

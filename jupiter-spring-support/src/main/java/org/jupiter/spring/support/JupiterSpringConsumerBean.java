@@ -16,9 +16,10 @@
 
 package org.jupiter.spring.support;
 
+import org.jupiter.common.util.Lists;
+import org.jupiter.common.util.Strings;
 import org.jupiter.rpc.*;
 import org.jupiter.rpc.consumer.ProxyFactory;
-import org.jupiter.transport.JConnection;
 import org.jupiter.transport.JConnector;
 import org.jupiter.transport.exception.ConnectFailedException;
 import org.springframework.beans.factory.FactoryBean;
@@ -51,6 +52,7 @@ public class JupiterSpringConsumerBean<T> implements FactoryBean<T>, Initializin
     private Map<String, Long> methodsSpecialTimeoutMillis;  // 指定方法单独设置的超时时间, 方法名为key, 方法参数类型不做区别对待
     private JListener listener;                             // 回调函数
     private ConsumerHook[] hooks = EMPTY_HOOKS;             // consumer hook
+    private String providerAddresses;                       // provider地址列表(IP直连)
 
     @Override
     public T getObject() throws Exception {
@@ -74,11 +76,10 @@ public class JupiterSpringConsumerBean<T> implements FactoryBean<T>, Initializin
 
     private void init() {
         ProxyFactory<T> factory = ProxyFactory.factory(interfaceClass);
-        JConnector<JConnection> client = connector.getConnector();
 
         if (connector.isHasRegistryServer()) {
             // 自动管理可用连接
-            JConnector.ConnectionManager manager = client.manageConnections(interfaceClass);
+            JConnector.ConnectionManager manager = connector.getConnector().manageConnections(interfaceClass);
             if (waitForAvailableTimeoutMillis > 0) {
                 // 等待连接可用
                 if (!manager.waitForAvailable(waitForAvailableTimeoutMillis)) {
@@ -86,9 +87,17 @@ public class JupiterSpringConsumerBean<T> implements FactoryBean<T>, Initializin
                 }
             }
         } else {
-            List<UnresolvedAddress> addresses = connector.getProviderServerUnresolvedAddresses();
-            for (UnresolvedAddress address : addresses) {
-                client.connect(address, true);  // 异步
+            if (Strings.isBlank(providerAddresses)) {
+                throw new IllegalArgumentException("provider addresses could not be empty");
+            }
+            String[] array = Strings.split(providerAddresses, ',');
+            List<UnresolvedAddress> addresses = Lists.newArrayList();
+            for (String s : array) {
+                String[] addressStr = Strings.split(s, ':');
+                String host = addressStr[0];
+                int port = Integer.parseInt(addressStr[1]);
+                UnresolvedAddress address = new UnresolvedAddress(host, port);
+                addresses.add(address);
             }
             factory.addProviderAddress(addresses);
         }
@@ -120,7 +129,7 @@ public class JupiterSpringConsumerBean<T> implements FactoryBean<T>, Initializin
         }
 
         proxy = factory
-                .connector(client)  // Sets the connector
+                .connector(connector.getConnector())  // sets connector
                 .newProxyInstance();
     }
 
@@ -194,5 +203,13 @@ public class JupiterSpringConsumerBean<T> implements FactoryBean<T>, Initializin
 
     public void setHooks(ConsumerHook[] hooks) {
         this.hooks = hooks;
+    }
+
+    public String getProviderAddresses() {
+        return providerAddresses;
+    }
+
+    public void setProviderAddresses(String providerAddresses) {
+        this.providerAddresses = providerAddresses;
     }
 }
