@@ -45,15 +45,16 @@ import java.util.concurrent.atomic.AtomicLong;
  */
 public class HelloJupiterServer {
 
+    // 全局interceptors, 可不设置
+    static ProviderProxyHandler globalHandler = new ProviderProxyHandler()
+            .withIntercept(new GlobalInterceptor());
+
     public static void main(String[] args) {
         final JAcceptor acceptor = new JNettyTcpAcceptor(18090);
         MonitorServer monitor = new MonitorServer();
         try {
             monitor.start();
 
-            // 全局interceptors, 可不设置
-            ProviderProxyHandler globalHandler = new ProviderProxyHandler()
-                    .withIntercept(new GlobalInterceptor());
             acceptor.setGlobalProviderProxyHandler(globalHandler);
 
             // provider1 私有interceptors, 可不设置
