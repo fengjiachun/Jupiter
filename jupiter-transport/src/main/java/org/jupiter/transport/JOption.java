@@ -136,7 +136,7 @@ public final class JOption<T> extends AbstractConstant<JOption<T>> {
      * 2.6.20版本之后syn queue的大小是经过一系列复杂的计算, 那个代码我看不懂...
      *
      * 参考linux-3.10.28代码(socket.c):
-     * <pre>
+     *
      * sock = sockfd_lookup_light(fd, &err, &fput_needed);
      * if (sock) {
      *     somaxconn = sock_net(sock->sk)->core.sysctl_somaxconn;
