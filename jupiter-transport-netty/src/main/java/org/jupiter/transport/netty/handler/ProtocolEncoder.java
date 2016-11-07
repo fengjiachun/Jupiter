@@ -42,8 +42,10 @@ import static org.jupiter.transport.JProtocolHeader.*;
  * = 2 // MAGIC = (short) 0xbabe
  * + 1 // 消息标志位, 用来表示消息类型Request/Response/Heartbeat
  * + 1 // 状态位, 设置请求响应状态
- * + 8 // 消息 id long 类型
- * + 4 // 消息体body长度, int类型
+ * + 8 // 消息 id, long 类型
+ * + 4 // 消息体 body 长度, int类型
+ *
+ * Sign: -128 ~ 127的范围(byte)有点浪费, 可以将高地址2~4位作为序列化标识, 暂时未支持
  *
  * jupiter
  * org.jupiter.transport.netty.handler

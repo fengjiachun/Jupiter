@@ -292,8 +292,8 @@ public class DefaultRegistry extends NettyTcpConnector {
      * = 2 // MAGIC = (short) 0xbabe
      * + 1 // 消息标志位, 用来表示消息类型
      * + 1 // 空
-     * + 8 // 消息 id long 类型
-     * + 4 // 消息体body长度, int类型
+     * + 8 // 消息 id, long 类型
+     * + 4 // 消息体 body 长度, int类型
      */
     static class MessageDecoder extends ReplayingDecoder<MessageDecoder.State> {
 
@@ -383,8 +383,8 @@ public class DefaultRegistry extends NettyTcpConnector {
      * = 2 // MAGIC = (short) 0xbabe
      * + 1 // 消息标志位, 用来表示消息类型
      * + 1 // 空
-     * + 8 // 消息 id long 类型
-     * + 4 // 消息体body长度, int类型
+     * + 8 // 消息 id, long 类型
+     * + 4 // 消息体 body 长度, int类型
      */
     @ChannelHandler.Sharable
     static class MessageEncoder extends MessageToByteEncoder<Message> {
