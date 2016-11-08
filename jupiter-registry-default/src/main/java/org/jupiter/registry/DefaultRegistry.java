@@ -331,7 +331,6 @@ public class DefaultRegistry extends NettyTcpConnector {
 
                             Message msg = serializerImpl(code).readObject(bytes, Message.class);
                             msg.messageCode(header.messageCode());
-                            msg.serializerCode(header.serializerCode());
                             out.add(msg);
 
                             break;
