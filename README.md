@@ -53,6 +53,10 @@
 - [线上调试(flightexec)](https://github.com/fengjiachun/Jupiter/blob/master/jupiter-flightexec/src/main/java/org/jupiter/flight/exec/package-info.java)
 
 
+######版本变更:
+- v1.0
+- v1.1 协议头发生变更, Sign(一个byte)的高地址4位用来标记序列化/反序列化方式, 低地址4位意义不变(暂时没有机器做性能测试和疲劳测试了, 相比v1.0可能不够稳定)
+
 ######Jupiter使用, 请参考示例代码(挺全的):
 - [jupiter-example#org.jupiter.example.*](https://github.com/fengjiachun/Jupiter/tree/master/jupiter-example/src/main/java/org/jupiter/example)
 
