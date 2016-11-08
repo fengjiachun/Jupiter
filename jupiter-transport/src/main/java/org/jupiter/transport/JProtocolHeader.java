@@ -65,7 +65,7 @@ public class JProtocolHeader {
     // kryo         = 0x02;
     // ...
     // XXX          = 0x06
-    private byte serializerCode; // sign 高地址4位
+    private byte serializerCode;    // sign 高地址4位
     private byte status;
     private long id;
     private int bodyLength;
