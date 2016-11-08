@@ -40,12 +40,10 @@ import static org.jupiter.transport.JProtocolHeader.*;
  *
  * 消息头16个字节定长
  * = 2 // MAGIC = (short) 0xbabe
- * + 1 // 消息标志位, 用来表示消息类型Request/Response/Heartbeat
+ * + 1 // 消息标志位, 低地址4位用来表示消息类型Request/Response/Heartbeat等, 高地址4位用来表示序列化类型
  * + 1 // 状态位, 设置请求响应状态
  * + 8 // 消息 id, long 类型
  * + 4 // 消息体 body 长度, int类型
- *
- * Sign: -128 ~ 127的范围(byte)有点浪费, 可以将高地址2~4位作为序列化标识, 暂时未支持
  *
  * jupiter
  * org.jupiter.transport.netty.handler
@@ -67,10 +65,12 @@ public class ProtocolEncoder extends MessageToByteEncoder<BytesHolder> {
     }
 
     private void doEncodeRequest(JRequest request, ByteBuf out) {
+        byte s_code = request.serializerCode();
+        byte sign = (byte) ((s_code << 4) + REQUEST);
         byte[] bytes = request.bytes();
 
         out.writeShort(MAGIC)
-                .writeByte(REQUEST)
+                .writeByte(sign)
                 .writeByte(0x00)
                 .writeLong(request.invokeId())
                 .writeInt(bytes.length)
@@ -78,10 +78,12 @@ public class ProtocolEncoder extends MessageToByteEncoder<BytesHolder> {
     }
 
     private void doEncodeResponse(JResponse response, ByteBuf out) {
+        byte s_code = response.serializerCode();
+        byte sign = (byte) ((s_code << 4) + RESPONSE);
         byte[] bytes = response.bytes();
 
         out.writeShort(MAGIC)
-                .writeByte(RESPONSE)
+                .writeByte(sign)
                 .writeByte(response.status())
                 .writeLong(response.id())
                 .writeInt(bytes.length)

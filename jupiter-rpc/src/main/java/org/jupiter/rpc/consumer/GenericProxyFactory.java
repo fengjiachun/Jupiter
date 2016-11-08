@@ -27,6 +27,7 @@ import org.jupiter.rpc.consumer.invoker.PromiseGenericInvoker;
 import org.jupiter.rpc.consumer.invoker.GenericInvoker;
 import org.jupiter.rpc.consumer.invoker.SyncGenericInvoker;
 import org.jupiter.rpc.model.metadata.ServiceMetadata;
+import org.jupiter.serialization.SerializerType;
 
 import java.util.Collections;
 import java.util.List;
@@ -37,6 +38,7 @@ import static org.jupiter.rpc.DispatchType.BROADCAST;
 import static org.jupiter.rpc.DispatchType.ROUND;
 import static org.jupiter.rpc.InvokeType.CALLBACK;
 import static org.jupiter.rpc.InvokeType.SYNC;
+import static org.jupiter.serialization.SerializerType.*;
 
 /**
  * 泛化ProxyFactory
@@ -53,6 +55,7 @@ public class GenericProxyFactory {
     private String group;                                       // 组别
     private String version;                                     // 版本号
     private String providerName;                                // provider名称
+    private SerializerType serializerType = PROTO_STUFF;        // 序列化/反序列化方式
 
     private JClient client;                                     // connector
     private List<UnresolvedAddress> addresses;                  // provider地址
@@ -104,6 +107,14 @@ public class GenericProxyFactory {
      */
     public GenericProxyFactory providerName(String providerName) {
         this.providerName = providerName;
+        return this;
+    }
+
+    /**
+     * Sets the service serializer type.
+     */
+    public GenericProxyFactory serializerType(SerializerType serializerType) {
+        this.serializerType = serializerType;
         return this;
     }
 
@@ -190,6 +201,7 @@ public class GenericProxyFactory {
         checkNotNull(group, "group");
         checkNotNull(version, "version");
         checkNotNull(providerName, "providerName");
+        checkNotNull(serializerType, "serializerType");
 
         if (dispatchType == BROADCAST && invokeType != CALLBACK) {
             throw new UnsupportedOperationException("illegal type, BROADCAST only support CALLBACK");
@@ -203,7 +215,7 @@ public class GenericProxyFactory {
         }
 
         // dispatcher
-        Dispatcher dispatcher = asDispatcher(metadata);
+        Dispatcher dispatcher = asDispatcher(metadata, serializerType);
         if (timeoutMillis > 0) {
             dispatcher.setTimeoutMillis(timeoutMillis);
         }
@@ -225,12 +237,12 @@ public class GenericProxyFactory {
         }
     }
 
-    protected Dispatcher asDispatcher(ServiceMetadata metadata) {
+    protected Dispatcher asDispatcher(ServiceMetadata metadata, SerializerType serializerType) {
         switch (dispatchType) {
             case ROUND:
-                return new DefaultRoundDispatcher(metadata);
+                return new DefaultRoundDispatcher(metadata, serializerType);
             case BROADCAST:
-                return new DefaultBroadcastDispatcher(metadata);
+                return new DefaultBroadcastDispatcher(metadata, serializerType);
             default:
                 throw new IllegalStateException("DispatchType: " + dispatchType);
         }

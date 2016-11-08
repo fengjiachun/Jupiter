@@ -26,10 +26,7 @@ import io.netty.util.Attribute;
 import io.netty.util.AttributeKey;
 import io.netty.util.ReferenceCountUtil;
 import org.jupiter.common.concurrent.ConcurrentSet;
-import org.jupiter.common.util.Maps;
-import org.jupiter.common.util.Pair;
-import org.jupiter.common.util.Signal;
-import org.jupiter.common.util.SystemClock;
+import org.jupiter.common.util.*;
 import org.jupiter.common.util.internal.logging.InternalLogger;
 import org.jupiter.common.util.internal.logging.InternalLoggerFactory;
 import org.jupiter.rpc.UnresolvedAddress;
@@ -176,7 +173,7 @@ public class DefaultRegistry extends NettyTcpConnector {
         registryService.subscribeSet().add(serviceMeta);
 
         Message msg = new Message();
-        msg.sign(SUBSCRIBE_SERVICE);
+        msg.messageCode(SUBSCRIBE_SERVICE);
         msg.data(serviceMeta);
 
         Channel ch = channel;
@@ -197,7 +194,7 @@ public class DefaultRegistry extends NettyTcpConnector {
         registryService.registerMetaSet().add(meta);
 
         Message msg = new Message();
-        msg.sign(PUBLISH_SERVICE);
+        msg.messageCode(PUBLISH_SERVICE);
         msg.data(meta);
 
         Channel ch = channel;
@@ -218,7 +215,7 @@ public class DefaultRegistry extends NettyTcpConnector {
         registryService.registerMetaSet().remove(meta);
 
         Message msg = new Message();
-        msg.sign(PUBLISH_CANCEL_SERVICE);
+        msg.messageCode(PUBLISH_CANCEL_SERVICE);
         msg.data(meta);
 
         channel.writeAndFlush(msg)
@@ -323,15 +320,18 @@ public class DefaultRegistry extends NettyTcpConnector {
                     header.bodyLength(in.readInt());        // 消息体长度
                     checkpoint(State.BODY);
                 case BODY:
-                    switch (header.sign()) {
+                    byte code = header.serializerCode();
+
+                    switch (header.messageCode()) {
                         case PUBLISH_SERVICE:
                         case PUBLISH_CANCEL_SERVICE:
                         case OFFLINE_NOTICE: {
                             byte[] bytes = new byte[header.bodyLength()];
                             in.readBytes(bytes);
 
-                            Message msg = serializerImpl().readObject(bytes, Message.class);
-                            msg.sign(header.sign());
+                            Message msg = serializerImpl(code).readObject(bytes, Message.class);
+                            msg.messageCode(header.messageCode());
+                            msg.serializerCode(header.serializerCode());
                             out.add(msg);
 
                             break;
@@ -340,7 +340,7 @@ public class DefaultRegistry extends NettyTcpConnector {
                             byte[] bytes = new byte[header.bodyLength()];
                             in.readBytes(bytes);
 
-                            Acknowledge ack = serializerImpl().readObject(bytes, Acknowledge.class);
+                            Acknowledge ack = serializerImpl(code).readObject(bytes, Acknowledge.class);
                             out.add(ack);
                             break;
                         }
@@ -391,10 +391,12 @@ public class DefaultRegistry extends NettyTcpConnector {
 
         @Override
         protected void encode(ChannelHandlerContext ctx, Message msg, ByteBuf out) throws Exception {
-            byte[] bytes = serializerImpl().writeObject(msg);
+            byte s_code = msg.serializerCode();
+            byte sign = (byte) ((s_code << 4) + msg.messageCode());
+            byte[] bytes = serializerImpl(s_code).writeObject(msg);
 
             out.writeShort(MAGIC)
-                    .writeByte(msg.sign())
+                    .writeByte(sign)
                     .writeByte(0)
                     .writeLong(0)
                     .writeInt(bytes.length)
@@ -411,17 +413,17 @@ public class DefaultRegistry extends NettyTcpConnector {
             if (msg instanceof Message) {
                 Message obj = (Message) msg;
 
-                switch (obj.sign()) {
+                switch (obj.messageCode()) {
                     case PUBLISH_SERVICE: {
                         Pair<ServiceMeta, ?> data = (Pair<ServiceMeta, ?>) obj.data();
                         Object metaObj = data.getValue();
 
                         if (metaObj instanceof List) {
                             for (RegisterMeta meta : (List<RegisterMeta>) metaObj) {
-                                registryService.notify(data.getKey(), meta, CHILD_ADDED, obj.getVersion());
+                                registryService.notify(data.getKey(), meta, CHILD_ADDED, obj.version());
                             }
                         } else if (metaObj instanceof RegisterMeta) {
-                            registryService.notify(data.getKey(), (RegisterMeta) metaObj, CHILD_ADDED, obj.getVersion());
+                            registryService.notify(data.getKey(), (RegisterMeta) metaObj, CHILD_ADDED, obj.version());
                         }
 
                         ctx.channel()
@@ -429,20 +431,20 @@ public class DefaultRegistry extends NettyTcpConnector {
                                 .addListener(ChannelFutureListener.FIRE_EXCEPTION_ON_FAILURE);
 
                         logger.info("Publish from RegistryServer {}, metadata : {}, version: {}.",
-                                data.getKey(), metaObj, obj.getVersion());
+                                data.getKey(), metaObj, obj.version());
 
                         break;
                     }
                     case PUBLISH_CANCEL_SERVICE: {
                         Pair<ServiceMeta, RegisterMeta> data = (Pair<ServiceMeta, RegisterMeta>) obj.data();
-                        registryService.notify(data.getKey(), data.getValue(), CHILD_REMOVED, obj.getVersion());
+                        registryService.notify(data.getKey(), data.getValue(), CHILD_REMOVED, obj.version());
 
                         ctx.channel()
                                 .writeAndFlush(new Acknowledge(obj.sequence()))  // 回复ACK
                                 .addListener(ChannelFutureListener.FIRE_EXCEPTION_ON_FAILURE);
 
                         logger.info("Publish cancel from RegistryServer {}, metadata : {}, version: {}.",
-                                data.getKey(), data.getValue(), obj.getVersion());
+                                data.getKey(), data.getValue(), obj.version());
 
                         break;
                     }
@@ -476,7 +478,7 @@ public class DefaultRegistry extends NettyTcpConnector {
                 }
 
                 Message msg = new Message();
-                msg.sign(SUBSCRIBE_SERVICE);
+                msg.messageCode(SUBSCRIBE_SERVICE);
                 msg.data(serviceMeta);
 
                 ch.writeAndFlush(msg)
@@ -494,7 +496,7 @@ public class DefaultRegistry extends NettyTcpConnector {
                 }
 
                 Message msg = new Message();
-                msg.sign(PUBLISH_SERVICE);
+                msg.messageCode(PUBLISH_SERVICE);
                 msg.data(meta);
 
                 ch.writeAndFlush(msg)

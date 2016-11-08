@@ -44,12 +44,10 @@ import static org.jupiter.transport.exception.IoSignals.*;
  *
  * 消息头16个字节定长
  * = 2 // MAGIC = (short) 0xbabe
- * + 1 // 消息标志位, 用来表示消息类型Request/Response/Heartbeat
+ * + 1 // 消息标志位, 低地址4位用来表示消息类型Request/Response/Heartbeat等, 高地址4位用来表示序列化类型
  * + 1 // 状态位, 设置请求响应状态
  * + 8 // 消息 id, long 类型
  * + 4 // 消息体 body 长度, int类型
- *
- * Sign: -128 ~ 127的范围(byte)有点浪费, 可以将高地址2~4位作为序列化标识, 暂时未支持
  *
  * jupiter
  * org.jupiter.transport.netty.handler
@@ -97,7 +95,7 @@ public class ProtocolDecoder extends ReplayingDecoder<ProtocolDecoder.State> {
                 header.bodyLength(in.readInt());    // 消息体长度
                 checkpoint(State.BODY);
             case BODY:
-                switch (header.sign()) {
+                switch (header.messageCode()) {
                     case HEARTBEAT:
                         break;
                     case REQUEST: {
@@ -105,7 +103,7 @@ public class ProtocolDecoder extends ReplayingDecoder<ProtocolDecoder.State> {
                         byte[] bytes = new byte[bodyLength];
                         in.readBytes(bytes);
 
-                        JRequest request = new JRequest(header.id());
+                        JRequest request = JRequest.newInstance(header.id(), header.serializerCode());
                         request.timestamp(SystemClock.millisClock().now());
                         request.bytes(bytes);
                         out.add(request);
@@ -117,7 +115,9 @@ public class ProtocolDecoder extends ReplayingDecoder<ProtocolDecoder.State> {
                         byte[] bytes = new byte[bodyLength];
                         in.readBytes(bytes);
 
-                        out.add(JResponse.newInstance(header.id(), header.status(), bytes));
+                        JResponse response = JResponse.newInstance(
+                                header.id(), header.serializerCode(), header.status(), bytes);
+                        out.add(response);
 
                         break;
                     }

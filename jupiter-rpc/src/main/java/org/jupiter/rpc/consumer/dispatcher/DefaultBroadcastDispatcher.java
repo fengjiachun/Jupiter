@@ -28,12 +28,12 @@ import org.jupiter.rpc.consumer.promise.InvokePromise;
 import org.jupiter.rpc.model.metadata.MessageWrapper;
 import org.jupiter.rpc.model.metadata.ResultWrapper;
 import org.jupiter.rpc.model.metadata.ServiceMetadata;
+import org.jupiter.serialization.SerializerType;
 
 import java.util.List;
 
 import static org.jupiter.rpc.DispatchType.BROADCAST;
 import static org.jupiter.rpc.Status.CLIENT_ERROR;
-import static org.jupiter.serialization.SerializerHolder.serializerImpl;
 
 /**
  * 组播方式派发消息
@@ -47,8 +47,8 @@ public class DefaultBroadcastDispatcher extends AbstractDispatcher {
 
     private static final InternalLogger logger = InternalLoggerFactory.getInstance(DefaultBroadcastDispatcher.class);
 
-    public DefaultBroadcastDispatcher(ServiceMetadata metadata) {
-        super(metadata);
+    public DefaultBroadcastDispatcher(ServiceMetadata metadata, SerializerType serializerType) {
+        super(metadata, serializerType);
     }
 
     @Override
@@ -66,10 +66,10 @@ public class DefaultBroadcastDispatcher extends AbstractDispatcher {
             channels.add(groups.get(i).next());
         }
 
-        final JRequest request = new JRequest();
+        final JRequest request = JRequest.newInstance(serializerType.value());
         request.message(message);
         // 在业务线程中序列化, 减轻IO线程负担
-        request.bytes(serializerImpl().writeObject(message));
+        request.bytes(serializerImpl.writeObject(message));
 
         long timeoutMillis = getMethodSpecialTimeoutMillis(methodName);
         final ConsumerHook[] _hooks = getHooks();
@@ -100,7 +100,8 @@ public class DefaultBroadcastDispatcher extends AbstractDispatcher {
                     ResultWrapper result = new ResultWrapper();
                     result.setError(cause);
 
-                    JResponse response = JResponse.newInstance(request.invokeId(), CLIENT_ERROR, result);
+                    JResponse response = JResponse.newInstance(
+                            request.invokeId(), request.serializerCode(), CLIENT_ERROR, result);
                     DefaultInvokePromise.received(channel, response);
                 }
             });

@@ -39,7 +39,7 @@ public class DefaultConsumerProcessor implements ConsumerProcessor {
     private final Executor executor;
 
     public DefaultConsumerProcessor() {
-        ExecutorFactory factory = (ExecutorFactory) JServiceLoader.load(ConsumerExecutorFactory.class);
+        ExecutorFactory factory = (ExecutorFactory) JServiceLoader.loadFirst(ConsumerExecutorFactory.class);
         executor = factory.newExecutor(PROCESSOR_CORE_NUM_WORKERS);
     }
 

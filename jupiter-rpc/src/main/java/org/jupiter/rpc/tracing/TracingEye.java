@@ -37,7 +37,7 @@ public class TracingEye {
 
     private static final boolean TRACING_NEEDED = SystemPropertyUtil.getBoolean("jupiter.tracing.needed", true);
 
-    private static final TracingRecorder tracingRecorder = JServiceLoader.load(TracingRecorder.class);
+    private static final TracingRecorder tracingRecorder = JServiceLoader.loadFirst(TracingRecorder.class);
 
     private static final ThreadLocal<TraceId> traceThreadLocal = new ThreadLocal<>();
 

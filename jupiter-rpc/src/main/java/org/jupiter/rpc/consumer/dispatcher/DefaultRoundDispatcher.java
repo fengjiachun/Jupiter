@@ -32,10 +32,10 @@ import org.jupiter.rpc.model.metadata.ServiceMetadata;
 import org.jupiter.rpc.tracing.TraceId;
 import org.jupiter.rpc.tracing.TracingEye;
 import org.jupiter.rpc.tracing.TracingRecorder;
+import org.jupiter.serialization.SerializerType;
 
 import static org.jupiter.rpc.Status.CLIENT_ERROR;
 import static org.jupiter.rpc.tracing.TracingRecorder.Role.CONSUMER;
-import static org.jupiter.serialization.SerializerHolder.serializerImpl;
 
 /**
  * 单播方式派发消息, 仅支持异步回调, 不支持同步调用.
@@ -49,8 +49,8 @@ public class DefaultRoundDispatcher extends AbstractDispatcher {
 
     private static final InternalLogger logger = InternalLoggerFactory.getInstance(DefaultRoundDispatcher.class);
 
-    public DefaultRoundDispatcher(ServiceMetadata metadata) {
-        super(metadata);
+    public DefaultRoundDispatcher(ServiceMetadata metadata, SerializerType serializerType) {
+        super(metadata, serializerType);
     }
 
     @Override
@@ -64,7 +64,7 @@ public class DefaultRoundDispatcher extends AbstractDispatcher {
 
         // 通过软负载选择一个channel
         JChannel channel = client.select(_metadata);
-        final JRequest request = new JRequest();
+        final JRequest request = JRequest.newInstance(serializerType.value());
 
         // tracing
         if (TracingEye.isTracingNeeded()) {
@@ -80,7 +80,7 @@ public class DefaultRoundDispatcher extends AbstractDispatcher {
 
         request.message(message);
         // 在业务线程中序列化, 减轻IO线程负担
-        request.bytes(serializerImpl().writeObject(message));
+        request.bytes(serializerImpl.writeObject(message));
 
         long timeoutMillis = getMethodSpecialTimeoutMillis(methodName);
         final ConsumerHook[] _hooks = getHooks();
@@ -109,7 +109,8 @@ public class DefaultRoundDispatcher extends AbstractDispatcher {
                 ResultWrapper result = new ResultWrapper();
                 result.setError(cause);
 
-                JResponse response = JResponse.newInstance(request.invokeId(), CLIENT_ERROR, result);
+                JResponse response = JResponse.newInstance(
+                        request.invokeId(), request.serializerCode(), CLIENT_ERROR, result);
                 DefaultInvokePromise.received(channel, response);
             }
         });

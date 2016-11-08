@@ -17,16 +17,37 @@
 package org.jupiter.serialization;
 
 /**
+ * 抱歉在你想扩展序列化方式的时候还需要修改这个类
+ *
  * jupiter
  * org.jupiter.serialization
  *
  * @author jiachun.fjc
  */
-public interface Serializer {
+public enum SerializerType {
+    PROTO_STUFF((byte) 0x01)
+    ;
 
-    byte code();
+    SerializerType(byte value) {
+        if (0x00 < value && value < 0x07) {
+            this.value = value;
+        } else {
+            throw new IllegalArgumentException("out of range(0x01 ~ 0x06): " + value);
+        }
+    }
 
-    <T> byte[] writeObject(T obj);
+    private final byte value;
 
-    <T> T readObject(byte[] bytes, Class<T> clazz);
+    public byte value() {
+        return value;
+    }
+
+    public static SerializerType parse(String name) {
+        for (SerializerType s : values()) {
+            if (s.name().equalsIgnoreCase(name)) {
+                return s;
+            }
+        }
+        return null;
+    }
 }

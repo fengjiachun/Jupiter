@@ -45,7 +45,7 @@ public class DefaultProviderProcessor extends AbstractProviderProcessor {
     public DefaultProviderProcessor(JServer server) {
         this.server = server;
 
-        ExecutorFactory factory = (ExecutorFactory) JServiceLoader.load(ProviderExecutorFactory.class);
+        ExecutorFactory factory = (ExecutorFactory) JServiceLoader.loadFirst(ProviderExecutorFactory.class);
         executor = factory.newExecutor(PROCESSOR_CORE_NUM_WORKERS);
     }
 

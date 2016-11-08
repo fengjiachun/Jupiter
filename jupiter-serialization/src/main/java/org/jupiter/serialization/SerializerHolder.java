@@ -17,6 +17,14 @@
 package org.jupiter.serialization;
 
 import org.jupiter.common.util.JServiceLoader;
+import org.jupiter.common.util.collection.ByteObjectHashMap;
+import org.jupiter.common.util.collection.ByteObjectMap;
+import org.jupiter.common.util.internal.logging.InternalLogger;
+import org.jupiter.common.util.internal.logging.InternalLoggerFactory;
+
+import java.util.List;
+
+import static org.jupiter.serialization.SerializerType.*;
 
 /**
  * Holds a singleton serializer.
@@ -28,10 +36,45 @@ import org.jupiter.common.util.JServiceLoader;
  */
 public final class SerializerHolder {
 
-    // SPI
-    private static final Serializer serializer = JServiceLoader.load(Serializer.class);
+    private static final InternalLogger logger = InternalLoggerFactory.getInstance(SerializerHolder.class);
 
-    public static Serializer serializerImpl() {
+    private static final ByteObjectMap<Serializer> serializerMapping = new ByteObjectHashMap<>();
+    private static final Serializer defaultSerializer;
+
+    static {
+        List<Serializer> serializerList = JServiceLoader.loadAll(Serializer.class);
+
+        logger.info("Support serializers: {}.", serializerList);
+
+        for (Serializer s : serializerList) {
+            serializerMapping.put(s.code(), s);
+        }
+
+        // protoStuff is expected
+        Serializer defaultImpl = serializerMapping.get(PROTO_STUFF.value());
+        if (defaultImpl == null && !serializerList.isEmpty()) {
+            defaultImpl = serializerList.get(0);
+        }
+        defaultSerializer = defaultImpl;
+
+        logger.info("Default serializer: {}.", defaultSerializer);
+    }
+
+    public static byte defaultSerializerCode() {
+        return defaultSerializer.code();
+    }
+
+    public static Serializer defaultSerializerImpl() {
+        return defaultSerializer;
+    }
+
+    public static Serializer serializerImpl(byte code) {
+        Serializer serializer =  serializerMapping.get(code);
+
+        if (serializer == null) {
+            throw new NullPointerException("unsupported serializerImpl with code: " + code);
+        }
+
         return serializer;
     }
 }

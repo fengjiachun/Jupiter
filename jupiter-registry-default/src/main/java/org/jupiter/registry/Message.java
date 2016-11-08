@@ -18,6 +18,8 @@ package org.jupiter.registry;
 
 import java.util.concurrent.atomic.AtomicLong;
 
+import static org.jupiter.serialization.SerializerHolder.defaultSerializerCode;
+
 /**
  * 发布订阅信息的包装类.
  *
@@ -31,7 +33,8 @@ public class Message {
     private static final AtomicLong sequenceGenerator = new AtomicLong(0);
 
     private final long sequence;
-    private short sign;
+    private byte messageCode;
+    private byte serializerCode = defaultSerializerCode();
     private long version; // 版本号
     private Object data;
 
@@ -47,19 +50,27 @@ public class Message {
         return sequence;
     }
 
-    public short sign() {
-        return sign;
+    public byte messageCode() {
+        return messageCode;
     }
 
-    public void sign(short sign) {
-        this.sign = sign;
+    public void messageCode(byte messageCode) {
+        this.messageCode = messageCode;
     }
 
-    public long getVersion() {
+    public byte serializerCode() {
+        return serializerCode;
+    }
+
+    public void serializerCode(byte serializerCode) {
+        this.serializerCode = serializerCode;
+    }
+
+    public long version() {
         return version;
     }
 
-    public void setVersion(long version) {
+    public void version(long version) {
         this.version = version;
     }
 
@@ -75,7 +86,8 @@ public class Message {
     public String toString() {
         return "Message{" +
                 "sequence=" + sequence +
-                ", sign=" + sign +
+                ", messageCode=" + messageCode +
+                ", serializerCode=" + serializerCode +
                 ", version=" + version +
                 ", data=" + data +
                 '}';

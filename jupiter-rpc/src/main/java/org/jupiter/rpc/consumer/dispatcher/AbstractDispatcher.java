@@ -23,11 +23,14 @@ import org.jupiter.rpc.JRequest;
 import org.jupiter.rpc.channel.JChannel;
 import org.jupiter.rpc.consumer.promise.InvokePromise;
 import org.jupiter.rpc.model.metadata.ServiceMetadata;
+import org.jupiter.serialization.Serializer;
+import org.jupiter.serialization.SerializerType;
 
 import java.util.List;
 import java.util.Map;
 
 import static org.jupiter.common.util.JConstants.DEFAULT_TIMEOUT;
+import static org.jupiter.serialization.SerializerHolder.serializerImpl;
 
 /**
  * jupiter
@@ -38,6 +41,8 @@ import static org.jupiter.common.util.JConstants.DEFAULT_TIMEOUT;
 public abstract class AbstractDispatcher implements Dispatcher {
 
     protected final ServiceMetadata metadata;       // 目标服务元信息
+    protected final SerializerType serializerType;
+    protected final Serializer serializerImpl;      // 序列化/反序列化impl
 
     private ConsumerHook[] hooks;                   // consumer hook
     private JListener listener;                     // 回调函数
@@ -45,8 +50,10 @@ public abstract class AbstractDispatcher implements Dispatcher {
     // 针对指定方法单独设置的超时时间, 方法名为key, 方法参数类型不做区别对待
     private Map<String, Long> methodsSpecialTimeoutMillis = Maps.newHashMap();
 
-    public AbstractDispatcher(ServiceMetadata metadata) {
+    public AbstractDispatcher(ServiceMetadata metadata, SerializerType serializerType) {
         this.metadata = metadata;
+        this.serializerType = serializerType;
+        this.serializerImpl = serializerImpl(serializerType.value());
     }
 
     @Override

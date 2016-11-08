@@ -31,12 +31,10 @@ package org.jupiter.transport;
  *
  * 消息头16个字节定长
  * = 2 // MAGIC = (short) 0xbabe
- * + 1 // 消息标志位, 用来表示消息类型Request/Response/Heartbeat等
+ * + 1 // 消息标志位, 低地址4位用来表示消息类型Request/Response/Heartbeat等, 高地址4位用来表示序列化类型
  * + 1 // 状态位, 设置请求响应状态
  * + 8 // 消息 id, long 类型
  * + 4 // 消息体 body 长度, int类型
- *
- * Sign: -128 ~ 127的范围(byte)有点浪费, 可以将高地址2~4位作为序列化标识, 暂时未支持
  *
  * jupiter
  * org.jupiter.transport
@@ -50,44 +48,39 @@ public class JProtocolHeader {
     /** Magic */
     public static final short MAGIC = (short) 0xbabe;
 
-    /** ============================================= For RPC ======================================================= */
+    /** Message Code: 0x01 ~ 0x0f =================================================================================== */
+    public static final byte REQUEST                    = 0x01;     // Request
+    public static final byte RESPONSE                   = 0x02;     // Response
+    public static final byte PUBLISH_SERVICE            = 0x03;     // 发布服务
+    public static final byte PUBLISH_CANCEL_SERVICE     = 0x04;     // 取消发布服务
+    public static final byte SUBSCRIBE_SERVICE          = 0x05;     // 订阅服务
+    public static final byte OFFLINE_NOTICE             = 0x06;     // 通知下线
+    public static final byte ACK                        = 0x07;     // Acknowledge
+    public static final byte HEARTBEAT                  = 0x0f;     // Heartbeat
 
-    /** Request */
-    public static final byte REQUEST = 1;
-    /** Response */
-    public static final byte RESPONSE = 2;
+    private byte messageCode;       // sign 低地址4位
 
-    /** ============================================================================================================= */
-
-    /** ============================================= For Registry ================================================== */
-
-    /** 发布服务 */
-    public static final byte PUBLISH_SERVICE = 65;
-    /** 取消发布服务 */
-    public static final byte PUBLISH_CANCEL_SERVICE = 66;
-    /** 订阅服务 */
-    public static final byte SUBSCRIBE_SERVICE = 67;
-    /** 通知下线 */
-    public static final byte OFFLINE_NOTICE = 68;
-
-    /** ============================================================================================================= */
-
-    /** Acknowledge */
-    public static final byte ACK = 126;
-    /** Heartbeat */
-    public static final byte HEARTBEAT = 127;
-
-    private byte sign;
+    /** Serializer Code: 0x01 ~ 0x06 ================================================================================ */
+    // protostuff   = 0x01;
+    // kryo         = 0x02;
+    // ...
+    // XXX          = 0x06
+    private byte serializerCode; // sign 高地址4位
     private byte status;
     private long id;
     private int bodyLength;
 
-    public byte sign() {
-        return sign;
+    public void sign(byte sign) {
+        this.messageCode = (byte) (sign & 0x0f);    // sign 低地址4位
+        this.serializerCode = (byte) (sign >> 4);   // sign 高地址4位
     }
 
-    public void sign(byte sign) {
-        this.sign = sign;
+    public byte messageCode() {
+        return messageCode;
+    }
+
+    public byte serializerCode() {
+        return serializerCode;
     }
 
     public byte status() {
@@ -117,7 +110,8 @@ public class JProtocolHeader {
     @Override
     public String toString() {
         return "JProtocolHeader{" +
-                "sign=" + sign +
+                "messageCode=" + messageCode +
+                ", serializerCode=" + serializerCode +
                 ", status=" + status +
                 ", id=" + id +
                 ", bodyLength=" + bodyLength +

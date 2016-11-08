@@ -63,6 +63,11 @@ public class ProtoStuffSerializer implements Serializer {
         }
     };
 
+    @Override
+    public byte code() {
+        return 0x01;
+    }
+
     @SuppressWarnings("unchecked")
     @Override
     public <T> byte[] writeObject(T obj) {
@@ -96,5 +101,10 @@ public class ProtoStuffSerializer implements Serializer {
             }
         }
         return schema;
+    }
+
+    @Override
+    public String toString() {
+        return "proto_stuff:(code=" + code() + ")";
     }
 }

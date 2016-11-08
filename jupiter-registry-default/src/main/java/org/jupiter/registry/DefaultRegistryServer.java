@@ -231,8 +231,8 @@ public class DefaultRegistryServer extends NettyTcpAcceptor implements RegistryS
                 registerInfoContext.getServiceMeta(meta.getAddress()).add(serviceMeta);
 
                 final Message msg = new Message();
-                msg.sign(PUBLISH_SERVICE);
-                msg.setVersion(config.newVersion()); // 版本号+1
+                msg.messageCode(PUBLISH_SERVICE);
+                msg.version(config.newVersion()); // 版本号+1
                 msg.data(new Pair<>(serviceMeta, meta));
 
                 subscriberChannels.writeAndFlush(msg, new ChannelMatcher() {
@@ -273,8 +273,8 @@ public class DefaultRegistryServer extends NettyTcpAcceptor implements RegistryS
                 registerInfoContext.getServiceMeta(address).remove(serviceMeta);
 
                 final Message msg = new Message();
-                msg.sign(PUBLISH_CANCEL_SERVICE);
-                msg.setVersion(config.newVersion()); // 版本号+1
+                msg.messageCode(PUBLISH_CANCEL_SERVICE);
+                msg.version(config.newVersion()); // 版本号+1
                 msg.data(new Pair<>(serviceMeta, data));
 
                 subscriberChannels.writeAndFlush(msg, new ChannelMatcher() {
@@ -309,8 +309,8 @@ public class DefaultRegistryServer extends NettyTcpAcceptor implements RegistryS
         }
 
         final Message msg = new Message();
-        msg.sign(PUBLISH_SERVICE);
-        msg.setVersion(config.getVersion()); // 版本号
+        msg.messageCode(PUBLISH_SERVICE);
+        msg.version(config.getVersion()); // 版本号
         List<RegisterMeta> registerMetaList = Lists.newArrayList(config.getConfig().values());
         // 每次发布服务都是当前meta的全量信息
         msg.data(new Pair<>(serviceMeta, registerMetaList));
@@ -332,7 +332,7 @@ public class DefaultRegistryServer extends NettyTcpAcceptor implements RegistryS
         logger.info("OfflineNotice on {}.", address);
 
         Message msg = new Message();
-        msg.sign(OFFLINE_NOTICE);
+        msg.messageCode(OFFLINE_NOTICE);
         msg.data(address);
         subscriberChannels.writeAndFlush(msg);
     }
@@ -409,7 +409,7 @@ public class DefaultRegistryServer extends NettyTcpAcceptor implements RegistryS
             this.serviceMeta = serviceMeta;
             this.msg = msg;
             this.channel = channel;
-            this.version = msg.getVersion();
+            this.version = msg.version();
 
             id = key(msg.sequence(), channel);
         }
@@ -461,7 +461,9 @@ public class DefaultRegistryServer extends NettyTcpAcceptor implements RegistryS
                     header.bodyLength(in.readInt());        // 消息体长度
                     checkpoint(State.BODY);
                 case BODY:
-                    switch (header.sign()) {
+                    byte code = header.serializerCode();
+
+                    switch (header.messageCode()) {
                         case HEARTBEAT:
                             break;
                         case PUBLISH_SERVICE:
@@ -471,8 +473,8 @@ public class DefaultRegistryServer extends NettyTcpAcceptor implements RegistryS
                             byte[] bytes = new byte[header.bodyLength()];
                             in.readBytes(bytes);
 
-                            Message msg = serializerImpl().readObject(bytes, Message.class);
-                            msg.sign(header.sign());
+                            Message msg = serializerImpl(code).readObject(bytes, Message.class);
+                            msg.messageCode(header.messageCode());
                             out.add(msg);
 
                             break;
@@ -481,7 +483,7 @@ public class DefaultRegistryServer extends NettyTcpAcceptor implements RegistryS
                             byte[] bytes = new byte[header.bodyLength()];
                             in.readBytes(bytes);
 
-                            Acknowledge ack = serializerImpl().readObject(bytes, Acknowledge.class);
+                            Acknowledge ack = serializerImpl(code).readObject(bytes, Acknowledge.class);
                             out.add(ack);
 
                             break;
@@ -532,9 +534,12 @@ public class DefaultRegistryServer extends NettyTcpAcceptor implements RegistryS
 
         @Override
         protected void encode(ChannelHandlerContext ctx, Message msg, ByteBuf out) throws Exception {
-            byte[] bytes = serializerImpl().writeObject(msg);
+            byte s_code = msg.serializerCode();
+            byte sign = (byte) ((s_code << 4) + msg.messageCode());
+            byte[] bytes = serializerImpl(s_code).writeObject(msg);
+
             out.writeShort(MAGIC)
-                    .writeByte(msg.sign())
+                    .writeByte(sign)
                     .writeByte(0)
                     .writeLong(0)
                     .writeInt(bytes.length)
@@ -551,7 +556,7 @@ public class DefaultRegistryServer extends NettyTcpAcceptor implements RegistryS
 
             if (msg instanceof Message) {
                 Message obj = (Message) msg;
-                switch (obj.sign()) {
+                switch (obj.messageCode()) {
                     case PUBLISH_SERVICE:
                     case PUBLISH_CANCEL_SERVICE:
                         RegisterMeta meta = (RegisterMeta) obj.data();
@@ -566,9 +571,9 @@ public class DefaultRegistryServer extends NettyTcpAcceptor implements RegistryS
                             }
                         }
 
-                        if (obj.sign() == PUBLISH_SERVICE) {
+                        if (obj.messageCode() == PUBLISH_SERVICE) {
                             handlePublish(meta, channel);
-                        } else if (obj.sign() == PUBLISH_CANCEL_SERVICE) {
+                        } else if (obj.messageCode() == PUBLISH_CANCEL_SERVICE) {
                             handlePublishCancel(meta, channel);
                         }
                         channel.writeAndFlush(new Acknowledge(obj.sequence())) // 回复ACK

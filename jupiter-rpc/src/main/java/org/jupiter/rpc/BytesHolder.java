@@ -26,7 +26,16 @@ package org.jupiter.rpc;
  */
 public abstract class BytesHolder {
 
+    private byte serializerCode; // 序列化/反序列化方式
     private transient byte[] bytes;
+
+    public byte serializerCode() {
+        return serializerCode;
+    }
+
+    public void serializerCode(byte serializerCode) {
+        this.serializerCode = serializerCode;
+    }
 
     public byte[] bytes() {
         return bytes;

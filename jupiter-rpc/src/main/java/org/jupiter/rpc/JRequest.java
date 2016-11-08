@@ -37,11 +37,23 @@ public class JRequest extends BytesHolder {
 
     private transient long timestamp;
 
-    public JRequest() {
+    public static JRequest newInstance(byte serializerCode) {
+        JRequest r = new JRequest();
+        r.serializerCode(serializerCode);
+        return r;
+    }
+
+    public static JRequest newInstance(long invokeId, byte serializerCode) {
+        JRequest r = new JRequest(invokeId);
+        r.serializerCode(serializerCode);
+        return r;
+    }
+
+    private JRequest() {
         this(invokeIdGenerator.getAndIncrement());
     }
 
-    public JRequest(long invokeId) {
+    private JRequest(long invokeId) {
         this.invokeId = invokeId;
     }
 

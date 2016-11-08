@@ -20,6 +20,7 @@ import org.jupiter.common.util.Lists;
 import org.jupiter.common.util.Strings;
 import org.jupiter.rpc.*;
 import org.jupiter.rpc.consumer.ProxyFactory;
+import org.jupiter.serialization.SerializerType;
 import org.jupiter.transport.JConnector;
 import org.jupiter.transport.exception.ConnectFailedException;
 import org.springframework.beans.factory.FactoryBean;
@@ -42,6 +43,7 @@ public class JupiterSpringConsumerBean<T> implements FactoryBean<T>, Initializin
 
     private JupiterSpringConnector connector;
     private Class<T> interfaceClass;                        // 接口类型
+    private SerializerType serializerType;                  // 序列化/反序列化方式
     private long waitForAvailableTimeoutMillis = -1;        // 如果大于0, 表示阻塞等待直到连接可用并且该值为等待时间
 
     private transient T proxy;                              // consumer代理对象
@@ -76,6 +78,10 @@ public class JupiterSpringConsumerBean<T> implements FactoryBean<T>, Initializin
 
     private void init() {
         ProxyFactory<T> factory = ProxyFactory.factory(interfaceClass);
+
+        if (serializerType != null) {
+            factory.serializerType(serializerType);
+        }
 
         if (connector.isHasRegistryServer()) {
             // 自动管理可用连接
@@ -148,6 +154,14 @@ public class JupiterSpringConsumerBean<T> implements FactoryBean<T>, Initializin
 
     public void setInterfaceClass(Class<T> interfaceClass) {
         this.interfaceClass = interfaceClass;
+    }
+
+    public SerializerType getSerializerType() {
+        return serializerType;
+    }
+
+    public void setSerializerType(String serializerType) {
+        this.serializerType = SerializerType.parse(serializerType);
     }
 
     public long getWaitForAvailableTimeoutMillis() {

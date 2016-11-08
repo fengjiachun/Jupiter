@@ -16,6 +16,7 @@
 
 package org.jupiter.common.util;
 
+import java.util.List;
 import java.util.ServiceLoader;
 
 /**
@@ -28,7 +29,11 @@ import java.util.ServiceLoader;
  */
 public final class JServiceLoader {
 
-    public static <S> S load(Class<S> serviceClass) {
+    public static <S> S loadFirst(Class<S> serviceClass) {
         return ServiceLoader.load(serviceClass).iterator().next();
+    }
+
+    public static <S> List<S> loadAll(Class<S> serviceClass) {
+        return Lists.newArrayList(ServiceLoader.load(serviceClass).iterator());
     }
 }

@@ -281,7 +281,7 @@ public class DefaultInvokePromise extends InvokePromise<Object> {
             Status status = promise.sentTimestamp > 0 ? SERVER_TIMEOUT : CLIENT_TIMEOUT;
             result.setError(new TimeoutException(promise.channel.remoteAddress(), status));
 
-            JResponse r = JResponse.newInstance(promise.invokeId, status, result);
+            JResponse r = JResponse.newInstance(promise.invokeId, promise.request.serializerCode(), status, result);
             DefaultInvokePromise.received(promise.channel, r);
         }
     }

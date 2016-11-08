@@ -39,9 +39,12 @@ public class AcknowledgeEncoder extends MessageToByteEncoder<Acknowledge> {
 
     @Override
     protected void encode(ChannelHandlerContext ctx, Acknowledge ack, ByteBuf out) throws Exception {
-        byte[] bytes = serializerImpl().writeObject(ack);
+        byte s_code = ack.serializerCode();
+        byte sign = (byte) ((s_code << 4) + ACK);
+        byte[] bytes = serializerImpl(s_code).writeObject(ack);
+
         out.writeShort(MAGIC)
-                .writeByte(ACK)
+                .writeByte(sign)
                 .writeByte(0)
                 .writeLong(ack.sequence())
                 .writeInt(bytes.length)

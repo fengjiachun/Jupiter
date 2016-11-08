@@ -28,6 +28,7 @@ import org.jupiter.rpc.consumer.invoker.CallbackInvoker;
 import org.jupiter.rpc.consumer.invoker.PromiseInvoker;
 import org.jupiter.rpc.consumer.invoker.SyncInvoker;
 import org.jupiter.rpc.model.metadata.ServiceMetadata;
+import org.jupiter.serialization.SerializerType;
 
 import java.util.Collections;
 import java.util.List;
@@ -38,6 +39,7 @@ import static org.jupiter.rpc.DispatchType.BROADCAST;
 import static org.jupiter.rpc.DispatchType.ROUND;
 import static org.jupiter.rpc.InvokeType.CALLBACK;
 import static org.jupiter.rpc.InvokeType.SYNC;
+import static org.jupiter.serialization.SerializerType.PROTO_STUFF;
 
 /**
  * Proxy factory
@@ -52,6 +54,7 @@ import static org.jupiter.rpc.InvokeType.SYNC;
 public class ProxyFactory<I> {
 
     private final Class<I> interfaceClass;                      // 接口类型
+    private SerializerType serializerType = PROTO_STUFF;        // 序列化/反序列化方式
 
     private JClient client;                                     // connector
     private List<UnresolvedAddress> addresses;                  // provider地址
@@ -78,6 +81,14 @@ public class ProxyFactory<I> {
 
     public Class<I> getInterfaceClass() {
         return interfaceClass;
+    }
+
+    /**
+     * Sets the service serializer type.
+     */
+    public ProxyFactory serializerType(SerializerType serializerType) {
+        this.serializerType = serializerType;
+        return this;
     }
 
     /**
@@ -160,6 +171,7 @@ public class ProxyFactory<I> {
         // check arguments
         checkNotNull(client, "connector");
         checkNotNull(interfaceClass, "interfaceClass");
+        checkNotNull(serializerType, "serializerType");
 
         if (dispatchType == BROADCAST && invokeType != CALLBACK) {
             throw new UnsupportedOperationException("illegal type, BROADCAST only support CALLBACK");
@@ -179,7 +191,7 @@ public class ProxyFactory<I> {
         }
 
         // dispatcher
-        Dispatcher dispatcher = asDispatcher(metadata);
+        Dispatcher dispatcher = asDispatcher(metadata, serializerType);
         if (timeoutMillis > 0) {
             dispatcher.setTimeoutMillis(timeoutMillis);
         }
@@ -207,12 +219,12 @@ public class ProxyFactory<I> {
         return Proxies.getDefault().newProxy(interfaceClass, handler);
     }
 
-    protected Dispatcher asDispatcher(ServiceMetadata metadata) {
+    protected Dispatcher asDispatcher(ServiceMetadata metadata, SerializerType serializerType) {
         switch (dispatchType) {
             case ROUND:
-                return new DefaultRoundDispatcher(metadata);
+                return new DefaultRoundDispatcher(metadata, serializerType);
             case BROADCAST:
-                return new DefaultBroadcastDispatcher(metadata);
+                return new DefaultBroadcastDispatcher(metadata, serializerType);
             default:
                 throw new IllegalStateException("DispatchType: " + dispatchType);
         }

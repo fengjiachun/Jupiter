@@ -62,7 +62,7 @@ public abstract class AbstractJServer implements JServer {
     // provider本地容器
     private final ServiceProviderContainer providerContainer = new DefaultServiceProviderContainer();
     // 注册服务(SPI)
-    private final RegistryService registryService = JServiceLoader.load(RegistryService.class);
+    private final RegistryService registryService = JServiceLoader.loadFirst(RegistryService.class);
 
     // 全局拦截代理
     private volatile ProviderProxyHandler globalProviderProxyHandler;

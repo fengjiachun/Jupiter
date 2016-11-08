@@ -105,7 +105,8 @@ public class MessageTask implements RejectedRunnable {
             byte[] bytes = _request.bytes();
             _request.bytes(null);
             requestSizeHistogram.update(bytes.length);
-            msg = serializerImpl().readObject(bytes, MessageWrapper.class);
+            byte code = _request.serializerCode();
+            msg = serializerImpl(code).readObject(bytes, MessageWrapper.class);
             _request.message(msg);
         } catch (Throwable t) {
             rejected(BAD_REQUEST);
@@ -192,10 +193,12 @@ public class MessageTask implements RejectedRunnable {
 
         logger.warn("Service rejected: {}.", result.getError());
 
-        byte[] bytes = serializerImpl().writeObject(result);
+        byte code = _request.serializerCode();
+        byte[] bytes = serializerImpl(code).writeObject(result);
 
         final long invokeId = _request.invokeId();
-        channel.write(JResponse.newInstance(invokeId, status, bytes), new JFutureListener<JChannel>() {
+        JResponse response = JResponse.newInstance(invokeId, code, status, bytes);
+        channel.write(response, new JFutureListener<JChannel>() {
 
             @Override
             public void operationSuccess(JChannel channel) throws Exception {
@@ -257,10 +260,11 @@ public class MessageTask implements RejectedRunnable {
 
             ResultWrapper result = new ResultWrapper();
             result.setResult(invokeResult);
-            byte[] bytes = serializerImpl().writeObject(result);
+            byte code = _request.serializerCode();
+            byte[] bytes = serializerImpl(code).writeObject(result);
             final int bodyLength = bytes.length;
-
-            channel.write(JResponse.newInstance(invokeId, OK, bytes), new JFutureListener<JChannel>() {
+            JResponse response = JResponse.newInstance(invokeId, code, OK, bytes);
+            channel.write(response, new JFutureListener<JChannel>() {
 
                 @Override
                 public void operationSuccess(JChannel channel) throws Exception {

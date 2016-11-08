@@ -45,7 +45,9 @@ public class MessageTask implements Runnable {
         // stack copy
         final JResponse _response = response;
 
-        _response.result(serializerImpl().readObject(_response.bytes(), ResultWrapper.class));
+        byte code = _response.serializerCode();
+
+        _response.result(serializerImpl(code).readObject(_response.bytes(), ResultWrapper.class));
         _response.bytes(null);
         DefaultInvokePromise.received(channel, _response);
     }
