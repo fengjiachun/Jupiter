@@ -195,7 +195,6 @@ public class MessageTask implements RejectedRunnable {
 
         byte s_code = _request.serializerCode();
         byte[] bytes = serializerImpl(s_code).writeObject(result);
-
         final long invokeId = _request.invokeId();
         JResponse response = JResponse.newInstance(invokeId, s_code, status, bytes);
         channel.write(response, new JFutureListener<JChannel>() {
