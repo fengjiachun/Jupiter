@@ -41,7 +41,6 @@ import static org.jupiter.serialization.SerializerHolder.serializerImpl;
 public abstract class AbstractDispatcher implements Dispatcher {
 
     protected final ServiceMetadata metadata;       // 目标服务元信息
-    protected final SerializerType serializerType;
     protected final Serializer serializerImpl;      // 序列化/反序列化impl
 
     private ConsumerHook[] hooks;                   // consumer hook
@@ -52,7 +51,6 @@ public abstract class AbstractDispatcher implements Dispatcher {
 
     public AbstractDispatcher(ServiceMetadata metadata, SerializerType serializerType) {
         this.metadata = metadata;
-        this.serializerType = serializerType;
         this.serializerImpl = serializerImpl(serializerType.value());
     }
 

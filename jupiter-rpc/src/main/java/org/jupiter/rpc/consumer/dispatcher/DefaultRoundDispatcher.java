@@ -32,6 +32,7 @@ import org.jupiter.rpc.model.metadata.ServiceMetadata;
 import org.jupiter.rpc.tracing.TraceId;
 import org.jupiter.rpc.tracing.TracingEye;
 import org.jupiter.rpc.tracing.TracingRecorder;
+import org.jupiter.serialization.Serializer;
 import org.jupiter.serialization.SerializerType;
 
 import static org.jupiter.rpc.Status.CLIENT_ERROR;
@@ -55,7 +56,9 @@ public class DefaultRoundDispatcher extends AbstractDispatcher {
 
     @Override
     public InvokePromise<?> dispatch(JClient client, String methodName, Object[] args) {
-        final ServiceMetadata _metadata = metadata; // stack copy
+        // stack copy
+        final ServiceMetadata _metadata = metadata;
+        final Serializer _serializerImpl = serializerImpl;
 
         MessageWrapper message = new MessageWrapper(_metadata);
         message.setAppName(client.appName());
@@ -64,7 +67,7 @@ public class DefaultRoundDispatcher extends AbstractDispatcher {
 
         // 通过软负载选择一个channel
         JChannel channel = client.select(_metadata);
-        final JRequest request = JRequest.newInstance(serializerType.value());
+        final JRequest request = JRequest.newInstance(_serializerImpl.code());
 
         // tracing
         if (TracingEye.isTracingNeeded()) {
@@ -80,7 +83,7 @@ public class DefaultRoundDispatcher extends AbstractDispatcher {
 
         request.message(message);
         // 在业务线程中序列化, 减轻IO线程负担
-        request.bytes(serializerImpl.writeObject(message));
+        request.bytes(_serializerImpl.writeObject(message));
 
         long timeoutMillis = getMethodSpecialTimeoutMillis(methodName);
         final ConsumerHook[] _hooks = getHooks();

@@ -28,6 +28,7 @@ import org.jupiter.rpc.consumer.promise.InvokePromise;
 import org.jupiter.rpc.model.metadata.MessageWrapper;
 import org.jupiter.rpc.model.metadata.ResultWrapper;
 import org.jupiter.rpc.model.metadata.ServiceMetadata;
+import org.jupiter.serialization.Serializer;
 import org.jupiter.serialization.SerializerType;
 
 import java.util.List;
@@ -53,7 +54,9 @@ public class DefaultBroadcastDispatcher extends AbstractDispatcher {
 
     @Override
     public InvokePromise<?> dispatch(JClient client, String methodName, Object[] args) {
-        final ServiceMetadata _metadata = metadata; // stack copy
+        // stack copy
+        final ServiceMetadata _metadata = metadata;
+        final Serializer _serializerImpl = serializerImpl;
 
         MessageWrapper message = new MessageWrapper(_metadata);
         message.setAppName(client.appName());
@@ -66,10 +69,10 @@ public class DefaultBroadcastDispatcher extends AbstractDispatcher {
             channels.add(groups.get(i).next());
         }
 
-        final JRequest request = JRequest.newInstance(serializerType.value());
+        final JRequest request = JRequest.newInstance(_serializerImpl.code());
         request.message(message);
         // 在业务线程中序列化, 减轻IO线程负担
-        request.bytes(serializerImpl.writeObject(message));
+        request.bytes(_serializerImpl.writeObject(message));
 
         long timeoutMillis = getMethodSpecialTimeoutMillis(methodName);
         final ConsumerHook[] _hooks = getHooks();
