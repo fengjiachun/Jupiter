@@ -556,7 +556,9 @@ public class DefaultRegistryServer extends NettyTcpAcceptor implements RegistryS
 
             if (msg instanceof Message) {
                 Message obj = (Message) msg;
-                switch (obj.messageCode()) {
+                byte m_code = obj.messageCode();
+
+                switch (m_code) {
                     case PUBLISH_SERVICE:
                     case PUBLISH_CANCEL_SERVICE:
                         RegisterMeta meta = (RegisterMeta) obj.data();
@@ -571,9 +573,9 @@ public class DefaultRegistryServer extends NettyTcpAcceptor implements RegistryS
                             }
                         }
 
-                        if (obj.messageCode() == PUBLISH_SERVICE) {
+                        if (m_code == PUBLISH_SERVICE) {
                             handlePublish(meta, channel);
-                        } else if (obj.messageCode() == PUBLISH_CANCEL_SERVICE) {
+                        } else if (m_code == PUBLISH_CANCEL_SERVICE) {
                             handlePublishCancel(meta, channel);
                         }
                         channel.writeAndFlush(new Acknowledge(obj.sequence())) // 回复ACK
