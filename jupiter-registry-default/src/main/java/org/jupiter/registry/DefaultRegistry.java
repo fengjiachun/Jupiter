@@ -320,7 +320,7 @@ public class DefaultRegistry extends NettyTcpConnector {
                     header.bodyLength(in.readInt());        // 消息体长度
                     checkpoint(State.BODY);
                 case BODY:
-                    byte code = header.serializerCode();
+                    byte s_code = header.serializerCode();
 
                     switch (header.messageCode()) {
                         case PUBLISH_SERVICE:
@@ -329,7 +329,7 @@ public class DefaultRegistry extends NettyTcpConnector {
                             byte[] bytes = new byte[header.bodyLength()];
                             in.readBytes(bytes);
 
-                            Message msg = serializerImpl(code).readObject(bytes, Message.class);
+                            Message msg = serializerImpl(s_code).readObject(bytes, Message.class);
                             msg.messageCode(header.messageCode());
                             out.add(msg);
 
@@ -339,7 +339,7 @@ public class DefaultRegistry extends NettyTcpConnector {
                             byte[] bytes = new byte[header.bodyLength()];
                             in.readBytes(bytes);
 
-                            Acknowledge ack = serializerImpl(code).readObject(bytes, Acknowledge.class);
+                            Acknowledge ack = serializerImpl(s_code).readObject(bytes, Acknowledge.class);
                             out.add(ack);
                             break;
                         }
