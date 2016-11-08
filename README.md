@@ -54,8 +54,8 @@
 
 
 ######版本变更:
-- v1.0 单个服务不能单独指定或切换序列化/反序列化的方式, 这不太合理
-- v1.1 为了同时支持多种序列化方式, 协议头发生变更, Sign(一个byte)的高地址4位用来标记序列化/反序列化方式, 低地址4位意义不变(暂时没有机器做性能测试和疲劳测试了, 相比v1.0可能不够稳定)
+    - v1.0 单个服务不能单独指定或切换序列化/反序列化的方式, 这不太合理
+    - v1.1 为了同时支持多种序列化方式, 协议头发生变更, Sign(一个byte)的高地址4位用来标记序列化/反序列化方式, 低地址4位意义不变(暂时没有机器做性能测试和疲劳测试了, 相比v1.0可能不够稳定)
 
 ######Jupiter使用, 请参考示例代码(挺全的):
 - [jupiter-example#org.jupiter.example.*](https://github.com/fengjiachun/Jupiter/tree/master/jupiter-example/src/main/java/org/jupiter/example)
