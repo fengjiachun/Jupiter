@@ -32,6 +32,8 @@
     <bean class="org.jupiter.spring.support.JupiterSpringConsumerBean">
         <property name="connector" ref="connectorWrapper" />
         <property name="interfaceClass" value="org.jupiter.example.ServiceTest" />
-        <property name="serializerType" value="proto_stuff" />
+        <!--<property name="serializerType" value="proto_stuff" />-->
+        <!--or-->
+        <!--<property name="serializerType" value="hessian" />-->
     </bean>
 </beans>
