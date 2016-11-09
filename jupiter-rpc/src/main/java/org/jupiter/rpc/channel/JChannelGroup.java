@@ -23,7 +23,7 @@ import java.util.List;
 /**
  * Based on the same address of the channel group.
  *
- * 相同地址的连接组
+ * 注意: 相同地址的连接group
  *
  * jupiter
  * org.jupiter.rpc.channel
