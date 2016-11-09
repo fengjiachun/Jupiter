@@ -29,10 +29,10 @@ public enum SerializerType {
     ;
 
     SerializerType(byte value) {
-        if (0x00 < value && value < 0x07) {
+        if (0x00 < value && value < 0x10) {
             this.value = value;
         } else {
-            throw new IllegalArgumentException("out of range(0x01 ~ 0x06): " + value);
+            throw new IllegalArgumentException("out of range(0x01 ~ 0x0f): " + value);
         }
     }
 

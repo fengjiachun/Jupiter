@@ -27,6 +27,8 @@ import org.jupiter.serialization.Serializer;
 
 import java.util.concurrent.ConcurrentMap;
 
+import static org.jupiter.serialization.SerializerType.PROTO_STUFF;
+
 /**
  * jupiter
  * org.jupiter.serialization.proto
@@ -65,7 +67,7 @@ public class ProtoStuffSerializer implements Serializer {
 
     @Override
     public byte code() {
-        return 0x01;
+        return PROTO_STUFF.value();
     }
 
     @SuppressWarnings("unchecked")
