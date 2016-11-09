@@ -54,7 +54,7 @@ public class HelloJupiterClient {
 
         ServiceTest service1 = ProxyFactory.factory(ServiceTest.class)
                 .connector(connector)
-                .serializerType(SerializerType.HESSION)
+                .serializerType(SerializerType.HESSIAN)
                 .newProxyInstance();
 
         ServiceTest2 service2 = ProxyFactory.factory(ServiceTest2.class)

@@ -27,7 +27,7 @@ package org.jupiter.serialization;
  */
 public enum SerializerType {
     PROTO_STUFF((byte) 0x01),
-    HESSION((byte) 0x02)
+    HESSIAN((byte) 0x02)
     ;
 
     SerializerType(byte value) {

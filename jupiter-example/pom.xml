@@ -39,7 +39,7 @@
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
-            <artifactId>jupiter-serialization-hession</artifactId>
+            <artifactId>jupiter-serialization-hessian</artifactId>
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>

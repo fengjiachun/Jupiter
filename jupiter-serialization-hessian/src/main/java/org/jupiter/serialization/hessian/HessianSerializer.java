@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.jupiter.serialization.hession;
+package org.jupiter.serialization.hessian;
 
 import com.caucho.hessian.io.Hessian2Input;
 import com.caucho.hessian.io.Hessian2Output;
@@ -27,15 +27,15 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 
-import static org.jupiter.serialization.SerializerType.HESSION;
+import static org.jupiter.serialization.SerializerType.HESSIAN;
 
 /**
  * jupiter
- * org.jupiter.serialization.hession
+ * org.jupiter.serialization.hessian
  *
  * @author jiachun.fjc
  */
-public class HessionSerializer implements Serializer {
+public class HessianSerializer implements Serializer {
 
     private static final UnsafeReferenceFieldUpdater<ByteArrayOutputStream, byte[]> bufUpdater =
             UnsafeUpdater.newReferenceFieldUpdater(ByteArrayOutputStream.class, "buf");
@@ -52,7 +52,7 @@ public class HessionSerializer implements Serializer {
 
     @Override
     public byte code() {
-        return HESSION.value();
+        return HESSIAN.value();
     }
 
     @Override
@@ -91,6 +91,6 @@ public class HessionSerializer implements Serializer {
 
     @Override
     public String toString() {
-        return "hession:(code=" + code() + ")";
+        return "hessian:(code=" + code() + ")";
     }
 }
