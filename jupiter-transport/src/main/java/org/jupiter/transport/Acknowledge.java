@@ -19,7 +19,7 @@ package org.jupiter.transport;
 import static org.jupiter.serialization.SerializerHolder.defaultSerializerCode;
 
 /**
- * ACK确认
+ * ACK确认消息包装
  *
  * jupiter
  * org.jupiter.transport
