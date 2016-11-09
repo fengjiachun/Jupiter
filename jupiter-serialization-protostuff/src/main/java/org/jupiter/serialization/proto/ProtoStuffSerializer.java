@@ -79,7 +79,7 @@ public class ProtoStuffSerializer implements Serializer {
         try {
             return ProtostuffIOUtil.toByteArray(obj, schema, buf);
         } finally {
-            buf.clear();
+            buf.clear(); // for reuse
         }
     }
 

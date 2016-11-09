@@ -19,6 +19,8 @@ package org.jupiter.serialization.hession;
 import com.caucho.hessian.io.Hessian2Input;
 import com.caucho.hessian.io.Hessian2Output;
 import org.jupiter.common.util.internal.JUnsafe;
+import org.jupiter.common.util.internal.UnsafeReferenceFieldUpdater;
+import org.jupiter.common.util.internal.UnsafeUpdater;
 import org.jupiter.serialization.Serializer;
 
 import java.io.ByteArrayInputStream;
@@ -35,11 +37,16 @@ import static org.jupiter.serialization.SerializerType.HESSION;
  */
 public class HessionSerializer implements Serializer {
 
+    private static final UnsafeReferenceFieldUpdater<ByteArrayOutputStream, byte[]> bufUpdater =
+            UnsafeUpdater.newReferenceFieldUpdater(ByteArrayOutputStream.class, "buf");
+
+    private static final int DISCARD_LIMIT = 1024 << 4; // 16k
+
     private final ThreadLocal<ByteArrayOutputStream> bufThreadLocal = new ThreadLocal<ByteArrayOutputStream>() {
 
         @Override
         protected ByteArrayOutputStream initialValue() {
-            return new ByteArrayOutputStream(64);
+            return new ByteArrayOutputStream(512);
         }
     };
 
@@ -51,16 +58,21 @@ public class HessionSerializer implements Serializer {
     @Override
     public <T> byte[] writeObject(T obj) {
         ByteArrayOutputStream buf = bufThreadLocal.get();
-        Hessian2Output out = new Hessian2Output(buf);
+        Hessian2Output output = new Hessian2Output(buf);
         try {
-            out.writeObject(obj);
-            out.flush();
+            output.writeObject(obj);
+            output.flush();
 
             return buf.toByteArray();
         } catch (IOException e) {
             JUnsafe.throwException(e);
         } finally {
-            buf.reset();
+            buf.reset(); // for reuse
+
+            // 防止hold大块内存
+            if (bufUpdater.get(buf).length > DISCARD_LIMIT) {
+                bufUpdater.set(buf, new byte[512]);
+            }
         }
         return null; // never get here
     }

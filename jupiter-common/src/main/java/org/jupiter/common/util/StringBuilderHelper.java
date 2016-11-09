@@ -31,13 +31,12 @@ import org.jupiter.common.util.internal.UnsafeUpdater;
  */
 public class StringBuilderHelper {
 
-    private static final UnsafeReferenceFieldUpdater<StringBuilder, char[]> bufferUpdater =
+    private static final UnsafeReferenceFieldUpdater<StringBuilder, char[]> valueUpdater =
             UnsafeUpdater.newReferenceFieldUpdater(StringBuilder.class.getSuperclass(), "value");
 
     private static final int DISCARD_LIMIT = 1024 << 3; // 8k
 
-    private static final ThreadLocal<StringBuilderHolder>
-            threadLocalStringBuilderHolder = new ThreadLocal<StringBuilderHolder>() {
+    private static final ThreadLocal<StringBuilderHolder> holderThreadLocal = new ThreadLocal<StringBuilderHolder>() {
 
         @Override
         protected StringBuilderHolder initialValue() {
@@ -46,12 +45,12 @@ public class StringBuilderHelper {
     };
 
     public static StringBuilder get() {
-        StringBuilderHolder holder = threadLocalStringBuilderHolder.get();
+        StringBuilderHolder holder = holderThreadLocal.get();
         return holder.getStringBuilder();
     }
 
     public static void truncate() {
-        StringBuilderHolder holder = threadLocalStringBuilderHolder.get();
+        StringBuilderHolder holder = holderThreadLocal.get();
         holder.truncate();
     }
 
@@ -66,7 +65,7 @@ public class StringBuilderHelper {
 
         private void truncate() {
             if (buf.capacity() > DISCARD_LIMIT) {
-                bufferUpdater.set(buf, new char[1024]);
+                valueUpdater.set(buf, new char[1024]);
             }
             buf.setLength(0);
         }
