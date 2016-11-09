@@ -69,7 +69,7 @@ public class HessianSerializer implements Serializer {
         } finally {
             buf.reset(); // for reuse
 
-            // 防止hold大块内存
+            // 防止hold太大块的内存
             if (bufUpdater.get(buf).length > DISCARD_LIMIT) {
                 bufUpdater.set(buf, new byte[512]);
             }
