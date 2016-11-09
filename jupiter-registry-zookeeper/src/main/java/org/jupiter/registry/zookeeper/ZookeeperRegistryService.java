@@ -59,7 +59,7 @@ public class ZookeeperRegistryService extends AbstractRegistryService {
 
     private static final InternalLogger logger = InternalLoggerFactory.getInstance(ZookeeperRegistryService.class);
 
-    // 没有实际意义, 不要在意这个sequence
+    // 没有实际意义, 不要在意它
     private static final AtomicLong sequence = new AtomicLong(0);
 
     private final String address = SystemPropertyUtil.get("jupiter.address", NetUtil.getLocalAddress());
