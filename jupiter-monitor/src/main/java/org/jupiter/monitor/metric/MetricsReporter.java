@@ -17,8 +17,9 @@
 package org.jupiter.monitor.metric;
 
 import com.codahale.metrics.ConsoleReporter;
-import org.jupiter.common.util.Reflects;
 import org.jupiter.common.util.StackTraceUtil;
+import org.jupiter.common.util.internal.UnsafeReferenceFieldUpdater;
+import org.jupiter.common.util.internal.UnsafeUpdater;
 import org.jupiter.rpc.metric.Metrics;
 
 import java.io.ByteArrayOutputStream;
@@ -37,6 +38,9 @@ import static org.jupiter.common.util.JConstants.UTF8_CHARSET;
  */
 public class MetricsReporter {
 
+    private static final UnsafeReferenceFieldUpdater<ByteArrayOutputStream, byte[]> bufUpdater =
+            UnsafeUpdater.newReferenceFieldUpdater(ByteArrayOutputStream.class, "buf");
+
     private static final ByteArrayOutputStream buf = new ByteArrayOutputStream();
     private static final PrintStream output = new PrintStream(buf);
     private static final ConsoleReporter reporter = ConsoleReporter.forRegistry(Metrics.metricRegistry())
@@ -52,8 +56,8 @@ public class MetricsReporter {
         String output;
         try {
             output = buf.toString(UTF8_CHARSET);
-            if (buf.size() > 1024 * 64) {
-                Reflects.setValue(buf, "buf", new byte[1024 * 64]);
+            if (bufUpdater.get(buf).length > 1024 * 64) {
+                bufUpdater.set(buf, new byte[1024 * 32]);
             }
         } catch (UnsupportedEncodingException e) {
             output = StackTraceUtil.stackTrace(e);
