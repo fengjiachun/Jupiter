@@ -17,7 +17,8 @@
 package org.jupiter.serialization;
 
 /**
- * 抱歉在你想扩展序列化方式的时候还需要修改这个类
+ * 最多可以扩展到15种不同的序列化/反序列化方式, 取值范围为: 0x01 ~ 0x0f,
+ * 每当想增加一种序列化/反序列化方式都要修改这个枚举, 不过我想这个限制是值得的.
  *
  * jupiter
  * org.jupiter.serialization
@@ -25,7 +26,8 @@ package org.jupiter.serialization;
  * @author jiachun.fjc
  */
 public enum SerializerType {
-    PROTO_STUFF((byte) 0x01)
+    PROTO_STUFF((byte) 0x01),
+    HESSION((byte) 0x02)
     ;
 
     SerializerType(byte value) {

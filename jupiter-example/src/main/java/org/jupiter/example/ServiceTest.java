@@ -18,6 +18,7 @@ package org.jupiter.example;
 
 import org.jupiter.rpc.ServiceProvider;
 
+import java.io.Serializable;
 import java.util.List;
 
 /**
@@ -31,7 +32,9 @@ public interface ServiceTest {
 
     ResultClass sayHello();
 
-    class ResultClass {
+    class ResultClass implements Serializable {
+        private static final long serialVersionUID = -6514302641628274984L;
+
         String str;
         int num;
         Long lon;

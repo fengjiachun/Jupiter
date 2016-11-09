@@ -34,6 +34,7 @@
         <module>jupiter-registry-zookeeper</module>
         <module>jupiter-rpc</module>
         <module>jupiter-serialization</module>
+        <module>jupiter-serialization-hession</module>
         <module>jupiter-serialization-protostuff</module>
         <module>jupiter-spring-support</module>
         <module>jupiter-transport</module>
@@ -45,6 +46,7 @@
         <jmh.version>1.9.3</jmh.version>
         <barchart.version>2.3.0</barchart.version>
         <protostuff.version>1.3.5</protostuff.version>
+        <hession.version>4.0.38</hession.version>
         <objenesis.version>2.1</objenesis.version>
         <javassist.version>3.19.0-GA</javassist.version>
         <bytebuddy.version>1.2.3</bytebuddy.version>
@@ -104,6 +106,11 @@
             <dependency>
                 <groupId>${project.groupId}</groupId>
                 <artifactId>jupiter-serialization-protostuff</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>${project.groupId}</groupId>
+                <artifactId>jupiter-serialization-hession</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
@@ -176,6 +183,13 @@
                 <groupId>io.protostuff</groupId>
                 <artifactId>protostuff-runtime</artifactId>
                 <version>${protostuff.version}</version>
+            </dependency>
+
+            <!-- Hessian -->
+            <dependency>
+                <groupId>com.caucho</groupId>
+                <artifactId>hessian</artifactId>
+                <version>${hession.version}</version>
             </dependency>
 
             <!-- Objenesis -->

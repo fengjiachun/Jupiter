@@ -19,6 +19,7 @@ package org.jupiter.example.round;
 import org.jupiter.example.ServiceTest;
 import org.jupiter.example.ServiceTest2;
 import org.jupiter.rpc.consumer.ProxyFactory;
+import org.jupiter.serialization.SerializerType;
 import org.jupiter.transport.JConnection;
 import org.jupiter.transport.JConnector;
 import org.jupiter.transport.exception.ConnectFailedException;
@@ -53,6 +54,7 @@ public class HelloJupiterClient {
 
         ServiceTest service1 = ProxyFactory.factory(ServiceTest.class)
                 .connector(connector)
+                .serializerType(SerializerType.HESSION)
                 .newProxyInstance();
 
         ServiceTest2 service2 = ProxyFactory.factory(ServiceTest2.class)

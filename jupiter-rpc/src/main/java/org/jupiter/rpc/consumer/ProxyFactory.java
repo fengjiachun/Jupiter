@@ -86,7 +86,7 @@ public class ProxyFactory<I> {
     /**
      * Sets the service serializer type.
      */
-    public ProxyFactory serializerType(SerializerType serializerType) {
+    public ProxyFactory<I> serializerType(SerializerType serializerType) {
         this.serializerType = serializerType;
         return this;
     }
