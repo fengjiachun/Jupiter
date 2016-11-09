@@ -60,19 +60,23 @@ public class JProtocolHeader {
 
     private byte messageCode;       // sign 低地址4位
 
-    /** Serializer Code: 0x01 ~ 0x06 ================================================================================ */
-    // protostuff   = 0x01;
-    // kryo         = 0x02;
+    /** Serializer Code: 0x01 ~ 0x0f ================================================================================ */
+    // 位数限制最多支持15种不同的序列化/反序列化方式
+    // protostuff   = 0x01
+    // kryo         = 0x02
     // ...
-    // XXX          = 0x06
+    // XX1          = 0x0e
+    // XX2          = 0x0f
     private byte serializerCode;    // sign 高地址4位
     private byte status;
     private long id;
     private int bodyLength;
 
     public void sign(byte sign) {
-        this.messageCode = (byte) (sign & 0x0f);    // sign 低地址4位
-        this.serializerCode = (byte) (sign >> 4);   // sign 高地址4位
+        // sign 低地址4位
+        this.messageCode = (byte) (sign & 0x0f);
+        // sign 高地址4位, 先转成无符号int再右移4位
+        this.serializerCode = (byte) ((((int) sign) & 0xff) >> 4);
     }
 
     public byte messageCode() {
