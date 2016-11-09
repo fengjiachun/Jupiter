@@ -35,7 +35,7 @@ public class Heartbeats {
 
     static {
         ByteBuf buf = Unpooled.buffer(HEAD_LENGTH);
-        buf.writeShort(MAGIC);
+        buf.writeShort(MAGIC); // 心跳包这里可忽略高地址的4位序列化/反序列化标志
         buf.writeByte(HEARTBEAT);
         buf.writeByte(0);
         buf.writeLong(0);
