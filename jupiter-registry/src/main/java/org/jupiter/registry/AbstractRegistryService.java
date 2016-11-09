@@ -143,7 +143,7 @@ public abstract class AbstractRegistryService implements RegistryService {
     }
 
     public void offline(Address address) {
-        // remove and notify
+        // remove & notify
         CopyOnWriteArrayList<OfflineListener> listeners = offlineListeners.remove(address);
         if (listeners != null) {
             for (OfflineListener l : listeners) {
