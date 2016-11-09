@@ -173,7 +173,7 @@
                 <version>${barchart.version}</version>
             </dependency>
 
-            <!-- Protostuff -->
+            <!-- Protostuff 序列化/反序列化 -->
             <dependency>
                 <groupId>io.protostuff</groupId>
                 <artifactId>protostuff-core</artifactId>
@@ -185,7 +185,7 @@
                 <version>${protostuff.version}</version>
             </dependency>
 
-            <!-- Hessian -->
+            <!-- Hessian 序列化/反序列化 -->
             <dependency>
                 <groupId>com.caucho</groupId>
                 <artifactId>hessian</artifactId>
