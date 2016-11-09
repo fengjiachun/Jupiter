@@ -37,7 +37,7 @@ public class JupiterSpringAcceptor implements InitializingBean {
 
     private JAcceptor acceptor;
 
-    private String registryServerAddresses;             // 注册中心地址   [host1:port1,host2:port2....]
+    private String registryServerAddresses;             // 注册中心地址: [host1:port1,host2:port2....]
     private boolean hasRegistryServer;                  // true: 需要连接注册中心; false: IP直连方式
     private ProviderInterceptor[] providerInterceptors; // 全局拦截器
     private FlowController<JRequest> flowController;    // 全局流量控制
