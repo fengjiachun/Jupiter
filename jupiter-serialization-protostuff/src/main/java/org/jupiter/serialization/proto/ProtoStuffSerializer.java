@@ -77,6 +77,7 @@ public class ProtoStuffSerializer implements Serializer {
 
         LinkedBuffer buf = bufThreadLocal.get();
         try {
+            // TODO toByteArray里面一坨的 memory copy 需要优化一下
             return ProtostuffIOUtil.toByteArray(obj, schema, buf);
         } finally {
             buf.clear(); // for reuse
