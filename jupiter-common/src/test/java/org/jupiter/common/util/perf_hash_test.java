@@ -10,6 +10,8 @@ import java.util.concurrent.ConcurrentMap;
  * Written by Cliff Click and released to the public domain, as explained at
  * http://creativecommons.org/licenses/publicdomain
  * Big Chunks of code shamelessly copied from Doug Lea's test harness which is also public domain.
+ *
+ * Forked from <a href="https://github.com/JCTools/JCTools">JCTools</a>.
  */
 
 public class perf_hash_test extends Thread {
