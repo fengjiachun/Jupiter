@@ -1,6 +1,6 @@
-package org.jupiter.common.util;
+package org.jupiter.common.concurrent.collection;
 
-import org.jupiter.common.concurrent.collection.NonBlockingHashMap;
+import org.jupiter.common.util.SimpleRandom;
 
 import java.util.Random;
 import java.util.concurrent.ConcurrentHashMap;
