@@ -16,7 +16,7 @@
 
 package org.jupiter.registry;
 
-import org.jupiter.common.concurrent.ConcurrentSet;
+import org.jupiter.common.concurrent.collection.ConcurrentSet;
 import org.jupiter.common.util.Lists;
 import org.jupiter.common.util.Maps;
 

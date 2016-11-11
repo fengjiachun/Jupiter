@@ -30,7 +30,7 @@ import io.netty.util.Attribute;
 import io.netty.util.AttributeKey;
 import io.netty.util.ReferenceCountUtil;
 import io.netty.util.concurrent.GlobalEventExecutor;
-import org.jupiter.common.concurrent.ConcurrentSet;
+import org.jupiter.common.concurrent.collection.ConcurrentSet;
 import org.jupiter.common.util.*;
 import org.jupiter.common.util.internal.JUnsafe;
 import org.jupiter.common.util.internal.logging.InternalLogger;

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.jupiter.common.concurrent;
+package org.jupiter.common.concurrent.collection;
 
 import org.jupiter.common.util.Maps;
 

@@ -25,7 +25,7 @@ import io.netty.handler.codec.ReplayingDecoder;
 import io.netty.util.Attribute;
 import io.netty.util.AttributeKey;
 import io.netty.util.ReferenceCountUtil;
-import org.jupiter.common.concurrent.ConcurrentSet;
+import org.jupiter.common.concurrent.collection.ConcurrentSet;
 import org.jupiter.common.util.*;
 import org.jupiter.common.util.internal.logging.InternalLogger;
 import org.jupiter.common.util.internal.logging.InternalLoggerFactory;

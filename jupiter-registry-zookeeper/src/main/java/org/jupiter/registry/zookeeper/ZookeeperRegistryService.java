@@ -27,7 +27,7 @@ import org.apache.curator.framework.state.ConnectionState;
 import org.apache.curator.framework.state.ConnectionStateListener;
 import org.apache.curator.retry.ExponentialBackoffRetry;
 import org.apache.zookeeper.CreateMode;
-import org.jupiter.common.concurrent.ConcurrentSet;
+import org.jupiter.common.concurrent.collection.ConcurrentSet;
 import org.jupiter.common.util.*;
 import org.jupiter.common.util.internal.logging.InternalLogger;
 import org.jupiter.common.util.internal.logging.InternalLoggerFactory;

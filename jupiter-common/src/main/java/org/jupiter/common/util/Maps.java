@@ -16,11 +16,14 @@
 
 package org.jupiter.common.util;
 
+import org.jupiter.common.concurrent.collection.NonBlockingHashMap;
+import org.jupiter.common.concurrent.collection.NonBlockingHashMapLong;
+
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
-import static org.jupiter.common.util.Preconditions.*;
+import static org.jupiter.common.util.Preconditions.checkArgument;
 
 /**
  * Static utility methods pertaining to {@link Map} instances.
@@ -89,6 +92,36 @@ public final class Maps {
      */
     public static <K, V> ConcurrentMap<K, V> newConcurrentHashMap(int initialCapacity) {
         return new ConcurrentHashMap<>(initialCapacity);
+    }
+
+    /**
+     * Creates a mutable, empty {@code newNonBlockingHashMap} instance.
+     */
+    public static <K, V> ConcurrentMap<K, V> newNonBlockingHashMap() {
+        return new NonBlockingHashMap<>();
+    }
+
+    /**
+     * Creates a {@code newNonBlockingHashMap} instance, with a high enough "initial capacity"
+     * that it should hold {@code expectedSize} elements without growth.
+     */
+    public static <K, V> ConcurrentMap<K, V> newNonBlockingHashMap(int initialCapacity) {
+        return new NonBlockingHashMap<>(initialCapacity);
+    }
+
+    /**
+     * Creates a mutable, empty {@code NonBlockingHashMapLong} instance.
+     */
+    public static <V> ConcurrentMap<Long, V> newNonBlockingHashMapLong() {
+        return new NonBlockingHashMapLong<>();
+    }
+
+    /**
+     * Creates a {@code NonBlockingHashMapLong} instance, with a high enough "initial capacity"
+     * that it should hold {@code expectedSize} elements without growth.
+     */
+    public static <V> ConcurrentMap<Long, V> newNonBlockingHashMapLong(int initialCapacity) {
+        return new NonBlockingHashMapLong<>(initialCapacity);
     }
 
     /**
