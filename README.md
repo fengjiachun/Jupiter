@@ -1,3 +1,5 @@
+[![Build Status](https://travis-ci.org/fengjiachun/Jupiter.svg?branch=master)](https://travis-ci.org/fengjiachun/Jupiter)
+
 ###Jupiter
 
     Jupiter是一个分布式服务框架
