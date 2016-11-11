@@ -18,6 +18,7 @@ package org.jupiter.rpc.consumer.promise;
 
 import org.jupiter.common.util.Maps;
 import org.jupiter.common.util.SystemClock;
+import org.jupiter.common.util.SystemPropertyUtil;
 import org.jupiter.common.util.internal.logging.InternalLogger;
 import org.jupiter.common.util.internal.logging.InternalLoggerFactory;
 import org.jupiter.rpc.*;
@@ -50,9 +51,20 @@ public class DefaultInvokePromise extends InvokePromise<Object> {
     private static final InternalLogger logger = InternalLoggerFactory.getInstance(DefaultInvokePromise.class);
 
     // 单播场景的promise, Long作为Key hashCode和equals效率都更高
-    private static final ConcurrentMap<Long, DefaultInvokePromise> roundPromises = Maps.newConcurrentHashMap();
+    private static final ConcurrentMap<Long, DefaultInvokePromise> roundPromises;
     // 组播场景的promise, 组播都是一个invokeId, 所以要把Key再加一个前缀
-    private static final ConcurrentMap<String, DefaultInvokePromise> broadcastPromises = Maps.newConcurrentHashMap();
+    private static final ConcurrentMap<String, DefaultInvokePromise> broadcastPromises;
+
+    static {
+        boolean useNonBlockingHash = SystemPropertyUtil.getBoolean("jupiter.promise.non_blocking_hash", false);
+        if (useNonBlockingHash) {
+            roundPromises = Maps.newNonBlockingHashMapLong();
+            broadcastPromises = Maps.newNonBlockingHashMap();
+        } else {
+            roundPromises = Maps.newConcurrentHashMap();
+            broadcastPromises = Maps.newConcurrentHashMap();
+        }
+    }
 
     private final ReentrantLock lock = new ReentrantLock();
     private final Condition doneCondition = lock.newCondition();
