@@ -29,6 +29,10 @@
  */
 package org.jupiter.common.concurrent.collection;
 
+import org.jupiter.common.concurrent.atomic.AtomicUpdater;
+import org.jupiter.common.util.internal.JUnsafe;
+import sun.misc.Unsafe;
+
 import java.io.IOException;
 import java.io.Serializable;
 import java.lang.reflect.Field;
@@ -37,7 +41,6 @@ import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.atomic.AtomicLongFieldUpdater;
 import java.util.concurrent.atomic.AtomicReferenceFieldUpdater;
 
-import static org.jupiter.common.util.internal.JUnsafe.getUnsafe;
 
 /**
  * A lock-free alternate implementation of {@link java.util.concurrent.ConcurrentHashMap}
@@ -101,11 +104,13 @@ public class NonBlockingHashMap<TypeK, TypeV>
 
     private static final long serialVersionUID = 1234123412341234123L;
 
+    private static Unsafe unsafe = JUnsafe.getUnsafe();
+
     private static final int REPROBE_LIMIT = 10; // Too many reprobes then force a table-resize
 
     // --- Bits to allow Unsafe access to arrays
-    private static final int _Obase = getUnsafe().arrayBaseOffset(Object[].class);
-    private static final int _Oscale = getUnsafe().arrayIndexScale(Object[].class);
+    private static final int _Obase = unsafe.arrayBaseOffset(Object[].class);
+    private static final int _Oscale = unsafe.arrayIndexScale(Object[].class);
     private static final int _Olog = _Oscale == 4 ? 2 : (_Oscale == 8 ? 3 : 9999);
 
     private static long rawIndex(final Object[] ary, final int idx) {
@@ -125,11 +130,11 @@ public class NonBlockingHashMap<TypeK, TypeV>
         } catch (java.lang.NoSuchFieldException e) {
             throw new RuntimeException(e);
         }
-        _kvs_offset = getUnsafe().objectFieldOffset(f);
+        _kvs_offset = unsafe.objectFieldOffset(f);
     }
 
     private final boolean CAS_kvs(final Object[] oldkvs, final Object[] newkvs) {
-        return getUnsafe().compareAndSwapObject(this, _kvs_offset, oldkvs, newkvs);
+        return unsafe.compareAndSwapObject(this, _kvs_offset, oldkvs, newkvs);
     }
 
     // --- Adding a 'prime' bit onto Values via wrapping with a junk wrapper class
@@ -222,11 +227,11 @@ public class NonBlockingHashMap<TypeK, TypeV>
     }
 
     private static final boolean CAS_key(Object[] kvs, int idx, Object old, Object key) {
-        return getUnsafe().compareAndSwapObject(kvs, rawIndex(kvs, (idx << 1) + 2), old, key);
+        return unsafe.compareAndSwapObject(kvs, rawIndex(kvs, (idx << 1) + 2), old, key);
     }
 
     private static final boolean CAS_val(Object[] kvs, int idx, Object old, Object val) {
-        return getUnsafe().compareAndSwapObject(kvs, rawIndex(kvs, (idx << 1) + 3), old, val);
+        return unsafe.compareAndSwapObject(kvs, rawIndex(kvs, (idx << 1) + 3), old, val);
     }
 
 
@@ -951,7 +956,7 @@ public class NonBlockingHashMap<TypeK, TypeV>
         // null to set (once).
         volatile Object[] _newkvs;
         private final AtomicReferenceFieldUpdater<CHM, Object[]> _newkvsUpdater =
-                AtomicReferenceFieldUpdater.newUpdater(CHM.class, Object[].class, "_newkvs");
+                AtomicUpdater.newAtomicReferenceFieldUpdater(CHM.class, Object[].class, "_newkvs");
 
         // Set the _next field if we can.
         boolean CAS_newkvs(Object[] newkvs) {
@@ -975,7 +980,7 @@ public class NonBlockingHashMap<TypeK, TypeV>
         // un-initialized array creation (especially of ref arrays!).
         volatile long _resizers; // count of threads attempting an initial resize
         private static final AtomicLongFieldUpdater<CHM> _resizerUpdater =
-                AtomicLongFieldUpdater.newUpdater(CHM.class, "_resizers");
+                AtomicUpdater.newAtomicLongFieldUpdater(CHM.class, "_resizers");
 
         // ---
         // Simple constructor
@@ -1120,14 +1125,14 @@ public class NonBlockingHashMap<TypeK, TypeV>
         // somewhere completes the count.
         volatile long _copyIdx = 0;
         static private final AtomicLongFieldUpdater<CHM> _copyIdxUpdater =
-                AtomicLongFieldUpdater.newUpdater(CHM.class, "_copyIdx");
+                AtomicUpdater.newAtomicLongFieldUpdater(CHM.class, "_copyIdx");
 
         // Work-done reporting.  Used to efficiently signal when we can move to
         // the new table.  From 0 to len(oldkvs) refers to copying from the old
         // table to the new.
         volatile long _copyDone = 0;
         static private final AtomicLongFieldUpdater<CHM> _copyDoneUpdater =
-                AtomicLongFieldUpdater.newUpdater(CHM.class, "_copyDone");
+                AtomicUpdater.newAtomicLongFieldUpdater(CHM.class, "_copyDone");
 
         // --- help_copy_impl ----------------------------------------------------
         // Help along an existing resize operation.  We hope its the top-level

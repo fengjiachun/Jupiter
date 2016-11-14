@@ -29,6 +29,10 @@
  */
 package org.jupiter.common.concurrent.collection;
 
+import org.jupiter.common.concurrent.atomic.AtomicUpdater;
+import org.jupiter.common.util.internal.JUnsafe;
+import sun.misc.Unsafe;
+
 import java.io.IOException;
 import java.io.Serializable;
 import java.lang.reflect.Field;
@@ -36,9 +40,6 @@ import java.util.*;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.atomic.AtomicLongFieldUpdater;
 import java.util.concurrent.atomic.AtomicReferenceFieldUpdater;
-
-import static org.jupiter.common.util.internal.JUnsafe.getUnsafe;
-
 
 /**
  * A lock-free alternate implementation of {@link java.util.concurrent.ConcurrentHashMap}
@@ -109,19 +110,21 @@ public class NonBlockingHashMapLong<TypeV>
 
     private static final long serialVersionUID = 1234123412341234124L;
 
+    private static Unsafe unsafe = JUnsafe.getUnsafe();
+
     private static final int REPROBE_LIMIT = 10; // Too many reprobes then force a table-resize
 
     // --- Bits to allow Unsafe access to arrays
-    private static final int _Obase = getUnsafe().arrayBaseOffset(Object[].class);
-    private static final int _Oscale = getUnsafe().arrayIndexScale(Object[].class);
+    private static final int _Obase = unsafe.arrayBaseOffset(Object[].class);
+    private static final int _Oscale = unsafe.arrayIndexScale(Object[].class);
 
     private static long rawIndex(final Object[] ary, final int idx) {
         assert idx >= 0 && idx < ary.length;
         return _Obase + idx * _Oscale;
     }
 
-    private static final int _Lbase = getUnsafe().arrayBaseOffset(long[].class);
-    private static final int _Lscale = getUnsafe().arrayIndexScale(long[].class);
+    private static final int _Lbase = unsafe.arrayBaseOffset(long[].class);
+    private static final int _Lscale = unsafe.arrayIndexScale(long[].class);
 
     private static long rawIndex(final long[] ary, final int idx) {
         assert idx >= 0 && idx < ary.length;
@@ -139,18 +142,18 @@ public class NonBlockingHashMapLong<TypeV>
         } catch (java.lang.NoSuchFieldException e) {
             throw new RuntimeException(e);
         }
-        _chm_offset = getUnsafe().objectFieldOffset(f);
+        _chm_offset = unsafe.objectFieldOffset(f);
 
         try {
             f = NonBlockingHashMapLong.class.getDeclaredField("_val_1");
         } catch (java.lang.NoSuchFieldException e) {
             throw new RuntimeException(e);
         }
-        _val_1_offset = getUnsafe().objectFieldOffset(f);
+        _val_1_offset = unsafe.objectFieldOffset(f);
     }
 
     private final boolean CAS(final long offset, final Object old, final Object nnn) {
-        return getUnsafe().compareAndSwapObject(this, offset, old, nnn);
+        return unsafe.compareAndSwapObject(this, offset, old, nnn);
     }
 
     // --- Adding a 'prime' bit onto Values via wrapping with a junk wrapper class
@@ -580,7 +583,7 @@ public class NonBlockingHashMapLong<TypeV>
         // set (once).
         volatile CHM _newchm;
         private static final AtomicReferenceFieldUpdater<CHM, CHM> _newchmUpdater =
-                AtomicReferenceFieldUpdater.newUpdater(CHM.class, CHM.class, "_newchm");
+                AtomicUpdater.newAtomicReferenceFieldUpdater(CHM.class, CHM.class, "_newchm");
 
         // Set the _newchm field if we can.  AtomicUpdaters do not fail spuriously.
         boolean CAS_newchm(CHM newchm) {
@@ -601,16 +604,16 @@ public class NonBlockingHashMapLong<TypeV>
         // un-initialized array creation (especially of ref arrays!).
         volatile long _resizers;    // count of threads attempting an initial resize
         private static final AtomicLongFieldUpdater<CHM> _resizerUpdater =
-                AtomicLongFieldUpdater.newUpdater(CHM.class, "_resizers");
+                AtomicUpdater.newAtomicLongFieldUpdater(CHM.class, "_resizers");
 
         // --- key,val -------------------------------------------------------------
         // Access K,V for a given idx
         private boolean CAS_key(int idx, long old, long key) {
-            return getUnsafe().compareAndSwapLong(_keys, rawIndex(_keys, idx), old, key);
+            return unsafe.compareAndSwapLong(_keys, rawIndex(_keys, idx), old, key);
         }
 
         private boolean CAS_val(int idx, Object old, Object val) {
-            return getUnsafe().compareAndSwapObject(_vals, rawIndex(_vals, idx), old, val);
+            return unsafe.compareAndSwapObject(_vals, rawIndex(_vals, idx), old, val);
         }
 
         final long[] _keys;
@@ -938,14 +941,14 @@ public class NonBlockingHashMapLong<TypeV>
         // somewhere completes the count.
         volatile long _copyIdx = 0;
         static private final AtomicLongFieldUpdater<CHM> _copyIdxUpdater =
-                AtomicLongFieldUpdater.newUpdater(CHM.class, "_copyIdx");
+                AtomicUpdater.newAtomicLongFieldUpdater(CHM.class, "_copyIdx");
 
         // Work-done reporting.  Used to efficiently signal when we can move to
         // the new table.  From 0 to len(oldkvs) refers to copying from the old
         // table to the new.
         volatile long _copyDone = 0;
         static private final AtomicLongFieldUpdater<CHM> _copyDoneUpdater =
-                AtomicLongFieldUpdater.newUpdater(CHM.class, "_copyDone");
+                AtomicUpdater.newAtomicLongFieldUpdater(CHM.class, "_copyDone");
 
         // --- help_copy_impl ----------------------------------------------------
         // Help along an existing resize operation.  We hope its the top-level

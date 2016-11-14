@@ -29,10 +29,12 @@
  */
 package org.jupiter.common.concurrent.collection;
 
+import org.jupiter.common.concurrent.atomic.AtomicUpdater;
+import org.jupiter.common.util.internal.JUnsafe;
+import sun.misc.Unsafe;
+
 import java.io.Serializable;
 import java.util.concurrent.atomic.AtomicReferenceFieldUpdater;
-
-import static org.jupiter.common.util.internal.JUnsafe.getUnsafe;
 
 
 /**
@@ -50,7 +52,10 @@ import static org.jupiter.common.util.internal.JUnsafe.getUnsafe;
  */
 @SuppressWarnings("ALL")
 public class ConcurrentAutoTable implements Serializable {
+
     private static final long serialVersionUID = -754466836461919739L;
+
+    private static Unsafe unsafe = JUnsafe.getUnsafe();
 
     // --- public interface ---
 
@@ -153,7 +158,7 @@ public class ConcurrentAutoTable implements Serializable {
     // The underlying array of concurrently updated long counters
     private volatile CAT _cat = new CAT(null, 16/*Start Small, Think Big!*/, 0L);
     private static AtomicReferenceFieldUpdater<ConcurrentAutoTable, CAT> _catUpdater =
-            AtomicReferenceFieldUpdater.newUpdater(ConcurrentAutoTable.class, CAT.class, "_cat");
+            AtomicUpdater.newAtomicReferenceFieldUpdater(ConcurrentAutoTable.class, CAT.class, "_cat");
 
     private boolean CAS_cat(CAT oldcat, CAT newcat) {
         return _catUpdater.compareAndSet(this, oldcat, newcat);
@@ -170,8 +175,8 @@ public class ConcurrentAutoTable implements Serializable {
     private static class CAT implements Serializable {
 
         // Unsafe crud: get a function which will CAS arrays
-        private static final int _Lbase = getUnsafe().arrayBaseOffset(long[].class);
-        private static final int _Lscale = getUnsafe().arrayIndexScale(long[].class);
+        private static final int _Lbase = unsafe.arrayBaseOffset(long[].class);
+        private static final int _Lscale = unsafe.arrayIndexScale(long[].class);
 
         private static long rawIndex(long[] ary, int i) {
             assert i >= 0 && i < ary.length;
@@ -179,7 +184,7 @@ public class ConcurrentAutoTable implements Serializable {
         }
 
         private static boolean CAS(long[] A, int idx, long old, long nnn) {
-            return getUnsafe().compareAndSwapLong(A, rawIndex(A, idx), old, nnn);
+            return unsafe.compareAndSwapLong(A, rawIndex(A, idx), old, nnn);
         }
 
         //volatile long _resizers;    // count of threads attempting a resize
