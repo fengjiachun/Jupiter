@@ -18,7 +18,10 @@ package org.jupiter.rpc;
 
 import net.bytebuddy.ByteBuddy;
 import org.jupiter.common.concurrent.NamedThreadFactory;
-import org.jupiter.common.util.*;
+import org.jupiter.common.util.JServiceLoader;
+import org.jupiter.common.util.Lists;
+import org.jupiter.common.util.Maps;
+import org.jupiter.common.util.Strings;
 import org.jupiter.common.util.internal.logging.InternalLogger;
 import org.jupiter.common.util.internal.logging.InternalLoggerFactory;
 import org.jupiter.registry.RegisterMeta;
@@ -27,6 +30,7 @@ import org.jupiter.rpc.flow.control.FlowController;
 import org.jupiter.rpc.model.metadata.ServiceMetadata;
 import org.jupiter.rpc.model.metadata.ServiceWrapper;
 import org.jupiter.rpc.provider.ProviderProxyHandler;
+import org.jupiter.rpc.tracing.TracingUtil;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
@@ -43,7 +47,7 @@ import static net.bytebuddy.matcher.ElementMatchers.not;
 import static org.jupiter.common.util.Preconditions.checkArgument;
 import static org.jupiter.common.util.Preconditions.checkNotNull;
 import static org.jupiter.common.util.Reflects.*;
-import static org.jupiter.common.util.StackTraceUtil.*;
+import static org.jupiter.common.util.StackTraceUtil.stackTrace;
 
 /**
  * jupiter
@@ -54,6 +58,10 @@ import static org.jupiter.common.util.StackTraceUtil.*;
 public abstract class AbstractJServer implements JServer {
 
     private static final InternalLogger logger = InternalLoggerFactory.getInstance(AbstractJServer.class);
+
+    static {
+        TracingUtil.advance();
+    }
 
     // 服务延迟初始化的默认线程池
     private final Executor defaultInitializerExecutor =

@@ -28,6 +28,7 @@ import org.jupiter.rpc.channel.DirectoryJChannelGroup;
 import org.jupiter.rpc.channel.JChannel;
 import org.jupiter.rpc.channel.JChannelGroup;
 import org.jupiter.rpc.load.balance.LoadBalancer;
+import org.jupiter.rpc.tracing.TracingUtil;
 
 import java.util.Collection;
 import java.util.concurrent.ConcurrentMap;
@@ -50,6 +51,10 @@ public abstract class AbstractJClient implements JClient {
 
     private static final AtomicReferenceFieldUpdater<CopyOnWriteGroupList, Object[]> groupsUpdater
             = AtomicUpdater.newAtomicReferenceFieldUpdater(CopyOnWriteGroupList.class, Object[].class, "array");
+
+    static {
+        TracingUtil.advance();
+    }
 
     // 注册服务(SPI)
     private final RegistryService registryService = JServiceLoader.loadFirst(RegistryService.class);

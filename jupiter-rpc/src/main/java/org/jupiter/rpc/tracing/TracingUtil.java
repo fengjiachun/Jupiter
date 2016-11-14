@@ -31,9 +31,9 @@ import java.util.concurrent.atomic.AtomicInteger;
  *
  * @author jiachun.fjc
  */
-public class TracingEye {
+public class TracingUtil {
 
-    private static final InternalLogger logger = InternalLoggerFactory.getInstance(TracingEye.class);
+    private static final InternalLogger logger = InternalLoggerFactory.getInstance(TracingUtil.class);
 
     private static final boolean TRACING_NEEDED = SystemPropertyUtil.getBoolean("jupiter.tracing.needed", true);
 
@@ -66,6 +66,11 @@ public class TracingEye {
             _pid = "0000";
         }
         PID = _pid;
+    }
+
+    public static void advance() {
+        // touch off TracingEye.<clinit>
+        // because getLocalAddress() and getPid() too slow
     }
 
     public static boolean isTracingNeeded() {

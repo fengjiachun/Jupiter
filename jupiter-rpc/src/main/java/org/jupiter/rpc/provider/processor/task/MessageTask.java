@@ -43,7 +43,7 @@ import org.jupiter.rpc.model.metadata.ResultWrapper;
 import org.jupiter.rpc.model.metadata.ServiceWrapper;
 import org.jupiter.rpc.provider.processor.ProviderProcessor;
 import org.jupiter.rpc.tracing.TraceId;
-import org.jupiter.rpc.tracing.TracingEye;
+import org.jupiter.rpc.tracing.TracingUtil;
 import org.jupiter.rpc.tracing.TracingRecorder;
 
 import java.util.List;
@@ -228,9 +228,9 @@ public class MessageTask implements RejectedRunnable {
             final long invokeId = _request.invokeId();
 
             // current traceId
-            if (traceId != null && TracingEye.isTracingNeeded()) {
+            if (traceId != null && TracingUtil.isTracingNeeded()) {
                 traceNodeUpdater.set(traceId, traceId.getNode() + 1);
-                TracingEye.setCurrent(traceId);
+                TracingUtil.setCurrent(traceId);
             }
 
             Object invokeResult = null;
@@ -251,8 +251,8 @@ public class MessageTask implements RejectedRunnable {
                 long elapsed = timerCtx.stop();
 
                 // tracing recoding
-                if (traceId != null && TracingEye.isTracingNeeded()) {
-                    TracingRecorder recorder = TracingEye.getRecorder();
+                if (traceId != null && TracingUtil.isTracingNeeded()) {
+                    TracingRecorder recorder = TracingUtil.getRecorder();
                     recorder.recording(PROVIDER, traceId.asText(), invokeId, callInfo, elapsed, channel);
                 }
             }

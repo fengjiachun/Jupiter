@@ -24,7 +24,7 @@ import org.jupiter.common.concurrent.atomic.AtomicUpdater;
 import org.jupiter.common.util.internal.logging.InternalLogger;
 import org.jupiter.common.util.internal.logging.InternalLoggerFactory;
 import org.jupiter.rpc.tracing.TraceId;
-import org.jupiter.rpc.tracing.TracingEye;
+import org.jupiter.rpc.tracing.TracingUtil;
 
 import java.lang.reflect.Method;
 import java.util.concurrent.Callable;
@@ -55,7 +55,7 @@ public class ProviderProxyHandler {
             @SuperCall Callable<Object> superMethod,
             @Origin Method method,
             @AllArguments @RuntimeType Object[] args) throws Throwable {
-        TraceId traceId = TracingEye.getCurrent();
+        TraceId traceId = TracingUtil.getCurrent();
         String methodName = method.getName();
         // snapshot, 保证before和after使用相同版本的interceptors
         Object[] elements = interceptorsUpdater.get(interceptors);

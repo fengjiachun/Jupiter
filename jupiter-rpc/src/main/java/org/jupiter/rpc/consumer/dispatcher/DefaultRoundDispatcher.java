@@ -30,7 +30,7 @@ import org.jupiter.rpc.model.metadata.MessageWrapper;
 import org.jupiter.rpc.model.metadata.ResultWrapper;
 import org.jupiter.rpc.model.metadata.ServiceMetadata;
 import org.jupiter.rpc.tracing.TraceId;
-import org.jupiter.rpc.tracing.TracingEye;
+import org.jupiter.rpc.tracing.TracingUtil;
 import org.jupiter.rpc.tracing.TracingRecorder;
 import org.jupiter.serialization.Serializer;
 import org.jupiter.serialization.SerializerType;
@@ -70,14 +70,14 @@ public class DefaultRoundDispatcher extends AbstractDispatcher {
         final JRequest request = JRequest.newInstance(_serializerImpl.code());
 
         // tracing
-        if (TracingEye.isTracingNeeded()) {
-            TraceId traceId = TracingEye.getCurrent();
+        if (TracingUtil.isTracingNeeded()) {
+            TraceId traceId = TracingUtil.getCurrent();
             if (traceId == null) {
-                traceId = TraceId.newInstance(TracingEye.generateTraceId());
+                traceId = TraceId.newInstance(TracingUtil.generateTraceId());
             }
             message.setTraceId(traceId);
 
-            TracingRecorder recorder = TracingEye.getRecorder();
+            TracingRecorder recorder = TracingUtil.getRecorder();
             recorder.recording(CONSUMER, traceId.asText(), request.invokeId(), _metadata.directory(), methodName, channel);
         }
 
