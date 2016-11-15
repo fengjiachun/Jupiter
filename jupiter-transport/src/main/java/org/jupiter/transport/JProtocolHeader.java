@@ -63,7 +63,7 @@ public class JProtocolHeader {
     /** Serializer Code: 0x01 ~ 0x0f ================================================================================ */
     // 位数限制最多支持15种不同的序列化/反序列化方式
     // protostuff   = 0x01
-    // kryo         = 0x02
+    // hessian      = 0x02
     // ...
     // XX1          = 0x0e
     // XX2          = 0x0f
