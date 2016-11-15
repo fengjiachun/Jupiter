@@ -28,7 +28,6 @@ import org.jupiter.rpc.channel.DirectoryJChannelGroup;
 import org.jupiter.rpc.channel.JChannel;
 import org.jupiter.rpc.channel.JChannelGroup;
 import org.jupiter.rpc.load.balance.LoadBalancer;
-import org.jupiter.rpc.tracing.TracingUtil;
 
 import java.util.Collection;
 import java.util.concurrent.ConcurrentMap;
@@ -51,10 +50,6 @@ public abstract class AbstractJClient implements JClient {
 
     private static final AtomicReferenceFieldUpdater<CopyOnWriteGroupList, Object[]> groupsUpdater
             = AtomicUpdater.newAtomicReferenceFieldUpdater(CopyOnWriteGroupList.class, Object[].class, "array");
-
-    static {
-        TracingUtil.advance();
-    }
 
     // 注册服务(SPI)
     private final RegistryService registryService = JServiceLoader.loadFirst(RegistryService.class);
@@ -212,5 +207,13 @@ public abstract class AbstractJClient implements JClient {
 
     private static Address transformToAddress(UnresolvedAddress address) {
         return new Address(address.getHost(), address.getPort());
+    }
+
+    static {
+        try {
+            // touch off TracingUtil.<clinit>
+            // because getLocalAddress() and getPid() sometimes too slow
+            Class.forName("org.jupiter.rpc.tracing.TracingUtil");
+        } catch (ClassNotFoundException ignored) {}
     }
 }

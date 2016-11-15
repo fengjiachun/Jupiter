@@ -30,7 +30,6 @@ import org.jupiter.rpc.flow.control.FlowController;
 import org.jupiter.rpc.model.metadata.ServiceMetadata;
 import org.jupiter.rpc.model.metadata.ServiceWrapper;
 import org.jupiter.rpc.provider.ProviderProxyHandler;
-import org.jupiter.rpc.tracing.TracingUtil;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
@@ -58,10 +57,6 @@ import static org.jupiter.common.util.StackTraceUtil.stackTrace;
 public abstract class AbstractJServer implements JServer {
 
     private static final InternalLogger logger = InternalLoggerFactory.getInstance(AbstractJServer.class);
-
-    static {
-        TracingUtil.advance();
-    }
 
     // 服务延迟初始化的默认线程池
     private final Executor defaultInitializerExecutor =
@@ -440,5 +435,13 @@ public abstract class AbstractJServer implements JServer {
         public List<ServiceWrapper> getAllServices() {
             return Lists.newArrayList(serviceProviders.values());
         }
+    }
+
+    static {
+        try {
+            // touch off TracingUtil.<clinit>
+            // because getLocalAddress() and getPid() sometimes too slow
+            Class.forName("org.jupiter.rpc.tracing.TracingUtil");
+        } catch (ClassNotFoundException ignored) {}
     }
 }

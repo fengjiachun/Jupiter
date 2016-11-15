@@ -68,11 +68,6 @@ public class TracingUtil {
         PID = _pid;
     }
 
-    public static void advance() {
-        // touch off TracingEye.<clinit>
-        // because getLocalAddress() and getPid() too slow
-    }
-
     public static boolean isTracingNeeded() {
         return TRACING_NEEDED;
     }
