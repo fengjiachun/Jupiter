@@ -77,6 +77,7 @@ public abstract class Future<V> {
     protected void set(V v) {
         if (UNSAFE.compareAndSwapInt(this, stateOffset, NEW, COMPLETING)) {
             outcome = v;
+            // putOrderedInt在JIT后会通过intrinsic优化掉StoreLoad屏障, 不能保证可见性
             UNSAFE.putOrderedInt(this, stateOffset, NORMAL); // final state
             completion(v);
         }
@@ -85,6 +86,7 @@ public abstract class Future<V> {
     protected void setException(Throwable t) {
         if (UNSAFE.compareAndSwapInt(this, stateOffset, NEW, COMPLETING)) {
             outcome = t;
+            // putOrderedInt在JIT后会通过intrinsic优化掉StoreLoad屏障, 不能保证可见性
             UNSAFE.putOrderedInt(this, stateOffset, EXCEPTIONAL); // final state
             completion(t);
         }
