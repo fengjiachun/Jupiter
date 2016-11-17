@@ -48,7 +48,7 @@ public class JupiterSpringConsumerBean<T> implements FactoryBean<T>, Initializin
 
     private transient T proxy;                              // consumer代理对象
 
-    private InvokeType invokeType;                          // 调用方式 [同步; 异步promise; 异步callback]
+    private InvokeType invokeType;                          // 调用方式 [同步; 异步]
     private DispatchType dispatchType;                      // 派发方式 [单播; 组播]
     private long timeoutMillis;                             // 调用超时时间设置
     private Map<String, Long> methodsSpecialTimeoutMillis;  // 指定方法单独设置的超时时间, 方法名为key, 方法参数类型不做区别对待

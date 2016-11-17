@@ -36,7 +36,7 @@ import java.util.concurrent.atomic.AtomicLong;
 /**
  * 1.启动 HelloJupiterRegistryServer
  * 2.再启动 HelloJupiterServer
- * 3.最后启动 HelloJupiterClient / HelloJupiterPromiseClient / HelloJupiterCallbackClient
+ * 3.最后启动 HelloJupiterClient / HelloJupiterCallbackClient
  *
  * jupiter
  * org.jupiter.example.round

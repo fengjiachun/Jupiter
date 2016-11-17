@@ -57,13 +57,13 @@ public class InvokeFuture<V> extends Future<V> {
     private static final AtomicReferenceFieldUpdater<CopyOnWriteArrayList, Object[]> listenersGetter =
             AtomicUpdater.newAtomicReferenceFieldUpdater(CopyOnWriteArrayList.class, Object[].class, "array");
 
-    // 单播场景的promise, Long作为Key hashCode和equals效率都更高
+    // 单播场景的future, Long作为Key hashCode和equals效率都更高
     private static final ConcurrentMap<Long, InvokeFuture<?>> roundFutures;
-    // 组播场景的promise, 组播都是一个invokeId, 所以要把Key再加一个前缀
+    // 组播场景的future, 组播都是一个invokeId, 所以要把Key再加一个前缀
     private static final ConcurrentMap<String, InvokeFuture<?>> broadcastFutures;
 
     static {
-        boolean useNonBlockingHash = SystemPropertyUtil.getBoolean("jupiter.promise.non_blocking_hash", false);
+        boolean useNonBlockingHash = SystemPropertyUtil.getBoolean("jupiter.future.non_blocking_hash", false);
         if (useNonBlockingHash) {
             roundFutures = Maps.newNonBlockingHashMapLong();
             broadcastFutures = Maps.newNonBlockingHashMap();
