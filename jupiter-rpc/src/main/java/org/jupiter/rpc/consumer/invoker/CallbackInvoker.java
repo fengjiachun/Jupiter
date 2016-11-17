@@ -22,6 +22,7 @@ import net.bytebuddy.implementation.bind.annotation.RuntimeType;
 import org.jupiter.common.util.Reflects;
 import org.jupiter.rpc.JClient;
 import org.jupiter.rpc.consumer.dispatcher.Dispatcher;
+import org.jupiter.rpc.consumer.future.InvokeFutureContext;
 
 import java.lang.reflect.Method;
 
@@ -48,7 +49,9 @@ public class CallbackInvoker {
 
     @RuntimeType
     public Object invoke(@Origin Method method, @AllArguments @RuntimeType Object[] args) throws Throwable {
-        dispatcher.dispatch(client, method.getName(), args);
-        return Reflects.getTypeDefaultValue(method.getReturnType());
+        Class<?> returnType = method.getReturnType();
+        Object val = dispatcher.dispatch(client, method.getName(), args, returnType);
+        InvokeFutureContext.set(val);
+        return Reflects.getTypeDefaultValue(returnType);
     }
 }

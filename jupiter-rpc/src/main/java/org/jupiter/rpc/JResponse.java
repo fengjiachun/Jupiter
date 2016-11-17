@@ -36,6 +36,10 @@ public class JResponse extends BytesHolder {
     private long id; // invoke id
     private ResultWrapper result; // 服务调用结果
 
+    public static JResponse newInstance(long id, byte serializerCode, Status status) {
+        return newInstance(id, serializerCode, status.value(), (ResultWrapper) null);
+    }
+
     public static JResponse newInstance(long id, byte serializerCode, Status status, ResultWrapper result) {
         return newInstance(id, serializerCode, status.value(), result);
     }

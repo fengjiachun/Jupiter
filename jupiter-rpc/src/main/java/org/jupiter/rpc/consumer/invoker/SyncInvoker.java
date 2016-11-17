@@ -21,7 +21,7 @@ import net.bytebuddy.implementation.bind.annotation.Origin;
 import net.bytebuddy.implementation.bind.annotation.RuntimeType;
 import org.jupiter.rpc.JClient;
 import org.jupiter.rpc.consumer.dispatcher.Dispatcher;
-import org.jupiter.rpc.consumer.promise.InvokePromise;
+import org.jupiter.rpc.consumer.future.InvokeFuture;
 
 import java.lang.reflect.Method;
 
@@ -47,7 +47,7 @@ public class SyncInvoker {
 
     @RuntimeType
     public Object invoke(@Origin Method method, @AllArguments @RuntimeType Object[] args) throws Throwable {
-        InvokePromise<?> promise = dispatcher.dispatch(client, method.getName(), args);
-        return promise.getResult();
+        Object val = dispatcher.dispatch(client, method.getName(), args, method.getReturnType());
+        return ((InvokeFuture<?>) val).getResult();
     }
 }

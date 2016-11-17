@@ -17,7 +17,10 @@
 package org.jupiter.example.generic;
 
 import org.jupiter.rpc.Directory;
+import org.jupiter.rpc.InvokeType;
 import org.jupiter.rpc.consumer.GenericProxyFactory;
+import org.jupiter.rpc.consumer.future.InvokeFuture;
+import org.jupiter.rpc.consumer.future.InvokeFutureContext;
 import org.jupiter.rpc.consumer.invoker.GenericInvoker;
 import org.jupiter.rpc.model.metadata.ServiceMetadata;
 import org.jupiter.transport.JConnection;
@@ -49,11 +52,14 @@ public class GenericClient {
         GenericInvoker invoker = GenericProxyFactory.factory()
                 .connector(connector)
                 .directory(directory)
+                .invokeType(InvokeType.ASYNC)
                 .newProxyInstance();
 
         try {
             Object result = invoker.$invoke("sayHello", "Luca");
             System.out.println(result);
+            InvokeFuture<Object> future = InvokeFutureContext.future(Object.class);
+            System.out.println(future.getResult());
         } catch (Throwable e) {
             e.printStackTrace();
         }

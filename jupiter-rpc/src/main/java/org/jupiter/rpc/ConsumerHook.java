@@ -36,5 +36,5 @@ public interface ConsumerHook {
     /**
      * Will be triggered when the server returns the result.
      */
-    void after(JRequest request, JChannel channel);
+    void after(JRequest request, JResponse response, JChannel channel);
 }

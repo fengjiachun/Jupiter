@@ -24,6 +24,5 @@ package org.jupiter.rpc;
  */
 public enum InvokeType {
     SYNC,       // 同步调用
-    PROMISE,    // 异步链式调用
-    CALLBACK    // 异步回调的方式
+    ASYNC       // 异步Future方式
 }

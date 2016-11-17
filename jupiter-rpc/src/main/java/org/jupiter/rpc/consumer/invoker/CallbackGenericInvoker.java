@@ -18,6 +18,7 @@ package org.jupiter.rpc.consumer.invoker;
 
 import org.jupiter.rpc.JClient;
 import org.jupiter.rpc.consumer.dispatcher.Dispatcher;
+import org.jupiter.rpc.consumer.future.InvokeFutureContext;
 
 /**
  * 异步泛化回调
@@ -39,7 +40,8 @@ public class CallbackGenericInvoker implements GenericInvoker {
 
     @Override
     public Object $invoke(String methodName, Object... args) throws Throwable {
-        dispatcher.dispatch(client, methodName, args);
+        Object val = dispatcher.dispatch(client, methodName, args, Object.class);
+        InvokeFutureContext.set(val);
         return null;
     }
 }

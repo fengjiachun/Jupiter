@@ -23,8 +23,8 @@ import org.jupiter.common.util.internal.logging.InternalLoggerFactory;
 import org.jupiter.rpc.InvokeType;
 import org.jupiter.rpc.UnresolvedAddress;
 import org.jupiter.rpc.consumer.ProxyFactory;
-import org.jupiter.rpc.consumer.promise.InvokePromiseContext;
-import org.jupiter.rpc.consumer.promise.JPromise;
+import org.jupiter.rpc.consumer.future.InvokeFuture;
+import org.jupiter.rpc.consumer.future.InvokeFutureContext;
 import org.jupiter.transport.JConnection;
 import org.jupiter.transport.JConnector;
 import org.jupiter.transport.JOption;
@@ -138,15 +138,15 @@ public class BenchmarkClient {
     private static void futureCall(JConnector<JConnection> connector, UnresolvedAddress[] addresses, int processors) {
         final Service service = ProxyFactory.factory(Service.class)
                 .connector(connector)
-                .invokeType(InvokeType.PROMISE)
+                .invokeType(InvokeType.ASYNC)
                 .addProviderAddress(addresses)
                 .newProxyInstance();
 
         for (int i = 0; i < 10000; i++) {
             try {
                 service.hello("jupiter");
-                InvokePromiseContext.currentPromise(String.class).get();
-            } catch (Exception e) {
+                InvokeFutureContext.future().getResult();
+            } catch (Throwable e) {
                 e.printStackTrace();
             }
         }
@@ -158,19 +158,19 @@ public class BenchmarkClient {
         final int futureSize = 80;
         for (int i = 0; i < (processors << 4); i++) {
             new Thread(new Runnable() {
-                List<JPromise<?>> futures = Lists.newArrayListWithCapacity(futureSize);
+                List<InvokeFuture<?>> futures = Lists.newArrayListWithCapacity(futureSize);
                 @SuppressWarnings("ForLoopReplaceableByForEach")
                 @Override
                 public void run() {
                     for (int i = 0; i < t; i++) {
                         try {
                             service.hello("jupiter");
-                            futures.add(InvokePromiseContext.currentPromise());
+                            futures.add(InvokeFutureContext.future());
                             if (futures.size() == futureSize) {
                                 int fSize = futures.size();
                                 for (int j = 0; j < fSize; j++) {
                                     try {
-                                        futures.get(j).get();
+                                        futures.get(j).getResult();
                                     } catch (Throwable t) {
                                         t.printStackTrace();
                                     }
@@ -188,7 +188,7 @@ public class BenchmarkClient {
                         int fSize = futures.size();
                         for (int j = 0; j < fSize; j++) {
                             try {
-                                futures.get(j).get();
+                                futures.get(j).getResult();
                             } catch (Throwable t) {
                                 t.printStackTrace();
                             }

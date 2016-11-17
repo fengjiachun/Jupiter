@@ -19,8 +19,9 @@ package org.jupiter.example.round;
 import org.jupiter.example.ServiceTest;
 import org.jupiter.rpc.InvokeType;
 import org.jupiter.rpc.JListener;
-import org.jupiter.rpc.JRequest;
 import org.jupiter.rpc.consumer.ProxyFactory;
+import org.jupiter.rpc.consumer.future.InvokeFuture;
+import org.jupiter.rpc.consumer.future.InvokeFutureContext;
 import org.jupiter.transport.JConnection;
 import org.jupiter.transport.JConnector;
 import org.jupiter.transport.exception.ConnectFailedException;
@@ -51,24 +52,27 @@ public class HelloJupiterCallbackClient {
 
         ServiceTest service = ProxyFactory.factory(ServiceTest.class)
                 .connector(connector)
-                .invokeType(InvokeType.CALLBACK)
-                .listener(new JListener() {
-                    @Override
-                    public void complete(JRequest request, JResult result) throws Exception {
-                        System.out.println("complete: " + result);
-                    }
-
-                    @Override
-                    public void failure(JRequest request, Throwable cause) {
-                        System.out.println("failure: " + cause);
-                    }
-                })
+                .invokeType(InvokeType.ASYNC)
                 .newProxyInstance();
 
         try {
             ServiceTest.ResultClass result = service.sayHello();
-            System.out.println(result);
-        } catch (Exception e) {
+            System.out.println("sync result: " + result);
+            InvokeFuture<ServiceTest.ResultClass> future = InvokeFutureContext.future(ServiceTest.ResultClass.class);
+            future.addListener(new JListener<ServiceTest.ResultClass>() {
+
+                @Override
+                public void complete(ServiceTest.ResultClass result) {
+                    System.out.println("callback: " + result);
+                }
+
+                @Override
+                public void failure(Throwable cause) {
+                    cause.printStackTrace();
+                }
+            });
+            System.out.println("future.get: " + future.getResult());
+        } catch (Throwable e) {
             e.printStackTrace();
         }
     }

@@ -18,10 +18,9 @@ package org.jupiter.rpc.consumer.dispatcher;
 
 import org.jupiter.common.util.Maps;
 import org.jupiter.rpc.ConsumerHook;
-import org.jupiter.rpc.JListener;
 import org.jupiter.rpc.JRequest;
 import org.jupiter.rpc.channel.JChannel;
-import org.jupiter.rpc.consumer.promise.InvokePromise;
+import org.jupiter.rpc.consumer.future.InvokeFuture;
 import org.jupiter.rpc.model.metadata.ServiceMetadata;
 import org.jupiter.serialization.Serializer;
 import org.jupiter.serialization.SerializerType;
@@ -44,7 +43,6 @@ public abstract class AbstractDispatcher implements Dispatcher {
     protected final Serializer serializerImpl;      // 序列化/反序列化impl
 
     private ConsumerHook[] hooks;                   // consumer hook
-    private JListener listener;                     // 回调函数
     private long timeoutMillis = DEFAULT_TIMEOUT;   // 调用超时时间设置
     // 针对指定方法单独设置的超时时间, 方法名为key, 方法参数类型不做区别对待
     private Map<String, Long> methodsSpecialTimeoutMillis = Maps.newHashMap();
@@ -64,16 +62,6 @@ public abstract class AbstractDispatcher implements Dispatcher {
         if (!hooks.isEmpty()) {
             this.hooks = hooks.toArray(new ConsumerHook[hooks.size()]);
         }
-    }
-
-    @Override
-    public JListener getListener() {
-        return listener;
-    }
-
-    @Override
-    public void setListener(JListener listener) {
-        this.listener = listener;
     }
 
     @Override
@@ -100,5 +88,5 @@ public abstract class AbstractDispatcher implements Dispatcher {
         this.methodsSpecialTimeoutMillis.putAll(methodsSpecialTimeoutMillis);
     }
 
-    protected abstract InvokePromise<?> asPromise(JChannel channel, JRequest request, long timeoutMillis);
+    protected abstract InvokeFuture<?> asFuture(JChannel channel, JRequest request, Class<?> returnType, long timeoutMillis);
 }

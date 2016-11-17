@@ -23,7 +23,6 @@ import org.jupiter.rpc.consumer.dispatcher.DefaultBroadcastDispatcher;
 import org.jupiter.rpc.consumer.dispatcher.DefaultRoundDispatcher;
 import org.jupiter.rpc.consumer.dispatcher.Dispatcher;
 import org.jupiter.rpc.consumer.invoker.CallbackGenericInvoker;
-import org.jupiter.rpc.consumer.invoker.PromiseGenericInvoker;
 import org.jupiter.rpc.consumer.invoker.GenericInvoker;
 import org.jupiter.rpc.consumer.invoker.SyncGenericInvoker;
 import org.jupiter.rpc.model.metadata.ServiceMetadata;
@@ -36,7 +35,7 @@ import java.util.Map;
 import static org.jupiter.common.util.Preconditions.checkNotNull;
 import static org.jupiter.rpc.DispatchType.BROADCAST;
 import static org.jupiter.rpc.DispatchType.ROUND;
-import static org.jupiter.rpc.InvokeType.CALLBACK;
+import static org.jupiter.rpc.InvokeType.ASYNC;
 import static org.jupiter.rpc.InvokeType.SYNC;
 import static org.jupiter.serialization.SerializerType.*;
 
@@ -63,7 +62,6 @@ public class GenericProxyFactory {
     private DispatchType dispatchType = ROUND;                  // 派发方式 [单播; 组播]
     private long timeoutMillis;                                 // 调用超时时间设置
     private Map<String, Long> methodsSpecialTimeoutMillis;      // 指定方法单独设置的超时时间, 方法名为key, 方法参数类型不做区别对待
-    private JListener listener;                                 // 回调函数
     private List<ConsumerHook> hooks;                           // consumer hook
 
     public static GenericProxyFactory factory() {
@@ -177,17 +175,6 @@ public class GenericProxyFactory {
     }
 
     /**
-     * Asynchronous callback listener.
-     */
-    public GenericProxyFactory listener(JListener listener) {
-        if (invokeType != CALLBACK) {
-            throw new UnsupportedOperationException("InvokeType should first be set to CALLBACK");
-        }
-        this.listener = listener;
-        return this;
-    }
-
-    /**
      * Adds hooks.
      */
     public GenericProxyFactory addHook(ConsumerHook... hooks) {
@@ -203,8 +190,8 @@ public class GenericProxyFactory {
         checkNotNull(providerName, "providerName");
         checkNotNull(serializerType, "serializerType");
 
-        if (dispatchType == BROADCAST && invokeType != CALLBACK) {
-            throw new UnsupportedOperationException("illegal type, BROADCAST only support CALLBACK");
+        if (dispatchType == BROADCAST && invokeType != ASYNC) {
+            throw new UnsupportedOperationException("illegal type, BROADCAST only support ASYNC");
         }
 
         // metadata
@@ -227,10 +214,7 @@ public class GenericProxyFactory {
         switch (invokeType) {
             case SYNC:
                 return new SyncGenericInvoker(client, dispatcher);
-            case PROMISE:
-                return new PromiseGenericInvoker(client, dispatcher);
-            case CALLBACK:
-                dispatcher.setListener(checkNotNull(listener, "listener"));
+            case ASYNC:
                 return new CallbackGenericInvoker(client, dispatcher);
             default:
                 throw new IllegalStateException("InvokeType: " + invokeType);

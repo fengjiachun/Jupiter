@@ -17,16 +17,16 @@
 package org.jupiter.example.broadcast;
 
 import org.jupiter.example.ServiceTest;
-import org.jupiter.rpc.JListener;
-import org.jupiter.rpc.JRequest;
 import org.jupiter.rpc.UnresolvedAddress;
 import org.jupiter.rpc.consumer.ProxyFactory;
+import org.jupiter.rpc.consumer.future.InvokeFuture;
+import org.jupiter.rpc.consumer.future.InvokeFutureContext;
 import org.jupiter.transport.JConnection;
 import org.jupiter.transport.JConnector;
 import org.jupiter.transport.netty.JNettyTcpConnector;
 
 import static org.jupiter.rpc.DispatchType.BROADCAST;
-import static org.jupiter.rpc.InvokeType.CALLBACK;
+import static org.jupiter.rpc.InvokeType.ASYNC;
 
 /**
  * jupiter
@@ -48,26 +48,19 @@ public class HelloJupiterClient {
         ServiceTest service = ProxyFactory.factory(ServiceTest.class)
                 .connector(connector)
                 .dispatchType(BROADCAST)
-                .invokeType(CALLBACK)
+                .invokeType(ASYNC)
                 .addProviderAddress(address1, address2, address2)
-                .listener(new JListener() {
-
-                    @Override
-                    public void complete(JRequest request, JResult result) throws Exception {
-                        System.out.println("complete=" + result);
-                    }
-
-                    @Override
-                    public void failure(JRequest request, Throwable cause) {
-                        System.out.println("failure=" + cause);
-                    }
-                })
                 .newProxyInstance();
 
         try {
             ServiceTest.ResultClass result = service.sayHello();
             System.out.println(result);
-        } catch (Exception e) {
+
+            InvokeFuture<ServiceTest.ResultClass>[] futures = InvokeFutureContext.futures(ServiceTest.ResultClass.class);
+            for (InvokeFuture<ServiceTest.ResultClass> f : futures) {
+                System.out.println(f.getResult());
+            }
+        } catch (Throwable e) {
             e.printStackTrace();
         }
     }

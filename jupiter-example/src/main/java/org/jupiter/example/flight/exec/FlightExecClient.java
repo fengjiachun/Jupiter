@@ -22,15 +22,16 @@ import org.jupiter.flight.exec.ExecResult;
 import org.jupiter.flight.exec.JavaClassExec;
 import org.jupiter.flight.exec.JavaCompiler;
 import org.jupiter.rpc.JListener;
-import org.jupiter.rpc.JRequest;
 import org.jupiter.rpc.consumer.ProxyFactory;
+import org.jupiter.rpc.consumer.future.InvokeFuture;
+import org.jupiter.rpc.consumer.future.InvokeFutureContext;
 import org.jupiter.transport.JConnection;
 import org.jupiter.transport.JConnector;
 import org.jupiter.transport.exception.ConnectFailedException;
 import org.jupiter.transport.netty.JNettyTcpConnector;
 
 import static org.jupiter.rpc.DispatchType.BROADCAST;
-import static org.jupiter.rpc.InvokeType.CALLBACK;
+import static org.jupiter.rpc.InvokeType.ASYNC;
 
 /**
  * 客户端编译, 服务端执行, 以java的方式, 留一个方便线上调试的口子.
@@ -56,28 +57,7 @@ public class FlightExecClient {
         JavaClassExec service = ProxyFactory.factory(JavaClassExec.class)
                 .connector(connector)
                 .dispatchType(BROADCAST)
-                .invokeType(CALLBACK)
-                .listener(new JListener() {
-
-                    @Override
-                    public void complete(JRequest request, JResult result) throws Exception {
-                        synchronized (this) {
-                            System.out.println("complete from " + result.remoteAddress());
-                            ExecResult execResult = (ExecResult) result.value();
-                            System.out.println("= debug info ======================================");
-                            System.out.println(execResult.getDebugInfo());
-                            System.out.println("= return value ====================================");
-                            System.out.println(execResult.getValue());
-                            System.out.println();
-                            System.out.println();
-                        }
-                    }
-
-                    @Override
-                    public void failure(JRequest request, Throwable cause) {
-                        System.out.println("failure=" + cause);
-                    }
-                })
+                .invokeType(ASYNC)
                 .newProxyInstance();
 
         try {
@@ -87,6 +67,29 @@ public class FlightExecClient {
                     Lists.newArrayList("-verbose", "-source", "1.7", "-target", "1.7"));
 
             service.exec(classBytes);
+
+            final InvokeFuture<ExecResult>[] futures = InvokeFutureContext.futures(ExecResult.class);
+            for (InvokeFuture<ExecResult> f : futures) {
+                f.addListener(new JListener<ExecResult>() {
+
+                    @Override
+                    public void complete(ExecResult result) {
+                        synchronized (futures) {
+                            System.out.println("= debug info ======================================");
+                            System.out.println(result.getDebugInfo());
+                            System.out.println("= return value ====================================");
+                            System.out.println(result.getValue());
+                            System.out.println();
+                            System.out.println();
+                        }
+                    }
+
+                    @Override
+                    public void failure(Throwable cause) {
+                        cause.printStackTrace();
+                    }
+                });
+            }
         } catch (Exception e) {
             e.printStackTrace();
         }

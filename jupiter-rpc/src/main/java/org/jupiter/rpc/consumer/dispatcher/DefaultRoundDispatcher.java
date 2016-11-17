@@ -24,14 +24,13 @@ import org.jupiter.rpc.JRequest;
 import org.jupiter.rpc.JResponse;
 import org.jupiter.rpc.channel.JChannel;
 import org.jupiter.rpc.channel.JFutureListener;
-import org.jupiter.rpc.consumer.promise.DefaultInvokePromise;
-import org.jupiter.rpc.consumer.promise.InvokePromise;
+import org.jupiter.rpc.consumer.future.InvokeFuture;
 import org.jupiter.rpc.model.metadata.MessageWrapper;
 import org.jupiter.rpc.model.metadata.ResultWrapper;
 import org.jupiter.rpc.model.metadata.ServiceMetadata;
 import org.jupiter.rpc.tracing.TraceId;
-import org.jupiter.rpc.tracing.TracingUtil;
 import org.jupiter.rpc.tracing.TracingRecorder;
+import org.jupiter.rpc.tracing.TracingUtil;
 import org.jupiter.serialization.Serializer;
 import org.jupiter.serialization.SerializerType;
 
@@ -55,7 +54,7 @@ public class DefaultRoundDispatcher extends AbstractDispatcher {
     }
 
     @Override
-    public InvokePromise<?> dispatch(JClient client, String methodName, Object[] args) {
+    public Object dispatch(JClient client, String methodName, Object[] args, Class<?> returnType) {
         // stack copy
         final ServiceMetadata _metadata = metadata;
         final Serializer _serializerImpl = serializerImpl;
@@ -87,15 +86,14 @@ public class DefaultRoundDispatcher extends AbstractDispatcher {
 
         long timeoutMillis = getMethodSpecialTimeoutMillis(methodName);
         final ConsumerHook[] _hooks = getHooks();
-        final InvokePromise<?> promise = asPromise(channel, request, timeoutMillis)
-                .hooks(_hooks)
-                .listener(getListener());
+        final InvokeFuture<?> future = asFuture(channel, request, returnType, timeoutMillis)
+                .hooks(_hooks);
 
         channel.write(request, new JFutureListener<JChannel>() {
 
             @Override
             public void operationSuccess(JChannel channel) throws Exception {
-                promise.chalkUpSentTimestamp(); // 记录发送时间戳
+                future.setSentTime(); // 记录发送时间戳
 
                 // hook.before()
                 if (_hooks != null) {
@@ -112,17 +110,24 @@ public class DefaultRoundDispatcher extends AbstractDispatcher {
                 ResultWrapper result = new ResultWrapper();
                 result.setError(cause);
 
-                JResponse response = JResponse.newInstance(
-                        request.invokeId(), request.serializerCode(), CLIENT_ERROR, result);
-                DefaultInvokePromise.received(channel, response);
+                InvokeFuture.received(
+                        channel,
+                        JResponse.newInstance(
+                                request.invokeId(),
+                                request.serializerCode(),
+                                CLIENT_ERROR,
+                                result
+                        )
+                );
             }
         });
 
-        return promise;
+        return future;
     }
 
+    @SuppressWarnings("unchecked")
     @Override
-    protected InvokePromise<?> asPromise(JChannel channel, JRequest request, long timeoutMillis) {
-        return new DefaultInvokePromise(channel, request, timeoutMillis);
+    protected InvokeFuture<?> asFuture(JChannel channel, JRequest request, Class<?> returnType, long timeoutMillis) {
+        return new InvokeFuture(channel, request, returnType, timeoutMillis);
     }
 }

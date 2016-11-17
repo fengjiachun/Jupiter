@@ -52,7 +52,6 @@ public class JupiterSpringConsumerBean<T> implements FactoryBean<T>, Initializin
     private DispatchType dispatchType;                      // 派发方式 [单播; 组播]
     private long timeoutMillis;                             // 调用超时时间设置
     private Map<String, Long> methodsSpecialTimeoutMillis;  // 指定方法单独设置的超时时间, 方法名为key, 方法参数类型不做区别对待
-    private JListener listener;                             // 回调函数
     private ConsumerHook[] hooks = EMPTY_HOOKS;             // consumer hook
     private String providerAddresses;                       // provider地址列表(IP直连)
 
@@ -127,10 +126,6 @@ public class JupiterSpringConsumerBean<T> implements FactoryBean<T>, Initializin
             }
         }
 
-        if (listener != null) {
-            factory.listener(listener);
-        }
-
         if (hooks.length > 0) {
             factory.addHook(hooks);
         }
@@ -202,14 +197,6 @@ public class JupiterSpringConsumerBean<T> implements FactoryBean<T>, Initializin
 
     public void setMethodsSpecialTimeoutMillis(Map<String, Long> methodsSpecialTimeoutMillis) {
         this.methodsSpecialTimeoutMillis = methodsSpecialTimeoutMillis;
-    }
-
-    public JListener getListener() {
-        return listener;
-    }
-
-    public void setListener(JListener listener) {
-        this.listener = listener;
     }
 
     public ConsumerHook[] getHooks() {
