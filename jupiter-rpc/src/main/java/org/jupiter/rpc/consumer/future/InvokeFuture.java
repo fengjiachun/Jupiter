@@ -36,6 +36,7 @@ import java.util.concurrent.atomic.AtomicReferenceFieldUpdater;
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
 import static java.util.concurrent.TimeUnit.NANOSECONDS;
 import static org.jupiter.common.util.JConstants.DEFAULT_TIMEOUT;
+import static org.jupiter.common.util.StackTraceUtil.stackTrace;
 import static org.jupiter.rpc.DispatchType.BROADCAST;
 import static org.jupiter.rpc.DispatchType.ROUND;
 import static org.jupiter.rpc.Status.*;
@@ -143,17 +144,19 @@ public class InvokeFuture<V> extends Future<V> {
     @Override
     protected void done(int state, Object x) {
         if (!listeners.isEmpty()) {
-            Object[] array = listenersGetter.get(listeners);
-            if (NORMAL == state) {
-                for (int i = 0; i < array.length; i++) {
-                    JListener<V> l = (JListener<V>) array[i];
-                    l.complete((V) x);
+            try {
+                Object[] array = listenersGetter.get(listeners);
+                if (NORMAL == state) {
+                    for (int i = 0; i < array.length; i++) {
+                        ((JListener<V>) array[i]).complete((V) x);
+                    }
+                } else {
+                    for (int i = 0; i < array.length; i++) {
+                        ((JListener<V>) array[i]).failure((Throwable) x);
+                    }
                 }
-            } else {
-                for (int i = 0; i < array.length; i++) {
-                    JListener<V> l = (JListener<V>) array[i];
-                    l.failure((Throwable) x);
-                }
+            } catch (Throwable t) {
+                logger.error("An exception has been caught on calling listeners {}.", stackTrace(t));
             }
         }
     }

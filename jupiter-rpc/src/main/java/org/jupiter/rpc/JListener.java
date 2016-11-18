@@ -19,6 +19,9 @@ package org.jupiter.rpc;
 import java.util.EventListener;
 
 /**
+ * Callback is often triggered by the core thread (may be an IO thread).
+ * Be careful, do not to have time-consuming operations within
+ * {@link JListener#complete(Object)} and {@link JListener#failure(Throwable)}.
  *
  * jupiter
  * org.jupiter.rpc
