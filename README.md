@@ -39,21 +39,6 @@
 - [BenchmarkClient](https://github.com/fengjiachun/Jupiter/blob/master/jupiter-example/src/main/java/org/jupiter/benchmark/tcp/BenchmarkClient.java)
 - [BenchmarkServer](https://github.com/fengjiachun/Jupiter/blob/master/jupiter-example/src/main/java/org/jupiter/benchmark/tcp/BenchmarkServer.java)
 
-######一些特性:
-- 支持同步阻塞调用, 异步Future, Callback方式调用
-- 支持单播和广播
-- 支持泛化调用
-- 支持udt(有点鸡肋)
-- 序列化/反序列化: 基于SPI并可扩展, 默认使用protostuff
-- 服务发布/订阅: 基于SPI并可扩展, 提供默认注册中心实现, 也支持zookeeper, 支持线上调整已有服务(通过flightexec)
-- 软负载均衡: 基于SPI并可扩展, 默认实现是随机, 按照权重和预热时间设置随机概率
-- 流量控制: 提供app级别和provider级别两种粒度流控, 支持线上调整(通过flightexec)
-- 监控服务: 只能使用telnet, 有点鸡肋, 因为我不会做网页
-- 性能指标度量: log, csv, telnet
-- 链路跟踪: 链路最前端会生成全局唯一的traceId, 后边需要业务代码埋点, 和业务代码之间通过ThreadLocal透传traceId
-- 调用超时设置支持两种粒度: provider级别和方法级别
-- [线上调试(flightexec)](https://github.com/fengjiachun/Jupiter/blob/master/jupiter-flightexec/src/main/java/org/jupiter/flight/exec/package-info.java)
-
 
 ######版本变更:
     - v1.0 服务不能单独指定或切换序列化/反序列化的方式, 这不太合理
@@ -61,6 +46,9 @@
 
 ######配置清单:
 - [配置清单](https://github.com/fengjiachun/Jupiter/blob/master/doc/config.md)
+
+######文档
+- [Wiki](https://github.com/fengjiachun/Jupiter/wiki)
 
 ######Jupiter使用, 请参考示例代码(挺全的):
 - [jupiter-example#org.jupiter.example.*](https://github.com/fengjiachun/Jupiter/tree/master/jupiter-example/src/main/java/org/jupiter/example)
