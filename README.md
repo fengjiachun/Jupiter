@@ -47,7 +47,7 @@
 ######配置清单:
 - [配置清单](https://github.com/fengjiachun/Jupiter/blob/master/doc/config.md)
 
-######文档
+######文档:
 - [Wiki](https://github.com/fengjiachun/Jupiter/wiki)
 
 ######Jupiter使用, 请参考示例代码(挺全的):
