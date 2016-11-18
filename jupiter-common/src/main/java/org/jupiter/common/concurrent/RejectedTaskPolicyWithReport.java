@@ -24,7 +24,7 @@ import java.util.concurrent.RejectedExecutionHandler;
 import java.util.concurrent.ThreadPoolExecutor;
 
 /**
- * 如果该任务实现了 {@link RejectedRunnable} 接口, 那么交给用户去实现拒绝服务的逻辑,
+ * 如果当前任务实现了 {@link RejectedRunnable} 接口, 那么交给用户去实现拒绝任务的逻辑,
  * 否则以FIFO的方式抛弃队列中一部分现有任务.
  *
  * jupiter

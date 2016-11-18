@@ -19,7 +19,6 @@ package org.jupiter.rpc.executor;
 import org.jupiter.common.concurrent.NamedThreadFactory;
 import org.jupiter.common.concurrent.RejectedTaskPolicyWithReport;
 import org.jupiter.common.util.Strings;
-import org.jupiter.common.util.SystemPropertyUtil;
 import org.jupiter.common.util.internal.logging.InternalLogger;
 import org.jupiter.common.util.internal.logging.InternalLoggerFactory;
 
@@ -27,9 +26,9 @@ import java.lang.reflect.Constructor;
 import java.util.concurrent.*;
 
 import static java.util.concurrent.TimeUnit.SECONDS;
-import static org.jupiter.common.util.JConstants.PROCESSOR_MAX_NUM_WORKS;
-import static org.jupiter.common.util.JConstants.PROCESSOR_WORKER_QUEUE_CAPACITY;
 import static org.jupiter.common.util.StackTraceUtil.stackTrace;
+import static org.jupiter.common.util.SystemPropertyUtil.get;
+import static org.jupiter.rpc.executor.ThreadPoolExecutorFactory.WorkerQueueType.*;
 
 /**
  * Provide a {@link ThreadPoolExecutor} implementation of executor.
@@ -40,42 +39,63 @@ import static org.jupiter.common.util.StackTraceUtil.stackTrace;
  *
  * @author jiachun.fjc
  */
-public class ThreadPoolExecutorFactory implements ExecutorFactory {
+public class ThreadPoolExecutorFactory extends AbstractExecutorFactory {
 
     private static final InternalLogger logger = InternalLoggerFactory.getInstance(ThreadPoolExecutorFactory.class);
 
     @Override
-    public Executor newExecutor(int parallelism) {
-        BlockingQueue<Runnable> workQueue = null;
-
-        String queueTypeString = SystemPropertyUtil.get("jupiter.executor.thread.pool.queue.type");
-        WorkerQueueType queueType = WorkerQueueType.parse(queueTypeString);
-        if (queueType == null) {
-            queueType = WorkerQueueType.ARRAY_BLOCKING_QUEUE;
-        }
-        switch (queueType) {
-            case LINKED_BLOCKING_QUEUE:
-                workQueue = new LinkedBlockingQueue<>(PROCESSOR_WORKER_QUEUE_CAPACITY);
-                break;
-            case ARRAY_BLOCKING_QUEUE:
-                workQueue = new ArrayBlockingQueue<>(PROCESSOR_WORKER_QUEUE_CAPACITY);
-                break;
-        }
-
+    public Executor newExecutor(Target target) {
         return new ThreadPoolExecutor(
-                parallelism,
-                PROCESSOR_MAX_NUM_WORKS,
+                coreWorks(target),
+                maxWorks(target),
                 120L,
                 SECONDS,
-                workQueue,
+                workQueue(target),
                 new NamedThreadFactory("processor"),
-                createRejectedPolicy());
+                createRejectedPolicy(target, new RejectedTaskPolicyWithReport("processor")));
     }
 
-    private RejectedExecutionHandler createRejectedPolicy() {
-        RejectedExecutionHandler handler = null;
+    private BlockingQueue<Runnable> workQueue(Target target) {
+        BlockingQueue<Runnable> workQueue = null;
+        WorkerQueueType queueType = queueType(target, ARRAY_BLOCKING_QUEUE);
+        int queueCapacity = queueCapacity(target);
+        switch (queueType) {
+            case LINKED_BLOCKING_QUEUE:
+                workQueue = new LinkedBlockingQueue<>(queueCapacity);
+                break;
+            case ARRAY_BLOCKING_QUEUE:
+                workQueue = new ArrayBlockingQueue<>(queueCapacity);
+                break;
+        }
 
-        String handlerClass = SystemPropertyUtil.get("jupiter.executor.thread.pool.rejected.handler");
+        return workQueue;
+    }
+
+    private WorkerQueueType queueType(Target target, WorkerQueueType defaultType) {
+        WorkerQueueType queueType = null;
+        switch (target) {
+            case CONSUMER:
+                queueType = parse(get(CONSUMER_EXECUTOR_QUEUE_TYPE));
+                break;
+            case PROVIDER:
+                queueType = parse(get(PROVIDER_EXECUTOR_QUEUE_TYPE));
+                break;
+        }
+
+        return queueType == null ? defaultType : queueType;
+    }
+
+    private RejectedExecutionHandler createRejectedPolicy(Target target, RejectedExecutionHandler defaultHandler) {
+        RejectedExecutionHandler handler = null;
+        String handlerClass = null;
+        switch (target) {
+            case CONSUMER:
+                handlerClass = get(CONSUMER_THREAD_POOL_REJECTED_HANDLER);
+                break;
+            case PROVIDER:
+                handlerClass = get(PROVIDER_THREAD_POOL_REJECTED_HANDLER);
+                break;
+        }
         if (Strings.isNotBlank(handlerClass)) {
             try {
                 Class<?> cls = Class.forName(handlerClass);
@@ -89,11 +109,8 @@ public class ThreadPoolExecutorFactory implements ExecutorFactory {
                 logger.warn("Construct {} failed, {}.", handlerClass, stackTrace(e));
             }
         }
-        if (handler == null) {
-            handler = new RejectedTaskPolicyWithReport("processor");
-        }
 
-        return handler;
+        return handler == null ? defaultHandler : handler;
     }
 
     enum WorkerQueueType {

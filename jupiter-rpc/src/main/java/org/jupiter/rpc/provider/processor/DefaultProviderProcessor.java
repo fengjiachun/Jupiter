@@ -29,7 +29,7 @@ import org.jupiter.rpc.provider.processor.task.MessageTask;
 
 import java.util.concurrent.Executor;
 
-import static org.jupiter.common.util.JConstants.PROCESSOR_CORE_NUM_WORKERS;
+import static org.jupiter.rpc.executor.ExecutorFactory.Target;
 
 /**
  * jupiter
@@ -44,9 +44,8 @@ public class DefaultProviderProcessor extends AbstractProviderProcessor {
 
     public DefaultProviderProcessor(JServer server) {
         this.server = server;
-
         ExecutorFactory factory = (ExecutorFactory) JServiceLoader.loadFirst(ProviderExecutorFactory.class);
-        executor = factory.newExecutor(PROCESSOR_CORE_NUM_WORKERS);
+        executor = factory.newExecutor(Target.PROVIDER);
     }
 
     public DefaultProviderProcessor(JServer server, Executor executor) {

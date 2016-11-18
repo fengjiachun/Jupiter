@@ -18,12 +18,11 @@ package org.jupiter.rpc.executor;
 
 import org.jupiter.common.concurrent.disruptor.TaskDispatcher;
 import org.jupiter.common.concurrent.disruptor.WaitStrategyType;
-import org.jupiter.common.util.SystemPropertyUtil;
 
 import java.util.concurrent.Executor;
 
-import static org.jupiter.common.util.JConstants.PROCESSOR_MAX_NUM_WORKS;
-import static org.jupiter.common.util.JConstants.PROCESSOR_WORKER_QUEUE_CAPACITY;
+import static org.jupiter.common.concurrent.disruptor.WaitStrategyType.*;
+import static org.jupiter.common.util.SystemPropertyUtil.get;
 
 /**
  * Provide a disruptor implementation of executor.
@@ -33,21 +32,29 @@ import static org.jupiter.common.util.JConstants.PROCESSOR_WORKER_QUEUE_CAPACITY
  *
  * @author jiachun.fjc
  */
-public class DisruptorExecutorFactory implements ExecutorFactory {
+public class DisruptorExecutorFactory extends AbstractExecutorFactory {
 
     @Override
-    public Executor newExecutor(int parallelism) {
-        String strategyString = SystemPropertyUtil.get("jupiter.executor.disruptor.wait.strategy.type");
-        WaitStrategyType waitStrategyType = WaitStrategyType.parse(strategyString);
-        if (waitStrategyType == null) {
-            waitStrategyType = WaitStrategyType.LITE_BLOCKING_WAIT;
+    public Executor newExecutor(Target target) {
+        return new TaskDispatcher(
+                coreWorks(target),
+                "processor",
+                queueCapacity(target),
+                maxWorks(target),
+                waitStrategyType(target, LITE_BLOCKING_WAIT));
+    }
+
+    private WaitStrategyType waitStrategyType(Target target, WaitStrategyType defaultType) {
+        WaitStrategyType strategyType = null;
+        switch (target) {
+            case CONSUMER:
+                strategyType = parse(get(CONSUMER_DISRUPTOR_WAIT_STRATEGY_TYPE));
+                break;
+            case PROVIDER:
+                strategyType = parse(get(PROVIDER_DISRUPTOR_WAIT_STRATEGY_TYPE));
+                break;
         }
 
-        return new TaskDispatcher(
-                parallelism,
-                "processor",
-                PROCESSOR_WORKER_QUEUE_CAPACITY,
-                PROCESSOR_MAX_NUM_WORKS,
-                waitStrategyType);
+        return strategyType == null ? defaultType : strategyType;
     }
 }

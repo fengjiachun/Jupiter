@@ -53,7 +53,7 @@ public class TracingUtil {
     static {
         String _ip_16;
         try {
-            _ip_16 = getIP_16(SystemPropertyUtil.get("jupiter.address", NetUtil.getLocalAddress()));
+            _ip_16 = getIP_16(SystemPropertyUtil.get("jupiter.local.address", NetUtil.getLocalAddress()));
         } catch (Exception e) {
             _ip_16 = "ffffffff";
         }

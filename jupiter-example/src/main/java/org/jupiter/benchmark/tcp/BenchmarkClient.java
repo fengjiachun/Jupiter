@@ -67,7 +67,7 @@ public class BenchmarkClient {
     public static void main(String[] args) {
         int processors = Runtime.getRuntime().availableProcessors();
         SystemPropertyUtil
-                .setProperty("jupiter.processor.executor.core.num.workers", String.valueOf(processors));
+                .setProperty("jupiter.executor.factory.consumer.core.workers", String.valueOf(processors));
         SystemPropertyUtil.setProperty("jupiter.tracing.needed", "false");
         SystemPropertyUtil.setProperty("jupiter.future.non_blocking_hash", "true");
 

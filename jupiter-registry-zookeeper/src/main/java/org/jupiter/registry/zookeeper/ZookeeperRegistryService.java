@@ -62,7 +62,7 @@ public class ZookeeperRegistryService extends AbstractRegistryService {
     // 没有实际意义, 不要在意它
     private static final AtomicLong sequence = new AtomicLong(0);
 
-    private final String address = SystemPropertyUtil.get("jupiter.address", NetUtil.getLocalAddress());
+    private final String address = SystemPropertyUtil.get("jupiter.local.address", NetUtil.getLocalAddress());
 
     private final int sessionTimeoutMs = SystemPropertyUtil.getInt("jupiter.registry.zookeeper.sessionTimeoutMs", 60 * 1000);
     private final int connectionTimeoutMs = SystemPropertyUtil.getInt("jupiter.registry.zookeeper.connectionTimeoutMs", 15 * 1000);

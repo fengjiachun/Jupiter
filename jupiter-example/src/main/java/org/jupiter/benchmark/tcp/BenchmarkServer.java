@@ -35,13 +35,13 @@ public class BenchmarkServer {
     public static void main(String[] args) {
         final int processors = Runtime.getRuntime().availableProcessors();
         SystemPropertyUtil
-                .setProperty("jupiter.processor.executor.core.num.workers", String.valueOf(processors));
+                .setProperty("jupiter.executor.factory.provider.core.workers", String.valueOf(processors));
         SystemPropertyUtil
                 .setProperty("jupiter.metric.csv.reporter", "false");
         SystemPropertyUtil
                 .setProperty("jupiter.metric.report.period", "1");
         SystemPropertyUtil
-                .setProperty("jupiter.processor.executor.worker.queue.capacity", "65536");
+                .setProperty("jupiter.executor.factory.provider.disruptor.wait.strategy.type", "65536");
 
         JAcceptor acceptor = new JNettyTcpAcceptor(18099);
         acceptor.configGroup().child().setOption(JOption.WRITE_BUFFER_HIGH_WATER_MARK, 256 * 1024);

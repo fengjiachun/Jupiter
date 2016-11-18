@@ -50,7 +50,7 @@ import static org.jupiter.common.util.JConstants.DEFAULT_WEIGHT;
 public class NettyChannelGroup implements JChannelGroup {
 
     private static long LOSS_INTERVAL = SystemPropertyUtil
-            .getLong("jupiter.channel.group.loss.interval.millis", MINUTES.toMillis(5));
+            .getLong("jupiter.io.channel.group.loss.interval.millis", MINUTES.toMillis(5));
 
     private static final AtomicReferenceFieldUpdater<CopyOnWriteArrayList, Object[]> channelsUpdater =
             AtomicUpdater.newAtomicReferenceFieldUpdater(CopyOnWriteArrayList.class, Object[].class, "array");

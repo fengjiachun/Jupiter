@@ -24,7 +24,7 @@ import org.jupiter.rpc.executor.ExecutorFactory;
 
 import java.util.concurrent.Executor;
 
-import static org.jupiter.common.util.JConstants.PROCESSOR_CORE_NUM_WORKERS;
+import static org.jupiter.rpc.executor.ExecutorFactory.Target;
 
 /**
  * The default implementation of consumer's processor.
@@ -40,7 +40,7 @@ public class DefaultConsumerProcessor implements ConsumerProcessor {
 
     public DefaultConsumerProcessor() {
         ExecutorFactory factory = (ExecutorFactory) JServiceLoader.loadFirst(ConsumerExecutorFactory.class);
-        executor = factory.newExecutor(PROCESSOR_CORE_NUM_WORKERS);
+        executor = factory.newExecutor(Target.CONSUMER);
     }
 
     @Override

@@ -32,14 +32,14 @@ import java.util.concurrent.atomic.AtomicInteger;
  *
  * @author jiachun.fjc
  */
-public class ForkJoinPoolExecutorFactory implements ExecutorFactory {
+public class ForkJoinPoolExecutorFactory extends AbstractExecutorFactory {
 
     private static final InternalLogger logger = InternalLoggerFactory.getInstance(ForkJoinPoolExecutorFactory.class);
 
     @Override
-    public Executor newExecutor(int parallelism) {
+    public Executor newExecutor(Target target) {
         return new ForkJoinPool(
-                parallelism,
+                coreWorks(target),
                 new DefaultForkJoinWorkerThreadFactory("fjp.processor"),
                 new DefaultUncaughtExceptionHandler(), true);
     }
