@@ -72,20 +72,13 @@ public final class JOption<T> extends AbstractConstant<JOption<T>> {
     }
 
     /**
-     * 对此连接禁用 Nagle 算法.
-     * 在确认以前的写入数据之前不会缓冲写入网络的数据. 仅对TCP有效.
-     *
-     * Nagle算法试图减少TCP包的数量和结构性开销, 将多个较小的包组合成较大的包进行发送.
-     * 但这不是重点, 关键是这个算法受TCP延迟确认影响, 会导致相继两次向连接发送请求包,
-     * 读数据时会有一个最多达500毫秒的延时.
-     *
-     * 这叫做“ACK delay”, 解决办法是设置TCP_NODELAY。
+     * 对此连接禁用Nagle算法.
      */
     public static final JOption<Boolean> TCP_NODELAY = valueOf("TCP_NODELAY");
 
     /**
      * 为TCP套接字设置keepalive选项时, 如果在2个小时（实际值与具体实现有关）内在
-     * 任意方向上都没有跨越套接字交换数据, 则 TCP 会自动将 keepalive 探头发送到对端.
+     * 任意方向上都没有跨越套接字交换数据, 则 TCP 会自动将 keepalive 探头发送到对端,
      * 此探头是对端必须响应的TCP段.
      *
      * 期望的响应为以下三种之一:
