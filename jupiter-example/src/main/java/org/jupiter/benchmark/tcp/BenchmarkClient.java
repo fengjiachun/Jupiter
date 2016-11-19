@@ -69,7 +69,7 @@ public class BenchmarkClient {
         SystemPropertyUtil
                 .setProperty("jupiter.executor.factory.consumer.core.workers", String.valueOf(processors));
         SystemPropertyUtil.setProperty("jupiter.tracing.needed", "false");
-        SystemPropertyUtil.setProperty("jupiter.future.non_blocking_hash", "true");
+        SystemPropertyUtil.setProperty("jupiter.rpc.future.non_blocking_hash", "true");
 
         JConnector<JConnection> connector = new JNettyTcpConnector();
         connector.config().setOption(JOption.WRITE_BUFFER_HIGH_WATER_MARK, 256 * 1024);

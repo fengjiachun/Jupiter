@@ -70,12 +70,12 @@ public final class JConstants {
     public static final int WRITER_IDLE_TIME_SECONDS = getInt("jupiter.io.writer.idle.time.seconds", 30);
 
     /** Load balancer 默认预热时间 **/
-    public static final int DEFAULT_WARM_UP = getInt("jupiter.load-balancer.warm-up", 10 * 60 * 1000);
+    public static final int DEFAULT_WARM_UP = getInt("jupiter.rpc.load-balancer.warm-up", 10 * 60 * 1000);
     /** Load balancer 默认权重, 建议最大100 **/
-    public static final int DEFAULT_WEIGHT = getInt("jupiter.load-balancer.weight", 50);
+    public static final int DEFAULT_WEIGHT = getInt("jupiter.rpc.load-balancer.weight", 50);
 
     /** Suggest that the count of connections **/
-    public static final int DEFAULT_CONNECTION_COUNT = getInt("jupiter.suggest.connection.count", AVAILABLE_PROCESSORS);
+    public static final int DEFAULT_CONNECTION_COUNT = getInt("jupiter.rpc.suggest.connection.count", AVAILABLE_PROCESSORS);
 
     /** Processor.executor 核心线程数 **/
     public static final int PROCESSOR_CORE_WORKERS = getInt("jupiter.processor.executor.core.workers", AVAILABLE_PROCESSORS << 1);

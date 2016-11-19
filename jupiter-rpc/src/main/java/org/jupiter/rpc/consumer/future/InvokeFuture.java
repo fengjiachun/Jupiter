@@ -64,7 +64,7 @@ public class InvokeFuture<V> extends Future<V> {
     private static final ConcurrentMap<String, InvokeFuture<?>> broadcastFutures;
 
     static {
-        boolean useNonBlockingHash = SystemPropertyUtil.getBoolean("jupiter.future.non_blocking_hash", false);
+        boolean useNonBlockingHash = SystemPropertyUtil.getBoolean("jupiter.rpc.future.non_blocking_hash", false);
         if (useNonBlockingHash) {
             roundFutures = Maps.newNonBlockingHashMapLong();
             broadcastFutures = Maps.newNonBlockingHashMap();
