@@ -592,7 +592,7 @@ public class NonBlockingHashMap<TypeK, TypeV>
 
         StringBuilder sb = new StringBuilder();
         sb.append('{');
-        for (; ; ) {
+        for (;;) {
             Entry<TypeK, TypeV> e = i.next();
             TypeK key = e.getKey();
             TypeV value = e.getValue();
@@ -1642,7 +1642,7 @@ public class NonBlockingHashMap<TypeK, TypeV>
     private void readObject(java.io.ObjectInputStream s) throws IOException, ClassNotFoundException {
         s.defaultReadObject();      // Read nothing
         initialize(MIN_SIZE);
-        for (; ; ) {
+        for (;;) {
             final TypeK K = (TypeK) s.readObject();
             final TypeV V = (TypeV) s.readObject();
             if (K == null) break;

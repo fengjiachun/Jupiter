@@ -457,7 +457,7 @@ public class ByteObjectHashMap<V> implements ByteObjectMap<V> {
                 byte oldKey = oldKeys[i];
                 int index = hashIndex(oldKey);
 
-                for (; ; ) {
+                for (;;) {
                     if (values[index] == null) {
                         keys[index] = oldKey;
                         values[index] = oldVal;
@@ -585,7 +585,7 @@ public class ByteObjectHashMap<V> implements ByteObjectMap<V> {
         private int entryIndex = -1;
 
         private void scanNext() {
-            for (; ; ) {
+            for (;;) {
                 if (++nextIndex == values.length || values[nextIndex] != null) {
                     break;
                 }
