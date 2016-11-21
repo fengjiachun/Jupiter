@@ -1,6 +1,6 @@
 [![Build Status](https://travis-ci.org/fengjiachun/Jupiter.svg?branch=master)](https://travis-ci.org/fengjiachun/Jupiter)
 
-####Jupiter
+####Jupiter:
 - Jupiter是一款性能还不错的, 轻量级的分布式服务框架
 
 ####Jupiter Architecture:
