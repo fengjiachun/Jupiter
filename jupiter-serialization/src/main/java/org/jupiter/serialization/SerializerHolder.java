@@ -27,7 +27,7 @@ import java.util.List;
 import static org.jupiter.serialization.SerializerType.*;
 
 /**
- * Holds a singleton serializer.
+ * Holds all serializers.
  *
  * jupiter
  * org.jupiter.serialization
