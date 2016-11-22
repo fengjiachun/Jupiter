@@ -35,6 +35,8 @@ import static org.jupiter.common.util.Preconditions.checkArgument;
  */
 public final class Maps {
 
+    private static final boolean USE_NON_BLOCKING_HASH = SystemPropertyUtil.getBoolean("jupiter.non_blocking_hash", false);
+
     /**
      * Creates a mutable, empty {@code HashMap} instance.
      */
@@ -83,6 +85,9 @@ public final class Maps {
      * Creates a mutable, empty {@code ConcurrentMap} instance.
      */
     public static <K, V> ConcurrentMap<K, V> newConcurrentHashMap() {
+        if (USE_NON_BLOCKING_HASH) {
+            return new NonBlockingHashMap<>();
+        }
         return new ConcurrentHashMap<>();
     }
 
@@ -91,22 +96,10 @@ public final class Maps {
      * that it should hold {@code expectedSize} elements without growth.
      */
     public static <K, V> ConcurrentMap<K, V> newConcurrentHashMap(int initialCapacity) {
+        if (USE_NON_BLOCKING_HASH) {
+            return new NonBlockingHashMap<>(initialCapacity);
+        }
         return new ConcurrentHashMap<>(initialCapacity);
-    }
-
-    /**
-     * Creates a mutable, empty {@code newNonBlockingHashMap} instance.
-     */
-    public static <K, V> ConcurrentMap<K, V> newNonBlockingHashMap() {
-        return new NonBlockingHashMap<>();
-    }
-
-    /**
-     * Creates a {@code newNonBlockingHashMap} instance, with a high enough "initial capacity"
-     * that it should hold {@code expectedSize} elements without growth.
-     */
-    public static <K, V> ConcurrentMap<K, V> newNonBlockingHashMap(int initialCapacity) {
-        return new NonBlockingHashMap<>(initialCapacity);
     }
 
     /**

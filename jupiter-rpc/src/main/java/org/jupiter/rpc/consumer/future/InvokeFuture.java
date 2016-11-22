@@ -19,7 +19,6 @@ package org.jupiter.rpc.consumer.future;
 import org.jupiter.common.concurrent.atomic.AtomicUpdater;
 import org.jupiter.common.util.Maps;
 import org.jupiter.common.util.Signal;
-import org.jupiter.common.util.SystemPropertyUtil;
 import org.jupiter.common.util.internal.JUnsafe;
 import org.jupiter.common.util.internal.logging.InternalLogger;
 import org.jupiter.common.util.internal.logging.InternalLoggerFactory;
@@ -59,20 +58,9 @@ public class InvokeFuture<V> extends Future<V> {
             AtomicUpdater.newAtomicReferenceFieldUpdater(CopyOnWriteArrayList.class, Object[].class, "array");
 
     // 单播场景的future, Long作为Key hashCode和equals效率都更高
-    private static final ConcurrentMap<Long, InvokeFuture<?>> roundFutures;
+    private static final ConcurrentMap<Long, InvokeFuture<?>> roundFutures = Maps.newNonBlockingHashMapLong();
     // 组播场景的future, 组播都是一个invokeId, 所以要把Key再加一个前缀
-    private static final ConcurrentMap<String, InvokeFuture<?>> broadcastFutures;
-
-    static {
-        boolean useNonBlockingHash = SystemPropertyUtil.getBoolean("jupiter.rpc.future.non_blocking_hash", false);
-        if (useNonBlockingHash) {
-            roundFutures = Maps.newNonBlockingHashMapLong();
-            broadcastFutures = Maps.newNonBlockingHashMap();
-        } else {
-            roundFutures = Maps.newConcurrentHashMap();
-            broadcastFutures = Maps.newConcurrentHashMap();
-        }
-    }
+    private static final ConcurrentMap<String, InvokeFuture<?>> broadcastFutures = Maps.newConcurrentHashMap();
 
     private final long invokeId; // request id, 组播的场景可重复
     private final JChannel channel;
