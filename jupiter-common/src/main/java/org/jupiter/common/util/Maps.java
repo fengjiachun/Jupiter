@@ -35,7 +35,7 @@ import static org.jupiter.common.util.Preconditions.checkArgument;
  */
 public final class Maps {
 
-    private static final boolean USE_NON_BLOCKING_HASH = SystemPropertyUtil.getBoolean("jupiter.non_blocking_hash", false);
+    private static final boolean USE_NON_BLOCKING_HASH = SystemPropertyUtil.getBoolean("jupiter.use.non_blocking_hash", false);
 
     /**
      * Creates a mutable, empty {@code HashMap} instance.
