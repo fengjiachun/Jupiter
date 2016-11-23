@@ -36,7 +36,7 @@
         <property name="acceptor" ref="acceptorWrapper" />
         <property name="providerImpl" ref="serviceTest" />
 
-        <!-- 其他可选配置 -->
+        <!-- 可选配置 -->
         <!--
             ProviderInterceptor[] providerInterceptors          // 私有拦截器
             int weight                                          // 权重
