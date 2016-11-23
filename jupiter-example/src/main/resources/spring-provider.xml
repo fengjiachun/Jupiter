@@ -19,7 +19,7 @@
        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
        xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
 
-    <!-- netty的网络层实现 -->
+    <!-- netty的网络层实现(建议单例) -->
     <bean id="nettyTcpAcceptor" class="org.jupiter.transport.netty.JNettyTcpAcceptor">
         <constructor-arg index="0" value="18090" />
     </bean>
