@@ -80,7 +80,7 @@ public class BenchmarkClient {
             connector.connect(addresses[i]);
         }
 
-        if (SystemPropertyUtil.getBoolean("jupiter.test.async", false)) {
+        if (SystemPropertyUtil.getBoolean("jupiter.test.async", true)) {
             futureCall(connector, addresses, processors);
         } else {
             syncCall(connector, addresses, processors);
