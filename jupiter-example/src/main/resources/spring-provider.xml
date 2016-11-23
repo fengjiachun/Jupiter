@@ -32,8 +32,19 @@
 
     <!-- provider -->
     <bean id="serviceTest" class="org.jupiter.example.ServiceTestImpl" />
-    <bean class="org.jupiter.spring.support.JupiterSpringProviderBean">
+    <bean id="serviceTestProvider" class="org.jupiter.spring.support.JupiterSpringProviderBean">
         <property name="acceptor" ref="acceptorWrapper" />
         <property name="providerImpl" ref="serviceTest" />
+
+        <!-- 其他可选配置 -->
+        <!--
+            ProviderInterceptor[] providerInterceptors;         // 私有拦截器
+            int weight;                                         // 权重
+            int connCount;                                      // 建议客户端维持的长连接数量
+            Executor executor;                                  // 该服务私有的线程池
+            FlowController<JRequest> flowController;            // 该服务私有的流量控制器
+            JServer.ProviderInitializer<?> providerInitializer; // 服务延迟初始化
+            Executor providerInitializerExecutor;               // 服务私有的延迟初始化线程池, 如果未指定则使用全局线程池
+        -->
     </bean>
 </beans>
