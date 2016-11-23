@@ -16,26 +16,14 @@
 
 package org.jupiter.rpc.consumer.dispatcher;
 
-import org.jupiter.common.util.internal.logging.InternalLogger;
-import org.jupiter.common.util.internal.logging.InternalLoggerFactory;
-import org.jupiter.rpc.ConsumerHook;
 import org.jupiter.rpc.JClient;
 import org.jupiter.rpc.JRequest;
-import org.jupiter.rpc.JResponse;
 import org.jupiter.rpc.channel.JChannel;
-import org.jupiter.rpc.channel.JFutureListener;
 import org.jupiter.rpc.consumer.future.InvokeFuture;
 import org.jupiter.rpc.model.metadata.MessageWrapper;
-import org.jupiter.rpc.model.metadata.ResultWrapper;
 import org.jupiter.rpc.model.metadata.ServiceMetadata;
-import org.jupiter.rpc.tracing.TraceId;
-import org.jupiter.rpc.tracing.TracingRecorder;
-import org.jupiter.rpc.tracing.TracingUtil;
 import org.jupiter.serialization.Serializer;
 import org.jupiter.serialization.SerializerType;
-
-import static org.jupiter.rpc.Status.CLIENT_ERROR;
-import static org.jupiter.rpc.tracing.TracingRecorder.Role.CONSUMER;
 
 /**
  * 单播方式派发消息, 仅支持异步回调, 不支持同步调用.
@@ -47,8 +35,6 @@ import static org.jupiter.rpc.tracing.TracingRecorder.Role.CONSUMER;
  */
 public class DefaultRoundDispatcher extends AbstractDispatcher {
 
-    private static final InternalLogger logger = InternalLoggerFactory.getInstance(DefaultRoundDispatcher.class);
-
     public DefaultRoundDispatcher(ServiceMetadata metadata, SerializerType serializerType) {
         super(metadata, serializerType);
     }
@@ -56,8 +42,8 @@ public class DefaultRoundDispatcher extends AbstractDispatcher {
     @Override
     public Object dispatch(JClient client, String methodName, Object[] args, Class<?> returnType) {
         // stack copy
-        final ServiceMetadata _metadata = metadata;
-        final Serializer _serializerImpl = serializerImpl;
+        final ServiceMetadata _metadata = getMetadata();
+        final Serializer _serializer = getSerializer();
 
         MessageWrapper message = new MessageWrapper(_metadata);
         message.setAppName(client.appName());
@@ -66,63 +52,38 @@ public class DefaultRoundDispatcher extends AbstractDispatcher {
 
         // 通过软负载选择一个channel
         JChannel channel = client.select(_metadata);
-        final JRequest request = JRequest.newInstance(_serializerImpl.code());
-
-        // tracing
-        if (TracingUtil.isTracingNeeded()) {
-            TraceId traceId = TracingUtil.getCurrent();
-            if (traceId == null) {
-                traceId = TraceId.newInstance(TracingUtil.generateTraceId());
-            }
-            message.setTraceId(traceId);
-
-            TracingRecorder recorder = TracingUtil.getRecorder();
-            recorder.recording(CONSUMER, traceId.asText(), request.invokeId(), _metadata.directory(), methodName, channel);
-        }
-
-        request.message(message);
+        final JRequest request = JRequest.newInstance(_serializer.code());
+        request.message(doTracing(request, message, methodName, channel));
         // 在业务线程中序列化, 减轻IO线程负担
-        request.bytes(_serializerImpl.writeObject(message));
+        request.bytes(_serializer.writeObject(message));
 
         long timeoutMillis = getMethodSpecialTimeoutMillis(methodName);
-        final ConsumerHook[] _hooks = getHooks();
-        final InvokeFuture<?> future = asFuture(channel, request, returnType, timeoutMillis)
-                .hooks(_hooks);
+        InvokeFuture<?> future = asFuture(channel, request, returnType, timeoutMillis)
+                .setHooks(getHooks());
 
-        channel.write(request, new JFutureListener<JChannel>() {
+        return write(channel, request, future);
+    }
 
-            @Override
-            public void operationSuccess(JChannel channel) throws Exception {
-                future.setSentTime(); // 记录发送时间戳
+    @Override
+    public Object dispatch(JClient client, JChannel channel, String methodName, Object[] args, Class<?> returnType) {
+        // stack copy
+        final Serializer _serializer = getSerializer();
 
-                // hook.before()
-                if (_hooks != null) {
-                    for (ConsumerHook h : _hooks) {
-                        h.before(request, channel);
-                    }
-                }
-            }
+        MessageWrapper message = new MessageWrapper(getMetadata());
+        message.setAppName(client.appName());
+        message.setMethodName(methodName);
+        message.setArgs(args);
 
-            @Override
-            public void operationFailure(JChannel channel, Throwable cause) throws Exception {
-                logger.warn("Writes {} fail on {}, {}.", request, channel, cause);
+        final JRequest request = JRequest.newInstance(_serializer.code());
+        request.message(doTracing(request, message, methodName, channel));
+        // 在业务线程中序列化, 减轻IO线程负担
+        request.bytes(_serializer.writeObject(message));
 
-                ResultWrapper result = new ResultWrapper();
-                result.setError(cause);
+        long timeoutMillis = getMethodSpecialTimeoutMillis(methodName);
+        InvokeFuture<?> future = asFuture(channel, request, returnType, timeoutMillis)
+                .setHooks(getHooks());
 
-                InvokeFuture.received(
-                        channel,
-                        JResponse.newInstance(
-                                request.invokeId(),
-                                request.serializerCode(),
-                                CLIENT_ERROR,
-                                result
-                        )
-                );
-            }
-        });
-
-        return future;
+        return write(channel, request, future);
     }
 
     @SuppressWarnings("unchecked")

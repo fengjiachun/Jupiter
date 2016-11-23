@@ -24,5 +24,14 @@ package org.jupiter.rpc;
  */
 public enum DispatchType {
     ROUND,      // 单播
-    BROADCAST   // 组播
+    BROADCAST;  // 组播
+
+    public static DispatchType parse(String name) {
+        for (DispatchType s : values()) {
+            if (s.name().equalsIgnoreCase(name)) {
+                return s;
+            }
+        }
+        return null;
+    }
 }

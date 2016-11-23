@@ -14,24 +14,31 @@
  * limitations under the License.
  */
 
-package org.jupiter.rpc;
+package org.jupiter.rpc.consumer.ha;
+
+import java.lang.reflect.Method;
 
 /**
  * jupiter
- * org.jupiter.rpc
+ * org.jupiter.rpc.consumer.ha
  *
  * @author jiachun.fjc
  */
-public enum InvokeType {
-    SYNC,       // 同步调用
-    ASYNC;      // 异步Future方式
+public interface HaStrategy {
 
-    public static InvokeType parse(String name) {
-        for (InvokeType s : values()) {
-            if (s.name().equalsIgnoreCase(name)) {
-                return s;
+    Object invoke(Method method, Object[] args) throws Exception;
+
+    enum Strategy {
+        FAILFAST,  // 快速失败
+        FAILOVER;  // 失败重试
+
+        public static Strategy parse(String name) {
+            for (Strategy s : values()) {
+                if (s.name().equalsIgnoreCase(name)) {
+                    return s;
+                }
             }
+            return null;
         }
-        return null;
     }
 }

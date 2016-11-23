@@ -24,6 +24,9 @@ import org.jupiter.rpc.*;
 import org.jupiter.rpc.consumer.dispatcher.DefaultBroadcastDispatcher;
 import org.jupiter.rpc.consumer.dispatcher.DefaultRoundDispatcher;
 import org.jupiter.rpc.consumer.dispatcher.Dispatcher;
+import org.jupiter.rpc.consumer.ha.AbstractHaStrategy;
+import org.jupiter.rpc.consumer.ha.FailfastStrategy;
+import org.jupiter.rpc.consumer.ha.FailoverStrategy;
 import org.jupiter.rpc.consumer.invoker.CallbackInvoker;
 import org.jupiter.rpc.consumer.invoker.SyncInvoker;
 import org.jupiter.rpc.model.metadata.ServiceMetadata;
@@ -38,6 +41,7 @@ import static org.jupiter.rpc.DispatchType.BROADCAST;
 import static org.jupiter.rpc.DispatchType.ROUND;
 import static org.jupiter.rpc.InvokeType.ASYNC;
 import static org.jupiter.rpc.InvokeType.SYNC;
+import static org.jupiter.rpc.consumer.ha.HaStrategy.Strategy;
 import static org.jupiter.serialization.SerializerType.PROTO_STUFF;
 
 /**
@@ -62,6 +66,8 @@ public class ProxyFactory<I> {
     private long timeoutMillis;                                 // 调用超时时间设置
     private Map<String, Long> methodsSpecialTimeoutMillis;      // 指定方法单独设置的超时时间, 方法名为key, 方法参数类型不做区别对待
     private List<ConsumerHook> hooks;                           // consumer hook
+    private Strategy strategy = Strategy.FAILFAST;              // 容错方案
+    private int retries = 3;                                    // failover重试次数
 
     public static <I> ProxyFactory<I> factory(Class<I> interfaceClass) {
         ProxyFactory<I> factory = new ProxyFactory<>(interfaceClass);
@@ -154,6 +160,22 @@ public class ProxyFactory<I> {
         return this;
     }
 
+    /**
+     * Sets HA strategy.
+     */
+    public ProxyFactory<I> haStrategy(Strategy strategy) {
+        this.strategy = strategy;
+        return this;
+    }
+
+    /**
+     * Sets failover strategy's retries.
+     */
+    public ProxyFactory<I> failoverRetries(int retries) {
+        this.retries = retries;
+        return this;
+    }
+
     public I newProxyInstance() {
         // check arguments
         checkNotNull(client, "connector");
@@ -190,7 +212,7 @@ public class ProxyFactory<I> {
         Object handler;
         switch (invokeType) {
             case SYNC:
-                handler = new SyncInvoker(client, dispatcher);
+                handler = new SyncInvoker(asHaStrategy(dispatcher));
                 break;
             case ASYNC:
                 handler = new CallbackInvoker(client, dispatcher);
@@ -210,6 +232,17 @@ public class ProxyFactory<I> {
                 return new DefaultBroadcastDispatcher(metadata, serializerType);
             default:
                 throw new IllegalStateException("DispatchType: " + dispatchType);
+        }
+    }
+
+    private AbstractHaStrategy asHaStrategy(Dispatcher dispatcher) {
+        switch (strategy) {
+            case FAILFAST:
+                return new FailfastStrategy(client, dispatcher);
+            case FAILOVER:
+                return new FailoverStrategy(client, dispatcher, retries);
+            default:
+                throw new IllegalStateException("HaStrategy: " + strategy);
         }
     }
 }

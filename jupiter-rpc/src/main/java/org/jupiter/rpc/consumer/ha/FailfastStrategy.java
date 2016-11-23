@@ -14,35 +14,33 @@
  * limitations under the License.
  */
 
-package org.jupiter.rpc.consumer.invoker;
+package org.jupiter.rpc.consumer.ha;
 
-import net.bytebuddy.implementation.bind.annotation.AllArguments;
-import net.bytebuddy.implementation.bind.annotation.Origin;
-import net.bytebuddy.implementation.bind.annotation.RuntimeType;
-import org.jupiter.rpc.consumer.ha.AbstractHaStrategy;
+import org.jupiter.rpc.JClient;
+import org.jupiter.rpc.consumer.dispatcher.Dispatcher;
+import org.jupiter.rpc.consumer.future.InvokeFuture;
 
 import java.lang.reflect.Method;
 
 /**
- * Synchronous call.
+ * 快速失败, 默认容错方案
  *
- * 同步调用
+ * https://en.wikipedia.org/wiki/Fail-fast
  *
  * jupiter
- * org.jupiter.rpc.consumer.invoker
+ * org.jupiter.rpc.consumer.ha
  *
  * @author jiachun.fjc
  */
-public class SyncInvoker {
+public class FailfastStrategy extends AbstractHaStrategy {
 
-    private final AbstractHaStrategy haStrategy;
-
-    public SyncInvoker(AbstractHaStrategy haStrategy) {
-        this.haStrategy = haStrategy;
+    public FailfastStrategy(JClient client, Dispatcher dispatcher) {
+        super(client, dispatcher);
     }
 
-    @RuntimeType
-    public Object invoke(@Origin Method method, @AllArguments @RuntimeType Object[] args) throws Throwable {
-        return haStrategy.invoke(method, args);
+    @Override
+    public Object invoke(Method method, Object[] args) throws Exception {
+        Object val = dispatcher.dispatch(client, method.getName(), args, method.getReturnType());
+        return ((InvokeFuture<?>) val).getResult();
     }
 }

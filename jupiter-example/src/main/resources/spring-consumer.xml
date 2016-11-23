@@ -32,8 +32,12 @@
     <bean class="org.jupiter.spring.support.JupiterSpringConsumerBean">
         <property name="connector" ref="connectorWrapper" />
         <property name="interfaceClass" value="org.jupiter.example.ServiceTest" />
-        <!--<property name="serializerType" value="proto_stuff" />-->
-        <!--or-->
-        <!--<property name="serializerType" value="hessian" />-->
+        <!-- 以下都是选填 -->
+        <property name="serializerType" value="proto_stuff" />
+        <property name="dispatchType" value="round" />
+        <property name="invokeType" value="sync" />
+        <property name="haStrategy" value="failover" />
+        <property name="failoverRetries" value="3" />
+        <property name="timeoutMillis" value="3000" />
     </bean>
 </beans>

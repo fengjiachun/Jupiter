@@ -32,8 +32,17 @@ public class RemoteException extends RuntimeException {
 
     private final SocketAddress remoteAddress;
 
+    public RemoteException() {
+        this.remoteAddress = null;
+    }
+
     public RemoteException(SocketAddress remoteAddress) {
         this.remoteAddress = remoteAddress;
+    }
+
+    public RemoteException(Throwable cause) {
+        super(cause);
+        this.remoteAddress = null;
     }
 
     public RemoteException(Throwable cause, SocketAddress remoteAddress) {
@@ -41,9 +50,19 @@ public class RemoteException extends RuntimeException {
         this.remoteAddress = remoteAddress;
     }
 
+    public RemoteException(String message) {
+        super(message);
+        this.remoteAddress = null;
+    }
+
     public RemoteException(String message, SocketAddress remoteAddress) {
         super(message);
         this.remoteAddress = remoteAddress;
+    }
+
+    public RemoteException(String message, Throwable cause) {
+        super(message, cause);
+        this.remoteAddress = null;
     }
 
     public RemoteException(String message, Throwable cause, SocketAddress remoteAddress) {

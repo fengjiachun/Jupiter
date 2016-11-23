@@ -14,24 +14,24 @@
  * limitations under the License.
  */
 
-package org.jupiter.rpc;
+package org.jupiter.rpc.consumer.ha;
+
+import org.jupiter.rpc.JClient;
+import org.jupiter.rpc.consumer.dispatcher.Dispatcher;
 
 /**
  * jupiter
- * org.jupiter.rpc
+ * org.jupiter.rpc.consumer.ha
  *
  * @author jiachun.fjc
  */
-public enum InvokeType {
-    SYNC,       // 同步调用
-    ASYNC;      // 异步Future方式
+public abstract class AbstractHaStrategy implements HaStrategy {
 
-    public static InvokeType parse(String name) {
-        for (InvokeType s : values()) {
-            if (s.name().equalsIgnoreCase(name)) {
-                return s;
-            }
-        }
-        return null;
+    protected final JClient client;
+    protected final Dispatcher dispatcher;
+
+    public AbstractHaStrategy(JClient client, Dispatcher dispatcher) {
+        this.client = client;
+        this.dispatcher = dispatcher;
     }
 }

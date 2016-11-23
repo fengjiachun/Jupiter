@@ -20,6 +20,7 @@ import org.jupiter.common.util.Lists;
 import org.jupiter.common.util.Strings;
 import org.jupiter.rpc.*;
 import org.jupiter.rpc.consumer.ProxyFactory;
+import org.jupiter.rpc.consumer.ha.HaStrategy;
 import org.jupiter.serialization.SerializerType;
 import org.jupiter.transport.JConnector;
 import org.jupiter.transport.exception.ConnectFailedException;
@@ -54,6 +55,8 @@ public class JupiterSpringConsumerBean<T> implements FactoryBean<T>, Initializin
     private Map<String, Long> methodsSpecialTimeoutMillis;  // 指定方法单独设置的超时时间, 方法名为key, 方法参数类型不做区别对待
     private ConsumerHook[] hooks = EMPTY_HOOKS;             // consumer hook
     private String providerAddresses;                       // provider地址列表(IP直连)
+    private HaStrategy.Strategy haStrategy;                   // 容错方案
+    private int failoverRetries;                            // failover重试次数
 
     @Override
     public T getObject() throws Exception {
@@ -130,6 +133,14 @@ public class JupiterSpringConsumerBean<T> implements FactoryBean<T>, Initializin
             factory.addHook(hooks);
         }
 
+        if (haStrategy != null) {
+            factory.haStrategy(haStrategy);
+        }
+
+        if (failoverRetries > 0) {
+            factory.failoverRetries(failoverRetries);
+        }
+
         proxy = factory
                 .connector(connector.getConnector())  // sets connector
                 .newProxyInstance();
@@ -171,16 +182,22 @@ public class JupiterSpringConsumerBean<T> implements FactoryBean<T>, Initializin
         return invokeType;
     }
 
-    public void setInvokeType(InvokeType invokeType) {
-        this.invokeType = invokeType;
+    public void setInvokeType(String invokeType) {
+        this.invokeType = InvokeType.parse(invokeType);
+        if (this.invokeType == null) {
+            throw new IllegalArgumentException(invokeType);
+        }
     }
 
     public DispatchType getDispatchType() {
         return dispatchType;
     }
 
-    public void setDispatchType(DispatchType dispatchType) {
-        this.dispatchType = dispatchType;
+    public void setDispatchType(String dispatchType) {
+        this.dispatchType = DispatchType.parse(dispatchType);
+        if (this.dispatchType == null) {
+            throw new IllegalArgumentException(dispatchType);
+        }
     }
 
     public long getTimeoutMillis() {
@@ -213,5 +230,24 @@ public class JupiterSpringConsumerBean<T> implements FactoryBean<T>, Initializin
 
     public void setProviderAddresses(String providerAddresses) {
         this.providerAddresses = providerAddresses;
+    }
+
+    public HaStrategy.Strategy getHaStrategy() {
+        return haStrategy;
+    }
+
+    public void setHaStrategy(String haStrategy) {
+        this.haStrategy = HaStrategy.Strategy.parse(haStrategy);
+        if (this.haStrategy == null) {
+            throw new IllegalArgumentException(haStrategy);
+        }
+    }
+
+    public int getFailoverRetries() {
+        return failoverRetries;
+    }
+
+    public void setFailoverRetries(int failoverRetries) {
+        this.failoverRetries = failoverRetries;
     }
 }

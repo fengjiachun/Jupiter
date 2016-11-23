@@ -16,24 +16,17 @@
 
 package org.jupiter.rpc.consumer.dispatcher;
 
-import org.jupiter.common.util.internal.logging.InternalLogger;
-import org.jupiter.common.util.internal.logging.InternalLoggerFactory;
-import org.jupiter.rpc.ConsumerHook;
 import org.jupiter.rpc.JClient;
 import org.jupiter.rpc.JRequest;
-import org.jupiter.rpc.JResponse;
 import org.jupiter.rpc.channel.CopyOnWriteGroupList;
 import org.jupiter.rpc.channel.JChannel;
-import org.jupiter.rpc.channel.JFutureListener;
 import org.jupiter.rpc.consumer.future.InvokeFuture;
 import org.jupiter.rpc.model.metadata.MessageWrapper;
-import org.jupiter.rpc.model.metadata.ResultWrapper;
 import org.jupiter.rpc.model.metadata.ServiceMetadata;
 import org.jupiter.serialization.Serializer;
 import org.jupiter.serialization.SerializerType;
 
 import static org.jupiter.rpc.DispatchType.BROADCAST;
-import static org.jupiter.rpc.Status.CLIENT_ERROR;
 
 /**
  * 组播方式派发消息
@@ -45,8 +38,6 @@ import static org.jupiter.rpc.Status.CLIENT_ERROR;
  */
 public class DefaultBroadcastDispatcher extends AbstractDispatcher {
 
-    private static final InternalLogger logger = InternalLoggerFactory.getInstance(DefaultBroadcastDispatcher.class);
-
     public DefaultBroadcastDispatcher(ServiceMetadata metadata, SerializerType serializerType) {
         super(metadata, serializerType);
     }
@@ -54,8 +45,8 @@ public class DefaultBroadcastDispatcher extends AbstractDispatcher {
     @Override
     public Object dispatch(JClient client, String methodName, Object[] args, Class<?> returnType) {
         // stack copy
-        final ServiceMetadata _metadata = metadata;
-        final Serializer _serializerImpl = serializerImpl;
+        final ServiceMetadata _metadata = getMetadata();
+        final Serializer _serializer = getSerializer();
 
         MessageWrapper message = new MessageWrapper(_metadata);
         message.setAppName(client.appName());
@@ -69,51 +60,17 @@ public class DefaultBroadcastDispatcher extends AbstractDispatcher {
             channels[i] = groups.get(i).next();
         }
 
-        final JRequest request = JRequest.newInstance(_serializerImpl.code());
+        final JRequest request = JRequest.newInstance(_serializer.code());
         request.message(message);
         // 在业务线程中序列化, 减轻IO线程负担
-        request.bytes(_serializerImpl.writeObject(message));
+        request.bytes(_serializer.writeObject(message));
 
         long timeoutMillis = getMethodSpecialTimeoutMillis(methodName);
-        final ConsumerHook[] _hooks = getHooks();
         for (int i = 0; i < channels.length; i++) {
             JChannel ch = channels[i];
-            final InvokeFuture<?> future = asFuture(ch, request, returnType, timeoutMillis)
-                    .hooks(_hooks);
-            futures[i] = future;
-
-            ch.write(request, new JFutureListener<JChannel>() {
-
-                @Override
-                public void operationSuccess(JChannel channel) throws Exception {
-                    future.setSentTime(); // 记录发送时间戳
-
-                    // hook.before()
-                    if (_hooks != null) {
-                        for (ConsumerHook h : _hooks) {
-                            h.before(request, channel);
-                        }
-                    }
-                }
-
-                @Override
-                public void operationFailure(JChannel channel, Throwable cause) throws Exception {
-                    logger.warn("Writes {} fail on {}, {}.", request, channel, cause);
-
-                    ResultWrapper result = new ResultWrapper();
-                    result.setError(cause);
-
-                    InvokeFuture.received(
-                            channel,
-                            JResponse.newInstance(
-                                    request.invokeId(),
-                                    request.serializerCode(),
-                                    CLIENT_ERROR,
-                                    result
-                            )
-                    );
-                }
-            });
+            InvokeFuture<?> future = asFuture(ch, request, returnType, timeoutMillis)
+                    .setHooks(getHooks());
+            futures[i] = write(ch, request, future);
         }
 
         return futures;

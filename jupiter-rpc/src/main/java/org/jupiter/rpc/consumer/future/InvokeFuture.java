@@ -120,7 +120,11 @@ public class InvokeFuture<V> extends Future<V> {
         return this;
     }
 
-    public InvokeFuture<V> hooks(ConsumerHook[] hooks) {
+    public ConsumerHook[] getHooks() {
+        return hooks;
+    }
+
+    public InvokeFuture<V> setHooks(ConsumerHook[] hooks) {
         this.hooks = hooks;
         return this;
     }
