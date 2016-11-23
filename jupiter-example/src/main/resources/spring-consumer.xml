@@ -50,16 +50,16 @@
 
         <!-- 可选配置 -->
         <!--
-            SerializerType serializerType;                  // 序列化/反序列化方式
-            long waitForAvailableTimeoutMillis = -1;        // 如果大于0, 表示阻塞等待直到连接可用并且该值为等待时间
-            InvokeType invokeType;                          // 调用方式 [同步; 异步]
-            DispatchType dispatchType;                      // 派发方式 [单播; 组播]
-            long timeoutMillis;                             // 调用超时时间设置
-            Map<String, Long> methodsSpecialTimeoutMillis;  // 指定方法单独设置的超时时间, 方法名为key, 方法参数类型不做区别对待
-            ConsumerHook[] hooks = EMPTY_HOOKS;             // consumer hook
-            String providerAddresses;                       // provider地址列表, 逗号分隔(IP直连)
-            HaStrategy.Strategy haStrategy;                 // 容错方案(只支持单播的同步阻塞调用)
-            int failoverRetries;                            // failover重试次数
+            SerializerType serializerType                   // 序列化/反序列化方式
+            long waitForAvailableTimeoutMillis = -1         // 如果大于0, 表示阻塞等待直到连接可用并且该值为等待时间
+            InvokeType invokeType                           // 调用方式 [同步; 异步]
+            DispatchType dispatchType                       // 派发方式 [单播; 组播]
+            long timeoutMillis                              // 调用超时时间设置
+            Map<String, Long> methodsSpecialTimeoutMillis   // 指定方法单独设置的超时时间, 方法名为key, 方法参数类型不做区别对待
+            ConsumerHook[] hooks                            // consumer hook
+            String providerAddresses                        // provider地址列表, 逗号分隔(IP直连)
+            HaStrategy.Strategy haStrategy                  // 容错方案(只支持单播的同步阻塞调用)
+            int failoverRetries                             // failover重试次数
         -->
     </bean>
 </beans>
