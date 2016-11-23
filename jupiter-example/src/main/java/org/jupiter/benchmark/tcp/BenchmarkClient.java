@@ -25,6 +25,7 @@ import org.jupiter.rpc.UnresolvedAddress;
 import org.jupiter.rpc.consumer.ProxyFactory;
 import org.jupiter.rpc.consumer.future.InvokeFuture;
 import org.jupiter.rpc.consumer.future.InvokeFutureContext;
+import org.jupiter.rpc.consumer.ha.HaStrategy;
 import org.jupiter.transport.JConnection;
 import org.jupiter.transport.JConnector;
 import org.jupiter.transport.JOption;
@@ -69,7 +70,7 @@ public class BenchmarkClient {
         SystemPropertyUtil
                 .setProperty("jupiter.executor.factory.consumer.core.workers", String.valueOf(processors));
         SystemPropertyUtil.setProperty("jupiter.tracing.needed", "false");
-        SystemPropertyUtil.setProperty("jupiter.rpc.future.non_blocking_hash", "true");
+        SystemPropertyUtil.setProperty("jupiter.use.non_blocking_hash", "true");
 
         JConnector<JConnection> connector = new JNettyTcpConnector();
         connector.config().setOption(JOption.WRITE_BUFFER_HIGH_WATER_MARK, 256 * 1024);
@@ -80,7 +81,7 @@ public class BenchmarkClient {
             connector.connect(addresses[i]);
         }
 
-        if (SystemPropertyUtil.getBoolean("jupiter.test.async", true)) {
+        if (SystemPropertyUtil.getBoolean("jupiter.test.async", false)) {
             futureCall(connector, addresses, processors);
         } else {
             syncCall(connector, addresses, processors);
@@ -91,6 +92,7 @@ public class BenchmarkClient {
         final Service service = ProxyFactory.factory(Service.class)
                 .connector(connector)
                 .addProviderAddress(addresses)
+                .haStrategy(HaStrategy.Strategy.FAILOVER)
                 .newProxyInstance();
 
         for (int i = 0; i < 10000; i++) {
