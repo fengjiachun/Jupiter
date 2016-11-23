@@ -14,29 +14,31 @@
  * limitations under the License.
  */
 
-package org.jupiter.rpc.provider.processor;
+package org.jupiter.rpc.exception;
 
-import org.jupiter.rpc.JRequest;
-import org.jupiter.rpc.Status;
-import org.jupiter.rpc.channel.JChannel;
-import org.jupiter.rpc.flow.control.FlowController;
-import org.jupiter.rpc.provider.LookupService;
+import java.net.SocketAddress;
 
 /**
+ * 业务异常
+ *
  * jupiter
- * org.jupiter.rpc.provider.processor
+ * org.jupiter.rpc.exception
  *
  * @author jiachun.fjc
  */
-public interface ProviderProcessor extends LookupService, FlowController<JRequest> {
+public class BizException extends RemoteException {
 
-    /**
-     * 处理正常请求
-     */
-    void handleRequest(JChannel channel, JRequest request) throws Exception;
+    private static final long serialVersionUID = -3996155413840689423L;
 
-    /**
-     * 处理异常
-     */
-    void handleException(JChannel channel, JRequest request, Status status, Throwable cause);
+    public BizException(Throwable cause, SocketAddress remoteAddress) {
+        super(cause, remoteAddress);
+    }
+
+    public BizException(String message, SocketAddress remoteAddress) {
+        super(message, remoteAddress);
+    }
+
+    public BizException(String message, Throwable cause, SocketAddress remoteAddress) {
+        super(message, cause, remoteAddress);
+    }
 }

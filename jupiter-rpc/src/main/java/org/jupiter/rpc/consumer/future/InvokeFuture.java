@@ -24,6 +24,7 @@ import org.jupiter.common.util.internal.logging.InternalLogger;
 import org.jupiter.common.util.internal.logging.InternalLoggerFactory;
 import org.jupiter.rpc.*;
 import org.jupiter.rpc.channel.JChannel;
+import org.jupiter.rpc.exception.BizException;
 import org.jupiter.rpc.exception.RemoteException;
 import org.jupiter.rpc.exception.TimeoutException;
 import org.jupiter.rpc.model.metadata.ResultWrapper;
@@ -158,6 +159,8 @@ public class InvokeFuture<V> extends Future<V> {
             setException(C_TIMEOUT_SIGNAL);
         } else if (SERVER_TIMEOUT.value() == status) {
             setException(S_TIMEOUT_SIGNAL);
+        } else if (SERVICE_ERROR.value() == status) {
+            setException(new BizException(response.toString(), channel.remoteAddress()));
         } else {
             setException(new RemoteException(response.toString(), channel.remoteAddress()));
         }

@@ -21,8 +21,6 @@ import java.net.SocketAddress;
 /**
  * Remote call abnormalities.
  *
- * For efficiency this exception will not have a stack trace.
- *
  * jupiter
  * org.jupiter.rpc.exception
  *

@@ -247,6 +247,10 @@ public class MessageTask implements RejectedRunnable {
                 Class<?>[] parameterTypes = findMatchingParameterTypes(parameterTypesList, args);
 
                 invokeResult = fastInvoke(provider, methodName, parameterTypes, args);
+            } catch (Exception e) {
+                // biz exception
+                processor.handleException(channel, _request, SERVICE_ERROR, e);
+                return;
             } finally {
                 long elapsed = timerCtx.stop();
 
@@ -285,7 +289,7 @@ public class MessageTask implements RejectedRunnable {
                 }
             });
         } catch (Throwable t) {
-            processor.handleException(channel, _request, t);
+            processor.handleException(channel, _request, SERVER_ERROR, t);
         }
     }
 }

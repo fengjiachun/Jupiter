@@ -20,10 +20,10 @@ import org.jupiter.common.util.internal.logging.InternalLogger;
 import org.jupiter.common.util.internal.logging.InternalLoggerFactory;
 import org.jupiter.rpc.JRequest;
 import org.jupiter.rpc.JResponse;
+import org.jupiter.rpc.Status;
 import org.jupiter.rpc.channel.JChannel;
 import org.jupiter.rpc.model.metadata.ResultWrapper;
 
-import static org.jupiter.rpc.Status.SERVER_ERROR;
 import static org.jupiter.serialization.SerializerHolder.serializerImpl;
 
 /**
@@ -37,7 +37,7 @@ public abstract class AbstractProviderProcessor implements ProviderProcessor {
     private static final InternalLogger logger = InternalLoggerFactory.getInstance(AbstractProviderProcessor.class);
 
     @Override
-    public void handleException(JChannel channel, JRequest request, Throwable cause) {
+    public void handleException(JChannel channel, JRequest request, Status status, Throwable cause) {
         ResultWrapper result = new ResultWrapper();
         result.setError(cause);
 
@@ -45,7 +45,7 @@ public abstract class AbstractProviderProcessor implements ProviderProcessor {
 
         byte s_code = request.serializerCode();
         byte[] bytes = serializerImpl(s_code).writeObject(result);
-        JResponse response = JResponse.newInstance(request.invokeId(), s_code, SERVER_ERROR, bytes);
+        JResponse response = JResponse.newInstance(request.invokeId(), s_code, status, bytes);
         channel.write(response);
     }
 }
