@@ -161,7 +161,7 @@ public class ProxyFactory<I> {
     }
 
     /**
-     * Sets HA strategy.
+     * Sets HA strategy, only support ROUND & SYNC mode.
      */
     public ProxyFactory<I> haStrategy(Strategy strategy) {
         this.strategy = strategy;
