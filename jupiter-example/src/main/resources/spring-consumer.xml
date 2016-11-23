@@ -29,7 +29,7 @@
     </bean>
 
     <!-- consumer -->
-    <bean class="org.jupiter.spring.support.JupiterSpringConsumerBean">
+    <bean id="serviceTest" class="org.jupiter.spring.support.JupiterSpringConsumerBean">
         <property name="connector" ref="connectorWrapper" />
         <property name="interfaceClass" value="org.jupiter.example.ServiceTest" />
         <!-- 以下都是选填 -->
