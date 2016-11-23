@@ -29,9 +29,9 @@
 
         <!-- 可选配置 -->
         <!--
-            String registryServerAddresses                              // 注册中心地址 [host1:port1,host2:port2....]
-            String providerServerAddresses                              // IP直连到providers [host1:port1,host2:port2....]
-            boolean hasRegistryServer                                   // true: 需要连接注册中心; false: IP直连方式
+            String registryServerAddresses                  // 注册中心地址 [host1:port1,host2:port2....]
+            String providerServerAddresses                  // IP直连到providers [host1:port1,host2:port2....]
+            boolean hasRegistryServer                       // true: 需要连接注册中心; false: IP直连方式
         -->
     </bean>
 
