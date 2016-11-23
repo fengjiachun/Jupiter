@@ -142,7 +142,7 @@ public class JupiterSpringConsumerBean<T> implements FactoryBean<T>, Initializin
         }
 
         proxy = factory
-                .connector(connector.getConnector())  // sets connector
+                .connector(connector.getConnector()) // sets connector
                 .newProxyInstance();
     }
 
