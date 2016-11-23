@@ -19,7 +19,7 @@
        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
        xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
 
-    <!-- netty的网络层实现 -->
+    <!-- netty的网络层实现(建议单例) -->
     <bean id="nettyTcpConnector" class="org.jupiter.transport.netty.JNettyTcpConnector" />
 
     <bean id="connectorWrapper" class="org.jupiter.spring.support.JupiterSpringConnector">
@@ -32,12 +32,20 @@
     <bean id="serviceTest" class="org.jupiter.spring.support.JupiterSpringConsumerBean">
         <property name="connector" ref="connectorWrapper" />
         <property name="interfaceClass" value="org.jupiter.example.ServiceTest" />
-        <!-- 以下都是选填 -->
+
+        <!-- 以下都选项可不填 -->
+
+        <!-- 序列化/反序列化类型: (proto_stuff, hessian)可选, 默认proto_stuff -->
         <property name="serializerType" value="proto_stuff" />
+        <!-- 派发方式: (round, broadcast)可选, 默认round(单播) -->
         <property name="dispatchType" value="round" />
+        <!-- 调用方式: (sync, async)可选, 默认sync(同步调用) -->
         <property name="invokeType" value="sync" />
+        <!-- 容错方案: (failfast, failover)可选, 默认failfast(快速失败) -->
         <property name="haStrategy" value="failover" />
+        <!-- 在failover策略下的失败重试次数 -->
         <property name="failoverRetries" value="3" />
+        <!-- 超时时间设置 -->
         <property name="timeoutMillis" value="3000" />
     </bean>
 </beans>
