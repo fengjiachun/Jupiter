@@ -28,6 +28,14 @@
         <property name="acceptor" ref="nettyTcpAcceptor" />
         <!-- 注册中心地址, 逗号分隔 -->
         <property name="registryServerAddresses" value="127.0.0.1:20001" />
+
+        <!-- 可选配置 -->
+        <!--
+            String registryServerAddresses              // 注册中心地址 [host1:port1,host2:port2....]
+            boolean hasRegistryServer                   // true: 需要连接注册中心; false: IP直连方式
+            ProviderInterceptor[] providerInterceptors  // 全局拦截器
+            FlowController<JRequest> flowController     // 全局流量控制
+        -->
     </bean>
 
     <!-- provider -->

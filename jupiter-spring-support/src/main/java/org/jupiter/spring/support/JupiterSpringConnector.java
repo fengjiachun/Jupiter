@@ -37,8 +37,8 @@ import java.util.List;
 public class JupiterSpringConnector implements InitializingBean {
 
     private JConnector<JConnection> connector;
-    private String registryServerAddresses;                             // 注册中心地址   [host1:port1,host2:port2....]
-    private String providerServerAddresses;                             // IP直连        [host1:port1,host2:port2....]
+    private String registryServerAddresses;                             // 注册中心地址 [host1:port1,host2:port2....]
+    private String providerServerAddresses;                             // IP直连到providers [host1:port1,host2:port2....]
     private List<UnresolvedAddress> providerServerUnresolvedAddresses;  // IP直连的地址列表
     private boolean hasRegistryServer;                                  // true: 需要连接注册中心; false: IP直连方式
 
