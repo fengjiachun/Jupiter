@@ -26,7 +26,7 @@ import org.jupiter.serialization.Serializer;
 import org.jupiter.serialization.SerializerType;
 
 /**
- * 单播方式派发消息, 仅支持异步回调, 不支持同步调用.
+ * 单播方式派发消息
  *
  * jupiter
  * org.jupiter.rpc.consumer.dispatcher
