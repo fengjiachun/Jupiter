@@ -25,7 +25,6 @@ import org.jupiter.rpc.UnresolvedAddress;
 import org.jupiter.rpc.consumer.ProxyFactory;
 import org.jupiter.rpc.consumer.future.InvokeFuture;
 import org.jupiter.rpc.consumer.future.InvokeFutureContext;
-import org.jupiter.rpc.consumer.ha.HaStrategy;
 import org.jupiter.transport.JConnection;
 import org.jupiter.transport.JConnector;
 import org.jupiter.transport.JOption;
@@ -92,7 +91,6 @@ public class BenchmarkClient {
         final Service service = ProxyFactory.factory(Service.class)
                 .connector(connector)
                 .addProviderAddress(addresses)
-                .haStrategy(HaStrategy.Strategy.FAILOVER)
                 .newProxyInstance();
 
         for (int i = 0; i < 10000; i++) {
