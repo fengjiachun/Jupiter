@@ -239,7 +239,7 @@ public class ProxyFactory<I> {
         switch (dispatchType) {
             case ROUND:
                 if (loadBalancer == null) {
-                    return new DefaultRoundDispatcher(client.defaultLoadBalancer(), metadata, serializerType);
+                    return new DefaultRoundDispatcher(client.newDefaultLoadBalancer(), metadata, serializerType);
                 } else {
                     return new DefaultRoundDispatcher(loadBalancer, metadata, serializerType);
                 }

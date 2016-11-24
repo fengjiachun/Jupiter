@@ -18,6 +18,7 @@ package org.jupiter.rpc;
 
 import org.jupiter.common.util.JServiceLoader;
 import org.jupiter.common.util.Maps;
+import org.jupiter.common.util.Reflects;
 import org.jupiter.common.util.internal.logging.InternalLogger;
 import org.jupiter.common.util.internal.logging.InternalLoggerFactory;
 import org.jupiter.registry.*;
@@ -46,13 +47,12 @@ public abstract class AbstractJClient implements JClient {
 
     // 注册服务(SPI)
     private final RegistryService registryService = JServiceLoader.loadFirst(RegistryService.class);
-    // 默认软负载(SPI)
-    @SuppressWarnings("unchecked")
-    private final LoadBalancer<JChannelGroup> defaultLoadBalancer = JServiceLoader.loadFirst(LoadBalancer.class);
     private final ConcurrentMap<UnresolvedAddress, JChannelGroup> addressGroups = Maps.newConcurrentHashMap();
     private final String appName;
 
     protected final DirectoryJChannelGroup directoryGroup = new DirectoryJChannelGroup();
+
+    private volatile Class<LoadBalancer<JChannelGroup>> defaultLoadBalancerClass;
 
     public AbstractJClient() {
         this(UNKNOWN_APP_NAME);
@@ -87,9 +87,15 @@ public abstract class AbstractJClient implements JClient {
         return group;
     }
 
+    @SuppressWarnings("unchecked")
     @Override
-    public LoadBalancer<JChannelGroup> defaultLoadBalancer() {
-        return defaultLoadBalancer;
+    public LoadBalancer<JChannelGroup> newDefaultLoadBalancer() {
+        if (defaultLoadBalancerClass == null) {
+            LoadBalancer<JChannelGroup> firstInstance = JServiceLoader.loadFirst(LoadBalancer.class);
+            defaultLoadBalancerClass = (Class<LoadBalancer<JChannelGroup>>) firstInstance.getClass();
+            return firstInstance;
+        }
+        return Reflects.newInstance(defaultLoadBalancerClass);
     }
 
     @Override

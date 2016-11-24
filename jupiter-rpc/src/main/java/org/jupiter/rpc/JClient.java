@@ -45,9 +45,9 @@ public interface JClient extends Registry {
     JChannelGroup group(UnresolvedAddress address);
 
     /**
-     * Returns a default {@link LoadBalancer}.
+     * Returns a new default {@link LoadBalancer}.
      */
-    LoadBalancer<JChannelGroup> defaultLoadBalancer();
+    LoadBalancer<JChannelGroup> newDefaultLoadBalancer();
 
     /**
      * Returns all {@link JChannelGroup}s.
