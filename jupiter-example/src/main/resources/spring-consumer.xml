@@ -58,6 +58,7 @@
         <!-- 可选配置 -->
         <!--
             SerializerType serializerType                   // 序列化/反序列化方式
+            LoadBalancer<JChannelGroup> loadBalancer;       // 软负载均衡
             long waitForAvailableTimeoutMillis = -1         // 如果大于0, 表示阻塞等待直到连接可用并且该值为等待时间
             InvokeType invokeType                           // 调用方式 [同步; 异步]
             DispatchType dispatchType                       // 派发方式 [单播; 组播]

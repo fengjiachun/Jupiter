@@ -20,7 +20,9 @@ import org.jupiter.rpc.JClient;
 import org.jupiter.rpc.JRequest;
 import org.jupiter.rpc.channel.CopyOnWriteGroupList;
 import org.jupiter.rpc.channel.JChannel;
+import org.jupiter.rpc.channel.JChannelGroup;
 import org.jupiter.rpc.consumer.future.InvokeFuture;
+import org.jupiter.rpc.load.balance.LoadBalancer;
 import org.jupiter.rpc.model.metadata.MessageWrapper;
 import org.jupiter.rpc.model.metadata.ServiceMetadata;
 import org.jupiter.serialization.Serializer;
@@ -38,8 +40,9 @@ import static org.jupiter.rpc.DispatchType.BROADCAST;
  */
 public class DefaultBroadcastDispatcher extends AbstractDispatcher {
 
-    public DefaultBroadcastDispatcher(ServiceMetadata metadata, SerializerType serializerType) {
-        super(metadata, serializerType);
+    public DefaultBroadcastDispatcher(
+            LoadBalancer<JChannelGroup> loadBalancer, ServiceMetadata metadata, SerializerType serializerType) {
+        super(loadBalancer, metadata, serializerType);
     }
 
     @Override

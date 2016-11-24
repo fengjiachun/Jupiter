@@ -16,16 +16,18 @@
 
 package org.jupiter.rpc.consumer.dispatcher;
 
+import org.jupiter.common.concurrent.atomic.AtomicUpdater;
 import org.jupiter.common.util.Maps;
+import org.jupiter.common.util.SystemClock;
 import org.jupiter.common.util.internal.logging.InternalLogger;
 import org.jupiter.common.util.internal.logging.InternalLoggerFactory;
-import org.jupiter.rpc.ConsumerHook;
-import org.jupiter.rpc.JClient;
-import org.jupiter.rpc.JRequest;
-import org.jupiter.rpc.JResponse;
+import org.jupiter.rpc.*;
+import org.jupiter.rpc.channel.CopyOnWriteGroupList;
 import org.jupiter.rpc.channel.JChannel;
+import org.jupiter.rpc.channel.JChannelGroup;
 import org.jupiter.rpc.channel.JFutureListener;
 import org.jupiter.rpc.consumer.future.InvokeFuture;
+import org.jupiter.rpc.load.balance.LoadBalancer;
 import org.jupiter.rpc.model.metadata.MessageWrapper;
 import org.jupiter.rpc.model.metadata.ResultWrapper;
 import org.jupiter.rpc.model.metadata.ServiceMetadata;
@@ -37,6 +39,7 @@ import org.jupiter.serialization.SerializerType;
 
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicReferenceFieldUpdater;
 
 import static org.jupiter.common.util.JConstants.DEFAULT_TIMEOUT;
 import static org.jupiter.rpc.Status.CLIENT_ERROR;
@@ -53,6 +56,10 @@ public abstract class AbstractDispatcher implements Dispatcher {
 
     private static final InternalLogger logger = InternalLoggerFactory.getInstance(AbstractDispatcher.class);
 
+    private static final AtomicReferenceFieldUpdater<CopyOnWriteGroupList, Object[]> groupsUpdater
+            = AtomicUpdater.newAtomicReferenceFieldUpdater(CopyOnWriteGroupList.class, Object[].class, "array");
+
+    private final LoadBalancer<JChannelGroup> loadBalancer;
     private final ServiceMetadata metadata;         // 目标服务元信息
     private final Serializer serializerImpl;        // 序列化/反序列化impl
     private ConsumerHook[] hooks;                   // consumer hook
@@ -60,7 +67,8 @@ public abstract class AbstractDispatcher implements Dispatcher {
     // 针对指定方法单独设置的超时时间, 方法名为key, 方法参数类型不做区别对待
     private Map<String, Long> methodsSpecialTimeoutMillis = Maps.newHashMap();
 
-    public AbstractDispatcher(ServiceMetadata metadata, SerializerType serializerType) {
+    public AbstractDispatcher(LoadBalancer<JChannelGroup> loadBalancer, ServiceMetadata metadata, SerializerType serializerType) {
+        this.loadBalancer = loadBalancer;
         this.metadata = metadata;
         this.serializerImpl = serializerImpl(serializerType.value());
     }
@@ -68,6 +76,45 @@ public abstract class AbstractDispatcher implements Dispatcher {
     @Override
     public Object dispatch(JClient client, JChannel channel, String methodName, Object[] args, Class<?> returnType) {
         throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public JChannel select(JClient client, Directory directory) {
+        CopyOnWriteGroupList groups = client.directory(directory);
+        // snapshot of groupList
+        Object[] elements = groupsUpdater.get(groups);
+        if (elements.length == 0) {
+            if (!client.awaitConnections(directory, 3000)) {
+                throw new IllegalStateException("no connections");
+            }
+            elements = groupsUpdater.get(groups);
+        }
+
+        JChannelGroup group = loadBalancer.select(elements);
+
+        if (group.isAvailable()) {
+            return group.next();
+        }
+
+        client.refreshConnections(directory);
+
+        // group死期到(无可用channel), 时间超过预定限制
+        long deadline = group.deadlineMillis();
+        if (deadline > 0 && SystemClock.millisClock().now() > deadline) {
+            boolean removed = groups.remove(group);
+            if (removed) {
+                logger.warn("Removed channel group: {} in directory: {} on [select].", group, directory.directory());
+            }
+        }
+
+        for (int i = 0; i < groups.size(); i++) {
+            JChannelGroup g = groups.get(i);
+            if (g.isAvailable()) {
+                return g.next();
+            }
+        }
+
+        throw new IllegalStateException("no channel");
     }
 
     @Override

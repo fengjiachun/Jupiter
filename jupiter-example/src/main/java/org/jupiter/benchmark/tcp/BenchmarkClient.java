@@ -22,9 +22,11 @@ import org.jupiter.common.util.internal.logging.InternalLogger;
 import org.jupiter.common.util.internal.logging.InternalLoggerFactory;
 import org.jupiter.rpc.InvokeType;
 import org.jupiter.rpc.UnresolvedAddress;
+import org.jupiter.rpc.channel.JChannelGroup;
 import org.jupiter.rpc.consumer.ProxyFactory;
 import org.jupiter.rpc.consumer.future.InvokeFuture;
 import org.jupiter.rpc.consumer.future.InvokeFutureContext;
+import org.jupiter.rpc.load.balance.RoundRobinLoadBalancer;
 import org.jupiter.transport.JConnection;
 import org.jupiter.transport.JConnector;
 import org.jupiter.transport.JOption;
@@ -90,6 +92,7 @@ public class BenchmarkClient {
     private static void syncCall(JConnector<JConnection> connector, UnresolvedAddress[] addresses, int processors) {
         final Service service = ProxyFactory.factory(Service.class)
                 .connector(connector)
+                .loadBalancer(new RoundRobinLoadBalancer<JChannelGroup>())
                 .addProviderAddress(addresses)
                 .newProxyInstance();
 
@@ -140,6 +143,7 @@ public class BenchmarkClient {
         final Service service = ProxyFactory.factory(Service.class)
                 .connector(connector)
                 .invokeType(InvokeType.ASYNC)
+                .loadBalancer(new RoundRobinLoadBalancer<JChannelGroup>())
                 .addProviderAddress(addresses)
                 .newProxyInstance();
 

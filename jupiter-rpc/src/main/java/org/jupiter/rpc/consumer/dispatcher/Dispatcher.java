@@ -17,6 +17,7 @@
 package org.jupiter.rpc.consumer.dispatcher;
 
 import org.jupiter.rpc.ConsumerHook;
+import org.jupiter.rpc.Directory;
 import org.jupiter.rpc.JClient;
 import org.jupiter.rpc.channel.JChannel;
 import org.jupiter.rpc.model.metadata.ServiceMetadata;
@@ -44,6 +45,11 @@ public interface Dispatcher {
      * Consumer指定channel消息派发, 不需要传入目标方法参数类型, 服务端会根据args具体类型按照JLS规则动态dispatch.
      */
     Object dispatch(JClient client, JChannel channel, String methodName, Object[] args, Class<?> returnType);
+
+    /**
+     * Selects a {@link JChannel} from the load balancer.
+     */
+    JChannel select(JClient client, Directory directory);
 
     ServiceMetadata getMetadata();
 

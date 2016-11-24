@@ -21,8 +21,8 @@ import org.jupiter.registry.OfflineListener;
 import org.jupiter.registry.RegisterMeta;
 import org.jupiter.registry.Registry;
 import org.jupiter.rpc.channel.CopyOnWriteGroupList;
-import org.jupiter.rpc.channel.JChannel;
 import org.jupiter.rpc.channel.JChannelGroup;
+import org.jupiter.rpc.load.balance.LoadBalancer;
 
 import java.util.Collection;
 
@@ -43,6 +43,11 @@ public interface JClient extends Registry {
      * Returns or new a {@link JChannelGroup}.
      */
     JChannelGroup group(UnresolvedAddress address);
+
+    /**
+     * Returns a default {@link LoadBalancer}.
+     */
+    LoadBalancer<JChannelGroup> defaultLoadBalancer();
 
     /**
      * Returns all {@link JChannelGroup}s.
@@ -69,11 +74,6 @@ public interface JClient extends Registry {
      * on this {@link Directory}.
      */
     boolean isDirectoryAvailable(Directory directory);
-
-    /**
-     * Selects a {@link JChannel} from the load balancer.
-     */
-    JChannel select(Directory directory);
 
     /**
      * Find a service in the local scope.

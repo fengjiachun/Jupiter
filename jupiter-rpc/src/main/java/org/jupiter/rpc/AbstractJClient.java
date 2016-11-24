@@ -16,22 +16,18 @@
 
 package org.jupiter.rpc;
 
-import org.jupiter.common.concurrent.atomic.AtomicUpdater;
 import org.jupiter.common.util.JServiceLoader;
 import org.jupiter.common.util.Maps;
-import org.jupiter.common.util.SystemClock;
 import org.jupiter.common.util.internal.logging.InternalLogger;
 import org.jupiter.common.util.internal.logging.InternalLoggerFactory;
 import org.jupiter.registry.*;
 import org.jupiter.rpc.channel.CopyOnWriteGroupList;
 import org.jupiter.rpc.channel.DirectoryJChannelGroup;
-import org.jupiter.rpc.channel.JChannel;
 import org.jupiter.rpc.channel.JChannelGroup;
 import org.jupiter.rpc.load.balance.LoadBalancer;
 
 import java.util.Collection;
 import java.util.concurrent.ConcurrentMap;
-import java.util.concurrent.atomic.AtomicReferenceFieldUpdater;
 
 import static org.jupiter.common.util.JConstants.UNKNOWN_APP_NAME;
 import static org.jupiter.common.util.Preconditions.checkNotNull;
@@ -48,14 +44,11 @@ public abstract class AbstractJClient implements JClient {
 
     private static final InternalLogger logger = InternalLoggerFactory.getInstance(AbstractJClient.class);
 
-    private static final AtomicReferenceFieldUpdater<CopyOnWriteGroupList, Object[]> groupsUpdater
-            = AtomicUpdater.newAtomicReferenceFieldUpdater(CopyOnWriteGroupList.class, Object[].class, "array");
-
     // 注册服务(SPI)
     private final RegistryService registryService = JServiceLoader.loadFirst(RegistryService.class);
-    // 软负载(SPI)
+    // 默认软负载(SPI)
     @SuppressWarnings("unchecked")
-    private final LoadBalancer<JChannelGroup> loadBalancer = JServiceLoader.loadFirst(LoadBalancer.class);
+    private final LoadBalancer<JChannelGroup> defaultLoadBalancer = JServiceLoader.loadFirst(LoadBalancer.class);
     private final ConcurrentMap<UnresolvedAddress, JChannelGroup> addressGroups = Maps.newConcurrentHashMap();
     private final String appName;
 
@@ -92,6 +85,11 @@ public abstract class AbstractJClient implements JClient {
             }
         }
         return group;
+    }
+
+    @Override
+    public LoadBalancer<JChannelGroup> defaultLoadBalancer() {
+        return defaultLoadBalancer;
     }
 
     @Override
@@ -132,45 +130,6 @@ public abstract class AbstractJClient implements JClient {
             }
         }
         return false;
-    }
-
-    @Override
-    public JChannel select(Directory directory) {
-        CopyOnWriteGroupList groups = directory(directory);
-        // snapshot of groupList
-        Object[] elements = groupsUpdater.get(groups);
-        if (elements.length == 0) {
-            if (!awaitConnections(directory, 3000)) {
-                throw new IllegalStateException("no connections");
-            }
-            elements = groupsUpdater.get(groups);
-        }
-
-        JChannelGroup group = loadBalancer.select(elements);
-
-        if (group.isAvailable()) {
-            return group.next();
-        }
-
-        refreshConnections(directory);
-
-        // group死期到(无可用channel), 时间超过预定限制
-        long deadline = group.deadlineMillis();
-        if (deadline > 0 && SystemClock.millisClock().now() > deadline) {
-            boolean removed = groups.remove(group);
-            if (removed) {
-                logger.warn("Removed channel group: {} in directory: {} on [select].", group, directory.directory());
-            }
-        }
-
-        for (int i = 0; i < groups.size(); i++) {
-            JChannelGroup g = groups.get(i);
-            if (g.isAvailable()) {
-                return g.next();
-            }
-        }
-
-        throw new IllegalStateException("no channel");
     }
 
     @Override
