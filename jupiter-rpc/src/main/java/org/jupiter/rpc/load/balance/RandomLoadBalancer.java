@@ -28,6 +28,14 @@ import java.util.concurrent.ThreadLocalRandom;
  */
 public abstract class RandomLoadBalancer<T> implements LoadBalancer<T> {
 
+    private final ThreadLocal<WeightArray> weightsThreadLocal = new ThreadLocal<WeightArray>() {
+
+        @Override
+        protected WeightArray initialValue() {
+            return new WeightArray();
+        }
+    };
+
     @SuppressWarnings("unchecked")
     @Override
     public T select(Object[] elements) {
@@ -39,27 +47,30 @@ public abstract class RandomLoadBalancer<T> implements LoadBalancer<T> {
             return (T) elements[0];
         }
 
-        int totalWeight = 0;
-        int[] weightSnapshots = new int[length];
+        int sumWeight = 0;
+        WeightArray weightSnapshots = weightsThreadLocal.get();
+        weightSnapshots.refresh(length);
         for (int i = 0; i < length; i++) {
-            totalWeight += (weightSnapshots[i] = getWeight((T) elements[i]));
+            int val = getWeight((T) elements[i]);
+            weightSnapshots.set(i, val);
+            sumWeight += val;
         }
 
-        boolean allSameWeight = true;
+        boolean sameWeight = true;
         for (int i = 1; i < length; i++) {
-            if (weightSnapshots[0] != weightSnapshots[i]) {
-                allSameWeight = false;
+            if (weightSnapshots.get(0) != weightSnapshots.get(i)) {
+                sameWeight = false;
                 break;
             }
         }
 
         ThreadLocalRandom random = ThreadLocalRandom.current();
         // 如果权重不相同且总权重大于0, 则按总权重数随机
-        if (!allSameWeight && totalWeight > 0) {
-            int offset = random.nextInt(totalWeight);
+        if (!sameWeight && sumWeight > 0) {
+            int offset = random.nextInt(sumWeight);
             // 确定随机值落在哪个片
             for (int i = 0; i < length; i++) {
-                offset -= weightSnapshots[i];
+                offset -= weightSnapshots.get(i);
                 if (offset < 0) {
                     return (T) elements[i];
                 }
