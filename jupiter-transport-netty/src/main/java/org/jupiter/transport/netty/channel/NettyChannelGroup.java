@@ -119,9 +119,9 @@ public class NettyChannelGroup implements JChannelGroup {
                 return (JChannel) elements[0];
             }
 
-            int offset = Math.abs(indexUpdater.getAndIncrement(this) % length);
+            int index = indexUpdater.getAndIncrement(this) & Integer.MAX_VALUE;
 
-            return (JChannel) elements[offset];
+            return (JChannel) elements[index % length];
         }
     }
 

@@ -72,9 +72,9 @@ public abstract class RoundRobinLoadBalancer<T> implements LoadBalancer<T> {
             minWeight = Math.min(minWeight, val);
         }
 
-        int index = indexUpdater.getAndIncrement(this);
+        int index = indexUpdater.getAndIncrement(this) & Integer.MAX_VALUE;
         if (maxWeight > 0 && minWeight < maxWeight) {
-            int mod = Math.abs(index % sumWeight);
+            int mod = index % sumWeight;
             for (int i = 0; i < maxWeight; i++) {
                 for (int j = 0; j < length; j++) {
                     int val = weightSnapshots.get(j);
@@ -89,7 +89,7 @@ public abstract class RoundRobinLoadBalancer<T> implements LoadBalancer<T> {
             }
         }
 
-        return (T) elements[Math.abs(index % length)];
+        return (T) elements[index % length];
     }
 
     protected abstract int getWeight(T t);
