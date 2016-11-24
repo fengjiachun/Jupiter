@@ -67,11 +67,9 @@ public class FailoverStrategy extends AbstractHaStrategy {
         }
 
         CopyOnWriteGroupList groups = client.directory(dispatcher.getMetadata());
-        int tryCount = Math.min(groups.size(), retries);
-        // 重试可能包含上面失败的那一个
-        for (int i = 1; i <= tryCount; i++) {
+        for (int i = 0; i < retries; i++) {
             try {
-                JChannel channel = groups.get(i).next();
+                JChannel channel = groups.get(i % groups.size()).next();
                 Object val = dispatcher.dispatch(client, channel, method.getName(), args, method.getReturnType());
                 InvokeFuture<?> future = (InvokeFuture<?>) val;
                 return future.getResult();
@@ -84,7 +82,7 @@ public class FailoverStrategy extends AbstractHaStrategy {
         }
 
         // 全部失败
-        throw new RemoteException("[failover] all fail: ", cause);
+        throw new RemoteException("[failover] all failed: ", cause);
     }
 
     public boolean failoverNeeded(Exception cause) {
