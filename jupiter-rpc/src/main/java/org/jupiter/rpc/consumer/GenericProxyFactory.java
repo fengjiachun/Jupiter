@@ -19,14 +19,13 @@ package org.jupiter.rpc.consumer;
 import org.jupiter.common.util.Lists;
 import org.jupiter.common.util.Maps;
 import org.jupiter.rpc.*;
-import org.jupiter.rpc.channel.JChannelGroup;
 import org.jupiter.rpc.consumer.dispatcher.DefaultBroadcastDispatcher;
 import org.jupiter.rpc.consumer.dispatcher.DefaultRoundDispatcher;
 import org.jupiter.rpc.consumer.dispatcher.Dispatcher;
 import org.jupiter.rpc.consumer.invoker.CallbackGenericInvoker;
 import org.jupiter.rpc.consumer.invoker.GenericInvoker;
 import org.jupiter.rpc.consumer.invoker.SyncGenericInvoker;
-import org.jupiter.rpc.load.balance.LoadBalancer;
+import org.jupiter.rpc.load.balance.LoadBalancerType;
 import org.jupiter.rpc.model.metadata.ServiceMetadata;
 import org.jupiter.serialization.SerializerType;
 
@@ -39,7 +38,8 @@ import static org.jupiter.rpc.DispatchType.BROADCAST;
 import static org.jupiter.rpc.DispatchType.ROUND;
 import static org.jupiter.rpc.InvokeType.ASYNC;
 import static org.jupiter.rpc.InvokeType.SYNC;
-import static org.jupiter.serialization.SerializerType.*;
+import static org.jupiter.rpc.load.balance.LoadBalancerFactory.loadBalancer;
+import static org.jupiter.serialization.SerializerType.PROTO_STUFF;
 
 /**
  * 泛化ProxyFactory
@@ -59,7 +59,7 @@ public class GenericProxyFactory {
 
     private JClient client;                                     // connector
     private SerializerType serializerType = PROTO_STUFF;        // 序列化/反序列化方式
-    private LoadBalancer<JChannelGroup> loadBalancer;           // 软负载均衡
+    private LoadBalancerType loadBalancerType;                  // 软负载均衡类型
     private List<UnresolvedAddress> addresses;                  // provider地址
     private InvokeType invokeType = SYNC;                       // 调用方式 [同步; 异步]
     private DispatchType dispatchType = ROUND;                  // 派发方式 [单播; 组播]
@@ -120,10 +120,10 @@ public class GenericProxyFactory {
     }
 
     /**
-     * Sets the service loadBalancer.
+     * Sets the service load balancer type.
      */
-    public GenericProxyFactory loadBalancer(LoadBalancer<JChannelGroup> loadBalancer) {
-        this.loadBalancer = loadBalancer;
+    public GenericProxyFactory loadBalancerType(LoadBalancerType loadBalancerType) {
+        this.loadBalancerType = loadBalancerType;
         return this;
     }
 
@@ -235,11 +235,7 @@ public class GenericProxyFactory {
     protected Dispatcher asDispatcher(ServiceMetadata metadata, SerializerType serializerType) {
         switch (dispatchType) {
             case ROUND:
-                if (loadBalancer == null) {
-                    return new DefaultRoundDispatcher(client.newDefaultLoadBalancer(), metadata, serializerType);
-                } else {
-                    return new DefaultRoundDispatcher(loadBalancer, metadata, serializerType);
-                }
+                return new DefaultRoundDispatcher(loadBalancer(loadBalancerType), metadata, serializerType);
             case BROADCAST:
                 return new DefaultBroadcastDispatcher(null, metadata, serializerType);
             default:

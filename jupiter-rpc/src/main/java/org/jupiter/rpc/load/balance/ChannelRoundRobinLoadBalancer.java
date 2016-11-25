@@ -14,20 +14,20 @@
  * limitations under the License.
  */
 
-package org.jupiter.rpc.channel;
+package org.jupiter.rpc.load.balance;
 
 import org.jupiter.common.util.SystemClock;
-import org.jupiter.rpc.load.balance.RoundRobinLoadBalancer;
+import org.jupiter.rpc.channel.JChannelGroup;
 
 /**
  * Round robin load balancer for channel groups.
  *
  * jupiter
- * org.jupiter.rpc.channel
+ * org.jupiter.rpc.load.balance
  *
  * @author jiachun.fjc
  */
-public class ChannelRoundRobinLoadBalancer extends RoundRobinLoadBalancer<JChannelGroup> {
+class ChannelRoundRobinLoadBalancer extends RoundRobinLoadBalancer<JChannelGroup> {
 
     @Override
     protected int getWeight(JChannelGroup group) {

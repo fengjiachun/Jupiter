@@ -44,6 +44,8 @@
 
         <!-- 序列化/反序列化类型: (proto_stuff, hessian)可选, 默认proto_stuff -->
         <property name="serializerType" value="proto_stuff" />
+        <!-- 软负载均衡类型[random, round_robin] -->
+        <property name="loadBalancerType" value="round_robin" />
         <!-- 派发方式: (round, broadcast)可选, 默认round(单播) -->
         <property name="dispatchType" value="round" />
         <!-- 调用方式: (sync, async)可选, 默认sync(同步调用) -->
@@ -58,7 +60,7 @@
         <!-- 可选配置 -->
         <!--
             SerializerType serializerType                   // 序列化/反序列化方式
-            LoadBalancer<JChannelGroup> loadBalancer;       // 软负载均衡
+            LoadBalancerType loadBalancerType;              // 软负载均衡类型[random, round_robin]
             long waitForAvailableTimeoutMillis = -1         // 如果大于0, 表示阻塞等待直到连接可用并且该值为等待时间
             InvokeType invokeType                           // 调用方式 [同步; 异步]
             DispatchType dispatchType                       // 派发方式 [单播; 组播]

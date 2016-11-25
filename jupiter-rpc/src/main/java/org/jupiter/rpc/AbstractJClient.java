@@ -18,14 +18,12 @@ package org.jupiter.rpc;
 
 import org.jupiter.common.util.JServiceLoader;
 import org.jupiter.common.util.Maps;
-import org.jupiter.common.util.Reflects;
 import org.jupiter.common.util.internal.logging.InternalLogger;
 import org.jupiter.common.util.internal.logging.InternalLoggerFactory;
 import org.jupiter.registry.*;
 import org.jupiter.rpc.channel.CopyOnWriteGroupList;
 import org.jupiter.rpc.channel.DirectoryJChannelGroup;
 import org.jupiter.rpc.channel.JChannelGroup;
-import org.jupiter.rpc.load.balance.LoadBalancer;
 
 import java.util.Collection;
 import java.util.concurrent.ConcurrentMap;
@@ -51,8 +49,6 @@ public abstract class AbstractJClient implements JClient {
     private final String appName;
 
     protected final DirectoryJChannelGroup directoryGroup = new DirectoryJChannelGroup();
-
-    private volatile Class<LoadBalancer<JChannelGroup>> defaultLoadBalancerClass;
 
     public AbstractJClient() {
         this(UNKNOWN_APP_NAME);
@@ -85,17 +81,6 @@ public abstract class AbstractJClient implements JClient {
             }
         }
         return group;
-    }
-
-    @SuppressWarnings("unchecked")
-    @Override
-    public LoadBalancer<JChannelGroup> newDefaultLoadBalancer() {
-        if (defaultLoadBalancerClass == null) {
-            LoadBalancer<JChannelGroup> firstInstance = JServiceLoader.loadFirst(LoadBalancer.class);
-            defaultLoadBalancerClass = (Class<LoadBalancer<JChannelGroup>>) firstInstance.getClass();
-            return firstInstance;
-        }
-        return Reflects.newInstance(defaultLoadBalancerClass);
     }
 
     @Override

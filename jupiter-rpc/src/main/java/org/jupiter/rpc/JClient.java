@@ -22,7 +22,6 @@ import org.jupiter.registry.RegisterMeta;
 import org.jupiter.registry.Registry;
 import org.jupiter.rpc.channel.CopyOnWriteGroupList;
 import org.jupiter.rpc.channel.JChannelGroup;
-import org.jupiter.rpc.load.balance.LoadBalancer;
 
 import java.util.Collection;
 
@@ -43,11 +42,6 @@ public interface JClient extends Registry {
      * Returns or new a {@link JChannelGroup}.
      */
     JChannelGroup group(UnresolvedAddress address);
-
-    /**
-     * Returns a new default {@link LoadBalancer}.
-     */
-    LoadBalancer<JChannelGroup> newDefaultLoadBalancer();
 
     /**
      * Returns all {@link JChannelGroup}s.

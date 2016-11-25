@@ -18,11 +18,13 @@ package org.jupiter.spring.support;
 
 import org.jupiter.common.util.Lists;
 import org.jupiter.common.util.Strings;
-import org.jupiter.rpc.*;
-import org.jupiter.rpc.channel.JChannelGroup;
+import org.jupiter.rpc.ConsumerHook;
+import org.jupiter.rpc.DispatchType;
+import org.jupiter.rpc.InvokeType;
+import org.jupiter.rpc.UnresolvedAddress;
 import org.jupiter.rpc.consumer.ProxyFactory;
 import org.jupiter.rpc.consumer.ha.HaStrategy;
-import org.jupiter.rpc.load.balance.LoadBalancer;
+import org.jupiter.rpc.load.balance.LoadBalancerType;
 import org.jupiter.serialization.SerializerType;
 import org.jupiter.transport.JConnector;
 import org.jupiter.transport.exception.ConnectFailedException;
@@ -47,7 +49,7 @@ public class JupiterSpringConsumerBean<T> implements FactoryBean<T>, Initializin
     private JupiterSpringConnector connector;
     private Class<T> interfaceClass;                        // 接口类型
     private SerializerType serializerType;                  // 序列化/反序列化方式
-    private LoadBalancer<JChannelGroup> loadBalancer;       // 软负载均衡
+    private LoadBalancerType loadBalancerType;              // 软负载均衡类型
     private long waitForAvailableTimeoutMillis = -1;        // 如果大于0, 表示阻塞等待直到连接可用并且该值为等待时间
 
     private transient T proxy;                              // consumer代理对象
@@ -88,9 +90,7 @@ public class JupiterSpringConsumerBean<T> implements FactoryBean<T>, Initializin
             factory.serializerType(serializerType);
         }
 
-        if (loadBalancer != null) {
-            factory.loadBalancer(loadBalancer);
-        }
+        factory.loadBalancerType(loadBalancerType);
 
         if (connector.isHasRegistryServer()) {
             // 自动管理可用连接
@@ -177,12 +177,12 @@ public class JupiterSpringConsumerBean<T> implements FactoryBean<T>, Initializin
         this.serializerType = SerializerType.parse(serializerType);
     }
 
-    public LoadBalancer<JChannelGroup> getLoadBalancer() {
-        return loadBalancer;
+    public LoadBalancerType getLoadBalancerType() {
+        return loadBalancerType;
     }
 
-    public void setLoadBalancer(LoadBalancer<JChannelGroup> loadBalancer) {
-        this.loadBalancer = loadBalancer;
+    public void setLoadBalancerType(String loadBalancerType) {
+        this.loadBalancerType = LoadBalancerType.parse(loadBalancerType);
     }
 
     public long getWaitForAvailableTimeoutMillis() {
