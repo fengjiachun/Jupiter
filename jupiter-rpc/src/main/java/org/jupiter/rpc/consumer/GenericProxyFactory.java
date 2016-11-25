@@ -25,6 +25,7 @@ import org.jupiter.rpc.consumer.dispatcher.Dispatcher;
 import org.jupiter.rpc.consumer.invoker.CallbackGenericInvoker;
 import org.jupiter.rpc.consumer.invoker.GenericInvoker;
 import org.jupiter.rpc.consumer.invoker.SyncGenericInvoker;
+import org.jupiter.rpc.load.balance.LoadBalancerFactory;
 import org.jupiter.rpc.load.balance.LoadBalancerType;
 import org.jupiter.rpc.model.metadata.ServiceMetadata;
 import org.jupiter.serialization.SerializerType;
@@ -38,7 +39,7 @@ import static org.jupiter.rpc.DispatchType.BROADCAST;
 import static org.jupiter.rpc.DispatchType.ROUND;
 import static org.jupiter.rpc.InvokeType.ASYNC;
 import static org.jupiter.rpc.InvokeType.SYNC;
-import static org.jupiter.rpc.load.balance.LoadBalancerFactory.loadBalancer;
+import static org.jupiter.rpc.load.balance.LoadBalancerType.*;
 import static org.jupiter.serialization.SerializerType.PROTO_STUFF;
 
 /**
@@ -59,7 +60,7 @@ public class GenericProxyFactory {
 
     private JClient client;                                     // connector
     private SerializerType serializerType = PROTO_STUFF;        // 序列化/反序列化方式
-    private LoadBalancerType loadBalancerType;                  // 软负载均衡类型
+    private LoadBalancerType loadBalancerType = RANDOM;         // 软负载均衡类型
     private List<UnresolvedAddress> addresses;                  // provider地址
     private InvokeType invokeType = SYNC;                       // 调用方式 [同步; 异步]
     private DispatchType dispatchType = ROUND;                  // 派发方式 [单播; 组播]
@@ -235,7 +236,8 @@ public class GenericProxyFactory {
     protected Dispatcher asDispatcher(ServiceMetadata metadata, SerializerType serializerType) {
         switch (dispatchType) {
             case ROUND:
-                return new DefaultRoundDispatcher(loadBalancer(loadBalancerType), metadata, serializerType);
+                return new DefaultRoundDispatcher(
+                        LoadBalancerFactory.getInstance(loadBalancerType), metadata, serializerType);
             case BROADCAST:
                 return new DefaultBroadcastDispatcher(null, metadata, serializerType);
             default:

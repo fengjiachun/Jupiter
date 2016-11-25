@@ -30,13 +30,13 @@ public final class LoadBalancerFactory {
 
     private static final LoadBalancer<JChannelGroup> random = new ChannelRandomLoadBalancer();
 
-    public static LoadBalancer<JChannelGroup> loadBalancer(LoadBalancerType type) {
-        if (RANDOM == type) {
+    public static LoadBalancer<JChannelGroup> getInstance(LoadBalancerType type) {
+        if (type == null || RANDOM == type) {
             return random;
         }
 
         if (ROUND_ROBIN == type) {
-            // round robin不能共享
+            // round-robin是有状态(index)的负载均衡器, 不能是单例
             return new ChannelRoundRobinLoadBalancer();
         }
 

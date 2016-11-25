@@ -90,7 +90,9 @@ public class JupiterSpringConsumerBean<T> implements FactoryBean<T>, Initializin
             factory.serializerType(serializerType);
         }
 
-        factory.loadBalancerType(loadBalancerType);
+        if (loadBalancerType != null) {
+            factory.loadBalancerType(loadBalancerType);
+        }
 
         if (connector.isHasRegistryServer()) {
             // 自动管理可用连接
@@ -183,6 +185,9 @@ public class JupiterSpringConsumerBean<T> implements FactoryBean<T>, Initializin
 
     public void setLoadBalancerType(String loadBalancerType) {
         this.loadBalancerType = LoadBalancerType.parse(loadBalancerType);
+        if (this.loadBalancerType == null) {
+            throw new IllegalArgumentException(loadBalancerType);
+        }
     }
 
     public long getWaitForAvailableTimeoutMillis() {
