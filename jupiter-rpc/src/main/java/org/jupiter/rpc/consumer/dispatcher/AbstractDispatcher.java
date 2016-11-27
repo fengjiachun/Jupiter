@@ -81,7 +81,7 @@ public abstract class AbstractDispatcher implements Dispatcher {
     @Override
     public JChannel select(JClient client, MessageWrapper message) {
         // stack copy
-        final Directory directory = message.getMetadata();
+        final Directory directory = metadata;
 
         CopyOnWriteGroupList groups = client.directory(directory);
         // snapshot of groupList
