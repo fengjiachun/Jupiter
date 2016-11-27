@@ -17,9 +17,9 @@
 package org.jupiter.rpc.consumer.dispatcher;
 
 import org.jupiter.rpc.ConsumerHook;
-import org.jupiter.rpc.Directory;
 import org.jupiter.rpc.JClient;
 import org.jupiter.rpc.channel.JChannel;
+import org.jupiter.rpc.model.metadata.MessageWrapper;
 import org.jupiter.rpc.model.metadata.ServiceMetadata;
 import org.jupiter.serialization.Serializer;
 
@@ -49,7 +49,7 @@ public interface Dispatcher {
     /**
      * Selects a {@link JChannel} from the load balancer.
      */
-    JChannel select(JClient client, Directory directory);
+    JChannel select(JClient client, MessageWrapper message);
 
     ServiceMetadata getMetadata();
 

@@ -38,7 +38,7 @@ public class RoundRobinLoadBalancerTest {
         LoadBalancer<Channel> lb = new RR();
         len += 2;
         for (int i = 0; i < len; i++) {
-            System.out.println(lb.select(array));
+            System.out.println(lb.select(array, null));
         }
     }
 }

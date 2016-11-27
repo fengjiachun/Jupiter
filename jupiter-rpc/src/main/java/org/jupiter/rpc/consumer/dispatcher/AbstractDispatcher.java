@@ -79,7 +79,10 @@ public abstract class AbstractDispatcher implements Dispatcher {
     }
 
     @Override
-    public JChannel select(JClient client, Directory directory) {
+    public JChannel select(JClient client, MessageWrapper message) {
+        // stack copy
+        final Directory directory = message.getMetadata();
+
         CopyOnWriteGroupList groups = client.directory(directory);
         // snapshot of groupList
         Object[] elements = groupsUpdater.get(groups);
@@ -90,7 +93,7 @@ public abstract class AbstractDispatcher implements Dispatcher {
             elements = groupsUpdater.get(groups);
         }
 
-        JChannelGroup group = loadBalancer.select(elements);
+        JChannelGroup group = loadBalancer.select(elements, message);
 
         if (group.isAvailable()) {
             return group.next();

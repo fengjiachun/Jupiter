@@ -16,6 +16,8 @@
 
 package org.jupiter.rpc.load.balance;
 
+import org.jupiter.rpc.model.metadata.MessageWrapper;
+
 import java.util.concurrent.ThreadLocalRandom;
 
 /**
@@ -38,7 +40,7 @@ public abstract class RandomLoadBalancer<T> implements LoadBalancer<T> {
 
     @SuppressWarnings("unchecked")
     @Override
-    public T select(Object[] elements) {
+    public T select(Object[] elements, MessageWrapper unused) {
         int length = elements.length;
         if (length == 0) {
             throw new IllegalArgumentException("empty elements for select");

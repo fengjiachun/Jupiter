@@ -53,8 +53,8 @@ public class DefaultRoundDispatcher extends AbstractDispatcher {
         message.setMethodName(methodName);
         message.setArgs(args);
 
-        // 通过软负载选择一个channel
-        JChannel channel = select(client, _metadata);
+        // 通过软负载均衡选择一个channel
+        JChannel channel = select(client, message);
         final JRequest request = JRequest.newInstance(_serializer.code());
         request.message(doTracing(request, message, methodName, channel));
         // 在业务线程中序列化, 减轻IO线程负担
