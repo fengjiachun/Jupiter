@@ -27,11 +27,11 @@ import io.netty.util.HashedWheelTimer;
 import io.netty.util.concurrent.DefaultThreadFactory;
 import io.netty.util.internal.PlatformDependent;
 import org.jupiter.common.concurrent.NamedThreadFactory;
-import org.jupiter.rpc.AbstractJServer;
 import org.jupiter.transport.JAcceptor;
 import org.jupiter.transport.JConfig;
 import org.jupiter.transport.JOption;
 import org.jupiter.transport.netty.estimator.JMessageSizeEstimator;
+import org.jupiter.transport.processor.ProviderProcessor;
 
 import java.net.InetSocketAddress;
 import java.net.SocketAddress;
@@ -45,7 +45,7 @@ import static org.jupiter.common.util.JConstants.AVAILABLE_PROCESSORS;
  *
  * @author jiachun.fjc
  */
-public abstract class NettyAcceptor extends AbstractJServer implements JAcceptor {
+public abstract class NettyAcceptor implements JAcceptor {
 
     protected final Protocol protocol;
     protected final SocketAddress localAddress;
@@ -99,17 +99,22 @@ public abstract class NettyAcceptor extends AbstractJServer implements JAcceptor
     }
 
     @Override
-    public void shutdownGracefully() {
-        boss.shutdownGracefully().awaitUninterruptibly();
-        worker.shutdownGracefully().awaitUninterruptibly();
-    }
-
-    @Override
-    protected int bindPort() {
+    public int boundPort() {
         if (!(localAddress instanceof InetSocketAddress)) {
             throw new UnsupportedOperationException("Unsupported address type to get port");
         }
         return ((InetSocketAddress) localAddress).getPort();
+    }
+
+    @Override
+    public void bindProcessor(ProviderProcessor processor) {
+        // the default implementation does nothing
+    }
+
+    @Override
+    public void shutdownGracefully() {
+        boss.shutdownGracefully().awaitUninterruptibly();
+        worker.shutdownGracefully().awaitUninterruptibly();
     }
 
     protected void setOptions() {

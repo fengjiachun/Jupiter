@@ -14,23 +14,27 @@
  * limitations under the License.
  */
 
-package org.jupiter.rpc.provider;
+package org.jupiter.transport.processor;
 
-import org.jupiter.transport.Directory;
-import org.jupiter.rpc.model.metadata.ServiceWrapper;
+import org.jupiter.transport.payload.JRequestBytes;
+import org.jupiter.transport.Status;
+import org.jupiter.transport.channel.JChannel;
 
 /**
- * Lookup the service.
- *
  * jupiter
- * org.jupiter.rpc.provider
+ * org.jupiter.transport.processor
  *
  * @author jiachun.fjc
  */
-public interface LookupService {
+public interface ProviderProcessor {
 
     /**
-     * Lookup the service.
+     * 处理正常请求
      */
-    ServiceWrapper lookupService(Directory directory);
+    void handleRequest(JChannel channel, JRequestBytes request) throws Exception;
+
+    /**
+     * 处理异常
+     */
+    void handleException(JChannel channel, JRequestBytes request, Status status, Throwable cause);
 }

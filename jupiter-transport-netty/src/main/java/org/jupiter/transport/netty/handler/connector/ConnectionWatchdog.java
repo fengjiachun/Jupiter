@@ -23,7 +23,7 @@ import io.netty.util.Timer;
 import io.netty.util.TimerTask;
 import org.jupiter.common.util.internal.logging.InternalLogger;
 import org.jupiter.common.util.internal.logging.InternalLoggerFactory;
-import org.jupiter.rpc.channel.JChannelGroup;
+import org.jupiter.transport.channel.JChannelGroup;
 import org.jupiter.transport.netty.channel.NettyChannel;
 import org.jupiter.transport.netty.handler.ChannelHandlerHolder;
 

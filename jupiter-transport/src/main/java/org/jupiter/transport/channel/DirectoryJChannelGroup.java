@@ -14,10 +14,10 @@
  * limitations under the License.
  */
 
-package org.jupiter.rpc.channel;
+package org.jupiter.transport.channel;
 
 import org.jupiter.common.util.Maps;
-import org.jupiter.rpc.Directory;
+import org.jupiter.transport.Directory;
 
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
@@ -25,7 +25,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * jupiter
- * org.jupiter.rpc.channel
+ * org.jupiter.transport.channel
  *
  * @author jiachun.fjc
  */

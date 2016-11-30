@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.jupiter.rpc;
+package org.jupiter.transport;
 
 import static org.jupiter.common.util.Preconditions.checkArgument;
 import static org.jupiter.common.util.Preconditions.checkNotNull;
@@ -23,7 +23,7 @@ import static org.jupiter.common.util.Preconditions.checkNotNull;
  * Unresolved address.
  *
  * jupiter
- * org.jupiter.rpc
+ * org.jupiter.transport
  *
  * @author jiachun.fjc
  */

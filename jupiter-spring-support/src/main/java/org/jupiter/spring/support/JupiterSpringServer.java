@@ -19,10 +19,10 @@ package org.jupiter.spring.support;
 import org.jupiter.common.util.Strings;
 import org.jupiter.common.util.internal.JUnsafe;
 import org.jupiter.rpc.JRequest;
+import org.jupiter.rpc.JServer;
 import org.jupiter.rpc.flow.control.FlowController;
 import org.jupiter.rpc.provider.ProviderInterceptor;
 import org.jupiter.rpc.provider.ProviderProxyHandler;
-import org.jupiter.transport.JAcceptor;
 import org.springframework.beans.factory.InitializingBean;
 
 /**
@@ -33,9 +33,9 @@ import org.springframework.beans.factory.InitializingBean;
  *
  * @author jiachun.fjc
  */
-public class JupiterSpringAcceptor implements InitializingBean {
+public class JupiterSpringServer implements InitializingBean {
 
-    private JAcceptor acceptor;
+    private JServer server;
 
     private String registryServerAddresses;             // 注册中心地址 [host1:port1,host2:port2....]
     private boolean hasRegistryServer;                  // true: 需要连接注册中心; false: IP直连方式
@@ -50,44 +50,43 @@ public class JupiterSpringAcceptor implements InitializingBean {
     private void init() {
         // 注册中心
         if (Strings.isNotBlank(registryServerAddresses)) {
-            acceptor.connectToRegistryServer(registryServerAddresses);
+            server.connectToRegistryServer(registryServerAddresses);
             hasRegistryServer = true;
         }
 
         // 全局拦截器
         if (providerInterceptors != null && providerInterceptors.length > 0) {
-            acceptor.setGlobalProviderProxyHandler(new ProviderProxyHandler().withIntercept(providerInterceptors));
+            server.setGlobalProviderProxyHandler(new ProviderProxyHandler().withIntercept(providerInterceptors));
         }
 
         // 全局限流
-        acceptor.setGlobalFlowController(flowController);
+        server.setGlobalFlowController(flowController);
 
         try {
-            final JAcceptor acceptor = this.acceptor;
+            final JServer server = this.server;
 
             if (hasRegistryServer) {
                 Runtime.getRuntime().addShutdownHook(new Thread() {
 
                     @Override
                     public void run() {
-                        acceptor.unpublishAll();
-                        acceptor.shutdownGracefully();
+                        server.shutdownGracefully();
                     }
                 });
             }
 
-            acceptor.start(false);
+            server.start(false);
         } catch (Exception e) {
             JUnsafe.throwException(e);
         }
     }
 
-    public JAcceptor getAcceptor() {
-        return acceptor;
+    public JServer getServer() {
+        return server;
     }
 
-    public void setAcceptor(JAcceptor acceptor) {
-        this.acceptor = acceptor;
+    public void setServer(JServer server) {
+        this.server = server;
     }
 
     public String getRegistryServerAddresses() {

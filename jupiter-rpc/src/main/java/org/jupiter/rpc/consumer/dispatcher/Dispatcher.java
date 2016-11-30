@@ -18,10 +18,10 @@ package org.jupiter.rpc.consumer.dispatcher;
 
 import org.jupiter.rpc.ConsumerHook;
 import org.jupiter.rpc.JClient;
-import org.jupiter.rpc.channel.JChannel;
 import org.jupiter.rpc.model.metadata.MessageWrapper;
 import org.jupiter.rpc.model.metadata.ServiceMetadata;
 import org.jupiter.serialization.Serializer;
+import org.jupiter.transport.channel.JChannel;
 
 import java.util.List;
 import java.util.Map;

@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
-package org.jupiter.rpc.channel;
+package org.jupiter.transport.channel;
 
-import org.jupiter.rpc.UnresolvedAddress;
+import org.jupiter.transport.UnresolvedAddress;
 
 import java.util.List;
 
@@ -26,7 +26,7 @@ import java.util.List;
  * 注意: 相同地址的连接group
  *
  * jupiter
- * org.jupiter.rpc.channel
+ * org.jupiter.transport.channel
  *
  * @author jiachun.fjc
  */

@@ -21,9 +21,9 @@ import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.MessageToByteEncoder;
 import org.jupiter.common.util.Reflects;
-import org.jupiter.rpc.BytesHolder;
-import org.jupiter.rpc.JRequest;
-import org.jupiter.rpc.JResponse;
+import org.jupiter.transport.payload.BytesHolder;
+import org.jupiter.transport.payload.JRequestBytes;
+import org.jupiter.transport.payload.JResponseBytes;
 
 import static org.jupiter.transport.JProtocolHeader.*;
 
@@ -55,19 +55,21 @@ public class ProtocolEncoder extends MessageToByteEncoder<BytesHolder> {
 
     @Override
     protected void encode(ChannelHandlerContext ctx, BytesHolder msg, ByteBuf out) throws Exception {
-        if (msg instanceof JRequest) {
-            doEncodeRequest((JRequest) msg, out);
-        } else if (msg instanceof JResponse) {
-            doEncodeResponse((JResponse) msg, out);
+        if (msg instanceof JRequestBytes) {
+            doEncodeRequest((JRequestBytes) msg, out);
+        } else if (msg instanceof JResponseBytes) {
+            doEncodeResponse((JResponseBytes) msg, out);
         } else {
             throw new IllegalArgumentException(Reflects.simpleClassName(msg));
         }
     }
 
-    private void doEncodeRequest(JRequest request, ByteBuf out) {
+    private void doEncodeRequest(JRequestBytes request, ByteBuf out) {
         byte s_code = request.serializerCode();
         byte sign = (byte) ((s_code << 4) + REQUEST);
         byte[] bytes = request.bytes();
+
+        request.bytes(null);
 
         out.writeShort(MAGIC)
                 .writeByte(sign)
@@ -77,10 +79,12 @@ public class ProtocolEncoder extends MessageToByteEncoder<BytesHolder> {
                 .writeBytes(bytes);
     }
 
-    private void doEncodeResponse(JResponse response, ByteBuf out) {
+    private void doEncodeResponse(JResponseBytes response, ByteBuf out) {
         byte s_code = response.serializerCode();
         byte sign = (byte) ((s_code << 4) + RESPONSE);
         byte[] bytes = response.bytes();
+
+        response.bytes(null);
 
         out.writeShort(MAGIC)
                 .writeByte(sign)

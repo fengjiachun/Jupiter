@@ -27,10 +27,6 @@ import org.jupiter.common.util.internal.UnsafeUpdater;
 import org.jupiter.common.util.internal.logging.InternalLogger;
 import org.jupiter.common.util.internal.logging.InternalLoggerFactory;
 import org.jupiter.rpc.JRequest;
-import org.jupiter.rpc.JResponse;
-import org.jupiter.rpc.Status;
-import org.jupiter.rpc.channel.JChannel;
-import org.jupiter.rpc.channel.JFutureListener;
 import org.jupiter.rpc.exception.BadRequestException;
 import org.jupiter.rpc.exception.FlowControlException;
 import org.jupiter.rpc.exception.ServerBusyException;
@@ -41,10 +37,14 @@ import org.jupiter.rpc.metric.Metrics;
 import org.jupiter.rpc.model.metadata.MessageWrapper;
 import org.jupiter.rpc.model.metadata.ResultWrapper;
 import org.jupiter.rpc.model.metadata.ServiceWrapper;
-import org.jupiter.rpc.provider.processor.ProviderProcessor;
+import org.jupiter.rpc.provider.processor.AbstractProviderProcessor;
 import org.jupiter.rpc.tracing.TraceId;
-import org.jupiter.rpc.tracing.TracingUtil;
 import org.jupiter.rpc.tracing.TracingRecorder;
+import org.jupiter.rpc.tracing.TracingUtil;
+import org.jupiter.transport.Status;
+import org.jupiter.transport.channel.JChannel;
+import org.jupiter.transport.channel.JFutureListener;
+import org.jupiter.transport.payload.JResponseBytes;
 
 import java.util.List;
 import java.util.concurrent.Executor;
@@ -52,9 +52,9 @@ import java.util.concurrent.Executor;
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
 import static org.jupiter.common.util.Reflects.fastInvoke;
 import static org.jupiter.common.util.Reflects.findMatchingParameterTypes;
-import static org.jupiter.rpc.Status.*;
 import static org.jupiter.rpc.tracing.TracingRecorder.Role.PROVIDER;
 import static org.jupiter.serialization.SerializerHolder.serializerImpl;
+import static org.jupiter.transport.Status.*;
 
 /**
  *
@@ -83,11 +83,11 @@ public class MessageTask implements RejectedRunnable {
     private static final UnsafeIntegerFieldUpdater<TraceId> traceNodeUpdater =
             UnsafeUpdater.newIntegerFieldUpdater(TraceId.class, "node");
 
-    private final ProviderProcessor processor;
+    private final AbstractProviderProcessor processor;
     private final JChannel channel;
     private final JRequest request;
 
-    public MessageTask(ProviderProcessor processor, JChannel channel, JRequest request) {
+    public MessageTask(AbstractProviderProcessor processor, JChannel channel, JRequest request) {
         this.processor = processor;
         this.channel = channel;
         this.request = request;
@@ -96,13 +96,13 @@ public class MessageTask implements RejectedRunnable {
     @Override
     public void run() {
         // stack copy
-        final ProviderProcessor _processor = processor;
+        final AbstractProviderProcessor _processor = processor;
         final JRequest _request = request;
 
         // 反序列化, 不在IO线程中执行
         MessageWrapper msg;
         try {
-            byte[] bytes = _request.bytes();
+            byte[] bytes = _request.requestBytes().bytes();
             _request.bytes(null);
             requestSizeHistogram.update(bytes.length);
             byte s_code = _request.serializerCode();
@@ -196,7 +196,10 @@ public class MessageTask implements RejectedRunnable {
         byte s_code = _request.serializerCode();
         byte[] bytes = serializerImpl(s_code).writeObject(result);
         final long invokeId = _request.invokeId();
-        JResponse response = JResponse.newInstance(invokeId, s_code, status, bytes);
+        JResponseBytes response = new JResponseBytes(invokeId);
+        response.serializerCode(s_code);
+        response.status(status.value());
+        response.bytes(bytes);
         channel.write(response, new JFutureListener<JChannel>() {
 
             @Override
@@ -266,7 +269,11 @@ public class MessageTask implements RejectedRunnable {
             byte s_code = _request.serializerCode();
             byte[] bytes = serializerImpl(s_code).writeObject(result);
             final int bodyLength = bytes.length;
-            JResponse response = JResponse.newInstance(invokeId, s_code, OK, bytes);
+
+            JResponseBytes response = new JResponseBytes(invokeId);
+            response.serializerCode(s_code);
+            response.status(Status.OK.value());
+            response.bytes(bytes);
             channel.write(response, new JFutureListener<JChannel>() {
 
                 @Override

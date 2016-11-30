@@ -23,9 +23,9 @@ import org.jupiter.common.util.Lists;
 import org.jupiter.common.util.SystemClock;
 import org.jupiter.common.util.SystemPropertyUtil;
 import org.jupiter.common.util.internal.JUnsafe;
-import org.jupiter.rpc.UnresolvedAddress;
-import org.jupiter.rpc.channel.JChannel;
-import org.jupiter.rpc.channel.JChannelGroup;
+import org.jupiter.transport.UnresolvedAddress;
+import org.jupiter.transport.channel.JChannel;
+import org.jupiter.transport.channel.JChannelGroup;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;

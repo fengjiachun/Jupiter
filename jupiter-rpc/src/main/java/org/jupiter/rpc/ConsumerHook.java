@@ -16,7 +16,7 @@
 
 package org.jupiter.rpc;
 
-import org.jupiter.rpc.channel.JChannel;
+import org.jupiter.transport.channel.JChannel;
 
 /**
  * Consumer's hook.

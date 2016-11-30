@@ -22,7 +22,6 @@ import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.MessageToByteEncoder;
 import org.jupiter.transport.Acknowledge;
 
-import static org.jupiter.serialization.SerializerHolder.serializerImpl;
 import static org.jupiter.transport.JProtocolHeader.ACK;
 import static org.jupiter.transport.JProtocolHeader.MAGIC;
 
@@ -39,15 +38,10 @@ public class AcknowledgeEncoder extends MessageToByteEncoder<Acknowledge> {
 
     @Override
     protected void encode(ChannelHandlerContext ctx, Acknowledge ack, ByteBuf out) throws Exception {
-        byte s_code = ack.serializerCode();
-        byte sign = (byte) ((s_code << 4) + ACK);
-        byte[] bytes = serializerImpl(s_code).writeObject(ack);
-
         out.writeShort(MAGIC)
-                .writeByte(sign)
+                .writeByte(ACK)
                 .writeByte(0)
                 .writeLong(ack.sequence())
-                .writeInt(bytes.length)
-                .writeBytes(bytes);
+                .writeInt(0);
     }
 }

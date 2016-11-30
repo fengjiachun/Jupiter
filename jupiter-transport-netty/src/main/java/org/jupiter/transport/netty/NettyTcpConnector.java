@@ -22,11 +22,13 @@ import io.netty.channel.EventLoopGroup;
 import io.netty.channel.WriteBufferWaterMark;
 import io.netty.channel.epoll.EpollEventLoopGroup;
 import io.netty.channel.nio.NioEventLoopGroup;
-import org.jupiter.rpc.UnresolvedAddress;
+import org.jupiter.transport.UnresolvedAddress;
 import org.jupiter.transport.JConnection;
 import org.jupiter.transport.JConfig;
 
 import java.util.concurrent.ThreadFactory;
+
+import static org.jupiter.transport.netty.NettyConfig.*;
 
 /**
  * jupiter
@@ -37,16 +39,10 @@ import java.util.concurrent.ThreadFactory;
 public abstract class NettyTcpConnector extends NettyConnector {
 
     private final boolean nativeEt; // Use native epoll ET
-    private final NettyConfig.NettyTcpConfigGroup.ChildConfig childConfig = new NettyConfig.NettyTcpConfigGroup.ChildConfig();
+    private final NettyTcpConfigGroup.ChildConfig childConfig = new NettyTcpConfigGroup.ChildConfig();
 
     public NettyTcpConnector() {
         super(Protocol.TCP);
-        nativeEt = true;
-        init();
-    }
-
-    public NettyTcpConnector(String appName) {
-        super(appName, Protocol.TCP);
         nativeEt = true;
         init();
     }
@@ -57,20 +53,8 @@ public abstract class NettyTcpConnector extends NettyConnector {
         init();
     }
 
-    public NettyTcpConnector(String appName, boolean nativeEt) {
-        super(appName, Protocol.TCP);
-        this.nativeEt = nativeEt;
-        init();
-    }
-
     public NettyTcpConnector(int nWorkers) {
         super(Protocol.TCP, nWorkers);
-        nativeEt = true;
-        init();
-    }
-
-    public NettyTcpConnector(String appName, int nWorkers) {
-        super(appName, Protocol.TCP, nWorkers);
         nativeEt = true;
         init();
     }
@@ -81,19 +65,13 @@ public abstract class NettyTcpConnector extends NettyConnector {
         init();
     }
 
-    public NettyTcpConnector(String appName, int nWorkers, boolean nativeEt) {
-        super(appName, Protocol.TCP, nWorkers);
-        this.nativeEt = nativeEt;
-        init();
-    }
-
     @Override
     protected void setOptions() {
         super.setOptions();
 
         Bootstrap boot = bootstrap();
 
-        NettyConfig.NettyTcpConfigGroup.ChildConfig child = childConfig;
+        NettyTcpConfigGroup.ChildConfig child = childConfig;
 
         // child options
         boot.option(ChannelOption.SO_REUSEADDR, child.isReuseAddress())

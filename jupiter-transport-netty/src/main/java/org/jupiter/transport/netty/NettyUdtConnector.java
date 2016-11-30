@@ -22,11 +22,13 @@ import io.netty.channel.EventLoopGroup;
 import io.netty.channel.WriteBufferWaterMark;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.udt.nio.NioUdtProvider;
-import org.jupiter.rpc.UnresolvedAddress;
+import org.jupiter.transport.UnresolvedAddress;
 import org.jupiter.transport.JConnection;
 import org.jupiter.transport.JConfig;
 
 import java.util.concurrent.ThreadFactory;
+
+import static org.jupiter.transport.netty.NettyConfig.*;
 
 /**
  * jupiter
@@ -36,25 +38,15 @@ import java.util.concurrent.ThreadFactory;
  */
 public abstract class NettyUdtConnector extends NettyConnector {
 
-    private final NettyConfig.NettyUdtConfigGroup.ChildConfig childConfig = new NettyConfig.NettyUdtConfigGroup.ChildConfig();
+    private final NettyUdtConfigGroup.ChildConfig childConfig = new NettyUdtConfigGroup.ChildConfig();
 
     public NettyUdtConnector() {
         super(Protocol.UDT);
         init();
     }
 
-    public NettyUdtConnector(String appName) {
-        super(appName, Protocol.UDT);
-        init();
-    }
-
     public NettyUdtConnector(int nWorkers) {
         super(Protocol.UDT, nWorkers);
-        init();
-    }
-
-    public NettyUdtConnector(String appName, int nWorkers) {
-        super(appName, Protocol.UDT, nWorkers);
         init();
     }
 
@@ -64,7 +56,7 @@ public abstract class NettyUdtConnector extends NettyConnector {
 
         Bootstrap boot = bootstrap();
 
-        NettyConfig.NettyUdtConfigGroup.ChildConfig child = childConfig;
+        NettyUdtConfigGroup.ChildConfig child = childConfig;
 
         // child options
         boot.option(ChannelOption.SO_REUSEADDR, child.isReuseAddress());

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.jupiter.rpc.channel;
+package org.jupiter.transport.channel;
 
 import java.net.SocketAddress;
 
@@ -23,7 +23,7 @@ import java.net.SocketAddress;
  * operations such as read, write.
  *
  * jupiter
- * org.jupiter.rpc.channel
+ * org.jupiter.transport.channel
  *
  * @author jiachun.fjc
  */

@@ -17,8 +17,9 @@
 package org.jupiter.transport.netty;
 
 import io.netty.channel.ChannelFuture;
-import org.jupiter.rpc.UnresolvedAddress;
+import io.netty.channel.ChannelFutureListener;
 import org.jupiter.transport.JConnection;
+import org.jupiter.transport.UnresolvedAddress;
 
 /**
  * jupiter
@@ -37,5 +38,18 @@ public abstract class JNettyConnection extends JConnection {
 
     public ChannelFuture getFuture() {
         return future;
+    }
+
+    @Override
+    public void operationComplete(final Runnable callback) {
+        future.addListener(new ChannelFutureListener() {
+
+            @Override
+            public void operationComplete(ChannelFuture future) throws Exception {
+                if (future.isSuccess()) {
+                    callback.run();
+                }
+            }
+        });
     }
 }

@@ -26,15 +26,14 @@ import io.netty.util.Attribute;
 import io.netty.util.AttributeKey;
 import io.netty.util.ReferenceCountUtil;
 import org.jupiter.common.concurrent.collection.ConcurrentSet;
-import org.jupiter.common.util.*;
+import org.jupiter.common.util.Maps;
+import org.jupiter.common.util.Pair;
+import org.jupiter.common.util.Signal;
+import org.jupiter.common.util.SystemClock;
 import org.jupiter.common.util.internal.logging.InternalLogger;
 import org.jupiter.common.util.internal.logging.InternalLoggerFactory;
-import org.jupiter.rpc.UnresolvedAddress;
-import org.jupiter.rpc.channel.JChannel;
-import org.jupiter.transport.Acknowledge;
-import org.jupiter.transport.JConnection;
-import org.jupiter.transport.JOption;
-import org.jupiter.transport.JProtocolHeader;
+import org.jupiter.transport.*;
+import org.jupiter.transport.channel.JChannel;
 import org.jupiter.transport.exception.ConnectFailedException;
 import org.jupiter.transport.exception.IoSignals;
 import org.jupiter.transport.netty.NettyTcpConnector;
@@ -58,6 +57,7 @@ import static org.jupiter.registry.NotifyListener.NotifyEvent.CHILD_REMOVED;
 import static org.jupiter.registry.RegisterMeta.Address;
 import static org.jupiter.registry.RegisterMeta.ServiceMeta;
 import static org.jupiter.serialization.SerializerHolder.serializerImpl;
+import static org.jupiter.serialization.SerializerType.PROTO_STUFF;
 import static org.jupiter.transport.JProtocolHeader.*;
 import static org.jupiter.transport.exception.IoSignals.ILLEGAL_MAGIC;
 import static org.jupiter.transport.exception.IoSignals.ILLEGAL_SIGN;
@@ -106,7 +106,13 @@ public class DefaultRegistry extends NettyTcpConnector {
         config().setOption(JOption.SO_REUSEADDR, true);
         config().setOption(JOption.CONNECT_TIMEOUT_MILLIS, (int) SECONDS.toMillis(3));
         // channel factory
-        bootstrap().channel(NioSocketChannel.class);
+        bootstrap().channelFactory(new ChannelFactory<Channel>() {
+
+            @Override
+            public Channel newChannel() {
+                return new NioSocketChannel();
+            }
+        });
     }
 
     /**
@@ -172,7 +178,7 @@ public class DefaultRegistry extends NettyTcpConnector {
     public void doSubscribe(ServiceMeta serviceMeta) {
         registryService.subscribeSet().add(serviceMeta);
 
-        Message msg = new Message();
+        Message msg = new Message(PROTO_STUFF.value());
         msg.messageCode(SUBSCRIBE_SERVICE);
         msg.data(serviceMeta);
 
@@ -193,7 +199,7 @@ public class DefaultRegistry extends NettyTcpConnector {
     public void doRegister(RegisterMeta meta) {
         registryService.registerMetaSet().add(meta);
 
-        Message msg = new Message();
+        Message msg = new Message(PROTO_STUFF.value());
         msg.messageCode(PUBLISH_SERVICE);
         msg.data(meta);
 
@@ -214,7 +220,7 @@ public class DefaultRegistry extends NettyTcpConnector {
     public void doUnregister(RegisterMeta meta) {
         registryService.registerMetaSet().remove(meta);
 
-        Message msg = new Message();
+        Message msg = new Message(PROTO_STUFF.value());
         msg.messageCode(PUBLISH_CANCEL_SERVICE);
         msg.data(meta);
 
@@ -335,14 +341,10 @@ public class DefaultRegistry extends NettyTcpConnector {
 
                             break;
                         }
-                        case ACK: {
-                            byte[] bytes = new byte[header.bodyLength()];
-                            in.readBytes(bytes);
+                        case ACK:
+                            out.add(new Acknowledge(header.id()));
 
-                            Acknowledge ack = serializerImpl(s_code).readObject(bytes, Acknowledge.class);
-                            out.add(ack);
                             break;
-                        }
                         default:
                             throw ILLEGAL_SIGN;
 
@@ -476,7 +478,7 @@ public class DefaultRegistry extends NettyTcpConnector {
                     continue;
                 }
 
-                Message msg = new Message();
+                Message msg = new Message(PROTO_STUFF.value());
                 msg.messageCode(SUBSCRIBE_SERVICE);
                 msg.data(serviceMeta);
 
@@ -494,7 +496,7 @@ public class DefaultRegistry extends NettyTcpConnector {
                     continue;
                 }
 
-                Message msg = new Message();
+                Message msg = new Message(PROTO_STUFF.value());
                 msg.messageCode(PUBLISH_SERVICE);
                 msg.data(meta);
 

@@ -20,39 +20,30 @@ import io.netty.bootstrap.Bootstrap;
 import io.netty.buffer.ByteBufAllocator;
 import io.netty.buffer.PooledByteBufAllocator;
 import io.netty.buffer.UnpooledByteBufAllocator;
-import io.netty.channel.ChannelFuture;
-import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelOption;
 import io.netty.channel.EventLoopGroup;
 import io.netty.util.HashedWheelTimer;
 import io.netty.util.concurrent.DefaultThreadFactory;
 import io.netty.util.internal.PlatformDependent;
 import org.jupiter.common.concurrent.NamedThreadFactory;
-import org.jupiter.common.util.Strings;
-import org.jupiter.common.util.internal.JUnsafe;
-import org.jupiter.registry.NotifyListener;
-import org.jupiter.registry.OfflineListener;
-import org.jupiter.registry.RegisterMeta;
-import org.jupiter.rpc.AbstractJClient;
-import org.jupiter.rpc.Directory;
-import org.jupiter.rpc.ServiceProvider;
-import org.jupiter.rpc.UnresolvedAddress;
-import org.jupiter.rpc.channel.JChannelGroup;
-import org.jupiter.rpc.model.metadata.ServiceMetadata;
+import org.jupiter.common.util.ClassInitializeUtil;
+import org.jupiter.common.util.Maps;
+import org.jupiter.common.util.internal.logging.InternalLogger;
+import org.jupiter.common.util.internal.logging.InternalLoggerFactory;
 import org.jupiter.transport.*;
+import org.jupiter.transport.channel.CopyOnWriteGroupList;
+import org.jupiter.transport.channel.DirectoryJChannelGroup;
+import org.jupiter.transport.channel.JChannelGroup;
 import org.jupiter.transport.netty.channel.NettyChannelGroup;
 import org.jupiter.transport.netty.estimator.JMessageSizeEstimator;
+import org.jupiter.transport.processor.ConsumerProcessor;
 
+import java.util.Collection;
+import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.ThreadFactory;
-import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.concurrent.locks.Condition;
-import java.util.concurrent.locks.ReentrantLock;
 
-import static java.util.concurrent.TimeUnit.MILLISECONDS;
 import static org.jupiter.common.util.JConstants.AVAILABLE_PROCESSORS;
 import static org.jupiter.common.util.Preconditions.checkNotNull;
-import static org.jupiter.registry.NotifyListener.NotifyEvent.CHILD_ADDED;
-import static org.jupiter.registry.NotifyListener.NotifyEvent.CHILD_REMOVED;
 
 /**
  * jupiter
@@ -60,10 +51,21 @@ import static org.jupiter.registry.NotifyListener.NotifyEvent.CHILD_REMOVED;
  *
  * @author jiachun.fjc
  */
-public abstract class NettyConnector extends AbstractJClient implements JConnector<JConnection> {
+public abstract class NettyConnector implements JConnector<JConnection> {
+
+    private static final InternalLogger logger = InternalLoggerFactory.getInstance(NettyConnector.class);
+
+    static {
+        // touch off DefaultChannelId.<clinit>
+        // because getProcessId() sometimes too slow
+        ClassInitializeUtil.initClass("io.netty.channel.DefaultChannelId", 500);
+    }
 
     protected final Protocol protocol;
     protected final HashedWheelTimer timer = new HashedWheelTimer(new NamedThreadFactory("connector.timer"));
+
+    private final ConcurrentMap<UnresolvedAddress, JChannelGroup> addressGroups = Maps.newConcurrentHashMap();
+    private final DirectoryJChannelGroup directoryGroup = new DirectoryJChannelGroup();
 
     private Bootstrap bootstrap;
     private EventLoopGroup worker;
@@ -75,17 +77,7 @@ public abstract class NettyConnector extends AbstractJClient implements JConnect
         this(protocol, AVAILABLE_PROCESSORS + 1);
     }
 
-    public NettyConnector(String appName, Protocol protocol) {
-        this(appName, protocol, AVAILABLE_PROCESSORS << 1);
-    }
-
     public NettyConnector(Protocol protocol, int nWorkers) {
-        this.protocol = protocol;
-        this.nWorkers = nWorkers;
-    }
-
-    public NettyConnector(String appName, Protocol protocol, int nWorkers) {
-        super(appName);
         this.protocol = protocol;
         this.nWorkers = nWorkers;
     }
@@ -112,158 +104,73 @@ public abstract class NettyConnector extends AbstractJClient implements JConnect
     }
 
     @Override
-    public boolean awaitConnections(Directory directory, long timeoutMillis) {
-        ConnectionManager manager = manageConnections(directory);
-        return manager.waitForAvailable(timeoutMillis);
+    public void bindProcessor(ConsumerProcessor processor) {
+        // the default implementation does nothing
     }
 
     @Override
-    public void refreshConnections(Directory directory) {
-        manageConnections(directory);
-    }
+    public JChannelGroup group(UnresolvedAddress address) {
+        checkNotNull(address, "address");
 
-    @Override
-    public ConnectionManager manageConnections(Class<?> interfaceClass) {
-        checkNotNull(interfaceClass, "interfaceClass");
-        ServiceProvider annotation = interfaceClass.getAnnotation(ServiceProvider.class);
-        checkNotNull(annotation, interfaceClass + " is not a ServiceProvider interface");
-        String providerName = annotation.value();
-        providerName = Strings.isNotBlank(providerName) ? providerName : interfaceClass.getSimpleName();
-
-        return manageConnections(new ServiceMetadata(annotation.group(), annotation.version(), providerName));
-    }
-
-    @Override
-    public ConnectionManager manageConnections(final Directory directory) {
-
-        ConnectionManager manager = new ConnectionManager() {
-
-            private final ReentrantLock lock = new ReentrantLock();
-            private final Condition notifyCondition = lock.newCondition();
-            // Attempts to elide conditional wake-ups when the lock is uncontended.
-            private final AtomicBoolean signalNeeded = new AtomicBoolean(false);
-
-            @Override
-            public void start() {
-                subscribe(directory, new NotifyListener() {
-
-                    @Override
-                    public void notify(RegisterMeta registerMeta, NotifyEvent event) {
-                        UnresolvedAddress address = new UnresolvedAddress(registerMeta.getHost(), registerMeta.getPort());
-                        final JChannelGroup group = group(address);
-                        if (event == CHILD_ADDED) {
-                            if (!group.isAvailable()) {
-                                JConnection[] connections = connectTo(address, group, registerMeta, true);
-                                for (JConnection c : connections) {
-                                    if (c instanceof JNettyConnection) {
-                                        ((JNettyConnection) c).getFuture().addListener(new ChannelFutureListener() {
-
-                                            @Override
-                                            public void operationComplete(ChannelFuture future) throws Exception {
-                                                if (future.isSuccess()) {
-                                                    onSucceed(group, signalNeeded.getAndSet(false));
-                                                }
-                                            }
-                                        });
-                                    }
-                                }
-                            } else {
-                                onSucceed(group, signalNeeded.getAndSet(false));
-                            }
-                        } else if (event == CHILD_REMOVED) {
-                            removeChannelGroup(directory, group);
-                            if (directoryGroup.getRefCount(group) <= 0) {
-                                JConnectionManager.cancelReconnect(address); // 取消自动重连
-                            }
-                        }
-                    }
-
-                    private JConnection[] connectTo(final UnresolvedAddress address, final JChannelGroup group, RegisterMeta registerMeta, boolean async) {
-                        int connCount = registerMeta.getConnCount();
-                        connCount = connCount < 1 ? 1 : connCount;
-
-                        JConnection[] connections = new JConnection[connCount];
-                        group.setWeight(registerMeta.getWeight()); // 设置权重
-                        group.setCapacity(connCount);
-                        for (int i = 0; i < connCount; i++) {
-                            JConnection connection = connect(address, async);
-                            connections[i] = connection;
-                            JConnectionManager.manage(connection);
-
-                            offlineListening(address, new OfflineListener() {
-
-                                @Override
-                                public void offline() {
-                                    JConnectionManager.cancelReconnect(address); // 取消自动重连
-                                    if (!group.isAvailable()) {
-                                        removeChannelGroup(directory, group);
-                                    }
-                                }
-                            });
-                        }
-
-                        return connections;
-                    }
-
-                    private void onSucceed(JChannelGroup group, boolean doSignal) {
-                        addChannelGroup(directory, group);
-
-                        if (doSignal) {
-                            final ReentrantLock _look = lock;
-                            _look.lock();
-                            try {
-                                notifyCondition.signalAll();
-                            } finally {
-                                _look.unlock();
-                            }
-                        }
-                    }
-                });
+        JChannelGroup group = addressGroups.get(address);
+        if (group == null) {
+            JChannelGroup newGroup = channelGroup(address);
+            group = addressGroups.putIfAbsent(address, newGroup);
+            if (group == null) {
+                group = newGroup;
             }
+        }
+        return group;
+    }
 
-            @Override
-            public boolean waitForAvailable(long timeoutMillis) {
-                if (isDirectoryAvailable(directory)) {
-                    return true;
-                }
+    @Override
+    public Collection<JChannelGroup> groups() {
+        return addressGroups.values();
+    }
 
-                boolean available = false;
-                long start = System.nanoTime();
-                final ReentrantLock _look = lock;
-                _look.lock();
-                try {
-                    while (!isDirectoryAvailable(directory)) {
-                        signalNeeded.set(true);
-                        notifyCondition.await(timeoutMillis, MILLISECONDS);
+    @Override
+    public boolean addChannelGroup(Directory directory, JChannelGroup group) {
+        boolean added = directory(directory).addIfAbsent(group);
+        if (added) {
+            logger.info("Added channel group: {} to {}.", group, directory.directory());
+        }
+        return added;
+    }
 
-                        available = isDirectoryAvailable(directory);
-                        if (available || (System.nanoTime() - start) > MILLISECONDS.toNanos(timeoutMillis)) {
-                            break;
-                        }
-                    }
-                } catch (InterruptedException e) {
-                    JUnsafe.throwException(e);
-                } finally {
-                    _look.unlock();
-                }
+    @Override
+    public boolean removeChannelGroup(Directory directory, JChannelGroup group) {
+        CopyOnWriteGroupList groups = directory(directory);
+        boolean removed = groups.remove(group);
+        if (removed) {
+            logger.warn("Removed channel group: {} in directory: {}.", group, directory.directory());
+        }
+        return removed;
+    }
 
-                return available;
+    @Override
+    public CopyOnWriteGroupList directory(Directory directory) {
+        return directoryGroup.find(directory);
+    }
+
+    @Override
+    public boolean isDirectoryAvailable(Directory directory) {
+        CopyOnWriteGroupList groups = directory(directory);
+        for (int i = 0; i < groups.size(); i++) {
+            if (groups.get(i).isAvailable()) {
+                return true;
             }
-        };
+        }
+        return false;
+    }
 
-        manager.start();
-
-        return manager;
+    @Override
+    public DirectoryJChannelGroup directoryGroup() {
+        return directoryGroup;
     }
 
     @Override
     public void shutdownGracefully() {
         worker.shutdownGracefully();
-    }
-
-    @Override
-    protected JChannelGroup newChannelGroup(UnresolvedAddress address) {
-        return new NettyChannelGroup(address);
     }
 
     protected void setOptions() {
@@ -310,6 +217,13 @@ public abstract class NettyConnector extends AbstractJClient implements JConnect
      */
     protected EventLoopGroup worker() {
         return worker;
+    }
+
+    /**
+     * Creates the same address of the channel group.
+     */
+    protected JChannelGroup channelGroup(UnresolvedAddress address) {
+        return new NettyChannelGroup(address);
     }
 
     /**

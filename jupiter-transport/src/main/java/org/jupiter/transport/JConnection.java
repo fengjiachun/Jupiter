@@ -16,8 +16,6 @@
 
 package org.jupiter.transport;
 
-import org.jupiter.rpc.UnresolvedAddress;
-
 /**
  * jupiter
  * org.jupiter.transport
@@ -34,6 +32,11 @@ public abstract class JConnection {
 
     public UnresolvedAddress getAddress() {
         return address;
+    }
+
+    @SuppressWarnings("UnusedParameters")
+    public void operationComplete(Runnable callback) {
+        // the default implementation does nothing
     }
 
     public abstract void setReconnect(boolean reconnect);

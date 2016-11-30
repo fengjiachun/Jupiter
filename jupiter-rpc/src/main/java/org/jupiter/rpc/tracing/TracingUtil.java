@@ -25,6 +25,8 @@ import java.lang.reflect.Method;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import static org.jupiter.common.util.StackTraceUtil.*;
+
 /**
  * jupiter
  * org.jupiter.rpc.tracing
@@ -128,7 +130,7 @@ public class TracingUtil {
 
             value = (String) getName.invoke(bean);
         } catch (Exception e) {
-            logger.debug("Could not invoke ManagementFactory.getRuntimeMXBean().getName(), {}.", StackTraceUtil.stackTrace(e));
+            logger.debug("Could not invoke ManagementFactory.getRuntimeMXBean().getName(), {}.", stackTrace(e));
 
             value = "";
         }

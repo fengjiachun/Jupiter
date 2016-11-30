@@ -20,15 +20,15 @@ import org.jupiter.common.util.Lists;
 import org.jupiter.common.util.SystemPropertyUtil;
 import org.jupiter.common.util.internal.logging.InternalLogger;
 import org.jupiter.common.util.internal.logging.InternalLoggerFactory;
+import org.jupiter.rpc.DefaultClient;
 import org.jupiter.rpc.InvokeType;
-import org.jupiter.rpc.UnresolvedAddress;
+import org.jupiter.rpc.JClient;
 import org.jupiter.rpc.consumer.ProxyFactory;
 import org.jupiter.rpc.consumer.future.InvokeFuture;
 import org.jupiter.rpc.consumer.future.InvokeFutureContext;
 import org.jupiter.rpc.load.balance.LoadBalancerType;
-import org.jupiter.transport.JConnection;
-import org.jupiter.transport.JConnector;
 import org.jupiter.transport.JOption;
+import org.jupiter.transport.UnresolvedAddress;
 import org.jupiter.transport.netty.JNettyTcpConnector;
 
 import java.util.List;
@@ -72,25 +72,26 @@ public class BenchmarkClient {
         SystemPropertyUtil.setProperty("jupiter.tracing.needed", "false");
         SystemPropertyUtil.setProperty("jupiter.use.non_blocking_hash", "true");
 
-        JConnector<JConnection> connector = new JNettyTcpConnector();
-        connector.config().setOption(JOption.WRITE_BUFFER_HIGH_WATER_MARK, 256 * 1024);
-        connector.config().setOption(JOption.WRITE_BUFFER_LOW_WATER_MARK, 128 * 1024);
+        JClient client = new DefaultClient().connector(new JNettyTcpConnector(processors + 1));
+        client.connector().config().setOption(JOption.WRITE_BUFFER_HIGH_WATER_MARK, 256 * 1024);
+        client.connector().config().setOption(JOption.WRITE_BUFFER_LOW_WATER_MARK, 128 * 1024);
+
         UnresolvedAddress[] addresses = new UnresolvedAddress[processors];
         for (int i = 0; i < processors; i++) {
             addresses[i] = new UnresolvedAddress("127.0.0.1", 18099);
-            connector.connect(addresses[i]);
+            client.connector().connect(addresses[i]);
         }
 
         if (SystemPropertyUtil.getBoolean("jupiter.test.async", true)) {
-            futureCall(connector, addresses, processors);
+            futureCall(client, addresses, processors);
         } else {
-            syncCall(connector, addresses, processors);
+            syncCall(client, addresses, processors);
         }
     }
 
-    private static void syncCall(JConnector<JConnection> connector, UnresolvedAddress[] addresses, int processors) {
+    private static void syncCall(JClient client, UnresolvedAddress[] addresses, int processors) {
         final Service service = ProxyFactory.factory(Service.class)
-                .connector(connector)
+                .client(client)
                 .loadBalancerType(LoadBalancerType.ROUND_ROBIN)
                 .addProviderAddress(addresses)
                 .newProxyInstance();
@@ -138,9 +139,9 @@ public class BenchmarkClient {
         logger.warn("Request count: " + count.get() + ", time: " + second + " second, qps: " + count.get() / second);
     }
 
-    private static void futureCall(JConnector<JConnection> connector, UnresolvedAddress[] addresses, int processors) {
+    private static void futureCall(JClient client, UnresolvedAddress[] addresses, int processors) {
         final Service service = ProxyFactory.factory(Service.class)
-                .connector(connector)
+                .client(client)
                 .invokeType(InvokeType.ASYNC)
                 .loadBalancerType(LoadBalancerType.ROUND_ROBIN)
                 .addProviderAddress(addresses)

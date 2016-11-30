@@ -22,9 +22,8 @@ import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelInitializer;
 import io.netty.channel.udt.UdtChannel;
 import io.netty.channel.udt.nio.NioUdtProvider;
-import org.jupiter.rpc.UnresolvedAddress;
-import org.jupiter.rpc.channel.JChannelGroup;
-import org.jupiter.rpc.consumer.processor.DefaultConsumerProcessor;
+import org.jupiter.transport.UnresolvedAddress;
+import org.jupiter.transport.channel.JChannelGroup;
 import org.jupiter.transport.JConnection;
 import org.jupiter.transport.JOption;
 import org.jupiter.transport.exception.ConnectFailedException;
@@ -34,12 +33,14 @@ import org.jupiter.transport.netty.handler.ProtocolEncoder;
 import org.jupiter.transport.netty.handler.connector.ConnectionWatchdog;
 import org.jupiter.transport.netty.handler.connector.ConnectorHandler;
 import org.jupiter.transport.netty.handler.connector.ConnectorIdleStateTrigger;
+import org.jupiter.transport.processor.ConsumerProcessor;
 
 import java.net.InetSocketAddress;
 import java.net.SocketAddress;
 
 import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.jupiter.common.util.JConstants.WRITER_IDLE_TIME_SECONDS;
+import static org.jupiter.common.util.Preconditions.checkNotNull;
 
 /**
  * Jupiter udt connector based on netty.
@@ -102,21 +103,13 @@ public class JNettyUdtConnector extends NettyUdtConnector {
 
     // handlers
     private final ConnectorIdleStateTrigger idleStateTrigger = new ConnectorIdleStateTrigger();
-    private final ConnectorHandler handler = new ConnectorHandler(new DefaultConsumerProcessor());
     private final ProtocolEncoder encoder = new ProtocolEncoder();
+    private final ConnectorHandler handler = new ConnectorHandler();
 
     public JNettyUdtConnector() {}
 
-    public JNettyUdtConnector(String appName) {
-        super(appName);
-    }
-
     public JNettyUdtConnector(int nWorkers) {
         super(nWorkers);
-    }
-
-    public JNettyUdtConnector(String appName, int nWorkers) {
-        super(appName, nWorkers);
     }
 
     @Override
@@ -126,6 +119,11 @@ public class JNettyUdtConnector extends NettyUdtConnector {
         config().setOption(JOption.CONNECT_TIMEOUT_MILLIS, (int) SECONDS.toMillis(3));
         // channel factory
         bootstrap().channelFactory(NioUdtProvider.BYTE_CONNECTOR);
+    }
+
+    @Override
+    public void bindProcessor(ConsumerProcessor processor) {
+        handler.processor(checkNotNull(processor, "processor"));
     }
 
     @Override

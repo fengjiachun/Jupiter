@@ -17,9 +17,9 @@
 package org.jupiter.rpc.consumer.processor.task;
 
 import org.jupiter.rpc.JResponse;
-import org.jupiter.rpc.channel.JChannel;
 import org.jupiter.rpc.consumer.future.InvokeFuture;
 import org.jupiter.rpc.model.metadata.ResultWrapper;
+import org.jupiter.transport.channel.JChannel;
 
 import static org.jupiter.serialization.SerializerHolder.serializerImpl;
 
@@ -49,7 +49,7 @@ public class MessageTask implements Runnable {
         _response.result(
                 serializerImpl(s_code)
                         .readObject(
-                                _response.bytes(),
+                                _response.responseBytes().bytes(),
                                 ResultWrapper.class
                         )
         );

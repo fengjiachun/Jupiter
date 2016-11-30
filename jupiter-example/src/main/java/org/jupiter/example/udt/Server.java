@@ -17,7 +17,8 @@
 package org.jupiter.example.udt;
 
 import org.jupiter.example.ServiceTestImpl;
-import org.jupiter.transport.JAcceptor;
+import org.jupiter.rpc.DefaultServer;
+import org.jupiter.rpc.JServer;
 import org.jupiter.transport.netty.JNettyUdtAcceptor;
 
 /**
@@ -29,13 +30,13 @@ import org.jupiter.transport.netty.JNettyUdtAcceptor;
 public class Server {
 
     public static void main(String[] args) {
-        JAcceptor acceptor = new JNettyUdtAcceptor(18090);
+        JServer server = new DefaultServer().acceptor(new JNettyUdtAcceptor(18090));
         try {
-            acceptor.serviceRegistry()
+            server.serviceRegistry()
                     .provider(new ServiceTestImpl())
                     .register();
 
-            acceptor.start();
+            server.start();
         } catch (InterruptedException e) {
             e.printStackTrace();
         }

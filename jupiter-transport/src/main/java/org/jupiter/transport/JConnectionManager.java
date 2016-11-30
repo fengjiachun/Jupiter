@@ -19,7 +19,6 @@ package org.jupiter.transport;
 import org.jupiter.common.util.Maps;
 import org.jupiter.common.util.internal.logging.InternalLogger;
 import org.jupiter.common.util.internal.logging.InternalLoggerFactory;
-import org.jupiter.rpc.UnresolvedAddress;
 
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.CopyOnWriteArrayList;

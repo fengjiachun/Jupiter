@@ -21,7 +21,7 @@
     <parent>
         <artifactId>jupiter</artifactId>
         <groupId>org.jupiter</groupId>
-        <version>1.1.5</version>
+        <version>1.1.10</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
@@ -30,7 +30,7 @@
     <dependencies>
         <dependency>
             <groupId>${project.groupId}</groupId>
-            <artifactId>jupiter-transport</artifactId>
+            <artifactId>jupiter-rpc</artifactId>
         </dependency>
         <dependency>
             <groupId>org.springframework</groupId>

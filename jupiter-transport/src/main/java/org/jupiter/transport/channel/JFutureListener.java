@@ -14,29 +14,21 @@
  * limitations under the License.
  */
 
-package org.jupiter.rpc.provider.processor;
+package org.jupiter.transport.channel;
 
-import org.jupiter.rpc.JRequest;
-import org.jupiter.rpc.Status;
-import org.jupiter.rpc.channel.JChannel;
-import org.jupiter.rpc.flow.control.FlowController;
-import org.jupiter.rpc.provider.LookupService;
+import java.util.EventListener;
 
 /**
+ * Listen on {@link JChannel}'s event.
+ *
  * jupiter
- * org.jupiter.rpc.provider.processor
+ * org.jupiter.transport.channel
  *
  * @author jiachun.fjc
  */
-public interface ProviderProcessor extends LookupService, FlowController<JRequest> {
+public interface JFutureListener<C> extends EventListener {
 
-    /**
-     * 处理正常请求
-     */
-    void handleRequest(JChannel channel, JRequest request) throws Exception;
+    void operationSuccess(C c) throws Exception;
 
-    /**
-     * 处理异常
-     */
-    void handleException(JChannel channel, JRequest request, Status status, Throwable cause);
+    void operationFailure(C c, Throwable cause) throws Exception;
 }

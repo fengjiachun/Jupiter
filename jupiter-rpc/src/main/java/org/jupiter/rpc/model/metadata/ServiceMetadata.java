@@ -16,7 +16,7 @@
 
 package org.jupiter.rpc.model.metadata;
 
-import org.jupiter.rpc.Directory;
+import org.jupiter.transport.Directory;
 
 import java.io.Serializable;
 

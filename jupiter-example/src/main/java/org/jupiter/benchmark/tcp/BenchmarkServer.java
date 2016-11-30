@@ -18,7 +18,8 @@ package org.jupiter.benchmark.tcp;
 
 import org.jupiter.common.util.SystemPropertyUtil;
 import org.jupiter.monitor.MonitorServer;
-import org.jupiter.transport.JAcceptor;
+import org.jupiter.rpc.DefaultServer;
+import org.jupiter.rpc.JServer;
 import org.jupiter.transport.JOption;
 import org.jupiter.transport.netty.JNettyTcpAcceptor;
 
@@ -43,18 +44,18 @@ public class BenchmarkServer {
         SystemPropertyUtil
                 .setProperty("jupiter.executor.factory.provider.disruptor.wait.strategy.type", "65536");
 
-        JAcceptor acceptor = new JNettyTcpAcceptor(18099);
-        acceptor.configGroup().child().setOption(JOption.WRITE_BUFFER_HIGH_WATER_MARK, 256 * 1024);
-        acceptor.configGroup().child().setOption(JOption.WRITE_BUFFER_LOW_WATER_MARK, 128 * 1024);
+        JServer server = new DefaultServer().acceptor(new JNettyTcpAcceptor(18099));
+        server.acceptor().configGroup().child().setOption(JOption.WRITE_BUFFER_HIGH_WATER_MARK, 256 * 1024);
+        server.acceptor().configGroup().child().setOption(JOption.WRITE_BUFFER_LOW_WATER_MARK, 128 * 1024);
         MonitorServer monitor = new MonitorServer();
         try {
             monitor.start();
 
-            acceptor.serviceRegistry()
+            server.serviceRegistry()
                     .provider(new ServiceImpl())
                     .register();
 
-            acceptor.start();
+            server.acceptor().start();
         } catch (InterruptedException e) {
             e.printStackTrace();
         }

@@ -25,7 +25,8 @@ import java.util.List;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
-import static org.jupiter.serialization.SerializerHolder.defaultSerializerImpl;
+import static org.jupiter.serialization.SerializerHolder.serializerImpl;
+import static org.jupiter.serialization.SerializerType.PROTO_STUFF;
 
 /**
  * jupiter
@@ -37,7 +38,7 @@ public class ProtoStuffSerializerTest {
 
     @Test
     public void testSerializer() {
-        Serializer serializer = defaultSerializerImpl();
+        Serializer serializer = serializerImpl(PROTO_STUFF.value());
         ResultWrapper wrapper = new ResultWrapper();
         wrapper.setResult("test");
         wrapper.setError(new RuntimeException("test"));

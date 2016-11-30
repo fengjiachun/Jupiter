@@ -16,9 +16,12 @@
 
 package org.jupiter.transport;
 
-import org.jupiter.rpc.Directory;
-import org.jupiter.rpc.JClient;
-import org.jupiter.rpc.UnresolvedAddress;
+import org.jupiter.transport.channel.CopyOnWriteGroupList;
+import org.jupiter.transport.channel.DirectoryJChannelGroup;
+import org.jupiter.transport.channel.JChannelGroup;
+import org.jupiter.transport.processor.ConsumerProcessor;
+
+import java.util.Collection;
 
 /**
  * jupiter
@@ -26,7 +29,17 @@ import org.jupiter.rpc.UnresolvedAddress;
  *
  * @author jiachun.fjc
  */
-public interface JConnector<C> extends JClient, Transporter {
+public interface JConnector<C> extends Transporter {
+
+    /**
+     * Server options [parent, child].
+     */
+    JConfig config();
+
+    /**
+     * Binds the rpc processor.
+     */
+    void bindProcessor(ConsumerProcessor processor);
 
     /**
      * Connects to the remote peer.
@@ -39,27 +52,51 @@ public interface JConnector<C> extends JClient, Transporter {
     C connect(UnresolvedAddress address, boolean async);
 
     /**
-     * Sets auto manage the connections
+     * Returns or new a {@link JChannelGroup}.
      */
-    ConnectionManager manageConnections(Class<?> interfaceClass);
+    JChannelGroup group(UnresolvedAddress address);
 
     /**
-     * Sets auto manage the connections
+     * Returns all {@link JChannelGroup}s.
      */
-    ConnectionManager manageConnections(Directory directory);
+    Collection<JChannelGroup> groups();
 
     /**
-     * Server options [parent, child]
+     * Adds a {@link JChannelGroup} by {@link Directory}.
      */
-    JConfig config();
+    boolean addChannelGroup(Directory directory, JChannelGroup group);
 
     /**
-     * Shutdown the server
+     * Removes a {@link JChannelGroup} by {@link Directory}.
+     */
+    boolean removeChannelGroup(Directory directory, JChannelGroup group);
+
+    /**
+     * Returns list of {@link JChannelGroup}s by the same {@link Directory}.
+     */
+    CopyOnWriteGroupList directory(Directory directory);
+
+    /**
+     * Returns {@code true} if has available {@link JChannelGroup}s
+     * on this {@link Directory}.
+     */
+    boolean isDirectoryAvailable(Directory directory);
+
+    /**
+     * Returns the {@link DirectoryJChannelGroup}.
+     */
+    DirectoryJChannelGroup directoryGroup();
+
+    /**
+     * Shutdown the server.
      */
     void shutdownGracefully();
 
     interface ConnectionManager {
 
+        /**
+         * Start to connect to server.
+         */
         void start();
 
         /**

@@ -88,17 +88,22 @@ public class MonitorServer extends NettyTcpAcceptor {
     public ChannelFuture bind(SocketAddress localAddress) {
         ServerBootstrap boot = bootstrap();
 
-        boot.channel(NioServerSocketChannel.class)
-                .childHandler(new ChannelInitializer<SocketChannel>() {
+        boot.channelFactory(new ChannelFactory<ServerChannel>() {
 
-                    @Override
-                    protected void initChannel(SocketChannel ch) throws Exception {
-                        ch.pipeline().addLast(
-                                new StringDecoder(UTF8),
-                                encoder,
-                                handler);
-                    }
-                });
+            @Override
+            public ServerChannel newChannel() {
+                return new NioServerSocketChannel();
+            }
+        }).childHandler(new ChannelInitializer<SocketChannel>() {
+
+            @Override
+            protected void initChannel(SocketChannel ch) throws Exception {
+                ch.pipeline().addLast(
+                        new StringDecoder(UTF8),
+                        encoder,
+                        handler);
+            }
+        });
 
         setOptions();
 

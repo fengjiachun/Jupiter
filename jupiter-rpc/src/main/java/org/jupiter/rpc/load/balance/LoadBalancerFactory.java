@@ -16,9 +16,10 @@
 
 package org.jupiter.rpc.load.balance;
 
-import org.jupiter.rpc.channel.JChannelGroup;
+import org.jupiter.transport.channel.JChannelGroup;
 
-import static org.jupiter.rpc.load.balance.LoadBalancerType.*;
+import static org.jupiter.rpc.load.balance.LoadBalancerType.RANDOM;
+import static org.jupiter.rpc.load.balance.LoadBalancerType.ROUND_ROBIN;
 
 /**
  * jupiter

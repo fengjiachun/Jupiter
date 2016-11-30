@@ -17,8 +17,9 @@
 package org.jupiter.example.zookeeper;
 
 import org.jupiter.example.ServiceTest;
+import org.jupiter.rpc.DefaultClient;
+import org.jupiter.rpc.JClient;
 import org.jupiter.rpc.consumer.ProxyFactory;
-import org.jupiter.transport.JConnection;
 import org.jupiter.transport.JConnector;
 import org.jupiter.transport.exception.ConnectFailedException;
 import org.jupiter.transport.netty.JNettyTcpConnector;
@@ -34,18 +35,18 @@ import org.jupiter.transport.netty.JNettyTcpConnector;
 public class HelloJupiterClient {
 
     public static void main(String[] args) {
-        JConnector<JConnection> connector = new JNettyTcpConnector();
+        JClient client = new DefaultClient().connector(new JNettyTcpConnector());
         // 连接RegistryServer
-        connector.connectToRegistryServer("127.0.0.1:2181,127.0.0.1:2182,127.0.0.1:2183");
+        client.connectToRegistryServer("127.0.0.1:2181,127.0.0.1:2182,127.0.0.1:2183");
         // 自动管理可用连接
-        JConnector.ConnectionManager manager = connector.manageConnections(ServiceTest.class);
+        JConnector.ConnectionManager manager = client.manageConnections(ServiceTest.class);
         // 等待连接可用
         if (!manager.waitForAvailable(3000)) {
             throw new ConnectFailedException();
         }
 
         ServiceTest service = ProxyFactory.factory(ServiceTest.class)
-                .connector(connector)
+                .client(client)
                 .newProxyInstance();
 
         try {

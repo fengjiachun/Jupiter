@@ -17,8 +17,9 @@
 package org.jupiter.example.flight.exec;
 
 import org.jupiter.flight.exec.JavaClassExecProvider;
+import org.jupiter.rpc.DefaultServer;
+import org.jupiter.rpc.JServer;
 import org.jupiter.rpc.model.metadata.ServiceWrapper;
-import org.jupiter.transport.JAcceptor;
 import org.jupiter.transport.netty.JNettyTcpAcceptor;
 
 import java.util.concurrent.CountDownLatch;
@@ -33,23 +34,26 @@ import java.util.concurrent.CountDownLatch;
  */
 public class FlightExecServer {
 
-    private static JAcceptor[] servers = { new JNettyTcpAcceptor(18090), new JNettyTcpAcceptor(18091) };
+    private static JServer[] servers = {
+            new DefaultServer().acceptor(new JNettyTcpAcceptor(18090)),
+            new DefaultServer().acceptor(new JNettyTcpAcceptor(18091))
+    };
 
     public static void main(String[] args) {
         final CountDownLatch latch = new CountDownLatch(servers.length);
-        for (final JAcceptor acceptor : servers) {
+        for (final JServer server : servers) {
             new Thread(new Runnable() {
 
                 @Override
                 public void run() {
                     try {
-                        ServiceWrapper service = acceptor.serviceRegistry()
+                        ServiceWrapper service = server.serviceRegistry()
                                 .provider(new JavaClassExecProvider())
                                 .register();
 
-                        acceptor.connectToRegistryServer("127.0.0.1:20001");
-                        acceptor.publish(service);
-                        acceptor.start();
+                        server.connectToRegistryServer("127.0.0.1:20001");
+                        server.publish(service);
+                        server.start();
                     } catch (InterruptedException e) {
                         e.printStackTrace();
                     } finally {

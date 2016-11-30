@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.jupiter.rpc.channel;
+package org.jupiter.transport.channel;
 
 import java.util.Arrays;
 import java.util.Collection;
@@ -29,7 +29,7 @@ import static org.jupiter.common.util.Preconditions.checkNotNull;
  * update操作仅支持addIfAbsent/remove, update操作会同时更新对应服务节点(group)的引用计数.
  *
  * jupiter
- * org.jupiter.rpc.channel
+ * org.jupiter.transport.channel
  *
  * @author jiachun.fjc
  */

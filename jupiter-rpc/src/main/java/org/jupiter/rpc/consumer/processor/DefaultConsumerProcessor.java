@@ -18,9 +18,11 @@ package org.jupiter.rpc.consumer.processor;
 
 import org.jupiter.common.util.JServiceLoader;
 import org.jupiter.rpc.JResponse;
-import org.jupiter.rpc.channel.JChannel;
 import org.jupiter.rpc.consumer.processor.task.MessageTask;
 import org.jupiter.rpc.executor.ExecutorFactory;
+import org.jupiter.transport.channel.JChannel;
+import org.jupiter.transport.payload.JResponseBytes;
+import org.jupiter.transport.processor.ConsumerProcessor;
 
 import java.util.concurrent.Executor;
 
@@ -44,8 +46,8 @@ public class DefaultConsumerProcessor implements ConsumerProcessor {
     }
 
     @Override
-    public void handleResponse(JChannel channel, JResponse response) throws Exception {
-        MessageTask task = new MessageTask(channel, response);
+    public void handleResponse(JChannel channel, JResponseBytes responseBytes) throws Exception {
+        MessageTask task = new MessageTask(channel, new JResponse(responseBytes));
         if (executor == null) {
             task.run();
         } else {

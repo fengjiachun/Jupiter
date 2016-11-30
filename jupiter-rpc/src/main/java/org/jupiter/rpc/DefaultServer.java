@@ -18,10 +18,7 @@ package org.jupiter.rpc;
 
 import net.bytebuddy.ByteBuddy;
 import org.jupiter.common.concurrent.NamedThreadFactory;
-import org.jupiter.common.util.JServiceLoader;
-import org.jupiter.common.util.Lists;
-import org.jupiter.common.util.Maps;
-import org.jupiter.common.util.Strings;
+import org.jupiter.common.util.*;
 import org.jupiter.common.util.internal.logging.InternalLogger;
 import org.jupiter.common.util.internal.logging.InternalLoggerFactory;
 import org.jupiter.registry.RegisterMeta;
@@ -30,6 +27,9 @@ import org.jupiter.rpc.flow.control.FlowController;
 import org.jupiter.rpc.model.metadata.ServiceMetadata;
 import org.jupiter.rpc.model.metadata.ServiceWrapper;
 import org.jupiter.rpc.provider.ProviderProxyHandler;
+import org.jupiter.rpc.provider.processor.DefaultProviderProcessor;
+import org.jupiter.transport.Directory;
+import org.jupiter.transport.JAcceptor;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
@@ -54,9 +54,15 @@ import static org.jupiter.common.util.StackTraceUtil.stackTrace;
  *
  * @author jiachun.fjc
  */
-public abstract class AbstractJServer implements JServer {
+public class DefaultServer implements JServer {
 
-    private static final InternalLogger logger = InternalLoggerFactory.getInstance(AbstractJServer.class);
+    private static final InternalLogger logger = InternalLoggerFactory.getInstance(DefaultServer.class);
+
+    static {
+        // touch off TracingUtil.<clinit>
+        // because getLocalAddress() and getPid() sometimes too slow
+        ClassInitializeUtil.initClass("org.jupiter.rpc.tracing.TracingUtil", 500);
+    }
 
     // 服务延迟初始化的默认线程池
     private final Executor defaultInitializerExecutor =
@@ -71,6 +77,20 @@ public abstract class AbstractJServer implements JServer {
     private volatile ProviderProxyHandler globalProviderProxyHandler;
     // 全局流量控制
     private volatile FlowController<JRequest> globalFlowController;
+
+    private volatile JAcceptor acceptor;
+
+    @Override
+    public JAcceptor acceptor() {
+        return acceptor;
+    }
+
+    @Override
+    public JServer acceptor(JAcceptor acceptor) {
+        acceptor.bindProcessor(new DefaultProviderProcessor(this));
+        this.acceptor = acceptor;
+        return this;
+    }
 
     @Override
     public void connectToRegistryServer(String connectString) {
@@ -122,7 +142,7 @@ public abstract class AbstractJServer implements JServer {
         ServiceMetadata metadata = serviceWrapper.getMetadata();
 
         RegisterMeta meta = new RegisterMeta();
-        meta.setPort(bindPort());
+        meta.setPort(acceptor.boundPort());
         meta.setGroup(metadata.getGroup());
         meta.setVersion(metadata.getVersion());
         meta.setServiceProviderName(metadata.getServiceProviderName());
@@ -179,7 +199,7 @@ public abstract class AbstractJServer implements JServer {
         ServiceMetadata metadata = serviceWrapper.getMetadata();
 
         RegisterMeta meta = new RegisterMeta();
-        meta.setPort(bindPort());
+        meta.setPort(acceptor.boundPort());
         meta.setGroup(metadata.getGroup());
         meta.setVersion(metadata.getVersion());
         meta.setServiceProviderName(metadata.getServiceProviderName());
@@ -196,7 +216,25 @@ public abstract class AbstractJServer implements JServer {
         }
     }
 
-    protected abstract int bindPort();
+    @Override
+    public void start() throws InterruptedException {
+        acceptor.start();
+    }
+
+    @Override
+    public void start(boolean sync) throws InterruptedException {
+        acceptor.start(sync);
+    }
+
+    @Override
+    public void shutdownGracefully() {
+        unpublishAll();
+        acceptor.shutdownGracefully();
+    }
+
+    public void setAcceptor(JAcceptor acceptor) {
+        acceptor(acceptor);
+    }
 
     ServiceWrapper registerService(
             String group,
@@ -435,13 +473,5 @@ public abstract class AbstractJServer implements JServer {
         public List<ServiceWrapper> getAllServices() {
             return Lists.newArrayList(serviceProviders.values());
         }
-    }
-
-    static {
-        try {
-            // touch off TracingUtil.<clinit>
-            // because getLocalAddress() and getPid() sometimes too slow
-            Class.forName("org.jupiter.rpc.tracing.TracingUtil");
-        } catch (ClassNotFoundException ignored) {}
     }
 }

@@ -19,10 +19,14 @@ package org.jupiter.rpc.provider.processor;
 import org.jupiter.common.util.internal.logging.InternalLogger;
 import org.jupiter.common.util.internal.logging.InternalLoggerFactory;
 import org.jupiter.rpc.JRequest;
-import org.jupiter.rpc.JResponse;
-import org.jupiter.rpc.Status;
-import org.jupiter.rpc.channel.JChannel;
+import org.jupiter.rpc.flow.control.FlowController;
 import org.jupiter.rpc.model.metadata.ResultWrapper;
+import org.jupiter.rpc.provider.LookupService;
+import org.jupiter.transport.Status;
+import org.jupiter.transport.channel.JChannel;
+import org.jupiter.transport.payload.JRequestBytes;
+import org.jupiter.transport.payload.JResponseBytes;
+import org.jupiter.transport.processor.ProviderProcessor;
 
 import static org.jupiter.serialization.SerializerHolder.serializerImpl;
 
@@ -32,20 +36,31 @@ import static org.jupiter.serialization.SerializerHolder.serializerImpl;
  *
  * @author jiachun.fjc
  */
-public abstract class AbstractProviderProcessor implements ProviderProcessor {
+public abstract class AbstractProviderProcessor implements
+        ProviderProcessor, LookupService, FlowController<JRequest> {
 
     private static final InternalLogger logger = InternalLoggerFactory.getInstance(AbstractProviderProcessor.class);
 
     @Override
+    public void handleException(JChannel channel, JRequestBytes request, Status status, Throwable cause) {
+        handleException(channel, request.invokeId(), request.serializerCode(), status.value(), cause);
+    }
+
     public void handleException(JChannel channel, JRequest request, Status status, Throwable cause) {
+        handleException(channel, request.invokeId(), request.serializerCode(), status.value(), cause);
+    }
+
+    private void handleException(JChannel channel, long invokeId, byte s_code, byte status, Throwable cause) {
+        logger.error("An exception has been caught while processing request: {}, {}.", invokeId, cause);
+
         ResultWrapper result = new ResultWrapper();
         result.setError(cause);
 
-        logger.error("An exception has been caught while processing request: {}.", result.getError());
+        JResponseBytes response = new JResponseBytes(invokeId);
+        response.serializerCode(s_code);
+        response.status(status);
+        response.bytes(serializerImpl(s_code).writeObject(result));
 
-        byte s_code = request.serializerCode();
-        byte[] bytes = serializerImpl(s_code).writeObject(result);
-        JResponse response = JResponse.newInstance(request.invokeId(), s_code, status, bytes);
         channel.write(response);
     }
 }

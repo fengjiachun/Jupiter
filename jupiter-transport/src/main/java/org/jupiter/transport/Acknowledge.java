@@ -16,8 +16,6 @@
 
 package org.jupiter.transport;
 
-import static org.jupiter.serialization.SerializerHolder.defaultSerializerCode;
-
 /**
  * ACK确认消息包装
  *
@@ -28,28 +26,13 @@ import static org.jupiter.serialization.SerializerHolder.defaultSerializerCode;
  */
 public class Acknowledge {
 
-    public Acknowledge() {}
+    private final long sequence; // ACK序号
 
     public Acknowledge(long sequence) {
         this.sequence = sequence;
     }
 
-    private long sequence; // ACK序号
-    private byte serializerCode = defaultSerializerCode();
-
     public long sequence() {
         return sequence;
-    }
-
-    public void sequence(long sequence) {
-        this.sequence = sequence;
-    }
-
-    public byte serializerCode() {
-        return serializerCode;
-    }
-
-    public void serializerCode(byte serializerCode) {
-        this.serializerCode = serializerCode;
     }
 }

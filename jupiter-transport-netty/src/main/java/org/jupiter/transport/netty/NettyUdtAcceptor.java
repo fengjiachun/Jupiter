@@ -32,6 +32,7 @@ import java.net.SocketAddress;
 import java.util.concurrent.ThreadFactory;
 
 import static org.jupiter.common.util.JConstants.NEWLINE;
+import static org.jupiter.transport.netty.NettyConfig.*;
 
 /**
  * jupiter
@@ -43,7 +44,7 @@ public abstract class NettyUdtAcceptor extends NettyAcceptor {
 
     private static final InternalLogger logger = InternalLoggerFactory.getInstance(NettyUdtAcceptor.class);
 
-    private final NettyConfig.NettyUdtConfigGroup configGroup = new NettyConfig.NettyUdtConfigGroup();
+    private final NettyUdtConfigGroup configGroup = new NettyUdtConfigGroup();
 
     public NettyUdtAcceptor(int port) {
         super(Protocol.UDT, new InetSocketAddress(port));
@@ -72,11 +73,11 @@ public abstract class NettyUdtAcceptor extends NettyAcceptor {
         ServerBootstrap boot = bootstrap();
 
         // parent options
-        NettyConfig.NettyUdtConfigGroup.ParentConfig parent = configGroup.parent();
+        NettyUdtConfigGroup.ParentConfig parent = configGroup.parent();
         boot.option(ChannelOption.SO_BACKLOG, parent.getBacklog());
 
         // child options
-        NettyConfig.NettyUdtConfigGroup.ChildConfig child = configGroup.child();
+        NettyUdtConfigGroup.ChildConfig child = configGroup.child();
         boot.childOption(ChannelOption.SO_REUSEADDR, child.isReuseAddress());
         if (child.getRcvBuf() > 0) {
             boot.childOption(ChannelOption.SO_RCVBUF, child.getRcvBuf());

@@ -18,15 +18,15 @@ package org.jupiter.rpc.consumer.dispatcher;
 
 import org.jupiter.rpc.JClient;
 import org.jupiter.rpc.JRequest;
-import org.jupiter.rpc.channel.CopyOnWriteGroupList;
-import org.jupiter.rpc.channel.JChannel;
-import org.jupiter.rpc.channel.JChannelGroup;
 import org.jupiter.rpc.consumer.future.InvokeFuture;
 import org.jupiter.rpc.load.balance.LoadBalancer;
 import org.jupiter.rpc.model.metadata.MessageWrapper;
 import org.jupiter.rpc.model.metadata.ServiceMetadata;
 import org.jupiter.serialization.Serializer;
 import org.jupiter.serialization.SerializerType;
+import org.jupiter.transport.channel.CopyOnWriteGroupList;
+import org.jupiter.transport.channel.JChannel;
+import org.jupiter.transport.channel.JChannelGroup;
 
 import static org.jupiter.rpc.DispatchType.BROADCAST;
 
@@ -56,14 +56,15 @@ public class DefaultBroadcastDispatcher extends AbstractDispatcher {
         message.setMethodName(methodName);
         message.setArgs(args);
 
-        CopyOnWriteGroupList groups = client.directory(_metadata);
+        CopyOnWriteGroupList groups = client.connector().directory(_metadata);
         JChannel[] channels = new JChannel[groups.size()];
         InvokeFuture<?>[] futures = new InvokeFuture[channels.length];
         for (int i = 0; i < groups.size(); i++) {
             channels[i] = groups.get(i).next();
         }
 
-        final JRequest request = JRequest.newInstance(_serializer.code());
+        JRequest request = new JRequest();
+        request.serializerCode(_serializer.code());
         request.message(message);
         // 在业务线程中序列化, 减轻IO线程负担
         request.bytes(_serializer.writeObject(message));

@@ -20,6 +20,8 @@ import org.jupiter.registry.Registry;
 import org.jupiter.rpc.flow.control.FlowController;
 import org.jupiter.rpc.model.metadata.ServiceWrapper;
 import org.jupiter.rpc.provider.ProviderProxyHandler;
+import org.jupiter.transport.Directory;
+import org.jupiter.transport.JAcceptor;
 
 import java.util.List;
 import java.util.concurrent.Executor;
@@ -78,10 +80,20 @@ public interface JServer extends Registry {
     interface ProviderInitializer<T> {
 
         /**
-         * Init service provider bean
+         * Init service provider bean.
          */
         void init(T provider);
     }
+
+    /**
+     * Returns the acceptor.
+     */
+    JAcceptor acceptor();
+
+    /**
+     * Sets the acceptor.
+     */
+    JServer acceptor(JAcceptor acceptor);
 
     /**
      * Returns the global {@link ProviderProxyHandler} if have one.
@@ -166,7 +178,22 @@ public interface JServer extends Registry {
     void unpublish(ServiceWrapper serviceWrapper);
 
     /**
-     * unpublish all services.
+     * Unpublish all services.
      */
     void unpublishAll();
+
+    /**
+     * Start the server.
+     */
+    void start() throws InterruptedException;
+
+    /**
+     * Start the server.
+     */
+    void start(boolean sync) throws InterruptedException;
+
+    /**
+     * Unpublish all services and shutdown acceptor.
+     */
+    void shutdownGracefully();
 }

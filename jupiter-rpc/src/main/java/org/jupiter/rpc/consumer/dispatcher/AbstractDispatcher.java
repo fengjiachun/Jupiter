@@ -21,11 +21,10 @@ import org.jupiter.common.util.Maps;
 import org.jupiter.common.util.SystemClock;
 import org.jupiter.common.util.internal.logging.InternalLogger;
 import org.jupiter.common.util.internal.logging.InternalLoggerFactory;
-import org.jupiter.rpc.*;
-import org.jupiter.rpc.channel.CopyOnWriteGroupList;
-import org.jupiter.rpc.channel.JChannel;
-import org.jupiter.rpc.channel.JChannelGroup;
-import org.jupiter.rpc.channel.JFutureListener;
+import org.jupiter.rpc.ConsumerHook;
+import org.jupiter.rpc.JClient;
+import org.jupiter.rpc.JRequest;
+import org.jupiter.rpc.JResponse;
 import org.jupiter.rpc.consumer.future.InvokeFuture;
 import org.jupiter.rpc.load.balance.LoadBalancer;
 import org.jupiter.rpc.model.metadata.MessageWrapper;
@@ -36,13 +35,18 @@ import org.jupiter.rpc.tracing.TracingRecorder;
 import org.jupiter.rpc.tracing.TracingUtil;
 import org.jupiter.serialization.Serializer;
 import org.jupiter.serialization.SerializerType;
+import org.jupiter.transport.Directory;
+import org.jupiter.transport.Status;
+import org.jupiter.transport.channel.CopyOnWriteGroupList;
+import org.jupiter.transport.channel.JChannel;
+import org.jupiter.transport.channel.JChannelGroup;
+import org.jupiter.transport.channel.JFutureListener;
 
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicReferenceFieldUpdater;
 
 import static org.jupiter.common.util.JConstants.DEFAULT_TIMEOUT;
-import static org.jupiter.rpc.Status.CLIENT_ERROR;
 import static org.jupiter.rpc.tracing.TracingRecorder.Role.CONSUMER;
 import static org.jupiter.serialization.SerializerHolder.serializerImpl;
 
@@ -83,7 +87,7 @@ public abstract class AbstractDispatcher implements Dispatcher {
         // stack copy
         final Directory directory = metadata;
 
-        CopyOnWriteGroupList groups = client.directory(directory);
+        CopyOnWriteGroupList groups = client.connector().directory(directory);
         // snapshot of groupList
         Object[] elements = groupsUpdater.get(groups);
         if (elements.length == 0) {
@@ -182,7 +186,7 @@ public abstract class AbstractDispatcher implements Dispatcher {
     }
 
     protected InvokeFuture<?> write(JChannel channel, final JRequest request, final InvokeFuture<?> future) {
-        channel.write(request, new JFutureListener<JChannel>() {
+        channel.write(request.requestBytes(), new JFutureListener<JChannel>() {
 
             @Override
             public void operationSuccess(JChannel channel) throws Exception {
@@ -204,15 +208,11 @@ public abstract class AbstractDispatcher implements Dispatcher {
                 ResultWrapper result = new ResultWrapper();
                 result.setError(cause);
 
-                InvokeFuture.received(
-                        channel,
-                        JResponse.newInstance(
-                                request.invokeId(),
-                                request.serializerCode(),
-                                CLIENT_ERROR,
-                                result
-                        )
-                );
+                JResponse response = new JResponse(request.invokeId());
+                response.status(Status.CLIENT_ERROR.value());
+                response.result(result);
+
+                InvokeFuture.received(channel, response);
             }
         });
 

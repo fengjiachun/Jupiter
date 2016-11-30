@@ -20,7 +20,7 @@ import org.jupiter.common.util.Maps;
 import org.jupiter.common.util.Strings;
 import org.jupiter.common.util.internal.logging.InternalLogger;
 import org.jupiter.common.util.internal.logging.InternalLoggerFactory;
-import org.jupiter.rpc.UnresolvedAddress;
+import org.jupiter.transport.UnresolvedAddress;
 
 import java.util.Collection;
 import java.util.concurrent.ConcurrentMap;

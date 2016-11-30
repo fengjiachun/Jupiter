@@ -17,10 +17,10 @@
 package org.jupiter.example.udt;
 
 import org.jupiter.example.ServiceTest;
-import org.jupiter.rpc.UnresolvedAddress;
+import org.jupiter.rpc.DefaultClient;
+import org.jupiter.rpc.JClient;
 import org.jupiter.rpc.consumer.ProxyFactory;
-import org.jupiter.transport.JConnection;
-import org.jupiter.transport.JConnector;
+import org.jupiter.transport.UnresolvedAddress;
 import org.jupiter.transport.netty.JNettyUdtConnector;
 
 /**
@@ -32,12 +32,12 @@ import org.jupiter.transport.netty.JNettyUdtConnector;
 public class Client {
 
     public static void main(String[] args) {
-        JConnector<JConnection> connector = new JNettyUdtConnector();
+        JClient client = new DefaultClient().connector(new JNettyUdtConnector());
         UnresolvedAddress address = new UnresolvedAddress("127.0.0.1", 18090);
-        connector.connect(address);
+        client.connector().connect(address);
 
         ServiceTest service = ProxyFactory.factory(ServiceTest.class)
-                .connector(connector)
+                .client(client)
                 .addProviderAddress(address)
                 .newProxyInstance();
 

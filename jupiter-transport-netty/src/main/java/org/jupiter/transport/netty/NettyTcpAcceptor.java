@@ -32,6 +32,7 @@ import java.net.SocketAddress;
 import java.util.concurrent.ThreadFactory;
 
 import static org.jupiter.common.util.JConstants.NEWLINE;
+import static org.jupiter.transport.netty.NettyConfig.*;
 
 /**
  * jupiter
@@ -44,7 +45,7 @@ public abstract class NettyTcpAcceptor extends NettyAcceptor {
     private static final InternalLogger logger = InternalLoggerFactory.getInstance(NettyTcpAcceptor.class);
 
     private final boolean nativeEt; // Use native epoll ET
-    private final NettyConfig.NettyTcpConfigGroup configGroup = new NettyConfig.NettyTcpConfigGroup();
+    private final NettyTcpConfigGroup configGroup = new NettyTcpConfigGroup();
 
     public NettyTcpAcceptor(int port) {
         super(Protocol.TCP, new InetSocketAddress(port));
@@ -101,7 +102,7 @@ public abstract class NettyTcpAcceptor extends NettyAcceptor {
         ServerBootstrap boot = bootstrap();
 
         // parent options
-        NettyConfig.NettyTcpConfigGroup.ParentConfig parent = configGroup.parent();
+        NettyTcpConfigGroup.ParentConfig parent = configGroup.parent();
         boot.option(ChannelOption.SO_BACKLOG, parent.getBacklog());
         boot.option(ChannelOption.SO_REUSEADDR, parent.isReuseAddress());
         if (parent.getRcvBuf() > 0) {
@@ -109,7 +110,7 @@ public abstract class NettyTcpAcceptor extends NettyAcceptor {
         }
 
         // child options
-        NettyConfig.NettyTcpConfigGroup.ChildConfig child = configGroup.child();
+        NettyTcpConfigGroup.ChildConfig child = configGroup.child();
         boot.childOption(ChannelOption.SO_REUSEADDR, child.isReuseAddress())
                 .childOption(ChannelOption.SO_KEEPALIVE, child.isKeepAlive())
                 .childOption(ChannelOption.TCP_NODELAY, child.isTcpNoDelay())

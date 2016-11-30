@@ -16,7 +16,7 @@
 
 package org.jupiter.transport;
 
-import org.jupiter.rpc.JServer;
+import org.jupiter.transport.processor.ProviderProcessor;
 
 import java.net.SocketAddress;
 
@@ -28,7 +28,7 @@ import java.net.SocketAddress;
  *
  * @author jiachun.fjc
  */
-public interface JAcceptor extends JServer, Transporter {
+public interface JAcceptor extends Transporter {
 
     /**
      * Local address.
@@ -36,9 +36,19 @@ public interface JAcceptor extends JServer, Transporter {
     SocketAddress localAddress();
 
     /**
+     * Returns bound port.
+     */
+    int boundPort();
+
+    /**
      * Server options [parent, child].
      */
     JConfigGroup configGroup();
+
+    /**
+     * Binds the rpc processor.
+     */
+    void bindProcessor(ProviderProcessor processor);
 
     /**
      * Start the server and wait until the server socket is closed.

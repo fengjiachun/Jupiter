@@ -17,9 +17,8 @@
 package org.jupiter.rpc;
 
 import org.jupiter.rpc.model.metadata.ResultWrapper;
-
-import static org.jupiter.rpc.Status.OK;
-import static org.jupiter.rpc.Status.parse;
+import org.jupiter.transport.Status;
+import org.jupiter.transport.payload.JResponseBytes;
 
 /**
  * Provider's response data.
@@ -29,61 +28,45 @@ import static org.jupiter.rpc.Status.parse;
  *
  * @author jiachun.fjc
  */
-public class JResponse extends BytesHolder {
+public class JResponse {
 
-    private byte status = OK.value();
-
-    private long id; // invoke id
-    private ResultWrapper result; // 服务调用结果
-
-    public static JResponse newInstance(long id, byte serializerCode, Status status) {
-        return newInstance(id, serializerCode, status.value(), (ResultWrapper) null);
-    }
-
-    public static JResponse newInstance(long id, byte serializerCode, Status status, ResultWrapper result) {
-        return newInstance(id, serializerCode, status.value(), result);
-    }
-
-    public static JResponse newInstance(long id, byte serializerCode, Status status, byte[] bytes) {
-        return newInstance(id, serializerCode, status.value(), bytes);
-    }
-
-    public static JResponse newInstance(long id, byte serializerCode, byte status, ResultWrapper result) {
-        JResponse r = new JResponse(id);
-        r.serializerCode(serializerCode);
-        r.status(status);
-        r.result(result);
-        return r;
-    }
-
-    public static JResponse newInstance(long id, byte serializerCode, byte status, byte[] bytes) {
-        JResponse r = new JResponse(id);
-        r.serializerCode(serializerCode);
-        r.status(status);
-        r.bytes(bytes);
-        return r;
-    }
-
-    public JResponse() {}
+    private final JResponseBytes responseBytes; // 响应bytes[]
+    private ResultWrapper result;               // 服务调用结果
 
     public JResponse(long id) {
-        this.id = id;
+        responseBytes = new JResponseBytes(id);
     }
 
-    public byte status() {
-        return status;
+    public JResponse(JResponseBytes responseBytes) {
+        this.responseBytes = responseBytes;
     }
 
-    public void status(byte status) {
-        this.status = status;
+    public JResponseBytes responseBytes() {
+        return responseBytes;
     }
 
     public long id() {
-        return id;
+        return responseBytes.id();
     }
 
-    public void id(long id) {
-        this.id = id;
+    public byte status() {
+        return responseBytes.status();
+    }
+
+    public void status(byte status) {
+        responseBytes.status(status);
+    }
+
+    public byte serializerCode() {
+        return responseBytes.serializerCode();
+    }
+
+    public void serializerCode(byte serializerCode) {
+        responseBytes.serializerCode(serializerCode);
+    }
+
+    public void bytes(byte[] bytes) {
+        responseBytes.bytes(bytes);
     }
 
     public ResultWrapper result() {
@@ -97,8 +80,8 @@ public class JResponse extends BytesHolder {
     @Override
     public String toString() {
         return "JResponse{" +
-                "status=" + parse(status) +
-                ", id=" + id +
+                "status=" + Status.parse(status()) +
+                ", id=" + id() +
                 ", result=" + result +
                 '}';
     }

@@ -14,23 +14,32 @@
  * limitations under the License.
  */
 
-package org.jupiter.rpc.provider;
-
-import org.jupiter.transport.Directory;
-import org.jupiter.rpc.model.metadata.ServiceWrapper;
+package org.jupiter.transport.payload;
 
 /**
- * Lookup the service.
- *
  * jupiter
- * org.jupiter.rpc.provider
+ * org.jupiter.transport.payload
  *
  * @author jiachun.fjc
  */
-public interface LookupService {
+public class JRequestBytes extends BytesHolder {
 
-    /**
-     * Lookup the service.
-     */
-    ServiceWrapper lookupService(Directory directory);
+    private final long invokeId;
+    private transient long timestamp;
+
+    public JRequestBytes(long invokeId) {
+        this.invokeId = invokeId;
+    }
+
+    public long invokeId() {
+        return invokeId;
+    }
+
+    public long timestamp() {
+        return timestamp;
+    }
+
+    public void timestamp(long timestamp) {
+        this.timestamp = timestamp;
+    }
 }

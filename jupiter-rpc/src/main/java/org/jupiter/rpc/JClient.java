@@ -20,8 +20,10 @@ import org.jupiter.registry.NotifyListener;
 import org.jupiter.registry.OfflineListener;
 import org.jupiter.registry.RegisterMeta;
 import org.jupiter.registry.Registry;
-import org.jupiter.rpc.channel.CopyOnWriteGroupList;
-import org.jupiter.rpc.channel.JChannelGroup;
+import org.jupiter.transport.Directory;
+import org.jupiter.transport.JConnection;
+import org.jupiter.transport.JConnector;
+import org.jupiter.transport.UnresolvedAddress;
 
 import java.util.Collection;
 
@@ -39,40 +41,29 @@ public interface JClient extends Registry {
     String appName();
 
     /**
-     * Returns or new a {@link JChannelGroup}.
+     * Returns the connector.
      */
-    JChannelGroup group(UnresolvedAddress address);
+    JConnector<JConnection> connector();
 
     /**
-     * Returns all {@link JChannelGroup}s.
+     * Sets the connector.
      */
-    Collection<JChannelGroup> groups();
-
-    /**
-     * Adds a {@link JChannelGroup} by {@link Directory}.
-     */
-    boolean addChannelGroup(Directory directory, JChannelGroup group);
-
-    /**
-     * Removes a {@link JChannelGroup} by {@link Directory}.
-     */
-    boolean removeChannelGroup(Directory directory, JChannelGroup group);
-
-    /**
-     * Returns list of {@link JChannelGroup}s by the same {@link Directory}.
-     */
-    CopyOnWriteGroupList directory(Directory directory);
-
-    /**
-     * Returns {@code true} if has available {@link JChannelGroup}s
-     * on this {@link Directory}.
-     */
-    boolean isDirectoryAvailable(Directory directory);
+    JClient connector(JConnector<JConnection> connector);
 
     /**
      * Find a service in the local scope.
      */
     Collection<RegisterMeta> lookup(Directory directory);
+
+    /**
+     * Sets auto manage the connections.
+     */
+    JConnector.ConnectionManager manageConnections(Class<?> interfaceClass);
+
+    /**
+     * Sets auto manage the connections.
+     */
+    JConnector.ConnectionManager manageConnections(Directory directory);
 
     /**
      * Wait until the connections is available or timeout,
@@ -94,4 +85,9 @@ public interface JClient extends Registry {
      * Provider offline notification.
      */
     void offlineListening(UnresolvedAddress address, OfflineListener listener);
+
+    /**
+     * Shutdown.
+     */
+    void shutdownGracefully();
 }

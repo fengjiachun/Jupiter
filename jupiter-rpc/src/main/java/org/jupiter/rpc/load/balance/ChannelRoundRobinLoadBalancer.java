@@ -17,7 +17,7 @@
 package org.jupiter.rpc.load.balance;
 
 import org.jupiter.common.util.SystemClock;
-import org.jupiter.rpc.channel.JChannelGroup;
+import org.jupiter.transport.channel.JChannelGroup;
 
 /**
  * Round robin load balancer for channel groups.

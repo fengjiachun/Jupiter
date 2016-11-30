@@ -19,7 +19,7 @@ package org.jupiter.transport.exception;
 import org.jupiter.common.util.Signal;
 import org.jupiter.common.util.internal.logging.InternalLogger;
 import org.jupiter.common.util.internal.logging.InternalLoggerFactory;
-import org.jupiter.rpc.channel.JChannel;
+import org.jupiter.transport.channel.JChannel;
 
 import static org.jupiter.common.util.Signal.*;
 

@@ -14,13 +14,13 @@
  * limitations under the License.
  */
 
-package org.jupiter.rpc;
+package org.jupiter.transport;
 
 /**
  * Response status.
  *
  * jupiter
- * org.jupiter.rpc
+ * org.jupiter.transport
  *
  * @author jiachun.fjc
  */

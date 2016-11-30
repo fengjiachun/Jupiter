@@ -17,6 +17,7 @@
 package org.jupiter.rpc;
 
 import org.jupiter.rpc.model.metadata.MessageWrapper;
+import org.jupiter.transport.payload.JRequestBytes;
 
 import java.util.concurrent.atomic.AtomicLong;
 
@@ -28,37 +29,51 @@ import java.util.concurrent.atomic.AtomicLong;
  *
  * @author jiachun.fjc
  */
-public class JRequest extends BytesHolder {
+public class JRequest {
 
     private static final AtomicLong invokeIdGenerator = new AtomicLong(0);
 
-    private final long invokeId;
-    private MessageWrapper message; // 请求数据
+    private final JRequestBytes requestBytes;   // 请求bytes[]
+    private MessageWrapper message;             // 请求数据
 
-    private transient long timestamp;
-
-    public static JRequest newInstance(byte serializerCode) {
-        JRequest r = new JRequest();
-        r.serializerCode(serializerCode);
-        return r;
-    }
-
-    public static JRequest newInstance(long invokeId, byte serializerCode) {
-        JRequest r = new JRequest(invokeId);
-        r.serializerCode(serializerCode);
-        return r;
-    }
-
-    private JRequest() {
+    public JRequest() {
         this(invokeIdGenerator.getAndIncrement());
     }
 
-    private JRequest(long invokeId) {
-        this.invokeId = invokeId;
+    public JRequest(long invokeId) {
+        requestBytes = new JRequestBytes(invokeId);
+    }
+
+    public JRequest(JRequestBytes requestBytes) {
+        this.requestBytes = requestBytes;
+    }
+
+    public JRequestBytes requestBytes() {
+        return requestBytes;
     }
 
     public long invokeId() {
-        return invokeId;
+        return requestBytes.invokeId();
+    }
+
+    public long timestamp() {
+        return requestBytes.timestamp();
+    }
+
+    public void timestamp(long timestamp) {
+        requestBytes.timestamp(timestamp);
+    }
+
+    public byte serializerCode() {
+        return requestBytes.serializerCode();
+    }
+
+    public void serializerCode(byte serializerCode) {
+        requestBytes.serializerCode(serializerCode);
+    }
+
+    public void bytes(byte[] bytes) {
+        requestBytes.bytes(bytes);
     }
 
     public MessageWrapper message() {
@@ -69,18 +84,12 @@ public class JRequest extends BytesHolder {
         this.message = message;
     }
 
-    public long timestamp() {
-        return timestamp;
-    }
-
-    public void timestamp(long timestamp) {
-        this.timestamp = timestamp;
-    }
-
     @Override
     public String toString() {
         return "JRequest{" +
-                "invokeId=" + invokeId +
+                "invokeId=" + invokeId() +
+                ", timestamp=" + timestamp() +
+                ", serializerCode=" + serializerCode() +
                 ", message=" + message +
                 '}';
     }

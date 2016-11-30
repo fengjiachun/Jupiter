@@ -17,12 +17,12 @@
 package org.jupiter.example.broadcast;
 
 import org.jupiter.example.ServiceTest;
-import org.jupiter.rpc.UnresolvedAddress;
+import org.jupiter.rpc.DefaultClient;
+import org.jupiter.rpc.JClient;
 import org.jupiter.rpc.consumer.ProxyFactory;
 import org.jupiter.rpc.consumer.future.InvokeFuture;
 import org.jupiter.rpc.consumer.future.InvokeFutureContext;
-import org.jupiter.transport.JConnection;
-import org.jupiter.transport.JConnector;
+import org.jupiter.transport.UnresolvedAddress;
 import org.jupiter.transport.netty.JNettyTcpConnector;
 
 import static org.jupiter.rpc.DispatchType.BROADCAST;
@@ -37,16 +37,16 @@ import static org.jupiter.rpc.InvokeType.ASYNC;
 public class HelloJupiterClient {
 
     public static void main(String[] args) {
-        JConnector<JConnection> connector = new JNettyTcpConnector();
+        JClient client = new DefaultClient().connector(new JNettyTcpConnector());
         UnresolvedAddress address1 = new UnresolvedAddress("127.0.0.1", 18090);
         UnresolvedAddress address2 = new UnresolvedAddress("127.0.0.1", 18091);
         UnresolvedAddress address3 = new UnresolvedAddress("127.0.0.1", 18090);
-        connector.connect(address1);
-        connector.connect(address2);
-        connector.connect(address3);
+        client.connector().connect(address1);
+        client.connector().connect(address2);
+        client.connector().connect(address3);
 
         ServiceTest service = ProxyFactory.factory(ServiceTest.class)
-                .connector(connector)
+                .client(client)
                 .dispatchType(BROADCAST)
                 .invokeType(ASYNC)
                 .addProviderAddress(address1, address2, address2)

@@ -45,7 +45,8 @@ public class JupiterSpringProviderBean implements InitializingBean, ApplicationC
 
     private ServiceWrapper serviceWrapper;                      // 服务元信息
 
-    private JupiterSpringAcceptor acceptor;
+    private JupiterSpringServer server;
+
     private Object providerImpl;                                // 服务对象
     private ProviderInterceptor[] providerInterceptors;         // 私有拦截器
     private int weight;                                         // 权重
@@ -68,9 +69,9 @@ public class JupiterSpringProviderBean implements InitializingBean, ApplicationC
     }
 
     private void init() throws Exception {
-        checkNotNull(acceptor, "acceptor");
+        checkNotNull(server, "server");
 
-        JServer.ServiceRegistry registry = acceptor.getAcceptor().serviceRegistry();
+        JServer.ServiceRegistry registry = server.getServer().serviceRegistry();
 
         if (providerInterceptors != null && providerInterceptors.length > 0) {
             registry.provider(
@@ -88,12 +89,12 @@ public class JupiterSpringProviderBean implements InitializingBean, ApplicationC
                 .register();
     }
 
-    public JupiterSpringAcceptor getAcceptor() {
-        return acceptor;
+    public JupiterSpringServer getServer() {
+        return server;
     }
 
-    public void setAcceptor(JupiterSpringAcceptor acceptor) {
-        this.acceptor = acceptor;
+    public void setServer(JupiterSpringServer server) {
+        this.server = server;
     }
 
     public Object getProviderImpl() {
@@ -164,12 +165,12 @@ public class JupiterSpringProviderBean implements InitializingBean, ApplicationC
 
         @Override
         public void onApplicationEvent(ApplicationEvent event) {
-            if (acceptor.isHasRegistryServer() && event instanceof ContextRefreshedEvent) {
+            if (server.isHasRegistryServer() && event instanceof ContextRefreshedEvent) {
                 // 发布服务
                 if (providerInitializer == null) {
-                    acceptor.getAcceptor().publish(serviceWrapper);
+                    server.getServer().publish(serviceWrapper);
                 } else {
-                    acceptor.getAcceptor().publishWithInitializer(
+                    server.getServer().publishWithInitializer(
                             serviceWrapper, providerInitializer, providerInitializerExecutor);
                 }
 

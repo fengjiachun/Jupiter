@@ -14,21 +14,20 @@
  * limitations under the License.
  */
 
-package org.jupiter.rpc.channel;
+package org.jupiter.transport.processor;
 
-import java.util.EventListener;
+import org.jupiter.transport.payload.JResponseBytes;
+import org.jupiter.transport.channel.JChannel;
 
 /**
- * Listen on {@link JChannel}'s event.
+ * Consumer's processor.
  *
  * jupiter
- * org.jupiter.rpc.channel
+ * org.jupiter.transport.processor
  *
  * @author jiachun.fjc
  */
-public interface JFutureListener<C> extends EventListener {
+public interface ConsumerProcessor {
 
-    void operationSuccess(C c) throws Exception;
-
-    void operationFailure(C c, Throwable cause) throws Exception;
+    void handleResponse(JChannel channel, JResponseBytes response) throws Exception;
 }

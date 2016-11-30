@@ -18,11 +18,12 @@ package org.jupiter.example.generic;
 
 import org.jupiter.example.GenericServiceTestImpl;
 import org.jupiter.monitor.MonitorServer;
+import org.jupiter.rpc.DefaultServer;
 import org.jupiter.rpc.JRequest;
+import org.jupiter.rpc.JServer;
 import org.jupiter.rpc.flow.control.ControlResult;
 import org.jupiter.rpc.flow.control.FlowController;
 import org.jupiter.rpc.model.metadata.ServiceWrapper;
-import org.jupiter.transport.JAcceptor;
 import org.jupiter.transport.netty.JNettyTcpAcceptor;
 
 import java.util.concurrent.atomic.AtomicLong;
@@ -36,12 +37,12 @@ import java.util.concurrent.atomic.AtomicLong;
 public class GenericServer {
 
     public static void main(String[] args) {
-        JAcceptor acceptor = new JNettyTcpAcceptor(18090);
+        JServer server = new DefaultServer().acceptor(new JNettyTcpAcceptor(18090));
         MonitorServer monitor = new MonitorServer();
         try {
             monitor.start();
 
-            ServiceWrapper provider = acceptor.serviceRegistry()
+            ServiceWrapper provider = server.serviceRegistry()
                     .provider(new GenericServiceTestImpl())
                     .flowController(new FlowController<JRequest>() { // provider级别限流器, 可不设置
 
@@ -58,9 +59,9 @@ public class GenericServer {
                     .register();
 
 //            server.setGlobalFlowController(); // 全局限流器
-            acceptor.connectToRegistryServer("127.0.0.1:20001");
-            acceptor.publish(provider);
-            acceptor.start();
+            server.connectToRegistryServer("127.0.0.1:20001");
+            server.publish(provider);
+            server.start();
         } catch (InterruptedException e) {
             e.printStackTrace();
         }

@@ -21,7 +21,6 @@ import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelInitializer;
 import io.netty.channel.udt.UdtChannel;
 import io.netty.channel.udt.nio.NioUdtProvider;
-import org.jupiter.rpc.provider.processor.DefaultProviderProcessor;
 import org.jupiter.transport.JConfig;
 import org.jupiter.transport.JOption;
 import org.jupiter.transport.netty.handler.IdleStateChecker;
@@ -29,6 +28,7 @@ import org.jupiter.transport.netty.handler.ProtocolDecoder;
 import org.jupiter.transport.netty.handler.ProtocolEncoder;
 import org.jupiter.transport.netty.handler.acceptor.AcceptorHandler;
 import org.jupiter.transport.netty.handler.acceptor.AcceptorIdleStateTrigger;
+import org.jupiter.transport.processor.ProviderProcessor;
 
 import java.net.SocketAddress;
 
@@ -83,8 +83,8 @@ public class JNettyUdtAcceptor extends NettyUdtAcceptor {
 
     // handlers
     private final AcceptorIdleStateTrigger idleStateTrigger = new AcceptorIdleStateTrigger();
-    private final AcceptorHandler handler = new AcceptorHandler(new DefaultProviderProcessor(this));
     private final ProtocolEncoder encoder = new ProtocolEncoder();
+    private final AcceptorHandler handler = new AcceptorHandler();
 
     public JNettyUdtAcceptor(int port) {
         super(port);
@@ -136,5 +136,10 @@ public class JNettyUdtAcceptor extends NettyUdtAcceptor {
         setOptions();
 
         return boot.bind(localAddress);
+    }
+
+    @Override
+    public void bindProcessor(ProviderProcessor processor) {
+        handler.processor(processor);
     }
 }

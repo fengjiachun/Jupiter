@@ -14,19 +14,19 @@
  * limitations under the License.
  */
 
-package org.jupiter.rpc;
+package org.jupiter.transport.payload;
 
 /**
  * 用于消息体字节数组的暂存, 为了避免在IO线程中序列化/反序列化.
  *
  * jupiter
- * org.jupiter.rpc
+ * org.jupiter.transport.payload
  *
  * @author jiachun.fjc
  */
 public abstract class BytesHolder {
 
-    private byte serializerCode; // 序列化/反序列化方式
+    private byte serializerCode;    // 序列化/反序列化方式
     private transient byte[] bytes;
 
     public byte serializerCode() {

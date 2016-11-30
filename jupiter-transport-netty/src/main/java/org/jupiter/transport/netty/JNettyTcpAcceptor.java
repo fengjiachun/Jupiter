@@ -17,12 +17,13 @@
 package org.jupiter.transport.netty;
 
 import io.netty.bootstrap.ServerBootstrap;
+import io.netty.channel.ChannelFactory;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelInitializer;
+import io.netty.channel.ServerChannel;
 import io.netty.channel.epoll.EpollServerSocketChannel;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
-import org.jupiter.rpc.provider.processor.DefaultProviderProcessor;
 import org.jupiter.transport.JConfig;
 import org.jupiter.transport.JOption;
 import org.jupiter.transport.netty.handler.IdleStateChecker;
@@ -30,6 +31,7 @@ import org.jupiter.transport.netty.handler.ProtocolDecoder;
 import org.jupiter.transport.netty.handler.ProtocolEncoder;
 import org.jupiter.transport.netty.handler.acceptor.AcceptorHandler;
 import org.jupiter.transport.netty.handler.acceptor.AcceptorIdleStateTrigger;
+import org.jupiter.transport.processor.ProviderProcessor;
 
 import java.net.SocketAddress;
 
@@ -84,8 +86,8 @@ public class JNettyTcpAcceptor extends NettyTcpAcceptor {
 
     // handlers
     private final AcceptorIdleStateTrigger idleStateTrigger = new AcceptorIdleStateTrigger();
-    private final AcceptorHandler handler = new AcceptorHandler(new DefaultProviderProcessor(this));
     private final ProtocolEncoder encoder = new ProtocolEncoder();
+    private final AcceptorHandler handler = new AcceptorHandler();
 
     public JNettyTcpAcceptor(int port) {
         super(port);
@@ -138,9 +140,21 @@ public class JNettyTcpAcceptor extends NettyTcpAcceptor {
         ServerBootstrap boot = bootstrap();
 
         if (isNativeEt()) {
-            boot.channel(EpollServerSocketChannel.class);
+            boot.channelFactory(new ChannelFactory<ServerChannel>() {
+
+                @Override
+                public ServerChannel newChannel() {
+                    return new EpollServerSocketChannel();
+                }
+            });
         } else {
-            boot.channel(NioServerSocketChannel.class);
+            boot.channelFactory(new ChannelFactory<ServerChannel>() {
+
+                @Override
+                public ServerChannel newChannel() {
+                    return new NioServerSocketChannel();
+                }
+            });
         }
         boot.childHandler(new ChannelInitializer<SocketChannel>() {
 
@@ -158,5 +172,10 @@ public class JNettyTcpAcceptor extends NettyTcpAcceptor {
         setOptions();
 
         return boot.bind(localAddress);
+    }
+
+    @Override
+    public void bindProcessor(ProviderProcessor processor) {
+        handler.processor(processor);
     }
 }

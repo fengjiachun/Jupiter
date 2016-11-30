@@ -17,15 +17,16 @@
 package org.jupiter.rpc.provider.processor;
 
 import org.jupiter.common.util.JServiceLoader;
-import org.jupiter.rpc.Directory;
 import org.jupiter.rpc.JRequest;
 import org.jupiter.rpc.JServer;
-import org.jupiter.rpc.channel.JChannel;
 import org.jupiter.rpc.executor.ExecutorFactory;
 import org.jupiter.rpc.flow.control.ControlResult;
 import org.jupiter.rpc.flow.control.FlowController;
 import org.jupiter.rpc.model.metadata.ServiceWrapper;
 import org.jupiter.rpc.provider.processor.task.MessageTask;
+import org.jupiter.transport.Directory;
+import org.jupiter.transport.channel.JChannel;
+import org.jupiter.transport.payload.JRequestBytes;
 
 import java.util.concurrent.Executor;
 
@@ -54,8 +55,8 @@ public class DefaultProviderProcessor extends AbstractProviderProcessor {
     }
 
     @Override
-    public void handleRequest(JChannel channel, JRequest request) throws Exception {
-        MessageTask task = new MessageTask(this, channel, request);
+    public void handleRequest(JChannel channel, JRequestBytes requestBytes) throws Exception {
+        MessageTask task = new MessageTask(this, channel, new JRequest(requestBytes));
         if (executor == null) {
             task.run();
         } else {

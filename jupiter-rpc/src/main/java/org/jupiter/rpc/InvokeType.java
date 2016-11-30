@@ -23,8 +23,8 @@ package org.jupiter.rpc;
  * @author jiachun.fjc
  */
 public enum InvokeType {
-    SYNC,       // 同步调用
-    ASYNC;      // 异步Future方式
+    SYNC,   // 同步调用
+    ASYNC;  // 异步Future方式
 
     public static InvokeType parse(String name) {
         for (InvokeType s : values()) {

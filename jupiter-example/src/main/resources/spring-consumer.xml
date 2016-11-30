@@ -22,8 +22,12 @@
     <!-- netty的网络层实现(建议单例) -->
     <bean id="nettyTcpConnector" class="org.jupiter.transport.netty.JNettyTcpConnector" />
 
-    <bean id="connectorWrapper" class="org.jupiter.spring.support.JupiterSpringConnector">
+    <bean id="jupiterClient" class="org.jupiter.rpc.DefaultClient">
         <property name="connector" ref="nettyTcpConnector" />
+    </bean>
+
+    <bean id="client" class="org.jupiter.spring.support.JupiterSpringClient">
+        <property name="client" ref="jupiterClient" />
         <!-- 注册中心地址, 逗号分隔 -->
         <property name="registryServerAddresses" value="127.0.0.1:20001" />
 
@@ -37,7 +41,7 @@
 
     <!-- consumer -->
     <bean id="serviceTest" class="org.jupiter.spring.support.JupiterSpringConsumerBean">
-        <property name="connector" ref="connectorWrapper" />
+        <property name="client" ref="client" />
         <property name="interfaceClass" value="org.jupiter.example.ServiceTest" />
 
         <!-- 以下都选项可不填 -->

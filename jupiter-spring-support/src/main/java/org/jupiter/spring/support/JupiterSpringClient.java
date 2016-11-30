@@ -18,25 +18,25 @@ package org.jupiter.spring.support;
 
 import org.jupiter.common.util.Lists;
 import org.jupiter.common.util.Strings;
-import org.jupiter.rpc.UnresolvedAddress;
-import org.jupiter.transport.JConnection;
-import org.jupiter.transport.JConnector;
+import org.jupiter.rpc.JClient;
+import org.jupiter.transport.UnresolvedAddress;
 import org.springframework.beans.factory.InitializingBean;
 
 import java.util.Collections;
 import java.util.List;
 
 /**
- * 客户端 connector wrapper, 负责初始化并启动客户端.
+ * jupiter client wrapper, 负责初始化并启动客户端.
  *
  * jupiter
  * org.jupiter.spring.support
  *
  * @author jiachun.fjc
  */
-public class JupiterSpringConnector implements InitializingBean {
+public class JupiterSpringClient implements InitializingBean {
 
-    private JConnector<JConnection> connector;
+    private JClient client;
+
     private String registryServerAddresses;                             // 注册中心地址 [host1:port1,host2:port2....]
     private String providerServerAddresses;                             // IP直连到providers [host1:port1,host2:port2....]
     private List<UnresolvedAddress> providerServerUnresolvedAddresses;  // IP直连的地址列表
@@ -50,7 +50,7 @@ public class JupiterSpringConnector implements InitializingBean {
     private void init() {
         // 注册中心
         if (Strings.isNotBlank(registryServerAddresses)) {
-            connector.connectToRegistryServer(registryServerAddresses);
+            client.connectToRegistryServer(registryServerAddresses);
             hasRegistryServer = true;
         }
 
@@ -66,18 +66,18 @@ public class JupiterSpringConnector implements InitializingBean {
                     UnresolvedAddress address = new UnresolvedAddress(host, port);
                     providerServerUnresolvedAddresses.add(address);
 
-                    connector.connect(address, true); // 异步建立连接
+                    client.connector().connect(address, true); // 异步建立连接
                 }
             }
         }
     }
 
-    public JConnector<JConnection> getConnector() {
-        return connector;
+    public JClient getClient() {
+        return client;
     }
 
-    public void setConnector(JConnector<JConnection> connector) {
-        this.connector = connector;
+    public void setClient(JClient client) {
+        this.client = client;
     }
 
     public String getRegistryServerAddresses() {

@@ -20,7 +20,7 @@ import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufHolder;
 import io.netty.channel.FileRegion;
 import io.netty.channel.MessageSizeEstimator;
-import org.jupiter.rpc.BytesHolder;
+import org.jupiter.transport.payload.BytesHolder;
 
 /**
  * 消息size计算, 努力反应真实的IO水位线.

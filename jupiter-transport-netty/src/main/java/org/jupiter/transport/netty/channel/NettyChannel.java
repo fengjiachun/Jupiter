@@ -21,8 +21,8 @@ import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelFutureListener;
 import io.netty.util.Attribute;
 import io.netty.util.AttributeKey;
-import org.jupiter.rpc.channel.JChannel;
-import org.jupiter.rpc.channel.JFutureListener;
+import org.jupiter.transport.channel.JChannel;
+import org.jupiter.transport.channel.JFutureListener;
 import org.jupiter.transport.netty.handler.connector.ConnectionWatchdog;
 
 import java.net.SocketAddress;

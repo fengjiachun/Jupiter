@@ -18,14 +18,14 @@ package org.jupiter.rpc.consumer.dispatcher;
 
 import org.jupiter.rpc.JClient;
 import org.jupiter.rpc.JRequest;
-import org.jupiter.rpc.channel.JChannel;
-import org.jupiter.rpc.channel.JChannelGroup;
 import org.jupiter.rpc.consumer.future.InvokeFuture;
 import org.jupiter.rpc.load.balance.LoadBalancer;
 import org.jupiter.rpc.model.metadata.MessageWrapper;
 import org.jupiter.rpc.model.metadata.ServiceMetadata;
 import org.jupiter.serialization.Serializer;
 import org.jupiter.serialization.SerializerType;
+import org.jupiter.transport.channel.JChannel;
+import org.jupiter.transport.channel.JChannelGroup;
 
 /**
  * 单播方式派发消息
@@ -55,8 +55,12 @@ public class DefaultRoundDispatcher extends AbstractDispatcher {
 
         // 通过软负载均衡选择一个channel
         JChannel channel = select(client, message);
-        final JRequest request = JRequest.newInstance(_serializer.code());
-        request.message(doTracing(request, message, methodName, channel));
+        JRequest request = new JRequest();
+
+        doTracing(request, message, methodName, channel);
+
+        request.serializerCode(_serializer.code());
+        request.message(message);
         // 在业务线程中序列化, 减轻IO线程负担
         request.bytes(_serializer.writeObject(message));
 
@@ -77,8 +81,12 @@ public class DefaultRoundDispatcher extends AbstractDispatcher {
         message.setMethodName(methodName);
         message.setArgs(args);
 
-        final JRequest request = JRequest.newInstance(_serializer.code());
-        request.message(doTracing(request, message, methodName, channel));
+        JRequest request = new JRequest();
+
+        doTracing(request, message, methodName, channel);
+
+        request.serializerCode(_serializer.code());
+        request.message(message);
         // 在业务线程中序列化, 减轻IO线程负担
         request.bytes(_serializer.writeObject(message));
 

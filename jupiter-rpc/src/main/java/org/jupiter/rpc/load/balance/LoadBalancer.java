@@ -31,8 +31,8 @@ public interface LoadBalancer<T> {
     /**
      * Select one in elements array.
      *
-     * @param elements  所有可选择的元素, Object[]设计很糟糕, 纯是为了性能做出的让步
-     * @param message   通常这个参数无用, 对于一致性hash等负载均衡算法会有用, 先占位留作扩展
+     * @param elements  object[] is bad, just for performance
+     * @param message   usually useless
      */
     T select(Object[] elements, MessageWrapper message);
 }

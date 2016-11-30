@@ -21,12 +21,12 @@ import org.jupiter.common.util.Strings;
 import org.jupiter.rpc.ConsumerHook;
 import org.jupiter.rpc.DispatchType;
 import org.jupiter.rpc.InvokeType;
-import org.jupiter.rpc.UnresolvedAddress;
 import org.jupiter.rpc.consumer.ProxyFactory;
 import org.jupiter.rpc.consumer.ha.HaStrategy;
 import org.jupiter.rpc.load.balance.LoadBalancerType;
 import org.jupiter.serialization.SerializerType;
 import org.jupiter.transport.JConnector;
+import org.jupiter.transport.UnresolvedAddress;
 import org.jupiter.transport.exception.ConnectFailedException;
 import org.springframework.beans.factory.FactoryBean;
 import org.springframework.beans.factory.InitializingBean;
@@ -46,7 +46,8 @@ public class JupiterSpringConsumerBean<T> implements FactoryBean<T>, Initializin
 
     private static final ConsumerHook[] EMPTY_HOOKS = new ConsumerHook[0];
 
-    private JupiterSpringConnector connector;
+    private JupiterSpringClient client;
+
     private Class<T> interfaceClass;                        // 接口类型
     private SerializerType serializerType;                  // 序列化/反序列化方式
     private LoadBalancerType loadBalancerType;              // 软负载均衡类型
@@ -94,9 +95,9 @@ public class JupiterSpringConsumerBean<T> implements FactoryBean<T>, Initializin
             factory.loadBalancerType(loadBalancerType);
         }
 
-        if (connector.isHasRegistryServer()) {
+        if (client.isHasRegistryServer()) {
             // 自动管理可用连接
-            JConnector.ConnectionManager manager = connector.getConnector().manageConnections(interfaceClass);
+            JConnector.ConnectionManager manager = client.getClient().manageConnections(interfaceClass);
             if (waitForAvailableTimeoutMillis > 0) {
                 // 等待连接可用
                 if (!manager.waitForAvailable(waitForAvailableTimeoutMillis)) {
@@ -151,16 +152,16 @@ public class JupiterSpringConsumerBean<T> implements FactoryBean<T>, Initializin
         }
 
         proxy = factory
-                .connector(connector.getConnector()) // sets connector
+                .client(client.getClient())
                 .newProxyInstance();
     }
 
-    public JupiterSpringConnector getConnector() {
-        return connector;
+    public JupiterSpringClient getClient() {
+        return client;
     }
 
-    public void setConnector(JupiterSpringConnector connector) {
-        this.connector = connector;
+    public void setClient(JupiterSpringClient client) {
+        this.client = client;
     }
 
     public Class<T> getInterfaceClass() {

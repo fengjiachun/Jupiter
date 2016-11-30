@@ -14,20 +14,32 @@
  * limitations under the License.
  */
 
-package org.jupiter.rpc.consumer.processor;
-
-import org.jupiter.rpc.JResponse;
-import org.jupiter.rpc.channel.JChannel;
+package org.jupiter.transport.payload;
 
 /**
- * Consumer's processor.
- *
  * jupiter
- * org.jupiter.rpc.consumer.processor
+ * org.jupiter.transport.payload
  *
  * @author jiachun.fjc
  */
-public interface ConsumerProcessor {
+public class JResponseBytes extends BytesHolder {
 
-    void handleResponse(JChannel channel, JResponse response) throws Exception;
+    private final long id;  // invoke id
+    private byte status;
+
+    public JResponseBytes(long id) {
+        this.id = id;
+    }
+
+    public long id() {
+        return id;
+    }
+
+    public byte status() {
+        return status;
+    }
+
+    public void status(byte status) {
+        this.status = status;
+    }
 }

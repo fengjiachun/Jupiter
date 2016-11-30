@@ -24,16 +24,16 @@ import io.netty.util.ReferenceCountUtil;
 import org.jupiter.common.util.Signal;
 import org.jupiter.common.util.internal.logging.InternalLogger;
 import org.jupiter.common.util.internal.logging.InternalLoggerFactory;
-import org.jupiter.rpc.JRequest;
-import org.jupiter.rpc.channel.JChannel;
-import org.jupiter.rpc.provider.processor.ProviderProcessor;
+import org.jupiter.transport.payload.JRequestBytes;
+import org.jupiter.transport.Status;
+import org.jupiter.transport.channel.JChannel;
 import org.jupiter.transport.exception.IoSignals;
 import org.jupiter.transport.netty.channel.NettyChannel;
+import org.jupiter.transport.processor.ProviderProcessor;
 
 import java.util.concurrent.atomic.AtomicInteger;
 
 import static org.jupiter.common.util.StackTraceUtil.stackTrace;
-import static org.jupiter.rpc.Status.SERVER_ERROR;
 
 /**
  * jupiter
@@ -48,21 +48,16 @@ public class AcceptorHandler extends ChannelInboundHandlerAdapter {
 
     private static final AtomicInteger channelCounter = new AtomicInteger(0);
 
-    private final ProviderProcessor processor;
-
-    public AcceptorHandler(ProviderProcessor processor) {
-        this.processor = processor;
-    }
+    private ProviderProcessor processor;
 
     @Override
     public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
-        if (msg instanceof JRequest) {
+        if (msg instanceof JRequestBytes) {
             JChannel jChannel = NettyChannel.attachChannel(ctx.channel());
-            JRequest request = (JRequest) msg;
             try {
-                processor.handleRequest(jChannel, request);
+                processor.handleRequest(jChannel, (JRequestBytes) msg);
             } catch (Throwable t) {
-                processor.handleException(jChannel, request, SERVER_ERROR, t);
+                processor.handleException(jChannel, (JRequestBytes) msg, Status.SERVER_ERROR, t);
             }
         } else {
             logger.warn("Unexpected msg type received:{}.", msg.getClass());
@@ -118,5 +113,13 @@ public class AcceptorHandler extends ChannelInboundHandlerAdapter {
         } else {
             logger.error("An exception has been caught {}, on {}.", stackTrace(cause), jChannel);
         }
+    }
+
+    public ProviderProcessor processor() {
+        return processor;
+    }
+
+    public void processor(ProviderProcessor processor) {
+        this.processor = processor;
     }
 }

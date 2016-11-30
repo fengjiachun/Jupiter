@@ -17,12 +17,12 @@
 package org.jupiter.rpc.consumer.ha;
 
 import org.jupiter.rpc.JClient;
-import org.jupiter.rpc.channel.CopyOnWriteGroupList;
-import org.jupiter.rpc.channel.JChannel;
 import org.jupiter.rpc.consumer.dispatcher.Dispatcher;
 import org.jupiter.rpc.consumer.future.InvokeFuture;
 import org.jupiter.rpc.exception.BizException;
 import org.jupiter.rpc.exception.RemoteException;
+import org.jupiter.transport.channel.CopyOnWriteGroupList;
+import org.jupiter.transport.channel.JChannel;
 
 import java.lang.reflect.Method;
 
@@ -66,7 +66,7 @@ public class FailoverStrategy extends AbstractHaStrategy {
             }
         }
 
-        CopyOnWriteGroupList groups = client.directory(dispatcher.getMetadata());
+        CopyOnWriteGroupList groups = client.connector().directory(dispatcher.getMetadata());
         for (int i = 0; i < retries; i++) {
             try {
                 JChannel channel = groups.get(i % groups.size()).next();

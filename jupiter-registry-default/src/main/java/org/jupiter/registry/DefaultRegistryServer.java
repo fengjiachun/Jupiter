@@ -35,11 +35,11 @@ import org.jupiter.common.util.*;
 import org.jupiter.common.util.internal.JUnsafe;
 import org.jupiter.common.util.internal.logging.InternalLogger;
 import org.jupiter.common.util.internal.logging.InternalLoggerFactory;
-import org.jupiter.rpc.channel.JChannel;
 import org.jupiter.transport.Acknowledge;
 import org.jupiter.transport.JConfig;
 import org.jupiter.transport.JOption;
 import org.jupiter.transport.JProtocolHeader;
+import org.jupiter.transport.channel.JChannel;
 import org.jupiter.transport.exception.IoSignals;
 import org.jupiter.transport.netty.NettyTcpAcceptor;
 import org.jupiter.transport.netty.channel.NettyChannel;
@@ -58,6 +58,7 @@ import static org.jupiter.common.util.StackTraceUtil.stackTrace;
 import static org.jupiter.registry.RegisterMeta.Address;
 import static org.jupiter.registry.RegisterMeta.ServiceMeta;
 import static org.jupiter.serialization.SerializerHolder.serializerImpl;
+import static org.jupiter.serialization.SerializerType.PROTO_STUFF;
 import static org.jupiter.transport.JProtocolHeader.*;
 import static org.jupiter.transport.exception.IoSignals.ILLEGAL_MAGIC;
 import static org.jupiter.transport.exception.IoSignals.ILLEGAL_SIGN;
@@ -131,20 +132,25 @@ public class DefaultRegistryServer extends NettyTcpAcceptor implements RegistryS
     public ChannelFuture bind(SocketAddress localAddress) {
         ServerBootstrap boot = bootstrap();
 
-        boot.channel(NioServerSocketChannel.class)
-                .childHandler(new ChannelInitializer<SocketChannel>() {
+        boot.channelFactory(new ChannelFactory<ServerChannel>() {
 
-                    @Override
-                    protected void initChannel(SocketChannel ch) throws Exception {
-                        ch.pipeline().addLast(
-                                new IdleStateChecker(timer, READER_IDLE_TIME_SECONDS, 0, 0),
-                                idleStateTrigger,
-                                new MessageDecoder(),
-                                encoder,
-                                ackEncoder,
-                                handler);
-                    }
-                });
+            @Override
+            public ServerChannel newChannel() {
+                return new NioServerSocketChannel();
+            }
+        }).childHandler(new ChannelInitializer<SocketChannel>() {
+
+            @Override
+            protected void initChannel(SocketChannel ch) throws Exception {
+                ch.pipeline().addLast(
+                        new IdleStateChecker(timer, READER_IDLE_TIME_SECONDS, 0, 0),
+                        idleStateTrigger,
+                        new MessageDecoder(),
+                        encoder,
+                        ackEncoder,
+                        handler);
+            }
+        });
 
         setOptions();
 
@@ -230,7 +236,7 @@ public class DefaultRegistryServer extends NettyTcpAcceptor implements RegistryS
             if (config.getConfig().putIfAbsent(meta.getAddress(), meta) == null) {
                 registerInfoContext.getServiceMeta(meta.getAddress()).add(serviceMeta);
 
-                final Message msg = new Message();
+                final Message msg = new Message(PROTO_STUFF.value());
                 msg.messageCode(PUBLISH_SERVICE);
                 msg.version(config.newVersion()); // 版本号+1
                 msg.data(new Pair<>(serviceMeta, meta));
@@ -272,7 +278,7 @@ public class DefaultRegistryServer extends NettyTcpAcceptor implements RegistryS
             if (data != null) {
                 registerInfoContext.getServiceMeta(address).remove(serviceMeta);
 
-                final Message msg = new Message();
+                final Message msg = new Message(PROTO_STUFF.value());
                 msg.messageCode(PUBLISH_CANCEL_SERVICE);
                 msg.version(config.newVersion()); // 版本号+1
                 msg.data(new Pair<>(serviceMeta, data));
@@ -308,7 +314,7 @@ public class DefaultRegistryServer extends NettyTcpAcceptor implements RegistryS
             return;
         }
 
-        final Message msg = new Message();
+        final Message msg = new Message(PROTO_STUFF.value());
         msg.messageCode(PUBLISH_SERVICE);
         msg.version(config.getVersion()); // 版本号
         List<RegisterMeta> registerMetaList = Lists.newArrayList(config.getConfig().values());
@@ -331,7 +337,7 @@ public class DefaultRegistryServer extends NettyTcpAcceptor implements RegistryS
 
         logger.info("OfflineNotice on {}.", address);
 
-        Message msg = new Message();
+        Message msg = new Message(PROTO_STUFF.value());
         msg.messageCode(OFFLINE_NOTICE);
         msg.data(address);
         subscriberChannels.writeAndFlush(msg);
@@ -479,15 +485,10 @@ public class DefaultRegistryServer extends NettyTcpAcceptor implements RegistryS
 
                             break;
                         }
-                        case ACK: {
-                            byte[] bytes = new byte[header.bodyLength()];
-                            in.readBytes(bytes);
-
-                            Acknowledge ack = serializerImpl(s_code).readObject(bytes, Acknowledge.class);
-                            out.add(ack);
+                        case ACK:
+                            out.add(new Acknowledge(header.id()));
 
                             break;
-                        }
                         default:
                             throw ILLEGAL_SIGN;
                     }

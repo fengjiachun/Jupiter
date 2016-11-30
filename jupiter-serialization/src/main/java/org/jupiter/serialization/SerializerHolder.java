@@ -24,8 +24,6 @@ import org.jupiter.common.util.internal.logging.InternalLoggerFactory;
 
 import java.util.List;
 
-import static org.jupiter.serialization.SerializerType.*;
-
 /**
  * Holds all serializers.
  *
@@ -39,7 +37,6 @@ public final class SerializerHolder {
     private static final InternalLogger logger = InternalLoggerFactory.getInstance(SerializerHolder.class);
 
     private static final ByteObjectMap<Serializer> serializerMapping = new ByteObjectHashMap<>();
-    private static final Serializer defaultSerializer;
 
     static {
         List<Serializer> serializerList = JServiceLoader.loadAll(Serializer.class);
@@ -49,23 +46,6 @@ public final class SerializerHolder {
         for (Serializer s : serializerList) {
             serializerMapping.put(s.code(), s);
         }
-
-        // protoStuff is expected
-        Serializer defaultImpl = serializerMapping.get(PROTO_STUFF.value());
-        if (defaultImpl == null && !serializerList.isEmpty()) {
-            defaultImpl = serializerList.get(0);
-        }
-        defaultSerializer = defaultImpl;
-
-        logger.info("Default serializer: {}.", defaultSerializer);
-    }
-
-    public static byte defaultSerializerCode() {
-        return defaultSerializer.code();
-    }
-
-    public static Serializer defaultSerializerImpl() {
-        return defaultSerializer;
     }
 
     public static Serializer serializerImpl(byte code) {

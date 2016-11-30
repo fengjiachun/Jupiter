@@ -14,13 +14,13 @@
  * limitations under the License.
  */
 
-package org.jupiter.rpc;
+package org.jupiter.transport;
 
 import org.jupiter.common.util.StringBuilderHelper;
 
 /**
  * jupiter
- * org.jupiter.rpc
+ * org.jupiter.transport
  *
  * @author jiachun.fjc
  */
@@ -28,19 +28,13 @@ public abstract class Directory {
 
     private String directoryCache;
 
-    /**
-     * 服务所属组别
-     */
+    /** 服务所属组别 */
     public abstract String getGroup();
 
-    /**
-     * 服务版本
-     */
+    /** 服务版本 */
     public abstract String getVersion();
 
-    /**
-     * 服务名称
-     */
+    /** 服务名称 */
     public abstract String getServiceProviderName();
 
     public String directory() {

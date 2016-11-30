@@ -21,11 +21,12 @@ import org.jupiter.common.util.SystemPropertyUtil;
 import org.jupiter.flight.exec.ExecResult;
 import org.jupiter.flight.exec.JavaClassExec;
 import org.jupiter.flight.exec.JavaCompiler;
+import org.jupiter.rpc.DefaultClient;
+import org.jupiter.rpc.JClient;
 import org.jupiter.rpc.JListener;
 import org.jupiter.rpc.consumer.ProxyFactory;
 import org.jupiter.rpc.consumer.future.InvokeFuture;
 import org.jupiter.rpc.consumer.future.InvokeFutureContext;
-import org.jupiter.transport.JConnection;
 import org.jupiter.transport.JConnector;
 import org.jupiter.transport.exception.ConnectFailedException;
 import org.jupiter.transport.netty.JNettyTcpConnector;
@@ -44,18 +45,18 @@ import static org.jupiter.rpc.InvokeType.ASYNC;
 public class FlightExecClient {
 
     public static void main(String[] args) {
-        JConnector<JConnection> connector = new JNettyTcpConnector();
+        JClient client = new DefaultClient().connector(new JNettyTcpConnector());
         // 连接RegistryServer
-        connector.connectToRegistryServer("127.0.0.1:20001");
+        client.connectToRegistryServer("127.0.0.1:20001");
         // 自动管理可用连接
-        JConnector.ConnectionManager manager = connector.manageConnections(JavaClassExec.class);
+        JConnector.ConnectionManager manager = client.manageConnections(JavaClassExec.class);
         // 等待连接可用
         if (!manager.waitForAvailable(3000)) {
             throw new ConnectFailedException("waitForAvailable() timeout");
         }
 
         JavaClassExec service = ProxyFactory.factory(JavaClassExec.class)
-                .connector(connector)
+                .client(client)
                 .dispatchType(BROADCAST)
                 .invokeType(ASYNC)
                 .newProxyInstance();

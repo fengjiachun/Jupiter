@@ -24,8 +24,13 @@
         <constructor-arg index="0" value="18090" />
     </bean>
 
-    <bean id="acceptorWrapper" class="org.jupiter.spring.support.JupiterSpringAcceptor">
+    <!-- jupiter server(建议单例) -->
+    <bean id="jupiterServer" class="org.jupiter.rpc.DefaultServer">
         <property name="acceptor" ref="nettyTcpAcceptor" />
+    </bean>
+
+    <bean id="server" class="org.jupiter.spring.support.JupiterSpringServer">
+        <property name="server" ref="jupiterServer" />
         <!-- 注册中心地址, 逗号分隔 -->
         <property name="registryServerAddresses" value="127.0.0.1:20001" />
 
@@ -41,7 +46,7 @@
     <!-- provider -->
     <bean id="serviceTest" class="org.jupiter.example.ServiceTestImpl" />
     <bean id="serviceTestProvider" class="org.jupiter.spring.support.JupiterSpringProviderBean">
-        <property name="acceptor" ref="acceptorWrapper" />
+        <property name="server" ref="server" />
         <property name="providerImpl" ref="serviceTest" />
 
         <!-- 可选配置 -->

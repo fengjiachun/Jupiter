@@ -33,6 +33,9 @@ import org.jupiter.rpc.load.balance.LoadBalancerFactory;
 import org.jupiter.rpc.load.balance.LoadBalancerType;
 import org.jupiter.rpc.model.metadata.ServiceMetadata;
 import org.jupiter.serialization.SerializerType;
+import org.jupiter.transport.JConnection;
+import org.jupiter.transport.JConnector;
+import org.jupiter.transport.UnresolvedAddress;
 
 import java.util.Collections;
 import java.util.List;
@@ -44,7 +47,7 @@ import static org.jupiter.rpc.DispatchType.ROUND;
 import static org.jupiter.rpc.InvokeType.ASYNC;
 import static org.jupiter.rpc.InvokeType.SYNC;
 import static org.jupiter.rpc.consumer.ha.HaStrategy.Strategy;
-import static org.jupiter.rpc.load.balance.LoadBalancerType.*;
+import static org.jupiter.rpc.load.balance.LoadBalancerType.RANDOM;
 import static org.jupiter.serialization.SerializerType.PROTO_STUFF;
 
 /**
@@ -61,7 +64,7 @@ public class ProxyFactory<I> {
 
     private final Class<I> interfaceClass;                      // 接口类型
 
-    private JClient client;                                     // connector
+    private JClient client;                                     // jupiter client
     private SerializerType serializerType = PROTO_STUFF;        // 序列化/反序列化方式
     private LoadBalancerType loadBalancerType = RANDOM;         // 软负载均衡类型
     private List<UnresolvedAddress> addresses;                  // provider地址
@@ -92,9 +95,9 @@ public class ProxyFactory<I> {
     }
 
     /**
-     * Sets the connector.
+     * Sets the jupiter client.
      */
-    public ProxyFactory<I> connector(JClient client) {
+    public ProxyFactory<I> client(JClient client) {
         this.client = client;
         return this;
     }
@@ -190,7 +193,7 @@ public class ProxyFactory<I> {
 
     public I newProxyInstance() {
         // check arguments
-        checkNotNull(client, "connector");
+        checkNotNull(client, "client");
         checkNotNull(interfaceClass, "interfaceClass");
         checkNotNull(serializerType, "serializerType");
 
@@ -207,8 +210,9 @@ public class ProxyFactory<I> {
         // metadata
         ServiceMetadata metadata = new ServiceMetadata(annotation.group(), annotation.version(), providerName);
 
+        JConnector<JConnection> connector = client.connector();
         for (UnresolvedAddress address : addresses) {
-            client.addChannelGroup(metadata, client.group(address));
+            connector.addChannelGroup(metadata, connector.group(address));
         }
 
         // dispatcher

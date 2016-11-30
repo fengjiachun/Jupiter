@@ -16,16 +16,19 @@
 
 package org.jupiter.transport.netty.handler.connector;
 
-import io.netty.channel.*;
+import io.netty.channel.Channel;
+import io.netty.channel.ChannelHandler;
+import io.netty.channel.ChannelHandlerContext;
+import io.netty.channel.ChannelInboundHandlerAdapter;
 import io.netty.util.ReferenceCountUtil;
+import org.jupiter.common.util.Signal;
 import org.jupiter.common.util.internal.logging.InternalLogger;
 import org.jupiter.common.util.internal.logging.InternalLoggerFactory;
-import org.jupiter.rpc.JResponse;
-import org.jupiter.rpc.channel.JChannel;
-import org.jupiter.rpc.consumer.processor.ConsumerProcessor;
-import org.jupiter.common.util.Signal;
+import org.jupiter.transport.payload.JResponseBytes;
+import org.jupiter.transport.channel.JChannel;
 import org.jupiter.transport.exception.IoSignals;
 import org.jupiter.transport.netty.channel.NettyChannel;
+import org.jupiter.transport.processor.ConsumerProcessor;
 
 import static org.jupiter.common.util.StackTraceUtil.stackTrace;
 
@@ -40,18 +43,14 @@ public class ConnectorHandler extends ChannelInboundHandlerAdapter {
 
     private static final InternalLogger logger = InternalLoggerFactory.getInstance(ConnectorHandler.class);
 
-    private final ConsumerProcessor processor;
-
-    public ConnectorHandler(ConsumerProcessor processor) {
-        this.processor = processor;
-    }
+    private ConsumerProcessor processor;
 
     @Override
     public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
-        if (msg instanceof JResponse) {
+        if (msg instanceof JResponseBytes) {
             JChannel jChannel = NettyChannel.attachChannel(ctx.channel());
             try {
-                processor.handleResponse(jChannel, (JResponse) msg);
+                processor.handleResponse(jChannel, (JResponseBytes) msg);
             } catch (Throwable t) {
                 logger.error("An exception has been caught {}, on {} #channelRead().", t, jChannel);
             }
@@ -91,5 +90,13 @@ public class ConnectorHandler extends ChannelInboundHandlerAdapter {
         } else {
             logger.error("An exception has been caught {}, on {}.", stackTrace(cause), jChannel);
         }
+    }
+
+    public ConsumerProcessor processor() {
+        return processor;
+    }
+
+    public void processor(ConsumerProcessor processor) {
+        this.processor = processor;
     }
 }

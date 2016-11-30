@@ -20,11 +20,10 @@ import io.netty.bootstrap.Bootstrap;
 import io.netty.channel.*;
 import io.netty.channel.epoll.EpollSocketChannel;
 import io.netty.channel.socket.nio.NioSocketChannel;
-import org.jupiter.rpc.UnresolvedAddress;
-import org.jupiter.rpc.channel.JChannelGroup;
-import org.jupiter.rpc.consumer.processor.DefaultConsumerProcessor;
 import org.jupiter.transport.JConnection;
 import org.jupiter.transport.JOption;
+import org.jupiter.transport.UnresolvedAddress;
+import org.jupiter.transport.channel.JChannelGroup;
 import org.jupiter.transport.exception.ConnectFailedException;
 import org.jupiter.transport.netty.handler.IdleStateChecker;
 import org.jupiter.transport.netty.handler.ProtocolDecoder;
@@ -32,12 +31,14 @@ import org.jupiter.transport.netty.handler.ProtocolEncoder;
 import org.jupiter.transport.netty.handler.connector.ConnectionWatchdog;
 import org.jupiter.transport.netty.handler.connector.ConnectorHandler;
 import org.jupiter.transport.netty.handler.connector.ConnectorIdleStateTrigger;
+import org.jupiter.transport.processor.ConsumerProcessor;
 
 import java.net.InetSocketAddress;
 import java.net.SocketAddress;
 
 import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.jupiter.common.util.JConstants.WRITER_IDLE_TIME_SECONDS;
+import static org.jupiter.common.util.Preconditions.checkNotNull;
 
 /**
  * Jupiter tcp connector based on netty.
@@ -100,37 +101,21 @@ public class JNettyTcpConnector extends NettyTcpConnector {
 
     // handlers
     private final ConnectorIdleStateTrigger idleStateTrigger = new ConnectorIdleStateTrigger();
-    private final ConnectorHandler handler = new ConnectorHandler(new DefaultConsumerProcessor());
     private final ProtocolEncoder encoder = new ProtocolEncoder();
+    private final ConnectorHandler handler = new ConnectorHandler();
 
     public JNettyTcpConnector() {}
 
-    public JNettyTcpConnector(String appName) {
-        super(appName);
-    }
-
     public JNettyTcpConnector(boolean nativeEt) {
         super(nativeEt);
-    }
-
-    public JNettyTcpConnector(String appName, boolean nativeEt) {
-        super(appName, nativeEt);
     }
 
     public JNettyTcpConnector(int nWorkers) {
         super(nWorkers);
     }
 
-    public JNettyTcpConnector(String appName, int nWorkers) {
-        super(appName, nWorkers);
-    }
-
     public JNettyTcpConnector(int nWorkers, boolean nativeEt) {
         super(nWorkers, nativeEt);
-    }
-
-    public JNettyTcpConnector(String appName, int nWorkers, boolean nativeEt) {
-        super(appName, nWorkers, nativeEt);
     }
 
     @Override
@@ -140,10 +125,27 @@ public class JNettyTcpConnector extends NettyTcpConnector {
         config().setOption(JOption.CONNECT_TIMEOUT_MILLIS, (int) SECONDS.toMillis(3));
         // channel factory
         if (isNativeEt()) {
-            bootstrap().channel(EpollSocketChannel.class);
+            bootstrap().channelFactory(new ChannelFactory<Channel>() {
+
+                @Override
+                public Channel newChannel() {
+                    return new EpollSocketChannel();
+                }
+            });
         } else {
-            bootstrap().channel(NioSocketChannel.class);
+            bootstrap().channelFactory(new ChannelFactory<Channel>() {
+
+                @Override
+                public Channel newChannel() {
+                    return new NioSocketChannel();
+                }
+            });
         }
+    }
+
+    @Override
+    public void bindProcessor(ConsumerProcessor processor) {
+        handler.processor(checkNotNull(processor, "processor"));
     }
 
     @Override

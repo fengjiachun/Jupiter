@@ -16,7 +16,7 @@
 
 package org.jupiter.rpc.exception;
 
-import org.jupiter.rpc.Status;
+import org.jupiter.transport.Status;
 
 import java.net.SocketAddress;
 
