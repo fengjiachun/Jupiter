@@ -22,6 +22,7 @@
     <!-- netty的网络层实现(建议单例) -->
     <bean id="nettyTcpConnector" class="org.jupiter.transport.netty.JNettyTcpConnector" />
 
+    <!-- jupiter client(建议单例) -->
     <bean id="jupiterClient" class="org.jupiter.rpc.DefaultClient">
         <property name="connector" ref="nettyTcpConnector" />
     </bean>
