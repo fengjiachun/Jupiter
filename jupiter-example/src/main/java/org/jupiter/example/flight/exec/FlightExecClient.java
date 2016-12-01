@@ -56,6 +56,7 @@ public class FlightExecClient {
         }
 
         JavaClassExec service = ProxyFactory.factory(JavaClassExec.class)
+                .version("1.0.0")
                 .client(client)
                 .dispatchType(BROADCAST)
                 .invokeType(ASYNC)

@@ -16,10 +16,7 @@
 
 package org.jupiter.rpc.consumer;
 
-import org.jupiter.common.util.Lists;
-import org.jupiter.common.util.Maps;
-import org.jupiter.common.util.Proxies;
-import org.jupiter.common.util.Strings;
+import org.jupiter.common.util.*;
 import org.jupiter.rpc.*;
 import org.jupiter.rpc.consumer.dispatcher.DefaultBroadcastDispatcher;
 import org.jupiter.rpc.consumer.dispatcher.DefaultRoundDispatcher;
@@ -63,6 +60,7 @@ import static org.jupiter.serialization.SerializerType.PROTO_STUFF;
 public class ProxyFactory<I> {
 
     private final Class<I> interfaceClass;                      // 接口类型
+    private String version;                                     // 服务版本号, 通常在接口不兼容时版本号才需要升级
 
     private JClient client;                                     // jupiter client
     private SerializerType serializerType = PROTO_STUFF;        // 序列化/反序列化方式
@@ -92,6 +90,14 @@ public class ProxyFactory<I> {
 
     public Class<I> getInterfaceClass() {
         return interfaceClass;
+    }
+
+    /**
+     * Sets the version.
+     */
+    public ProxyFactory<I> version(String version) {
+        this.version = version;
+        return this;
     }
 
     /**
@@ -204,11 +210,12 @@ public class ProxyFactory<I> {
 
         checkNotNull(annotation, interfaceClass + " is not a ServiceProvider interface");
 
-        String providerName = annotation.value();
+        String providerName = annotation.name();
         providerName = Strings.isNotBlank(providerName) ? providerName : interfaceClass.getSimpleName();
+        String version = Strings.isNotBlank(this.version) ? this.version : JConstants.DEFAULT_VERSION;
 
         // metadata
-        ServiceMetadata metadata = new ServiceMetadata(annotation.group(), annotation.version(), providerName);
+        ServiceMetadata metadata = new ServiceMetadata(annotation.group(), version, providerName);
 
         JConnector<JConnection> connector = client.connector();
         for (UnresolvedAddress address : addresses) {

@@ -17,6 +17,7 @@
 package org.jupiter.flight.exec;
 
 import org.jupiter.common.util.internal.JUnsafe;
+import org.jupiter.rpc.ServiceProviderImpl;
 
 /**
  * jupiter
@@ -24,6 +25,7 @@ import org.jupiter.common.util.internal.JUnsafe;
  *
  * @author jiachun.fjc
  */
+@ServiceProviderImpl(version = "1.0.0")
 public class JavaClassExecProvider implements JavaClassExec {
 
     private static String SYSTEM_STRING = System.class.getName().replace('.', '/');

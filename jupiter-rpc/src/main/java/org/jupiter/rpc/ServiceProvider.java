@@ -22,7 +22,6 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 import static org.jupiter.common.util.JConstants.DEFAULT_GROUP;
-import static org.jupiter.common.util.JConstants.DEFAULT_VERSION;
 
 /**
  * Provider interface annotation.
@@ -39,17 +38,12 @@ import static org.jupiter.common.util.JConstants.DEFAULT_VERSION;
 public @interface ServiceProvider {
 
     /**
-     * 服务名
+     * 服务名称
      */
-    String value() default "";
+    String name() default "";
 
     /**
      * 服务组别
      */
     String group() default DEFAULT_GROUP;
-
-    /**
-     * 服务版本号
-     */
-    String version() default DEFAULT_VERSION;
 }

@@ -44,8 +44,8 @@ public class HelloJupiterClient {
         // 连接RegistryServer
         client.connectToRegistryServer("127.0.0.1:20001");
         // 自动管理可用连接
-        JConnector.ConnectionManager manager1 = client.manageConnections(ServiceTest.class);
-        JConnector.ConnectionManager manager2 = client.manageConnections(ServiceTest2.class);
+        JConnector.ConnectionManager manager1 = client.manageConnections(ServiceTest.class, "1.0.0.daily");
+        JConnector.ConnectionManager manager2 = client.manageConnections(ServiceTest2.class, "1.0.0.daily");
         // 等待连接可用
         if (!manager1.waitForAvailable(3000)) {
             throw new ConnectFailedException();
@@ -55,6 +55,7 @@ public class HelloJupiterClient {
         }
 
         ServiceTest service1 = ProxyFactory.factory(ServiceTest.class)
+                .version("1.0.0.daily")
                 .client(client)
                 .serializerType(SerializerType.HESSIAN)
                 .haStrategy(HaStrategy.Strategy.FAILOVER)
@@ -62,6 +63,7 @@ public class HelloJupiterClient {
                 .newProxyInstance();
 
         ServiceTest2 service2 = ProxyFactory.factory(ServiceTest2.class)
+                .version("1.0.0.daily")
                 .client(client)
                 .newProxyInstance();
 

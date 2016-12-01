@@ -358,19 +358,24 @@ public class DefaultServer implements JServer {
         public ServiceWrapper register() {
             checkNotNull(serviceProvider, "serviceProvider");
 
-            ServiceProvider annotation = null;
+            ServiceProvider ifAnnotation = null;
+            ServiceProviderImpl implAnnotation = null;
             String providerName = null;
             Map<String, List<Class<?>[]>> methodsParameterTypes = Maps.newHashMap();
             for (Class<?> cls = serviceProvider.getClass(); cls != Object.class; cls = cls.getSuperclass()) {
+                if (implAnnotation == null) {
+                    implAnnotation = cls.getAnnotation(ServiceProviderImpl.class);
+                }
+
                 Class<?>[] interfaces = cls.getInterfaces();
                 if (interfaces != null) {
                     for (Class<?> providerInterface : interfaces) {
-                        annotation = providerInterface.getAnnotation(ServiceProvider.class);
-                        if (annotation == null) {
+                        ifAnnotation = providerInterface.getAnnotation(ServiceProvider.class);
+                        if (ifAnnotation == null) {
                             continue;
                         }
 
-                        providerName = annotation.value();
+                        providerName = ifAnnotation.name();
                         providerName = Strings.isNotBlank(providerName) ? providerName : providerInterface.getSimpleName();
 
                         // method's parameterTypes
@@ -386,15 +391,19 @@ public class DefaultServer implements JServer {
                         break;
                     }
                 }
-                if (annotation != null) {
+
+                if (ifAnnotation != null && implAnnotation != null) {
                     break;
                 }
             }
 
-            checkArgument(annotation != null, serviceProvider.getClass() + " is not a ServiceProvider");
+            checkArgument(
+                    ifAnnotation != null && implAnnotation != null,
+                    serviceProvider.getClass() + " is not a ServiceProvider"
+            );
 
-            String group = annotation.group();
-            String version = annotation.version();
+            String group = ifAnnotation.group();
+            String version = implAnnotation.version();
 
             checkNotNull(group, "group");
             checkNotNull(version, "version");

@@ -37,6 +37,7 @@ public class Client {
         client.connector().connect(address);
 
         ServiceTest service = ProxyFactory.factory(ServiceTest.class)
+                .version("1.0.0.daily")
                 .client(client)
                 .addProviderAddress(address)
                 .newProxyInstance();

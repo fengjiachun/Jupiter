@@ -91,6 +91,7 @@ public class BenchmarkClient {
 
     private static void syncCall(JClient client, UnresolvedAddress[] addresses, int processors) {
         final Service service = ProxyFactory.factory(Service.class)
+                .version("1.0.0")
                 .client(client)
                 .loadBalancerType(LoadBalancerType.ROUND_ROBIN)
                 .addProviderAddress(addresses)
@@ -141,6 +142,7 @@ public class BenchmarkClient {
 
     private static void futureCall(JClient client, UnresolvedAddress[] addresses, int processors) {
         final Service service = ProxyFactory.factory(Service.class)
+                .version("1.0.0")
                 .client(client)
                 .invokeType(InvokeType.ASYNC)
                 .loadBalancerType(LoadBalancerType.ROUND_ROBIN)
@@ -156,7 +158,7 @@ public class BenchmarkClient {
             }
         }
 
-        final int t = 1000000;
+        final int t = 100000;
         long start = System.currentTimeMillis();
         final CountDownLatch latch = new CountDownLatch(processors << 4);
         final AtomicLong count = new AtomicLong();

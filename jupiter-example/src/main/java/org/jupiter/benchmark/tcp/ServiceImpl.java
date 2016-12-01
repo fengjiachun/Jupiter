@@ -16,12 +16,15 @@
 
 package org.jupiter.benchmark.tcp;
 
+import org.jupiter.rpc.ServiceProviderImpl;
+
 /**
  * jupiter
  * org.jupiter.benchmark.tcp
  *
  * @author jiachun.fjc
  */
+@ServiceProviderImpl(version = "1.0.0")
 public class ServiceImpl implements Service {
 
     @Override

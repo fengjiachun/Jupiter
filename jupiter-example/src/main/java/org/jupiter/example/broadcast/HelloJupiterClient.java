@@ -46,6 +46,7 @@ public class HelloJupiterClient {
         client.connector().connect(address3);
 
         ServiceTest service = ProxyFactory.factory(ServiceTest.class)
+                .version("1.0.0.daily")
                 .client(client)
                 .dispatchType(BROADCAST)
                 .invokeType(ASYNC)

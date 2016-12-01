@@ -27,7 +27,7 @@ import java.util.List;
  *
  * @author jiachun.fjc
  */
-@ServiceProvider(group = "test", version = "1.0.0.daily")
+@ServiceProvider(group = "test")
 public interface ServiceTest {
 
     ResultClass sayHello();

@@ -61,9 +61,9 @@ import static org.jupiter.serialization.SerializerType.PROTO_STUFF;
  */
 public class GenericProxyFactory {
 
-    private String group;                                       // 组别
-    private String version;                                     // 版本号
-    private String providerName;                                // provider名称
+    private String group;                                       // 服务组别
+    private String version;                                     // 服务版本号, 通常在接口不兼容时版本号才需要升级
+    private String providerName;                                // 服务名称
 
     private JClient client;                                     // jupiter client
     private SerializerType serializerType = PROTO_STUFF;        // 序列化/反序列化方式
@@ -203,7 +203,7 @@ public class GenericProxyFactory {
 
     public GenericInvoker newProxyInstance() {
         // check arguments
-        checkNotNull(client, "connector");
+        checkNotNull(client, "client");
         checkNotNull(group, "group");
         checkNotNull(version, "version");
         checkNotNull(providerName, "providerName");

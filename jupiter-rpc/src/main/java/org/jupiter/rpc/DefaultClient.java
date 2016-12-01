@@ -17,6 +17,7 @@
 package org.jupiter.rpc;
 
 import org.jupiter.common.util.ClassInitializeUtil;
+import org.jupiter.common.util.JConstants;
 import org.jupiter.common.util.JServiceLoader;
 import org.jupiter.common.util.Strings;
 import org.jupiter.common.util.internal.JUnsafe;
@@ -91,13 +92,19 @@ public class DefaultClient implements JClient {
 
     @Override
     public JConnector.ConnectionManager manageConnections(Class<?> interfaceClass) {
+        return manageConnections(interfaceClass, JConstants.DEFAULT_VERSION);
+    }
+
+    @Override
+    public JConnector.ConnectionManager manageConnections(Class<?> interfaceClass, String version) {
         checkNotNull(interfaceClass, "interfaceClass");
         ServiceProvider annotation = interfaceClass.getAnnotation(ServiceProvider.class);
         checkNotNull(annotation, interfaceClass + " is not a ServiceProvider interface");
-        String providerName = annotation.value();
+        String providerName = annotation.name();
+        version = Strings.isNotBlank(version) ? version : JConstants.DEFAULT_VERSION;
         providerName = Strings.isNotBlank(providerName) ? providerName : interfaceClass.getSimpleName();
 
-        return manageConnections(new ServiceMetadata(annotation.group(), annotation.version(), providerName));
+        return manageConnections(new ServiceMetadata(annotation.group(), version, providerName));
     }
 
     @Override

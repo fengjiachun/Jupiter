@@ -63,6 +63,11 @@ public interface JClient extends Registry {
     /**
      * Sets auto manage the connections.
      */
+    JConnector.ConnectionManager manageConnections(Class<?> interfaceClass, String version);
+
+    /**
+     * Sets auto manage the connections.
+     */
     JConnector.ConnectionManager manageConnections(Directory directory);
 
     /**

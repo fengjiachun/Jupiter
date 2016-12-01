@@ -24,7 +24,7 @@ import org.jupiter.rpc.ServiceProvider;
  *
  * @author jiachun.fjc
  */
-@ServiceProvider
+@ServiceProvider(name = "service", group = "test")
 public interface Service {
 
     String hello(String arg);

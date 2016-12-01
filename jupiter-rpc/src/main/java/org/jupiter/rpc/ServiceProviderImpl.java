@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016 The Jupiter Project
+ * Copyright (c) 2015 The Jupiter Project
  *
  * Licensed under the Apache License, version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,21 +14,29 @@
  * limitations under the License.
  */
 
-package org.jupiter.example;
+package org.jupiter.rpc;
 
-import org.jupiter.rpc.ServiceProviderImpl;
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
+
+import static org.jupiter.common.util.JConstants.DEFAULT_VERSION;
 
 /**
+ * Provider implementation annotation.
+ *
  * jupiter
- * org.jupiter.example
+ * org.jupiter.rpc
  *
  * @author jiachun.fjc
  */
-@ServiceProviderImpl(version = "1.0.0.daily")
-public class GenericServiceTestImpl implements GenericServiceTest {
+@Target(ElementType.TYPE)
+@Retention(RetentionPolicy.RUNTIME)
+public @interface ServiceProviderImpl {
 
-    @Override
-    public String sayHello(String name) {
-        return "Hello " + name;
-    }
+    /**
+     * 服务版本号, 通常在接口不兼容时版本号才需要升级
+     */
+    String version() default DEFAULT_VERSION;
 }

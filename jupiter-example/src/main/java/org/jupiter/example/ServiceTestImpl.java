@@ -16,6 +16,8 @@
 
 package org.jupiter.example;
 
+import org.jupiter.rpc.ServiceProviderImpl;
+
 import java.util.Arrays;
 
 /**
@@ -24,6 +26,7 @@ import java.util.Arrays;
  *
  * @author jiachun.fjc
  */
+@ServiceProviderImpl(version = "1.0.0.daily")
 public class ServiceTestImpl extends BaseService implements ServiceTest {
 
     private String strValue;
