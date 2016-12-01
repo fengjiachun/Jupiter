@@ -41,7 +41,7 @@ public class DefaultRegistryService extends AbstractRegistryService {
 
     private static final InternalLogger logger = InternalLoggerFactory.getInstance(DefaultRegistryService.class);
 
-    private final ConcurrentMap<UnresolvedAddress, DefaultRegistry> clients = Maps.newConcurrentHashMap();
+    private final ConcurrentMap<UnresolvedAddress, DefaultRegistry> clients = Maps.newConcurrentMap();
 
     @Override
     protected void doSubscribe(ServiceMeta serviceMeta) {

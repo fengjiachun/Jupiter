@@ -17,9 +17,10 @@
 package org.jupiter.transport.netty;
 
 import io.netty.bootstrap.Bootstrap;
-import io.netty.channel.*;
-import io.netty.channel.epoll.EpollSocketChannel;
-import io.netty.channel.socket.nio.NioSocketChannel;
+import io.netty.channel.Channel;
+import io.netty.channel.ChannelFuture;
+import io.netty.channel.ChannelHandler;
+import io.netty.channel.ChannelInitializer;
 import org.jupiter.transport.JConnection;
 import org.jupiter.transport.JOption;
 import org.jupiter.transport.UnresolvedAddress;
@@ -125,21 +126,9 @@ public class JNettyTcpConnector extends NettyTcpConnector {
         config().setOption(JOption.CONNECT_TIMEOUT_MILLIS, (int) SECONDS.toMillis(3));
         // channel factory
         if (isNativeEt()) {
-            bootstrap().channelFactory(new ChannelFactory<Channel>() {
-
-                @Override
-                public Channel newChannel() {
-                    return new EpollSocketChannel();
-                }
-            });
+            bootstrap().channelFactory(TcpChannelProvider.NATIVE_CONNECTOR);
         } else {
-            bootstrap().channelFactory(new ChannelFactory<Channel>() {
-
-                @Override
-                public Channel newChannel() {
-                    return new NioSocketChannel();
-                }
-            });
+            bootstrap().channelFactory(TcpChannelProvider.NIO_CONNECTOR);
         }
     }
 

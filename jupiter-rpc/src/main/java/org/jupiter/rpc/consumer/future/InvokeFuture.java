@@ -63,9 +63,9 @@ public class InvokeFuture<V> extends Future<V> {
             AtomicUpdater.newAtomicReferenceFieldUpdater(CopyOnWriteArrayList.class, Object[].class, "array");
 
     // 单播场景的future, Long作为Key hashCode和equals效率都更高
-    private static final ConcurrentMap<Long, InvokeFuture<?>> roundFutures = Maps.newNonBlockingHashMapLong();
+    private static final ConcurrentMap<Long, InvokeFuture<?>> roundFutures = Maps.newConcurrentMapLong();
     // 组播场景的future, 组播都是一个invokeId, 所以要把Key再加一个前缀
-    private static final ConcurrentMap<String, InvokeFuture<?>> broadcastFutures = Maps.newConcurrentHashMap();
+    private static final ConcurrentMap<String, InvokeFuture<?>> broadcastFutures = Maps.newConcurrentMap();
 
     private final long invokeId; // request id, 组播的场景可重复
     private final JChannel channel;

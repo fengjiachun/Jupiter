@@ -103,7 +103,7 @@ public class MessageTask implements RejectedRunnable {
         MessageWrapper msg;
         try {
             byte[] bytes = _request.requestBytes().bytes();
-            _request.bytes(null);
+            _request.bytes(null); // help gc
             requestSizeHistogram.update(bytes.length);
             byte s_code = _request.serializerCode();
             msg = serializerImpl(s_code).readObject(bytes, MessageWrapper.class);

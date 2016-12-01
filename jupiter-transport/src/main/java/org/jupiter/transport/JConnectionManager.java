@@ -33,7 +33,7 @@ public class JConnectionManager {
 
     private static final InternalLogger logger = InternalLoggerFactory.getInstance(JConnectionManager.class);
 
-    private static final ConcurrentMap<UnresolvedAddress, CopyOnWriteArrayList<JConnection>> connections = Maps.newConcurrentHashMap();
+    private static final ConcurrentMap<UnresolvedAddress, CopyOnWriteArrayList<JConnection>> connections = Maps.newConcurrentMap();
 
     public static void manage(JConnection connection) {
         UnresolvedAddress address = connection.getAddress();

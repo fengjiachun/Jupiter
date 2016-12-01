@@ -39,7 +39,7 @@ public final class ConcurrentSet<E> extends AbstractSet<E> implements Serializab
      * Creates a new instance which wraps the specified {@code map}.
      */
     public ConcurrentSet() {
-        map = Maps.newConcurrentHashMap();
+        map = Maps.newConcurrentMap();
     }
 
     @Override

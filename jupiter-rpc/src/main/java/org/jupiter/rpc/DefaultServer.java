@@ -358,14 +358,16 @@ public class DefaultServer implements JServer {
             checkNotNull(serviceProvider, "serviceProvider");
 
             Class<?> providerClass = serviceProvider.getClass();
-            ServiceProviderImpl implAnnotation = providerClass.getAnnotation(ServiceProviderImpl.class);
 
-            checkNotNull(implAnnotation, providerClass.getName() + " must be annotated with @ServiceProviderImpl");
-
+            ServiceProviderImpl implAnnotation = null;
             ServiceProvider ifAnnotation = null;
             String providerName = null;
             Map<String, List<Class<?>[]>> methodsParameterTypes = Maps.newHashMap();
-            for (Class<?> cls = serviceProvider.getClass(); cls != Object.class; cls = cls.getSuperclass()) {
+            for (Class<?> cls = providerClass; cls != Object.class; cls = cls.getSuperclass()) {
+                if (implAnnotation == null) {
+                    implAnnotation = cls.getAnnotation(ServiceProviderImpl.class);
+                }
+
                 Class<?>[] interfaces = cls.getInterfaces();
                 if (interfaces != null) {
                     for (Class<?> providerInterface : interfaces) {
@@ -391,12 +393,13 @@ public class DefaultServer implements JServer {
                     }
                 }
 
-                if (ifAnnotation != null) {
+                if (implAnnotation != null && ifAnnotation != null) {
                     break;
                 }
             }
 
-            checkNotNull(ifAnnotation, providerClass + "'s interface must be annotated with @ServiceProvider");
+            checkNotNull(implAnnotation, providerClass.getName() + " must be annotated with @ServiceProvider");
+            checkNotNull(ifAnnotation, providerClass.getName() + "'s interface must be annotated with @ServiceProvider");
 
             String group = ifAnnotation.group();
             String version = implAnnotation.version();
@@ -449,7 +452,7 @@ public class DefaultServer implements JServer {
     // 本地provider容器默认实现
     class DefaultServiceProviderContainer implements ServiceProviderContainer {
 
-        private final ConcurrentMap<String, ServiceWrapper> serviceProviders = Maps.newConcurrentHashMap();
+        private final ConcurrentMap<String, ServiceWrapper> serviceProviders = Maps.newConcurrentMap();
 
         @Override
         public void registerService(String uniqueKey, ServiceWrapper serviceWrapper) {

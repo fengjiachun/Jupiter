@@ -84,7 +84,7 @@ public final class Maps {
     /**
      * Creates a mutable, empty {@code ConcurrentMap} instance.
      */
-    public static <K, V> ConcurrentMap<K, V> newConcurrentHashMap() {
+    public static <K, V> ConcurrentMap<K, V> newConcurrentMap() {
         if (USE_NON_BLOCKING_HASH) {
             return new NonBlockingHashMap<>();
         }
@@ -95,7 +95,7 @@ public final class Maps {
      * Creates a {@code ConcurrentMap} instance, with a high enough "initial capacity"
      * that it should hold {@code expectedSize} elements without growth.
      */
-    public static <K, V> ConcurrentMap<K, V> newConcurrentHashMap(int initialCapacity) {
+    public static <K, V> ConcurrentMap<K, V> newConcurrentMap(int initialCapacity) {
         if (USE_NON_BLOCKING_HASH) {
             return new NonBlockingHashMap<>(initialCapacity);
         }
@@ -105,7 +105,7 @@ public final class Maps {
     /**
      * Creates a mutable, empty {@code NonBlockingHashMapLong} instance.
      */
-    public static <V> ConcurrentMap<Long, V> newNonBlockingHashMapLong() {
+    public static <V> ConcurrentMap<Long, V> newConcurrentMapLong() {
         return new NonBlockingHashMapLong<>();
     }
 
@@ -113,7 +113,7 @@ public final class Maps {
      * Creates a {@code NonBlockingHashMapLong} instance, with a high enough "initial capacity"
      * that it should hold {@code expectedSize} elements without growth.
      */
-    public static <V> ConcurrentMap<Long, V> newNonBlockingHashMapLong(int initialCapacity) {
+    public static <V> ConcurrentMap<Long, V> newConcurrentMapLong(int initialCapacity) {
         return new NonBlockingHashMapLong<>(initialCapacity);
     }
 

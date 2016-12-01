@@ -79,7 +79,7 @@ public class ProxyFactory<I> {
         // 初始化数据
         factory.addresses = Lists.newArrayList();
         factory.hooks = Lists.newArrayList();
-        factory.methodsSpecialTimeoutMillis = Maps.newTreeMap();
+        factory.methodsSpecialTimeoutMillis = Maps.newHashMap();
 
         return factory;
     }

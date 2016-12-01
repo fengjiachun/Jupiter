@@ -37,6 +37,7 @@ import org.jupiter.transport.channel.JChannel;
 import org.jupiter.transport.exception.ConnectFailedException;
 import org.jupiter.transport.exception.IoSignals;
 import org.jupiter.transport.netty.NettyTcpConnector;
+import org.jupiter.transport.netty.TcpChannelProvider;
 import org.jupiter.transport.netty.channel.NettyChannel;
 import org.jupiter.transport.netty.handler.AcknowledgeEncoder;
 import org.jupiter.transport.netty.handler.IdleStateChecker;
@@ -78,7 +79,7 @@ public class DefaultRegistry extends NettyTcpConnector {
     private static final AttributeKey<ConcurrentSet<RegisterMeta>> C_PUBLISH_KEY = AttributeKey.valueOf("client.published");
 
     // 没收到对端ack确认, 需要重发的消息
-    private final ConcurrentMap<Long, MessageNonAck> messagesNonAck = Maps.newConcurrentHashMap();
+    private final ConcurrentMap<Long, MessageNonAck> messagesNonAck = Maps.newConcurrentMap();
 
     // handlers
     private final ConnectorIdleStateTrigger idleStateTrigger = new ConnectorIdleStateTrigger();
@@ -106,13 +107,7 @@ public class DefaultRegistry extends NettyTcpConnector {
         config().setOption(JOption.SO_REUSEADDR, true);
         config().setOption(JOption.CONNECT_TIMEOUT_MILLIS, (int) SECONDS.toMillis(3));
         // channel factory
-        bootstrap().channelFactory(new ChannelFactory<Channel>() {
-
-            @Override
-            public Channel newChannel() {
-                return new NioSocketChannel();
-            }
-        });
+        bootstrap().channelFactory(TcpChannelProvider.NIO_CONNECTOR);
     }
 
     /**

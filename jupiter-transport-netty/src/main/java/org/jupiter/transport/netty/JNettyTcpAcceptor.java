@@ -17,13 +17,9 @@
 package org.jupiter.transport.netty;
 
 import io.netty.bootstrap.ServerBootstrap;
-import io.netty.channel.ChannelFactory;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelInitializer;
-import io.netty.channel.ServerChannel;
-import io.netty.channel.epoll.EpollServerSocketChannel;
 import io.netty.channel.socket.SocketChannel;
-import io.netty.channel.socket.nio.NioServerSocketChannel;
 import org.jupiter.transport.JConfig;
 import org.jupiter.transport.JOption;
 import org.jupiter.transport.netty.handler.IdleStateChecker;
@@ -140,21 +136,9 @@ public class JNettyTcpAcceptor extends NettyTcpAcceptor {
         ServerBootstrap boot = bootstrap();
 
         if (isNativeEt()) {
-            boot.channelFactory(new ChannelFactory<ServerChannel>() {
-
-                @Override
-                public ServerChannel newChannel() {
-                    return new EpollServerSocketChannel();
-                }
-            });
+            boot.channelFactory(TcpChannelProvider.NATIVE_ACCEPTOR);
         } else {
-            boot.channelFactory(new ChannelFactory<ServerChannel>() {
-
-                @Override
-                public ServerChannel newChannel() {
-                    return new NioServerSocketChannel();
-                }
-            });
+            boot.channelFactory(TcpChannelProvider.NIO_ACCEPTOR);
         }
         boot.childHandler(new ChannelInitializer<SocketChannel>() {
 

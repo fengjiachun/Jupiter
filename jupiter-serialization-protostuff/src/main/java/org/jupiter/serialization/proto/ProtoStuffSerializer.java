@@ -55,7 +55,7 @@ public class ProtoStuffSerializer implements Serializer {
                 .setProperty("protostuff.runtime.always_use_sun_reflection_factory", value);
     }
 
-    private final ConcurrentMap<Class<?>, Schema<?>> schemaCache = Maps.newConcurrentHashMap();
+    private final ConcurrentMap<Class<?>, Schema<?>> schemaCache = Maps.newConcurrentMap();
 
     private final ThreadLocal<LinkedBuffer> bufThreadLocal = new ThreadLocal<LinkedBuffer>() {
 

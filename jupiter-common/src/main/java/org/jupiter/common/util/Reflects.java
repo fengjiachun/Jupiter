@@ -39,7 +39,7 @@ import static org.jupiter.common.util.Preconditions.checkNotNull;
 public final class Reflects {
 
     private static final Objenesis objenesis = new ObjenesisStd(true);
-    private static final ConcurrentMap<Class<?>, FastClass> fastClassCache = Maps.newConcurrentHashMap();
+    private static final ConcurrentMap<Class<?>, FastClass> fastClassCache = Maps.newConcurrentMap();
 
     /**
      * Maps primitive {@link Class}es to their corresponding wrapper {@link Class}.

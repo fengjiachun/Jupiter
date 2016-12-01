@@ -67,9 +67,9 @@ public class ZookeeperRegistryService extends AbstractRegistryService {
     private final int sessionTimeoutMs = SystemPropertyUtil.getInt("jupiter.registry.zookeeper.sessionTimeoutMs", 60 * 1000);
     private final int connectionTimeoutMs = SystemPropertyUtil.getInt("jupiter.registry.zookeeper.connectionTimeoutMs", 15 * 1000);
 
-    private final ConcurrentMap<ServiceMeta, PathChildrenCache> pathChildrenCaches = Maps.newConcurrentHashMap();
+    private final ConcurrentMap<ServiceMeta, PathChildrenCache> pathChildrenCaches = Maps.newConcurrentMap();
     // 指定节点都提供了哪些服务
-    private final ConcurrentMap<Address, ConcurrentSet<ServiceMeta>> serviceMetaMap = Maps.newConcurrentHashMap();
+    private final ConcurrentMap<Address, ConcurrentSet<ServiceMeta>> serviceMetaMap = Maps.newConcurrentMap();
 
     private CuratorFramework configClient;
 

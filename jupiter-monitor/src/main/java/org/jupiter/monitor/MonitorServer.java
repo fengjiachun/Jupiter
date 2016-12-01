@@ -19,7 +19,6 @@ package org.jupiter.monitor;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.*;
 import io.netty.channel.socket.SocketChannel;
-import io.netty.channel.socket.nio.NioServerSocketChannel;
 import io.netty.handler.codec.string.StringDecoder;
 import io.netty.handler.codec.string.StringEncoder;
 import io.netty.util.ReferenceCountUtil;
@@ -30,6 +29,7 @@ import org.jupiter.monitor.handler.CommandHandler;
 import org.jupiter.monitor.handler.RegistryHandler;
 import org.jupiter.registry.RegistryMonitor;
 import org.jupiter.transport.netty.NettyTcpAcceptor;
+import org.jupiter.transport.netty.TcpChannelProvider;
 
 import java.net.SocketAddress;
 
@@ -88,22 +88,17 @@ public class MonitorServer extends NettyTcpAcceptor {
     public ChannelFuture bind(SocketAddress localAddress) {
         ServerBootstrap boot = bootstrap();
 
-        boot.channelFactory(new ChannelFactory<ServerChannel>() {
+        boot.channelFactory(TcpChannelProvider.NIO_ACCEPTOR)
+                .childHandler(new ChannelInitializer<SocketChannel>() {
 
-            @Override
-            public ServerChannel newChannel() {
-                return new NioServerSocketChannel();
-            }
-        }).childHandler(new ChannelInitializer<SocketChannel>() {
-
-            @Override
-            protected void initChannel(SocketChannel ch) throws Exception {
-                ch.pipeline().addLast(
-                        new StringDecoder(UTF8),
-                        encoder,
-                        handler);
-            }
-        });
+                    @Override
+                    protected void initChannel(SocketChannel ch) throws Exception {
+                        ch.pipeline().addLast(
+                                new StringDecoder(UTF8),
+                                encoder,
+                                handler);
+                    }
+                });
 
         setOptions();
 

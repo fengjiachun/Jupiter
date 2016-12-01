@@ -23,7 +23,6 @@ import io.netty.channel.group.ChannelGroup;
 import io.netty.channel.group.ChannelMatcher;
 import io.netty.channel.group.DefaultChannelGroup;
 import io.netty.channel.socket.SocketChannel;
-import io.netty.channel.socket.nio.NioServerSocketChannel;
 import io.netty.handler.codec.MessageToByteEncoder;
 import io.netty.handler.codec.ReplayingDecoder;
 import io.netty.util.Attribute;
@@ -42,6 +41,7 @@ import org.jupiter.transport.JProtocolHeader;
 import org.jupiter.transport.channel.JChannel;
 import org.jupiter.transport.exception.IoSignals;
 import org.jupiter.transport.netty.NettyTcpAcceptor;
+import org.jupiter.transport.netty.TcpChannelProvider;
 import org.jupiter.transport.netty.channel.NettyChannel;
 import org.jupiter.transport.netty.handler.AcknowledgeEncoder;
 import org.jupiter.transport.netty.handler.IdleStateChecker;
@@ -90,7 +90,7 @@ public class DefaultRegistryServer extends NettyTcpAcceptor implements RegistryS
     // 订阅者
     private final ChannelGroup subscriberChannels = new DefaultChannelGroup("subscribers", GlobalEventExecutor.INSTANCE);
     // 没收到对端ack确认, 需要重发的消息
-    private final ConcurrentMap<String, MessageNonAck> messagesNonAck = Maps.newConcurrentHashMap();
+    private final ConcurrentMap<String, MessageNonAck> messagesNonAck = Maps.newConcurrentMap();
 
     // handlers
     private final AcceptorIdleStateTrigger idleStateTrigger = new AcceptorIdleStateTrigger();
@@ -132,25 +132,20 @@ public class DefaultRegistryServer extends NettyTcpAcceptor implements RegistryS
     public ChannelFuture bind(SocketAddress localAddress) {
         ServerBootstrap boot = bootstrap();
 
-        boot.channelFactory(new ChannelFactory<ServerChannel>() {
+        boot.channelFactory(TcpChannelProvider.NIO_ACCEPTOR)
+                .childHandler(new ChannelInitializer<SocketChannel>() {
 
-            @Override
-            public ServerChannel newChannel() {
-                return new NioServerSocketChannel();
-            }
-        }).childHandler(new ChannelInitializer<SocketChannel>() {
-
-            @Override
-            protected void initChannel(SocketChannel ch) throws Exception {
-                ch.pipeline().addLast(
-                        new IdleStateChecker(timer, READER_IDLE_TIME_SECONDS, 0, 0),
-                        idleStateTrigger,
-                        new MessageDecoder(),
-                        encoder,
-                        ackEncoder,
-                        handler);
-            }
-        });
+                    @Override
+                    protected void initChannel(SocketChannel ch) throws Exception {
+                        ch.pipeline().addLast(
+                                new IdleStateChecker(timer, READER_IDLE_TIME_SECONDS, 0, 0),
+                                idleStateTrigger,
+                                new MessageDecoder(),
+                                encoder,
+                                ackEncoder,
+                                handler);
+                    }
+                });
 
         setOptions();
 

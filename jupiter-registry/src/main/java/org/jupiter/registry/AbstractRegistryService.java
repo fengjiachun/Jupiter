@@ -57,8 +57,8 @@ public abstract class AbstractRegistryService implements RegistryService {
     private final Map<ServiceMeta, Pair<Long, List<RegisterMeta>>> registries = Maps.newHashMap();
     private final ReentrantReadWriteLock registriesLock = new ReentrantReadWriteLock();
 
-    private final ConcurrentMap<ServiceMeta, CopyOnWriteArrayList<NotifyListener>> subscribeListeners = Maps.newConcurrentHashMap();
-    private final ConcurrentMap<Address, CopyOnWriteArrayList<OfflineListener>> offlineListeners = Maps.newConcurrentHashMap();
+    private final ConcurrentMap<ServiceMeta, CopyOnWriteArrayList<NotifyListener>> subscribeListeners = Maps.newConcurrentMap();
+    private final ConcurrentMap<Address, CopyOnWriteArrayList<OfflineListener>> offlineListeners = Maps.newConcurrentMap();
 
     // Consumer已订阅的信息
     private final ConcurrentSet<ServiceMeta> subscribeSet = new ConcurrentSet<>();

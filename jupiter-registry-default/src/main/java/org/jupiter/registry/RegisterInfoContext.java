@@ -39,15 +39,15 @@ public class RegisterInfoContext {
 
     // 指定服务都有哪些节点注册
     private final ConcurrentMap<ServiceMeta, ConfigWithVersion<ConcurrentMap<Address, RegisterMeta>>>
-            globalRegisterInfoMap = Maps.newConcurrentHashMap();
+            globalRegisterInfoMap = Maps.newConcurrentMap();
     // 指定节点都注册了哪些服务
-    private final ConcurrentMap<Address, ConcurrentSet<ServiceMeta>> globalServiceMetaMap = Maps.newConcurrentHashMap();
+    private final ConcurrentMap<Address, ConcurrentSet<ServiceMeta>> globalServiceMetaMap = Maps.newConcurrentMap();
 
     public ConfigWithVersion<ConcurrentMap<Address, RegisterMeta>> getRegisterMeta(ServiceMeta serviceMeta) {
         ConfigWithVersion<ConcurrentMap<Address, RegisterMeta>> config = globalRegisterInfoMap.get(serviceMeta);
         if (config == null) {
             ConfigWithVersion<ConcurrentMap<Address, RegisterMeta>> newConfig = ConfigWithVersion.newInstance();
-            newConfig.setConfig(Maps.<Address, RegisterMeta>newConcurrentHashMap());
+            newConfig.setConfig(Maps.<Address, RegisterMeta>newConcurrentMap());
             config = globalRegisterInfoMap.putIfAbsent(serviceMeta, newConfig);
             if (config == null) {
                 config = newConfig;
