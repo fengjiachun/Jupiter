@@ -43,7 +43,6 @@ import static net.bytebuddy.dynamic.loading.ClassLoadingStrategy.Default.INJECTI
 import static net.bytebuddy.implementation.MethodDelegation.to;
 import static net.bytebuddy.matcher.ElementMatchers.isDeclaredBy;
 import static net.bytebuddy.matcher.ElementMatchers.not;
-import static org.jupiter.common.util.Preconditions.checkArgument;
 import static org.jupiter.common.util.Preconditions.checkNotNull;
 import static org.jupiter.common.util.Reflects.*;
 import static org.jupiter.common.util.StackTraceUtil.stackTrace;
@@ -358,15 +357,15 @@ public class DefaultServer implements JServer {
         public ServiceWrapper register() {
             checkNotNull(serviceProvider, "serviceProvider");
 
+            Class<?> providerClass = serviceProvider.getClass();
+            ServiceProviderImpl implAnnotation = providerClass.getAnnotation(ServiceProviderImpl.class);
+
+            checkNotNull(implAnnotation, providerClass.getName() + " must be annotated with @ServiceProviderImpl");
+
             ServiceProvider ifAnnotation = null;
-            ServiceProviderImpl implAnnotation = null;
             String providerName = null;
             Map<String, List<Class<?>[]>> methodsParameterTypes = Maps.newHashMap();
             for (Class<?> cls = serviceProvider.getClass(); cls != Object.class; cls = cls.getSuperclass()) {
-                if (implAnnotation == null) {
-                    implAnnotation = cls.getAnnotation(ServiceProviderImpl.class);
-                }
-
                 Class<?>[] interfaces = cls.getInterfaces();
                 if (interfaces != null) {
                     for (Class<?> providerInterface : interfaces) {
@@ -392,15 +391,12 @@ public class DefaultServer implements JServer {
                     }
                 }
 
-                if (ifAnnotation != null && implAnnotation != null) {
+                if (ifAnnotation != null) {
                     break;
                 }
             }
 
-            checkArgument(
-                    ifAnnotation != null && implAnnotation != null,
-                    serviceProvider.getClass() + " is not a ServiceProvider"
-            );
+            checkNotNull(ifAnnotation, providerClass + "'s interface must be annotated with @ServiceProvider");
 
             String group = ifAnnotation.group();
             String version = implAnnotation.version();
