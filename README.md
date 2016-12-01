@@ -30,3 +30,8 @@
 ####文档:
 - [Wiki](https://github.com/fengjiachun/Jupiter/wiki)
 
+####其他
+- 闲暇时间写着玩的, 娱乐性质, 不过如有人希望尝试使用, 我承诺会一直维护
+    + qq交流群: 397633380
+    + 邮件交流: jiachun_fjc@163.com
+
