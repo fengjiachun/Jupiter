@@ -96,7 +96,7 @@ public class RoundRobinLoadBalancer extends AbstractLoadBalancer {
 
             weightsSnapshot.set(i, val);
             sumWeight += val;
-            allWarmFinish = allWarmFinish && group.getTimestamp() < 0;
+            allWarmFinish = (allWarmFinish && group.getTimestamp() < 0);
         }
 
         int maxWeight = 0;

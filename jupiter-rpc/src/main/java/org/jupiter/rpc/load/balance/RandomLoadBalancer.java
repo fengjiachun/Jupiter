@@ -74,7 +74,7 @@ public class RandomLoadBalancer extends AbstractLoadBalancer {
 
             weightsSnapshot.set(i, val);
             sumWeight += val;
-            allWarmFinish = allWarmFinish && group.getTimestamp() < 0;
+            allWarmFinish = (allWarmFinish && group.getTimestamp() < 0);
         }
 
         boolean sameWeight = true;
