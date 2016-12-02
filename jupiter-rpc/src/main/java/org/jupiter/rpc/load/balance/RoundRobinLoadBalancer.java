@@ -24,12 +24,13 @@ import org.jupiter.transport.channel.JChannelGroup;
 import java.util.concurrent.atomic.AtomicIntegerFieldUpdater;
 
 /**
- * 按照权重轮训负载均衡, 每个服务应该有一个独立的load balancer实例(index不应该共享)
+ * 加权轮训负载均衡
  *
+ * 每个服务应有各自独立的实例(index不共享)
+ *
+ * **********************************************************************
  *
  *  index++ % sumWeight
- *
- *
  *
  *                       ┌─┐
  *                       │ │
@@ -50,6 +51,7 @@ import java.util.concurrent.atomic.AtomicIntegerFieldUpdater;
  *        │0│  │1│  │2│  │3│  │4│  │5│  │.│  │n│
  *        └─┘  └─┘  └─┘  └─┘  └─┘  └─┘  └─┘  └─┘
  *
+ * **********************************************************************
  *
  * jupiter
  * org.jupiter.rpc.load.balance
