@@ -109,134 +109,126 @@ public class DefaultClient implements JClient {
 
     @Override
     public JConnector.ConnectionManager manageConnections(final Directory directory) {
-        {
+        JConnector.ConnectionManager manager = new JConnector.ConnectionManager() {
 
-            JConnector.ConnectionManager manager = new JConnector.ConnectionManager() {
+            private final ReentrantLock lock = new ReentrantLock();
+            private final Condition notifyCondition = lock.newCondition();
+            // Attempts to elide conditional wake-ups when the lock is uncontended.
+            private final AtomicBoolean signalNeeded = new AtomicBoolean(false);
 
-                private final ReentrantLock lock = new ReentrantLock();
-                private final Condition notifyCondition = lock.newCondition();
-                // Attempts to elide conditional wake-ups when the lock is uncontended.
-                private final AtomicBoolean signalNeeded = new AtomicBoolean(false);
+            @Override
+            public void start() {
+                subscribe(directory, new NotifyListener() {
 
-                @Override
-                public void start() {
-                    subscribe(directory, new NotifyListener() {
+                    @Override
+                    public void notify(RegisterMeta registerMeta, NotifyEvent event) {
+                        UnresolvedAddress address = new UnresolvedAddress(registerMeta.getHost(), registerMeta.getPort());
+                        final JChannelGroup group = connector.group(address);
+                        if (event == NotifyEvent.CHILD_ADDED) {
+                            if (!group.isAvailable()) {
+                                JConnection[] connections = connectTo(address, group, registerMeta, true);
+                                for (JConnection c : connections) {
+                                    c.operationComplete(new Runnable() {
 
-                        @Override
-                        public void notify(RegisterMeta registerMeta, NotifyEvent event) {
-                            UnresolvedAddress address = new UnresolvedAddress(registerMeta.getHost(), registerMeta.getPort());
-                            final JChannelGroup group = connector.group(address);
-                            if (event == NotifyEvent.CHILD_ADDED) {
-                                if (!group.isAvailable()) {
-                                    JConnection[] connections = connectTo(address, group, registerMeta, true);
-                                    for (JConnection c : connections) {
-                                        c.operationComplete(new Runnable() {
-
-                                            @Override
-                                            public void run() {
-                                                onSucceed(group, signalNeeded.getAndSet(false));
-                                            }
-                                        });
-                                    }
-                                } else {
-                                    onSucceed(group, signalNeeded.getAndSet(false));
-                                }
-                            } else if (event == NotifyEvent.CHILD_REMOVED) {
-                                connector.removeChannelGroup(directory, group);
-                                if (connector.directoryGroup().getRefCount(group) <= 0) {
-                                    JConnectionManager.cancelReconnect(address); // 取消自动重连
-                                }
-                            }
-                        }
-
-                        private JConnection[] connectTo(final UnresolvedAddress address, final JChannelGroup group, RegisterMeta registerMeta, boolean async) {
-                            int connCount = registerMeta.getConnCount();
-                            connCount = connCount < 1 ? 1 : connCount;
-
-                            JConnection[] connections = new JConnection[connCount];
-                            group.setWeight(registerMeta.getWeight()); // 设置权重
-                            group.setCapacity(connCount);
-                            for (int i = 0; i < connCount; i++) {
-                                JConnection connection = connector.connect(address, async);
-                                connections[i] = connection;
-                                JConnectionManager.manage(connection);
-
-                                offlineListening(address, new OfflineListener() {
-
-                                    @Override
-                                    public void offline() {
-                                        JConnectionManager.cancelReconnect(address); // 取消自动重连
-                                        if (!group.isAvailable()) {
-                                            connector.removeChannelGroup(directory, group);
+                                        @Override
+                                        public void run() {
+                                            onSucceed(group, signalNeeded.getAndSet(false));
                                         }
-                                    }
-                                });
-                            }
-
-                            return connections;
-                        }
-
-                        private void onSucceed(JChannelGroup group, boolean doSignal) {
-                            connector.addChannelGroup(directory, group);
-
-                            if (doSignal) {
-                                final ReentrantLock _look = lock;
-                                _look.lock();
-                                try {
-                                    notifyCondition.signalAll();
-                                } finally {
-                                    _look.unlock();
+                                    });
                                 }
+                            } else {
+                                onSucceed(group, signalNeeded.getAndSet(false));
+                            }
+                        } else if (event == NotifyEvent.CHILD_REMOVED) {
+                            connector.removeChannelGroup(directory, group);
+                            if (connector.directoryGroup().getRefCount(group) <= 0) {
+                                JConnectionManager.cancelReconnect(address); // 取消自动重连
                             }
                         }
-                    });
-                }
-
-                @Override
-                public boolean waitForAvailable(long timeoutMillis) {
-                    if (connector.isDirectoryAvailable(directory)) {
-                        return true;
                     }
 
-                    boolean available = false;
-                    long start = System.nanoTime();
-                    final ReentrantLock _look = lock;
-                    _look.lock();
-                    try {
-                        while (!connector.isDirectoryAvailable(directory)) {
-                            signalNeeded.set(true);
-                            notifyCondition.await(timeoutMillis, MILLISECONDS);
+                    private JConnection[] connectTo(final UnresolvedAddress address, final JChannelGroup group, RegisterMeta registerMeta, boolean async) {
+                        int connCount = registerMeta.getConnCount();
+                        connCount = connCount < 1 ? 1 : connCount;
 
-                            available = connector.isDirectoryAvailable(directory);
-                            if (available || (System.nanoTime() - start) > MILLISECONDS.toNanos(timeoutMillis)) {
-                                break;
+                        JConnection[] connections = new JConnection[connCount];
+                        group.setWeight(registerMeta.getWeight()); // 设置权重
+                        group.setCapacity(connCount);
+                        for (int i = 0; i < connCount; i++) {
+                            JConnection connection = connector.connect(address, async);
+                            connections[i] = connection;
+                            JConnectionManager.manage(connection);
+
+                            offlineListening(address, new OfflineListener() {
+
+                                @Override
+                                public void offline() {
+                                    JConnectionManager.cancelReconnect(address); // 取消自动重连
+                                    if (!group.isAvailable()) {
+                                        connector.removeChannelGroup(directory, group);
+                                    }
+                                }
+                            });
+                        }
+
+                        return connections;
+                    }
+
+                    private void onSucceed(JChannelGroup group, boolean doSignal) {
+                        connector.addChannelGroup(directory, group);
+
+                        if (doSignal) {
+                            final ReentrantLock _look = lock;
+                            _look.lock();
+                            try {
+                                notifyCondition.signalAll();
+                            } finally {
+                                _look.unlock();
                             }
                         }
-                    } catch (InterruptedException e) {
-                        JUnsafe.throwException(e);
-                    } finally {
-                        _look.unlock();
                     }
+                });
+            }
 
-                    return available;
+            @Override
+            public boolean waitForAvailable(long timeoutMillis) {
+                if (connector.isDirectoryAvailable(directory)) {
+                    return true;
                 }
-            };
 
-            manager.start();
+                boolean available = false;
+                long start = System.nanoTime();
+                final ReentrantLock _look = lock;
+                _look.lock();
+                try {
+                    while (!connector.isDirectoryAvailable(directory)) {
+                        signalNeeded.set(true);
+                        notifyCondition.await(timeoutMillis, MILLISECONDS);
 
-            return manager;
-        }
+                        available = connector.isDirectoryAvailable(directory);
+                        if (available || (System.nanoTime() - start) > MILLISECONDS.toNanos(timeoutMillis)) {
+                            break;
+                        }
+                    }
+                } catch (InterruptedException e) {
+                    JUnsafe.throwException(e);
+                } finally {
+                    _look.unlock();
+                }
+
+                return available;
+            }
+        };
+
+        manager.start();
+
+        return manager;
     }
 
     @Override
     public boolean awaitConnections(Directory directory, long timeoutMillis) {
         JConnector.ConnectionManager manager = manageConnections(directory);
         return manager.waitForAvailable(timeoutMillis);
-    }
-
-    @Override
-    public void refreshConnections(Directory directory) {
-        manageConnections(directory);
     }
 
     @Override

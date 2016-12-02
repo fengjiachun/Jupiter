@@ -16,6 +16,9 @@
 
 package org.jupiter.rpc.load.balance;
 
+import org.jupiter.transport.channel.CopyOnWriteGroupList;
+import org.jupiter.transport.channel.DirectoryJChannelGroup;
+
 /**
  * jupiter
  * org.jupiter.rpc.load.balance
@@ -25,29 +28,22 @@ package org.jupiter.rpc.load.balance;
 public class RoundRobinLoadBalancerTest {
 
     public static void main(String[] args) {
+        CopyOnWriteGroupList groupList = new CopyOnWriteGroupList(new DirectoryJChannelGroup());
         int len = 50;
-        Object[] array = new Object[len];
         for (int i = 0; i < len; i++) {
-            Channel c = new Channel();
+            ChannelGroup c = new ChannelGroup();
             c.index = i;
             c.weight = 1;
-            array[i] = c;
+            groupList.addIfAbsent(c);
         }
-        ((Channel) array[15]).weight = 3;
+        groupList.get(15).setWeight(3);
 
-        LoadBalancer<Channel> lb = new RR();
+        LoadBalancer lb = new RoundRobinLoadBalancer();
         len += 2;
         for (int i = 0; i < len; i++) {
-            System.out.println(lb.select(array, null));
+            System.out.print((i + 1) + " ");
+            System.out.println(lb.select(groupList, null));
         }
-    }
-}
-
-class RR extends RoundRobinLoadBalancer<Channel> {
-
-    @Override
-    protected int getWeight(Channel channel) {
-        return channel.weight;
     }
 }
 

@@ -25,7 +25,8 @@ import org.jupiter.rpc.model.metadata.ServiceMetadata;
 import org.jupiter.serialization.Serializer;
 import org.jupiter.serialization.SerializerType;
 import org.jupiter.transport.channel.JChannel;
-import org.jupiter.transport.channel.JChannelGroup;
+
+import static org.jupiter.rpc.DispatchType.ROUND;
 
 /**
  * 单播方式派发消息
@@ -38,7 +39,7 @@ import org.jupiter.transport.channel.JChannelGroup;
 public class DefaultRoundDispatcher extends AbstractDispatcher {
 
     public DefaultRoundDispatcher(
-            LoadBalancer<JChannelGroup> loadBalancer, ServiceMetadata metadata, SerializerType serializerType) {
+            LoadBalancer loadBalancer, ServiceMetadata metadata, SerializerType serializerType) {
         super(loadBalancer, metadata, serializerType);
     }
 
@@ -68,7 +69,7 @@ public class DefaultRoundDispatcher extends AbstractDispatcher {
         InvokeFuture<?> future = asFuture(channel, request, returnType, timeoutMillis)
                 .setHooks(getHooks());
 
-        return write(channel, request, future);
+        return write(channel, request, future, ROUND);
     }
 
     @Override
@@ -94,7 +95,7 @@ public class DefaultRoundDispatcher extends AbstractDispatcher {
         InvokeFuture<?> future = asFuture(channel, request, returnType, timeoutMillis)
                 .setHooks(getHooks());
 
-        return write(channel, request, future);
+        return write(channel, request, future, ROUND);
     }
 
     @SuppressWarnings("unchecked")

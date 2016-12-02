@@ -119,6 +119,11 @@ public interface JChannelGroup {
     void resetTimestamp();
 
     /**
+     * Clear the time of birth.
+     */
+    void clearTimestamp();
+
+    /**
      * Deadline millis.
      */
     long deadlineMillis();

@@ -17,6 +17,8 @@
 package org.jupiter.rpc.load.balance;
 
 import org.jupiter.rpc.model.metadata.MessageWrapper;
+import org.jupiter.transport.channel.CopyOnWriteGroupList;
+import org.jupiter.transport.channel.JChannelGroup;
 
 import java.util.concurrent.ThreadLocalRandom;
 
@@ -28,59 +30,66 @@ import java.util.concurrent.ThreadLocalRandom;
  *
  * @author jiachun.fjc
  */
-public abstract class RandomLoadBalancer<T> implements LoadBalancer<T> {
+public class RandomLoadBalancer extends AbstractLoadBalancer {
 
-    private final ThreadLocal<WeightArray> weightsThreadLocal = new ThreadLocal<WeightArray>() {
-
-        @Override
-        protected WeightArray initialValue() {
-            return new WeightArray();
-        }
-    };
-
-    @SuppressWarnings("unchecked")
     @Override
-    public T select(Object[] elements, MessageWrapper unused) {
+    public JChannelGroup select(CopyOnWriteGroupList groups, @SuppressWarnings("unused") MessageWrapper unused) {
+        Object[] elements = groups.snapshot();
         int length = elements.length;
+
         if (length == 0) {
-            throw new IllegalArgumentException("empty elements for select");
-        }
-        if (length == 1) {
-            return (T) elements[0];
+            return null;
         }
 
+        if (length == 1) {
+            return (JChannelGroup) elements[0];
+        }
+
+        ThreadLocalRandom random = ThreadLocalRandom.current();
+
+        if (groups.isSameWeight()) {
+            return (JChannelGroup) elements[random.nextInt(length)];
+        }
+
+        // 遍历权重
+        boolean allWarmFinish = true;
         int sumWeight = 0;
-        WeightArray weightSnapshots = weightsThreadLocal.get();
-        weightSnapshots.refresh(length);
+        WeightArray weightsSnapshot = weightArray(length);
         for (int i = 0; i < length; i++) {
-            int val = getWeight((T) elements[i]);
-            weightSnapshots.set(i, val);
+            JChannelGroup group = (JChannelGroup) elements[i];
+
+            int val = getWeight(group);
+
+            weightsSnapshot.set(i, val);
             sumWeight += val;
+            allWarmFinish = allWarmFinish && group.getTimestamp() < 0;
         }
 
         boolean sameWeight = true;
         for (int i = 1; i < length; i++) {
-            if (weightSnapshots.get(0) != weightSnapshots.get(i)) {
+            if (weightsSnapshot.get(0) != weightsSnapshot.get(i)) {
                 sameWeight = false;
                 break;
             }
         }
 
-        ThreadLocalRandom random = ThreadLocalRandom.current();
+        if (allWarmFinish && sameWeight) {
+            // 预热全部完成并且权重完全相同
+            groups.setSameWeight(true);
+        }
+
         // 如果权重不相同且总权重大于0, 则按总权重数随机
         if (!sameWeight && sumWeight > 0) {
             int offset = random.nextInt(sumWeight);
             // 确定随机值落在哪个片
             for (int i = 0; i < length; i++) {
-                offset -= weightSnapshots.get(i);
+                offset -= weightsSnapshot.get(i);
                 if (offset < 0) {
-                    return (T) elements[i];
+                    return (JChannelGroup) elements[i];
                 }
             }
         }
 
-        return (T) elements[random.nextInt(length)];
+        return (JChannelGroup) elements[random.nextInt(length)];
     }
-
-    protected abstract int getWeight(T t);
 }

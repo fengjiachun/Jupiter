@@ -77,11 +77,6 @@ public interface JClient extends Registry {
     boolean awaitConnections(Directory directory, long timeoutMillis);
 
     /**
-     * Refresh the connections.
-     */
-    void refreshConnections(Directory directory);
-
-    /**
      * Subscribe a service from registry server.
      */
     void subscribe(Directory directory, NotifyListener listener);

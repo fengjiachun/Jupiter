@@ -26,7 +26,6 @@ import org.jupiter.serialization.Serializer;
 import org.jupiter.serialization.SerializerType;
 import org.jupiter.transport.channel.CopyOnWriteGroupList;
 import org.jupiter.transport.channel.JChannel;
-import org.jupiter.transport.channel.JChannelGroup;
 
 import static org.jupiter.rpc.DispatchType.BROADCAST;
 
@@ -41,7 +40,7 @@ import static org.jupiter.rpc.DispatchType.BROADCAST;
 public class DefaultBroadcastDispatcher extends AbstractDispatcher {
 
     public DefaultBroadcastDispatcher(
-            LoadBalancer<JChannelGroup> loadBalancer, ServiceMetadata metadata, SerializerType serializerType) {
+            LoadBalancer loadBalancer, ServiceMetadata metadata, SerializerType serializerType) {
         super(loadBalancer, metadata, serializerType);
     }
 
@@ -74,7 +73,7 @@ public class DefaultBroadcastDispatcher extends AbstractDispatcher {
             JChannel ch = channels[i];
             InvokeFuture<?> future = asFuture(ch, request, returnType, timeoutMillis)
                     .setHooks(getHooks());
-            futures[i] = write(ch, request, future);
+            futures[i] = write(ch, request, future, BROADCAST);
         }
 
         return futures;

@@ -17,6 +17,8 @@
 package org.jupiter.rpc.load.balance;
 
 import org.jupiter.rpc.model.metadata.MessageWrapper;
+import org.jupiter.transport.channel.CopyOnWriteGroupList;
+import org.jupiter.transport.channel.JChannelGroup;
 
 /**
  * Load balancer.
@@ -26,13 +28,13 @@ import org.jupiter.rpc.model.metadata.MessageWrapper;
  *
  * @author jiachun.fjc
  */
-public interface LoadBalancer<T> {
+public interface LoadBalancer {
 
     /**
-     * Select one in elements array.
+     * Select one in elements list.
      *
-     * @param elements  object[] is bad, just for performance
+     * @param groups    elements for select
      * @param message   usually useless
      */
-    T select(Object[] elements, MessageWrapper message);
+    JChannelGroup select(CopyOnWriteGroupList groups, MessageWrapper message);
 }

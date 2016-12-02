@@ -67,30 +67,31 @@ public class ProtocolEncoder extends MessageToByteEncoder<BytesHolder> {
     private void doEncodeRequest(JRequestBytes request, ByteBuf out) {
         byte s_code = request.serializerCode();
         byte sign = (byte) ((s_code << 4) + REQUEST);
+        long invokeId = request.invokeId();
         byte[] bytes = request.bytes();
-
-        request.bytes(null);
+        int length = bytes.length;
 
         out.writeShort(MAGIC)
                 .writeByte(sign)
                 .writeByte(0x00)
-                .writeLong(request.invokeId())
-                .writeInt(bytes.length)
+                .writeLong(invokeId)
+                .writeInt(length)
                 .writeBytes(bytes);
     }
 
     private void doEncodeResponse(JResponseBytes response, ByteBuf out) {
         byte s_code = response.serializerCode();
         byte sign = (byte) ((s_code << 4) + RESPONSE);
+        byte status = response.status();
+        long invokeId = response.id();
         byte[] bytes = response.bytes();
-
-        response.bytes(null);
+        int length = bytes.length;
 
         out.writeShort(MAGIC)
                 .writeByte(sign)
-                .writeByte(response.status())
-                .writeLong(response.id())
-                .writeInt(bytes.length)
+                .writeByte(status)
+                .writeLong(invokeId)
+                .writeInt(length)
                 .writeBytes(bytes);
     }
 }

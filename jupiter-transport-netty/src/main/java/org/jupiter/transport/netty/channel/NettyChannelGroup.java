@@ -139,6 +139,8 @@ public class NettyChannelGroup implements JChannelGroup {
     public boolean add(JChannel channel) {
         boolean added = channel instanceof NettyChannel && channels.add((NettyChannel) channel);
         if (added) {
+            resetTimestamp();
+
             ((NettyChannel) channel).channel().closeFuture().addListener(remover);
             deadlineMillis = -1;
 
@@ -158,8 +160,12 @@ public class NettyChannelGroup implements JChannelGroup {
     @Override
     public boolean remove(JChannel channel) {
         boolean removed = channel instanceof NettyChannel && channels.remove(channel);
-        if (removed && channels.isEmpty()) {
-            deadlineMillis = SystemClock.millisClock().now() + LOSS_INTERVAL;
+        if (removed) {
+            resetTimestamp();
+
+            if (channels.isEmpty()) {
+                deadlineMillis = SystemClock.millisClock().now() + LOSS_INTERVAL;
+            }
         }
         return removed;
     }
@@ -244,6 +250,11 @@ public class NettyChannelGroup implements JChannelGroup {
     @Override
     public void resetTimestamp() {
         timestamp = SystemClock.millisClock().now();
+    }
+
+    @Override
+    public void clearTimestamp() {
+        timestamp = -1;
     }
 
     @Override

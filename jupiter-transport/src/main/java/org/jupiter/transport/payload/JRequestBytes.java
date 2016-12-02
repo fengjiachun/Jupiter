@@ -16,6 +16,8 @@
 
 package org.jupiter.transport.payload;
 
+import java.util.concurrent.atomic.AtomicLong;
+
 /**
  * jupiter
  * org.jupiter.transport.payload
@@ -24,8 +26,14 @@ package org.jupiter.transport.payload;
  */
 public class JRequestBytes extends BytesHolder {
 
+    private static final AtomicLong invokeIdGenerator = new AtomicLong(0);
+
     private final long invokeId;
     private transient long timestamp;
+
+    public JRequestBytes() {
+        this(invokeIdGenerator.getAndIncrement());
+    }
 
     public JRequestBytes(long invokeId) {
         this.invokeId = invokeId;

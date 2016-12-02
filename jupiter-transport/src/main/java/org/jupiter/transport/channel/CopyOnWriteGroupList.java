@@ -41,12 +41,33 @@ public class CopyOnWriteGroupList {
     transient final ReentrantLock lock = new ReentrantLock();
 
     private volatile transient Object[] array;
+    private transient boolean sameWeight; // 无volatile修饰, 通过array保证可见性
+
+    public final Object[] snapshot() {
+        return array;
+    }
+
+    public final boolean isSameWeight() {
+        // first read volatile
+        return getArray().length == 0 || sameWeight;
+    }
+
+    public final void setSameWeight(boolean sameWeight) {
+        Object[] elements = getArray();
+        setArray(elements, sameWeight); // ensures volatile write semantics
+    }
 
     final Object[] getArray() {
         return array;
     }
 
     final void setArray(Object[] a) {
+        sameWeight = false;
+        array = a;
+    }
+
+    final void setArray(Object[] a, boolean sameWeight) {
+        this.sameWeight = sameWeight;
         array = a;
     }
 

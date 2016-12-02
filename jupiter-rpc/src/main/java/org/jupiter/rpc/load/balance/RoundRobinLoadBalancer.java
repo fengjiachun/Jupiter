@@ -18,6 +18,8 @@ package org.jupiter.rpc.load.balance;
 
 import org.jupiter.common.concurrent.atomic.AtomicUpdater;
 import org.jupiter.rpc.model.metadata.MessageWrapper;
+import org.jupiter.transport.channel.CopyOnWriteGroupList;
+import org.jupiter.transport.channel.JChannelGroup;
 
 import java.util.concurrent.atomic.AtomicIntegerFieldUpdater;
 
@@ -29,7 +31,7 @@ import java.util.concurrent.atomic.AtomicIntegerFieldUpdater;
  *
  * @author jiachun.fjc
  */
-public abstract class RoundRobinLoadBalancer<T> implements LoadBalancer<T> {
+public class RoundRobinLoadBalancer extends AbstractLoadBalancer {
 
     private static final AtomicIntegerFieldUpdater<RoundRobinLoadBalancer> indexUpdater =
             AtomicUpdater.newAtomicIntegerFieldUpdater(RoundRobinLoadBalancer.class, "index");
@@ -37,61 +39,68 @@ public abstract class RoundRobinLoadBalancer<T> implements LoadBalancer<T> {
     @SuppressWarnings("unused")
     private volatile int index = 0;
 
-    private final ThreadLocal<WeightArray> weightsThreadLocal = new ThreadLocal<WeightArray>() {
-
-        @Override
-        protected WeightArray initialValue() {
-            return new WeightArray();
-        }
-    };
-
-    @SuppressWarnings("unchecked")
     @Override
-    public T select(Object[] elements, MessageWrapper unused) {
+    public JChannelGroup select(CopyOnWriteGroupList groups, @SuppressWarnings("unused") MessageWrapper unused) {
+        Object[] elements = groups.snapshot();
         int length = elements.length;
+
         if (length == 0) {
-            throw new IllegalArgumentException("empty elements for select");
-        }
-        if (length == 1) {
-            return (T) elements[0];
+            return null;
         }
 
+        if (length == 1) {
+            return (JChannelGroup) elements[0];
+        }
+
+        int index = indexUpdater.getAndIncrement(this) & Integer.MAX_VALUE;
+
+        if (groups.isSameWeight()) {
+            return (JChannelGroup) elements[index % length];
+        }
+
+        // 遍历权重
+        boolean allWarmFinish = true;
         int sumWeight = 0;
-        WeightArray weightSnapshots = weightsThreadLocal.get();
-        weightSnapshots.refresh(length);
+        WeightArray weightsSnapshot = weightArray(length);
         for (int i = 0; i < length; i++) {
-            int val = getWeight((T) elements[i]);
-            weightSnapshots.set(i, val);
+            JChannelGroup group = (JChannelGroup) elements[i];
+
+            int val = getWeight(group);
+
+            weightsSnapshot.set(i, val);
             sumWeight += val;
+            allWarmFinish = allWarmFinish && group.getTimestamp() < 0;
         }
 
         int maxWeight = 0;
         int minWeight = Integer.MAX_VALUE;
         for (int i = 0; i < length; i++) {
-            int val = weightSnapshots.get(i);
+            int val = weightsSnapshot.get(i);
             maxWeight = Math.max(maxWeight, val);
             minWeight = Math.min(minWeight, val);
         }
 
-        int index = indexUpdater.getAndIncrement(this) & Integer.MAX_VALUE;
+        if (allWarmFinish && maxWeight > 0 && minWeight == maxWeight) {
+            // 预热全部完成并且权重完全相同
+            groups.setSameWeight(true);
+        }
+
         if (maxWeight > 0 && minWeight < maxWeight) {
             int mod = index % sumWeight;
             for (int i = 0; i < maxWeight; i++) {
                 for (int j = 0; j < length; j++) {
-                    int val = weightSnapshots.get(j);
+                    int val = weightsSnapshot.get(j);
                     if (mod == 0 && val > 0) {
-                        return (T) elements[j];
+                        return (JChannelGroup) elements[j];
                     }
                     if (val > 0) {
-                        weightSnapshots.set(j, val - 1);
+                        weightsSnapshot.set(j, val - 1);
                         --mod;
                     }
                 }
             }
         }
 
-        return (T) elements[index % length];
+        return (JChannelGroup) elements[index % length];
     }
-
-    protected abstract int getWeight(T t);
 }

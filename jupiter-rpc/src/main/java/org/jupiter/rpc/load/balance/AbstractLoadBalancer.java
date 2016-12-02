@@ -20,16 +20,25 @@ import org.jupiter.common.util.SystemClock;
 import org.jupiter.transport.channel.JChannelGroup;
 
 /**
- * Random load balancer for channel groups.
- *
  * jupiter
  * org.jupiter.rpc.load.balance
  *
  * @author jiachun.fjc
  */
-class ChannelRandomLoadBalancer extends RandomLoadBalancer<JChannelGroup> {
+public abstract class AbstractLoadBalancer implements LoadBalancer {
 
-    @Override
+    private final ThreadLocal<WeightArray> weightsThreadLocal = new ThreadLocal<WeightArray>() {
+
+        @Override
+        protected WeightArray initialValue() {
+            return new WeightArray();
+        }
+    };
+
+    protected WeightArray weightArray(int length) {
+        return weightsThreadLocal.get().refresh(length);
+    }
+
     protected int getWeight(JChannelGroup group) {
         int weight = group.getWeight();
         if (weight > 0) {
@@ -37,9 +46,14 @@ class ChannelRandomLoadBalancer extends RandomLoadBalancer<JChannelGroup> {
             if (timestamp > 0L) {
                 int upTime = (int) (SystemClock.millisClock().now() - timestamp);
                 int warmUp = group.getWarmUp();
+
                 if (upTime > 0 && upTime < warmUp) {
                     int warmUpWeight = (int) (((float) upTime / warmUp) * weight);
                     return warmUpWeight < 1 ? 1 : (warmUpWeight > weight ? weight : warmUpWeight);
+                }
+
+                if (upTime >= warmUp) {
+                    group.clearTimestamp();
                 }
             }
         }

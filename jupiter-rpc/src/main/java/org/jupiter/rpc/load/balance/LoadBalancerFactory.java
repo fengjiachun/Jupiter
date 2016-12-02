@@ -16,8 +16,6 @@
 
 package org.jupiter.rpc.load.balance;
 
-import org.jupiter.transport.channel.JChannelGroup;
-
 import static org.jupiter.rpc.load.balance.LoadBalancerType.RANDOM;
 import static org.jupiter.rpc.load.balance.LoadBalancerType.ROUND_ROBIN;
 
@@ -29,16 +27,16 @@ import static org.jupiter.rpc.load.balance.LoadBalancerType.ROUND_ROBIN;
  */
 public final class LoadBalancerFactory {
 
-    private static final LoadBalancer<JChannelGroup> random = new ChannelRandomLoadBalancer();
+    private static final LoadBalancer random = new RandomLoadBalancer();
 
-    public static LoadBalancer<JChannelGroup> getInstance(LoadBalancerType type) {
+    public static LoadBalancer getInstance(LoadBalancerType type) {
         if (type == null || RANDOM == type) {
             return random;
         }
 
         if (ROUND_ROBIN == type) {
             // round-robin是有状态(index)的负载均衡器, 不能是单例
-            return new ChannelRoundRobinLoadBalancer();
+            return new RoundRobinLoadBalancer();
         }
 
         return random;

@@ -54,12 +54,14 @@ public class HelloJupiterClient {
                 .newProxyInstance();
 
         try {
-            ServiceTest.ResultClass result = service.sayHello();
-            System.out.println(result);
+            for (int i = 0; i < 10; i++) {
+                ServiceTest.ResultClass result = service.sayHello();
+                System.out.println(result);
 
-            InvokeFuture<ServiceTest.ResultClass>[] futures = InvokeFutureContext.futures(ServiceTest.ResultClass.class);
-            for (InvokeFuture<ServiceTest.ResultClass> f : futures) {
-                System.out.println(f.getResult());
+                InvokeFuture<ServiceTest.ResultClass>[] futures = InvokeFutureContext.futures(ServiceTest.ResultClass.class);
+                for (InvokeFuture<ServiceTest.ResultClass> f : futures) {
+                    System.out.println(f.getResult());
+                }
             }
         } catch (Throwable e) {
             e.printStackTrace();

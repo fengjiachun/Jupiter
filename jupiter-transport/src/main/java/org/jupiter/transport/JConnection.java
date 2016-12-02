@@ -34,8 +34,7 @@ public abstract class JConnection {
         return address;
     }
 
-    @SuppressWarnings("UnusedParameters")
-    public void operationComplete(Runnable callback) {
+    public void operationComplete(@SuppressWarnings("unused") Runnable callback) {
         // the default implementation does nothing
     }
 

@@ -19,8 +19,6 @@ package org.jupiter.rpc;
 import org.jupiter.rpc.model.metadata.MessageWrapper;
 import org.jupiter.transport.payload.JRequestBytes;
 
-import java.util.concurrent.atomic.AtomicLong;
-
 /**
  * Consumer's request data.
  *
@@ -31,17 +29,11 @@ import java.util.concurrent.atomic.AtomicLong;
  */
 public class JRequest {
 
-    private static final AtomicLong invokeIdGenerator = new AtomicLong(0);
-
     private final JRequestBytes requestBytes;   // 请求bytes[]
     private MessageWrapper message;             // 请求数据
 
     public JRequest() {
-        this(invokeIdGenerator.getAndIncrement());
-    }
-
-    public JRequest(long invokeId) {
-        requestBytes = new JRequestBytes(invokeId);
+        this(new JRequestBytes());
     }
 
     public JRequest(JRequestBytes requestBytes) {

@@ -27,7 +27,7 @@ package org.jupiter.transport.payload;
 public abstract class BytesHolder {
 
     private byte serializerCode;    // 序列化/反序列化方式
-    private transient byte[] bytes;
+    private volatile byte[] bytes;
 
     public byte serializerCode() {
         return serializerCode;

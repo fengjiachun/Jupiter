@@ -35,10 +35,10 @@ final class WeightArray {
         array[index] = value;
     }
 
-    void refresh(int capacity) {
-        if (capacity <= array.length) {
-            return;
+    WeightArray refresh(int capacity) {
+        if (capacity > array.length) {
+            array = new int[capacity];
         }
-        array = new int[capacity];
+        return this;
     }
 }
