@@ -25,6 +25,17 @@ import java.util.concurrent.ThreadLocalRandom;
 /**
  * Random load balancer with weight.
  *
+ *
+ *           ┌──────────────┐
+ *           │ random value │
+ * ──────────┴──────────────┴───────▶
+ *                                  │
+ *                                  ▼
+ * ┌─────────────────┬─────────┬──────────────────────┬─────┬─────────────────┐
+ * │element_0        │element_1│element_2             │...  │element_n        │
+ * └─────────────────┴─────────┴──────────────────────┴─────┴─────────────────┘
+ *
+ *
  * jupiter
  * org.jupiter.rpc.load.balance
  *
@@ -66,11 +77,9 @@ public class RandomLoadBalancer extends AbstractLoadBalancer {
         }
 
         boolean sameWeight = true;
-        for (int i = 1; i < length; i++) {
-            if (weightsSnapshot.get(0) != weightsSnapshot.get(i)) {
-                sameWeight = false;
-                break;
-            }
+        int val_0 = weightsSnapshot.get(0);
+        for (int i = 1; i < length && sameWeight; i++) {
+            sameWeight = (val_0 == weightsSnapshot.get(i));
         }
 
         if (allWarmFinish && sameWeight) {
