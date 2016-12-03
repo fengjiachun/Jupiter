@@ -42,7 +42,7 @@ public class HessianSerializer implements Serializer {
 
     private static final int DISCARD_LIMIT = 1024 << 4; // 16k
 
-    private final ThreadLocal<ByteArrayOutputStream> bufThreadLocal = new ThreadLocal<ByteArrayOutputStream>() {
+    private static final ThreadLocal<ByteArrayOutputStream> bufThreadLocal = new ThreadLocal<ByteArrayOutputStream>() {
 
         @Override
         protected ByteArrayOutputStream initialValue() {
