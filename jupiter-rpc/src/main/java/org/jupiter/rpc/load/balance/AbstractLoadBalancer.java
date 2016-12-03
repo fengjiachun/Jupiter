@@ -27,7 +27,7 @@ import org.jupiter.transport.channel.JChannelGroup;
  */
 public abstract class AbstractLoadBalancer implements LoadBalancer {
 
-    private final ThreadLocal<WeightArray> weightsThreadLocal = new ThreadLocal<WeightArray>() {
+    private static final ThreadLocal<WeightArray> weightsThreadLocal = new ThreadLocal<WeightArray>() {
 
         @Override
         protected WeightArray initialValue() {
