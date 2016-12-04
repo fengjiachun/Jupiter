@@ -70,8 +70,8 @@ public abstract class NettyAcceptor implements JAcceptor {
     }
 
     protected void init() {
-        ThreadFactory bossFactory = new DefaultThreadFactory("jupiter.acceptor.boss");
-        ThreadFactory workerFactory = new DefaultThreadFactory("jupiter.acceptor.worker");
+        ThreadFactory bossFactory = new DefaultThreadFactory("jupiter.acceptor.boss", Thread.MAX_PRIORITY);
+        ThreadFactory workerFactory = new DefaultThreadFactory("jupiter.acceptor.worker", Thread.MAX_PRIORITY);
         boss = initEventLoopGroup(1, bossFactory);
         worker = initEventLoopGroup(nWorkers, workerFactory);
 
