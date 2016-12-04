@@ -41,19 +41,21 @@ public class NamedThreadFactory implements ThreadFactory {
     private final AtomicInteger nextId = new AtomicInteger();
     private final String prefix;
     private final boolean daemon;
+    private final int priority;
     private final ThreadGroup group;
 
     public NamedThreadFactory() {
-        this("pool-" + poolId.incrementAndGet(), false);
+        this("pool-" + poolId.incrementAndGet(), false, Thread.NORM_PRIORITY);
     }
 
     public NamedThreadFactory(String prefix) {
-        this(prefix, false);
+        this(prefix, false, Thread.NORM_PRIORITY);
     }
 
-    public NamedThreadFactory(String prefix, boolean daemon) {
+    public NamedThreadFactory(String prefix, boolean daemon, int priority) {
         this.prefix = prefix + " #";
         this.daemon = daemon;
+        this.priority = priority;
         SecurityManager s = System.getSecurityManager();
         group = (s == null) ? Thread.currentThread().getThreadGroup() : s.getThreadGroup();
     }
@@ -73,6 +75,10 @@ public class NamedThreadFactory implements ThreadFactory {
                 if (daemon) {
                     t.setDaemon(true);
                 }
+            }
+
+            if (t.getPriority() != priority) {
+                t.setPriority(priority);
             }
         } catch (Exception ignored) { /* Doesn't matter even if failed to set. */ }
 
