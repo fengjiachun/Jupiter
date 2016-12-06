@@ -18,6 +18,7 @@ package org.jupiter.serialization.hessian;
 
 import com.caucho.hessian.io.Hessian2Input;
 import com.caucho.hessian.io.Hessian2Output;
+import org.jupiter.common.util.internal.InternalThreadLocal;
 import org.jupiter.common.util.internal.JUnsafe;
 import org.jupiter.common.util.internal.UnsafeReferenceFieldUpdater;
 import org.jupiter.common.util.internal.UnsafeUpdater;
@@ -42,7 +43,7 @@ public class HessianSerializer implements Serializer {
 
     private static final int DISCARD_LIMIT = 1024 << 4; // 16k
 
-    private static final ThreadLocal<ByteArrayOutputStream> bufThreadLocal = new ThreadLocal<ByteArrayOutputStream>() {
+    private static final InternalThreadLocal<ByteArrayOutputStream> bufThreadLocal = new InternalThreadLocal<ByteArrayOutputStream>() {
 
         @Override
         protected ByteArrayOutputStream initialValue() {

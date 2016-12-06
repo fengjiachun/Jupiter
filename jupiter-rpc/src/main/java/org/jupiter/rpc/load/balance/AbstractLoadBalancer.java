@@ -17,6 +17,7 @@
 package org.jupiter.rpc.load.balance;
 
 import org.jupiter.common.util.SystemClock;
+import org.jupiter.common.util.internal.InternalThreadLocal;
 import org.jupiter.transport.channel.JChannelGroup;
 
 /**
@@ -27,7 +28,7 @@ import org.jupiter.transport.channel.JChannelGroup;
  */
 public abstract class AbstractLoadBalancer implements LoadBalancer {
 
-    private static final ThreadLocal<WeightArray> weightsThreadLocal = new ThreadLocal<WeightArray>() {
+    private static final InternalThreadLocal<WeightArray> weightsThreadLocal = new InternalThreadLocal<WeightArray>() {
 
         @Override
         protected WeightArray initialValue() {

@@ -16,6 +16,7 @@
 
 package org.jupiter.rpc.executor;
 
+import org.jupiter.common.util.internal.InternalForkJoinWorkerThread;
 import org.jupiter.common.util.internal.logging.InternalLogger;
 import org.jupiter.common.util.internal.logging.InternalLoggerFactory;
 
@@ -56,16 +57,9 @@ public class ForkJoinPoolExecutorFactory extends AbstractExecutorFactory {
         @Override
         public ForkJoinWorkerThread newThread(ForkJoinPool pool) {
             // Note: The ForkJoinPool will create these threads as daemon threads.
-            ForkJoinWorkerThread thread = new DefaultForkJoinWorkerThread(pool);
+            ForkJoinWorkerThread thread = new InternalForkJoinWorkerThread(pool);
             thread.setName(namePrefix + '-' + idx.getAndIncrement());
             return thread;
-        }
-    }
-
-    private static final class DefaultForkJoinWorkerThread extends ForkJoinWorkerThread {
-
-        public DefaultForkJoinWorkerThread(ForkJoinPool pool) {
-            super(pool);
         }
     }
 

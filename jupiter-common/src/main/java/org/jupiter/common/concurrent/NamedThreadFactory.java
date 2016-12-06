@@ -16,6 +16,7 @@
 
 package org.jupiter.common.concurrent;
 
+import org.jupiter.common.util.internal.InternalThread;
 import org.jupiter.common.util.internal.logging.InternalLogger;
 import org.jupiter.common.util.internal.logging.InternalLoggerFactory;
 
@@ -65,7 +66,7 @@ public class NamedThreadFactory implements ThreadFactory {
         checkNotNull(r, "runnable");
 
         String name = prefix + nextId.getAndIncrement();
-        Thread t = new Thread(group, r, name, 0);
+        Thread t = new InternalThread(group, r, name, 0);
         try {
             if (t.isDaemon()) {
                 if (!daemon) {

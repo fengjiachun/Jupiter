@@ -23,6 +23,7 @@ import io.protostuff.runtime.RuntimeSchema;
 import org.jupiter.common.util.Maps;
 import org.jupiter.common.util.Reflects;
 import org.jupiter.common.util.SystemPropertyUtil;
+import org.jupiter.common.util.internal.InternalThreadLocal;
 import org.jupiter.serialization.Serializer;
 
 import java.util.concurrent.ConcurrentMap;
@@ -57,7 +58,7 @@ public class ProtoStuffSerializer implements Serializer {
 
     private static final ConcurrentMap<Class<?>, Schema<?>> schemaCache = Maps.newConcurrentMap();
 
-    private static final ThreadLocal<LinkedBuffer> bufThreadLocal = new ThreadLocal<LinkedBuffer>() {
+    private static final InternalThreadLocal<LinkedBuffer> bufThreadLocal = new InternalThreadLocal<LinkedBuffer>() {
 
         @Override
         protected LinkedBuffer initialValue() {
