@@ -20,7 +20,7 @@ import java.util.Arrays;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
- * 参考netty的FastThreadLocal设计, 有一些改动, 更适合jupiter使用
+ * 参考了 <a href="https://github.com/netty/netty">Netty</a> FastThreadLocal 的设计, 有一些改动, 更适合jupiter使用
  *
  * jupiter
  * org.jupiter.common.util.internal
@@ -120,11 +120,6 @@ public final class InternalThreadLocalMap extends InternalThreadLocalMapMid {
         } else {
             return UNSET;
         }
-    }
-
-    public boolean isIndexedVariableSet(int index) {
-        Object[] lookup = indexedVariables;
-        return index < lookup.length && lookup[index] != UNSET;
     }
 
     public int size() {
