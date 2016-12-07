@@ -20,6 +20,34 @@ import java.util.Arrays;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
+ * 利用对象继承的内存布局规则来padding避免false sharing, 注意其中对象头会至少占用8个字节
+ * ---------------------------------------
+ *  For 32 bit JVM:
+ *      _mark   : 4 byte constant
+ *      _klass  : 4 byte pointer to class
+ *  For 64 bit JVM:
+ *      _mark   : 8 byte constant
+ *      _klass  : 8 byte pointer to class
+ *  For 64 bit JVM with compressed-oops:
+ *      _mark   : 8 byte constant
+ *      _klass  : 4 byte pointer to class
+ * ---------------------------------------
+ */
+class LhsPadding {
+    @SuppressWarnings("unused")
+    protected long p01, p02, p03, p04, p05, p06, p07;
+}
+
+class Fields extends LhsPadding {
+    Object[] indexedVariables;
+}
+
+class RhsPadding extends Fields {
+    @SuppressWarnings("unused")
+    protected long p09, p10, p11, p12, p13, p14, p15;
+}
+
+/**
  * 参考了 <a href="https://github.com/netty/netty">Netty</a> FastThreadLocal 的设计, 有一些改动, 更适合jupiter使用
  *
  * jupiter
@@ -27,7 +55,7 @@ import java.util.concurrent.atomic.AtomicInteger;
  *
  * @author jiachun.fjc
  */
-public final class InternalThreadLocalMap extends InternalThreadLocalMapMid {
+public final class InternalThreadLocalMap extends RhsPadding {
 
     public static final Object UNSET = new Object();
 
@@ -84,11 +112,8 @@ public final class InternalThreadLocalMap extends InternalThreadLocalMapMid {
         return nextIndex.get() - 1;
     }
 
-    @SuppressWarnings("unused")
-    public long p01, p02, p03, p04, p05, p06, p07, p08, p09, p10, p11, p12, p13, p14, p15;
-
     private InternalThreadLocalMap() {
-        super(newIndexedVariableTable());
+        indexedVariables = newIndexedVariableTable();
     }
 
     public Object indexedVariable(int index) {
