@@ -16,13 +16,12 @@
 
 package org.jupiter.common.util;
 
-import org.jupiter.common.util.internal.UnsafeReferenceFieldUpdater;
-import org.jupiter.common.util.internal.UnsafeUpdater;
+import org.jupiter.common.util.internal.*;
 
 /**
  * 基于 {@link ThreadLocal} 的 {@link StringBuilder} 重复利用
  *
- * 注意不要在相同的线程中嵌套使用
+ * 注意: 不要在相同的线程中嵌套使用, 太大的StringBuilder也请不要使用这个类, 会导致hold超大块内存
  *
  * jupiter
  * org.jupiter.common.util
@@ -31,43 +30,7 @@ import org.jupiter.common.util.internal.UnsafeUpdater;
  */
 public class StringBuilderHelper {
 
-    private static final UnsafeReferenceFieldUpdater<StringBuilder, char[]> valueUpdater =
-            UnsafeUpdater.newReferenceFieldUpdater(StringBuilder.class.getSuperclass(), "value");
-
-    private static final int DISCARD_LIMIT = 1024 << 3; // 8k
-
-    private static final ThreadLocal<StringBuilderHolder> holderThreadLocal = new ThreadLocal<StringBuilderHolder>() {
-
-        @Override
-        protected StringBuilderHolder initialValue() {
-            return new StringBuilderHolder();
-        }
-    };
-
     public static StringBuilder get() {
-        StringBuilderHolder holder = holderThreadLocal.get();
-        return holder.getStringBuilder();
-    }
-
-    public static void truncate() {
-        StringBuilderHolder holder = holderThreadLocal.get();
-        holder.truncate();
-    }
-
-    private static class StringBuilderHolder {
-
-        private final StringBuilder buf = new StringBuilder();
-
-        private StringBuilder getStringBuilder() {
-            truncate();
-            return buf;
-        }
-
-        private void truncate() {
-            if (buf.capacity() > DISCARD_LIMIT) {
-                valueUpdater.set(buf, new char[1024]);
-            }
-            buf.setLength(0);
-        }
+        return InternalThreadLocalMap.get().stringBuilder();
     }
 }

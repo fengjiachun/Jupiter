@@ -40,6 +40,9 @@ class LhsPadding {
 
 class Fields extends LhsPadding {
     Object[] indexedVariables;
+
+    // string-related thread-locals
+    StringBuilder stringBuilder;
 }
 
 class RhsPadding extends Fields {
@@ -155,6 +158,16 @@ public final class InternalThreadLocalMap extends RhsPadding {
             }
         }
         return count;
+    }
+
+    public StringBuilder stringBuilder() {
+        StringBuilder builder = stringBuilder;
+        if (builder == null) {
+            stringBuilder = builder = new StringBuilder(512);
+        } else {
+            builder.setLength(0);
+        }
+        return builder;
     }
 
     private static Object[] newIndexedVariableTable() {
