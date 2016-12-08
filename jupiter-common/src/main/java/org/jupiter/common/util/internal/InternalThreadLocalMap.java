@@ -162,7 +162,7 @@ public final class InternalThreadLocalMap extends RhsPadding {
 
     public StringBuilder stringBuilder() {
         StringBuilder builder = stringBuilder;
-        if (builder == null) {
+        if (builder == null || builder.capacity() > (1024 << 6) /* ensure memory overhead */ ) {
             stringBuilder = builder = new StringBuilder(512);
         } else {
             builder.setLength(0);
