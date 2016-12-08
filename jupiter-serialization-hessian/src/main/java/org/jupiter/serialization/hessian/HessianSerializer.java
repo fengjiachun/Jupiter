@@ -81,7 +81,13 @@ public class HessianSerializer implements Serializer {
     @SuppressWarnings("unchecked")
     @Override
     public <T> T readObject(byte[] bytes, Class<T> clazz) {
-        Hessian2Input input = new Hessian2Input(new ByteArrayInputStream(bytes));
+        return readObject(bytes, 0, bytes.length, clazz);
+    }
+
+    @SuppressWarnings("unchecked")
+    @Override
+    public <T> T readObject(byte[] bytes, int offset, int length, Class<T> clazz) {
+        Hessian2Input input = new Hessian2Input(new ByteArrayInputStream(bytes, offset, length));
         try {
             return (T) input.readObject(clazz);
         } catch (IOException e) {

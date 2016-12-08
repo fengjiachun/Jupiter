@@ -60,12 +60,8 @@ public class JRequest {
         return requestBytes.serializerCode();
     }
 
-    public void serializerCode(byte serializerCode) {
-        requestBytes.serializerCode(serializerCode);
-    }
-
-    public void bytes(byte[] bytes) {
-        requestBytes.bytes(bytes);
+    public void bytes(byte serializerCode, byte[] bytes) {
+        requestBytes.bytes(serializerCode, bytes);
     }
 
     public MessageWrapper message() {

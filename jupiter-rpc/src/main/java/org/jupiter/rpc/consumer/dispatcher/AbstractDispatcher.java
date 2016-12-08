@@ -188,7 +188,7 @@ public abstract class AbstractDispatcher implements Dispatcher {
                 future.setSentTime(); // 记录发送时间戳
 
                 if (ROUND == dispatchType) {
-                    requestBytes.bytes(null); // help gc
+                    requestBytes.nullBytes();
                 }
 
                 // hook.before()
@@ -203,7 +203,7 @@ public abstract class AbstractDispatcher implements Dispatcher {
             @Override
             public void operationFailure(JChannel channel, Throwable cause) throws Exception {
                 if (ROUND == dispatchType) {
-                    requestBytes.bytes(null); // help gc
+                    requestBytes.nullBytes();
                 }
 
                 logger.warn("Writes {} fail on {}, {}.", request, channel, cause);

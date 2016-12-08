@@ -62,11 +62,12 @@ public class DefaultBroadcastDispatcher extends AbstractDispatcher {
             channels[i] = groups.get(i).next();
         }
 
+        byte s_code = _serializer.code();
+        byte[] bytes = _serializer.writeObject(message); // 在业务线程中序列化, 减轻IO线程负担
+
         JRequest request = new JRequest();
-        request.serializerCode(_serializer.code());
         request.message(message);
-        // 在业务线程中序列化, 减轻IO线程负担
-        request.bytes(_serializer.writeObject(message));
+        request.bytes(s_code, bytes);
 
         long timeoutMillis = getMethodSpecialTimeoutMillis(methodName);
         for (int i = 0; i < channels.length; i++) {

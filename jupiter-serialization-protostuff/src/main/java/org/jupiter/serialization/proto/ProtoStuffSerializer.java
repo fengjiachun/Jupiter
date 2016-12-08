@@ -87,10 +87,15 @@ public class ProtoStuffSerializer implements Serializer {
 
     @Override
     public <T> T readObject(byte[] bytes, Class<T> clazz) {
+        return readObject(bytes, 0, bytes.length, clazz);
+    }
+
+    @Override
+    public <T> T readObject(byte[] bytes, int offset, int length, Class<T> clazz) {
         T msg = Reflects.newInstance(clazz, false);
         Schema<T> schema = getSchema(clazz);
 
-        ProtostuffIOUtil.mergeFrom(bytes, msg, schema);
+        ProtostuffIOUtil.mergeFrom(bytes, offset, length, msg, schema);
         return msg;
     }
 

@@ -61,12 +61,8 @@ public class JResponse {
         return responseBytes.serializerCode();
     }
 
-    public void serializerCode(byte serializerCode) {
-        responseBytes.serializerCode(serializerCode);
-    }
-
-    public void bytes(byte[] bytes) {
-        responseBytes.bytes(bytes);
+    public void bytes(byte serializerCode, byte[] bytes) {
+        responseBytes.bytes(serializerCode, bytes);
     }
 
     public ResultWrapper result() {

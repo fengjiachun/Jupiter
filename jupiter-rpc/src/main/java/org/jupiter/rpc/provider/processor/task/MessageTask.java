@@ -44,6 +44,7 @@ import org.jupiter.rpc.tracing.TracingUtil;
 import org.jupiter.transport.Status;
 import org.jupiter.transport.channel.JChannel;
 import org.jupiter.transport.channel.JFutureListener;
+import org.jupiter.transport.payload.JRequestBytes;
 import org.jupiter.transport.payload.JResponseBytes;
 
 import java.util.List;
@@ -102,10 +103,14 @@ public class MessageTask implements RejectedRunnable {
         // 反序列化, 不在IO线程中执行
         MessageWrapper msg;
         try {
-            byte[] bytes = _request.requestBytes().bytes();
-            _request.bytes(null); // help gc
+            JRequestBytes _requestBytes = _request.requestBytes();
+
+            byte s_code = _requestBytes.serializerCode();
+            byte[] bytes = _requestBytes.bytes();
+            _requestBytes.nullBytes();
+
             requestSizeHistogram.update(bytes.length);
-            byte s_code = _request.serializerCode();
+
             msg = serializerImpl(s_code).readObject(bytes, MessageWrapper.class);
             _request.message(msg);
         } catch (Throwable t) {
@@ -195,11 +200,11 @@ public class MessageTask implements RejectedRunnable {
 
         byte s_code = _request.serializerCode();
         byte[] bytes = serializerImpl(s_code).writeObject(result);
+
         final long invokeId = _request.invokeId();
         JResponseBytes response = new JResponseBytes(invokeId);
-        response.serializerCode(s_code);
         response.status(status.value());
-        response.bytes(bytes);
+        response.bytes(s_code, bytes);
         channel.write(response, new JFutureListener<JChannel>() {
 
             @Override
@@ -271,9 +276,8 @@ public class MessageTask implements RejectedRunnable {
             final int bodyLength = bytes.length;
 
             JResponseBytes response = new JResponseBytes(invokeId);
-            response.serializerCode(s_code);
             response.status(Status.OK.value());
-            response.bytes(bytes);
+            response.bytes(s_code, bytes);
             channel.write(response, new JFutureListener<JChannel>() {
 
                 @Override

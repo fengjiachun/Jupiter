@@ -60,10 +60,11 @@ public class DefaultRoundDispatcher extends AbstractDispatcher {
 
         doTracing(request, message, methodName, channel);
 
-        request.serializerCode(_serializer.code());
+        byte s_code = _serializer.code();
+        byte[] bytes = _serializer.writeObject(message); // 在业务线程中序列化, 减轻IO线程负担
+
         request.message(message);
-        // 在业务线程中序列化, 减轻IO线程负担
-        request.bytes(_serializer.writeObject(message));
+        request.bytes(s_code, bytes);
 
         long timeoutMillis = getMethodSpecialTimeoutMillis(methodName);
         InvokeFuture<?> future = asFuture(channel, request, returnType, timeoutMillis)
@@ -86,10 +87,11 @@ public class DefaultRoundDispatcher extends AbstractDispatcher {
 
         doTracing(request, message, methodName, channel);
 
-        request.serializerCode(_serializer.code());
+        byte s_code = _serializer.code();
+        byte[] bytes = _serializer.writeObject(message); // 在业务线程中序列化, 减轻IO线程负担
+
         request.message(message);
-        // 在业务线程中序列化, 减轻IO线程负担
-        request.bytes(_serializer.writeObject(message));
+        request.bytes(s_code, bytes);
 
         long timeoutMillis = getMethodSpecialTimeoutMillis(methodName);
         InvokeFuture<?> future = asFuture(channel, request, returnType, timeoutMillis)

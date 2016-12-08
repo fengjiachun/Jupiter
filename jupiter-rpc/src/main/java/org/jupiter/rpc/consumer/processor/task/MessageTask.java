@@ -20,6 +20,7 @@ import org.jupiter.rpc.JResponse;
 import org.jupiter.rpc.consumer.future.InvokeFuture;
 import org.jupiter.rpc.model.metadata.ResultWrapper;
 import org.jupiter.transport.channel.JChannel;
+import org.jupiter.transport.payload.JResponseBytes;
 
 import static org.jupiter.serialization.SerializerHolder.serializerImpl;
 
@@ -44,16 +45,14 @@ public class MessageTask implements Runnable {
     public void run() {
         // stack copy
         final JResponse _response = response;
+        final JResponseBytes _responseBytes = _response.responseBytes();
 
         byte s_code = _response.serializerCode();
-        _response.result(
-                serializerImpl(s_code)
-                        .readObject(
-                                _response.responseBytes().bytes(),
-                                ResultWrapper.class
-                        )
-        );
-        _response.bytes(null);
+        byte[] bytes = _responseBytes.bytes();
+        _responseBytes.nullBytes();
+
+        _response.result(serializerImpl(s_code).readObject(bytes, ResultWrapper.class));
+
         InvokeFuture.received(channel, _response);
     }
 }

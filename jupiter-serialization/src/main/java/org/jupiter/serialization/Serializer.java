@@ -29,4 +29,6 @@ public interface Serializer {
     <T> byte[] writeObject(T obj);
 
     <T> T readObject(byte[] bytes, Class<T> clazz);
+
+    <T> T readObject(byte[] bytes, int offset, int length, Class<T> clazz);
 }

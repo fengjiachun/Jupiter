@@ -56,10 +56,11 @@ public abstract class AbstractProviderProcessor implements
         ResultWrapper result = new ResultWrapper();
         result.setError(cause);
 
+        byte[] bytes = serializerImpl(s_code).writeObject(result);
+
         JResponseBytes response = new JResponseBytes(invokeId);
-        response.serializerCode(s_code);
         response.status(status);
-        response.bytes(serializerImpl(s_code).writeObject(result));
+        response.bytes(s_code, bytes);
 
         channel.write(response);
     }

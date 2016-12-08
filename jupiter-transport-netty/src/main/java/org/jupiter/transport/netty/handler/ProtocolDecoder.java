@@ -99,28 +99,26 @@ public class ProtocolDecoder extends ReplayingDecoder<ProtocolDecoder.State> {
                     case HEARTBEAT:
                         break;
                     case REQUEST: {
-                        int bodyLength = checkBodyLength(header.bodyLength());
-                        byte[] bytes = new byte[bodyLength];
+                        int length = checkBodyLength(header.bodyLength());
+                        byte[] bytes = new byte[length];
                         in.readBytes(bytes);
 
                         JRequestBytes request = new JRequestBytes(header.id());
                         request.timestamp(SystemClock.millisClock().now());
-                        request.serializerCode(header.serializerCode());
-                        request.bytes(bytes);
+                        request.bytes(header.serializerCode(), bytes);
 
                         out.add(request);
 
                         break;
                     }
                     case RESPONSE: {
-                        int bodyLength = checkBodyLength(header.bodyLength());
-                        byte[] bytes = new byte[bodyLength];
+                        int length = checkBodyLength(header.bodyLength());
+                        byte[] bytes = new byte[length];
                         in.readBytes(bytes);
 
                         JResponseBytes response = new JResponseBytes(header.id());
                         response.status(header.status());
-                        response.serializerCode(header.serializerCode());
-                        response.bytes(bytes);
+                        response.bytes(header.serializerCode(), bytes);
 
                         out.add(response);
 
