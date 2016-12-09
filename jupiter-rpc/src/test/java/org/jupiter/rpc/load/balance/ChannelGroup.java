@@ -119,18 +119,13 @@ public class ChannelGroup implements JChannelGroup {
     }
 
     @Override
+    public boolean isWarmUpComplete() {
+        return true;
+    }
+
+    @Override
     public long getTimestamp() {
         return timestamp;
-    }
-
-    @Override
-    public void resetTimestamp() {
-        timestamp = SystemClock.millisClock().now();
-    }
-
-    @Override
-    public void clearTimestamp() {
-        timestamp = -1;
     }
 
     @Override
