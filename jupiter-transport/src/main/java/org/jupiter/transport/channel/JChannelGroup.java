@@ -109,19 +109,14 @@ public interface JChannelGroup {
     void setWarmUp(int warmUp);
 
     /**
+     * Returns {@code true} if warm up to complete.
+     */
+    boolean isWarmUpComplete();
+
+    /**
      * Time of birth.
      */
     long getTimestamp();
-
-    /**
-     * Reset the time of birth.
-     */
-    void resetTimestamp();
-
-    /**
-     * Clear the time of birth.
-     */
-    void clearTimestamp();
 
     /**
      * Deadline millis.

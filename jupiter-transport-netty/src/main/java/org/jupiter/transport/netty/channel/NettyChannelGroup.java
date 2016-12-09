@@ -89,7 +89,7 @@ public class NettyChannelGroup implements JChannelGroup {
     @SuppressWarnings("unused")
     private volatile int index = 0;
     private volatile int capacity = Integer.MAX_VALUE;
-    private volatile int weight = DEFAULT_WEIGHT; // the weight if this group
+    private volatile int weight = DEFAULT_WEIGHT; // the weight for this group
     private volatile int warmUp = DEFAULT_WARM_UP; // warm-up time
     private volatile long timestamp = SystemClock.millisClock().now();
     private volatile long deadlineMillis = -1;
@@ -139,7 +139,7 @@ public class NettyChannelGroup implements JChannelGroup {
     public boolean add(JChannel channel) {
         boolean added = channel instanceof NettyChannel && channels.add((NettyChannel) channel);
         if (added) {
-            resetTimestamp();
+            timestamp = SystemClock.millisClock().now(); // reset timestamp
 
             ((NettyChannel) channel).channel().closeFuture().addListener(remover);
             deadlineMillis = -1;
@@ -161,7 +161,7 @@ public class NettyChannelGroup implements JChannelGroup {
     public boolean remove(JChannel channel) {
         boolean removed = channel instanceof NettyChannel && channels.remove(channel);
         if (removed) {
-            resetTimestamp();
+            timestamp = SystemClock.millisClock().now(); // reset timestamp
 
             if (channels.isEmpty()) {
                 deadlineMillis = SystemClock.millisClock().now() + LOSS_INTERVAL;
@@ -243,18 +243,13 @@ public class NettyChannelGroup implements JChannelGroup {
     }
 
     @Override
+    public boolean isWarmUpComplete() {
+        return SystemClock.millisClock().now() > (timestamp + warmUp);
+    }
+
+    @Override
     public long getTimestamp() {
         return timestamp;
-    }
-
-    @Override
-    public void resetTimestamp() {
-        timestamp = SystemClock.millisClock().now();
-    }
-
-    @Override
-    public void clearTimestamp() {
-        timestamp = -1;
     }
 
     @Override

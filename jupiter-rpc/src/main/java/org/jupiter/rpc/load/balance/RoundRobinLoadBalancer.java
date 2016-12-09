@@ -86,7 +86,7 @@ public class RoundRobinLoadBalancer extends AbstractLoadBalancer {
         }
 
         // 遍历权重
-        boolean allWarmFinish = true;
+        boolean allWarmUpComplete = true;
         int sumWeight = 0;
         WeightArray weightsSnapshot = weightArray(length);
         for (int i = 0; i < length; i++) {
@@ -96,7 +96,7 @@ public class RoundRobinLoadBalancer extends AbstractLoadBalancer {
 
             weightsSnapshot.set(i, val);
             sumWeight += val;
-            allWarmFinish = (allWarmFinish && group.getTimestamp() < 0);
+            allWarmUpComplete = (allWarmUpComplete && group.isWarmUpComplete());
         }
 
         int maxWeight = 0;
@@ -107,7 +107,7 @@ public class RoundRobinLoadBalancer extends AbstractLoadBalancer {
             minWeight = Math.min(minWeight, val);
         }
 
-        if (allWarmFinish && maxWeight > 0 && minWeight == maxWeight) {
+        if (allWarmUpComplete && maxWeight > 0 && minWeight == maxWeight) {
             // 预热全部完成并且权重完全相同
             groups.setSameWeight(true);
         }

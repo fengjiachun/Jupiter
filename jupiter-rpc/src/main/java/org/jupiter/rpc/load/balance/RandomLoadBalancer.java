@@ -64,7 +64,7 @@ public class RandomLoadBalancer extends AbstractLoadBalancer {
         }
 
         // 遍历权重
-        boolean allWarmFinish = true;
+        boolean allWarmUpComplete = true;
         int sumWeight = 0;
         WeightArray weightsSnapshot = weightArray(length);
         for (int i = 0; i < length; i++) {
@@ -74,7 +74,7 @@ public class RandomLoadBalancer extends AbstractLoadBalancer {
 
             weightsSnapshot.set(i, val);
             sumWeight += val;
-            allWarmFinish = (allWarmFinish && group.getTimestamp() < 0);
+            allWarmUpComplete = (allWarmUpComplete && group.isWarmUpComplete());
         }
 
         boolean sameWeight = true;
@@ -83,7 +83,7 @@ public class RandomLoadBalancer extends AbstractLoadBalancer {
             sameWeight = (val_0 == weightsSnapshot.get(i));
         }
 
-        if (allWarmFinish && sameWeight) {
+        if (allWarmUpComplete && sameWeight) {
             // 预热全部完成并且权重完全相同
             groups.setSameWeight(true);
         }
