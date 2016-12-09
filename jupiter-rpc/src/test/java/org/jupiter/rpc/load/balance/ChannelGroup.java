@@ -124,7 +124,7 @@ public class ChannelGroup implements JChannelGroup {
     }
 
     @Override
-    public long getTimestamp() {
+    public long timestamp() {
         return timestamp;
     }
 

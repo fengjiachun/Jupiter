@@ -40,6 +40,7 @@ import static java.util.concurrent.TimeUnit.MILLISECONDS;
 import static java.util.concurrent.TimeUnit.MINUTES;
 import static org.jupiter.common.util.JConstants.DEFAULT_WARM_UP;
 import static org.jupiter.common.util.JConstants.DEFAULT_WEIGHT;
+import static org.jupiter.common.util.JConstants.MAX_WEIGHT;
 
 /**
  * jupiter
@@ -222,19 +223,17 @@ public class NettyChannelGroup implements JChannelGroup {
 
     @Override
     public int getWeight() {
-        return weight;
+        return weight > 0 ? weight : 0;
     }
 
     @Override
     public void setWeight(int weight) {
-        if (weight > 0) {
-            this.weight = weight;
-        }
+        this.weight = weight > MAX_WEIGHT ? MAX_WEIGHT : weight;
     }
 
     @Override
     public int getWarmUp() {
-        return warmUp;
+        return warmUp > 0 ? warmUp : 0;
     }
 
     @Override
@@ -244,11 +243,11 @@ public class NettyChannelGroup implements JChannelGroup {
 
     @Override
     public boolean isWarmUpComplete() {
-        return SystemClock.millisClock().now() > (timestamp + warmUp);
+        return SystemClock.millisClock().now() - timestamp - warmUp > 0;
     }
 
     @Override
-    public long getTimestamp() {
+    public long timestamp() {
         return timestamp;
     }
 

@@ -71,8 +71,10 @@ public final class JConstants {
 
     /** Load balancer 默认预热时间 **/
     public static final int DEFAULT_WARM_UP = getInt("jupiter.rpc.load-balancer.warm-up", 10 * 60 * 1000);
-    /** Load balancer 默认权重, 建议最大100 **/
-    public static final int DEFAULT_WEIGHT = getInt("jupiter.rpc.load-balancer.weight", 50);
+    /** Load balancer 默认权重 **/
+    public static final int DEFAULT_WEIGHT = getInt("jupiter.rpc.load-balancer.default.weight", 50);
+    /** Load balancer 最大权重 **/
+    public static final int MAX_WEIGHT = getInt("jupiter.rpc.load-balancer.max.weight", 100);
 
     /** Suggest that the count of connections **/
     public static final int DEFAULT_CONNECTION_COUNT = getInt("jupiter.rpc.suggest.connection.count", AVAILABLE_PROCESSORS);

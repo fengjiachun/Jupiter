@@ -41,17 +41,11 @@ public abstract class AbstractLoadBalancer implements LoadBalancer {
 
     protected int getWeight(JChannelGroup group) {
         int weight = group.getWeight();
-        if (weight > 0) {
-            long timestamp = group.getTimestamp();
-            if (timestamp > 0L) {
-                int upTime = (int) (SystemClock.millisClock().now() - timestamp);
-                int warmUp = group.getWarmUp();
+        int warmUp = group.getWarmUp();
+        int upTime = (int) (SystemClock.millisClock().now() - group.timestamp());
 
-                if (upTime > 0 && upTime < warmUp) {
-                    int warmUpWeight = (int) (((float) upTime / warmUp) * weight);
-                    return warmUpWeight < 1 ? 1 : (warmUpWeight > weight ? weight : warmUpWeight);
-                }
-            }
+        if (upTime > 0 && upTime < warmUp) {
+            weight = (int) (((float) upTime / warmUp) * weight);
         }
 
         return weight > 0 ? weight : 0;

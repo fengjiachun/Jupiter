@@ -116,7 +116,7 @@ public interface JChannelGroup {
     /**
      * Time of birth.
      */
-    long getTimestamp();
+    long timestamp();
 
     /**
      * Deadline millis.
