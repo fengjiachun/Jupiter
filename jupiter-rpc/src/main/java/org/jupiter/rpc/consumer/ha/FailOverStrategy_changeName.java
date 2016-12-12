@@ -26,11 +26,13 @@ import org.jupiter.transport.channel.JChannel;
 
 import java.lang.reflect.Method;
 
+import static java.util.concurrent.TimeUnit.NANOSECONDS;
+
 /**
  * 失败重试, 业务需保证自己的服务是幂等的
  *
  * 注意:
- * 对于Failover的容错方案, 我本人并不认为是常规性配置, 为了简化使用同学的配置, 所以该策略是服务级别的配置,
+ * 对于Failover的容错方案, 我本人并不认为是常规性配置, 为了简化使用同学的配置, 所以该策略最小粒度是服务级别的配置,
  * 对于非幂等的方法使用该策略时请务必小心这个大坑.
  *
  * https://en.wikipedia.org/wiki/Failover
@@ -40,11 +42,11 @@ import java.lang.reflect.Method;
  *
  * @author jiachun.fjc
  */
-public class FailoverStrategy extends AbstractHaStrategy {
+public class FailOverStrategy_changeName extends AbstractHaStrategy {
 
     private final int retries;
 
-    public FailoverStrategy(JClient client, Dispatcher dispatcher, int retries) {
+    public FailOverStrategy_changeName(JClient client, Dispatcher dispatcher, int retries) {
         super(client, dispatcher);
         if (retries >= 0) {
             this.retries = retries;
@@ -55,9 +57,12 @@ public class FailoverStrategy extends AbstractHaStrategy {
 
     @Override
     public Object invoke(Method method, Object[] args) throws Exception {
+        String methodName = method.getName();
+        long timeout = dispatcher.getMethodSpecialTimeoutMillis(methodName);
+        long start = System.nanoTime();
         Exception cause;
         try {
-            Object val = dispatcher.dispatch(client, method.getName(), args, method.getReturnType());
+            Object val = dispatcher.dispatch(client, methodName, args, method.getReturnType());
             InvokeFuture<?> future = (InvokeFuture<?>) val; // 组播不支持容错方案, 所以这里一定是InvokeFuture
             return future.getResult();
         } catch (Exception e) {
@@ -65,17 +70,24 @@ public class FailoverStrategy extends AbstractHaStrategy {
                 throw e;
             }
         }
+        timeout -= NANOSECONDS.toMillis(System.nanoTime() - start);
 
         CopyOnWriteGroupList groups = client.connector().directory(dispatcher.getMetadata());
-        for (int i = 0; i < retries; i++) {
+        int tryCount = Math.min(retries, groups.size());
+        for (int i = 0; i < tryCount; i++) {
+            start = System.nanoTime();
             try {
                 JChannel channel = groups.get(i % groups.size()).next();
-                Object val = dispatcher.dispatch(client, channel, method.getName(), args, method.getReturnType());
+                Object val = dispatcher.dispatch(client, channel, methodName, args, method.getReturnType(), timeout);
                 InvokeFuture<?> future = (InvokeFuture<?>) val;
                 return future.getResult();
             } catch (Exception e) {
                 if (failoverNeeded(e)) {
-                    continue;
+                    timeout -= NANOSECONDS.toMillis(System.nanoTime() - start);
+                    if (timeout > 0) {
+                        continue;
+                    }
+                    throw new RemoteException("[failover] timeout: ", e);
                 }
                 throw e;
             }

@@ -74,7 +74,8 @@ public class DefaultRoundDispatcher extends AbstractDispatcher {
     }
 
     @Override
-    public Object dispatch(JClient client, JChannel channel, String methodName, Object[] args, Class<?> returnType) {
+    public Object dispatch(
+            JClient client, JChannel channel, String methodName, Object[] args, Class<?> returnType, long timeoutMillis) {
         // stack copy
         final Serializer _serializer = getSerializer();
 
@@ -93,7 +94,6 @@ public class DefaultRoundDispatcher extends AbstractDispatcher {
         request.message(message);
         request.bytes(s_code, bytes);
 
-        long timeoutMillis = getMethodSpecialTimeoutMillis(methodName);
         InvokeFuture<?> future = asFuture(channel, request, returnType, timeoutMillis)
                 .setHooks(getHooks());
 

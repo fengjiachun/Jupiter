@@ -44,7 +44,8 @@ public interface Dispatcher {
     /**
      * Consumer指定channel消息派发, 不需要传入目标方法参数类型, 服务端会根据args具体类型按照JLS规则动态dispatch.
      */
-    Object dispatch(JClient client, JChannel channel, String methodName, Object[] args, Class<?> returnType);
+    Object dispatch(
+            JClient client, JChannel channel, String methodName, Object[] args, Class<?> returnType, long timeoutMillis);
 
     /**
      * Selects a {@link JChannel} from the load balancer.

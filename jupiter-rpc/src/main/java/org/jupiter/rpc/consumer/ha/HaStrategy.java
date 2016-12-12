@@ -28,12 +28,12 @@ public interface HaStrategy {
 
     Object invoke(Method method, Object[] args) throws Exception;
 
-    enum Strategy {
-        FAILFAST,  // 快速失败
-        FAILOVER;  // 失败重试
+    enum Type {
+        FailFast,  // 快速失败
+        FailOver;  // 失败重试
 
-        public static Strategy parse(String name) {
-            for (Strategy s : values()) {
+        public static Type parse(String name) {
+            for (Type s : values()) {
                 if (s.name().equalsIgnoreCase(name)) {
                     return s;
                 }

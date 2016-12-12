@@ -58,7 +58,7 @@ public class HelloJupiterClient {
                 .version("1.0.0.daily")
                 .client(client)
                 .serializerType(SerializerType.HESSIAN)
-                .haStrategy(HaStrategy.Strategy.FAILOVER)
+                .haStrategy(HaStrategy.Type.FailOver)
                 .failoverRetries(5)
                 .newProxyInstance();
 

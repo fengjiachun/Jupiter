@@ -75,7 +75,7 @@
             Map<String, Long> methodsSpecialTimeoutMillis   // 指定方法单独设置的超时时间, 方法名为key, 方法参数类型不做区别对待
             ConsumerHook[] hooks                            // consumer hook
             String providerAddresses                        // provider地址列表, 逗号分隔(IP直连)
-            HaStrategy.Strategy haStrategy                  // 容错方案(只支持单播的同步阻塞调用)
+            HaStrategy.Type haStrategy                      // 容错方案(只支持单播的同步阻塞调用)
             int failoverRetries                             // failover重试次数
         -->
     </bean>

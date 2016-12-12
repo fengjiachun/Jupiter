@@ -72,7 +72,8 @@ public abstract class AbstractDispatcher implements Dispatcher {
     }
 
     @Override
-    public Object dispatch(JClient client, JChannel channel, String methodName, Object[] args, Class<?> returnType) {
+    public Object dispatch(
+            JClient client, JChannel channel, String methodName, Object[] args, Class<?> returnType, long timeoutMillis) {
         throw new UnsupportedOperationException();
     }
 

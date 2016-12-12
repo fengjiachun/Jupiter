@@ -22,8 +22,9 @@ import org.jupiter.rpc.consumer.dispatcher.DefaultBroadcastDispatcher;
 import org.jupiter.rpc.consumer.dispatcher.DefaultRoundDispatcher;
 import org.jupiter.rpc.consumer.dispatcher.Dispatcher;
 import org.jupiter.rpc.consumer.ha.AbstractHaStrategy;
-import org.jupiter.rpc.consumer.ha.FailfastStrategy;
-import org.jupiter.rpc.consumer.ha.FailoverStrategy;
+import org.jupiter.rpc.consumer.ha.FailFastStrategy_changeName;
+import org.jupiter.rpc.consumer.ha.FailOverStrategy_changeName;
+import org.jupiter.rpc.consumer.ha.HaStrategy;
 import org.jupiter.rpc.consumer.invoker.CallbackInvoker;
 import org.jupiter.rpc.consumer.invoker.SyncInvoker;
 import org.jupiter.rpc.load.balance.LoadBalancerFactory;
@@ -43,7 +44,6 @@ import static org.jupiter.rpc.DispatchType.BROADCAST;
 import static org.jupiter.rpc.DispatchType.ROUND;
 import static org.jupiter.rpc.InvokeType.ASYNC;
 import static org.jupiter.rpc.InvokeType.SYNC;
-import static org.jupiter.rpc.consumer.ha.HaStrategy.Strategy;
 import static org.jupiter.rpc.load.balance.LoadBalancerType.RANDOM;
 import static org.jupiter.serialization.SerializerType.PROTO_STUFF;
 
@@ -59,20 +59,20 @@ import static org.jupiter.serialization.SerializerType.PROTO_STUFF;
  */
 public class ProxyFactory<I> {
 
-    private final Class<I> interfaceClass;                      // 接口类型
-    private String version;                                     // 服务版本号, 通常在接口不兼容时版本号才需要升级
+    private final Class<I> interfaceClass;                          // 接口类型
+    private String version;                                         // 服务版本号, 通常在接口不兼容时版本号才需要升级
 
-    private JClient client;                                     // jupiter client
-    private SerializerType serializerType = PROTO_STUFF;        // 序列化/反序列化方式
-    private LoadBalancerType loadBalancerType = RANDOM;         // 软负载均衡类型
-    private List<UnresolvedAddress> addresses;                  // provider地址
-    private InvokeType invokeType = SYNC;                       // 调用方式 [同步; 异步]
-    private DispatchType dispatchType = ROUND;                  // 派发方式 [单播; 组播]
-    private long timeoutMillis;                                 // 调用超时时间设置
-    private Map<String, Long> methodsSpecialTimeoutMillis;      // 指定方法单独设置的超时时间, 方法名为key, 方法参数类型不做区别对待
-    private List<ConsumerHook> hooks;                           // consumer hook
-    private Strategy strategy = Strategy.FAILFAST;              // 容错方案
-    private int retries = 3;                                    // failover重试次数
+    private JClient client;                                         // jupiter client
+    private SerializerType serializerType = PROTO_STUFF;            // 序列化/反序列化方式
+    private LoadBalancerType loadBalancerType = RANDOM;             // 软负载均衡类型
+    private List<UnresolvedAddress> addresses;                      // provider地址
+    private InvokeType invokeType = SYNC;                           // 调用方式 [同步; 异步]
+    private DispatchType dispatchType = ROUND;                      // 派发方式 [单播; 组播]
+    private long timeoutMillis;                                     // 调用超时时间设置
+    private Map<String, Long> methodsSpecialTimeoutMillis;          // 指定方法单独设置的超时时间, 方法名为key, 方法参数类型不做区别对待
+    private List<ConsumerHook> hooks;                               // consumer hook
+    private HaStrategy.Type strategy = HaStrategy.Type.FailFast;    // 容错方案
+    private int retries = 3;                                        // failover重试次数
 
     public static <I> ProxyFactory<I> factory(Class<I> interfaceClass) {
         ProxyFactory<I> factory = new ProxyFactory<>(interfaceClass);
@@ -184,7 +184,7 @@ public class ProxyFactory<I> {
     /**
      * Sets HA strategy, only support ROUND & SYNC mode.
      */
-    public ProxyFactory<I> haStrategy(Strategy strategy) {
+    public ProxyFactory<I> haStrategy(HaStrategy.Type strategy) {
         this.strategy = strategy;
         return this;
     }
@@ -261,10 +261,10 @@ public class ProxyFactory<I> {
 
     private AbstractHaStrategy asHaStrategy(Dispatcher dispatcher) {
         switch (strategy) {
-            case FAILFAST:
-                return new FailfastStrategy(client, dispatcher);
-            case FAILOVER:
-                return new FailoverStrategy(client, dispatcher, retries);
+            case FailFast:
+                return new FailFastStrategy_changeName(client, dispatcher);
+            case FailOver:
+                return new FailOverStrategy_changeName(client, dispatcher, retries);
             default:
                 throw new IllegalStateException("HaStrategy: " + strategy);
         }
