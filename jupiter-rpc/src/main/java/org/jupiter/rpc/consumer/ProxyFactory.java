@@ -22,8 +22,8 @@ import org.jupiter.rpc.consumer.dispatcher.DefaultBroadcastDispatcher;
 import org.jupiter.rpc.consumer.dispatcher.DefaultRoundDispatcher;
 import org.jupiter.rpc.consumer.dispatcher.Dispatcher;
 import org.jupiter.rpc.consumer.ha.AbstractHaStrategy;
-import org.jupiter.rpc.consumer.ha.FailFastStrategy_changeName;
-import org.jupiter.rpc.consumer.ha.FailOverStrategy_changeName;
+import org.jupiter.rpc.consumer.ha.FailFastStrategy;
+import org.jupiter.rpc.consumer.ha.FailOverStrategy;
 import org.jupiter.rpc.consumer.ha.HaStrategy;
 import org.jupiter.rpc.consumer.invoker.CallbackInvoker;
 import org.jupiter.rpc.consumer.invoker.SyncInvoker;
@@ -262,9 +262,9 @@ public class ProxyFactory<I> {
     private AbstractHaStrategy asHaStrategy(Dispatcher dispatcher) {
         switch (strategy) {
             case FailFast:
-                return new FailFastStrategy_changeName(client, dispatcher);
+                return new FailFastStrategy(client, dispatcher);
             case FailOver:
-                return new FailOverStrategy_changeName(client, dispatcher, retries);
+                return new FailOverStrategy(client, dispatcher, retries);
             default:
                 throw new IllegalStateException("HaStrategy: " + strategy);
         }

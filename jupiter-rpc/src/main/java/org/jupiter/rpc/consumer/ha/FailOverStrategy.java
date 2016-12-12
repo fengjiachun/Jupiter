@@ -42,11 +42,11 @@ import static java.util.concurrent.TimeUnit.NANOSECONDS;
  *
  * @author jiachun.fjc
  */
-public class FailOverStrategy_changeName extends AbstractHaStrategy {
+public class FailOverStrategy extends AbstractHaStrategy {
 
     private final int retries;
 
-    public FailOverStrategy_changeName(JClient client, Dispatcher dispatcher, int retries) {
+    public FailOverStrategy(JClient client, Dispatcher dispatcher, int retries) {
         super(client, dispatcher);
         if (retries >= 0) {
             this.retries = retries;

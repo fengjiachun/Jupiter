@@ -32,9 +32,9 @@ import java.lang.reflect.Method;
  *
  * @author jiachun.fjc
  */
-public class FailFastStrategy_changeName extends AbstractHaStrategy {
+public class FailFastStrategy extends AbstractHaStrategy {
 
-    public FailFastStrategy_changeName(JClient client, Dispatcher dispatcher) {
+    public FailFastStrategy(JClient client, Dispatcher dispatcher) {
         super(client, dispatcher);
     }
 
