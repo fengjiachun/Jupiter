@@ -25,8 +25,7 @@ import org.jupiter.transport.channel.CopyOnWriteGroupList;
 import org.jupiter.transport.channel.JChannel;
 
 import java.lang.reflect.Method;
-
-import static java.util.concurrent.TimeUnit.NANOSECONDS;
+import java.util.concurrent.TimeUnit;
 
 /**
  * 失败重试, 业务需保证自己的服务是幂等的
@@ -69,8 +68,11 @@ public class FailOverStrategy extends AbstractHaStrategy {
             if (!failoverNeeded(cause = e)) {
                 throw e;
             }
+
+            if ((timeout -= elapsedMillis(start)) <= 0) {
+                throw new RemoteException("[failover] timeout: ", e);
+            }
         }
-        timeout -= NANOSECONDS.toMillis(System.nanoTime() - start);
 
         CopyOnWriteGroupList groups = client.connector().directory(dispatcher.getMetadata());
         int tryCount = Math.min(retries, groups.size());
@@ -83,11 +85,10 @@ public class FailOverStrategy extends AbstractHaStrategy {
                 return future.getResult();
             } catch (Exception e) {
                 if (failoverNeeded(e)) {
-                    timeout -= NANOSECONDS.toMillis(System.nanoTime() - start);
-                    if (timeout > 0) {
-                        continue;
+                    if ((timeout -= elapsedMillis(start)) <= 0) {
+                        throw new RemoteException("[failover] timeout: ", e);
                     }
-                    throw new RemoteException("[failover] timeout: ", e);
+                    continue;
                 }
                 throw e;
             }
@@ -97,9 +98,13 @@ public class FailOverStrategy extends AbstractHaStrategy {
         throw new RemoteException("[failover] all failed: ", cause);
     }
 
-    public boolean failoverNeeded(Exception cause) {
+    private static boolean failoverNeeded(Exception cause) {
         return !(cause instanceof BizException)
                 && !(cause instanceof org.jupiter.rpc.exception.TimeoutException)
                 && !(cause instanceof java.util.concurrent.TimeoutException);
+    }
+
+    private static long elapsedMillis(long start) {
+        return TimeUnit.NANOSECONDS.toMillis(System.nanoTime() - start);
     }
 }
