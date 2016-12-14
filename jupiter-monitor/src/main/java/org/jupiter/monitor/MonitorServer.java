@@ -19,6 +19,8 @@ package org.jupiter.monitor;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.*;
 import io.netty.channel.socket.SocketChannel;
+import io.netty.handler.codec.DelimiterBasedFrameDecoder;
+import io.netty.handler.codec.Delimiters;
 import io.netty.handler.codec.string.StringDecoder;
 import io.netty.handler.codec.string.StringEncoder;
 import io.netty.util.ReferenceCountUtil;
@@ -94,6 +96,7 @@ public class MonitorServer extends NettyTcpAcceptor {
                     @Override
                     protected void initChannel(SocketChannel ch) throws Exception {
                         ch.pipeline().addLast(
+                                new DelimiterBasedFrameDecoder(8192, Delimiters.lineDelimiter()),
                                 new StringDecoder(UTF8),
                                 encoder,
                                 handler);
