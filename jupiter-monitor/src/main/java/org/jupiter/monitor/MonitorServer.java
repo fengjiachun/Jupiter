@@ -94,6 +94,7 @@ public class MonitorServer extends NettyTcpAcceptor {
                     @Override
                     protected void initChannel(SocketChannel ch) throws Exception {
                         ch.pipeline().addLast(
+                                new DelimiterBasedFrameDecoder(8192, Delimiters.lineDelimiter()),
                                 new StringDecoder(UTF8),
                                 encoder,
                                 handler);
