@@ -68,7 +68,7 @@ public class DefaultRoundDispatcher extends AbstractDispatcher {
 
         long timeoutMillis = getMethodSpecialTimeoutMillis(methodName);
         InvokeFuture<?> future = asFuture(channel, request, returnType, timeoutMillis)
-                .setHooks(getHooks());
+                .hooks(getHooks());
 
         return write(channel, request, future, ROUND);
     }
@@ -95,7 +95,7 @@ public class DefaultRoundDispatcher extends AbstractDispatcher {
         request.bytes(s_code, bytes);
 
         InvokeFuture<?> future = asFuture(channel, request, returnType, timeoutMillis)
-                .setHooks(getHooks());
+                .hooks(getHooks());
 
         return write(channel, request, future, ROUND);
     }

@@ -44,7 +44,7 @@ public class InvokeFutureContext {
     @SuppressWarnings("unchecked")
     public static <V> InvokeFuture<V> future(Class<V> expectReturnType) {
         InvokeFuture<?> f = future();
-        Class<?> realReturnType = f.getReturnType();
+        Class<?> realReturnType = f.returnType();
         checkReturnType(realReturnType, expectReturnType);
         return (InvokeFuture<V>) f;
     }
@@ -55,7 +55,7 @@ public class InvokeFutureContext {
         InvokeFuture<V>[] v_futures = new InvokeFuture[futures.length];
         for (int i = 0; i < futures.length; i++) {
             InvokeFuture<?> f = futures[i];
-            Class<?> realReturnType = f.getReturnType();
+            Class<?> realReturnType = f.returnType();
             checkReturnType(realReturnType, expectReturnType);
             v_futures[i] = (InvokeFuture<V>) f;
         }

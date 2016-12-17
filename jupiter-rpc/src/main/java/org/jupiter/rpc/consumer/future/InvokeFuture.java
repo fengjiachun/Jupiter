@@ -16,30 +16,24 @@
 
 package org.jupiter.rpc.consumer.future;
 
-import org.jupiter.common.concurrent.atomic.AtomicUpdater;
 import org.jupiter.common.util.Maps;
 import org.jupiter.common.util.Signal;
 import org.jupiter.common.util.internal.JUnsafe;
 import org.jupiter.common.util.internal.logging.InternalLogger;
 import org.jupiter.common.util.internal.logging.InternalLoggerFactory;
-import org.jupiter.rpc.ConsumerHook;
-import org.jupiter.rpc.DispatchType;
-import org.jupiter.rpc.JListener;
+import org.jupiter.rpc.*;
 import org.jupiter.rpc.exception.BizException;
 import org.jupiter.rpc.exception.RemoteException;
 import org.jupiter.rpc.exception.TimeoutException;
 import org.jupiter.rpc.model.metadata.ResultWrapper;
-import org.jupiter.rpc.JRequest;
-import org.jupiter.rpc.JResponse;
 import org.jupiter.transport.channel.JChannel;
 
 import java.util.concurrent.ConcurrentMap;
-import java.util.concurrent.CopyOnWriteArrayList;
-import java.util.concurrent.atomic.AtomicReferenceFieldUpdater;
 
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
 import static java.util.concurrent.TimeUnit.NANOSECONDS;
 import static org.jupiter.common.util.JConstants.DEFAULT_TIMEOUT;
+import static org.jupiter.common.util.Preconditions.checkNotNull;
 import static org.jupiter.common.util.StackTraceUtil.stackTrace;
 import static org.jupiter.rpc.DispatchType.BROADCAST;
 import static org.jupiter.rpc.DispatchType.ROUND;
@@ -56,11 +50,8 @@ public class InvokeFuture<V> extends Future<V> {
 
     private static final InternalLogger logger = InternalLoggerFactory.getInstance(InvokeFuture.class);
 
-    private static final Signal C_TIMEOUT_SIGNAL = Signal.valueOf(InvokeFuture.class, "client_time_out");
-    private static final Signal S_TIMEOUT_SIGNAL = Signal.valueOf(InvokeFuture.class, "server_time_out");
-
-    private static final AtomicReferenceFieldUpdater<CopyOnWriteArrayList, Object[]> listenersGetter =
-            AtomicUpdater.newAtomicReferenceFieldUpdater(CopyOnWriteArrayList.class, Object[].class, "array");
+    private static final Signal C_TIMEOUT = Signal.valueOf(InvokeFuture.class, "client_time_out");
+    private static final Signal S_TIMEOUT = Signal.valueOf(InvokeFuture.class, "server_time_out");
 
     // 单播场景的future, Long作为Key hashCode和equals效率都更高
     private static final ConcurrentMap<Long, InvokeFuture<?>> roundFutures = Maps.newConcurrentMapLong();
@@ -72,11 +63,11 @@ public class InvokeFuture<V> extends Future<V> {
     private final JRequest request;
     private final long timeout;
     private final long startTime = System.nanoTime();
-    private final CopyOnWriteArrayList<JListener<V>> listeners = new CopyOnWriteArrayList<>();
     private final Class<V> returnType;
 
     private volatile long sentTime;
     private volatile ConsumerHook[] hooks;
+    private Object listeners;
 
     public InvokeFuture(JChannel channel, JRequest request, Class<V> returnType, long timeoutMillis) {
         this(channel, request, returnType, timeoutMillis, ROUND);
@@ -101,9 +92,9 @@ public class InvokeFuture<V> extends Future<V> {
         try {
             return get(timeout, NANOSECONDS);
         } catch (Signal s) {
-            if (C_TIMEOUT_SIGNAL == s) {
+            if (C_TIMEOUT == s) {
                 throw new TimeoutException(channel.remoteAddress(), CLIENT_TIMEOUT);
-            } else if (S_TIMEOUT_SIGNAL == s) {
+            } else if (S_TIMEOUT == s) {
                 throw new TimeoutException(channel.remoteAddress(), SERVER_TIMEOUT);
             }
             return null; // never get here
@@ -115,7 +106,7 @@ public class InvokeFuture<V> extends Future<V> {
         return null; // never get here
     }
 
-    public Class<V> getReturnType() {
+    public Class<V> returnType() {
         return returnType;
     }
 
@@ -124,37 +115,126 @@ public class InvokeFuture<V> extends Future<V> {
         return this;
     }
 
-    public ConsumerHook[] getHooks() {
+    public ConsumerHook[] hooks() {
         return hooks;
     }
 
-    public InvokeFuture<V> setHooks(ConsumerHook[] hooks) {
+    public InvokeFuture<V> hooks(ConsumerHook[] hooks) {
         this.hooks = hooks;
         return this;
     }
 
     public InvokeFuture<V> addListener(JListener<V> listener) {
-        listeners.add(listener);
+        checkNotNull(listener, "listener");
+
+        synchronized (this) {
+            addListener0(listener);
+        }
+
+        if (isDone()) {
+            notifyListeners(state(), outcome());
+        }
+
+        return this;
+    }
+
+    public InvokeFuture<V> addListeners(JListener<V>... listeners) {
+        checkNotNull(listeners, "listeners");
+
+        synchronized (this) {
+            for (JListener<V> listener : listeners) {
+                if (listener == null) {
+                    continue;
+                }
+                addListener0(listener);
+            }
+        }
+
+        if (isDone()) {
+            notifyListeners(state(), outcome());
+        }
+
+        return this;
+    }
+
+    public InvokeFuture<V> removeListener(JListener<V> listener) {
+        checkNotNull(listener, "listener");
+
+        synchronized (this) {
+            removeListener0(listener);
+        }
+
+        return this;
+    }
+
+    public InvokeFuture<V> removeListeners(JListener<V>... listeners) {
+        checkNotNull(listeners, "listeners");
+
+        synchronized (this) {
+            for (JListener<V> listener : listeners) {
+                if (listener == null) {
+                    continue;
+                }
+                removeListener0(listener);
+            }
+        }
+
         return this;
     }
 
     @Override
     protected void done(int state, Object x) {
-        if (!listeners.isEmpty()) {
-            try {
-                Object[] array = listenersGetter.get(listeners);
-                if (NORMAL == state) {
-                    for (int i = 0; i < array.length; i++) {
-                        ((JListener<V>) array[i]).complete((V) x);
-                    }
-                } else {
-                    for (int i = 0; i < array.length; i++) {
-                        ((JListener<V>) array[i]).failure((Throwable) x);
-                    }
-                }
-            } catch (Throwable t) {
-                logger.error("An exception has been caught on calling listeners {}.", stackTrace(t));
+        notifyListeners(state, x);
+    }
+
+    private void addListener0(JListener<V> listener) {
+        if (listeners == null) {
+            listeners = listener;
+        } else if (listeners instanceof DefaultListeners) {
+            ((DefaultListeners<V>) listeners).add(listener);
+        } else {
+            listeners = new DefaultListeners<>((JListener<V>) listeners, listener);
+        }
+    }
+
+    private void removeListener0(JListener<V> listener) {
+        if (listeners instanceof DefaultListeners) {
+            ((DefaultListeners<V>) listeners).remove(listener);
+        } else if (listeners == listener) {
+            listeners = null;
+        }
+    }
+
+    private void notifyListeners(int state, Object x) {
+        Object listeners;
+        synchronized (this) {
+            // no thread competition unless the listener is added too late or the rpc call timeout
+            if (this.listeners == null) {
+                return;
             }
+
+            listeners = this.listeners;
+            this.listeners = null;
+        }
+
+        JListener<V>[] array = ((DefaultListeners<V>) listeners).listeners();
+        int size = ((DefaultListeners<V>) listeners).size();
+
+        for (int i = 0; i < size; i++) {
+            notifyListener0(array[i], state, x);
+        }
+    }
+
+    private static <V> void notifyListener0(JListener<V> listener, int state, Object x) {
+        try {
+            if (NORMAL == state) {
+                listener.complete((V) x);
+            } else {
+                listener.failure((Throwable) x);
+            }
+        } catch (Throwable t) {
+            logger.error("An exception was thrown by {}.{}.",
+                    listener.getClass().getName(), NORMAL == state ? "complete()" : "failure()", stackTrace(t));
         }
     }
 
@@ -164,9 +244,9 @@ public class InvokeFuture<V> extends Future<V> {
             ResultWrapper wrapper = response.result();
             set((V) wrapper.getResult());
         } else if (CLIENT_TIMEOUT.value() == status) {
-            setException(C_TIMEOUT_SIGNAL);
+            setException(C_TIMEOUT);
         } else if (SERVER_TIMEOUT.value() == status) {
-            setException(S_TIMEOUT_SIGNAL);
+            setException(S_TIMEOUT);
         } else if (SERVICE_ERROR.value() == status) {
             setException(new BizException(response.toString(), channel.remoteAddress()));
         } else {

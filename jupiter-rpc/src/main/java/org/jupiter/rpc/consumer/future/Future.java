@@ -55,6 +55,17 @@ public abstract class Future<V> {
         return state != NEW;
     }
 
+    protected int state() {
+        return state;
+    }
+
+    /**
+     * 调用这个方法之前, 先读 {@code state}
+     */
+    protected Object outcome() {
+        return outcome;
+    }
+
     protected V get() throws Throwable {
         int s = state;
         if (s <= COMPLETING) {

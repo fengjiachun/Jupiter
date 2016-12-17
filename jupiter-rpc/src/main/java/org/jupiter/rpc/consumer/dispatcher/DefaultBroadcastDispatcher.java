@@ -73,7 +73,7 @@ public class DefaultBroadcastDispatcher extends AbstractDispatcher {
         for (int i = 0; i < channels.length; i++) {
             JChannel ch = channels[i];
             InvokeFuture<?> future = asFuture(ch, request, returnType, timeoutMillis)
-                    .setHooks(getHooks());
+                    .hooks(getHooks());
             futures[i] = write(ch, request, future, BROADCAST);
         }
 

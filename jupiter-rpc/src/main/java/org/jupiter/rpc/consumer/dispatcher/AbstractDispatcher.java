@@ -193,7 +193,7 @@ public abstract class AbstractDispatcher implements Dispatcher {
                 }
 
                 // hook.before()
-                ConsumerHook[] _hooks = future.getHooks();
+                ConsumerHook[] _hooks = future.hooks();
                 if (_hooks != null) {
                     for (ConsumerHook h : _hooks) {
                         h.before(request, channel);
