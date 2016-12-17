@@ -186,7 +186,7 @@ public abstract class AbstractDispatcher implements Dispatcher {
 
             @Override
             public void operationSuccess(JChannel channel) throws Exception {
-                future.setSentTime(); // 记录发送时间戳
+                future.markSent(); // 标记已发送
 
                 if (ROUND == dispatchType) {
                     requestBytes.nullBytes();

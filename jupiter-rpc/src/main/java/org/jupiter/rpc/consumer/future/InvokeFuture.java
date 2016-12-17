@@ -65,7 +65,7 @@ public class InvokeFuture<V> extends Future<V> {
     private final long startTime = System.nanoTime();
     private final Class<V> returnType;
 
-    private volatile long sentTime;
+    private volatile byte markSent;
     private volatile ConsumerHook[] hooks;
     private Object listeners;
 
@@ -110,8 +110,8 @@ public class InvokeFuture<V> extends Future<V> {
         return returnType;
     }
 
-    public InvokeFuture<V> setSentTime() {
-        sentTime = System.nanoTime();
+    public InvokeFuture<V> markSent() {
+        markSent = 1;
         return this;
     }
 
@@ -294,7 +294,7 @@ public class InvokeFuture<V> extends Future<V> {
                         }
                         if (System.nanoTime() - future.startTime > future.timeout) {
                             JResponse response = new JResponse(future.invokeId);
-                            response.status(future.sentTime > 0 ? SERVER_TIMEOUT.value() : CLIENT_TIMEOUT.value());
+                            response.status(future.markSent > 0 ? SERVER_TIMEOUT.value() : CLIENT_TIMEOUT.value());
 
                             InvokeFuture.received(future.channel, response);
                         }
@@ -307,7 +307,7 @@ public class InvokeFuture<V> extends Future<V> {
                         }
                         if (System.nanoTime() - future.startTime > future.timeout) {
                             JResponse response = new JResponse(future.invokeId);
-                            response.status(future.sentTime > 0 ? SERVER_TIMEOUT.value() : CLIENT_TIMEOUT.value());
+                            response.status(future.markSent > 0 ? SERVER_TIMEOUT.value() : CLIENT_TIMEOUT.value());
 
                             InvokeFuture.received(future.channel, response);
                         }
