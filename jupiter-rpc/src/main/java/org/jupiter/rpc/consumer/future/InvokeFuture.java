@@ -103,9 +103,7 @@ public class InvokeFuture<V> extends Future<V> {
             } else if (S_TIMEOUT == s) {
                 throw new TimeoutException(channel.remoteAddress(), SERVER_TIMEOUT);
             }
-            return null; // never get here
-        } catch (Exception e) {
-            throw e;
+            JUnsafe.throwException(s); // never get here
         } catch (Throwable t) {
             JUnsafe.throwException(t);
         }
