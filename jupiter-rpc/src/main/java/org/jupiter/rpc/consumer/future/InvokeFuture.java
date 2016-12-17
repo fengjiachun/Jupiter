@@ -53,9 +53,6 @@ public class InvokeFuture<V> extends Future<V> {
     private static final Signal C_TIMEOUT = Signal.valueOf(InvokeFuture.class, "client_time_out");
     private static final Signal S_TIMEOUT = Signal.valueOf(InvokeFuture.class, "server_time_out");
 
-    private static final byte SENDING = 0;  // 未发送
-    private static final byte SENT = 1;     // 已发送
-
     private static final long DEFAULT_TIMEOUT_NANOSECONDS = MILLISECONDS.toNanos(DEFAULT_TIMEOUT);
 
     private static final ConcurrentMap<Long, InvokeFuture<?>> roundFutures = Maps.newConcurrentMapLong();
@@ -67,8 +64,8 @@ public class InvokeFuture<V> extends Future<V> {
     private final long timeout;
     private final long startTime = System.nanoTime();
 
-    private volatile byte markSent = SENDING;
-    private volatile ConsumerHook[] hooks = EMPTY_HOOKS;
+    private volatile boolean sent = false;
+    private ConsumerHook[] hooks = EMPTY_HOOKS;
 
     private Object listeners;
 
@@ -103,7 +100,6 @@ public class InvokeFuture<V> extends Future<V> {
             } else if (S_TIMEOUT == s) {
                 throw new TimeoutException(channel.remoteAddress(), SERVER_TIMEOUT);
             }
-            JUnsafe.throwException(s); // never get here
         } catch (Throwable t) {
             JUnsafe.throwException(t);
         }
@@ -115,7 +111,7 @@ public class InvokeFuture<V> extends Future<V> {
     }
 
     public InvokeFuture<V> markSent() {
-        markSent = SENT;
+        sent = true;
         return this;
     }
 
@@ -293,34 +289,31 @@ public class InvokeFuture<V> extends Future<V> {
                 try {
                     // round
                     for (InvokeFuture<?> future : roundFutures.values()) {
-                        if (future == null || future.isDone()) {
-                            continue;
-                        }
-                        if (System.nanoTime() - future.startTime > future.timeout) {
-                            JResponse response = new JResponse(future.invokeId);
-                            response.status(future.markSent == SENT ? SERVER_TIMEOUT.value() : CLIENT_TIMEOUT.value());
-
-                            InvokeFuture.received(future.channel, response);
-                        }
+                        process(future);
                     }
 
                     // broadcast
                     for (InvokeFuture<?> future : broadcastFutures.values()) {
-                        if (future == null || future.isDone()) {
-                            continue;
-                        }
-                        if (System.nanoTime() - future.startTime > future.timeout) {
-                            JResponse response = new JResponse(future.invokeId);
-                            response.status(future.markSent == SENT ? SERVER_TIMEOUT.value() : CLIENT_TIMEOUT.value());
-
-                            InvokeFuture.received(future.channel, response);
-                        }
+                        process(future);
                     }
 
                     Thread.sleep(30);
                 } catch (Throwable t) {
                     logger.error("An exception has been caught while scanning the timeout futures {}.", t);
                 }
+            }
+        }
+
+        private void process(InvokeFuture<?> future) {
+            if (future == null || future.isDone()) {
+                return;
+            }
+
+            if (System.nanoTime() - future.startTime > future.timeout) {
+                JResponse response = new JResponse(future.invokeId);
+                response.status(future.sent ? SERVER_TIMEOUT : CLIENT_TIMEOUT);
+
+                InvokeFuture.received(future.channel, response);
             }
         }
     }

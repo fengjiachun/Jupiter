@@ -108,7 +108,7 @@ public class ByteObjectHashMap<V> implements ByteObjectMap<V> {
         int startIndex = hashIndex(key);
         int index = startIndex;
 
-        for (; ; ) {
+        for (;;) {
             if (values[index] == null) {
                 // Found empty slot, use it.
                 keys[index] = key;

@@ -32,7 +32,6 @@ import org.jupiter.rpc.tracing.TracingUtil;
 import org.jupiter.serialization.Serializer;
 import org.jupiter.serialization.SerializerType;
 import org.jupiter.transport.Directory;
-import org.jupiter.transport.Status;
 import org.jupiter.transport.channel.CopyOnWriteGroupList;
 import org.jupiter.transport.channel.JChannel;
 import org.jupiter.transport.channel.JChannelGroup;
@@ -43,10 +42,11 @@ import java.util.List;
 import java.util.Map;
 
 import static org.jupiter.common.util.JConstants.DEFAULT_TIMEOUT;
-import static org.jupiter.rpc.ConsumerHook.*;
-import static org.jupiter.rpc.DispatchType.*;
+import static org.jupiter.rpc.ConsumerHook.EMPTY_HOOKS;
+import static org.jupiter.rpc.DispatchType.ROUND;
 import static org.jupiter.rpc.tracing.TracingRecorder.Role.CONSUMER;
 import static org.jupiter.serialization.SerializerHolder.serializerImpl;
+import static org.jupiter.transport.Status.CLIENT_ERROR;
 
 /**
  * jupiter
@@ -183,6 +183,8 @@ public abstract class AbstractDispatcher implements Dispatcher {
             JChannel channel, final JRequest request, final InvokeFuture<?> future, final DispatchType dispatchType) {
 
         final JRequestBytes requestBytes = request.requestBytes();
+        final ConsumerHook[] hooks = future.hooks();
+
         channel.write(requestBytes, new JFutureListener<JChannel>() {
 
             @SuppressWarnings("all")
@@ -195,9 +197,8 @@ public abstract class AbstractDispatcher implements Dispatcher {
                 }
 
                 // hook.before()
-                ConsumerHook[] _hooks = future.hooks();
-                for (int i = 0; i < _hooks.length; i++) {
-                    _hooks[i].before(request, channel);
+                for (int i = 0; i < hooks.length; i++) {
+                    hooks[i].before(request, channel);
                 }
             }
 
@@ -213,7 +214,7 @@ public abstract class AbstractDispatcher implements Dispatcher {
                 result.setError(cause);
 
                 JResponse response = new JResponse(requestBytes.invokeId());
-                response.status(Status.CLIENT_ERROR.value());
+                response.status(CLIENT_ERROR);
                 response.result(result);
 
                 InvokeFuture.received(channel, response);

@@ -57,6 +57,10 @@ public class JResponse {
         responseBytes.status(status);
     }
 
+    public void status(Status status) {
+        responseBytes.status(status.value());
+    }
+
     public byte serializerCode() {
         return responseBytes.serializerCode();
     }

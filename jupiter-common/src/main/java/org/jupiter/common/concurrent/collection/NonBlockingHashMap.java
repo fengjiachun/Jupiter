@@ -41,7 +41,6 @@ import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.atomic.AtomicLongFieldUpdater;
 import java.util.concurrent.atomic.AtomicReferenceFieldUpdater;
 
-
 /**
  * A lock-free alternate implementation of {@link java.util.concurrent.ConcurrentHashMap}
  * with better scaling properties and generally lower costs to mutate the Map.
