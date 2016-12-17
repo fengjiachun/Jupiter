@@ -34,7 +34,7 @@ public interface JConfig {
     List<JOption<?>> getOptions();
 
     /**
-     * Return the value of the given {@link JOption}
+     * Return the value of the given {@link JOption}.
      */
     <T> T getOption(JOption<T> option);
 
