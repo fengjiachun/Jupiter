@@ -72,7 +72,7 @@ public class DefaultBroadcastDispatcher extends AbstractDispatcher {
         long timeoutMillis = getMethodSpecialTimeoutMillis(methodName);
         for (int i = 0; i < channels.length; i++) {
             JChannel ch = channels[i];
-            InvokeFuture<?> future = asFuture(ch, request, returnType, timeoutMillis)
+            InvokeFuture<?> future = asFuture(request, ch, returnType, timeoutMillis)
                     .hooks(getHooks());
             futures[i] = write(ch, request, future, BROADCAST);
         }
@@ -82,7 +82,7 @@ public class DefaultBroadcastDispatcher extends AbstractDispatcher {
 
     @SuppressWarnings("unchecked")
     @Override
-    protected InvokeFuture<?> asFuture(JChannel channel, JRequest request, Class<?> returnType, long timeoutMillis) {
-        return new InvokeFuture(channel, request, returnType, timeoutMillis, BROADCAST);
+    protected InvokeFuture<?> asFuture(JRequest request, JChannel channel, Class<?> returnType, long timeoutMillis) {
+        return new InvokeFuture(request.invokeId(), channel, returnType, timeoutMillis, BROADCAST);
     }
 }

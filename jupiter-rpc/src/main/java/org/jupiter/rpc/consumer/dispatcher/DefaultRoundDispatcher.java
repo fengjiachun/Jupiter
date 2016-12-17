@@ -67,7 +67,7 @@ public class DefaultRoundDispatcher extends AbstractDispatcher {
         request.bytes(s_code, bytes);
 
         long timeoutMillis = getMethodSpecialTimeoutMillis(methodName);
-        InvokeFuture<?> future = asFuture(channel, request, returnType, timeoutMillis)
+        InvokeFuture<?> future = asFuture(request, channel, returnType, timeoutMillis)
                 .hooks(getHooks());
 
         return write(channel, request, future, ROUND);
@@ -94,7 +94,7 @@ public class DefaultRoundDispatcher extends AbstractDispatcher {
         request.message(message);
         request.bytes(s_code, bytes);
 
-        InvokeFuture<?> future = asFuture(channel, request, returnType, timeoutMillis)
+        InvokeFuture<?> future = asFuture(request, channel, returnType, timeoutMillis)
                 .hooks(getHooks());
 
         return write(channel, request, future, ROUND);
@@ -102,7 +102,7 @@ public class DefaultRoundDispatcher extends AbstractDispatcher {
 
     @SuppressWarnings("unchecked")
     @Override
-    protected InvokeFuture<?> asFuture(JChannel channel, JRequest request, Class<?> returnType, long timeoutMillis) {
-        return new InvokeFuture(channel, request, returnType, timeoutMillis);
+    protected InvokeFuture<?> asFuture(JRequest request, JChannel channel, Class<?> returnType, long timeoutMillis) {
+        return new InvokeFuture(request.invokeId(), channel, returnType, timeoutMillis);
     }
 }

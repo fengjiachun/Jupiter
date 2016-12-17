@@ -35,7 +35,7 @@ import static java.util.concurrent.TimeUnit.NANOSECONDS;
 import static org.jupiter.common.util.JConstants.DEFAULT_TIMEOUT;
 import static org.jupiter.common.util.Preconditions.checkNotNull;
 import static org.jupiter.common.util.StackTraceUtil.stackTrace;
-import static org.jupiter.rpc.DispatchType.BROADCAST;
+import static org.jupiter.rpc.ConsumerHook.*;
 import static org.jupiter.rpc.DispatchType.ROUND;
 import static org.jupiter.transport.Status.*;
 
@@ -53,38 +53,44 @@ public class InvokeFuture<V> extends Future<V> {
     private static final Signal C_TIMEOUT = Signal.valueOf(InvokeFuture.class, "client_time_out");
     private static final Signal S_TIMEOUT = Signal.valueOf(InvokeFuture.class, "server_time_out");
 
-    // 单播场景的future, Long作为Key hashCode和equals效率都更高
+    private static final byte SENDING = 0;  // 未发送
+    private static final byte SENT = 1;     // 已发送
+
+    private static final long DEFAULT_TIMEOUT_NANOSECONDS = MILLISECONDS.toNanos(DEFAULT_TIMEOUT);
+
     private static final ConcurrentMap<Long, InvokeFuture<?>> roundFutures = Maps.newConcurrentMapLong();
-    // 组播场景的future, 组播都是一个invokeId, 所以要把Key再加一个前缀
     private static final ConcurrentMap<String, InvokeFuture<?>> broadcastFutures = Maps.newConcurrentMap();
 
     private final long invokeId; // request id, 组播的场景可重复
     private final JChannel channel;
-    private final JRequest request;
+    private final Class<V> returnType;
     private final long timeout;
     private final long startTime = System.nanoTime();
-    private final Class<V> returnType;
 
-    private volatile byte markSent;
-    private volatile ConsumerHook[] hooks;
+    private volatile byte markSent = SENDING;
+    private volatile ConsumerHook[] hooks = EMPTY_HOOKS;
+
     private Object listeners;
 
-    public InvokeFuture(JChannel channel, JRequest request, Class<V> returnType, long timeoutMillis) {
-        this(channel, request, returnType, timeoutMillis, ROUND);
+    public InvokeFuture(long invokeId, JChannel channel, Class<V> returnType, long timeoutMillis) {
+        this(invokeId, channel, returnType, timeoutMillis, ROUND);
     }
 
-    public InvokeFuture(JChannel channel, JRequest request, Class<V> returnType, long timeoutMillis, DispatchType dispatchType) {
-        invokeId = request.invokeId();
+    public InvokeFuture(long invokeId, JChannel channel, Class<V> returnType, long timeoutMillis, DispatchType dispatchType) {
+        this.invokeId = invokeId;
         this.channel = channel;
-        this.request = request;
         this.returnType = returnType;
-        this.timeout = timeoutMillis <= 0
-                ? MILLISECONDS.toNanos(DEFAULT_TIMEOUT) : MILLISECONDS.toNanos(timeoutMillis);
+        this.timeout = timeoutMillis > 0 ? MILLISECONDS.toNanos(timeoutMillis) : DEFAULT_TIMEOUT_NANOSECONDS;
 
-        if (dispatchType == BROADCAST) {
-            broadcastFutures.put(subInvokeId(channel, invokeId), this);
-        } else {
-            roundFutures.put(invokeId, this);
+        switch (dispatchType) {
+            case ROUND:
+                roundFutures.put(invokeId, this);
+                break;
+            case BROADCAST:
+                broadcastFutures.put(subInvokeId(channel, invokeId), this);
+                break;
+            default:
+                throw new IllegalArgumentException("unsupported " + dispatchType);
         }
     }
 
@@ -111,7 +117,7 @@ public class InvokeFuture<V> extends Future<V> {
     }
 
     public InvokeFuture<V> markSent() {
-        markSent = 1;
+        markSent = SENT;
         return this;
     }
 
@@ -120,6 +126,8 @@ public class InvokeFuture<V> extends Future<V> {
     }
 
     public InvokeFuture<V> hooks(ConsumerHook[] hooks) {
+        checkNotNull(hooks, "hooks");
+
         this.hooks = hooks;
         return this;
     }
@@ -254,10 +262,8 @@ public class InvokeFuture<V> extends Future<V> {
         }
 
         // call hook's after method
-        if (hooks != null) {
-            for (ConsumerHook h : hooks) {
-                h.after(request, response, channel);
-            }
+        for (int i = 0; i < hooks.length; i++) {
+            hooks[i].after(response, channel);
         }
     }
 
@@ -294,7 +300,7 @@ public class InvokeFuture<V> extends Future<V> {
                         }
                         if (System.nanoTime() - future.startTime > future.timeout) {
                             JResponse response = new JResponse(future.invokeId);
-                            response.status(future.markSent > 0 ? SERVER_TIMEOUT.value() : CLIENT_TIMEOUT.value());
+                            response.status(future.markSent == SENT ? SERVER_TIMEOUT.value() : CLIENT_TIMEOUT.value());
 
                             InvokeFuture.received(future.channel, response);
                         }
@@ -307,7 +313,7 @@ public class InvokeFuture<V> extends Future<V> {
                         }
                         if (System.nanoTime() - future.startTime > future.timeout) {
                             JResponse response = new JResponse(future.invokeId);
-                            response.status(future.markSent > 0 ? SERVER_TIMEOUT.value() : CLIENT_TIMEOUT.value());
+                            response.status(future.markSent == SENT ? SERVER_TIMEOUT.value() : CLIENT_TIMEOUT.value());
 
                             InvokeFuture.received(future.channel, response);
                         }

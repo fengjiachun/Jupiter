@@ -28,6 +28,8 @@ import org.jupiter.transport.channel.JChannel;
  */
 public interface ConsumerHook {
 
+    ConsumerHook[] EMPTY_HOOKS = new ConsumerHook[0];
+
     /**
      * Will be triggered when the request data sent to the network.
      */
@@ -36,5 +38,5 @@ public interface ConsumerHook {
     /**
      * Will be triggered when the server returns the result.
      */
-    void after(JRequest request, JResponse response, JChannel channel);
+    void after(JResponse response, JChannel channel);
 }

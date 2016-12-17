@@ -43,6 +43,7 @@ import java.util.List;
 import java.util.Map;
 
 import static org.jupiter.common.util.JConstants.DEFAULT_TIMEOUT;
+import static org.jupiter.rpc.ConsumerHook.*;
 import static org.jupiter.rpc.DispatchType.*;
 import static org.jupiter.rpc.tracing.TracingRecorder.Role.CONSUMER;
 import static org.jupiter.serialization.SerializerHolder.serializerImpl;
@@ -60,7 +61,7 @@ public abstract class AbstractDispatcher implements Dispatcher {
     private final LoadBalancer loadBalancer;
     private final ServiceMetadata metadata;         // 目标服务元信息
     private final Serializer serializerImpl;        // 序列化/反序列化impl
-    private ConsumerHook[] hooks;                   // consumer hook
+    private ConsumerHook[] hooks = EMPTY_HOOKS;     // consumer hook
     private long timeoutMillis = DEFAULT_TIMEOUT;   // 调用超时时间设置
     // 针对指定方法单独设置的超时时间, 方法名为key, 方法参数类型不做区别对待
     private Map<String, Long> methodsSpecialTimeoutMillis = Maps.newHashMap();
@@ -184,6 +185,7 @@ public abstract class AbstractDispatcher implements Dispatcher {
         final JRequestBytes requestBytes = request.requestBytes();
         channel.write(requestBytes, new JFutureListener<JChannel>() {
 
+            @SuppressWarnings("all")
             @Override
             public void operationSuccess(JChannel channel) throws Exception {
                 future.markSent(); // 标记已发送
@@ -194,10 +196,8 @@ public abstract class AbstractDispatcher implements Dispatcher {
 
                 // hook.before()
                 ConsumerHook[] _hooks = future.hooks();
-                if (_hooks != null) {
-                    for (ConsumerHook h : _hooks) {
-                        h.before(request, channel);
-                    }
+                for (int i = 0; i < _hooks.length; i++) {
+                    _hooks[i].before(request, channel);
                 }
             }
 
@@ -223,5 +223,5 @@ public abstract class AbstractDispatcher implements Dispatcher {
         return future;
     }
 
-    protected abstract InvokeFuture<?> asFuture(JChannel channel, JRequest request, Class<?> returnType, long timeoutMillis);
+    protected abstract InvokeFuture<?> asFuture(JRequest request, JChannel channel, Class<?> returnType, long timeoutMillis);
 }
