@@ -60,7 +60,7 @@ public abstract class Future<V> {
     }
 
     /**
-     * 调用这个方法之前, 先读 {@code state}
+     * 调用这个方法之前, 需要先读 {@code state} 来保证可见性
      */
     protected Object outcome() {
         return outcome;
