@@ -208,7 +208,7 @@ public class InvokeFuture<V> extends Future<V> {
     private void notifyListeners(int state, Object x) {
         Object listeners;
         synchronized (this) {
-            // no thread competition unless the listener is added too late or the rpc call timeout
+            // no competition unless the listener is added too late or the rpc call timeout
             if (this.listeners == null) {
                 return;
             }
