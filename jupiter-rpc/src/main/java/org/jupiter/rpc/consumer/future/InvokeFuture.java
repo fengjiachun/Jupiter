@@ -114,9 +114,8 @@ public class InvokeFuture<V> extends Future<V> {
         return returnType;
     }
 
-    public InvokeFuture<V> markSent() {
+    public void markSent() {
         sent = true;
-        return this;
     }
 
     public ConsumerHook[] hooks() {
