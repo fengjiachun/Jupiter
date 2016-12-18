@@ -46,10 +46,9 @@ public class DefaultRoundDispatcher extends AbstractDispatcher {
     @Override
     public Object dispatch(JClient client, String methodName, Object[] args, Class<?> returnType) {
         // stack copy
-        final ServiceMetadata _metadata = getMetadata();
         final Serializer _serializer = getSerializer();
 
-        MessageWrapper message = new MessageWrapper(_metadata);
+        MessageWrapper message = new MessageWrapper(getMetadata());
         message.setAppName(client.appName());
         message.setMethodName(methodName);
         message.setArgs(args);
