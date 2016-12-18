@@ -28,6 +28,7 @@ import org.jupiter.rpc.exception.TimeoutException;
 import org.jupiter.rpc.model.metadata.ResultWrapper;
 import org.jupiter.transport.channel.JChannel;
 
+import java.net.SocketAddress;
 import java.util.concurrent.ConcurrentMap;
 
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
@@ -65,8 +66,8 @@ public class InvokeFuture<V> extends Future<V> {
     private final long startTime = System.nanoTime();
 
     private volatile boolean sent = false;
-    private ConsumerHook[] hooks = EMPTY_HOOKS;
 
+    private ConsumerHook[] hooks = EMPTY_HOOKS;
     private Object listeners;
 
     public InvokeFuture(long invokeId, JChannel channel, Class<V> returnType, long timeoutMillis) {
@@ -95,10 +96,13 @@ public class InvokeFuture<V> extends Future<V> {
         try {
             return get(timeout, NANOSECONDS);
         } catch (Signal s) {
+            SocketAddress address = channel.remoteAddress();
             if (C_TIMEOUT == s) {
-                throw new TimeoutException(channel.remoteAddress(), CLIENT_TIMEOUT);
+                throw new TimeoutException(address, CLIENT_TIMEOUT);
             } else if (S_TIMEOUT == s) {
-                throw new TimeoutException(channel.remoteAddress(), SERVER_TIMEOUT);
+                throw new TimeoutException(address, SERVER_TIMEOUT);
+            } else {
+                throw new RemoteException(s.name(), address);
             }
         } catch (Throwable t) {
             JUnsafe.throwException(t);
@@ -219,11 +223,15 @@ public class InvokeFuture<V> extends Future<V> {
             this.listeners = null;
         }
 
-        JListener<V>[] array = ((DefaultListeners<V>) listeners).listeners();
-        int size = ((DefaultListeners<V>) listeners).size();
+        if (listeners instanceof DefaultListeners) {
+            JListener<V>[] array = ((DefaultListeners<V>) listeners).listeners();
+            int size = ((DefaultListeners<V>) listeners).size();
 
-        for (int i = 0; i < size; i++) {
-            notifyListener0(array[i], state, x);
+            for (int i = 0; i < size; i++) {
+                notifyListener0(array[i], state, x);
+            }
+        } else {
+            notifyListener0((JListener<Object>) listeners, state, x);
         }
     }
 
