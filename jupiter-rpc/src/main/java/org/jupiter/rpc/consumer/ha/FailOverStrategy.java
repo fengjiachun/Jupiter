@@ -31,7 +31,7 @@ import java.util.concurrent.TimeUnit;
  * 失败重试, 业务需保证自己的服务是幂等的
  *
  * 注意:
- * 对于Failover的容错方案, 我本人并不认为是常规性配置, 为了简化使用同学的配置, 所以该策略最小粒度是服务级别的配置,
+ * 对于Failover的容错方案, 我本人并不认为是常规性配置, 为了简化配置, 该策略最小粒度是服务级别的配置,
  * 对于非幂等的方法使用该策略时请务必小心这个大坑.
  *
  * https://en.wikipedia.org/wiki/Failover

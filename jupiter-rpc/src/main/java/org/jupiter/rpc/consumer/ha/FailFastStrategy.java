@@ -23,7 +23,7 @@ import org.jupiter.rpc.consumer.future.InvokeFuture;
 import java.lang.reflect.Method;
 
 /**
- * 快速失败, 默认容错方案
+ * 快速失败, jupiter默认容错方案
  *
  * https://en.wikipedia.org/wiki/Fail-fast
  *

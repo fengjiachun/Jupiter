@@ -26,6 +26,7 @@ import static org.jupiter.common.util.Preconditions.*;
  *
  * @author jiachun.fjc
  */
+@SuppressWarnings("all")
 public final class Ints {
 
     /**

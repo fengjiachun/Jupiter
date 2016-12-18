@@ -25,7 +25,6 @@ import org.jupiter.transport.payload.JResponseBytes;
 import static org.jupiter.serialization.SerializerHolder.serializerImpl;
 
 /**
- *
  * jupiter
  * org.jupiter.rpc.consumer.processor.task
  *

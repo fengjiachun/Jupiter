@@ -188,7 +188,7 @@ public abstract class AbstractRegistryService implements RegistryService {
                     return;
                 }
                 List<RegisterMeta> metaList = Lists.newArrayList(registerMeta);
-                data = new Pair<>(version, metaList);
+                data = Pair.of(version, metaList);
                 notifyNeeded = true;
             } else {
                 long oldVersion = data.getKey();
@@ -199,7 +199,7 @@ public abstract class AbstractRegistryService implements RegistryService {
                     } else if (event == CHILD_ADDED) {
                         metaList.add(registerMeta);
                     }
-                    data = new Pair<>(version, metaList);
+                    data = Pair.of(version, metaList);
                     notifyNeeded = true;
                 }
             }

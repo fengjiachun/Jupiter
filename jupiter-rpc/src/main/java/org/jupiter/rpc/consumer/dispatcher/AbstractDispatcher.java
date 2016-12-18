@@ -58,10 +58,10 @@ public abstract class AbstractDispatcher implements Dispatcher {
 
     private static final InternalLogger logger = InternalLoggerFactory.getInstance(AbstractDispatcher.class);
 
-    private final LoadBalancer loadBalancer;
+    private final LoadBalancer loadBalancer;        // 软负载均衡
     private final ServiceMetadata metadata;         // 目标服务元信息
     private final Serializer serializerImpl;        // 序列化/反序列化impl
-    private ConsumerHook[] hooks = EMPTY_HOOKS;     // consumer hook
+    private ConsumerHook[] hooks = EMPTY_HOOKS;     // 消费者端钩子函数
     private long timeoutMillis = DEFAULT_TIMEOUT;   // 调用超时时间设置
     // 针对指定方法单独设置的超时时间, 方法名为key, 方法参数类型不做区别对待
     private Map<String, Long> methodsSpecialTimeoutMillis = Maps.newHashMap();

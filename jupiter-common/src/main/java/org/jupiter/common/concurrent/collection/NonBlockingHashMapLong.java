@@ -103,7 +103,7 @@ import java.util.concurrent.atomic.AtomicReferenceFieldUpdater;
  *
  * Forked from <a href="https://github.com/JCTools/JCTools">JCTools</a>.
  */
-@SuppressWarnings("ALL")
+@SuppressWarnings("all")
 public class NonBlockingHashMapLong<TypeV>
         extends AbstractMap<Long, TypeV>
         implements ConcurrentMap<Long, TypeV>, Serializable {

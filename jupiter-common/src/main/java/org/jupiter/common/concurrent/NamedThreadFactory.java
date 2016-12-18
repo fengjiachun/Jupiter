@@ -81,7 +81,7 @@ public class NamedThreadFactory implements ThreadFactory {
             if (t.getPriority() != priority) {
                 t.setPriority(priority);
             }
-        } catch (Exception ignored) { /* Doesn't matter even if failed to set. */ }
+        } catch (Exception ignored) { /* doesn't matter even if failed to set. */ }
 
         logger.debug("Creates new {}.", t);
 

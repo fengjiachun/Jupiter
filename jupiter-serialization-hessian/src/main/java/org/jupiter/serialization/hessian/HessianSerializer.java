@@ -78,7 +78,6 @@ public class HessianSerializer implements Serializer {
         return null; // never get here
     }
 
-    @SuppressWarnings("unchecked")
     @Override
     public <T> T readObject(byte[] bytes, Class<T> clazz) {
         return readObject(bytes, 0, bytes.length, clazz);

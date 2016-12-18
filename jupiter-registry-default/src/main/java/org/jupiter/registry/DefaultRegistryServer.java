@@ -234,7 +234,7 @@ public class DefaultRegistryServer extends NettyTcpAcceptor implements RegistryS
                 final Message msg = new Message(PROTO_STUFF.value());
                 msg.messageCode(PUBLISH_SERVICE);
                 msg.version(config.newVersion()); // 版本号+1
-                msg.data(new Pair<>(serviceMeta, meta));
+                msg.data(Pair.of(serviceMeta, meta));
 
                 subscriberChannels.writeAndFlush(msg, new ChannelMatcher() {
 
@@ -276,7 +276,7 @@ public class DefaultRegistryServer extends NettyTcpAcceptor implements RegistryS
                 final Message msg = new Message(PROTO_STUFF.value());
                 msg.messageCode(PUBLISH_CANCEL_SERVICE);
                 msg.version(config.newVersion()); // 版本号+1
-                msg.data(new Pair<>(serviceMeta, data));
+                msg.data(Pair.of(serviceMeta, data));
 
                 subscriberChannels.writeAndFlush(msg, new ChannelMatcher() {
 
@@ -314,7 +314,7 @@ public class DefaultRegistryServer extends NettyTcpAcceptor implements RegistryS
         msg.version(config.getVersion()); // 版本号
         List<RegisterMeta> registerMetaList = Lists.newArrayList(config.getConfig().values());
         // 每次发布服务都是当前meta的全量信息
-        msg.data(new Pair<>(serviceMeta, registerMetaList));
+        msg.data(Pair.of(serviceMeta, registerMetaList));
 
         MessageNonAck msgNonAck = new MessageNonAck(serviceMeta, msg, channel);
         // 收到ack后会移除当前key(参见handleAcknowledge), 否则超时超时重发
@@ -654,9 +654,9 @@ public class DefaultRegistryServer extends NettyTcpAcceptor implements RegistryS
         }
     }
 
+    @SuppressWarnings("all")
     private class AckTimeoutScanner implements Runnable {
 
-        @SuppressWarnings("InfiniteLoopStatement")
         @Override
         public void run() {
             for (;;) {
