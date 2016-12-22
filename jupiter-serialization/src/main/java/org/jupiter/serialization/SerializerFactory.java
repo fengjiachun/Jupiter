@@ -49,7 +49,7 @@ public final class SerializerFactory {
     }
 
     public static Serializer getSerializer(byte code) {
-        Serializer serializer =  serializerMapping.get(code);
+        Serializer serializer = serializerMapping.get(code);
 
         if (serializer == null) {
             throw new NullPointerException("unsupported serializerImpl with code: " + code);
