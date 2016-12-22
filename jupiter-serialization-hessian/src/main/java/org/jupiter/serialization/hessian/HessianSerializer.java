@@ -36,7 +36,7 @@ import static org.jupiter.serialization.SerializerType.HESSIAN;
  *
  * @author jiachun.fjc
  */
-public class HessianSerializer implements Serializer {
+public class HessianSerializer extends Serializer {
 
     private static final UnsafeReferenceFieldUpdater<ByteArrayOutputStream, byte[]> bufUpdater =
             UnsafeUpdater.newReferenceFieldUpdater(ByteArrayOutputStream.class, "buf");

@@ -32,9 +32,9 @@ import java.util.List;
  *
  * @author jiachun.fjc
  */
-public final class SerializerHolder {
+public final class SerializerFactory {
 
-    private static final InternalLogger logger = InternalLoggerFactory.getInstance(SerializerHolder.class);
+    private static final InternalLogger logger = InternalLoggerFactory.getInstance(SerializerFactory.class);
 
     private static final ByteObjectMap<Serializer> serializerMapping = new ByteObjectHashMap<>();
 
@@ -48,7 +48,7 @@ public final class SerializerHolder {
         }
     }
 
-    public static Serializer serializerImpl(byte code) {
+    public static Serializer getSerializer(byte code) {
         Serializer serializer =  serializerMapping.get(code);
 
         if (serializer == null) {

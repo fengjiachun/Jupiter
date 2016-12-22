@@ -30,6 +30,7 @@ import org.jupiter.rpc.tracing.TraceId;
 import org.jupiter.rpc.tracing.TracingRecorder;
 import org.jupiter.rpc.tracing.TracingUtil;
 import org.jupiter.serialization.Serializer;
+import org.jupiter.serialization.SerializerFactory;
 import org.jupiter.serialization.SerializerType;
 import org.jupiter.transport.Directory;
 import org.jupiter.transport.channel.CopyOnWriteGroupList;
@@ -45,7 +46,6 @@ import static org.jupiter.common.util.JConstants.DEFAULT_TIMEOUT;
 import static org.jupiter.rpc.ConsumerHook.EMPTY_HOOKS;
 import static org.jupiter.rpc.DispatchType.ROUND;
 import static org.jupiter.rpc.tracing.TracingRecorder.Role.CONSUMER;
-import static org.jupiter.serialization.SerializerHolder.serializerImpl;
 import static org.jupiter.transport.Status.CLIENT_ERROR;
 
 /**
@@ -69,7 +69,7 @@ public abstract class AbstractDispatcher implements Dispatcher {
     public AbstractDispatcher(LoadBalancer loadBalancer, ServiceMetadata metadata, SerializerType serializerType) {
         this.loadBalancer = loadBalancer;
         this.metadata = metadata;
-        this.serializerImpl = serializerImpl(serializerType.value());
+        this.serializerImpl = SerializerFactory.getSerializer(serializerType.value());
     }
 
     @Override

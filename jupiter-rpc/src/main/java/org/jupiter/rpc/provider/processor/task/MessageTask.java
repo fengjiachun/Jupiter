@@ -41,6 +41,8 @@ import org.jupiter.rpc.provider.processor.AbstractProviderProcessor;
 import org.jupiter.rpc.tracing.TraceId;
 import org.jupiter.rpc.tracing.TracingRecorder;
 import org.jupiter.rpc.tracing.TracingUtil;
+import org.jupiter.serialization.Serializer;
+import org.jupiter.serialization.SerializerFactory;
 import org.jupiter.transport.Status;
 import org.jupiter.transport.channel.JChannel;
 import org.jupiter.transport.channel.JFutureListener;
@@ -54,7 +56,6 @@ import static java.util.concurrent.TimeUnit.MILLISECONDS;
 import static org.jupiter.common.util.Reflects.fastInvoke;
 import static org.jupiter.common.util.Reflects.findMatchingParameterTypes;
 import static org.jupiter.rpc.tracing.TracingRecorder.Role.PROVIDER;
-import static org.jupiter.serialization.SerializerHolder.serializerImpl;
 import static org.jupiter.transport.Status.*;
 
 /**
@@ -111,7 +112,8 @@ public class MessageTask implements RejectedRunnable {
 
             requestSizeHistogram.update(bytes.length);
 
-            msg = serializerImpl(s_code).readObject(bytes, MessageWrapper.class);
+            Serializer serializer = SerializerFactory.getSerializer(s_code);
+            msg = serializer.readObject(bytes, MessageWrapper.class);
             _request.message(msg);
         } catch (Throwable t) {
             rejected(BAD_REQUEST);
@@ -199,7 +201,8 @@ public class MessageTask implements RejectedRunnable {
         logger.warn("Service rejected: {}.", result.getError());
 
         byte s_code = _request.serializerCode();
-        byte[] bytes = serializerImpl(s_code).writeObject(result);
+        Serializer serializer = SerializerFactory.getSerializer(s_code);
+        byte[] bytes = serializer.writeObject(result);
 
         final long invokeId = _request.invokeId();
         JResponseBytes response = new JResponseBytes(invokeId);
@@ -272,7 +275,8 @@ public class MessageTask implements RejectedRunnable {
             ResultWrapper result = new ResultWrapper();
             result.setResult(invokeResult);
             byte s_code = _request.serializerCode();
-            byte[] bytes = serializerImpl(s_code).writeObject(result);
+            Serializer serializer = SerializerFactory.getSerializer(s_code);
+            byte[] bytes = serializer.writeObject(result);
             final int bodyLength = bytes.length;
 
             JResponseBytes response = new JResponseBytes(invokeId);

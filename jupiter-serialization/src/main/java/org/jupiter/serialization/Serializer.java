@@ -17,18 +17,20 @@
 package org.jupiter.serialization;
 
 /**
+ * This interface provides an abstract view for one or more serializer impl.
+ *
  * jupiter
  * org.jupiter.serialization
  *
  * @author jiachun.fjc
  */
-public interface Serializer {
+public abstract class Serializer {
 
-    byte code();
+    public abstract byte code();
 
-    <T> byte[] writeObject(T obj);
+    public abstract <T> byte[] writeObject(T obj);
 
-    <T> T readObject(byte[] bytes, Class<T> clazz);
+    public abstract <T> T readObject(byte[] bytes, Class<T> clazz);
 
-    <T> T readObject(byte[] bytes, int offset, int length, Class<T> clazz);
+    public abstract <T> T readObject(byte[] bytes, int offset, int length, Class<T> clazz);
 }

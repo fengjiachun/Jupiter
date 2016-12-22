@@ -22,13 +22,13 @@ import org.jupiter.rpc.JRequest;
 import org.jupiter.rpc.flow.control.FlowController;
 import org.jupiter.rpc.model.metadata.ResultWrapper;
 import org.jupiter.rpc.provider.LookupService;
+import org.jupiter.serialization.Serializer;
+import org.jupiter.serialization.SerializerFactory;
 import org.jupiter.transport.Status;
 import org.jupiter.transport.channel.JChannel;
 import org.jupiter.transport.payload.JRequestBytes;
 import org.jupiter.transport.payload.JResponseBytes;
 import org.jupiter.transport.processor.ProviderProcessor;
-
-import static org.jupiter.serialization.SerializerHolder.serializerImpl;
 
 /**
  * jupiter
@@ -56,7 +56,8 @@ public abstract class AbstractProviderProcessor implements
         ResultWrapper result = new ResultWrapper();
         result.setError(cause);
 
-        byte[] bytes = serializerImpl(s_code).writeObject(result);
+        Serializer serializer = SerializerFactory.getSerializer(s_code);
+        byte[] bytes = serializer.writeObject(result);
 
         JResponseBytes response = new JResponseBytes(invokeId);
         response.status(status);

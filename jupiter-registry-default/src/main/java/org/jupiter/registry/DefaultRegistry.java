@@ -32,6 +32,8 @@ import org.jupiter.common.util.Signal;
 import org.jupiter.common.util.SystemClock;
 import org.jupiter.common.util.internal.logging.InternalLogger;
 import org.jupiter.common.util.internal.logging.InternalLoggerFactory;
+import org.jupiter.serialization.Serializer;
+import org.jupiter.serialization.SerializerFactory;
 import org.jupiter.transport.*;
 import org.jupiter.transport.channel.JChannel;
 import org.jupiter.transport.exception.ConnectFailedException;
@@ -57,7 +59,6 @@ import static org.jupiter.registry.NotifyListener.NotifyEvent.CHILD_ADDED;
 import static org.jupiter.registry.NotifyListener.NotifyEvent.CHILD_REMOVED;
 import static org.jupiter.registry.RegisterMeta.Address;
 import static org.jupiter.registry.RegisterMeta.ServiceMeta;
-import static org.jupiter.serialization.SerializerHolder.serializerImpl;
 import static org.jupiter.serialization.SerializerType.PROTO_STUFF;
 import static org.jupiter.transport.JProtocolHeader.*;
 import static org.jupiter.transport.exception.IoSignals.ILLEGAL_MAGIC;
@@ -330,7 +331,8 @@ public class DefaultRegistry extends NettyTcpConnector {
                             byte[] bytes = new byte[header.bodyLength()];
                             in.readBytes(bytes);
 
-                            Message msg = serializerImpl(s_code).readObject(bytes, Message.class);
+                            Serializer serializer = SerializerFactory.getSerializer(s_code);
+                            Message msg = serializer.readObject(bytes, Message.class);
                             msg.messageCode(header.messageCode());
                             out.add(msg);
 
@@ -389,7 +391,8 @@ public class DefaultRegistry extends NettyTcpConnector {
         protected void encode(ChannelHandlerContext ctx, Message msg, ByteBuf out) throws Exception {
             byte s_code = msg.serializerCode();
             byte sign = (byte) ((s_code << 4) + msg.messageCode());
-            byte[] bytes = serializerImpl(s_code).writeObject(msg);
+            Serializer serializer = SerializerFactory.getSerializer(s_code);
+            byte[] bytes = serializer.writeObject(msg);
 
             out.writeShort(MAGIC)
                     .writeByte(sign)

@@ -36,7 +36,7 @@ import static org.jupiter.serialization.SerializerType.PROTO_STUFF;
  *
  * @author jiachun.fjc
  */
-public class ProtoStuffSerializer implements Serializer {
+public class ProtoStuffSerializer extends Serializer {
 
     /**
      * If true, the constructor will always be obtained from {@code ReflectionFactory.newConstructorFromSerialization}.
