@@ -102,7 +102,7 @@ public class DefaultClient implements JClient {
         checkNotNull(annotation, interfaceClass + " is not a ServiceProvider interface");
         String providerName = annotation.name();
         version = Strings.isNotBlank(version) ? version : JConstants.DEFAULT_VERSION;
-        providerName = Strings.isNotBlank(providerName) ? providerName : interfaceClass.getSimpleName();
+        providerName = Strings.isNotBlank(providerName) ? providerName : interfaceClass.getName();
 
         return manageConnections(new ServiceMetadata(annotation.group(), version, providerName));
     }

@@ -377,7 +377,7 @@ public class DefaultServer implements JServer {
                         }
 
                         providerName = ifAnnotation.name();
-                        providerName = Strings.isNotBlank(providerName) ? providerName : providerInterface.getSimpleName();
+                        providerName = Strings.isNotBlank(providerName) ? providerName : providerInterface.getName();
 
                         // method's parameterTypes
                         for (Method method : providerInterface.getMethods()) {

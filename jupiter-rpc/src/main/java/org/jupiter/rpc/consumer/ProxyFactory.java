@@ -211,7 +211,7 @@ public class ProxyFactory<I> {
         checkNotNull(annotation, interfaceClass + " is not a ServiceProvider interface");
 
         String providerName = annotation.name();
-        providerName = Strings.isNotBlank(providerName) ? providerName : interfaceClass.getSimpleName();
+        providerName = Strings.isNotBlank(providerName) ? providerName : interfaceClass.getName();
         String version = Strings.isNotBlank(this.version) ? this.version : JConstants.DEFAULT_VERSION;
 
         // metadata
