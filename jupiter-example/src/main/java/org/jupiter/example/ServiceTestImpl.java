@@ -16,9 +16,8 @@
 
 package org.jupiter.example;
 
+import org.jupiter.common.util.Lists;
 import org.jupiter.rpc.ServiceProviderImpl;
-
-import java.util.Arrays;
 
 /**
  * jupiter
@@ -46,7 +45,7 @@ public class ServiceTestImpl extends BaseService implements ServiceTest {
         Integer i = getIntValue();
         result.num = (i == null ? 0 : i);
         result.str = strValue;
-        result.list = Arrays.asList("H", "e", "l", "l", "o");
+        result.list = Lists.newArrayList("H", "e", "l", "l", "o");
         return result;
     }
 }

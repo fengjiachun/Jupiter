@@ -35,11 +35,15 @@
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
-            <artifactId>jupiter-serialization-protostuff</artifactId>
+            <artifactId>jupiter-serialization-hessian</artifactId>
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
-            <artifactId>jupiter-serialization-hessian</artifactId>
+            <artifactId>jupiter-serialization-kryo</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>jupiter-serialization-protostuff</artifactId>
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>

@@ -64,6 +64,7 @@ public class JProtocolHeader {
     // 位数限制最多支持15种不同的序列化/反序列化方式
     // protostuff   = 0x01
     // hessian      = 0x02
+    // kryo         = 0x03
     // ...
     // XX1          = 0x0e
     // XX2          = 0x0f
