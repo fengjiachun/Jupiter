@@ -27,6 +27,7 @@ import org.jupiter.rpc.consumer.ProxyFactory;
 import org.jupiter.rpc.consumer.future.InvokeFuture;
 import org.jupiter.rpc.consumer.future.InvokeFutureContext;
 import org.jupiter.rpc.load.balance.LoadBalancerType;
+import org.jupiter.serialization.SerializerType;
 import org.jupiter.transport.JOption;
 import org.jupiter.transport.UnresolvedAddress;
 import org.jupiter.transport.netty.JNettyTcpConnector;
@@ -145,6 +146,7 @@ public class BenchmarkClient {
                 .version("1.0.0")
                 .client(client)
                 .invokeType(InvokeType.ASYNC)
+                .serializerType(SerializerType.KRYO)
                 .loadBalancerType(LoadBalancerType.ROUND_ROBIN)
                 .addProviderAddress(addresses)
                 .newProxyInstance();

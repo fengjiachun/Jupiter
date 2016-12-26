@@ -23,7 +23,7 @@ import org.jupiter.common.util.internal.InternalThreadLocal;
 import org.jupiter.common.util.internal.UnsafeReferenceFieldUpdater;
 import org.jupiter.common.util.internal.UnsafeUpdater;
 import org.jupiter.serialization.Serializer;
-import org.objenesis.strategy.SerializingInstantiatorStrategy;
+import org.objenesis.strategy.StdInstantiatorStrategy;
 
 import static org.jupiter.serialization.SerializerType.KRYO;
 
@@ -45,7 +45,7 @@ public class KryoSerializer extends Serializer {
         @Override
         protected Kryo initialValue() throws Exception {
             Kryo kryo = new Kryo();
-            kryo.setInstantiatorStrategy(new SerializingInstantiatorStrategy());
+            kryo.setInstantiatorStrategy(new StdInstantiatorStrategy());
             kryo.setRegistrationRequired(false);
             kryo.setReferences(false);
             return kryo;
