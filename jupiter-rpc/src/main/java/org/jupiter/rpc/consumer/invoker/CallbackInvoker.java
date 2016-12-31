@@ -20,8 +20,7 @@ import net.bytebuddy.implementation.bind.annotation.AllArguments;
 import net.bytebuddy.implementation.bind.annotation.Origin;
 import net.bytebuddy.implementation.bind.annotation.RuntimeType;
 import org.jupiter.common.util.Reflects;
-import org.jupiter.rpc.JClient;
-import org.jupiter.rpc.consumer.dispatcher.Dispatcher;
+import org.jupiter.rpc.consumer.cluster.ClusterInvoker;
 import org.jupiter.rpc.consumer.future.InvokeFutureContext;
 
 import java.lang.reflect.Method;
@@ -39,19 +38,17 @@ import java.lang.reflect.Method;
  */
 public class CallbackInvoker {
 
-    private final JClient client;
-    private final Dispatcher dispatcher;
+    private final ClusterInvoker clusterInvoker;
 
-    public CallbackInvoker(JClient client, Dispatcher dispatcher) {
-        this.client = client;
-        this.dispatcher = dispatcher;
+    public CallbackInvoker(ClusterInvoker clusterInvoker) {
+        this.clusterInvoker = clusterInvoker;
     }
 
     @RuntimeType
     public Object invoke(@Origin Method method, @AllArguments @RuntimeType Object[] args) throws Throwable {
         Class<?> returnType = method.getReturnType();
-        Object val = dispatcher.dispatch(client, method.getName(), args, returnType);
-        InvokeFutureContext.set(val);
+        Object future = clusterInvoker.invoke(method.getName(), args, returnType);
+        InvokeFutureContext.set(future);
         return Reflects.getTypeDefaultValue(returnType);
     }
 }

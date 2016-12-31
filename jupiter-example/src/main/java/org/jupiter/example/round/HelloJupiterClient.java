@@ -21,7 +21,7 @@ import org.jupiter.example.ServiceTest2;
 import org.jupiter.rpc.DefaultClient;
 import org.jupiter.rpc.JClient;
 import org.jupiter.rpc.consumer.ProxyFactory;
-import org.jupiter.rpc.consumer.ha.HaStrategy;
+import org.jupiter.rpc.consumer.cluster.ClusterInvoker;
 import org.jupiter.serialization.SerializerType;
 import org.jupiter.transport.JConnector;
 import org.jupiter.transport.exception.ConnectFailedException;
@@ -58,7 +58,7 @@ public class HelloJupiterClient {
                 .version("1.0.0.daily")
                 .client(client)
                 .serializerType(SerializerType.HESSIAN)
-                .haStrategy(HaStrategy.Type.FailOver)
+                .clusterStrategy(ClusterInvoker.Strategy.FAIL_OVER)
                 .failoverRetries(5)
                 .newProxyInstance();
 

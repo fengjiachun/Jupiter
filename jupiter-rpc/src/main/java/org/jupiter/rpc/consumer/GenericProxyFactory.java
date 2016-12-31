@@ -22,6 +22,10 @@ import org.jupiter.rpc.ConsumerHook;
 import org.jupiter.rpc.DispatchType;
 import org.jupiter.rpc.InvokeType;
 import org.jupiter.rpc.JClient;
+import org.jupiter.rpc.consumer.cluster.ClusterInvoker;
+import org.jupiter.rpc.consumer.cluster.FailFastClusterInvoker;
+import org.jupiter.rpc.consumer.cluster.FailOverClusterInvoker;
+import org.jupiter.rpc.consumer.cluster.FailSafeClusterInvoker;
 import org.jupiter.rpc.consumer.dispatcher.DefaultBroadcastDispatcher;
 import org.jupiter.rpc.consumer.dispatcher.DefaultRoundDispatcher;
 import org.jupiter.rpc.consumer.dispatcher.Dispatcher;
@@ -61,19 +65,35 @@ import static org.jupiter.serialization.SerializerType.PROTO_STUFF;
  */
 public class GenericProxyFactory {
 
-    private String group;                                       // 服务组别
-    private String version;                                     // 服务版本号, 通常在接口不兼容时版本号才需要升级
-    private String providerName;                                // 服务名称
+    // 服务组别
+    private String group;
+    // 服务版本号, 通常在接口不兼容时版本号才需要升级
+    private String version;
+    // 服务名称
+    private String providerName;
 
-    private JClient client;                                     // jupiter client
-    private SerializerType serializerType = PROTO_STUFF;        // 序列化/反序列化方式
-    private LoadBalancerType loadBalancerType = RANDOM;         // 软负载均衡类型
-    private List<UnresolvedAddress> addresses;                  // provider地址
-    private InvokeType invokeType = SYNC;                       // 调用方式 [同步; 异步]
-    private DispatchType dispatchType = ROUND;                  // 派发方式 [单播; 组播]
-    private long timeoutMillis;                                 // 调用超时时间设置
-    private Map<String, Long> methodsSpecialTimeoutMillis;      // 指定方法单独设置的超时时间, 方法名为key, 方法参数类型不做区别对待
-    private List<ConsumerHook> hooks;                           // 消费者端钩子函数
+    // jupiter client
+    private JClient client;
+    // 序列化/反序列化方式
+    private SerializerType serializerType = PROTO_STUFF;
+    // 软负载均衡类型
+    private LoadBalancerType loadBalancerType = RANDOM;
+    // provider地址
+    private List<UnresolvedAddress> addresses;
+    // 调用方式 [同步; 异步]
+    private InvokeType invokeType = SYNC;
+    // 派发方式 [单播; 组播]
+    private DispatchType dispatchType = ROUND;
+    // 调用超时时间设置
+    private long timeoutMillis;
+    // 指定方法单独设置的超时时间, 方法名为key, 方法参数类型不做区别对待
+    private Map<String, Long> methodsSpecialTimeoutMillis;
+    // 消费者端钩子函数
+    private List<ConsumerHook> hooks;
+    // 集群容错策略
+    private ClusterInvoker.Strategy strategy = ClusterInvoker.Strategy.FAIL_FAST;
+    // failover重试次数
+    private int retries = 2;
 
     public static GenericProxyFactory factory() {
         GenericProxyFactory factory = new GenericProxyFactory();
@@ -201,6 +221,22 @@ public class GenericProxyFactory {
         return this;
     }
 
+    /**
+     * Sets cluster strategy, only support ROUND & SYNC mode.
+     */
+    public GenericProxyFactory clusterStrategy(ClusterInvoker.Strategy strategy) {
+        this.strategy = strategy;
+        return this;
+    }
+
+    /**
+     * Sets failover strategy's retries.
+     */
+    public GenericProxyFactory failoverRetries(int retries) {
+        this.retries = retries;
+        return this;
+    }
+
     public GenericInvoker newProxyInstance() {
         // check arguments
         checkNotNull(client, "client");
@@ -233,9 +269,9 @@ public class GenericProxyFactory {
 
         switch (invokeType) {
             case SYNC:
-                return new SyncGenericInvoker(client, dispatcher);
+                return new SyncGenericInvoker(asClusterInvoker(strategy, dispatcher));
             case ASYNC:
-                return new CallbackGenericInvoker(client, dispatcher);
+                return new CallbackGenericInvoker(asClusterInvoker(null, dispatcher));
             default:
                 throw new IllegalStateException("InvokeType: " + invokeType);
         }
@@ -250,6 +286,23 @@ public class GenericProxyFactory {
                 return new DefaultBroadcastDispatcher(null, metadata, serializerType);
             default:
                 throw new IllegalStateException("DispatchType: " + dispatchType);
+        }
+    }
+
+    private ClusterInvoker asClusterInvoker(ClusterInvoker.Strategy strategy, Dispatcher dispatcher) {
+        if (strategy == null) {
+            return new ClusterInvoker(client, dispatcher);
+        }
+
+        switch (strategy) {
+            case FAIL_FAST:
+                return new FailFastClusterInvoker(client, dispatcher);
+            case FAIL_OVER:
+                return new FailOverClusterInvoker(client, dispatcher, retries);
+            case FAIL_SAFE:
+                return new FailSafeClusterInvoker(client, dispatcher);
+            default:
+                throw new IllegalStateException("Strategy: " + strategy);
         }
     }
 }

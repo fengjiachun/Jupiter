@@ -14,24 +14,46 @@
  * limitations under the License.
  */
 
-package org.jupiter.rpc.consumer.ha;
+package org.jupiter.rpc.consumer.cluster;
 
 import org.jupiter.rpc.JClient;
 import org.jupiter.rpc.consumer.dispatcher.Dispatcher;
 
 /**
  * jupiter
- * org.jupiter.rpc.consumer.ha
+ * org.jupiter.rpc.consumer.cluster
  *
  * @author jiachun.fjc
  */
-public abstract class AbstractHaStrategy implements HaStrategy {
+public class ClusterInvoker {
+
+    public enum Strategy {
+        FAIL_FAST, // 快速失败
+        FAIL_OVER, // 失败重试
+        FAIL_SAFE; // 失败安全
+
+        public static Strategy parse(String name) {
+            for (Strategy s : values()) {
+                if (s.name().equalsIgnoreCase(name)) {
+                    return s;
+                }
+            }
+            return null;
+        }
+    }
 
     protected final JClient client;
     protected final Dispatcher dispatcher;
 
-    public AbstractHaStrategy(JClient client, Dispatcher dispatcher) {
+    public ClusterInvoker(JClient client, Dispatcher dispatcher) {
         this.client = client;
         this.dispatcher = dispatcher;
+    }
+
+    /**
+     * The default impl only returns a {@link org.jupiter.rpc.consumer.future.InvokeFuture}.
+     */
+    public Object invoke(String methodName, Object[] args, Class<?> returnType) throws Exception {
+        return dispatcher.dispatch(client, methodName, args, returnType);
     }
 }

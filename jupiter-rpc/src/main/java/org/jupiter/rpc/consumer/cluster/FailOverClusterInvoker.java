@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.jupiter.rpc.consumer.ha;
+package org.jupiter.rpc.consumer.cluster;
 
 import org.jupiter.rpc.JClient;
 import org.jupiter.rpc.consumer.dispatcher.Dispatcher;
@@ -24,44 +24,40 @@ import org.jupiter.rpc.exception.RemoteException;
 import org.jupiter.transport.channel.CopyOnWriteGroupList;
 import org.jupiter.transport.channel.JChannel;
 
-import java.lang.reflect.Method;
-import java.util.concurrent.TimeUnit;
+import static java.util.concurrent.TimeUnit.NANOSECONDS;
 
 /**
- * 失败重试, 业务需保证自己的服务是幂等的
+ * 失败自动切换, 当出现失败, 重试其它服务器.
  *
- * 注意:
- * 对于Failover的容错方案, 我本人并不认为是常规性配置, 为了简化配置, 该策略最小粒度是服务级别的配置,
- * 对于非幂等的方法使用该策略时请务必小心这个大坑.
+ * 建议只用于幂等性操作, 通常比较合适用于读操作.
  *
  * https://en.wikipedia.org/wiki/Failover
  *
  * jupiter
- * org.jupiter.rpc.consumer.ha
+ * org.jupiter.rpc.consumer.cluster
  *
  * @author jiachun.fjc
  */
-public class FailOverStrategy extends AbstractHaStrategy {
+public class FailOverClusterInvoker extends ClusterInvoker {
 
-    private final int retries;
+    private final int retries; // 重试次数, 不包含第一次
 
-    public FailOverStrategy(JClient client, Dispatcher dispatcher, int retries) {
+    public FailOverClusterInvoker(JClient client, Dispatcher dispatcher, int retries) {
         super(client, dispatcher);
         if (retries >= 0) {
             this.retries = retries;
         } else {
-            this.retries = 3;
+            this.retries = 2;
         }
     }
 
     @Override
-    public Object invoke(Method method, Object[] args) throws Exception {
-        String methodName = method.getName();
+    public Object invoke(String methodName, Object[] args, Class<?> returnType) throws Exception {
         long timeout = dispatcher.getMethodSpecialTimeoutMillis(methodName);
         long start = System.nanoTime();
         Exception cause;
         try {
-            Object val = dispatcher.dispatch(client, methodName, args, method.getReturnType());
+            Object val = dispatcher.dispatch(client, methodName, args, returnType);
             InvokeFuture<?> future = (InvokeFuture<?>) val; // 组播不支持容错方案, 所以这里一定是InvokeFuture
             return future.getResult();
         } catch (Exception e) {
@@ -70,7 +66,7 @@ public class FailOverStrategy extends AbstractHaStrategy {
             }
 
             if ((timeout -= elapsedMillis(start)) <= 0) {
-                throw new RemoteException("[failover] timeout: ", e);
+                throw new RemoteException("[Fail-over] timeout: ", e);
             }
         }
 
@@ -80,13 +76,13 @@ public class FailOverStrategy extends AbstractHaStrategy {
             start = System.nanoTime();
             try {
                 JChannel channel = groups.get(i % groups.size()).next();
-                Object val = dispatcher.dispatch(client, channel, methodName, args, method.getReturnType(), timeout);
+                Object val = dispatcher.dispatch(client, channel, methodName, args, returnType, timeout);
                 InvokeFuture<?> future = (InvokeFuture<?>) val;
                 return future.getResult();
             } catch (Exception e) {
                 if (failoverNeeded(e)) {
                     if ((timeout -= elapsedMillis(start)) <= 0) {
-                        throw new RemoteException("[failover] timeout: ", e);
+                        throw new RemoteException("[Fail-over] timeout: ", e);
                     }
                     continue;
                 }
@@ -95,7 +91,7 @@ public class FailOverStrategy extends AbstractHaStrategy {
         }
 
         // 全部失败
-        throw new RemoteException("[failover] all failed: ", cause);
+        throw new RemoteException("[Fail-over] all failed: ", cause);
     }
 
     private static boolean failoverNeeded(Exception cause) {
@@ -105,6 +101,6 @@ public class FailOverStrategy extends AbstractHaStrategy {
     }
 
     private static long elapsedMillis(long start) {
-        return TimeUnit.NANOSECONDS.toMillis(System.nanoTime() - start);
+        return NANOSECONDS.toMillis(System.nanoTime() - start);
     }
 }

@@ -22,7 +22,7 @@ import org.jupiter.rpc.ConsumerHook;
 import org.jupiter.rpc.DispatchType;
 import org.jupiter.rpc.InvokeType;
 import org.jupiter.rpc.consumer.ProxyFactory;
-import org.jupiter.rpc.consumer.ha.HaStrategy;
+import org.jupiter.rpc.consumer.cluster.ClusterInvoker;
 import org.jupiter.rpc.load.balance.LoadBalancerType;
 import org.jupiter.serialization.SerializerType;
 import org.jupiter.transport.JConnector;
@@ -62,7 +62,7 @@ public class JupiterSpringConsumerBean<T> implements FactoryBean<T>, Initializin
     private Map<String, Long> methodsSpecialTimeoutMillis;  // 指定方法单独设置的超时时间, 方法名为key, 方法参数类型不做区别对待
     private ConsumerHook[] hooks = EMPTY_HOOKS;             // 消费者端钩子函数
     private String providerAddresses;                       // provider地址列表, 逗号分隔(IP直连)
-    private HaStrategy.Type haStrategy;                     // 容错方案(只支持单播的同步阻塞调用)
+    private ClusterInvoker.Strategy clusterStrategy;        // 集群容错策略(只支持单播的同步阻塞调用)
     private int failoverRetries;                            // failover重试次数
 
     @Override
@@ -145,8 +145,8 @@ public class JupiterSpringConsumerBean<T> implements FactoryBean<T>, Initializin
             factory.addHook(hooks);
         }
 
-        if (haStrategy != null) {
-            factory.haStrategy(haStrategy);
+        if (clusterStrategy != null) {
+            factory.clusterStrategy(clusterStrategy);
         }
 
         if (failoverRetries > 0) {
@@ -263,14 +263,14 @@ public class JupiterSpringConsumerBean<T> implements FactoryBean<T>, Initializin
         this.providerAddresses = providerAddresses;
     }
 
-    public HaStrategy.Type getHaStrategy() {
-        return haStrategy;
+    public ClusterInvoker.Strategy getClusterStrategy() {
+        return clusterStrategy;
     }
 
-    public void setHaStrategy(String haStrategy) {
-        this.haStrategy = HaStrategy.Type.parse(haStrategy);
-        if (this.haStrategy == null) {
-            throw new IllegalArgumentException(haStrategy);
+    public void setClusterStrategy(String clusterStrategy) {
+        this.clusterStrategy = ClusterInvoker.Strategy.parse(clusterStrategy);
+        if (this.clusterStrategy == null) {
+            throw new IllegalArgumentException(clusterStrategy);
         }
     }
 

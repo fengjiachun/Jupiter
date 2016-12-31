@@ -18,13 +18,13 @@ package org.jupiter.rpc.consumer;
 
 import org.jupiter.common.util.*;
 import org.jupiter.rpc.*;
+import org.jupiter.rpc.consumer.cluster.ClusterInvoker;
+import org.jupiter.rpc.consumer.cluster.FailFastClusterInvoker;
+import org.jupiter.rpc.consumer.cluster.FailOverClusterInvoker;
+import org.jupiter.rpc.consumer.cluster.FailSafeClusterInvoker;
 import org.jupiter.rpc.consumer.dispatcher.DefaultBroadcastDispatcher;
 import org.jupiter.rpc.consumer.dispatcher.DefaultRoundDispatcher;
 import org.jupiter.rpc.consumer.dispatcher.Dispatcher;
-import org.jupiter.rpc.consumer.ha.AbstractHaStrategy;
-import org.jupiter.rpc.consumer.ha.FailFastStrategy;
-import org.jupiter.rpc.consumer.ha.FailOverStrategy;
-import org.jupiter.rpc.consumer.ha.HaStrategy;
 import org.jupiter.rpc.consumer.invoker.CallbackInvoker;
 import org.jupiter.rpc.consumer.invoker.SyncInvoker;
 import org.jupiter.rpc.load.balance.LoadBalancerFactory;
@@ -49,9 +49,9 @@ import static org.jupiter.serialization.SerializerType.PROTO_STUFF;
 
 /**
  * Proxy factory
- *
+ * <p/>
  * Consumer对象代理工厂
- *
+ * <p/>
  * jupiter
  * org.jupiter.rpc.consumer
  *
@@ -59,20 +59,33 @@ import static org.jupiter.serialization.SerializerType.PROTO_STUFF;
  */
 public class ProxyFactory<I> {
 
-    private final Class<I> interfaceClass;                          // 接口类型
-    private String version;                                         // 服务版本号, 通常在接口不兼容时版本号才需要升级
+    // 接口类型
+    private final Class<I> interfaceClass;
+    // 服务版本号, 通常在接口不兼容时版本号才需要升级
+    private String version;
 
-    private JClient client;                                         // jupiter client
-    private SerializerType serializerType = PROTO_STUFF;            // 序列化/反序列化方式
-    private LoadBalancerType loadBalancerType = RANDOM;             // 软负载均衡类型
-    private List<UnresolvedAddress> addresses;                      // provider地址
-    private InvokeType invokeType = SYNC;                           // 调用方式 [同步; 异步]
-    private DispatchType dispatchType = ROUND;                      // 派发方式 [单播; 组播]
-    private long timeoutMillis;                                     // 调用超时时间设置
-    private Map<String, Long> methodsSpecialTimeoutMillis;          // 指定方法单独设置的超时时间, 方法名为key, 方法参数类型不做区别对待
-    private List<ConsumerHook> hooks;                               // 消费者端钩子函数
-    private HaStrategy.Type strategy = HaStrategy.Type.FailFast;    // 容错方案
-    private int retries = 3;                                        // failover重试次数
+    // jupiter client
+    private JClient client;
+    // 序列化/反序列化方式
+    private SerializerType serializerType = PROTO_STUFF;
+    // 软负载均衡类型
+    private LoadBalancerType loadBalancerType = RANDOM;
+    // provider地址
+    private List<UnresolvedAddress> addresses;
+    // 调用方式 [同步; 异步]
+    private InvokeType invokeType = SYNC;
+    // 派发方式 [单播; 组播]
+    private DispatchType dispatchType = ROUND;
+    // 调用超时时间设置
+    private long timeoutMillis;
+    // 指定方法单独设置的超时时间, 方法名为key, 方法参数类型不做区别对待
+    private Map<String, Long> methodsSpecialTimeoutMillis;
+    // 消费者端钩子函数
+    private List<ConsumerHook> hooks;
+    // 集群容错策略
+    private ClusterInvoker.Strategy strategy = ClusterInvoker.Strategy.FAIL_FAST;
+    // failover重试次数
+    private int retries = 2;
 
     public static <I> ProxyFactory<I> factory(Class<I> interfaceClass) {
         ProxyFactory<I> factory = new ProxyFactory<>(interfaceClass);
@@ -182,9 +195,9 @@ public class ProxyFactory<I> {
     }
 
     /**
-     * Sets HA strategy, only support ROUND & SYNC mode.
+     * Sets cluster strategy, only support ROUND & SYNC mode.
      */
-    public ProxyFactory<I> haStrategy(HaStrategy.Type strategy) {
+    public ProxyFactory<I> clusterStrategy(ClusterInvoker.Strategy strategy) {
         this.strategy = strategy;
         return this;
     }
@@ -235,10 +248,10 @@ public class ProxyFactory<I> {
         Object handler;
         switch (invokeType) {
             case SYNC:
-                handler = new SyncInvoker(asHaStrategy(dispatcher));
+                handler = new SyncInvoker(asClusterInvoker(strategy, dispatcher));
                 break;
             case ASYNC:
-                handler = new CallbackInvoker(client, dispatcher);
+                handler = new CallbackInvoker(asClusterInvoker(null, dispatcher));
                 break;
             default:
                 throw new IllegalStateException("InvokeType: " + invokeType);
@@ -259,14 +272,20 @@ public class ProxyFactory<I> {
         }
     }
 
-    private AbstractHaStrategy asHaStrategy(Dispatcher dispatcher) {
+    private ClusterInvoker asClusterInvoker(ClusterInvoker.Strategy strategy, Dispatcher dispatcher) {
+        if (strategy == null) {
+            return new ClusterInvoker(client, dispatcher);
+        }
+
         switch (strategy) {
-            case FailFast:
-                return new FailFastStrategy(client, dispatcher);
-            case FailOver:
-                return new FailOverStrategy(client, dispatcher, retries);
+            case FAIL_FAST:
+                return new FailFastClusterInvoker(client, dispatcher);
+            case FAIL_OVER:
+                return new FailOverClusterInvoker(client, dispatcher, retries);
+            case FAIL_SAFE:
+                return new FailSafeClusterInvoker(client, dispatcher);
             default:
-                throw new IllegalStateException("HaStrategy: " + strategy);
+                throw new IllegalStateException("Strategy: " + strategy);
         }
     }
 }

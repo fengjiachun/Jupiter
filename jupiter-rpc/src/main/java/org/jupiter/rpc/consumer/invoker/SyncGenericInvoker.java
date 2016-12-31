@@ -16,9 +16,7 @@
 
 package org.jupiter.rpc.consumer.invoker;
 
-import org.jupiter.rpc.JClient;
-import org.jupiter.rpc.consumer.dispatcher.Dispatcher;
-import org.jupiter.rpc.consumer.future.InvokeFuture;
+import org.jupiter.rpc.consumer.cluster.ClusterInvoker;
 
 /**
  * 同步泛化调用
@@ -30,17 +28,14 @@ import org.jupiter.rpc.consumer.future.InvokeFuture;
  */
 public class SyncGenericInvoker implements GenericInvoker {
 
-    private final JClient client;
-    private final Dispatcher dispatcher;
+    private final ClusterInvoker clusterInvoker;
 
-    public SyncGenericInvoker(JClient client, Dispatcher dispatcher) {
-        this.client = client;
-        this.dispatcher = dispatcher;
+    public SyncGenericInvoker(ClusterInvoker clusterInvoker) {
+        this.clusterInvoker = clusterInvoker;
     }
 
     @Override
     public Object $invoke(String methodName, Object... args) throws Throwable {
-        Object val = dispatcher.dispatch(client, methodName, args, Object.class);
-        return ((InvokeFuture<?>) val).getResult();
+        return clusterInvoker.invoke(methodName, args, Object.class);
     }
 }

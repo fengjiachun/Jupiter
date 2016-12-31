@@ -14,33 +14,33 @@
  * limitations under the License.
  */
 
-package org.jupiter.rpc.consumer.ha;
+package org.jupiter.rpc.consumer.cluster;
 
 import org.jupiter.rpc.JClient;
 import org.jupiter.rpc.consumer.dispatcher.Dispatcher;
 import org.jupiter.rpc.consumer.future.InvokeFuture;
 
-import java.lang.reflect.Method;
-
 /**
- * 快速失败, jupiter默认容错方案
+ * 快速失败, 只发起一次调用, 失败立即报错(缺省)
+ *
+ * 通常用于非幂等性的写操作.
  *
  * https://en.wikipedia.org/wiki/Fail-fast
  *
  * jupiter
- * org.jupiter.rpc.consumer.ha
+ * org.jupiter.rpc.consumer.cluster
  *
  * @author jiachun.fjc
  */
-public class FailFastStrategy extends AbstractHaStrategy {
+public class FailFastClusterInvoker extends ClusterInvoker {
 
-    public FailFastStrategy(JClient client, Dispatcher dispatcher) {
+    public FailFastClusterInvoker(JClient client, Dispatcher dispatcher) {
         super(client, dispatcher);
     }
 
     @Override
-    public Object invoke(Method method, Object[] args) throws Exception {
-        Object val = dispatcher.dispatch(client, method.getName(), args, method.getReturnType());
+    public Object invoke(String methodName, Object[] args, Class<?> returnType) throws Exception {
+        Object val = dispatcher.dispatch(client, methodName, args, returnType);
         return ((InvokeFuture<?>) val).getResult();
     }
 }

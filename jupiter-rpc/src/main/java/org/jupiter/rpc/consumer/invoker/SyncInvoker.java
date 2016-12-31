@@ -19,7 +19,7 @@ package org.jupiter.rpc.consumer.invoker;
 import net.bytebuddy.implementation.bind.annotation.AllArguments;
 import net.bytebuddy.implementation.bind.annotation.Origin;
 import net.bytebuddy.implementation.bind.annotation.RuntimeType;
-import org.jupiter.rpc.consumer.ha.AbstractHaStrategy;
+import org.jupiter.rpc.consumer.cluster.ClusterInvoker;
 
 import java.lang.reflect.Method;
 
@@ -35,14 +35,14 @@ import java.lang.reflect.Method;
  */
 public class SyncInvoker {
 
-    private final AbstractHaStrategy haStrategy;
+    private final ClusterInvoker clusterInvoker;
 
-    public SyncInvoker(AbstractHaStrategy haStrategy) {
-        this.haStrategy = haStrategy;
+    public SyncInvoker(ClusterInvoker clusterInvoker) {
+        this.clusterInvoker = clusterInvoker;
     }
 
     @RuntimeType
     public Object invoke(@Origin Method method, @AllArguments @RuntimeType Object[] args) throws Throwable {
-        return haStrategy.invoke(method, args);
+        return clusterInvoker.invoke(method.getName(), args, method.getReturnType());
     }
 }

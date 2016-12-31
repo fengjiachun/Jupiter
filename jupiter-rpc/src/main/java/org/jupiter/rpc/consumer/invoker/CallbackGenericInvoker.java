@@ -16,8 +16,7 @@
 
 package org.jupiter.rpc.consumer.invoker;
 
-import org.jupiter.rpc.JClient;
-import org.jupiter.rpc.consumer.dispatcher.Dispatcher;
+import org.jupiter.rpc.consumer.cluster.ClusterInvoker;
 import org.jupiter.rpc.consumer.future.InvokeFutureContext;
 
 /**
@@ -30,18 +29,16 @@ import org.jupiter.rpc.consumer.future.InvokeFutureContext;
  */
 public class CallbackGenericInvoker implements GenericInvoker {
 
-    private final JClient client;
-    private final Dispatcher dispatcher;
+    private final ClusterInvoker clusterInvoker;
 
-    public CallbackGenericInvoker(JClient client, Dispatcher dispatcher) {
-        this.client = client;
-        this.dispatcher = dispatcher;
+    public CallbackGenericInvoker(ClusterInvoker clusterInvoker) {
+        this.clusterInvoker = clusterInvoker;
     }
 
     @Override
     public Object $invoke(String methodName, Object... args) throws Throwable {
-        Object val = dispatcher.dispatch(client, methodName, args, Object.class);
-        InvokeFutureContext.set(val);
+        Object future = clusterInvoker.invoke(methodName, args, Object.class);
+        InvokeFutureContext.set(future);
         return null;
     }
 }

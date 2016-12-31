@@ -57,10 +57,10 @@
         <property name="dispatchType" value="round" />
         <!-- 调用方式: (sync, async)可选, 默认sync(同步调用) -->
         <property name="invokeType" value="sync" />
-        <!-- 容错方案: (failfast, failover)可选, 默认failfast(快速失败) -->
-        <property name="haStrategy" value="failover" />
-        <!-- 在failover策略下的失败重试次数 -->
-        <property name="failoverRetries" value="3" />
+        <!-- 集群容错策略: (fail_fast, fail_over, fail_safe)可选, 默认fail_fast(快速失败) -->
+        <property name="clusterStrategy" value="fail_over" />
+        <!-- 在fail_over策略下的失败重试次数 -->
+        <property name="failoverRetries" value="2" />
         <!-- 超时时间设置 -->
         <property name="timeoutMillis" value="3000" />
 
@@ -75,8 +75,8 @@
             Map<String, Long> methodsSpecialTimeoutMillis   // 指定方法单独设置的超时时间, 方法名为key, 方法参数类型不做区别对待
             ConsumerHook[] hooks                            // consumer hook
             String providerAddresses                        // provider地址列表, 逗号分隔(IP直连)
-            HaStrategy.Type haStrategy                      // 容错方案(只支持单播的同步阻塞调用)
-            int failoverRetries                             // failover重试次数
+            ClusterInvoker.Strategy clusterStrategy;        // 集群容错策略(只支持单播的同步阻塞调用)
+            int failoverRetries                             // fail_over重试次数
         -->
     </bean>
 </beans>
