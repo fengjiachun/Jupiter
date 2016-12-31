@@ -49,9 +49,9 @@ import static org.jupiter.serialization.SerializerType.PROTO_STUFF;
 
 /**
  * Proxy factory
- * <p/>
+ *
  * Consumer对象代理工厂
- * <p/>
+ *
  * jupiter
  * org.jupiter.rpc.consumer
  *
