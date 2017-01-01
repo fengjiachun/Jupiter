@@ -38,8 +38,6 @@ public class KryoSerializer extends Serializer {
     private static final UnsafeReferenceFieldUpdater<Output, byte[]> bufUpdater =
             UnsafeUpdater.newReferenceFieldUpdater(Output.class, "buffer");
 
-    private static final int DISCARD_LIMIT = 1024 << 4; // 16k
-
     private static final InternalThreadLocal<Kryo> kryoThreadLocal = new InternalThreadLocal<Kryo>() {
 
         @Override
@@ -56,7 +54,7 @@ public class KryoSerializer extends Serializer {
 
         @Override
         protected Output initialValue() {
-            return new Output(512);
+            return new Output(DEFAULT_BUF_SIZE);
         }
     };
 
@@ -76,8 +74,8 @@ public class KryoSerializer extends Serializer {
             output.clear();
 
             // 防止hold太大块的内存
-            if (bufUpdater.get(output).length > DISCARD_LIMIT) {
-                bufUpdater.set(output, new byte[512]);
+            if (bufUpdater.get(output).length > MAX_CACHED_BUF_SIZE) {
+                bufUpdater.set(output, new byte[DEFAULT_BUF_SIZE]);
             }
         }
     }

@@ -62,7 +62,7 @@ public class ProtoStuffSerializer extends Serializer {
 
         @Override
         protected LinkedBuffer initialValue() {
-            return LinkedBuffer.allocate();
+            return LinkedBuffer.allocate(DEFAULT_BUF_SIZE);
         }
     };
 

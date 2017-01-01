@@ -26,6 +26,16 @@ package org.jupiter.serialization;
  */
 public abstract class Serializer {
 
+    /**
+     * The max buffer size for a {@link Serializer} to cached.
+     */
+    public static final int MAX_CACHED_BUF_SIZE = 64 * 1024;
+
+    /**
+     * The default buffer size for a {@link Serializer}.
+     */
+    public static final int DEFAULT_BUF_SIZE = 512;
+
     public abstract byte code();
 
     public abstract <T> byte[] writeObject(T obj);

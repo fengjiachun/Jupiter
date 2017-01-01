@@ -41,13 +41,11 @@ public class HessianSerializer extends Serializer {
     private static final UnsafeReferenceFieldUpdater<ByteArrayOutputStream, byte[]> bufUpdater =
             UnsafeUpdater.newReferenceFieldUpdater(ByteArrayOutputStream.class, "buf");
 
-    private static final int DISCARD_LIMIT = 1024 << 4; // 16k
-
     private static final InternalThreadLocal<ByteArrayOutputStream> bufThreadLocal = new InternalThreadLocal<ByteArrayOutputStream>() {
 
         @Override
         protected ByteArrayOutputStream initialValue() {
-            return new ByteArrayOutputStream(512);
+            return new ByteArrayOutputStream(DEFAULT_BUF_SIZE);
         }
     };
 
@@ -71,8 +69,8 @@ public class HessianSerializer extends Serializer {
             buf.reset(); // for reuse
 
             // 防止hold太大块的内存
-            if (bufUpdater.get(buf).length > DISCARD_LIMIT) {
-                bufUpdater.set(buf, new byte[512]);
+            if (bufUpdater.get(buf).length > MAX_CACHED_BUF_SIZE) {
+                bufUpdater.set(buf, new byte[DEFAULT_BUF_SIZE]);
             }
         }
         return null; // never get here
