@@ -32,10 +32,15 @@ import org.jupiter.rpc.consumer.future.InvokeFuture;
  *
  * @author jiachun.fjc
  */
-public class FailFastClusterInvoker extends ClusterInvoker {
+public class FailFastClusterInvoker extends AbstractClusterInvoker {
 
     public FailFastClusterInvoker(JClient client, Dispatcher dispatcher) {
         super(client, dispatcher);
+    }
+
+    @Override
+    public String name() {
+        return "Fail-fast";
     }
 
     @Override

@@ -22,14 +22,11 @@ import org.jupiter.rpc.ConsumerHook;
 import org.jupiter.rpc.DispatchType;
 import org.jupiter.rpc.InvokeType;
 import org.jupiter.rpc.JClient;
-import org.jupiter.rpc.consumer.cluster.ClusterInvoker;
-import org.jupiter.rpc.consumer.cluster.FailFastClusterInvoker;
-import org.jupiter.rpc.consumer.cluster.FailOverClusterInvoker;
-import org.jupiter.rpc.consumer.cluster.FailSafeClusterInvoker;
+import org.jupiter.rpc.consumer.cluster.*;
 import org.jupiter.rpc.consumer.dispatcher.DefaultBroadcastDispatcher;
 import org.jupiter.rpc.consumer.dispatcher.DefaultRoundDispatcher;
 import org.jupiter.rpc.consumer.dispatcher.Dispatcher;
-import org.jupiter.rpc.consumer.invoker.CallbackGenericInvoker;
+import org.jupiter.rpc.consumer.invoker.AsyncGenericInvoker;
 import org.jupiter.rpc.consumer.invoker.GenericInvoker;
 import org.jupiter.rpc.consumer.invoker.SyncGenericInvoker;
 import org.jupiter.rpc.load.balance.LoadBalancerFactory;
@@ -271,7 +268,7 @@ public class GenericProxyFactory {
             case SYNC:
                 return new SyncGenericInvoker(asClusterInvoker(strategy, dispatcher));
             case ASYNC:
-                return new CallbackGenericInvoker(asClusterInvoker(null, dispatcher));
+                return new AsyncGenericInvoker(asClusterInvoker(null, dispatcher));
             default:
                 throw new IllegalStateException("InvokeType: " + invokeType);
         }
@@ -291,7 +288,7 @@ public class GenericProxyFactory {
 
     private ClusterInvoker asClusterInvoker(ClusterInvoker.Strategy strategy, Dispatcher dispatcher) {
         if (strategy == null) {
-            return new ClusterInvoker(client, dispatcher);
+            return new FakeClusterInvoker(client, dispatcher);
         }
 
         switch (strategy) {

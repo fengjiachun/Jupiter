@@ -16,33 +16,31 @@
 
 package org.jupiter.rpc.consumer.cluster;
 
+import org.jupiter.rpc.JClient;
+import org.jupiter.rpc.consumer.dispatcher.Dispatcher;
+
 /**
  * jupiter
  * org.jupiter.rpc.consumer.cluster
  *
  * @author jiachun.fjc
  */
-public interface ClusterInvoker {
+public class FakeClusterInvoker extends AbstractClusterInvoker {
 
-    enum Strategy {
-        FAIL_FAST,  // 快速失败
-        FAIL_OVER,  // 失败重试
-        FAIL_SAFE,  // 失败安全
-        // FAIL_BACK,  没想到合适场景, 暂不支持
-        // FORKING,    消耗资源太多, 暂不支持
-        ;
-
-        public static Strategy parse(String name) {
-            for (Strategy s : values()) {
-                if (s.name().equalsIgnoreCase(name)) {
-                    return s;
-                }
-            }
-            return null;
-        }
+    public FakeClusterInvoker(JClient client, Dispatcher dispatcher) {
+        super(client, dispatcher);
     }
 
-    String name();
+    @Override
+    public String name() {
+        return "Fake";
+    }
 
-    Object invoke(String methodName, Object[] args, Class<?> returnType) throws Exception;
+    /**
+     * The fake impl just returns a {@link org.jupiter.rpc.consumer.future.InvokeFuture}.
+     */
+    @Override
+    public Object invoke(String methodName, Object[] args, Class<?> returnType) throws Exception {
+        return dispatcher.dispatch(client, methodName, args, returnType);
+    }
 }

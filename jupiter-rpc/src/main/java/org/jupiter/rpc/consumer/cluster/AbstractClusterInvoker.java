@@ -16,33 +16,27 @@
 
 package org.jupiter.rpc.consumer.cluster;
 
+import org.jupiter.rpc.JClient;
+import org.jupiter.rpc.consumer.dispatcher.Dispatcher;
+
 /**
  * jupiter
  * org.jupiter.rpc.consumer.cluster
  *
  * @author jiachun.fjc
  */
-public interface ClusterInvoker {
+public abstract class AbstractClusterInvoker implements ClusterInvoker {
 
-    enum Strategy {
-        FAIL_FAST,  // 快速失败
-        FAIL_OVER,  // 失败重试
-        FAIL_SAFE,  // 失败安全
-        // FAIL_BACK,  没想到合适场景, 暂不支持
-        // FORKING,    消耗资源太多, 暂不支持
-        ;
+    protected final JClient client;
+    protected final Dispatcher dispatcher;
 
-        public static Strategy parse(String name) {
-            for (Strategy s : values()) {
-                if (s.name().equalsIgnoreCase(name)) {
-                    return s;
-                }
-            }
-            return null;
-        }
+    public AbstractClusterInvoker(JClient client, Dispatcher dispatcher) {
+        this.client = client;
+        this.dispatcher = dispatcher;
     }
 
-    String name();
-
-    Object invoke(String methodName, Object[] args, Class<?> returnType) throws Exception;
+    @Override
+    public String toString() {
+        return name();
+    }
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016 The Jupiter Project
+ * Copyright (c) 2015 The Jupiter Project
  *
  * Licensed under the Apache License, version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,29 +16,39 @@
 
 package org.jupiter.rpc.consumer.invoker;
 
+import net.bytebuddy.implementation.bind.annotation.AllArguments;
+import net.bytebuddy.implementation.bind.annotation.Origin;
+import net.bytebuddy.implementation.bind.annotation.RuntimeType;
+import org.jupiter.common.util.Reflects;
 import org.jupiter.rpc.consumer.cluster.ClusterInvoker;
 import org.jupiter.rpc.consumer.future.InvokeFutureContext;
 
+import java.lang.reflect.Method;
+
 /**
- * 异步泛化回调
+ * Asynchronous call, {@link AsyncInvoker#invoke(Method, Object[])}
+ * returns a default value of the corresponding method.
+ *
+ * 异步回调
  *
  * jupiter
  * org.jupiter.rpc.consumer.invoker
  *
  * @author jiachun.fjc
  */
-public class CallbackGenericInvoker implements GenericInvoker {
+public class AsyncInvoker {
 
     private final ClusterInvoker clusterInvoker;
 
-    public CallbackGenericInvoker(ClusterInvoker clusterInvoker) {
+    public AsyncInvoker(ClusterInvoker clusterInvoker) {
         this.clusterInvoker = clusterInvoker;
     }
 
-    @Override
-    public Object $invoke(String methodName, Object... args) throws Throwable {
-        Object future = clusterInvoker.invoke(methodName, args, Object.class);
-        InvokeFutureContext.set(future);
-        return null;
+    @RuntimeType
+    public Object invoke(@Origin Method method, @AllArguments @RuntimeType Object[] args) throws Throwable {
+        Class<?> returnType = method.getReturnType();
+        Object val = clusterInvoker.invoke(method.getName(), args, returnType);
+        InvokeFutureContext.set(val);
+        return Reflects.getTypeDefaultValue(returnType);
     }
 }

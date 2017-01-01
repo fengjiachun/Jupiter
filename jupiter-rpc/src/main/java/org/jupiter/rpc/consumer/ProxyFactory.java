@@ -18,14 +18,11 @@ package org.jupiter.rpc.consumer;
 
 import org.jupiter.common.util.*;
 import org.jupiter.rpc.*;
-import org.jupiter.rpc.consumer.cluster.ClusterInvoker;
-import org.jupiter.rpc.consumer.cluster.FailFastClusterInvoker;
-import org.jupiter.rpc.consumer.cluster.FailOverClusterInvoker;
-import org.jupiter.rpc.consumer.cluster.FailSafeClusterInvoker;
+import org.jupiter.rpc.consumer.cluster.*;
 import org.jupiter.rpc.consumer.dispatcher.DefaultBroadcastDispatcher;
 import org.jupiter.rpc.consumer.dispatcher.DefaultRoundDispatcher;
 import org.jupiter.rpc.consumer.dispatcher.Dispatcher;
-import org.jupiter.rpc.consumer.invoker.CallbackInvoker;
+import org.jupiter.rpc.consumer.invoker.AsyncInvoker;
 import org.jupiter.rpc.consumer.invoker.SyncInvoker;
 import org.jupiter.rpc.load.balance.LoadBalancerFactory;
 import org.jupiter.rpc.load.balance.LoadBalancerType;
@@ -251,7 +248,7 @@ public class ProxyFactory<I> {
                 handler = new SyncInvoker(asClusterInvoker(strategy, dispatcher));
                 break;
             case ASYNC:
-                handler = new CallbackInvoker(asClusterInvoker(null, dispatcher));
+                handler = new AsyncInvoker(asClusterInvoker(null, dispatcher));
                 break;
             default:
                 throw new IllegalStateException("InvokeType: " + invokeType);
@@ -274,7 +271,7 @@ public class ProxyFactory<I> {
 
     private ClusterInvoker asClusterInvoker(ClusterInvoker.Strategy strategy, Dispatcher dispatcher) {
         if (strategy == null) {
-            return new ClusterInvoker(client, dispatcher);
+            return new FakeClusterInvoker(client, dispatcher);
         }
 
         switch (strategy) {

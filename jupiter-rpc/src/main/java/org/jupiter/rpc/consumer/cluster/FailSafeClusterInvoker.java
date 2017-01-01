@@ -36,12 +36,17 @@ import static org.jupiter.common.util.StackTraceUtil.stackTrace;
  *
  * @author jiachun.fjc
  */
-public class FailSafeClusterInvoker extends ClusterInvoker {
+public class FailSafeClusterInvoker extends AbstractClusterInvoker {
 
     private static final InternalLogger logger = InternalLoggerFactory.getInstance(FailSafeClusterInvoker.class);
 
     public FailSafeClusterInvoker(JClient client, Dispatcher dispatcher) {
         super(client, dispatcher);
+    }
+
+    @Override
+    public String name() {
+        return "Fail-safe";
     }
 
     @Override

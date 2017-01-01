@@ -38,7 +38,7 @@ import static java.util.concurrent.TimeUnit.NANOSECONDS;
  *
  * @author jiachun.fjc
  */
-public class FailOverClusterInvoker extends ClusterInvoker {
+public class FailOverClusterInvoker extends AbstractClusterInvoker {
 
     private final int retries; // 重试次数, 不包含第一次
 
@@ -49,6 +49,11 @@ public class FailOverClusterInvoker extends ClusterInvoker {
         } else {
             this.retries = 2;
         }
+    }
+
+    @Override
+    public String name() {
+        return "Fail-over";
     }
 
     @Override
