@@ -66,7 +66,7 @@ public class FailOverClusterInvoker extends AbstractClusterInvoker {
             InvokeFuture<?> future = (InvokeFuture<?>) val; // 组播不支持容错方案, 所以这里一定是InvokeFuture
             return future.getResult();
         } catch (Exception e) {
-            if (!failoverNeeded(cause = e)) {
+            if (!checkFailoverNeeded(cause = e)) {
                 throw e;
             }
 
@@ -76,8 +76,8 @@ public class FailOverClusterInvoker extends AbstractClusterInvoker {
         }
 
         CopyOnWriteGroupList groups = client.connector().directory(dispatcher.getMetadata());
-        int tryCount = Math.min(retries, groups.size());
-        for (int i = 0; i < tryCount; i++) {
+        int actualRetries = Math.min(retries, groups.size());
+        for (int i = 0; i < actualRetries; i++) {
             start = System.nanoTime();
             try {
                 JChannel channel = groups.get(i % groups.size()).next();
@@ -85,7 +85,7 @@ public class FailOverClusterInvoker extends AbstractClusterInvoker {
                 InvokeFuture<?> future = (InvokeFuture<?>) val;
                 return future.getResult();
             } catch (Exception e) {
-                if (failoverNeeded(e)) {
+                if (checkFailoverNeeded(e)) {
                     if ((timeout -= elapsedMillis(start)) <= 0) {
                         throw new RemoteException("[Fail-over] timeout: ", e);
                     }
@@ -99,7 +99,7 @@ public class FailOverClusterInvoker extends AbstractClusterInvoker {
         throw new RemoteException("[Fail-over] all failed: ", cause);
     }
 
-    private static boolean failoverNeeded(Exception cause) {
+    private static boolean checkFailoverNeeded(Exception cause) {
         return !(cause instanceof BizException)
                 && !(cause instanceof org.jupiter.rpc.exception.TimeoutException)
                 && !(cause instanceof java.util.concurrent.TimeoutException);
