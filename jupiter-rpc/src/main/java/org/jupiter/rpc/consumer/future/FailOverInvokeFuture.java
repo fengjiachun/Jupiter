@@ -34,7 +34,11 @@ public class FailOverInvokeFuture<V> extends AbstractInvokeFuture<V> {
 
     private final Class<V> returnType;
 
-    public FailOverInvokeFuture(Class<V> returnType) {
+    public static <T> FailOverInvokeFuture<T> with(Class<T> returnType) {
+        return new FailOverInvokeFuture<>(returnType);
+    }
+
+    private FailOverInvokeFuture(Class<V> returnType) {
         this.returnType = returnType;
     }
 

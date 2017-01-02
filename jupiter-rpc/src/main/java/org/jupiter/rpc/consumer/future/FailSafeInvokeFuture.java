@@ -36,7 +36,11 @@ public class FailSafeInvokeFuture<V> implements InvokeFuture<V> {
 
     private final InvokeFuture<V> future;
 
-    public FailSafeInvokeFuture(InvokeFuture<V> future) {
+    public static <T> FailSafeInvokeFuture<T> with(InvokeFuture<T> future) {
+        return new FailSafeInvokeFuture<>(future);
+    }
+
+    private FailSafeInvokeFuture(InvokeFuture<V> future) {
         this.future = future;
     }
 

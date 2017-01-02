@@ -169,8 +169,8 @@ abstract class AbstractDispatcher implements Dispatcher {
         return message;
     }
 
-    protected DefaultInvokeFuture<?> write(
-            JChannel channel, final JRequest request, final DefaultInvokeFuture<?> future, final DispatchType dispatchType) {
+    protected <T> DefaultInvokeFuture<T> write(
+            JChannel channel, final JRequest request, final DefaultInvokeFuture<T> future, final DispatchType dispatchType) {
 
         final JRequestBytes requestBytes = request.requestBytes();
         final ConsumerHook[] hooks = future.hooks();
@@ -213,6 +213,4 @@ abstract class AbstractDispatcher implements Dispatcher {
 
         return future;
     }
-
-    protected abstract DefaultInvokeFuture<?> asFuture(JRequest request, JChannel channel, Class<?> returnType, long timeoutMillis);
 }

@@ -258,22 +258,22 @@ public class GenericProxyFactory {
         }
 
         // dispatcher
-        Dispatcher dispatcher = asDispatcher(metadata, serializerType)
+        Dispatcher dispatcher = dispatcher(metadata, serializerType)
                 .hooks(hooks)
                 .timeoutMillis(timeoutMillis)
                 .methodsSpecialTimeoutMillis(methodsSpecialTimeoutMillis);
 
         switch (invokeType) {
             case SYNC:
-                return new SyncGenericInvoker(asClusterInvoker(strategy, dispatcher));
+                return new SyncGenericInvoker(clusterInvoker(strategy, dispatcher));
             case ASYNC:
-                return new AsyncGenericInvoker(asClusterInvoker(strategy, dispatcher));
+                return new AsyncGenericInvoker(clusterInvoker(strategy, dispatcher));
             default:
                 throw new IllegalStateException("InvokeType: " + invokeType);
         }
     }
 
-    protected Dispatcher asDispatcher(ServiceMetadata metadata, SerializerType serializerType) {
+    protected Dispatcher dispatcher(ServiceMetadata metadata, SerializerType serializerType) {
         switch (dispatchType) {
             case ROUND:
                 return new DefaultRoundDispatcher(
@@ -285,7 +285,7 @@ public class GenericProxyFactory {
         }
     }
 
-    private ClusterInvoker asClusterInvoker(ClusterInvoker.Strategy strategy, Dispatcher dispatcher) {
+    private ClusterInvoker clusterInvoker(ClusterInvoker.Strategy strategy, Dispatcher dispatcher) {
         switch (strategy) {
             case FAIL_FAST:
                 return new FailFastClusterInvoker(client, dispatcher);

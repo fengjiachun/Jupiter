@@ -39,7 +39,6 @@ import static org.jupiter.common.util.JConstants.DEFAULT_TIMEOUT;
 import static org.jupiter.common.util.Preconditions.checkNotNull;
 import static org.jupiter.common.util.StackTraceUtil.stackTrace;
 import static org.jupiter.rpc.ConsumerHook.EMPTY_HOOKS;
-import static org.jupiter.rpc.DispatchType.ROUND;
 import static org.jupiter.transport.Status.*;
 
 /**
@@ -71,11 +70,11 @@ public class DefaultInvokeFuture<V> extends AbstractInvokeFuture<V> {
 
     private ConsumerHook[] hooks = EMPTY_HOOKS;
 
-    public DefaultInvokeFuture(long invokeId, JChannel channel, Class<V> returnType, long timeoutMillis) {
-        this(invokeId, channel, returnType, timeoutMillis, ROUND);
+    public static <T> DefaultInvokeFuture<T> with(long invokeId, JChannel channel, Class<T> returnType, long timeoutMillis, DispatchType dispatchType) {
+        return new DefaultInvokeFuture<T>(invokeId, channel, returnType, timeoutMillis, dispatchType);
     }
 
-    public DefaultInvokeFuture(long invokeId, JChannel channel, Class<V> returnType, long timeoutMillis, DispatchType dispatchType) {
+    private DefaultInvokeFuture(long invokeId, JChannel channel, Class<V> returnType, long timeoutMillis, DispatchType dispatchType) {
         this.invokeId = invokeId;
         this.channel = channel;
         this.returnType = returnType;

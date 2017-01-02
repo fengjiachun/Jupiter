@@ -45,7 +45,7 @@ public class DefaultRoundDispatcher extends AbstractDispatcher {
     }
 
     @Override
-    public InvokeFuture<?> dispatch(JClient client, String methodName, Object[] args, Class<?> returnType) {
+    public <T> InvokeFuture<T> dispatch(JClient client, String methodName, Object[] args, Class<T> returnType) {
         // stack copy
         final Serializer _serializer = serializer();
 
@@ -68,15 +68,9 @@ public class DefaultRoundDispatcher extends AbstractDispatcher {
         request.bytes(s_code, bytes);
 
         long timeoutMillis = methodSpecialTimeoutMillis(methodName);
-        DefaultInvokeFuture<?> future = asFuture(request, channel, returnType, timeoutMillis)
+        DefaultInvokeFuture<T> future = DefaultInvokeFuture.with(request.invokeId(), channel, returnType, timeoutMillis, ROUND)
                 .hooks(hooks());
 
         return write(channel, request, future, ROUND);
-    }
-
-    @SuppressWarnings("unchecked")
-    @Override
-    protected DefaultInvokeFuture<?> asFuture(JRequest request, JChannel channel, Class<?> returnType, long timeoutMillis) {
-        return new DefaultInvokeFuture(request.invokeId(), channel, returnType, timeoutMillis);
     }
 }

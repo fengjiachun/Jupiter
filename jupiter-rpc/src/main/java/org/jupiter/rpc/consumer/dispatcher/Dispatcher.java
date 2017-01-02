@@ -32,7 +32,7 @@ import java.util.Map;
  */
 public interface Dispatcher {
 
-    InvokeFuture<?> dispatch(JClient client, String methodName, Object[] args, Class<?> returnType);
+    <T> InvokeFuture<T> dispatch(JClient client, String methodName, Object[] args, Class<T> returnType);
 
     ServiceMetadata metadata();
 

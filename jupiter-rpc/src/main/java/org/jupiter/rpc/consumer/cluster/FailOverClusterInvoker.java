@@ -69,8 +69,8 @@ public class FailOverClusterInvoker extends AbstractClusterInvoker {
     }
 
     @Override
-    public InvokeFuture<?> invoke(String methodName, Object[] args, Class<?> returnType) throws Exception {
-        FailOverInvokeFuture<?> future = new FailOverInvokeFuture<>(returnType);
+    public <T> InvokeFuture<T> invoke(String methodName, Object[] args, Class<T> returnType) throws Exception {
+        FailOverInvokeFuture<T> future = FailOverInvokeFuture.with(returnType);
 
         int tryCount = retries + 1;
         invoke0(methodName, args, returnType, tryCount, future, null);
@@ -78,21 +78,20 @@ public class FailOverClusterInvoker extends AbstractClusterInvoker {
         return future;
     }
 
-    @SuppressWarnings("unchecked")
-    private void invoke0(final String methodName,
+    private <T> void invoke0(final String methodName,
                          final Object[] args,
-                         final Class<?> returnType,
+                         final Class<T> returnType,
                          final int tryCount,
-                         final FailOverInvokeFuture<?> future,
+                         final FailOverInvokeFuture<T> future,
                          Throwable lastCause) {
 
         if (tryCount > 0 && isFailoverNeeded(lastCause)) {
-            InvokeFuture<Object> f = (InvokeFuture<Object>) dispatcher.dispatch(client, methodName, args, returnType);
+            InvokeFuture<T> f = dispatcher.dispatch(client, methodName, args, returnType);
 
-            f.addListener(new JListener<Object>() {
+            f.addListener(new JListener<T>() {
 
                 @Override
-                public void complete(Object result) {
+                public void complete(T result) {
                     future.setSuccess(result);
                 }
 

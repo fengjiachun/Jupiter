@@ -28,9 +28,8 @@ public class DefaultInvokeFutureGroup<V> implements InvokeFutureGroup<V> {
 
     private final InvokeFuture<V>[] futures;
 
-    @SuppressWarnings("unchecked")
-    public static DefaultInvokeFutureGroup<?> with(InvokeFuture<?>[] futures) {
-        return new DefaultInvokeFutureGroup(futures);
+    public static <T> DefaultInvokeFutureGroup<T> with(InvokeFuture<T>[] futures) {
+        return new DefaultInvokeFutureGroup<>(futures);
     }
 
     private DefaultInvokeFutureGroup(InvokeFuture<V>[] futures) {

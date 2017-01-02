@@ -236,7 +236,7 @@ public class ProxyFactory<I> {
         }
 
         // dispatcher
-        Dispatcher dispatcher = asDispatcher(metadata, serializerType)
+        Dispatcher dispatcher = dispatcher(metadata, serializerType)
                 .hooks(hooks)
                 .timeoutMillis(timeoutMillis)
                 .methodsSpecialTimeoutMillis(methodsSpecialTimeoutMillis);
@@ -244,10 +244,10 @@ public class ProxyFactory<I> {
         Object handler;
         switch (invokeType) {
             case SYNC:
-                handler = new SyncInvoker(asClusterInvoker(strategy, dispatcher));
+                handler = new SyncInvoker(clusterInvoker(strategy, dispatcher));
                 break;
             case ASYNC:
-                handler = new AsyncInvoker(asClusterInvoker(strategy, dispatcher));
+                handler = new AsyncInvoker(clusterInvoker(strategy, dispatcher));
                 break;
             default:
                 throw new IllegalStateException("InvokeType: " + invokeType);
@@ -256,7 +256,7 @@ public class ProxyFactory<I> {
         return Proxies.getDefault().newProxy(interfaceClass, handler);
     }
 
-    protected Dispatcher asDispatcher(ServiceMetadata metadata, SerializerType serializerType) {
+    protected Dispatcher dispatcher(ServiceMetadata metadata, SerializerType serializerType) {
         switch (dispatchType) {
             case ROUND:
                 return new DefaultRoundDispatcher(
@@ -268,7 +268,7 @@ public class ProxyFactory<I> {
         }
     }
 
-    private ClusterInvoker asClusterInvoker(ClusterInvoker.Strategy strategy, Dispatcher dispatcher) {
+    private ClusterInvoker clusterInvoker(ClusterInvoker.Strategy strategy, Dispatcher dispatcher) {
         switch (strategy) {
             case FAIL_FAST:
                 return new FailFastClusterInvoker(client, dispatcher);
