@@ -71,7 +71,7 @@ public class FailOverClusterInvoker extends AbstractClusterInvoker {
             }
 
             if ((timeout -= elapsedMillis(start)) <= 0) {
-                throw new RemoteException("[Fail-over] timeout: ", e);
+                throw new RemoteException(name() + " timeout: ", e);
             }
         }
 
@@ -87,7 +87,7 @@ public class FailOverClusterInvoker extends AbstractClusterInvoker {
             } catch (Exception e) {
                 if (checkFailoverNeeded(e)) {
                     if ((timeout -= elapsedMillis(start)) <= 0) {
-                        throw new RemoteException("[Fail-over] timeout: ", e);
+                        throw new RemoteException(name() + " timeout: ", e);
                     }
                     continue;
                 }
@@ -96,7 +96,7 @@ public class FailOverClusterInvoker extends AbstractClusterInvoker {
         }
 
         // 全部失败
-        throw new RemoteException("[Fail-over] all failed: ", cause);
+        throw new RemoteException(name() + " all failed: ", cause);
     }
 
     private static boolean checkFailoverNeeded(Exception cause) {

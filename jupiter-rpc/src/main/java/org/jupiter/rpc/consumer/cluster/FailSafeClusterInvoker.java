@@ -55,7 +55,7 @@ public class FailSafeClusterInvoker extends AbstractClusterInvoker {
             Object val = dispatcher.dispatch(client, methodName, args, returnType);
             return ((InvokeFuture<?>) val).getResult();
         } catch (Throwable t) {
-            logger.warn("Ignored exception on [Fail-safe] cluster invoker: {}.", stackTrace(t));
+            logger.warn("Ignored exception on [{}] cluster invoker: {}.", name(), stackTrace(t));
         }
         return null;
     }
