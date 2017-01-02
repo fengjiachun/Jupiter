@@ -20,7 +20,6 @@ import org.jupiter.rpc.ConsumerHook;
 import org.jupiter.rpc.JClient;
 import org.jupiter.rpc.consumer.future.InvokeFuture;
 import org.jupiter.rpc.model.metadata.ServiceMetadata;
-import org.jupiter.serialization.Serializer;
 
 import java.util.List;
 import java.util.Map;
