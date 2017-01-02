@@ -248,7 +248,7 @@ public class ProxyFactory<I> {
                 handler = new SyncInvoker(asClusterInvoker(strategy, dispatcher));
                 break;
             case ASYNC:
-                handler = new AsyncInvoker(asClusterInvoker(null, dispatcher));
+                handler = new AsyncInvoker(asClusterInvoker(strategy, dispatcher));
                 break;
             default:
                 throw new IllegalStateException("InvokeType: " + invokeType);
@@ -270,10 +270,6 @@ public class ProxyFactory<I> {
     }
 
     private ClusterInvoker asClusterInvoker(ClusterInvoker.Strategy strategy, Dispatcher dispatcher) {
-        if (strategy == null) {
-            return new FakeClusterInvoker(client, dispatcher);
-        }
-
         switch (strategy) {
             case FAIL_FAST:
                 return new FailFastClusterInvoker(client, dispatcher);

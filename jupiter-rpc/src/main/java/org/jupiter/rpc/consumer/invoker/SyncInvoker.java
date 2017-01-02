@@ -20,6 +20,7 @@ import net.bytebuddy.implementation.bind.annotation.AllArguments;
 import net.bytebuddy.implementation.bind.annotation.Origin;
 import net.bytebuddy.implementation.bind.annotation.RuntimeType;
 import org.jupiter.rpc.consumer.cluster.ClusterInvoker;
+import org.jupiter.rpc.consumer.future.InvokeFuture;
 
 import java.lang.reflect.Method;
 
@@ -43,6 +44,7 @@ public class SyncInvoker {
 
     @RuntimeType
     public Object invoke(@Origin Method method, @AllArguments @RuntimeType Object[] args) throws Throwable {
-        return clusterInvoker.invoke(method.getName(), args, method.getReturnType());
+        InvokeFuture<?> future = clusterInvoker.invoke(method.getName(), args, method.getReturnType());
+        return future.getResult();
     }
 }

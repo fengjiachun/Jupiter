@@ -75,7 +75,7 @@
             Map<String, Long> methodsSpecialTimeoutMillis   // 指定方法单独设置的超时时间, 方法名为key, 方法参数类型不做区别对待
             ConsumerHook[] hooks                            // consumer hook
             String providerAddresses                        // provider地址列表, 逗号分隔(IP直连)
-            ClusterInvoker.Strategy clusterStrategy;        // 集群容错策略(只支持单播的同步阻塞调用)
+            ClusterInvoker.Strategy clusterStrategy;        // 集群容错策略(只支持单播的同步/异步调用)
             int failoverRetries                             // fail_over重试次数
         -->
     </bean>

@@ -27,10 +27,10 @@ import org.jupiter.common.util.internal.UnsafeUpdater;
 import org.jupiter.common.util.internal.logging.InternalLogger;
 import org.jupiter.common.util.internal.logging.InternalLoggerFactory;
 import org.jupiter.rpc.JRequest;
-import org.jupiter.rpc.exception.BadRequestException;
-import org.jupiter.rpc.exception.FlowControlException;
-import org.jupiter.rpc.exception.ServerBusyException;
-import org.jupiter.rpc.exception.ServiceNotFoundException;
+import org.jupiter.rpc.exception.JupiterBadRequestException;
+import org.jupiter.rpc.exception.JupiterFlowControlException;
+import org.jupiter.rpc.exception.JupiterServerBusyException;
+import org.jupiter.rpc.exception.JupiterServiceNotFoundException;
 import org.jupiter.rpc.flow.control.ControlResult;
 import org.jupiter.rpc.flow.control.FlowController;
 import org.jupiter.rpc.metric.Metrics;
@@ -177,20 +177,20 @@ public class MessageTask implements RejectedRunnable {
         ResultWrapper result = new ResultWrapper();
         switch (status) {
             case SERVER_BUSY:
-                result.setError(new ServerBusyException());
+                result.setError(new JupiterServerBusyException());
                 break;
             case BAD_REQUEST:
-                result.setError(new BadRequestException());
+                result.setError(new JupiterBadRequestException());
                 break;
             case SERVICE_NOT_FOUND:
-                result.setError(new ServiceNotFoundException(_request.message().toString()));
+                result.setError(new JupiterServiceNotFoundException(_request.message().toString()));
                 break;
             case APP_FLOW_CONTROL:
             case PROVIDER_FLOW_CONTROL:
                 if (signal != null && signal instanceof ControlResult) {
-                    result.setError(new FlowControlException(((ControlResult) signal).getMessage()));
+                    result.setError(new JupiterFlowControlException(((ControlResult) signal).getMessage()));
                 } else {
-                    result.setError(new FlowControlException());
+                    result.setError(new JupiterFlowControlException());
                 }
                 break;
             default:

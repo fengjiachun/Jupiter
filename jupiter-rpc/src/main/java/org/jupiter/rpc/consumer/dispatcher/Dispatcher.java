@@ -18,9 +18,11 @@ package org.jupiter.rpc.consumer.dispatcher;
 
 import org.jupiter.rpc.ConsumerHook;
 import org.jupiter.rpc.JClient;
+import org.jupiter.rpc.consumer.future.InvokeFuture;
 import org.jupiter.rpc.model.metadata.MessageWrapper;
 import org.jupiter.rpc.model.metadata.ServiceMetadata;
 import org.jupiter.serialization.Serializer;
+import org.jupiter.transport.channel.CopyOnWriteGroupList;
 import org.jupiter.transport.channel.JChannel;
 
 import java.util.List;
@@ -39,18 +41,22 @@ public interface Dispatcher {
     /**
      * Consumer消息派发, 不需要传入目标方法参数类型, 服务端会根据args具体类型按照JLS规则动态dispatch.
      */
-    Object dispatch(JClient client, String methodName, Object[] args, Class<?> returnType);
+    InvokeFuture<?> dispatch(JClient client, String methodName, Object[] args, Class<?> returnType);
 
     /**
      * Consumer指定channel消息派发, 不需要传入目标方法参数类型, 服务端会根据args具体类型按照JLS规则动态dispatch.
      */
-    Object dispatch(
-            JClient client, JChannel channel, String methodName, Object[] args, Class<?> returnType, long timeoutMillis);
+    InvokeFuture<?> dispatch(JClient client, JChannel channel, String methodName, Object[] args, Class<?> returnType);
 
     /**
      * Selects a {@link JChannel} from the load balancer.
      */
     JChannel select(JClient client, MessageWrapper message);
+
+    /**
+     * Selects all {@link JChannel} by the metadata.
+     */
+    CopyOnWriteGroupList selectAll(JClient client);
 
     ServiceMetadata getMetadata();
 

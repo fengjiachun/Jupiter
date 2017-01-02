@@ -16,6 +16,8 @@
 
 package org.jupiter.rpc.consumer.cluster;
 
+import org.jupiter.rpc.consumer.future.InvokeFuture;
+
 /**
  * jupiter
  * org.jupiter.rpc.consumer.cluster
@@ -44,5 +46,5 @@ public interface ClusterInvoker {
 
     String name();
 
-    Object invoke(String methodName, Object[] args, Class<?> returnType) throws Exception;
+    InvokeFuture<?> invoke(String methodName, Object[] args, Class<?> returnType) throws Exception;
 }

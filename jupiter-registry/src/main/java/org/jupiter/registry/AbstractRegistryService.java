@@ -176,7 +176,11 @@ public abstract class AbstractRegistryService implements RegistryService {
     public abstract void destroy();
 
     // 通知新增或删除服务
-    protected void notify(ServiceMeta serviceMeta, RegisterMeta registerMeta, NotifyEvent event, long version) {
+    protected void notify(ServiceMeta serviceMeta, NotifyEvent event, long version, RegisterMeta... array) {
+        if (array == null || array.length == 0) {
+            return;
+        }
+
         boolean notifyNeeded = false;
 
         final Lock writeLock = registriesLock.writeLock();
@@ -187,7 +191,7 @@ public abstract class AbstractRegistryService implements RegistryService {
                 if (event == CHILD_REMOVED) {
                     return;
                 }
-                List<RegisterMeta> metaList = Lists.newArrayList(registerMeta);
+                List<RegisterMeta> metaList = Lists.newArrayList(array);
                 data = Pair.of(version, metaList);
                 notifyNeeded = true;
             } else {
@@ -195,9 +199,11 @@ public abstract class AbstractRegistryService implements RegistryService {
                 List<RegisterMeta> metaList = data.getValue();
                 if (oldVersion < version || (version < 0 && oldVersion > 0 /* version 溢出 */)) {
                     if (event == CHILD_REMOVED) {
-                        metaList.remove(registerMeta);
+                        for (RegisterMeta m : array) {
+                            metaList.remove(m);
+                        }
                     } else if (event == CHILD_ADDED) {
-                        metaList.add(registerMeta);
+                        Collections.addAll(metaList, array);
                     }
                     data = Pair.of(version, metaList);
                     notifyNeeded = true;
@@ -213,7 +219,9 @@ public abstract class AbstractRegistryService implements RegistryService {
             CopyOnWriteArrayList<NotifyListener> listeners = subscribeListeners.get(serviceMeta);
             if (listeners != null) {
                 for (NotifyListener l : listeners) {
-                    l.notify(registerMeta, event);
+                    for (RegisterMeta m : array) {
+                        l.notify(m, event);
+                    }
                 }
             }
         }

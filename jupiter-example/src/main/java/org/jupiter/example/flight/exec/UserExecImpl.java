@@ -32,7 +32,7 @@ public class UserExecImpl implements UserExecInterface {
     public Object exec() {
         // System.out输出会返回客户端, 因为服务端执行前将该类的常量池修改了
         System.out.println("get server instance...");
-        JServer[] servers = (JServer[]) Reflects.getStaticValue(FlightExecServer.class, "servers");
+        JServer[] servers = (JServer[]) Reflects.getStaticValue(FlightExecJupiterServer.class, "servers");
         System.out.println("server count=" + servers.length);
 
         for (JServer s : servers) {

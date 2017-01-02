@@ -16,5 +16,8 @@
 
 /**
  * 传输层协议使用UDT的example
+ *
+ * 1. 先启动UdtJupiterServer
+ * 2. 再启动UdtJupiterClient
  */
 package org.jupiter.example.udt;

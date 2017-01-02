@@ -16,5 +16,12 @@
 
 /**
  * 使用zookeeper作为注册中心的example
+ *
+ * RegistryServer是基于SPI的, 使用zookeeper的话maven引入jupiter-registry-zookeeper即可
+ *
+ * 1. maven引入jupiter-registry-zookeeper
+ * 2. 先启动外部的zookeeper
+ * 3. 再启动JupiterServer
+ * 4. 最后启动JupiterClient
  */
 package org.jupiter.example.zookeeper;

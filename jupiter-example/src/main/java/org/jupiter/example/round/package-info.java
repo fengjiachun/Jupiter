@@ -16,5 +16,9 @@
 
 /**
  * 单播example
+ *
+ * 1. 启动 JupiterRegistryServer
+ * 2. 再启动 JupiterServer
+ * 3. 最后启动 SyncJupiterClient/AsyncJupiterClient
  */
 package org.jupiter.example.round;

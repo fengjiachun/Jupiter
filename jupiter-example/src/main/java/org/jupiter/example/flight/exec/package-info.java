@@ -16,5 +16,9 @@
 
 /**
  * 飞行中调试example
+ *
+ * 1. 先启动FlightExecJupiterRegistryServer
+ * 2. 在启动FlightExecJupiterServer
+ * 3. 最后启动FlightExecJupiterClient
  */
 package org.jupiter.example.flight.exec;

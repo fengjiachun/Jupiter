@@ -62,7 +62,7 @@ public class JupiterSpringConsumerBean<T> implements FactoryBean<T>, Initializin
     private Map<String, Long> methodsSpecialTimeoutMillis;  // 指定方法单独设置的超时时间, 方法名为key, 方法参数类型不做区别对待
     private ConsumerHook[] hooks = EMPTY_HOOKS;             // 消费者端钩子函数
     private String providerAddresses;                       // provider地址列表, 逗号分隔(IP直连)
-    private ClusterInvoker.Strategy clusterStrategy;        // 集群容错策略(只支持单播的同步阻塞调用)
+    private ClusterInvoker.Strategy clusterStrategy;        // 集群容错策略(只支持单播的同步/异步调用)
     private int failoverRetries;                            // failover重试次数
 
     @Override

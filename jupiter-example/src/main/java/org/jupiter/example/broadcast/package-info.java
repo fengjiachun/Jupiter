@@ -16,5 +16,8 @@
 
 /**
  * 组播example
+ *
+ * 1. 先启动JupiterBroadcastServer
+ * 2. 再启动JupiterBroadcastClient
  */
 package org.jupiter.example.broadcast;

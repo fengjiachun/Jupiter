@@ -16,10 +16,10 @@
 
 package org.jupiter.rpc.consumer.future;
 
+import org.jupiter.common.util.Signal;
 import org.jupiter.common.util.internal.JUnsafe;
 
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.TimeoutException;
 import java.util.concurrent.locks.LockSupport;
 
 /**
@@ -29,6 +29,9 @@ import java.util.concurrent.locks.LockSupport;
  * @author jiachun.fjc
  */
 public abstract class Future<V> {
+
+    @SuppressWarnings("all")
+    protected static final Signal TIMEOUT = Signal.valueOf(Future.class, "time_out");
 
     /**
      * 内部状态转换过程:
@@ -80,7 +83,7 @@ public abstract class Future<V> {
         }
         int s = state;
         if (s <= COMPLETING && (s = awaitDone(true, unit.toNanos(timeout))) <= COMPLETING) {
-            throw new TimeoutException();
+            throw TIMEOUT;
         }
         return report(s);
     }

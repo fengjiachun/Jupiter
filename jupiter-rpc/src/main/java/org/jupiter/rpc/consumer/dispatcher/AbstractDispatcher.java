@@ -21,6 +21,7 @@ import org.jupiter.common.util.SystemClock;
 import org.jupiter.common.util.internal.logging.InternalLogger;
 import org.jupiter.common.util.internal.logging.InternalLoggerFactory;
 import org.jupiter.rpc.*;
+import org.jupiter.rpc.consumer.future.DefaultInvokeFuture;
 import org.jupiter.rpc.consumer.future.InvokeFuture;
 import org.jupiter.rpc.load.balance.LoadBalancer;
 import org.jupiter.rpc.model.metadata.MessageWrapper;
@@ -32,7 +33,6 @@ import org.jupiter.rpc.tracing.TracingUtil;
 import org.jupiter.serialization.Serializer;
 import org.jupiter.serialization.SerializerFactory;
 import org.jupiter.serialization.SerializerType;
-import org.jupiter.transport.Directory;
 import org.jupiter.transport.channel.CopyOnWriteGroupList;
 import org.jupiter.transport.channel.JChannel;
 import org.jupiter.transport.channel.JChannelGroup;
@@ -73,19 +73,14 @@ public abstract class AbstractDispatcher implements Dispatcher {
     }
 
     @Override
-    public Object dispatch(
-            JClient client, JChannel channel, String methodName, Object[] args, Class<?> returnType, long timeoutMillis) {
+    public InvokeFuture<?> dispatch(JClient client, JChannel channel, String methodName, Object[] args, Class<?> returnType) {
         throw new UnsupportedOperationException();
     }
 
     @SuppressWarnings("all")
     @Override
     public JChannel select(JClient client, MessageWrapper message) {
-        // stack copy
-        final Directory directory = metadata;
-
-        CopyOnWriteGroupList groups = client.connector().directory(directory);
-
+        CopyOnWriteGroupList groups = selectAll(client);
         JChannelGroup group = loadBalancer.select(groups, message);
 
         if (group != null) {
@@ -98,11 +93,11 @@ public abstract class AbstractDispatcher implements Dispatcher {
             if (deadline > 0 && SystemClock.millisClock().now() > deadline) {
                 boolean removed = groups.remove(group);
                 if (removed) {
-                    logger.warn("Removed channel group: {} in directory: {} on [select].", group, directory.directory());
+                    logger.warn("Removed channel group: {} in directory: {} on [select].", group, metadata.directory());
                 }
             }
         } else {
-            if (!client.awaitConnections(directory, 3000)) {
+            if (!client.awaitConnections(metadata, 3000)) {
                 throw new IllegalStateException("no connections");
             }
         }
@@ -116,6 +111,11 @@ public abstract class AbstractDispatcher implements Dispatcher {
         }
 
         throw new IllegalStateException("no channel");
+    }
+
+    @Override
+    public CopyOnWriteGroupList selectAll(JClient client) {
+        return client.connector().directory(metadata);
     }
 
     @Override
@@ -179,8 +179,8 @@ public abstract class AbstractDispatcher implements Dispatcher {
         return message;
     }
 
-    protected InvokeFuture<?> write(
-            JChannel channel, final JRequest request, final InvokeFuture<?> future, final DispatchType dispatchType) {
+    protected DefaultInvokeFuture<?> write(
+            JChannel channel, final JRequest request, final DefaultInvokeFuture<?> future, final DispatchType dispatchType) {
 
         final JRequestBytes requestBytes = request.requestBytes();
         final ConsumerHook[] hooks = future.hooks();
@@ -217,12 +217,12 @@ public abstract class AbstractDispatcher implements Dispatcher {
                 response.status(CLIENT_ERROR);
                 response.result(result);
 
-                InvokeFuture.received(channel, response);
+                DefaultInvokeFuture.received(channel, response);
             }
         });
 
         return future;
     }
 
-    protected abstract InvokeFuture<?> asFuture(JRequest request, JChannel channel, Class<?> returnType, long timeoutMillis);
+    protected abstract DefaultInvokeFuture<?> asFuture(JRequest request, JChannel channel, Class<?> returnType, long timeoutMillis);
 }

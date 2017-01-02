@@ -16,18 +16,24 @@
 
 package org.jupiter.rpc.consumer.cluster;
 
+import org.jupiter.common.util.internal.logging.InternalLogger;
+import org.jupiter.common.util.internal.logging.InternalLoggerFactory;
 import org.jupiter.rpc.JClient;
+import org.jupiter.rpc.JListener;
+import org.jupiter.rpc.consumer.dispatcher.DefaultRoundDispatcher;
 import org.jupiter.rpc.consumer.dispatcher.Dispatcher;
+import org.jupiter.rpc.consumer.future.FailOverInvokeFuture;
 import org.jupiter.rpc.consumer.future.InvokeFuture;
-import org.jupiter.rpc.exception.BizException;
-import org.jupiter.rpc.exception.RemoteException;
+import org.jupiter.rpc.exception.JupiterBizException;
+import org.jupiter.rpc.exception.JupiterRemoteException;
 import org.jupiter.transport.channel.CopyOnWriteGroupList;
 import org.jupiter.transport.channel.JChannel;
 
-import static java.util.concurrent.TimeUnit.NANOSECONDS;
+import static org.jupiter.common.util.Preconditions.checkArgument;
+import static org.jupiter.common.util.Reflects.simpleClassName;
 
 /**
- * 失败自动切换, 当出现失败, 重试其它服务器.
+ * 失败自动切换, 当出现失败, 重试其它服务器, 要注意的是重试会带来更长的延时.
  *
  * 建议只用于幂等性操作, 通常比较合适用于读操作.
  *
@@ -40,10 +46,18 @@ import static java.util.concurrent.TimeUnit.NANOSECONDS;
  */
 public class FailOverClusterInvoker extends AbstractClusterInvoker {
 
+    private static final InternalLogger logger = InternalLoggerFactory.getInstance(FailOverClusterInvoker.class);
+
     private final int retries; // 重试次数, 不包含第一次
 
     public FailOverClusterInvoker(JClient client, Dispatcher dispatcher, int retries) {
         super(client, dispatcher);
+
+        checkArgument(
+                dispatcher instanceof DefaultRoundDispatcher,
+                simpleClassName(dispatcher) + " is unsupported [FailOverClusterInvoker]"
+        );
+
         if (retries >= 0) {
             this.retries = retries;
         } else {
@@ -57,55 +71,62 @@ public class FailOverClusterInvoker extends AbstractClusterInvoker {
     }
 
     @Override
-    public Object invoke(String methodName, Object[] args, Class<?> returnType) throws Exception {
-        long timeout = dispatcher.getMethodSpecialTimeoutMillis(methodName);
-        long start = System.nanoTime();
-        Exception cause;
-        try {
-            Object val = dispatcher.dispatch(client, methodName, args, returnType);
-            InvokeFuture<?> future = (InvokeFuture<?>) val; // 组播不支持容错方案, 所以这里一定是InvokeFuture
-            return future.getResult();
-        } catch (Exception e) {
-            if (!checkFailoverNeeded(cause = e)) {
-                throw e;
+    public InvokeFuture<?> invoke(String methodName, Object[] args, Class<?> returnType) throws Exception {
+        FailOverInvokeFuture<?> future = new FailOverInvokeFuture<>(returnType);
+
+        int tryCount = retries + 1;
+        invoke0(methodName, args, returnType, tryCount, future, null);
+
+        return future;
+    }
+
+    @SuppressWarnings("unchecked")
+    private void invoke0(final String methodName,
+                         final Object[] args,
+                         final Class<?> returnType,
+                         final int tryCount,
+                         final FailOverInvokeFuture<?> future,
+                         Throwable lastCause) {
+
+        if (tryCount > 0 && isFailoverNeeded(lastCause)) {
+            InvokeFuture<?> val;
+            if (retries == tryCount - 1) {
+                // first attempts to get channel by LoadBalancer
+                val = dispatcher.dispatch(client, methodName, args, returnType);
+            } else {
+                // retry
+                CopyOnWriteGroupList groups = dispatcher.selectAll(client);
+                int index = retries - tryCount + 1;
+                JChannel channel = groups.get(index % groups.size()).next();
+                val = dispatcher.dispatch(client, channel, methodName, args, returnType);
             }
 
-            if ((timeout -= elapsedMillis(start)) <= 0) {
-                throw new RemoteException(name() + " timeout: ", e);
-            }
-        }
+            InvokeFuture<Object> f = (InvokeFuture<Object>) val;
 
-        CopyOnWriteGroupList groups = client.connector().directory(dispatcher.getMetadata());
-        int actualRetries = Math.min(retries, groups.size());
-        for (int i = 0; i < actualRetries; i++) {
-            start = System.nanoTime();
-            try {
-                JChannel channel = groups.get(i % groups.size()).next();
-                Object val = dispatcher.dispatch(client, channel, methodName, args, returnType, timeout);
-                InvokeFuture<?> future = (InvokeFuture<?>) val;
-                return future.getResult();
-            } catch (Exception e) {
-                if (checkFailoverNeeded(e)) {
-                    if ((timeout -= elapsedMillis(start)) <= 0) {
-                        throw new RemoteException(name() + " timeout: ", e);
-                    }
-                    continue;
+            f.addListener(new JListener<Object>() {
+
+                @Override
+                public void complete(Object result) {
+                    future.setSuccess(result);
                 }
-                throw e;
-            }
+
+                @Override
+                public void failure(Throwable cause) {
+                    logger.warn("[Fail-over] retry, [{}] attempts left, [method: {}], [metadata: {}]",
+                            tryCount - 1,
+                            methodName,
+                            dispatcher.getMetadata()
+                    );
+
+                    invoke0(methodName, args, returnType, tryCount - 1, future, cause);
+                }
+            });
+        } else {
+            future.setFailure(new JupiterRemoteException(name() + " failed: ", lastCause));
         }
-
-        // 全部失败
-        throw new RemoteException(name() + " all failed: ", cause);
     }
 
-    private static boolean checkFailoverNeeded(Exception cause) {
-        return !(cause instanceof BizException)
-                && !(cause instanceof org.jupiter.rpc.exception.TimeoutException)
-                && !(cause instanceof java.util.concurrent.TimeoutException);
-    }
-
-    private static long elapsedMillis(long start) {
-        return NANOSECONDS.toMillis(System.nanoTime() - start);
+    private static boolean isFailoverNeeded(Throwable cause) {
+        return cause == null || !(cause instanceof JupiterBizException);
     }
 }

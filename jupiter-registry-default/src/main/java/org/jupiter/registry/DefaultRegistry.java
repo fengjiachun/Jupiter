@@ -418,11 +418,12 @@ public class DefaultRegistry extends NettyTcpConnector {
                         Object metaObj = data.getValue();
 
                         if (metaObj instanceof List) {
-                            for (RegisterMeta meta : (List<RegisterMeta>) metaObj) {
-                                registryService.notify(data.getKey(), meta, CHILD_ADDED, obj.version());
-                            }
+                            List<RegisterMeta> list = (List<RegisterMeta>) metaObj;
+                            RegisterMeta[] array = new RegisterMeta[list.size()];
+                            list.toArray(array);
+                            registryService.notify(data.getKey(), CHILD_ADDED, obj.version(), array);
                         } else if (metaObj instanceof RegisterMeta) {
-                            registryService.notify(data.getKey(), (RegisterMeta) metaObj, CHILD_ADDED, obj.version());
+                            registryService.notify(data.getKey(), CHILD_ADDED, obj.version(), (RegisterMeta) metaObj);
                         }
 
                         ctx.channel()
@@ -436,7 +437,7 @@ public class DefaultRegistry extends NettyTcpConnector {
                     }
                     case PUBLISH_CANCEL_SERVICE: {
                         Pair<ServiceMeta, RegisterMeta> data = (Pair<ServiceMeta, RegisterMeta>) obj.data();
-                        registryService.notify(data.getKey(), data.getValue(), CHILD_REMOVED, obj.version());
+                        registryService.notify(data.getKey(), CHILD_REMOVED, obj.version(), data.getValue());
 
                         ctx.channel()
                                 .writeAndFlush(new Acknowledge(obj.sequence()))  // 回复ACK

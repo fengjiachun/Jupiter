@@ -27,7 +27,6 @@ import static org.jupiter.common.util.Preconditions.checkNotNull;
 public class InvokeFutureContext {
 
     private static final ThreadLocal<InvokeFuture<?>> futureThreadLocal = new ThreadLocal<>();
-    private static final ThreadLocal<InvokeFuture<?>[]> futureGroupThreadLocal = new ThreadLocal<>();
 
     public static InvokeFuture<?> future() {
         InvokeFuture<?> future = checkNotNull(futureThreadLocal.get(), "future");
@@ -35,10 +34,14 @@ public class InvokeFutureContext {
         return future;
     }
 
-    public static InvokeFuture<?>[] futures() {
-        InvokeFuture<?>[] futures = checkNotNull(futureGroupThreadLocal.get(), "futures");
-        futureGroupThreadLocal.remove();
-        return futures;
+    public static InvokeFuture<?>[] groupFutures() {
+        InvokeFuture<?> future = future();
+
+        if (future instanceof InvokeFutureGroup) {
+            return ((InvokeFutureGroup) future).futures();
+        } else {
+            throw new UnsupportedOperationException("broadcast");
+        }
     }
 
     @SuppressWarnings("unchecked")
@@ -50,8 +53,8 @@ public class InvokeFutureContext {
     }
 
     @SuppressWarnings("unchecked")
-    public static <V> InvokeFuture<V>[] futures(Class<V> expectReturnType) {
-        InvokeFuture<?>[] futures = futures();
+    public static <V> InvokeFuture<V>[] groupFutures(Class<V> expectReturnType) {
+        InvokeFuture<?>[] futures = groupFutures();
         InvokeFuture<V>[] v_futures = new InvokeFuture[futures.length];
         for (int i = 0; i < futures.length; i++) {
             InvokeFuture<?> f = futures[i];
@@ -62,14 +65,8 @@ public class InvokeFutureContext {
         return v_futures;
     }
 
-    public static void set(Object obj) {
-        if (obj instanceof InvokeFuture<?>) {
-            futureThreadLocal.set((InvokeFuture<?>) obj);
-        } else if (obj instanceof InvokeFuture<?>[]) {
-            futureGroupThreadLocal.set((InvokeFuture<?>[]) obj);
-        } else {
-            throw new IllegalArgumentException();
-        }
+    public static void set(InvokeFuture<?> future) {
+        futureThreadLocal.set(future);
     }
 
     private static void checkReturnType(Class<?> realType, Class<?> expectType) {

@@ -16,5 +16,9 @@
 
 /**
  * 泛化调用example
+ *
+ * 1. 先启动GenericJupiterRegistryServer
+ * 2. 再启动GenericJupiterServer
+ * 3. 最后启动GenericJupiterClient
  */
 package org.jupiter.example.generic;

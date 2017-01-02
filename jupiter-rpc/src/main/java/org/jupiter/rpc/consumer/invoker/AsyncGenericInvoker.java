@@ -17,6 +17,7 @@
 package org.jupiter.rpc.consumer.invoker;
 
 import org.jupiter.rpc.consumer.cluster.ClusterInvoker;
+import org.jupiter.rpc.consumer.future.InvokeFuture;
 import org.jupiter.rpc.consumer.future.InvokeFutureContext;
 
 /**
@@ -37,8 +38,8 @@ public class AsyncGenericInvoker implements GenericInvoker {
 
     @Override
     public Object $invoke(String methodName, Object... args) throws Throwable {
-        Object val = clusterInvoker.invoke(methodName, args, Object.class);
-        InvokeFutureContext.set(val);
+        InvokeFuture<?> future = clusterInvoker.invoke(methodName, args, Object.class);
+        InvokeFutureContext.set(future);
         return null;
     }
 }

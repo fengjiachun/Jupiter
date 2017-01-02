@@ -18,6 +18,7 @@ package org.jupiter.rpc.consumer.dispatcher;
 
 import org.jupiter.rpc.JClient;
 import org.jupiter.rpc.JRequest;
+import org.jupiter.rpc.consumer.future.DefaultInvokeFuture;
 import org.jupiter.rpc.consumer.future.InvokeFuture;
 import org.jupiter.rpc.load.balance.LoadBalancer;
 import org.jupiter.rpc.model.metadata.MessageWrapper;
@@ -44,7 +45,7 @@ public class DefaultRoundDispatcher extends AbstractDispatcher {
     }
 
     @Override
-    public Object dispatch(JClient client, String methodName, Object[] args, Class<?> returnType) {
+    public InvokeFuture<?> dispatch(JClient client, String methodName, Object[] args, Class<?> returnType) {
         // stack copy
         final Serializer _serializer = getSerializer();
 
@@ -66,15 +67,15 @@ public class DefaultRoundDispatcher extends AbstractDispatcher {
         request.bytes(s_code, bytes);
 
         long timeoutMillis = getMethodSpecialTimeoutMillis(methodName);
-        InvokeFuture<?> future = asFuture(request, channel, returnType, timeoutMillis)
+        DefaultInvokeFuture<?> future = asFuture(request, channel, returnType, timeoutMillis)
                 .hooks(getHooks());
 
         return write(channel, request, future, ROUND);
     }
 
     @Override
-    public Object dispatch(
-            JClient client, JChannel channel, String methodName, Object[] args, Class<?> returnType, long timeoutMillis) {
+    public InvokeFuture<?> dispatch(
+            JClient client, JChannel channel, String methodName, Object[] args, Class<?> returnType) {
         // stack copy
         final Serializer _serializer = getSerializer();
 
@@ -93,7 +94,8 @@ public class DefaultRoundDispatcher extends AbstractDispatcher {
         request.message(message);
         request.bytes(s_code, bytes);
 
-        InvokeFuture<?> future = asFuture(request, channel, returnType, timeoutMillis)
+        long timeoutMillis = getMethodSpecialTimeoutMillis(methodName);
+        DefaultInvokeFuture<?> future = asFuture(request, channel, returnType, timeoutMillis)
                 .hooks(getHooks());
 
         return write(channel, request, future, ROUND);
@@ -101,7 +103,7 @@ public class DefaultRoundDispatcher extends AbstractDispatcher {
 
     @SuppressWarnings("unchecked")
     @Override
-    protected InvokeFuture<?> asFuture(JRequest request, JChannel channel, Class<?> returnType, long timeoutMillis) {
-        return new InvokeFuture(request.invokeId(), channel, returnType, timeoutMillis);
+    protected DefaultInvokeFuture<?> asFuture(JRequest request, JChannel channel, Class<?> returnType, long timeoutMillis) {
+        return new DefaultInvokeFuture(request.invokeId(), channel, returnType, timeoutMillis);
     }
 }

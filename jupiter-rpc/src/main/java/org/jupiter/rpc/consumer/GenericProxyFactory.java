@@ -268,7 +268,7 @@ public class GenericProxyFactory {
             case SYNC:
                 return new SyncGenericInvoker(asClusterInvoker(strategy, dispatcher));
             case ASYNC:
-                return new AsyncGenericInvoker(asClusterInvoker(null, dispatcher));
+                return new AsyncGenericInvoker(asClusterInvoker(strategy, dispatcher));
             default:
                 throw new IllegalStateException("InvokeType: " + invokeType);
         }
@@ -287,10 +287,6 @@ public class GenericProxyFactory {
     }
 
     private ClusterInvoker asClusterInvoker(ClusterInvoker.Strategy strategy, Dispatcher dispatcher) {
-        if (strategy == null) {
-            return new FakeClusterInvoker(client, dispatcher);
-        }
-
         switch (strategy) {
             case FAIL_FAST:
                 return new FailFastClusterInvoker(client, dispatcher);

@@ -44,8 +44,7 @@ public class FailFastClusterInvoker extends AbstractClusterInvoker {
     }
 
     @Override
-    public Object invoke(String methodName, Object[] args, Class<?> returnType) throws Exception {
-        Object val = dispatcher.dispatch(client, methodName, args, returnType);
-        return ((InvokeFuture<?>) val).getResult();
+    public InvokeFuture<?> invoke(String methodName, Object[] args, Class<?> returnType) throws Exception {
+        return dispatcher.dispatch(client, methodName, args, returnType);
     }
 }

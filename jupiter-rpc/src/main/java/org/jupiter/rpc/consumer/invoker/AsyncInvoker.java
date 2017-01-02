@@ -21,6 +21,7 @@ import net.bytebuddy.implementation.bind.annotation.Origin;
 import net.bytebuddy.implementation.bind.annotation.RuntimeType;
 import org.jupiter.common.util.Reflects;
 import org.jupiter.rpc.consumer.cluster.ClusterInvoker;
+import org.jupiter.rpc.consumer.future.InvokeFuture;
 import org.jupiter.rpc.consumer.future.InvokeFutureContext;
 
 import java.lang.reflect.Method;
@@ -47,8 +48,8 @@ public class AsyncInvoker {
     @RuntimeType
     public Object invoke(@Origin Method method, @AllArguments @RuntimeType Object[] args) throws Throwable {
         Class<?> returnType = method.getReturnType();
-        Object val = clusterInvoker.invoke(method.getName(), args, returnType);
-        InvokeFutureContext.set(val);
+        InvokeFuture<?> future = clusterInvoker.invoke(method.getName(), args, returnType);
+        InvokeFutureContext.set(future);
         return Reflects.getTypeDefaultValue(returnType);
     }
 }

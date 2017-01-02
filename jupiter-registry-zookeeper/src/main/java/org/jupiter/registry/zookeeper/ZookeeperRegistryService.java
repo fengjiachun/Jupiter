@@ -122,7 +122,7 @@ public class ZookeeperRegistryService extends AbstractRegistryService {
 
                                 serviceMetaSet.add(serviceMeta);
                                 ZookeeperRegistryService.this.notify(
-                                        serviceMeta, registerMeta, CHILD_ADDED, sequence.getAndIncrement());
+                                        serviceMeta, CHILD_ADDED, sequence.getAndIncrement(), registerMeta);
 
                                 break;
                             }
@@ -134,7 +134,7 @@ public class ZookeeperRegistryService extends AbstractRegistryService {
 
                                 serviceMetaSet.remove(serviceMeta);
                                 ZookeeperRegistryService.this.notify(
-                                        serviceMeta, registerMeta, CHILD_REMOVED, sequence.getAndIncrement());
+                                        serviceMeta, CHILD_REMOVED, sequence.getAndIncrement(), registerMeta);
 
                                 if (serviceMetaSet.isEmpty()) {
                                     logger.info("Offline notify: {}.", address);

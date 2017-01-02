@@ -18,6 +18,8 @@ package org.jupiter.rpc.consumer.dispatcher;
 
 import org.jupiter.rpc.JClient;
 import org.jupiter.rpc.JRequest;
+import org.jupiter.rpc.consumer.future.DefaultInvokeFutureGroup;
+import org.jupiter.rpc.consumer.future.DefaultInvokeFuture;
 import org.jupiter.rpc.consumer.future.InvokeFuture;
 import org.jupiter.rpc.load.balance.LoadBalancer;
 import org.jupiter.rpc.model.metadata.MessageWrapper;
@@ -45,19 +47,18 @@ public class DefaultBroadcastDispatcher extends AbstractDispatcher {
     }
 
     @Override
-    public Object dispatch(JClient client, String methodName, Object[] args, Class<?> returnType) {
+    public InvokeFuture<?> dispatch(JClient client, String methodName, Object[] args, Class<?> returnType) {
         // stack copy
-        final ServiceMetadata _metadata = getMetadata();
         final Serializer _serializer = getSerializer();
 
-        MessageWrapper message = new MessageWrapper(_metadata);
+        MessageWrapper message = new MessageWrapper(getMetadata());
         message.setAppName(client.appName());
         message.setMethodName(methodName);
         message.setArgs(args);
 
-        CopyOnWriteGroupList groups = client.connector().directory(_metadata);
+        CopyOnWriteGroupList groups = selectAll(client);
         JChannel[] channels = new JChannel[groups.size()];
-        InvokeFuture<?>[] futures = new InvokeFuture[channels.length];
+        InvokeFuture<?>[] futures = new DefaultInvokeFuture[channels.length];
         for (int i = 0; i < groups.size(); i++) {
             channels[i] = groups.get(i).next();
         }
@@ -72,17 +73,17 @@ public class DefaultBroadcastDispatcher extends AbstractDispatcher {
         long timeoutMillis = getMethodSpecialTimeoutMillis(methodName);
         for (int i = 0; i < channels.length; i++) {
             JChannel ch = channels[i];
-            InvokeFuture<?> future = asFuture(request, ch, returnType, timeoutMillis)
+            DefaultInvokeFuture<?> future = asFuture(request, ch, returnType, timeoutMillis)
                     .hooks(getHooks());
             futures[i] = write(ch, request, future, BROADCAST);
         }
 
-        return futures;
+        return DefaultInvokeFutureGroup.with(futures);
     }
 
     @SuppressWarnings("unchecked")
     @Override
-    protected InvokeFuture<?> asFuture(JRequest request, JChannel channel, Class<?> returnType, long timeoutMillis) {
-        return new InvokeFuture(request.invokeId(), channel, returnType, timeoutMillis, BROADCAST);
+    protected DefaultInvokeFuture<?> asFuture(JRequest request, JChannel channel, Class<?> returnType, long timeoutMillis) {
+        return new DefaultInvokeFuture(request.invokeId(), channel, returnType, timeoutMillis, BROADCAST);
     }
 }

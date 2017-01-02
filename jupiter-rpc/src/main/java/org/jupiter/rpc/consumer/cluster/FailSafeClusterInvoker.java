@@ -16,13 +16,14 @@
 
 package org.jupiter.rpc.consumer.cluster;
 
-import org.jupiter.common.util.internal.logging.InternalLogger;
-import org.jupiter.common.util.internal.logging.InternalLoggerFactory;
 import org.jupiter.rpc.JClient;
+import org.jupiter.rpc.consumer.dispatcher.DefaultRoundDispatcher;
 import org.jupiter.rpc.consumer.dispatcher.Dispatcher;
+import org.jupiter.rpc.consumer.future.FailSafeInvokeFuture;
 import org.jupiter.rpc.consumer.future.InvokeFuture;
 
-import static org.jupiter.common.util.StackTraceUtil.stackTrace;
+import static org.jupiter.common.util.Preconditions.checkArgument;
+import static org.jupiter.common.util.Reflects.simpleClassName;
 
 /**
  * 失败安全, 出现异常时, 直接忽略.
@@ -38,10 +39,13 @@ import static org.jupiter.common.util.StackTraceUtil.stackTrace;
  */
 public class FailSafeClusterInvoker extends AbstractClusterInvoker {
 
-    private static final InternalLogger logger = InternalLoggerFactory.getInstance(FailSafeClusterInvoker.class);
-
     public FailSafeClusterInvoker(JClient client, Dispatcher dispatcher) {
         super(client, dispatcher);
+
+        checkArgument(
+                dispatcher instanceof DefaultRoundDispatcher,
+                simpleClassName(dispatcher) + " is unsupported [FailSafeClusterInvoker]"
+        );
     }
 
     @Override
@@ -50,13 +54,8 @@ public class FailSafeClusterInvoker extends AbstractClusterInvoker {
     }
 
     @Override
-    public Object invoke(String methodName, Object[] args, Class<?> returnType) throws Exception {
-        try {
-            Object val = dispatcher.dispatch(client, methodName, args, returnType);
-            return ((InvokeFuture<?>) val).getResult();
-        } catch (Throwable t) {
-            logger.warn("Ignored exception on [{}] cluster invoker: {}.", name(), stackTrace(t));
-        }
-        return null;
+    public InvokeFuture<?> invoke(String methodName, Object[] args, Class<?> returnType) throws Exception {
+        InvokeFuture<?> future = dispatcher.dispatch(client, methodName, args, returnType);
+        return new FailSafeInvokeFuture<>(name(), future);
     }
 }
