@@ -26,8 +26,6 @@ import org.jupiter.rpc.consumer.future.FailOverInvokeFuture;
 import org.jupiter.rpc.consumer.future.InvokeFuture;
 import org.jupiter.rpc.exception.JupiterBizException;
 import org.jupiter.rpc.exception.JupiterRemoteException;
-import org.jupiter.transport.channel.CopyOnWriteGroupList;
-import org.jupiter.transport.channel.JChannel;
 
 import static org.jupiter.common.util.Preconditions.checkArgument;
 import static org.jupiter.common.util.Reflects.simpleClassName;
@@ -89,19 +87,7 @@ public class FailOverClusterInvoker extends AbstractClusterInvoker {
                          Throwable lastCause) {
 
         if (tryCount > 0 && isFailoverNeeded(lastCause)) {
-            InvokeFuture<?> val;
-            if (retries == tryCount - 1) {
-                // first attempts to get channel by LoadBalancer
-                val = dispatcher.dispatch(client, methodName, args, returnType);
-            } else {
-                // retry
-                CopyOnWriteGroupList groups = dispatcher.selectAll(client);
-                int index = retries - tryCount + 1;
-                JChannel channel = groups.get(index % groups.size()).next();
-                val = dispatcher.dispatch(client, channel, methodName, args, returnType);
-            }
-
-            InvokeFuture<Object> f = (InvokeFuture<Object>) val;
+            InvokeFuture<Object> f = (InvokeFuture<Object>) dispatcher.dispatch(client, methodName, args, returnType);
 
             f.addListener(new JListener<Object>() {
 

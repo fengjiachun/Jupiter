@@ -22,7 +22,6 @@ import org.jupiter.common.util.internal.logging.InternalLogger;
 import org.jupiter.common.util.internal.logging.InternalLoggerFactory;
 import org.jupiter.rpc.*;
 import org.jupiter.rpc.consumer.future.DefaultInvokeFuture;
-import org.jupiter.rpc.consumer.future.InvokeFuture;
 import org.jupiter.rpc.load.balance.LoadBalancer;
 import org.jupiter.rpc.model.metadata.MessageWrapper;
 import org.jupiter.rpc.model.metadata.ResultWrapper;
@@ -72,15 +71,13 @@ public abstract class AbstractDispatcher implements Dispatcher {
         this.serializerImpl = SerializerFactory.getSerializer(serializerType.value());
     }
 
-    @Override
-    public InvokeFuture<?> dispatch(JClient client, JChannel channel, String methodName, Object[] args, Class<?> returnType) {
-        throw new UnsupportedOperationException();
-    }
-
     @SuppressWarnings("all")
     @Override
     public JChannel select(JClient client, MessageWrapper message) {
-        CopyOnWriteGroupList groups = selectAll(client);
+        // stack copy
+        final ServiceMetadata _metadata = metadata;
+
+        CopyOnWriteGroupList groups = client.connector().directory(_metadata);
         JChannelGroup group = loadBalancer.select(groups, message);
 
         if (group != null) {
@@ -93,11 +90,11 @@ public abstract class AbstractDispatcher implements Dispatcher {
             if (deadline > 0 && SystemClock.millisClock().now() > deadline) {
                 boolean removed = groups.remove(group);
                 if (removed) {
-                    logger.warn("Removed channel group: {} in directory: {} on [select].", group, metadata.directory());
+                    logger.warn("Removed channel group: {} in directory: {} on [select].", group, _metadata.directory());
                 }
             }
         } else {
-            if (!client.awaitConnections(metadata, 3000)) {
+            if (!client.awaitConnections(_metadata, 3000)) {
                 throw new IllegalStateException("no connections");
             }
         }
@@ -111,11 +108,6 @@ public abstract class AbstractDispatcher implements Dispatcher {
         }
 
         throw new IllegalStateException("no channel");
-    }
-
-    @Override
-    public CopyOnWriteGroupList selectAll(JClient client) {
-        return client.connector().directory(metadata);
     }
 
     @Override

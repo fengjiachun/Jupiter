@@ -73,34 +73,6 @@ public class DefaultRoundDispatcher extends AbstractDispatcher {
         return write(channel, request, future, ROUND);
     }
 
-    @Override
-    public InvokeFuture<?> dispatch(
-            JClient client, JChannel channel, String methodName, Object[] args, Class<?> returnType) {
-        // stack copy
-        final Serializer _serializer = getSerializer();
-
-        MessageWrapper message = new MessageWrapper(getMetadata());
-        message.setAppName(client.appName());
-        message.setMethodName(methodName);
-        message.setArgs(args);
-
-        JRequest request = new JRequest();
-
-        doTracing(request, message, methodName, channel);
-
-        byte s_code = _serializer.code();
-        byte[] bytes = _serializer.writeObject(message); // 在业务线程中序列化, 减轻IO线程负担
-
-        request.message(message);
-        request.bytes(s_code, bytes);
-
-        long timeoutMillis = getMethodSpecialTimeoutMillis(methodName);
-        DefaultInvokeFuture<?> future = asFuture(request, channel, returnType, timeoutMillis)
-                .hooks(getHooks());
-
-        return write(channel, request, future, ROUND);
-    }
-
     @SuppressWarnings("unchecked")
     @Override
     protected DefaultInvokeFuture<?> asFuture(JRequest request, JChannel channel, Class<?> returnType, long timeoutMillis) {

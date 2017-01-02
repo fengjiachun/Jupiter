@@ -49,14 +49,15 @@ public class DefaultBroadcastDispatcher extends AbstractDispatcher {
     @Override
     public InvokeFuture<?> dispatch(JClient client, String methodName, Object[] args, Class<?> returnType) {
         // stack copy
+        final ServiceMetadata _metadata = getMetadata();
         final Serializer _serializer = getSerializer();
 
-        MessageWrapper message = new MessageWrapper(getMetadata());
+        MessageWrapper message = new MessageWrapper(_metadata);
         message.setAppName(client.appName());
         message.setMethodName(methodName);
         message.setArgs(args);
 
-        CopyOnWriteGroupList groups = selectAll(client);
+        CopyOnWriteGroupList groups = client.connector().directory(_metadata);
         JChannel[] channels = new JChannel[groups.size()];
         InvokeFuture<?>[] futures = new DefaultInvokeFuture[channels.length];
         for (int i = 0; i < groups.size(); i++) {
