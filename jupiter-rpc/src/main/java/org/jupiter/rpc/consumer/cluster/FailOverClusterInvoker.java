@@ -101,7 +101,7 @@ public class FailOverClusterInvoker extends AbstractClusterInvoker {
                     logger.warn("[Fail-over] retry, [{}] attempts left, [method: {}], [metadata: {}]",
                             tryCount - 1,
                             methodName,
-                            dispatcher.getMetadata()
+                            dispatcher.metadata()
                     );
 
                     invoke0(methodName, args, returnType, tryCount - 1, future, cause);

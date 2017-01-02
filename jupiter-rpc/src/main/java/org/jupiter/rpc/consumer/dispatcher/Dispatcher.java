@@ -19,10 +19,8 @@ package org.jupiter.rpc.consumer.dispatcher;
 import org.jupiter.rpc.ConsumerHook;
 import org.jupiter.rpc.JClient;
 import org.jupiter.rpc.consumer.future.InvokeFuture;
-import org.jupiter.rpc.model.metadata.MessageWrapper;
 import org.jupiter.rpc.model.metadata.ServiceMetadata;
 import org.jupiter.serialization.Serializer;
-import org.jupiter.transport.channel.JChannel;
 
 import java.util.List;
 import java.util.Map;
@@ -42,24 +40,11 @@ public interface Dispatcher {
      */
     InvokeFuture<?> dispatch(JClient client, String methodName, Object[] args, Class<?> returnType);
 
-    /**
-     * Selects a {@link JChannel} from the load balancer.
-     */
-    JChannel select(JClient client, MessageWrapper message);
+    ServiceMetadata metadata();
 
-    ServiceMetadata getMetadata();
+    Dispatcher hooks(List<ConsumerHook> hooks);
 
-    Serializer getSerializer();
+    Dispatcher timeoutMillis(long timeoutMillis);
 
-    ConsumerHook[] getHooks();
-
-    void setHooks(List<ConsumerHook> hooks);
-
-    long getTimeoutMillis();
-
-    void setTimeoutMillis(long timeoutMillis);
-
-    long getMethodSpecialTimeoutMillis(String methodName);
-
-    void setMethodsSpecialTimeoutMillis(Map<String, Long> methodsSpecialTimeoutMillis);
+    Dispatcher methodsSpecialTimeoutMillis(Map<String, Long> methodsSpecialTimeoutMillis);
 }

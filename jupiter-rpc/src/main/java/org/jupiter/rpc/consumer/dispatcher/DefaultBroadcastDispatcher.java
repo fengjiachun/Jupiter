@@ -49,8 +49,8 @@ public class DefaultBroadcastDispatcher extends AbstractDispatcher {
     @Override
     public InvokeFuture<?> dispatch(JClient client, String methodName, Object[] args, Class<?> returnType) {
         // stack copy
-        final ServiceMetadata _metadata = getMetadata();
-        final Serializer _serializer = getSerializer();
+        final ServiceMetadata _metadata = metadata();
+        final Serializer _serializer = serializer();
 
         MessageWrapper message = new MessageWrapper(_metadata);
         message.setAppName(client.appName());
@@ -71,11 +71,11 @@ public class DefaultBroadcastDispatcher extends AbstractDispatcher {
         request.message(message);
         request.bytes(s_code, bytes);
 
-        long timeoutMillis = getMethodSpecialTimeoutMillis(methodName);
+        long timeoutMillis = methodSpecialTimeoutMillis(methodName);
         for (int i = 0; i < channels.length; i++) {
             JChannel ch = channels[i];
             DefaultInvokeFuture<?> future = asFuture(request, ch, returnType, timeoutMillis)
-                    .hooks(getHooks());
+                    .hooks(hooks());
             futures[i] = write(ch, request, future, BROADCAST);
         }
 

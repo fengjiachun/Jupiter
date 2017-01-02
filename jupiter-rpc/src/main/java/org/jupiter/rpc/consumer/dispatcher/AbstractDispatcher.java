@@ -53,7 +53,7 @@ import static org.jupiter.transport.Status.CLIENT_ERROR;
  *
  * @author jiachun.fjc
  */
-public abstract class AbstractDispatcher implements Dispatcher {
+abstract class AbstractDispatcher implements Dispatcher {
 
     private static final InternalLogger logger = InternalLoggerFactory.getInstance(AbstractDispatcher.class);
 
@@ -71,9 +71,53 @@ public abstract class AbstractDispatcher implements Dispatcher {
         this.serializerImpl = SerializerFactory.getSerializer(serializerType.value());
     }
 
-    @SuppressWarnings("all")
     @Override
-    public JChannel select(JClient client, MessageWrapper message) {
+    public ServiceMetadata metadata() {
+        return metadata;
+    }
+
+    public Serializer serializer() {
+        return serializerImpl;
+    }
+
+    public ConsumerHook[] hooks() {
+        return hooks;
+    }
+
+    @Override
+    public Dispatcher hooks(List<ConsumerHook> hooks) {
+        if (hooks != null && !hooks.isEmpty()) {
+            this.hooks = hooks.toArray(new ConsumerHook[hooks.size()]);
+        }
+        return this;
+    }
+
+    @Override
+    public Dispatcher timeoutMillis(long timeoutMillis) {
+        if (timeoutMillis > 0) {
+            this.timeoutMillis = timeoutMillis;
+        }
+        return this;
+    }
+
+    @Override
+    public Dispatcher methodsSpecialTimeoutMillis(Map<String, Long> methodsSpecialTimeoutMillis) {
+        if (methodsSpecialTimeoutMillis != null && !methodsSpecialTimeoutMillis.isEmpty()) {
+            this.methodsSpecialTimeoutMillis.putAll(methodsSpecialTimeoutMillis);
+        }
+        return this;
+    }
+
+    public long methodSpecialTimeoutMillis(String methodName) {
+        Long methodSpecialTimeoutMillis = methodsSpecialTimeoutMillis.get(methodName);
+        if (methodSpecialTimeoutMillis != null && methodSpecialTimeoutMillis > 0) {
+            return methodSpecialTimeoutMillis;
+        }
+        return timeoutMillis;
+    }
+
+    @SuppressWarnings("all")
+    protected JChannel select(JClient client, MessageWrapper message) {
         // stack copy
         final ServiceMetadata _metadata = metadata;
 
@@ -108,52 +152,6 @@ public abstract class AbstractDispatcher implements Dispatcher {
         }
 
         throw new IllegalStateException("no channel");
-    }
-
-    @Override
-    public ServiceMetadata getMetadata() {
-        return metadata;
-    }
-
-    @Override
-    public Serializer getSerializer() {
-        return serializerImpl;
-    }
-
-    @Override
-    public ConsumerHook[] getHooks() {
-        return hooks;
-    }
-
-    @Override
-    public void setHooks(List<ConsumerHook> hooks) {
-        if (!hooks.isEmpty()) {
-            this.hooks = hooks.toArray(new ConsumerHook[hooks.size()]);
-        }
-    }
-
-    @Override
-    public long getTimeoutMillis() {
-        return timeoutMillis;
-    }
-
-    @Override
-    public void setTimeoutMillis(long timeoutMillis) {
-        this.timeoutMillis = timeoutMillis;
-    }
-
-    @Override
-    public long getMethodSpecialTimeoutMillis(String methodName) {
-        Long methodSpecialTimeoutMillis = methodsSpecialTimeoutMillis.get(methodName);
-        if (methodSpecialTimeoutMillis != null && methodSpecialTimeoutMillis > 0) {
-            return methodSpecialTimeoutMillis;
-        }
-        return timeoutMillis;
-    }
-
-    @Override
-    public void setMethodsSpecialTimeoutMillis(Map<String, Long> methodsSpecialTimeoutMillis) {
-        this.methodsSpecialTimeoutMillis.putAll(methodsSpecialTimeoutMillis);
     }
 
     // Tracing

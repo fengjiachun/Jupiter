@@ -22,7 +22,10 @@ import org.jupiter.rpc.ConsumerHook;
 import org.jupiter.rpc.DispatchType;
 import org.jupiter.rpc.InvokeType;
 import org.jupiter.rpc.JClient;
-import org.jupiter.rpc.consumer.cluster.*;
+import org.jupiter.rpc.consumer.cluster.ClusterInvoker;
+import org.jupiter.rpc.consumer.cluster.FailFastClusterInvoker;
+import org.jupiter.rpc.consumer.cluster.FailOverClusterInvoker;
+import org.jupiter.rpc.consumer.cluster.FailSafeClusterInvoker;
 import org.jupiter.rpc.consumer.dispatcher.DefaultBroadcastDispatcher;
 import org.jupiter.rpc.consumer.dispatcher.DefaultRoundDispatcher;
 import org.jupiter.rpc.consumer.dispatcher.Dispatcher;
@@ -255,14 +258,10 @@ public class GenericProxyFactory {
         }
 
         // dispatcher
-        Dispatcher dispatcher = asDispatcher(metadata, serializerType);
-        if (timeoutMillis > 0) {
-            dispatcher.setTimeoutMillis(timeoutMillis);
-        }
-        if (!methodsSpecialTimeoutMillis.isEmpty()) {
-            dispatcher.setMethodsSpecialTimeoutMillis(methodsSpecialTimeoutMillis);
-        }
-        dispatcher.setHooks(hooks);
+        Dispatcher dispatcher = asDispatcher(metadata, serializerType)
+                .hooks(hooks)
+                .timeoutMillis(timeoutMillis)
+                .methodsSpecialTimeoutMillis(methodsSpecialTimeoutMillis);
 
         switch (invokeType) {
             case SYNC:

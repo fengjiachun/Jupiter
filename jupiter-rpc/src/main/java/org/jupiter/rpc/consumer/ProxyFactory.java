@@ -18,7 +18,10 @@ package org.jupiter.rpc.consumer;
 
 import org.jupiter.common.util.*;
 import org.jupiter.rpc.*;
-import org.jupiter.rpc.consumer.cluster.*;
+import org.jupiter.rpc.consumer.cluster.ClusterInvoker;
+import org.jupiter.rpc.consumer.cluster.FailFastClusterInvoker;
+import org.jupiter.rpc.consumer.cluster.FailOverClusterInvoker;
+import org.jupiter.rpc.consumer.cluster.FailSafeClusterInvoker;
 import org.jupiter.rpc.consumer.dispatcher.DefaultBroadcastDispatcher;
 import org.jupiter.rpc.consumer.dispatcher.DefaultRoundDispatcher;
 import org.jupiter.rpc.consumer.dispatcher.Dispatcher;
@@ -233,14 +236,10 @@ public class ProxyFactory<I> {
         }
 
         // dispatcher
-        Dispatcher dispatcher = asDispatcher(metadata, serializerType);
-        if (timeoutMillis > 0) {
-            dispatcher.setTimeoutMillis(timeoutMillis);
-        }
-        if (!methodsSpecialTimeoutMillis.isEmpty()) {
-            dispatcher.setMethodsSpecialTimeoutMillis(methodsSpecialTimeoutMillis);
-        }
-        dispatcher.setHooks(hooks);
+        Dispatcher dispatcher = asDispatcher(metadata, serializerType)
+                .hooks(hooks)
+                .timeoutMillis(timeoutMillis)
+                .methodsSpecialTimeoutMillis(methodsSpecialTimeoutMillis);
 
         Object handler;
         switch (invokeType) {

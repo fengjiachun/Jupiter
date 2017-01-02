@@ -47,9 +47,9 @@ public class DefaultRoundDispatcher extends AbstractDispatcher {
     @Override
     public InvokeFuture<?> dispatch(JClient client, String methodName, Object[] args, Class<?> returnType) {
         // stack copy
-        final Serializer _serializer = getSerializer();
+        final Serializer _serializer = serializer();
 
-        MessageWrapper message = new MessageWrapper(getMetadata());
+        MessageWrapper message = new MessageWrapper(metadata());
         message.setAppName(client.appName());
         message.setMethodName(methodName);
         message.setArgs(args);
@@ -66,9 +66,9 @@ public class DefaultRoundDispatcher extends AbstractDispatcher {
         request.message(message);
         request.bytes(s_code, bytes);
 
-        long timeoutMillis = getMethodSpecialTimeoutMillis(methodName);
+        long timeoutMillis = methodSpecialTimeoutMillis(methodName);
         DefaultInvokeFuture<?> future = asFuture(request, channel, returnType, timeoutMillis)
-                .hooks(getHooks());
+                .hooks(hooks());
 
         return write(channel, request, future, ROUND);
     }
