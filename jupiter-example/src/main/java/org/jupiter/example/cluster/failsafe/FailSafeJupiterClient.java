@@ -58,7 +58,7 @@ public class FailSafeJupiterClient {
                 .newProxyInstance();
 
         try {
-            System.err.println(syncService.hello());
+            System.err.println("Sync result=" + syncService.helloInt());
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -73,13 +73,32 @@ public class FailSafeJupiterClient {
                 .newProxyInstance();
 
         try {
-            System.out.println(asyncService.hello());
-            InvokeFuture<String> future = InvokeFutureContext.future(String.class);
-            future.addListener(new JListener<String>() {
+            asyncService.helloInt();
+            // 两种方式都可以
+            InvokeFuture<Integer> future_int = InvokeFutureContext.future(int.class);
+//            InvokeFuture<Integer> future_int = InvokeFutureContext.future(Integer.TYPE);
+            future_int.addListener(new JListener<Integer>() {
 
                 @Override
-                public void complete(String result) {
-                    System.err.println(result);
+                public void complete(Integer result) {
+                    System.err.println("Async int result=" + result);
+                }
+
+                @Override
+                public void failure(Throwable cause) {
+                    cause.printStackTrace();
+                }
+            });
+
+            asyncService.helloVoid();
+            // 两种方式都可以
+//            InvokeFuture<Void> future_void = InvokeFutureContext.future(void.class);
+            InvokeFuture<Void> future_void = InvokeFutureContext.future(Void.TYPE);
+            future_void.addListener(new JListener<Void>() {
+
+                @Override
+                public void complete(Void result) {
+                    System.err.println("Async void result=" + result);
                 }
 
                 @Override

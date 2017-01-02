@@ -28,7 +28,17 @@ import org.jupiter.rpc.ServiceProviderImpl;
 public class ClusterSuccessServiceImpl implements ClusterService {
 
     @Override
-    public String hello() {
+    public String helloString() {
         return "success";
+    }
+
+    @Override
+    public int helloInt() {
+        return 1;
+    }
+
+    @Override
+    public void helloVoid() {
+        System.out.println("Void");
     }
 }

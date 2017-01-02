@@ -21,6 +21,7 @@ import org.jupiter.common.util.internal.logging.InternalLoggerFactory;
 import org.jupiter.rpc.JListener;
 
 import static org.jupiter.common.util.Preconditions.checkNotNull;
+import static org.jupiter.common.util.Reflects.getTypeDefaultValue;
 import static org.jupiter.common.util.StackTraceUtil.stackTrace;
 
 /**
@@ -33,11 +34,9 @@ public class FailSafeInvokeFuture<V> implements InvokeFuture<V> {
 
     private static final InternalLogger logger = InternalLoggerFactory.getInstance(FailSafeInvokeFuture.class);
 
-    private final String name;
     private final InvokeFuture<V> future;
 
-    public FailSafeInvokeFuture(String name, InvokeFuture<V> future) {
-        this.name = name;
+    public FailSafeInvokeFuture(InvokeFuture<V> future) {
         this.future = future;
     }
 
@@ -46,14 +45,15 @@ public class FailSafeInvokeFuture<V> implements InvokeFuture<V> {
         return future.returnType();
     }
 
+    @SuppressWarnings("unchecked")
     @Override
     public V getResult() throws Throwable {
         try {
             return future.getResult();
         } catch (Throwable t) {
-            logger.warn("Ignored exception on [{}] : {}.", name, stackTrace(t));
+            logger.warn("Ignored exception on [Fail-safe] : {}.", stackTrace(t));
         }
-        return null;
+        return (V) getTypeDefaultValue(returnType());
     }
 
     @Override
@@ -106,11 +106,12 @@ public class FailSafeInvokeFuture<V> implements InvokeFuture<V> {
             listener.complete(result);
         }
 
+        @SuppressWarnings("unchecked")
         @Override
         public void failure(Throwable cause) {
-            logger.warn("Ignored exception on [{}] : {}.", name, stackTrace(cause));
+            logger.warn("Ignored exception on [Fail-safe] : {}.", stackTrace(cause));
 
-            listener.complete(null);
+            listener.complete((T) getTypeDefaultValue(returnType()));
         }
     }
 }

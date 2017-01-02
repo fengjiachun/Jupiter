@@ -28,7 +28,7 @@ import org.jupiter.rpc.ServiceProviderImpl;
 public class ClusterFailServiceImpl implements ClusterService {
 
     @Override
-    public String hello() {
+    public String helloString() {
         // 模拟服务超时
         try {
             Thread.sleep(3100);
@@ -36,5 +36,26 @@ public class ClusterFailServiceImpl implements ClusterService {
             e.printStackTrace();
         }
         return "fail";
+    }
+
+    @Override
+    public int helloInt() {
+        // 模拟服务超时
+        try {
+            Thread.sleep(3100);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        return 0;
+    }
+
+    @Override
+    public void helloVoid() {
+        // 模拟服务超时
+        try {
+            Thread.sleep(3100);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
     }
 }

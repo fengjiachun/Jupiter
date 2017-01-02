@@ -58,7 +58,7 @@ public class FailFastJupiterClient {
                 .newProxyInstance();
 
         try {
-            System.err.println(syncService.hello());
+            System.err.println("Sync result=" + syncService.helloString());
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -73,13 +73,13 @@ public class FailFastJupiterClient {
                 .newProxyInstance();
 
         try {
-            System.out.println(asyncService.hello());
+            System.out.println(asyncService.helloString());
             InvokeFuture<String> future = InvokeFutureContext.future(String.class);
             future.addListener(new JListener<String>() {
 
                 @Override
                 public void complete(String result) {
-                    System.err.println(result);
+                    System.err.println("Async result=" + result);
                 }
 
                 @Override

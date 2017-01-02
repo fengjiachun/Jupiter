@@ -27,5 +27,9 @@ import org.jupiter.rpc.ServiceProvider;
 @ServiceProvider
 public interface ClusterService {
 
-    String hello();
+    String helloString();
+
+    int helloInt();
+
+    void helloVoid();
 }
