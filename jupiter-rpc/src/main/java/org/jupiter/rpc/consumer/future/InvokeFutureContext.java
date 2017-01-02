@@ -43,8 +43,8 @@ public class InvokeFutureContext {
     @SuppressWarnings("unchecked")
     public static <V> InvokeFuture<V> future(Class<V> expectReturnType) {
         InvokeFuture<?> f = future();
-        Class<?> realReturnType = f.returnType();
-        checkReturnType(realReturnType, expectReturnType);
+        checkReturnType(f.returnType(), expectReturnType);
+
         return (InvokeFuture<V>) f;
     }
 
@@ -54,8 +54,7 @@ public class InvokeFutureContext {
     @SuppressWarnings("unchecked")
     public static <V> InvokeFutureGroup<V> futureBroadcast(Class<V> expectReturnType) {
         InvokeFuture<?> f = future();
-        Class<?> realReturnType = f.returnType();
-        checkReturnType(realReturnType, expectReturnType);
+        checkReturnType(f.returnType(), expectReturnType);
 
         if (f instanceof InvokeFutureGroup) {
             return (InvokeFutureGroup<V>) f;
