@@ -160,7 +160,7 @@ public class BenchmarkClient {
             }
         }
 
-        final int t = 80000;
+        final int t = 1000000;
         long start = System.currentTimeMillis();
         final CountDownLatch latch = new CountDownLatch(processors << 4);
         final AtomicLong count = new AtomicLong();
