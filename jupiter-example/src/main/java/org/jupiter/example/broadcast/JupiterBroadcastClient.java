@@ -19,9 +19,11 @@ package org.jupiter.example.broadcast;
 import org.jupiter.example.ServiceTest;
 import org.jupiter.rpc.DefaultClient;
 import org.jupiter.rpc.JClient;
+import org.jupiter.rpc.JListener;
 import org.jupiter.rpc.consumer.ProxyFactory;
 import org.jupiter.rpc.consumer.future.InvokeFuture;
 import org.jupiter.rpc.consumer.future.InvokeFutureContext;
+import org.jupiter.rpc.consumer.future.InvokeFutureGroup;
 import org.jupiter.transport.UnresolvedAddress;
 import org.jupiter.transport.netty.JNettyTcpConnector;
 
@@ -64,20 +66,37 @@ public class JupiterBroadcastClient {
                 .newProxyInstance();
 
         try {
-            for (int i = 0; i < 10; i++) {
-                System.out.println();
-                System.out.println("try count[" + (i + 1) + "]----------------------------------------------------");
+            // callback方式
+            System.out.println("callback-------------------------------");
 
-                ServiceTest.ResultClass result = service.sayHello();
-                System.out.print("Sync result: ");
-                System.out.println(result);
+            service.sayHello();
 
-                InvokeFuture<ServiceTest.ResultClass>[] futures =
-                        InvokeFutureContext.groupFutures(ServiceTest.ResultClass.class);
-                for (InvokeFuture<ServiceTest.ResultClass> f : futures) {
-                    System.out.print("Async result: ");
-                    System.out.println(f.getResult());
+            InvokeFutureGroup<ServiceTest.ResultClass> futureGroup =
+                    InvokeFutureContext.futureBroadcast(ServiceTest.ResultClass.class);
+            futureGroup.addListener(new JListener<ServiceTest.ResultClass>() {
+
+                @Override
+                public void complete(ServiceTest.ResultClass result) {
+                    System.out.print("Callback result: ");
+                    System.out.println(result);
                 }
+
+                @Override
+                public void failure(Throwable cause) {
+                    cause.printStackTrace();
+                }
+            });
+
+            // future.get方式
+            System.out.println("future.get-------------------------------");
+
+            service.sayHello();
+
+            futureGroup =
+                    InvokeFutureContext.futureBroadcast(ServiceTest.ResultClass.class);
+            for (InvokeFuture<ServiceTest.ResultClass> f : futureGroup.futures()) {
+                System.out.print("Async result: ");
+                System.out.println(f.getResult());
             }
         } catch (Throwable e) {
             e.printStackTrace();

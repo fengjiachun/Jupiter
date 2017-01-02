@@ -52,6 +52,7 @@ public class DefaultRoundDispatcher extends AbstractDispatcher {
         MessageWrapper message = new MessageWrapper(metadata());
         message.setAppName(client.appName());
         message.setMethodName(methodName);
+        // 不需要方法参数类型, 服务端会根据args具体类型按照JLS规则动态dispatch
         message.setArgs(args);
 
         // 通过软负载均衡选择一个channel

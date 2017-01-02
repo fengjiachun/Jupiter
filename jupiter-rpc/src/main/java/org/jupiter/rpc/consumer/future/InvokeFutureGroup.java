@@ -24,7 +24,7 @@ package org.jupiter.rpc.consumer.future;
  *
  * @author jiachun.fjc
  */
-public interface InvokeFutureGroup<V> {
+public interface InvokeFutureGroup<V> extends InvokeFuture<V> {
 
     InvokeFuture<V>[] futures();
 }

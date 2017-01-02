@@ -25,8 +25,8 @@ import org.jupiter.rpc.DefaultClient;
 import org.jupiter.rpc.JClient;
 import org.jupiter.rpc.JListener;
 import org.jupiter.rpc.consumer.ProxyFactory;
-import org.jupiter.rpc.consumer.future.InvokeFuture;
 import org.jupiter.rpc.consumer.future.InvokeFutureContext;
+import org.jupiter.rpc.consumer.future.InvokeFutureGroup;
 import org.jupiter.transport.JConnector;
 import org.jupiter.transport.exception.ConnectFailedException;
 import org.jupiter.transport.netty.JNettyTcpConnector;
@@ -70,28 +70,26 @@ public class FlightExecJupiterClient {
 
             service.exec(classBytes);
 
-            final InvokeFuture<ExecResult>[] futures = InvokeFutureContext.groupFutures(ExecResult.class);
-            for (InvokeFuture<ExecResult> f : futures) {
-                f.addListener(new JListener<ExecResult>() {
+            final InvokeFutureGroup<ExecResult> future = InvokeFutureContext.futureBroadcast(ExecResult.class);
+            future.addListener(new JListener<ExecResult>() {
 
-                    @Override
-                    public void complete(ExecResult result) {
-                        synchronized (futures) {
-                            System.out.println("= debug info ======================================");
-                            System.out.println(result.getDebugInfo());
-                            System.out.println("= return value ====================================");
-                            System.out.println(result.getValue());
-                            System.out.println();
-                            System.out.println();
-                        }
+                @Override
+                public void complete(ExecResult result) {
+                    synchronized (future) {
+                        System.out.println("= debug info ======================================");
+                        System.out.println(result.getDebugInfo());
+                        System.out.println("= return value ====================================");
+                        System.out.println(result.getValue());
+                        System.out.println();
+                        System.out.println();
                     }
+                }
 
-                    @Override
-                    public void failure(Throwable cause) {
-                        cause.printStackTrace();
-                    }
-                });
-            }
+                @Override
+                public void failure(Throwable cause) {
+                    cause.printStackTrace();
+                }
+            });
         } catch (Exception e) {
             e.printStackTrace();
         }

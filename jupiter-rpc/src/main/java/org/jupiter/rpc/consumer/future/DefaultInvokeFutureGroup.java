@@ -24,7 +24,7 @@ import org.jupiter.rpc.JListener;
  *
  * @author jiachun.fjc
  */
-public class DefaultInvokeFutureGroup<V> implements InvokeFuture<V>, InvokeFutureGroup<V> {
+public class DefaultInvokeFutureGroup<V> implements InvokeFutureGroup<V> {
 
     private final InvokeFuture<V>[] futures;
 
@@ -44,6 +44,7 @@ public class DefaultInvokeFutureGroup<V> implements InvokeFuture<V>, InvokeFutur
 
     @Override
     public V getResult() throws Throwable {
+        // 不觉得支持组播的同步调用有什么好处
         throw new UnsupportedOperationException("broadcast");
     }
 

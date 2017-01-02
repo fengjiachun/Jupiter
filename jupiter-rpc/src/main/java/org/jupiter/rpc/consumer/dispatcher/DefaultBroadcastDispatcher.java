@@ -55,6 +55,7 @@ public class DefaultBroadcastDispatcher extends AbstractDispatcher {
         MessageWrapper message = new MessageWrapper(_metadata);
         message.setAppName(client.appName());
         message.setMethodName(methodName);
+        // 不需要方法参数类型, 服务端会根据args具体类型按照JLS规则动态dispatch
         message.setArgs(args);
 
         CopyOnWriteGroupList groups = client.connector().directory(_metadata);

@@ -28,22 +28,18 @@ public class InvokeFutureContext {
 
     private static final ThreadLocal<InvokeFuture<?>> futureThreadLocal = new ThreadLocal<>();
 
+    /**
+     * 获取单播/组播调用的 {@link InvokeFuture}, 不协助类型转换.
+     */
     public static InvokeFuture<?> future() {
         InvokeFuture<?> future = checkNotNull(futureThreadLocal.get(), "future");
         futureThreadLocal.remove();
         return future;
     }
 
-    public static InvokeFuture<?>[] groupFutures() {
-        InvokeFuture<?> future = future();
-
-        if (future instanceof InvokeFutureGroup) {
-            return ((InvokeFutureGroup) future).futures();
-        } else {
-            throw new UnsupportedOperationException("broadcast");
-        }
-    }
-
+    /**
+     * 获取单播调用的 {@link InvokeFuture} 并协助类型转换, {@code expectReturnType} 为期望定的返回值类型.
+     */
     @SuppressWarnings("unchecked")
     public static <V> InvokeFuture<V> future(Class<V> expectReturnType) {
         InvokeFuture<?> f = future();
@@ -52,17 +48,20 @@ public class InvokeFutureContext {
         return (InvokeFuture<V>) f;
     }
 
+    /**
+     * 获取组播调用的 {@link InvokeFutureGroup} 并协助类型转换, {@code expectReturnType} 为期望定的返回值类型.
+     */
     @SuppressWarnings("unchecked")
-    public static <V> InvokeFuture<V>[] groupFutures(Class<V> expectReturnType) {
-        InvokeFuture<?>[] futures = groupFutures();
-        InvokeFuture<V>[] v_futures = new InvokeFuture[futures.length];
-        for (int i = 0; i < futures.length; i++) {
-            InvokeFuture<?> f = futures[i];
-            Class<?> realReturnType = f.returnType();
-            checkReturnType(realReturnType, expectReturnType);
-            v_futures[i] = (InvokeFuture<V>) f;
+    public static <V> InvokeFutureGroup<V> futureBroadcast(Class<V> expectReturnType) {
+        InvokeFuture<?> f = future();
+        Class<?> realReturnType = f.returnType();
+        checkReturnType(realReturnType, expectReturnType);
+
+        if (f instanceof InvokeFutureGroup) {
+            return (InvokeFutureGroup<V>) f;
+        } else {
+            throw new UnsupportedOperationException("broadcast");
         }
-        return v_futures;
     }
 
     public static void set(InvokeFuture<?> future) {
