@@ -42,9 +42,8 @@ public class FailOverInvokeFuture<V> extends AbstractInvokeFuture<V> {
         this.returnType = returnType;
     }
 
-    @SuppressWarnings("unchecked")
-    public void setSuccess(Object result) {
-        set((V) result);
+    public void setSuccess(V result) {
+        set(result);
     }
 
     public void setFailure(Throwable cause) {
