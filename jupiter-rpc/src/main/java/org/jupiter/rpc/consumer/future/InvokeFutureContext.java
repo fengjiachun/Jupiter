@@ -24,6 +24,7 @@ import static org.jupiter.common.util.Preconditions.checkNotNull;
  *
  * @author jiachun.fjc
  */
+@SuppressWarnings("unchecked")
 public class InvokeFutureContext {
 
     private static final ThreadLocal<InvokeFuture<?>> futureThreadLocal = new ThreadLocal<>();
@@ -40,7 +41,6 @@ public class InvokeFutureContext {
     /**
      * 获取单播调用的 {@link InvokeFuture} 并协助类型转换, {@code expectReturnType} 为期望定的返回值类型.
      */
-    @SuppressWarnings("unchecked")
     public static <V> InvokeFuture<V> future(Class<V> expectReturnType) {
         InvokeFuture<?> f = future();
         checkReturnType(f.returnType(), expectReturnType);
@@ -51,7 +51,6 @@ public class InvokeFutureContext {
     /**
      * 获取组播调用的 {@link InvokeFutureGroup} 并协助类型转换, {@code expectReturnType} 为期望定的返回值类型.
      */
-    @SuppressWarnings("unchecked")
     public static <V> InvokeFutureGroup<V> futureBroadcast(Class<V> expectReturnType) {
         InvokeFuture<?> f = future();
         checkReturnType(f.returnType(), expectReturnType);

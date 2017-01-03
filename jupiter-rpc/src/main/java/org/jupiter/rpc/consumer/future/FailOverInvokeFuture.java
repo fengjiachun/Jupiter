@@ -23,6 +23,8 @@ import org.jupiter.rpc.JListener;
 import static org.jupiter.common.util.StackTraceUtil.stackTrace;
 
 /**
+ * 用于实现failover集群容错方案的 {@link InvokeFuture}.
+ *
  * jupiter
  * org.jupiter.rpc.consumer.future
  *

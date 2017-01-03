@@ -25,11 +25,14 @@ import static org.jupiter.common.util.Reflects.getTypeDefaultValue;
 import static org.jupiter.common.util.StackTraceUtil.stackTrace;
 
 /**
+ * 用于实现fail-safe集群容错方案的 {@link InvokeFuture}.
+ *
  * jupiter
  * org.jupiter.rpc.consumer.future
  *
  * @author jiachun.fjc
  */
+@SuppressWarnings("unchecked")
 public class FailSafeInvokeFuture<V> implements InvokeFuture<V> {
 
     private static final InternalLogger logger = InternalLoggerFactory.getInstance(FailSafeInvokeFuture.class);
@@ -49,7 +52,6 @@ public class FailSafeInvokeFuture<V> implements InvokeFuture<V> {
         return future.returnType();
     }
 
-    @SuppressWarnings("unchecked")
     @Override
     public V getResult() throws Throwable {
         try {
@@ -66,7 +68,6 @@ public class FailSafeInvokeFuture<V> implements InvokeFuture<V> {
         return this;
     }
 
-    @SuppressWarnings("unchecked")
     @Override
     public InvokeFuture<V> addListeners(JListener<V>... listeners) {
         future.addListeners(failSafeListeners(listeners));
@@ -79,7 +80,6 @@ public class FailSafeInvokeFuture<V> implements InvokeFuture<V> {
         return this;
     }
 
-    @SuppressWarnings("unchecked")
     @Override
     public InvokeFuture<V> removeListeners(JListener<V>... listeners) {
         future.removeListeners(listeners);
@@ -90,7 +90,6 @@ public class FailSafeInvokeFuture<V> implements InvokeFuture<V> {
         return new FailSafeListener<>(listener);
     }
 
-    @SuppressWarnings("unchecked")
     private JListener<V>[] failSafeListeners(JListener<V>... listeners) {
         checkNotNull(listeners, "listeners");
 
@@ -114,7 +113,6 @@ public class FailSafeInvokeFuture<V> implements InvokeFuture<V> {
             listener.complete(result);
         }
 
-        @SuppressWarnings("unchecked")
         @Override
         public void failure(Throwable cause) {
             logger.warn("Ignored exception on [Fail-safe] : {}.", stackTrace(cause));

@@ -28,10 +28,10 @@ import java.util.concurrent.locks.LockSupport;
  *
  * @author jiachun.fjc
  */
-public abstract class Future<V> {
+public abstract class AbstractFuture<V> {
 
     @SuppressWarnings("all")
-    protected static final Signal TIMEOUT = Signal.valueOf(Future.class, "time_out");
+    protected static final Signal TIMEOUT = Signal.valueOf(AbstractFuture.class, "time_out");
 
     /**
      * 内部状态转换过程:
@@ -50,7 +50,7 @@ public abstract class Future<V> {
     @SuppressWarnings("unused")
     private volatile WaitNode waiters;
 
-    public Future() {
+    public AbstractFuture() {
         this.state = NEW;
     }
 
@@ -226,7 +226,7 @@ public abstract class Future<V> {
 
     static {
         try {
-            Class<?> k = Future.class;
+            Class<?> k = AbstractFuture.class;
             stateOffset = UNSAFE.objectFieldOffset(k.getDeclaredField("state"));
             waitersOffset = UNSAFE.objectFieldOffset(k.getDeclaredField("waiters"));
         } catch (Exception e) {

@@ -19,11 +19,17 @@ package org.jupiter.rpc.consumer.future;
 import org.jupiter.rpc.JListener;
 
 /**
+ * 用于支持组播调用的 {@link InvokeFuture}, 不建议也不支持同步获取批量结果.
+ *
+ * 但是可以通过 {@link #futures()} 获取全部futures再做处理, 也可直接添加
+ * {@link JListener} 来实现回调(组播场景下一个listener会被回调多次).
+ *
  * jupiter
  * org.jupiter.rpc.consumer.future
  *
  * @author jiachun.fjc
  */
+@SuppressWarnings("unchecked")
 public class DefaultInvokeFutureGroup<V> implements InvokeFutureGroup<V> {
 
     private final InvokeFuture<V>[] futures;
@@ -43,8 +49,7 @@ public class DefaultInvokeFutureGroup<V> implements InvokeFutureGroup<V> {
 
     @Override
     public V getResult() throws Throwable {
-        // 不觉得支持组播的同步调用有什么好处
-        throw new UnsupportedOperationException("broadcast");
+        throw new UnsupportedOperationException();
     }
 
     @Override
@@ -60,7 +65,6 @@ public class DefaultInvokeFutureGroup<V> implements InvokeFutureGroup<V> {
         return this;
     }
 
-    @SuppressWarnings("unchecked")
     @Override
     public InvokeFuture<V> addListeners(JListener<V>... listeners) {
         for (InvokeFuture<V> f : futures) {
@@ -77,7 +81,6 @@ public class DefaultInvokeFutureGroup<V> implements InvokeFutureGroup<V> {
         return this;
     }
 
-    @SuppressWarnings("unchecked")
     @Override
     public InvokeFuture<V> removeListeners(JListener<V>... listeners) {
         for (InvokeFuture<V> f : futures) {

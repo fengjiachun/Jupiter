@@ -22,7 +22,6 @@ package org.jupiter.rpc.consumer.future;
  *
  * @author jiachun.fjc
  */
-@SuppressWarnings("unchecked")
 public interface InvokeFuture<V> extends ListenableFuture<V> {
 
     Class<V> returnType();

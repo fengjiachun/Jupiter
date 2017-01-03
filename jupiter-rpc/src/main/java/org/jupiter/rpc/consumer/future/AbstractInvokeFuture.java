@@ -27,7 +27,7 @@ import static org.jupiter.common.util.Preconditions.checkNotNull;
  * @author jiachun.fjc
  */
 @SuppressWarnings("unchecked")
-public abstract class AbstractInvokeFuture<V> extends Future<V> implements InvokeFuture<V> {
+public abstract class AbstractInvokeFuture<V> extends AbstractFuture<V> implements InvokeFuture<V> {
 
     private Object listeners;
 

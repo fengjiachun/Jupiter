@@ -17,7 +17,7 @@
 package org.jupiter.rpc.consumer.future;
 
 /**
- * For broadcast.
+ * Broadcast future.
  *
  * jupiter
  * org.jupiter.rpc.consumer.future
