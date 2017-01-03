@@ -60,10 +60,12 @@ public class InvokeFutureContext {
         if (f instanceof InvokeFutureGroup) {
             return (InvokeFutureGroup<V>) f;
         } else if (f instanceof FailSafeInvokeFuture) {
-            return (InvokeFutureGroup<V>) ((FailSafeInvokeFuture) f).future();
-        } else {
-            throw new UnsupportedOperationException("broadcast");
+            InvokeFuture real_f = ((FailSafeInvokeFuture) f).future();
+            if (real_f instanceof InvokeFutureGroup) {
+                return (InvokeFutureGroup<V>) real_f;
+            }
         }
+        throw new UnsupportedOperationException("broadcast");
     }
 
     public static void set(InvokeFuture<?> future) {
