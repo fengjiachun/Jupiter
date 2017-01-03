@@ -61,25 +61,29 @@ public class FailSafeInvokeFuture<V> implements InvokeFuture<V> {
     }
 
     @Override
-    public ListenableFuture<V> addListener(JListener<V> listener) {
-        return future.addListener(failSafeListener(listener));
+    public InvokeFuture<V> addListener(JListener<V> listener) {
+        future.addListener(failSafeListener(listener));
+        return this;
     }
 
     @SuppressWarnings("unchecked")
     @Override
-    public ListenableFuture<V> addListeners(JListener<V>... listeners) {
-        return future.addListeners(failSafeListeners(listeners));
+    public InvokeFuture<V> addListeners(JListener<V>... listeners) {
+        future.addListeners(failSafeListeners(listeners));
+        return this;
     }
 
     @Override
-    public ListenableFuture<V> removeListener(JListener<V> listener) {
-        return future.removeListener(listener);
+    public InvokeFuture<V> removeListener(JListener<V> listener) {
+        future.removeListener(listener);
+        return this;
     }
 
     @SuppressWarnings("unchecked")
     @Override
-    public ListenableFuture<V> removeListeners(JListener<V>... listeners) {
-        return future.removeListeners(listeners);
+    public InvokeFuture<V> removeListeners(JListener<V>... listeners) {
+        future.removeListeners(listeners);
+        return this;
     }
 
     private JListener<V> failSafeListener(JListener<V> listener) {
