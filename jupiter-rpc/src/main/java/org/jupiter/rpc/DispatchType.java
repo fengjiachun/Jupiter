@@ -17,6 +17,8 @@
 package org.jupiter.rpc;
 
 /**
+ * 请求派发方式, 支持单播以及组播.
+ *
  * jupiter
  * org.jupiter.rpc
  *

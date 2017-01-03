@@ -31,12 +31,12 @@ public interface ConsumerHook {
     ConsumerHook[] EMPTY_HOOKS = new ConsumerHook[0];
 
     /**
-     * Will be triggered when the request data sent to the network.
+     * Triggered when the request data sent to the network.
      */
     void before(JRequest request, JChannel channel);
 
     /**
-     * Will be triggered when the server returns the result.
+     * Triggered when the server returns the result.
      */
     void after(JResponse response, JChannel channel);
 }

@@ -17,6 +17,8 @@
 package org.jupiter.rpc;
 
 /**
+ * 远程调用方式, 支持同步调用和异步调用.
+ *
  * jupiter
  * org.jupiter.rpc
  *

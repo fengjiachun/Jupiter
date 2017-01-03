@@ -21,7 +21,7 @@ import org.jupiter.rpc.consumer.dispatcher.Dispatcher;
 import org.jupiter.rpc.consumer.future.InvokeFuture;
 
 /**
- * 快速失败, 只发起一次调用, 失败立即报错(缺省)
+ * 快速失败, 只发起一次调用, 失败立即报错(jupiter缺省设置)
  *
  * 通常用于非幂等性的写操作.
  *

@@ -17,13 +17,9 @@
 package org.jupiter.rpc.consumer.cluster;
 
 import org.jupiter.rpc.JClient;
-import org.jupiter.rpc.consumer.dispatcher.DefaultRoundDispatcher;
 import org.jupiter.rpc.consumer.dispatcher.Dispatcher;
 import org.jupiter.rpc.consumer.future.FailSafeInvokeFuture;
 import org.jupiter.rpc.consumer.future.InvokeFuture;
-
-import static org.jupiter.common.util.Preconditions.checkArgument;
-import static org.jupiter.common.util.Reflects.simpleClassName;
 
 /**
  * 失败安全, 出现异常时, 直接忽略.
@@ -41,11 +37,6 @@ public class FailSafeClusterInvoker extends AbstractClusterInvoker {
 
     public FailSafeClusterInvoker(JClient client, Dispatcher dispatcher) {
         super(client, dispatcher);
-
-        checkArgument(
-                dispatcher instanceof DefaultRoundDispatcher,
-                simpleClassName(dispatcher) + " is unsupported [FailSafeClusterInvoker]"
-        );
     }
 
     @Override

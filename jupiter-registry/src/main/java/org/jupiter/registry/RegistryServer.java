@@ -36,6 +36,9 @@ public interface RegistryServer extends RegistryMonitor {
 
     void startRegistryServer();
 
+    /**
+     * 用于创建默认的注册中心实现(jupiter-registry-default), 当不使用jupiter-registry-default时, 不能有显示依赖.
+     */
     @SuppressWarnings("unchecked")
     class Default {
 

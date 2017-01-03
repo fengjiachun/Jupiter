@@ -130,7 +130,8 @@ public abstract class NettyConnector implements JConnector<JConnection> {
 
     @Override
     public boolean addChannelGroup(Directory directory, JChannelGroup group) {
-        boolean added = directory(directory).addIfAbsent(group);
+        CopyOnWriteGroupList groups = directory(directory);
+        boolean added = groups.addIfAbsent(group);
         if (added) {
             logger.info("Added channel group: {} to {}.", group, directory.directory());
         }
@@ -155,8 +156,9 @@ public abstract class NettyConnector implements JConnector<JConnection> {
     @Override
     public boolean isDirectoryAvailable(Directory directory) {
         CopyOnWriteGroupList groups = directory(directory);
-        for (int i = 0; i < groups.size(); i++) {
-            if (groups.get(i).isAvailable()) {
+        JChannelGroup[] snapshot = groups.snapshot();
+        for (JChannelGroup g : snapshot) {
+            if (g.isAvailable()) {
                 return true;
             }
         }

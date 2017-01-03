@@ -19,6 +19,8 @@ package org.jupiter.transport;
 import org.jupiter.common.util.StringBuilderHelper;
 
 /**
+ * 目录服务
+ *
  * jupiter
  * org.jupiter.transport
  *

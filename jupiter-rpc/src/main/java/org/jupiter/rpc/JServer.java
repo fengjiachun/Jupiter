@@ -27,7 +27,7 @@ import java.util.List;
 import java.util.concurrent.Executor;
 
 /**
- * The rpc server.
+ * The jupiter rpc server.
  *
  * jupiter
  * org.jupiter.rpc

@@ -28,6 +28,8 @@ import org.jupiter.transport.UnresolvedAddress;
 import java.util.Collection;
 
 /**
+ * The jupiter rpc client.
+ *
  * jupiter
  * org.jupiter.rpc
  *

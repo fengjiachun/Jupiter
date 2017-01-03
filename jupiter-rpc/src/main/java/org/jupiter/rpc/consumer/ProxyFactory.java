@@ -260,9 +260,9 @@ public class ProxyFactory<I> {
         switch (dispatchType) {
             case ROUND:
                 return new DefaultRoundDispatcher(
-                        LoadBalancerFactory.getInstance(loadBalancerType), metadata, serializerType);
+                        LoadBalancerFactory.loadBalancer(loadBalancerType), metadata, serializerType);
             case BROADCAST:
-                return new DefaultBroadcastDispatcher(null, metadata, serializerType);
+                return new DefaultBroadcastDispatcher(metadata, serializerType);
             default:
                 throw new IllegalStateException("DispatchType: " + dispatchType);
         }

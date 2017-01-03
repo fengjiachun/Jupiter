@@ -17,7 +17,6 @@
 package org.jupiter.rpc.load.balance;
 
 /**
- *
  * jupiter
  * org.jupiter.rpc.load.balance
  *

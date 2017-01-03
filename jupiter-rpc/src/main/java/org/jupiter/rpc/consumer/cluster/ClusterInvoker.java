@@ -26,6 +26,9 @@ import org.jupiter.rpc.consumer.future.InvokeFuture;
  */
 public interface ClusterInvoker {
 
+    /**
+     * 集群容错策略
+     */
     enum Strategy {
         FAIL_FAST,  // 快速失败
         FAIL_OVER,  // 失败重试

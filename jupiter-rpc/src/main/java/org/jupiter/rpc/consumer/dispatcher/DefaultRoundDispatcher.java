@@ -30,7 +30,7 @@ import org.jupiter.transport.channel.JChannel;
 import static org.jupiter.rpc.DispatchType.ROUND;
 
 /**
- * 单播方式派发消息
+ * 单播方式派发消息.
  *
  * jupiter
  * org.jupiter.rpc.consumer.dispatcher
@@ -58,17 +58,19 @@ public class DefaultRoundDispatcher extends AbstractDispatcher {
         // 通过软负载均衡选择一个channel
         JChannel channel = select(client, message);
         JRequest request = new JRequest();
+        long invokeId = request.invokeId();
 
-        doTracing(request, message, methodName, channel);
+        doTracing(invokeId, message, methodName, channel);
 
         byte s_code = _serializer.code();
-        byte[] bytes = _serializer.writeObject(message); // 在业务线程中序列化, 减轻IO线程负担
+        // 在业务线程中序列化, 减轻IO线程负担
+        byte[] bytes = _serializer.writeObject(message);
 
         request.message(message);
         request.bytes(s_code, bytes);
 
         long timeoutMillis = methodSpecialTimeoutMillis(methodName);
-        DefaultInvokeFuture<T> future = DefaultInvokeFuture.with(request.invokeId(), channel, returnType, timeoutMillis, ROUND)
+        DefaultInvokeFuture<T> future = DefaultInvokeFuture.with(invokeId, channel, returnType, timeoutMillis, ROUND)
                 .hooks(hooks());
 
         return write(channel, request, future, ROUND);

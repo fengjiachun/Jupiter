@@ -16,23 +16,23 @@
 
 package org.jupiter.rpc.consumer.dispatcher;
 
+import org.jupiter.rpc.ConsumerHook;
 import org.jupiter.rpc.JClient;
 import org.jupiter.rpc.JRequest;
 import org.jupiter.rpc.consumer.future.DefaultInvokeFuture;
 import org.jupiter.rpc.consumer.future.DefaultInvokeFutureGroup;
 import org.jupiter.rpc.consumer.future.InvokeFuture;
-import org.jupiter.rpc.load.balance.LoadBalancer;
 import org.jupiter.rpc.model.metadata.MessageWrapper;
 import org.jupiter.rpc.model.metadata.ServiceMetadata;
 import org.jupiter.serialization.Serializer;
 import org.jupiter.serialization.SerializerType;
-import org.jupiter.transport.channel.CopyOnWriteGroupList;
 import org.jupiter.transport.channel.JChannel;
+import org.jupiter.transport.channel.JChannelGroup;
 
 import static org.jupiter.rpc.DispatchType.BROADCAST;
 
 /**
- * 组播方式派发消息
+ * 组播方式派发消息.
  *
  * jupiter
  * org.jupiter.rpc.consumer.dispatcher
@@ -41,9 +41,8 @@ import static org.jupiter.rpc.DispatchType.BROADCAST;
  */
 public class DefaultBroadcastDispatcher extends AbstractDispatcher {
 
-    public DefaultBroadcastDispatcher(
-            LoadBalancer loadBalancer, ServiceMetadata metadata, SerializerType serializerType) {
-        super(loadBalancer, metadata, serializerType);
+    public DefaultBroadcastDispatcher(ServiceMetadata metadata, SerializerType serializerType) {
+        super(metadata, serializerType);
     }
 
     @SuppressWarnings("unchecked")
@@ -59,25 +58,31 @@ public class DefaultBroadcastDispatcher extends AbstractDispatcher {
         // 不需要方法参数类型, 服务端会根据args具体类型按照JLS规则动态dispatch
         message.setArgs(args);
 
-        CopyOnWriteGroupList groups = client.connector().directory(_metadata);
-        JChannel[] channels = new JChannel[groups.size()];
-        for (int i = 0; i < groups.size(); i++) {
-            channels[i] = groups.get(i).next();
+        JChannelGroup[] groups = client
+                .connector()
+                .directory(_metadata)
+                .snapshot();
+        JChannel[] channels = new JChannel[groups.length];
+        for (int i = 0; i < groups.length; i++) {
+            channels[i] = groups[i].next();
         }
 
         byte s_code = _serializer.code();
-        byte[] bytes = _serializer.writeObject(message); // 在业务线程中序列化, 减轻IO线程负担
+        // 在业务线程中序列化, 减轻IO线程负担
+        byte[] bytes = _serializer.writeObject(message);
 
         JRequest request = new JRequest();
         request.message(message);
         request.bytes(s_code, bytes);
 
+        long invokeId = request.invokeId();
+        ConsumerHook[] hooks = hooks();
         InvokeFuture<T>[] futures = new DefaultInvokeFuture[channels.length];
         long timeoutMillis = methodSpecialTimeoutMillis(methodName);
         for (int i = 0; i < channels.length; i++) {
             JChannel ch = channels[i];
-            DefaultInvokeFuture<T> future = DefaultInvokeFuture.with(request.invokeId(), ch, returnType, timeoutMillis, BROADCAST)
-                    .hooks(hooks());
+            DefaultInvokeFuture<T> future = DefaultInvokeFuture.with(invokeId, ch, returnType, timeoutMillis, BROADCAST)
+                    .hooks(hooks);
             futures[i] = write(ch, request, future, BROADCAST);
         }
 

@@ -63,7 +63,7 @@ public class TracingUtil {
 
         String _pid;
         try {
-            _pid = getHexPid(getPid());
+            _pid = getHexProcessId(getProcessId());
         } catch (Exception e) {
             _pid = "0000";
         }
@@ -94,7 +94,7 @@ public class TracingUtil {
         return tracingRecorder;
     }
 
-    private static String getHexPid(int pid) {
+    private static String getHexProcessId(int pid) {
         // unsigned short 0 to 65535
         if (pid < 0) {
             pid = 0;
@@ -116,7 +116,7 @@ public class TracingUtil {
      * http://unix.stackexchange.com/questions/16883/what-is-the-maximum-value-of-the-pid-of-a-process
      * http://stackoverflow.com/questions/35842/how-can-a-java-program-get-its-own-process-id
      */
-    private static int getPid() {
+    private static int getProcessId() {
         String value;
         try {
             ClassLoader loader = JUnsafe.getSystemClassLoader();

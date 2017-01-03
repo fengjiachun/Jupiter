@@ -44,9 +44,15 @@ import java.util.concurrent.ThreadLocalRandom;
  */
 public class RandomLoadBalancer extends AbstractLoadBalancer {
 
+    private static final RandomLoadBalancer instance = new RandomLoadBalancer();
+
+    public static RandomLoadBalancer instance() {
+        return instance;
+    }
+
     @Override
     public JChannelGroup select(CopyOnWriteGroupList groups, @SuppressWarnings("unused") MessageWrapper unused) {
-        Object[] elements = groups.snapshot();
+        JChannelGroup[] elements = groups.snapshot();
         int length = elements.length;
 
         if (length == 0) {
@@ -54,13 +60,13 @@ public class RandomLoadBalancer extends AbstractLoadBalancer {
         }
 
         if (length == 1) {
-            return (JChannelGroup) elements[0];
+            return elements[0];
         }
 
         ThreadLocalRandom random = ThreadLocalRandom.current();
 
         if (groups.isSameWeight()) {
-            return (JChannelGroup) elements[random.nextInt(length)];
+            return elements[random.nextInt(length)];
         }
 
         // 遍历权重
@@ -68,7 +74,7 @@ public class RandomLoadBalancer extends AbstractLoadBalancer {
         int sumWeight = 0;
         WeightArray weightsSnapshot = weightArray(length);
         for (int i = 0; i < length; i++) {
-            JChannelGroup group = (JChannelGroup) elements[i];
+            JChannelGroup group = elements[i];
 
             int val = getWeight(group);
 
@@ -95,11 +101,11 @@ public class RandomLoadBalancer extends AbstractLoadBalancer {
             for (int i = 0; i < length; i++) {
                 offset -= weightsSnapshot.get(i);
                 if (offset < 0) {
-                    return (JChannelGroup) elements[i];
+                    return elements[i];
                 }
             }
         }
 
-        return (JChannelGroup) elements[random.nextInt(length)];
+        return elements[random.nextInt(length)];
     }
 }

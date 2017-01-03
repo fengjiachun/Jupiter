@@ -66,9 +66,14 @@ public class RoundRobinLoadBalancer extends AbstractLoadBalancer {
     @SuppressWarnings("unused")
     private volatile int index = 0;
 
+    public static RoundRobinLoadBalancer instance() {
+        // round-robin是有状态(index)的, 不能是单例
+        return new RoundRobinLoadBalancer();
+    }
+
     @Override
     public JChannelGroup select(CopyOnWriteGroupList groups, @SuppressWarnings("unused") MessageWrapper unused) {
-        Object[] elements = groups.snapshot();
+        JChannelGroup[] elements = groups.snapshot();
         int length = elements.length;
 
         if (length == 0) {
@@ -76,13 +81,13 @@ public class RoundRobinLoadBalancer extends AbstractLoadBalancer {
         }
 
         if (length == 1) {
-            return (JChannelGroup) elements[0];
+            return elements[0];
         }
 
         int index = indexUpdater.getAndIncrement(this) & Integer.MAX_VALUE;
 
         if (groups.isSameWeight()) {
-            return (JChannelGroup) elements[index % length];
+            return elements[index % length];
         }
 
         // 遍历权重
@@ -90,7 +95,7 @@ public class RoundRobinLoadBalancer extends AbstractLoadBalancer {
         int sumWeight = 0;
         WeightArray weightsSnapshot = weightArray(length);
         for (int i = 0; i < length; i++) {
-            JChannelGroup group = (JChannelGroup) elements[i];
+            JChannelGroup group = elements[i];
 
             int val = getWeight(group);
 
@@ -118,7 +123,7 @@ public class RoundRobinLoadBalancer extends AbstractLoadBalancer {
                 for (int j = 0; j < length; j++) {
                     int val = weightsSnapshot.get(j);
                     if (mod == 0 && val > 0) {
-                        return (JChannelGroup) elements[j];
+                        return elements[j];
                     }
                     if (val > 0) {
                         weightsSnapshot.set(j, val - 1);
@@ -128,6 +133,6 @@ public class RoundRobinLoadBalancer extends AbstractLoadBalancer {
             }
         }
 
-        return (JChannelGroup) elements[index % length];
+        return elements[index % length];
     }
 }

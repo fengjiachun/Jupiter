@@ -68,7 +68,6 @@ public class TraceId implements Serializable {
         TraceId traceId = (TraceId) o;
 
         return node == traceId.node && id.equals(traceId.id);
-
     }
 
     @Override

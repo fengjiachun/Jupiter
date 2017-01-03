@@ -31,8 +31,12 @@ public class DefaultListeners<V> {
     private JListener<V>[] listeners;
     private int size;
 
+    static <T> DefaultListeners<T> with(JListener<T> first, JListener<T> second) {
+        return new DefaultListeners<>(first, second);
+    }
+
     @SuppressWarnings("unchecked")
-    DefaultListeners(JListener<V> first, JListener<V> second) {
+    private DefaultListeners(JListener<V> first, JListener<V> second) {
         listeners = new JListener[2];
         listeners[0] = first;
         listeners[1] = second;

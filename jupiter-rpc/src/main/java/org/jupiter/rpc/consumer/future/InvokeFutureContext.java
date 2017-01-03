@@ -19,6 +19,8 @@ package org.jupiter.rpc.consumer.future;
 import static org.jupiter.common.util.Preconditions.checkNotNull;
 
 /**
+ * 异步调用上下文, 用于获取当前上下文中的 {@link InvokeFuture}, 基于 {@link ThreadLocal}.
+ *
  * jupiter
  * org.jupiter.rpc.consumer.future
  *
@@ -57,6 +59,8 @@ public class InvokeFutureContext {
 
         if (f instanceof InvokeFutureGroup) {
             return (InvokeFutureGroup<V>) f;
+        } else if (f instanceof FailSafeInvokeFuture) {
+            return (InvokeFutureGroup<V>) ((FailSafeInvokeFuture) f).future();
         } else {
             throw new UnsupportedOperationException("broadcast");
         }

@@ -39,6 +39,8 @@ import static org.jupiter.registry.RegisterMeta.Address;
 import static org.jupiter.registry.RegisterMeta.ServiceMeta;
 
 /**
+ * Jupiter默认客户端实现.
+ *
  * jupiter
  * org.jupiter.rpc
  *

@@ -18,14 +18,13 @@ package org.jupiter.rpc.consumer.future;
 
 import org.jupiter.rpc.JListener;
 
+import static org.jupiter.common.util.Preconditions.checkArgument;
+
 /**
- * 用于支持组播调用的 {@link InvokeFuture}, 不建议也不支持同步获取批量结果.
- *
- * 但是可以通过 {@link #futures()} 获取全部futures再做处理, 也可直接添加
- * {@link JListener} 来实现回调(组播场景下一个listener会被回调多次).
- *
  * jupiter
  * org.jupiter.rpc.consumer.future
+ *
+ * @see InvokeFutureGroup
  *
  * @author jiachun.fjc
  */
@@ -39,6 +38,7 @@ public class DefaultInvokeFutureGroup<V> implements InvokeFutureGroup<V> {
     }
 
     private DefaultInvokeFutureGroup(InvokeFuture<V>[] futures) {
+        checkArgument(futures != null && futures.length > 0, "empty futures");
         this.futures = futures;
     }
 

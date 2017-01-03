@@ -21,10 +21,12 @@ import org.jupiter.rpc.consumer.future.InvokeFuture;
 import org.jupiter.rpc.consumer.future.InvokeFutureContext;
 
 /**
- * 异步泛化回调
+ * 异步泛化异步调用.
  *
  * jupiter
  * org.jupiter.rpc.consumer.invoker
+ *
+ * @see GenericInvoker
  *
  * @author jiachun.fjc
  */

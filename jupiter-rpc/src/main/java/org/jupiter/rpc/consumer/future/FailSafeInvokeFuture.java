@@ -30,6 +30,8 @@ import static org.jupiter.common.util.StackTraceUtil.stackTrace;
  * jupiter
  * org.jupiter.rpc.consumer.future
  *
+ * @see org.jupiter.rpc.consumer.cluster.FailSafeClusterInvoker
+ *
  * @author jiachun.fjc
  */
 @SuppressWarnings("unchecked")
@@ -84,6 +86,10 @@ public class FailSafeInvokeFuture<V> implements InvokeFuture<V> {
     public InvokeFuture<V> removeListeners(JListener<V>... listeners) {
         future.removeListeners(listeners);
         return this;
+    }
+
+    public InvokeFuture<V> future() {
+        return future;
     }
 
     private JListener<V> failSafeListener(JListener<V> listener) {

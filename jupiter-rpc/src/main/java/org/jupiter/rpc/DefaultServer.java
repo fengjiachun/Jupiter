@@ -48,6 +48,8 @@ import static org.jupiter.common.util.Reflects.*;
 import static org.jupiter.common.util.StackTraceUtil.stackTrace;
 
 /**
+ * Jupiter默认服务端实现.
+ *
  * jupiter
  * org.jupiter.rpc
  *

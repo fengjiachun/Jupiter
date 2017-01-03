@@ -27,19 +27,16 @@ import static org.jupiter.rpc.load.balance.LoadBalancerType.ROUND_ROBIN;
  */
 public final class LoadBalancerFactory {
 
-    private static final LoadBalancer random = new RandomLoadBalancer();
-
-    public static LoadBalancer getInstance(LoadBalancerType type) {
-        if (type == null || RANDOM == type) {
-            return random;
+    public static LoadBalancer loadBalancer(LoadBalancerType type) {
+        if (RANDOM == type) {
+            return RandomLoadBalancer.instance();
         }
 
         if (ROUND_ROBIN == type) {
-            // round-robin是有状态(index)的负载均衡器, 不能是单例
-            return new RoundRobinLoadBalancer();
+            return RoundRobinLoadBalancer.instance();
         }
 
-        return random;
+        return RandomLoadBalancer.instance();
     }
 
     private LoadBalancerFactory() {}

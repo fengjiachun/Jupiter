@@ -101,7 +101,6 @@ public class MessageTask implements RejectedRunnable {
         final AbstractProviderProcessor _processor = processor;
         final JRequest _request = request;
 
-        // 反序列化, 不在IO线程中执行
         MessageWrapper msg;
         try {
             JRequestBytes _requestBytes = _request.requestBytes();
@@ -113,6 +112,7 @@ public class MessageTask implements RejectedRunnable {
             requestSizeHistogram.update(bytes.length);
 
             Serializer serializer = SerializerFactory.getSerializer(s_code);
+            // 在业务线程中反序列化, 减轻IO线程负担
             msg = serializer.readObject(bytes, MessageWrapper.class);
             _request.message(msg);
         } catch (Throwable t) {
@@ -202,6 +202,7 @@ public class MessageTask implements RejectedRunnable {
 
         byte s_code = _request.serializerCode();
         Serializer serializer = SerializerFactory.getSerializer(s_code);
+        // 在业务线程中序列化, 减轻IO线程负担
         byte[] bytes = serializer.writeObject(result);
 
         final long invokeId = _request.invokeId();

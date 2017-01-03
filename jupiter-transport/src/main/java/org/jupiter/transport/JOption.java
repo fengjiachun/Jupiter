@@ -29,6 +29,7 @@ import org.jupiter.common.util.ConstantPool;
  *
  * @author jiachun.fjc
  */
+@SuppressWarnings("unchecked")
 public final class JOption<T> extends AbstractConstant<JOption<T>> {
 
     private static final ConstantPool<JOption<Object>> pool = new ConstantPool<JOption<Object>>() {
@@ -42,7 +43,6 @@ public final class JOption<T> extends AbstractConstant<JOption<T>> {
     /**
      * Returns the {@link JOption} of the specified name.
      */
-    @SuppressWarnings("unchecked")
     public static <T> JOption<T> valueOf(String name) {
         return (JOption<T>) pool.valueOf(name);
     }
@@ -50,7 +50,6 @@ public final class JOption<T> extends AbstractConstant<JOption<T>> {
     /**
      * Shortcut of {@link #valueOf(String) valueOf(firstNameComponent.getName() + "#" + secondNameComponent)}.
      */
-    @SuppressWarnings("unchecked")
     public static <T> JOption<T> valueOf(Class<?> firstNameComponent, String secondNameComponent) {
         return (JOption<T>) pool.valueOf(firstNameComponent, secondNameComponent);
     }
@@ -59,7 +58,6 @@ public final class JOption<T> extends AbstractConstant<JOption<T>> {
      * Creates a new {@link JOption} for the given {@param name} or fail with an
      * {@link IllegalArgumentException} if a {@link JOption} for the given {@param name} exists.
      */
-    @SuppressWarnings("unchecked")
     public static <T> JOption<T> newInstance(String name) {
         return (JOption<T>) pool.newInstance(name);
     }

@@ -27,7 +27,7 @@ import java.lang.reflect.Method;
 /**
  * Synchronous call.
  *
- * 同步调用
+ * 同步调用.
  *
  * jupiter
  * org.jupiter.rpc.consumer.invoker

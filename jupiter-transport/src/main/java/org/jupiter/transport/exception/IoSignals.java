@@ -24,6 +24,10 @@ import org.jupiter.transport.channel.JChannel;
 import static org.jupiter.common.util.Signal.*;
 
 /**
+ * {@link Signal} has an empty stack trace, you can throw them just like using goto.
+ *
+ * 当全局goto用的, {@link Signal}有一个空堆栈，你可以像使用goto一样抛出它们.
+ *
  * jupiter
  * org.jupiter.transport.exception
  *

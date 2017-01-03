@@ -30,7 +30,7 @@ import java.lang.reflect.Method;
  * Asynchronous call, {@link AsyncInvoker#invoke(Method, Object[])}
  * returns a default value of the corresponding method.
  *
- * 异步回调
+ * 异步调用.
  *
  * jupiter
  * org.jupiter.rpc.consumer.invoker

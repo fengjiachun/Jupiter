@@ -21,6 +21,8 @@ import org.jupiter.transport.Status;
 import org.jupiter.transport.channel.JChannel;
 
 /**
+ * Provider's processor.
+ *
  * jupiter
  * org.jupiter.transport.processor
  *

@@ -26,6 +26,8 @@ import static org.jupiter.common.util.JConstants.DEFAULT_VERSION;
 /**
  * Provider implementation annotation.
  *
+ * 每个服务实现必须通过此注解来指定服务版本信息
+ *
  * jupiter
  * org.jupiter.rpc
  *

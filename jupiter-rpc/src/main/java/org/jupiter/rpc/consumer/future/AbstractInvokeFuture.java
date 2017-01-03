@@ -130,7 +130,7 @@ public abstract class AbstractInvokeFuture<V> extends AbstractFuture<V> implemen
         } else if (listeners instanceof DefaultListeners) {
             ((DefaultListeners<V>) listeners).add(listener);
         } else {
-            listeners = new DefaultListeners<>((JListener<V>) listeners, listener);
+            listeners = DefaultListeners.with((JListener<V>) listeners, listener);
         }
     }
 

@@ -65,6 +65,10 @@ abstract class AbstractDispatcher implements Dispatcher {
     // 针对指定方法单独设置的超时时间, 方法名为key, 方法参数类型不做区别对待
     private Map<String, Long> methodsSpecialTimeoutMillis = Maps.newHashMap();
 
+    public AbstractDispatcher(ServiceMetadata metadata, SerializerType serializerType) {
+        this(null, metadata, serializerType);
+    }
+
     public AbstractDispatcher(LoadBalancer loadBalancer, ServiceMetadata metadata, SerializerType serializerType) {
         this.loadBalancer = loadBalancer;
         this.metadata = metadata;
@@ -116,12 +120,13 @@ abstract class AbstractDispatcher implements Dispatcher {
         return timeoutMillis;
     }
 
-    @SuppressWarnings("all")
     protected JChannel select(JClient client, MessageWrapper message) {
         // stack copy
         final ServiceMetadata _metadata = metadata;
 
-        CopyOnWriteGroupList groups = client.connector().directory(_metadata);
+        CopyOnWriteGroupList groups = client
+                .connector()
+                .directory(_metadata);
         JChannelGroup group = loadBalancer.select(groups, message);
 
         if (group != null) {
@@ -129,7 +134,7 @@ abstract class AbstractDispatcher implements Dispatcher {
                 return group.next();
             }
 
-            // group死期到(无可用channel), 时间超过预定限制
+            // to the deadline (no available channel), the time exceeded the predetermined limit
             long deadline = group.deadlineMillis();
             if (deadline > 0 && SystemClock.millisClock().now() > deadline) {
                 boolean removed = groups.remove(group);
@@ -138,14 +143,14 @@ abstract class AbstractDispatcher implements Dispatcher {
                 }
             }
         } else {
+            // for 3 seconds, expired not wait
             if (!client.awaitConnections(_metadata, 3000)) {
                 throw new IllegalStateException("no connections");
             }
         }
 
-        Object[] snapshot = groups.snapshot();
-        for (int i = 0; i < snapshot.length; i++) {
-            JChannelGroup g = (JChannelGroup) snapshot[i];
+        JChannelGroup[] snapshot = groups.snapshot();
+        for (JChannelGroup g : snapshot) {
             if (g.isAvailable()) {
                 return g.next();
             }
@@ -154,8 +159,8 @@ abstract class AbstractDispatcher implements Dispatcher {
         throw new IllegalStateException("no channel");
     }
 
-    // Tracing
-    protected MessageWrapper doTracing(JRequest request, MessageWrapper message, String methodName, JChannel channel) {
+    // tracing
+    protected MessageWrapper doTracing(long invokeId, MessageWrapper message, String methodName, JChannel channel) {
         if (TracingUtil.isTracingNeeded()) {
             TraceId traceId = TracingUtil.getCurrent();
             if (traceId == null) {
@@ -164,7 +169,7 @@ abstract class AbstractDispatcher implements Dispatcher {
             message.setTraceId(traceId);
 
             TracingRecorder recorder = TracingUtil.getRecorder();
-            recorder.recording(CONSUMER, traceId.asText(), request.invokeId(), metadata.directory(), methodName, channel);
+            recorder.recording(CONSUMER, traceId.asText(), invokeId, metadata.directory(), methodName, channel);
         }
         return message;
     }
@@ -180,7 +185,8 @@ abstract class AbstractDispatcher implements Dispatcher {
             @SuppressWarnings("all")
             @Override
             public void operationSuccess(JChannel channel) throws Exception {
-                future.markSent(); // 标记已发送
+                // 标记已发送
+                future.markSent();
 
                 if (ROUND == dispatchType) {
                     requestBytes.nullBytes();

@@ -28,6 +28,8 @@ import static org.jupiter.common.util.StackTraceUtil.stackTrace;
  * jupiter
  * org.jupiter.rpc.consumer.future
  *
+ * @see org.jupiter.rpc.consumer.cluster.FailSafeClusterInvoker
+ *
  * @author jiachun.fjc
  */
 public class FailOverInvokeFuture<V> extends AbstractInvokeFuture<V> {

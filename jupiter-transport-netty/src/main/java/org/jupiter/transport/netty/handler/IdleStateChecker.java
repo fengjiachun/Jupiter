@@ -30,15 +30,11 @@ import static java.util.concurrent.TimeUnit.*;
 /**
  * 基于{@link HashedWheelTimer}的空闲链路监测.
  *
- * 相比较Netty4.x的默认链路监测方式:
- *
- * Netty4.x默认的链路检测使用的是eventLoop的delayQueue, delayQueue是一个优先级队列, 复杂度为O(log n),
- * 每个worker处理自己的链路监测, 可能有助于减少上下文切换, 但是网络IO操作与idle会相互影响.
- *
- * 这个实现使用{@link HashedWheelTimer}的复杂度为O(1), 而且网络IO操作与idle不会相互影响, 但是有上下文切换.
- *
- * 如果连接数小, 比如几万以内, 可以直接用Netty4.x默认的链路检测{@link io.netty.handler.timeout.IdleStateHandler},
- * 如果连接数较大, 建议使用这个实现.
+ *  1. Netty4.x默认的链路检测使用的是eventLoop的delayQueue, delayQueue是一个优先级队列, 复杂度为O(log n),
+ *      每个worker处理自己的链路监测, 可能有助于减少上下文切换, 但是网络IO操作与idle会相互影响.
+ *  2. 这个实现使用{@link HashedWheelTimer}的复杂度为O(1), 而且网络IO操作与idle不会相互影响, 但是有上下文切换.
+ *  3. 如果连接数小, 比如几万以内, 可以直接用Netty4.x默认的链路检测{@link io.netty.handler.timeout.IdleStateHandler},
+ *      如果连接数较大, 建议使用这个实现.
  *
  * jupiter
  * org.jupiter.transport.netty.handler

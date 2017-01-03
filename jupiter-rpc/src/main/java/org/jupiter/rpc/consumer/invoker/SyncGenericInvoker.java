@@ -20,10 +20,12 @@ import org.jupiter.rpc.consumer.cluster.ClusterInvoker;
 import org.jupiter.rpc.consumer.future.InvokeFuture;
 
 /**
- * 同步泛化调用
+ * 同步泛化调用.
  *
  * jupiter
  * org.jupiter.rpc.consumer.invoker
+ *
+ * @see GenericInvoker
  *
  * @author jiachun.fjc
  */

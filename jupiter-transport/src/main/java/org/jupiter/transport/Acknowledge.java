@@ -17,7 +17,7 @@
 package org.jupiter.transport;
 
 /**
- * ACK确认消息包装
+ * ACK确认消息的包装.
  *
  * jupiter
  * org.jupiter.transport
