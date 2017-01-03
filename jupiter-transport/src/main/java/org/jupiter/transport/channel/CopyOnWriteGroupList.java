@@ -95,9 +95,9 @@ public class CopyOnWriteGroupList {
         return indexOf(o, elements, 0, elements.length);
     }
 
-    public int indexOf(JChannelGroup e, int index) {
+    public int indexOf(JChannelGroup o, int index) {
         JChannelGroup[] elements = getArray();
-        return indexOf(e, elements, index, elements.length);
+        return indexOf(o, elements, index, elements.length);
     }
 
     public JChannelGroup[] toArray() {

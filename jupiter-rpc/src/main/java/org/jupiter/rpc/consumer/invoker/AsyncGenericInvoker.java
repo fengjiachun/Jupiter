@@ -21,7 +21,7 @@ import org.jupiter.rpc.consumer.future.InvokeFuture;
 import org.jupiter.rpc.consumer.future.InvokeFutureContext;
 
 /**
- * 异步泛化异步调用.
+ * 异步泛化调用.
  *
  * jupiter
  * org.jupiter.rpc.consumer.invoker
