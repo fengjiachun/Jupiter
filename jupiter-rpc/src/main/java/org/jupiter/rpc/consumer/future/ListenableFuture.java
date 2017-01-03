@@ -19,6 +19,8 @@ package org.jupiter.rpc.consumer.future;
 import org.jupiter.rpc.JListener;
 
 /**
+ * A future that accepts completion listeners.
+ *
  * jupiter
  * org.jupiter.rpc.consumer.future
  *
