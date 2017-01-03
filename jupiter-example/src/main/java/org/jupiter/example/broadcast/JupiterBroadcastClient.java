@@ -21,7 +21,6 @@ import org.jupiter.rpc.DefaultClient;
 import org.jupiter.rpc.JClient;
 import org.jupiter.rpc.JListener;
 import org.jupiter.rpc.consumer.ProxyFactory;
-import org.jupiter.rpc.consumer.cluster.ClusterInvoker;
 import org.jupiter.rpc.consumer.future.InvokeFuture;
 import org.jupiter.rpc.consumer.future.InvokeFutureContext;
 import org.jupiter.rpc.consumer.future.InvokeFutureGroup;
@@ -63,7 +62,6 @@ public class JupiterBroadcastClient {
                 .client(client)
                 .dispatchType(BROADCAST)
                 .invokeType(ASYNC)
-                .clusterStrategy(ClusterInvoker.Strategy.FAIL_SAFE)
                 .addProviderAddress(addresses)
                 .newProxyInstance();
 
