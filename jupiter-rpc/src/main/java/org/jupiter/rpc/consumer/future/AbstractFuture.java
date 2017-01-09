@@ -219,7 +219,7 @@ public abstract class AbstractFuture<V> {
         }
     }
 
-    // Unsafe mechanics
+    // unsafe mechanics
     private static final sun.misc.Unsafe UNSAFE = JUnsafe.getUnsafe();
     private static final long stateOffset;
     private static final long waitersOffset;
