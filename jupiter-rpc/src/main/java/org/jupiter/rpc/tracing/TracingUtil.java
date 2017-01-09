@@ -88,7 +88,11 @@ public class TracingUtil {
     }
 
     public static void setCurrent(TraceId traceId) {
-        traceThreadLocal.set(traceId != null ? traceId : TraceId.NULL_TRACE_ID);
+        if (traceId == null) {
+            traceThreadLocal.remove();
+        } else {
+            traceThreadLocal.set(traceId);
+        }
     }
 
     public static void clearCurrent() {
