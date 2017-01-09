@@ -30,6 +30,8 @@ public class TraceId implements Serializable {
 
     private static final long serialVersionUID = 2901824755629719770L;
 
+    public static TraceId NULL_TRACE_ID = newInstance("null");
+
     private final String id;
     private int node;
 

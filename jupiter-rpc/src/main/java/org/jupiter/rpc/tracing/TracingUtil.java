@@ -17,6 +17,7 @@
 package org.jupiter.rpc.tracing;
 
 import org.jupiter.common.util.*;
+import org.jupiter.common.util.internal.InternalThreadLocal;
 import org.jupiter.common.util.internal.JUnsafe;
 import org.jupiter.common.util.internal.logging.InternalLogger;
 import org.jupiter.common.util.internal.logging.InternalLoggerFactory;
@@ -25,7 +26,7 @@ import java.lang.reflect.Method;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import static org.jupiter.common.util.StackTraceUtil.*;
+import static org.jupiter.common.util.StackTraceUtil.stackTrace;
 
 /**
  * jupiter
@@ -41,9 +42,9 @@ public class TracingUtil {
 
     private static final TracingRecorder tracingRecorder = JServiceLoader.loadFirst(TracingRecorder.class);
 
-    private static final ThreadLocal<TraceId> traceThreadLocal = new ThreadLocal<>();
+    private static final InternalThreadLocal<TraceId> traceThreadLocal = new InternalThreadLocal<>();
 
-    // Maximal value for 64bit systems is 2^22.  See man 5 proc.
+    // maximal value for 64bit systems is 2^22.  See man 5 proc.
     private static final int MAX_PROCESS_ID = 4194304;
     private static final char PID_FLAG = 'd';
     private static final String IP_16;
@@ -79,14 +80,18 @@ public class TracingUtil {
     }
 
     public static TraceId getCurrent() {
-        return traceThreadLocal.get();
+        TraceId traceId = null;
+        if (TRACING_NEEDED) {
+            traceId = traceThreadLocal.get();
+        }
+        return traceId != null ? traceId : TraceId.NULL_TRACE_ID;
     }
 
     public static void setCurrent(TraceId traceId) {
-        traceThreadLocal.set(traceId);
+        traceThreadLocal.set(traceId != null ? traceId : TraceId.NULL_TRACE_ID);
     }
 
-    public static void removeCurrent() {
+    public static void clearCurrent() {
         traceThreadLocal.remove();
     }
 
@@ -120,7 +125,7 @@ public class TracingUtil {
         String value;
         try {
             ClassLoader loader = JUnsafe.getSystemClassLoader();
-            // Invoke java.lang.management.ManagementFactory.getRuntimeMXBean().getName()
+            // invoke java.lang.management.ManagementFactory.getRuntimeMXBean().getName()
             Class<?> managementFactoryType = Class.forName("java.lang.management.ManagementFactory", true, loader);
             Class<?> runtimeMxBeanType = Class.forName("java.lang.management.RuntimeMXBean", true, loader);
 

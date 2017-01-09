@@ -210,8 +210,10 @@ public class MessageTask implements RejectedRunnable {
             final long invokeId = _request.invokeId();
 
             // current traceId
-            if (traceId != null && TracingUtil.isTracingNeeded()) {
-                traceNodeUpdater.set(traceId, traceId.getNode() + 1);
+            if (TracingUtil.isTracingNeeded()) {
+                if (traceId != null) {
+                    traceNodeUpdater.set(traceId, traceId.getNode() + 1);
+                }
                 TracingUtil.setCurrent(traceId);
             }
 
@@ -225,7 +227,7 @@ public class MessageTask implements RejectedRunnable {
                     throw new NoSuchMethodException(methodName);
                 }
 
-                // 根据JLS规则查找最匹配的方法parameterTypes
+                // 根据JLS方法静态分派规则查找最匹配的方法parameterTypes
                 Class<?>[] parameterTypes = findMatchingParameterTypes(parameterTypesList, args);
 
                 invokeResult = fastInvoke(provider, methodName, parameterTypes, args);
