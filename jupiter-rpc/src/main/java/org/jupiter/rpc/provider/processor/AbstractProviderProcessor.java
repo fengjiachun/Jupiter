@@ -26,9 +26,12 @@ import org.jupiter.serialization.Serializer;
 import org.jupiter.serialization.SerializerFactory;
 import org.jupiter.transport.Status;
 import org.jupiter.transport.channel.JChannel;
+import org.jupiter.transport.channel.JFutureListener;
 import org.jupiter.transport.payload.JRequestBytes;
 import org.jupiter.transport.payload.JResponseBytes;
 import org.jupiter.transport.processor.ProviderProcessor;
+
+import static org.jupiter.common.util.StackTraceUtil.stackTrace;
 
 /**
  * jupiter
@@ -51,7 +54,7 @@ public abstract class AbstractProviderProcessor implements
     }
 
     private void handleException(JChannel channel, long invokeId, byte s_code, byte status, Throwable cause) {
-        logger.error("An exception has been caught while processing request: {}, {}.", invokeId, cause);
+        logger.error("An exception has been caught while processing request: {}, {}.", invokeId, stackTrace(cause));
 
         ResultWrapper result = new ResultWrapper();
         result.setError(cause);
@@ -63,6 +66,17 @@ public abstract class AbstractProviderProcessor implements
         response.status(status);
         response.bytes(s_code, bytes);
 
-        channel.write(response);
+        channel.write(response, new JFutureListener<JChannel>() {
+
+            @Override
+            public void operationSuccess(JChannel channel) throws Exception {
+                logger.debug("Service error message sent out: {}.", channel);
+            }
+
+            @Override
+            public void operationFailure(JChannel channel, Throwable cause) throws Exception {
+                logger.warn("Service error message sent failed: {}, {}.", channel, cause);
+            }
+        });
     }
 }

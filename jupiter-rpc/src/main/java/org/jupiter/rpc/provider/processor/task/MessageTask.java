@@ -116,30 +116,30 @@ public class MessageTask implements RejectedRunnable {
             msg = serializer.readObject(bytes, MessageWrapper.class);
             _request.message(msg);
         } catch (Throwable t) {
-            rejected(BAD_REQUEST);
+            rejected(BAD_REQUEST, new JupiterBadRequestException(t.getMessage()));
             return;
         }
 
         // 查找服务
         final ServiceWrapper service = _processor.lookupService(msg.getMetadata());
         if (service == null) {
-            rejected(SERVICE_NOT_FOUND);
+            rejected(SERVICE_NOT_FOUND, new JupiterServiceNotFoundException(String.valueOf(msg)));
             return;
         }
 
         // 全局流量控制
-        ControlResult ctrlResult = _processor.flowControl(_request);
-        if (!ctrlResult.isAllowed()) {
-            rejected(APP_FLOW_CONTROL, ctrlResult);
+        ControlResult ctrl = _processor.flowControl(_request);
+        if (!ctrl.isAllowed()) {
+            rejected(APP_FLOW_CONTROL, new JupiterFlowControlException(String.valueOf(ctrl)));
             return;
         }
 
         // provider私有流量控制
         FlowController<JRequest> childController = service.getFlowController();
         if (childController != null) {
-            ctrlResult = childController.flowControl(_request);
-            if (!ctrlResult.isAllowed()) {
-                rejected(PROVIDER_FLOW_CONTROL, ctrlResult);
+            ctrl = childController.flowControl(_request);
+            if (!ctrl.isAllowed()) {
+                rejected(PROVIDER_FLOW_CONTROL, new JupiterFlowControlException(String.valueOf(ctrl)));
                 return;
             }
         }
@@ -162,41 +162,22 @@ public class MessageTask implements RejectedRunnable {
 
     @Override
     public void rejected() {
-        rejected(SERVER_BUSY, null);
+        rejected(SERVER_BUSY, new JupiterServerBusyException(String.valueOf(request)));
     }
 
-    private void rejected(Status status) {
-        rejected(status, null);
-    }
-
-    private void rejected(Status status, Object signal) {
+    // 当服务拒绝方法被调用时一般分以下几种情况:
+    //  1. 非法请求;
+    //  2. 服务端处理能力出现瓶颈;
+    //
+    // 回复响应后会自动关闭当前连接, Jupiter客户端会自动重连并重新预热, 在加权负载均衡的情况下权重是一点一点升上来的
+    private void rejected(Status status, Throwable cause) {
         // stack copy
         final JRequest _request = request;
 
         rejectionMeter.mark();
+
         ResultWrapper result = new ResultWrapper();
-        switch (status) {
-            case SERVER_BUSY:
-                result.setError(new JupiterServerBusyException());
-                break;
-            case BAD_REQUEST:
-                result.setError(new JupiterBadRequestException());
-                break;
-            case SERVICE_NOT_FOUND:
-                result.setError(new JupiterServiceNotFoundException(_request.message().toString()));
-                break;
-            case APP_FLOW_CONTROL:
-            case PROVIDER_FLOW_CONTROL:
-                if (signal != null && signal instanceof ControlResult) {
-                    result.setError(new JupiterFlowControlException(((ControlResult) signal).getMessage()));
-                } else {
-                    result.setError(new JupiterFlowControlException());
-                }
-                break;
-            default:
-                logger.warn("Unexpected status.", status.description());
-                return;
-        }
+        result.setError(cause);
 
         logger.warn("Service rejected: {}.", result.getError());
 
@@ -209,18 +190,7 @@ public class MessageTask implements RejectedRunnable {
         JResponseBytes response = new JResponseBytes(invokeId);
         response.status(status.value());
         response.bytes(s_code, bytes);
-        channel.write(response, new JFutureListener<JChannel>() {
-
-            @Override
-            public void operationSuccess(JChannel channel) throws Exception {
-                logger.debug("Service rejection sent out: {}, {}.", invokeId, channel);
-            }
-
-            @Override
-            public void operationFailure(JChannel channel, Throwable cause) throws Exception {
-                logger.warn("Service rejection sent failed: {}, {}, {}.", invokeId, channel, cause);
-            }
-        });
+        channel.write(response, JChannel.CLOSE);
     }
 
     private void process(ServiceWrapper service) {

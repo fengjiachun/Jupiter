@@ -30,6 +30,22 @@ import java.net.SocketAddress;
 public interface JChannel {
 
     /**
+     * A {@link JFutureListener} that closes the {@link JChannel}.
+     */
+    JFutureListener<JChannel> CLOSE = new JFutureListener<JChannel>() {
+
+        @Override
+        public void operationSuccess(JChannel channel) throws Exception {
+            channel.close();
+        }
+
+        @Override
+        public void operationFailure(JChannel channel, Throwable cause) throws Exception {
+            channel.close();
+        }
+    };
+
+    /**
      * Returns the identifier of this {@link JChannel}.
      */
     String id();
