@@ -58,10 +58,10 @@ public class AuthHandler implements CommandHandler {
     }
 
     public static boolean checkAuth(Channel channel) {
-        if (channel.attr(AUTH_KEY).get() == null) {
-            channel.writeAndFlush("Permission denied" + NEWLINE).addListener(CLOSE);
-            return false;
+        if (channel.attr(AUTH_KEY).get() == AUTH_OBJECT) {
+            return true;
         }
-        return true;
+        channel.writeAndFlush("Permission denied" + NEWLINE).addListener(CLOSE);
+        return false;
     }
 }
