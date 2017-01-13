@@ -53,15 +53,20 @@ public class JavaSerializer extends Serializer {
     @Override
     public <T> byte[] writeObject(T obj) {
         ByteArrayOutputStream buf = bufThreadLocal.get();
+        ObjectOutputStream output = null;
         try {
-            ObjectOutputStream output = new ObjectOutputStream(buf);
+            output = new ObjectOutputStream(buf);
             output.writeObject(obj);
-            output.close();
-
             return buf.toByteArray();
         } catch (IOException e) {
             JUnsafe.throwException(e);
         } finally {
+            if (output != null) {
+                try {
+                    output.close();
+                } catch (IOException ignored) {}
+            }
+
             buf.reset(); // for reuse
 
             // 防止hold太大块的内存
@@ -77,7 +82,8 @@ public class JavaSerializer extends Serializer {
         ObjectInputStream input = null;
         try {
             input = new ObjectInputStream(new ByteArrayInputStream(bytes, offset, length));
-            return clazz.cast(input.readObject());
+            Object obj = input.readObject();
+            return clazz.cast(obj);
         } catch (Exception e) {
             JUnsafe.throwException(e);
         } finally {

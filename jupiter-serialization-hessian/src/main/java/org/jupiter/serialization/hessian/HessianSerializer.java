@@ -60,12 +60,14 @@ public class HessianSerializer extends Serializer {
         Hessian2Output output = new Hessian2Output(buf);
         try {
             output.writeObject(obj);
-            output.close();
-
             return buf.toByteArray();
         } catch (IOException e) {
             JUnsafe.throwException(e);
         } finally {
+            try {
+                output.close();
+            } catch (IOException ignored) {}
+
             buf.reset(); // for reuse
 
             // 防止hold太大块的内存
@@ -80,7 +82,8 @@ public class HessianSerializer extends Serializer {
     public <T> T readObject(byte[] bytes, int offset, int length, Class<T> clazz) {
         Hessian2Input input = new Hessian2Input(new ByteArrayInputStream(bytes, offset, length));
         try {
-            return clazz.cast(input.readObject(clazz));
+            Object obj = input.readObject(clazz);
+            return clazz.cast(obj);
         } catch (IOException e) {
             JUnsafe.throwException(e);
         } finally {
