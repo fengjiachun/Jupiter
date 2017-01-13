@@ -29,6 +29,7 @@ public enum SerializerType {
     PROTO_STUFF ((byte) 0x01),
     HESSIAN     ((byte) 0x02),
     KRYO        ((byte) 0x03),
+    JAVA        ((byte) 0x04)
     // ...
     ;
 

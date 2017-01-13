@@ -14,29 +14,25 @@
  * limitations under the License.
  */
 
-package org.jupiter.serialization.hessian;
+package org.jupiter.serialization.java;
 
-import com.caucho.hessian.io.Hessian2Input;
-import com.caucho.hessian.io.Hessian2Output;
 import org.jupiter.common.util.internal.InternalThreadLocal;
 import org.jupiter.common.util.internal.JUnsafe;
 import org.jupiter.common.util.internal.UnsafeReferenceFieldUpdater;
 import org.jupiter.common.util.internal.UnsafeUpdater;
 import org.jupiter.serialization.Serializer;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
+import java.io.*;
 
-import static org.jupiter.serialization.SerializerType.HESSIAN;
+import static org.jupiter.serialization.SerializerType.JAVA;
 
 /**
  * jupiter
- * org.jupiter.serialization.hessian
+ * org.jupiter.serialization.java
  *
  * @author jiachun.fjc
  */
-public class HessianSerializer extends Serializer {
+public class JavaSerializer extends Serializer {
 
     private static final UnsafeReferenceFieldUpdater<ByteArrayOutputStream, byte[]> bufUpdater =
             UnsafeUpdater.newReferenceFieldUpdater(ByteArrayOutputStream.class, "buf");
@@ -51,14 +47,14 @@ public class HessianSerializer extends Serializer {
 
     @Override
     public byte code() {
-        return HESSIAN.value();
+        return JAVA.value();
     }
 
     @Override
     public <T> byte[] writeObject(T obj) {
         ByteArrayOutputStream buf = bufThreadLocal.get();
-        Hessian2Output output = new Hessian2Output(buf);
         try {
+            ObjectOutputStream output = new ObjectOutputStream(buf);
             output.writeObject(obj);
             output.close();
 
@@ -78,21 +74,24 @@ public class HessianSerializer extends Serializer {
 
     @Override
     public <T> T readObject(byte[] bytes, int offset, int length, Class<T> clazz) {
-        Hessian2Input input = new Hessian2Input(new ByteArrayInputStream(bytes, offset, length));
+        ObjectInputStream input = null;
         try {
-            return clazz.cast(input.readObject(clazz));
-        } catch (IOException e) {
+            input = new ObjectInputStream(new ByteArrayInputStream(bytes, offset, length));
+            return clazz.cast(input.readObject());
+        } catch (Exception e) {
             JUnsafe.throwException(e);
         } finally {
-            try {
-                input.close();
-            } catch (IOException ignored) {}
+            if (input != null) {
+                try {
+                    input.close();
+                } catch (IOException ignored) {}
+            }
         }
         return null; // never get here
     }
 
     @Override
     public String toString() {
-        return "hessian:(code=" + code() + ")";
+        return "java:(code=" + code() + ")";
     }
 }

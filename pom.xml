@@ -35,6 +35,7 @@
         <module>jupiter-rpc</module>
         <module>jupiter-serialization</module>
         <module>jupiter-serialization-hessian</module>
+        <module>jupiter-serialization-java</module>
         <module>jupiter-serialization-kryo</module>
         <module>jupiter-serialization-protostuff</module>
         <module>jupiter-spring-support</module>
@@ -108,6 +109,11 @@
             <dependency>
                 <groupId>${project.groupId}</groupId>
                 <artifactId>jupiter-serialization-hessian</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>${project.groupId}</groupId>
+                <artifactId>jupiter-serialization-java</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>

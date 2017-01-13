@@ -81,11 +81,6 @@ public class KryoSerializer extends Serializer {
     }
 
     @Override
-    public <T> T readObject(byte[] bytes, Class<T> clazz) {
-        return readObject(bytes, 0, bytes.length, clazz);
-    }
-
-    @Override
     public <T> T readObject(byte[] bytes, int offset, int length, Class<T> clazz) {
         Input input = new Input(bytes, offset, length);
         Kryo kryo = kryoThreadLocal.get();
