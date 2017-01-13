@@ -57,6 +57,7 @@ public class JavaSerializer extends Serializer {
         try {
             output = new ObjectOutputStream(buf);
             output.writeObject(obj);
+            output.flush();
             return buf.toByteArray();
         } catch (IOException e) {
             JUnsafe.throwException(e);

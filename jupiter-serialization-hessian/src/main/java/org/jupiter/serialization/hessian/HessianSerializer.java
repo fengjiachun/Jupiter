@@ -60,6 +60,7 @@ public class HessianSerializer extends Serializer {
         Hessian2Output output = new Hessian2Output(buf);
         try {
             output.writeObject(obj);
+            output.flush();
             return buf.toByteArray();
         } catch (IOException e) {
             JUnsafe.throwException(e);
