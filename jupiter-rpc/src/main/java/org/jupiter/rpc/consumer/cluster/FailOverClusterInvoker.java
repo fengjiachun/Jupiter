@@ -29,6 +29,7 @@ import org.jupiter.rpc.exception.JupiterRemoteException;
 
 import static org.jupiter.common.util.Preconditions.checkArgument;
 import static org.jupiter.common.util.Reflects.simpleClassName;
+import static org.jupiter.common.util.StackTraceUtil.stackTrace;
 
 /**
  * 失败自动切换, 当出现失败, 重试其它服务器, 要注意的是重试会带来更长的延时.
@@ -99,10 +100,11 @@ public class FailOverClusterInvoker extends AbstractClusterInvoker {
 
                 @Override
                 public void failure(Throwable cause) {
-                    logger.warn("[Fail-over] retry, [{}] attempts left, [method: {}], [metadata: {}]",
+                    logger.warn("[Fail-over] retry, [{}] attempts left, [method: {}], [metadata: {}], {}.",
                             tryCount - 1,
                             methodName,
-                            dispatcher.metadata()
+                            dispatcher.metadata(),
+                            stackTrace(cause)
                     );
 
                     invoke0(methodName, args, returnType, tryCount - 1, future, cause);

@@ -140,7 +140,7 @@ public class DefaultInvokeFuture<V> extends AbstractInvokeFuture<V> {
                 listener.failure(cause);
             }
         } catch (Throwable t) {
-            logger.error("An exception was thrown by {}.{}.",
+            logger.error("An exception was thrown by {}.{}, {}.",
                     listener.getClass().getName(), NORMAL == state ? "complete()" : "failure()", stackTrace(t));
         }
     }

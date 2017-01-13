@@ -30,7 +30,7 @@ import java.util.List;
 @ServiceProvider(group = "test")
 public interface ServiceTest {
 
-    ResultClass sayHello();
+    ResultClass sayHello(String... s);
 
     class ResultClass implements Serializable {
         private static final long serialVersionUID = -6514302641628274984L;

@@ -19,6 +19,8 @@ package org.jupiter.example;
 import org.jupiter.common.util.Lists;
 import org.jupiter.rpc.ServiceProviderImpl;
 
+import java.util.Collections;
+
 /**
  * jupiter
  * org.jupiter.example
@@ -39,13 +41,14 @@ public class ServiceTestImpl extends BaseService implements ServiceTest {
     }
 
     @Override
-    public ResultClass sayHello() {
+    public ResultClass sayHello(String... s) {
         ResultClass result = new ResultClass();
         result.lon = 1L;
         Integer i = getIntValue();
         result.num = (i == null ? 0 : i);
         result.str = strValue;
         result.list = Lists.newArrayList("H", "e", "l", "l", "o");
+        Collections.addAll(result.list, s);
         return result;
     }
 }

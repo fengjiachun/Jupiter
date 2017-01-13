@@ -64,7 +64,7 @@ public class SyncJupiterClient {
                 .newProxyInstance();
 
         try {
-            ServiceTest.ResultClass result1 = service1.sayHello();
+            ServiceTest.ResultClass result1 = service1.sayHello("hello");
             System.out.println(result1);
 
             String result2 = service2.sayHelloString();
