@@ -53,7 +53,7 @@ public class SyncJupiterClient {
         ServiceTest service1 = ProxyFactory.factory(ServiceTest.class)
                 .version("1.0.0.daily")
                 .client(client)
-                .serializerType(SerializerType.HESSIAN)
+                .serializerType(SerializerType.JAVA)
                 .clusterStrategy(ClusterInvoker.Strategy.FAIL_OVER)
                 .failoverRetries(5)
                 .newProxyInstance();
@@ -64,7 +64,7 @@ public class SyncJupiterClient {
                 .newProxyInstance();
 
         try {
-            ServiceTest.ResultClass result1 = service1.sayHello("hello");
+            ServiceTest.ResultClass result1 = service1.sayHello("jupiter", "hello");
             System.out.println(result1);
 
             String result2 = service2.sayHelloString();

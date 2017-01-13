@@ -36,7 +36,7 @@ public class SpringJupiterClient {
         ApplicationContext ctx = new ClassPathXmlApplicationContext("classpath:spring-consumer.xml");
         ServiceTest service = ctx.getBean(ServiceTest.class);
         try {
-            ServiceTest.ResultClass result1 = service.sayHello();
+            ServiceTest.ResultClass result1 = service.sayHello("jupiter");
             System.out.println(result1);
         } catch (Exception e) {
             e.printStackTrace();
