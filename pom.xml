@@ -149,7 +149,7 @@
             <!-- ## optional dependency: end -->
             <!-- # jupiter module dependency: end -->
 
-            <!-- # netty dependency:  begin -->
+            <!-- # netty dependency: begin -->
             <dependency>
                 <groupId>io.netty</groupId>
                 <artifactId>netty-common</artifactId>
