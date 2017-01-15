@@ -66,11 +66,36 @@
 
     <dependencyManagement>
         <dependencies>
+            <!-- # jupiter module dependency: begin -->
+            <!-- ## required dependency: begin -->
             <dependency>
                 <groupId>${project.groupId}</groupId>
                 <artifactId>jupiter-common</artifactId>
                 <version>${project.version}</version>
             </dependency>
+            <dependency>
+                <groupId>${project.groupId}</groupId>
+                <artifactId>jupiter-registry</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>${project.groupId}</groupId>
+                <artifactId>jupiter-rpc</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>${project.groupId}</groupId>
+                <artifactId>jupiter-serialization</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>${project.groupId}</groupId>
+                <artifactId>jupiter-transport</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <!-- ## required dependency: end -->
+
+            <!-- ## optional dependency: begin -->
             <dependency>
                 <groupId>${project.groupId}</groupId>
                 <artifactId>jupiter-flightexec</artifactId>
@@ -83,27 +108,12 @@
             </dependency>
             <dependency>
                 <groupId>${project.groupId}</groupId>
-                <artifactId>jupiter-registry</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>${project.groupId}</groupId>
                 <artifactId>jupiter-registry-default</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
                 <groupId>${project.groupId}</groupId>
                 <artifactId>jupiter-registry-zookeeper</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>${project.groupId}</groupId>
-                <artifactId>jupiter-rpc</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>${project.groupId}</groupId>
-                <artifactId>jupiter-serialization</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
@@ -133,16 +143,13 @@
             </dependency>
             <dependency>
                 <groupId>${project.groupId}</groupId>
-                <artifactId>jupiter-transport</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>${project.groupId}</groupId>
                 <artifactId>jupiter-transport-netty</artifactId>
                 <version>${project.version}</version>
             </dependency>
+            <!-- ## optional dependency: end -->
+            <!-- # jupiter module dependency: end -->
 
-            <!-- Netty -->
+            <!-- # netty dependency:  begin -->
             <dependency>
                 <groupId>io.netty</groupId>
                 <artifactId>netty-common</artifactId>
@@ -178,15 +185,15 @@
                 <artifactId>netty-transport-udt</artifactId>
                 <version>${netty.version}</version>
             </dependency>
-
-            <!-- UDT - scope: runtime -->
             <dependency>
+                <!-- ## scope: runtime -->
                 <groupId>com.barchart.udt</groupId>
                 <artifactId>barchart-udt-bundle</artifactId>
                 <version>${barchart.version}</version>
             </dependency>
+            <!-- # netty dependency: end -->
 
-            <!-- 序列化/反序列化 -->
+            <!-- # serialization dependency: begin -->
             <dependency>
                 <groupId>com.caucho</groupId>
                 <artifactId>hessian</artifactId>
@@ -207,15 +214,15 @@
                 <artifactId>protostuff-runtime</artifactId>
                 <version>${protostuff.version}</version>
             </dependency>
+            <!-- # serialization dependency: end -->
 
-            <!-- Objenesis -->
+            <!-- # common dependency: begin -->
+            <!-- ## required dependency: begin -->
             <dependency>
                 <groupId>org.objenesis</groupId>
                 <artifactId>objenesis</artifactId>
                 <version>${objenesis.version}</version>
             </dependency>
-
-            <!-- Byte code generator -->
             <dependency>
                 <groupId>org.javassist</groupId>
                 <artifactId>javassist</artifactId>
@@ -231,15 +238,11 @@
                 <artifactId>cglib-nodep</artifactId>
                 <version>${cglib.version}</version>
             </dependency>
-
-            <!-- Disruptor -->
             <dependency>
                 <groupId>com.lmax</groupId>
                 <artifactId>disruptor</artifactId>
                 <version>${disruptor.version}</version>
             </dependency>
-
-            <!-- Metrics -->
             <dependency>
                 <groupId>io.dropwizard.metrics</groupId>
                 <artifactId>metrics-core</artifactId>
@@ -251,15 +254,17 @@
                     </exclusion>
                 </exclusions>
             </dependency>
+            <!-- ## required dependency: end -->
 
-            <!-- Logging frameworks - scope: provided -->
+            <!-- ## optional dependency: begin -->
             <dependency>
+                <!-- scope: provided  -->
                 <groupId>org.slf4j</groupId>
                 <artifactId>slf4j-api</artifactId>
                 <version>${slf4j.version}</version>
             </dependency>
-
-            <!-- Zookeeper - 只有在使用[jupiter-registry-zookeeper]时才会需要它 -->
+            <!-- ### zookeeper dependency: begin -->
+            <!-- #### 只有在依赖[jupiter-registry-zookeeper]时才会需要它 -->
             <dependency>
                 <groupId>org.apache.zookeeper</groupId>
                 <artifactId>zookeeper</artifactId>
@@ -303,14 +308,18 @@
                 <artifactId>curator-recipes</artifactId>
                 <version>${curator.version}</version>
             </dependency>
+            <!-- ### zookeeper dependency: end -->
 
+            <!-- ### spring dependency: begin -->
+            <!-- #### 只有在依赖[jupiter-spring-support]时才会需要它 -->
             <dependency>
                 <groupId>org.springframework</groupId>
                 <artifactId>spring-context</artifactId>
                 <version>${spring-framework.version}</version>
             </dependency>
+            <!-- ### spring dependency: end -->
 
-            <!-- Benchmarks -->
+            <!-- ### benchmark dependency: begin -->
             <dependency>
                 <groupId>org.openjdk.jmh</groupId>
                 <artifactId>jmh-core</artifactId>
@@ -321,11 +330,14 @@
                 <artifactId>jmh-generator-annprocess</artifactId>
                 <version>${jmh.version}</version>
             </dependency>
+            <!-- ### benchmark dependency: end -->
+            <!-- ## optional dependency: end -->
+            <!-- # common dependency: end -->
         </dependencies>
     </dependencyManagement>
 
     <dependencies>
-        <!-- Common test dependencies -->
+        <!-- # common test dependency: begin -->
         <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
@@ -338,6 +350,7 @@
             <version>${hamcrest.version}</version>
             <scope>test</scope>
         </dependency>
+        <!-- # common test dependency: end -->
     </dependencies>
 
     <build>
