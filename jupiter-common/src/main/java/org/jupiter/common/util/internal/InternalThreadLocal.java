@@ -73,7 +73,7 @@ public class InternalThreadLocal<V> {
     }
 
     /**
-     * Set the value for the current thread.
+     * Sets the value for the current thread.
      */
     public final void set(V value) {
         if (value == null || InternalThreadLocalMap.UNSET == value) {
