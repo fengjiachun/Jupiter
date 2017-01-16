@@ -29,6 +29,6 @@ public class ServiceImpl implements Service {
 
     @Override
     public String hello(String arg) {
-        return "Hello " + arg;
+        return arg;
     }
 }

@@ -41,28 +41,24 @@ public class DefaultInternalTracingRecorder extends TracingRecorder {
                 String traceInfo = StringBuilderHelper.get()
                         .append("[Consumer] - ")
                         .append(args[0])
-                        .append(", invokeId: ")
-                        .append(args[1])
                         .append(", callInfo: ")
-                        .append(args[2])
+                        .append(args[1])
                         .append('#')
-                        .append(args[3])
+                        .append(args[2])
                         .append(", on ")
-                        .append(args[4]).toString();
+                        .append(args[3]).toString();
 
                 logger.info(traceInfo);
             } else if (Role.PROVIDER == role) {
                 String traceInfo = StringBuilderHelper.get()
                         .append("[Provider] - ")
                         .append(args[0])
-                        .append(", invokeId: ")
-                        .append(args[1])
                         .append(", callInfo: ")
-                        .append(args[2])
+                        .append(args[1])
                         .append(", elapsed: ")
-                        .append(NANOSECONDS.toMillis((long) args[3]))
+                        .append(NANOSECONDS.toMillis((long) args[2]))
                         .append(" millis, on ")
-                        .append(args[4]).toString();
+                        .append(args[3]).toString();
 
                 logger.info(traceInfo);
             }

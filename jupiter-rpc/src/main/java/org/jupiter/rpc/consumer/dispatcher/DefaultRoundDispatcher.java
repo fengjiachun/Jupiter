@@ -57,20 +57,19 @@ public class DefaultRoundDispatcher extends AbstractDispatcher {
 
         // 通过软负载均衡选择一个channel
         JChannel channel = select(client, message);
-        JRequest request = new JRequest();
-        long invokeId = request.invokeId();
 
-        doTracing(invokeId, message, methodName, channel);
+        doTracing(message, methodName, channel);
 
         byte s_code = _serializer.code();
         // 在业务线程中序列化, 减轻IO线程负担
         byte[] bytes = _serializer.writeObject(message);
 
+        JRequest request = new JRequest();
         request.message(message);
         request.bytes(s_code, bytes);
 
         long timeoutMillis = methodSpecialTimeoutMillis(methodName);
-        DefaultInvokeFuture<T> future = DefaultInvokeFuture.with(invokeId, channel, returnType, timeoutMillis, ROUND)
+        DefaultInvokeFuture<T> future = DefaultInvokeFuture.with(request.invokeId(), channel, returnType, timeoutMillis, ROUND)
                 .hooks(hooks());
 
         return write(channel, request, future, ROUND);

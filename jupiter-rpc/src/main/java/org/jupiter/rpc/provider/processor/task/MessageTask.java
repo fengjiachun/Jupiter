@@ -21,7 +21,7 @@ import com.codahale.metrics.Meter;
 import com.codahale.metrics.Timer;
 import org.jupiter.common.concurrent.RejectedRunnable;
 import org.jupiter.common.util.StringBuilderHelper;
-import org.jupiter.common.util.SystemClock;
+import org.jupiter.common.util.SystemPropertyUtil;
 import org.jupiter.common.util.internal.UnsafeIntegerFieldUpdater;
 import org.jupiter.common.util.internal.UnsafeUpdater;
 import org.jupiter.common.util.internal.logging.InternalLogger;
@@ -36,6 +36,7 @@ import org.jupiter.rpc.flow.control.FlowController;
 import org.jupiter.rpc.metric.Metrics;
 import org.jupiter.rpc.model.metadata.MessageWrapper;
 import org.jupiter.rpc.model.metadata.ResultWrapper;
+import org.jupiter.rpc.model.metadata.ServiceMetadata;
 import org.jupiter.rpc.model.metadata.ServiceWrapper;
 import org.jupiter.rpc.provider.processor.AbstractProviderProcessor;
 import org.jupiter.rpc.tracing.TraceId;
@@ -55,6 +56,7 @@ import java.util.concurrent.Executor;
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
 import static org.jupiter.common.util.Reflects.fastInvoke;
 import static org.jupiter.common.util.Reflects.findMatchingParameterTypes;
+import static org.jupiter.common.util.SystemClock.millisClock;
 import static org.jupiter.rpc.tracing.TracingRecorder.Role.PROVIDER;
 import static org.jupiter.transport.Status.*;
 
@@ -69,18 +71,7 @@ public class MessageTask implements RejectedRunnable {
 
     private static final InternalLogger logger = InternalLoggerFactory.getInstance(MessageTask.class);
 
-    // - Metrics -------------------------------------------------------------------------------------------------------
-
-    // 请求处理耗时统计(从request被解码开始, 到response数据被刷到OS内核缓冲区为止)
-    private static final Timer processingTimer              = Metrics.timer("processing");
-    // 请求被拒绝次数统计
-    private static final Meter rejectionMeter               = Metrics.meter("rejection");
-    // 请求数据大小统计(不包括Jupiter协议头的16个字节)
-    private static final Histogram requestSizeHistogram     = Metrics.histogram("request.size");
-    // 响应数据大小统计(不包括Jupiter协议头的16个字节)
-    private static final Histogram responseSizeHistogram    = Metrics.histogram("response.size");
-
-    // -----------------------------------------------------------------------------------------------------------------
+    private static final boolean METRIC_NEEDED = SystemPropertyUtil.getBoolean("jupiter.metric.needed", true);
 
     private static final UnsafeIntegerFieldUpdater<TraceId> traceNodeUpdater =
             UnsafeUpdater.newIntegerFieldUpdater(TraceId.class, "node");
@@ -109,7 +100,9 @@ public class MessageTask implements RejectedRunnable {
             byte[] bytes = _requestBytes.bytes();
             _requestBytes.nullBytes();
 
-            requestSizeHistogram.update(bytes.length);
+            if (METRIC_NEEDED) {
+                MetricsHolder.requestSizeHistogram.update(bytes.length);
+            }
 
             Serializer serializer = SerializerFactory.getSerializer(s_code);
             // 在业务线程中反序列化, 减轻IO线程负担
@@ -174,7 +167,9 @@ public class MessageTask implements RejectedRunnable {
         // stack copy
         final JRequest _request = request;
 
-        rejectionMeter.mark();
+        if (METRIC_NEEDED) {
+            MetricsHolder.rejectionMeter.mark();
+        }
 
         ResultWrapper result = new ResultWrapper();
         result.setError(cause);
@@ -200,14 +195,7 @@ public class MessageTask implements RejectedRunnable {
         try {
             MessageWrapper msg = _request.message();
             String methodName = msg.getMethodName();
-            TraceId traceId = msg.getTraceId();
-            String directory = msg.getMetadata().directory(); // 避免StringBuilderHelper被嵌套使用
-            String callInfo = StringBuilderHelper.get()
-                    .append(directory)
-                    .append('#')
-                    .append(methodName).toString();
-
-            final long invokeId = _request.invokeId();
+            final TraceId traceId = msg.getTraceId();
 
             // current traceId
             if (TracingUtil.isTracingNeeded()) {
@@ -217,8 +205,13 @@ public class MessageTask implements RejectedRunnable {
                 TracingUtil.setCurrent(traceId);
             }
 
+            String callInfo = null;
+            Timer.Context timerCtx = null;
+            if (METRIC_NEEDED) {
+                callInfo = getCallInfo(msg.getMetadata(), methodName);
+                timerCtx = Metrics.timer(callInfo).time();
+            }
             Object invokeResult = null;
-            Timer.Context timerCtx = Metrics.timer(callInfo).time();
             try {
                 Object provider = service.getServiceProvider();
                 Object[] args = msg.getArgs();
@@ -236,12 +229,18 @@ public class MessageTask implements RejectedRunnable {
                 processor.handleException(channel, _request, SERVICE_ERROR, e);
                 return;
             } finally {
-                long elapsed = timerCtx.stop();
+                long elapsed = -1;
+                if (METRIC_NEEDED) {
+                    elapsed = timerCtx.stop();
+                }
 
                 // tracing recoding
                 if (traceId != null && TracingUtil.isTracingNeeded()) {
+                    if (callInfo == null) {
+                        callInfo = getCallInfo(msg.getMetadata(), methodName);
+                    }
                     TracingRecorder recorder = TracingUtil.getRecorder();
-                    recorder.recording(PROVIDER, traceId.asText(), invokeId, callInfo, elapsed, channel);
+                    recorder.recording(PROVIDER, traceId.asText(), callInfo, elapsed, channel);
                 }
             }
 
@@ -250,34 +249,53 @@ public class MessageTask implements RejectedRunnable {
             byte s_code = _request.serializerCode();
             Serializer serializer = SerializerFactory.getSerializer(s_code);
             byte[] bytes = serializer.writeObject(result);
-            final int bodyLength = bytes.length;
 
-            JResponseBytes response = new JResponseBytes(invokeId);
+            if (METRIC_NEEDED) {
+                MetricsHolder.responseSizeHistogram.update(bytes.length);
+            }
+
+            JResponseBytes response = new JResponseBytes(_request.invokeId());
             response.status(Status.OK.value());
             response.bytes(s_code, bytes);
             channel.write(response, new JFutureListener<JChannel>() {
 
                 @Override
                 public void operationSuccess(JChannel channel) throws Exception {
-                    long elapsed = SystemClock.millisClock().now() - _request.timestamp();
-
-                    responseSizeHistogram.update(bodyLength);
-                    processingTimer.update(elapsed, MILLISECONDS);
-
-                    logger.debug("Service response[id: {}, length: {}] sent out, elapsed: {} millis.",
-                            invokeId, bodyLength, elapsed);
+                    if (METRIC_NEEDED) {
+                        MetricsHolder.processingTimer.update(millisClock().now() - _request.timestamp(), MILLISECONDS);
+                    }
                 }
 
                 @Override
                 public void operationFailure(JChannel channel, Throwable cause) throws Exception {
-                    long elapsed = SystemClock.millisClock().now() - _request.timestamp();
-
-                    logger.error("Service response[id: {}, length: {}] sent failed, elapsed: {} millis, {}, {}.",
-                            invokeId, bodyLength, elapsed, channel, cause);
+                    logger.error(
+                            "Service response[traceId: {}] sent failed, elapsed: {} millis, channel: {}, cause: {}.",
+                            traceId, millisClock().now() - _request.timestamp(), channel, cause
+                    );
                 }
             });
         } catch (Throwable t) {
             processor.handleException(channel, _request, SERVER_ERROR, t);
         }
+    }
+
+    private static String getCallInfo(ServiceMetadata metadata, String methodName) {
+        String directory = metadata.directory();
+        return StringBuilderHelper.get()
+                .append(directory)
+                .append('#')
+                .append(methodName).toString();
+    }
+
+    // - Metrics -------------------------------------------------------------------------------------------------------
+    static class MetricsHolder {
+        // 请求处理耗时统计(从request被解码开始, 到response数据被刷到OS内核缓冲区为止)
+        static final Timer processingTimer              = Metrics.timer("processing");
+        // 请求被拒绝次数统计
+        static final Meter rejectionMeter               = Metrics.meter("rejection");
+        // 请求数据大小统计(不包括Jupiter协议头的16个字节)
+        static final Histogram requestSizeHistogram     = Metrics.histogram("request.size");
+        // 响应数据大小统计(不包括Jupiter协议头的16个字节)
+        static final Histogram responseSizeHistogram    = Metrics.histogram("response.size");
     }
 }

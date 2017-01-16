@@ -38,11 +38,11 @@ public class BenchmarkServer {
         SystemPropertyUtil
                 .setProperty("jupiter.executor.factory.provider.core.workers", String.valueOf(processors));
         SystemPropertyUtil
+                .setProperty("jupiter.metric.needed", "false");
+        SystemPropertyUtil
                 .setProperty("jupiter.metric.csv.reporter", "false");
         SystemPropertyUtil
                 .setProperty("jupiter.metric.report.period", "1");
-        SystemPropertyUtil
-                .setProperty("jupiter.executor.factory.provider.disruptor.wait.strategy.type", "65536");
 
         JServer server = new DefaultServer().acceptor(new JNettyTcpAcceptor(18099));
         server.acceptor().configGroup().child().setOption(JOption.WRITE_BUFFER_HIGH_WATER_MARK, 256 * 1024);

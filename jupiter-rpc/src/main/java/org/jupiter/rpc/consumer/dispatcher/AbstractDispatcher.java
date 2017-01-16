@@ -160,16 +160,16 @@ abstract class AbstractDispatcher implements Dispatcher {
     }
 
     // tracing
-    protected MessageWrapper doTracing(long invokeId, MessageWrapper message, String methodName, JChannel channel) {
+    protected MessageWrapper doTracing(MessageWrapper message, String methodName, JChannel channel) {
         if (TracingUtil.isTracingNeeded()) {
             TraceId traceId = TracingUtil.getCurrent();
-            if (traceId == null) {
+            if (traceId == TraceId.NULL_TRACE_ID) {
                 traceId = TraceId.newInstance(TracingUtil.generateTraceId());
             }
             message.setTraceId(traceId);
 
             TracingRecorder recorder = TracingUtil.getRecorder();
-            recorder.recording(CONSUMER, traceId.asText(), invokeId, metadata.directory(), methodName, channel);
+            recorder.recording(CONSUMER, traceId.asText(), metadata.directory(), methodName, channel);
         }
         return message;
     }
