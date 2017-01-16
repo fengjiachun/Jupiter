@@ -19,9 +19,9 @@ package org.jupiter.serialization.kryo;
 import com.esotericsoftware.kryo.Kryo;
 import com.esotericsoftware.kryo.io.Input;
 import com.esotericsoftware.kryo.io.Output;
+import com.esotericsoftware.kryo.serializers.JavaSerializer;
+import org.jupiter.common.concurrent.collection.ConcurrentSet;
 import org.jupiter.common.util.internal.InternalThreadLocal;
-import org.jupiter.common.util.internal.UnsafeReferenceFieldUpdater;
-import org.jupiter.common.util.internal.UnsafeUpdater;
 import org.jupiter.serialization.Serializer;
 import org.objenesis.strategy.StdInstantiatorStrategy;
 
@@ -35,14 +35,20 @@ import static org.jupiter.serialization.SerializerType.KRYO;
  */
 public class KryoSerializer extends Serializer {
 
-    private static final UnsafeReferenceFieldUpdater<Output, byte[]> bufUpdater =
-            UnsafeUpdater.newReferenceFieldUpdater(Output.class, "buffer");
+    private static ConcurrentSet<Class<?>> useJavaSerializerTypes = new ConcurrentSet<>();
+
+    static {
+        useJavaSerializerTypes.add(Throwable.class);
+    }
 
     private static final InternalThreadLocal<Kryo> kryoThreadLocal = new InternalThreadLocal<Kryo>() {
 
         @Override
         protected Kryo initialValue() throws Exception {
             Kryo kryo = new Kryo();
+            for (Class<?> type : useJavaSerializerTypes) {
+                kryo.addDefaultSerializer(type, JavaSerializer.class);
+            }
             kryo.setInstantiatorStrategy(new StdInstantiatorStrategy());
             kryo.setRegistrationRequired(false);
             kryo.setReferences(false);
@@ -54,9 +60,17 @@ public class KryoSerializer extends Serializer {
 
         @Override
         protected Output initialValue() {
-            return new Output(DEFAULT_BUF_SIZE);
+            return new Output(DEFAULT_BUF_SIZE, -1);
         }
     };
+
+    /**
+     * Serializes {@code type}'s objects using Java's built in serialization mechanism,
+     * note that this is very inefficient and should be avoided if possible.
+     */
+    public static void setJavaSerializer(Class<?> type) {
+        useJavaSerializerTypes.add(type);
+    }
 
     @Override
     public byte code() {
@@ -74,8 +88,8 @@ public class KryoSerializer extends Serializer {
             output.clear();
 
             // 防止hold太大块的内存
-            if (bufUpdater.get(output).length > MAX_CACHED_BUF_SIZE) {
-                bufUpdater.set(output, new byte[DEFAULT_BUF_SIZE]);
+            if (output.getBuffer().length > MAX_CACHED_BUF_SIZE) {
+                output.setBuffer(new byte[DEFAULT_BUF_SIZE], -1);
             }
         }
     }
