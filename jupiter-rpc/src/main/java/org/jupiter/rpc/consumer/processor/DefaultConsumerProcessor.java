@@ -16,17 +16,13 @@
 
 package org.jupiter.rpc.consumer.processor;
 
-import org.jupiter.common.util.JServiceLoader;
 import org.jupiter.rpc.JResponse;
 import org.jupiter.rpc.consumer.processor.task.MessageTask;
-import org.jupiter.rpc.executor.ExecutorFactory;
 import org.jupiter.transport.channel.JChannel;
 import org.jupiter.transport.payload.JResponseBytes;
 import org.jupiter.transport.processor.ConsumerProcessor;
 
 import java.util.concurrent.Executor;
-
-import static org.jupiter.rpc.executor.ExecutorFactory.Target;
 
 /**
  * The default implementation of consumer's processor.
@@ -41,8 +37,11 @@ public class DefaultConsumerProcessor implements ConsumerProcessor {
     private final Executor executor;
 
     public DefaultConsumerProcessor() {
-        ExecutorFactory factory = (ExecutorFactory) JServiceLoader.loadFirst(ConsumerExecutorFactory.class);
-        executor = factory.newExecutor(Target.CONSUMER);
+        this(ConsumerExecutors.executor());
+    }
+
+    public DefaultConsumerProcessor(Executor executor) {
+        this.executor = executor;
     }
 
     @Override

@@ -168,7 +168,7 @@ public class BenchmarkClient {
         for (int i = 0; i < (processors << 4); i++) {
             new Thread(new Runnable() {
                 List<InvokeFuture<?>> futures = Lists.newArrayListWithCapacity(futureSize);
-                @SuppressWarnings("ForLoopReplaceableByForEach")
+                @SuppressWarnings("all")
                 @Override
                 public void run() {
                     for (int i = 0; i < t; i++) {

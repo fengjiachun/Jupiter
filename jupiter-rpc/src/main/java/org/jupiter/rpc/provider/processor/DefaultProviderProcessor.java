@@ -16,10 +16,8 @@
 
 package org.jupiter.rpc.provider.processor;
 
-import org.jupiter.common.util.JServiceLoader;
 import org.jupiter.rpc.JRequest;
 import org.jupiter.rpc.JServer;
-import org.jupiter.rpc.executor.ExecutorFactory;
 import org.jupiter.rpc.flow.control.ControlResult;
 import org.jupiter.rpc.flow.control.FlowController;
 import org.jupiter.rpc.model.metadata.ServiceWrapper;
@@ -29,8 +27,6 @@ import org.jupiter.transport.channel.JChannel;
 import org.jupiter.transport.payload.JRequestBytes;
 
 import java.util.concurrent.Executor;
-
-import static org.jupiter.rpc.executor.ExecutorFactory.Target;
 
 /**
  * jupiter
@@ -44,9 +40,7 @@ public class DefaultProviderProcessor extends AbstractProviderProcessor {
     private final Executor executor;
 
     public DefaultProviderProcessor(JServer server) {
-        this.server = server;
-        ExecutorFactory factory = (ExecutorFactory) JServiceLoader.loadFirst(ProviderExecutorFactory.class);
-        executor = factory.newExecutor(Target.PROVIDER);
+        this(server, ProviderExecutors.executor());
     }
 
     public DefaultProviderProcessor(JServer server, Executor executor) {
