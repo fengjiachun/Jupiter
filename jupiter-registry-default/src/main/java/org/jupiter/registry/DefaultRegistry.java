@@ -217,7 +217,7 @@ public class DefaultRegistry extends NettyTcpConnector {
     /**
      * Notify to registry server unpublish corresponding service.
      */
-    public void doUnregister(RegisterMeta meta) {
+    public void doUnregister(final RegisterMeta meta) {
         registryService.registerMetaSet().remove(meta);
 
         Message msg = new Message(PROTO_STUFF.value());
@@ -225,7 +225,20 @@ public class DefaultRegistry extends NettyTcpConnector {
         msg.data(meta);
 
         channel.writeAndFlush(msg)
-                .addListener(ChannelFutureListener.FIRE_EXCEPTION_ON_FAILURE);
+                .addListener(new ChannelFutureListener() {
+
+                    @Override
+                    public void operationComplete(ChannelFuture future) throws Exception {
+                        if (!future.isSuccess()) {
+                            Channel ch = future.channel();
+                            if (ch.isActive()) {
+                                ch.pipeline().fireExceptionCaught(future.cause());
+                            } else {
+                                logger.warn("Unregister {} fail because of channel is inactive: {}.", meta, stackTrace(future.cause()));
+                            }
+                        }
+                    }
+                });
 
         MessageNonAck msgNonAck = new MessageNonAck(msg, channel);
         messagesNonAck.put(msgNonAck.id, msgNonAck);
