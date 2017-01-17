@@ -53,7 +53,7 @@ public class InternalThreadLocal<V> {
     public final V get() {
         InternalThreadLocalMap threadLocalMap = InternalThreadLocalMap.get();
         Object v = threadLocalMap.indexedVariable(index);
-        if (InternalThreadLocalMap.UNSET != v) {
+        if (v != InternalThreadLocalMap.UNSET) {
             return (V) v;
         }
 
@@ -76,7 +76,7 @@ public class InternalThreadLocal<V> {
      * Sets the value for the current thread.
      */
     public final void set(V value) {
-        if (value == null || InternalThreadLocalMap.UNSET == value) {
+        if (value == null || value == InternalThreadLocalMap.UNSET) {
             remove();
         } else {
             InternalThreadLocalMap threadLocalMap = InternalThreadLocalMap.get();
@@ -96,7 +96,7 @@ public class InternalThreadLocal<V> {
 
         Object v = threadLocalMap.removeIndexedVariable(index);
 
-        if (InternalThreadLocalMap.UNSET != v) {
+        if (v != InternalThreadLocalMap.UNSET) {
             try {
                 onRemoval((V) v);
             } catch (Exception e) {

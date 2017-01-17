@@ -37,7 +37,7 @@ public class DefaultInternalTracingRecorder extends TracingRecorder {
     @Override
     public void recording(Role role, Object... args) {
         if (logger.isInfoEnabled()) {
-            if (Role.CONSUMER == role) {
+            if (role == Role.CONSUMER) {
                 String traceInfo = StringBuilderHelper.get()
                         .append("[Consumer] - ")
                         .append(args[0])
@@ -49,7 +49,7 @@ public class DefaultInternalTracingRecorder extends TracingRecorder {
                         .append(args[3]).toString();
 
                 logger.info(traceInfo);
-            } else if (Role.PROVIDER == role) {
+            } else if (role == Role.PROVIDER) {
                 String traceInfo = StringBuilderHelper.get()
                         .append("[Provider] - ")
                         .append(args[0])

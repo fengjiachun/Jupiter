@@ -494,7 +494,7 @@ public class DefaultRegistryServer extends NettyTcpAcceptor implements RegistryS
         }
 
         private static void checkMagic(short magic) throws Signal {
-            if (MAGIC != magic) {
+            if (magic != MAGIC) {
                 throw ILLEGAL_MAGIC;
             }
         }

@@ -132,7 +132,7 @@ public class ProtocolDecoder extends ReplayingDecoder<ProtocolDecoder.State> {
     }
 
     private static void checkMagic(short magic) throws Signal {
-        if (MAGIC != magic) {
+        if (magic != MAGIC) {
             throw ILLEGAL_MAGIC;
         }
     }

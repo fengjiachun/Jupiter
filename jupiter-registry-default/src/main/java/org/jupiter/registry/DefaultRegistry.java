@@ -351,7 +351,7 @@ public class DefaultRegistry extends NettyTcpConnector {
         }
 
         private static void checkMagic(short magic) throws Signal {
-            if (MAGIC != magic) {
+            if (magic != MAGIC) {
                 throw ILLEGAL_MAGIC;
             }
         }

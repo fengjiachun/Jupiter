@@ -103,16 +103,12 @@ public class DefaultInvokeFuture<V> extends AbstractInvokeFuture<V> {
             return get(timeout, NANOSECONDS);
         } catch (Signal s) {
             SocketAddress address = channel.remoteAddress();
-            if (C_TIMEOUT == s) {
-                throw new JupiterTimeoutException(address, CLIENT_TIMEOUT);
-            } else if (S_TIMEOUT == s) {
+            if (s == TIMEOUT) {
+                throw new JupiterTimeoutException(address, sent ? SERVER_TIMEOUT : CLIENT_TIMEOUT);
+            } else if (s == S_TIMEOUT) {
                 throw new JupiterTimeoutException(address, SERVER_TIMEOUT);
-            } else if (TIMEOUT == s) {
-                if (!sent) {
-                    throw new JupiterTimeoutException(address, CLIENT_TIMEOUT);
-                } else {
-                    throw new JupiterTimeoutException(address, SERVER_TIMEOUT);
-                }
+            } else if (s == C_TIMEOUT) {
+                throw new JupiterTimeoutException(address, CLIENT_TIMEOUT);
             } else {
                 throw new JupiterRemoteException(s.name(), address);
             }
@@ -122,16 +118,16 @@ public class DefaultInvokeFuture<V> extends AbstractInvokeFuture<V> {
     @Override
     protected void notifyListener0(JListener<V> listener, int state, Object x) {
         try {
-            if (NORMAL == state) {
+            if (state == NORMAL) {
                 listener.complete((V) x);
             } else {
                 Throwable cause = (Throwable) x;
                 if (x instanceof Signal) {
                     SocketAddress address = channel.remoteAddress();
-                    if (C_TIMEOUT == x) {
-                        cause = new JupiterTimeoutException(address, CLIENT_TIMEOUT);
-                    } else if (S_TIMEOUT == x) {
+                    if (x == S_TIMEOUT) {
                         cause = new JupiterTimeoutException(address, SERVER_TIMEOUT);
+                    } else if (x == C_TIMEOUT) {
+                        cause = new JupiterTimeoutException(address, CLIENT_TIMEOUT);
                     } else {
                         cause = new JupiterRemoteException(((Signal) x).name(), address);
                     }
@@ -141,7 +137,7 @@ public class DefaultInvokeFuture<V> extends AbstractInvokeFuture<V> {
             }
         } catch (Throwable t) {
             logger.error("An exception was thrown by {}.{}, {}.",
-                    listener.getClass().getName(), NORMAL == state ? "complete()" : "failure()", stackTrace(t));
+                    listener.getClass().getName(), state == NORMAL ? "complete()" : "failure()", stackTrace(t));
         }
     }
 
@@ -162,14 +158,15 @@ public class DefaultInvokeFuture<V> extends AbstractInvokeFuture<V> {
 
     private void doReceived(JResponse response) {
         byte status = response.status();
-        if (OK.value() == status) {
+
+        if (status == OK.value()) {
             ResultWrapper wrapper = response.result();
             set((V) wrapper.getResult());
-        } else if (CLIENT_TIMEOUT.value() == status) {
-            setException(C_TIMEOUT);
-        } else if (SERVER_TIMEOUT.value() == status) {
+        } else if (status == SERVER_TIMEOUT.value()) {
             setException(S_TIMEOUT);
-        } else if (SERVICE_ERROR.value() == status) {
+        } else if (status == CLIENT_TIMEOUT.value()) {
+            setException(C_TIMEOUT);
+        } else if (status == SERVICE_ERROR.value()) {
             setException(new JupiterBizException(response.toString(), channel.remoteAddress()));
         } else {
             setException(new JupiterRemoteException(response.toString(), channel.remoteAddress()));

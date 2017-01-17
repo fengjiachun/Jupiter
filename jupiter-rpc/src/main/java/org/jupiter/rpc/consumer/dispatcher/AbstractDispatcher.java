@@ -188,7 +188,7 @@ abstract class AbstractDispatcher implements Dispatcher {
                 // 标记已发送
                 future.markSent();
 
-                if (ROUND == dispatchType) {
+                if (dispatchType == ROUND) {
                     requestBytes.nullBytes();
                 }
 
@@ -200,7 +200,7 @@ abstract class AbstractDispatcher implements Dispatcher {
 
             @Override
             public void operationFailure(JChannel channel, Throwable cause) throws Exception {
-                if (ROUND == dispatchType) {
+                if (dispatchType == ROUND) {
                     requestBytes.nullBytes();
                 }
 

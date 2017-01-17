@@ -68,14 +68,14 @@ public class FailOverInvokeFuture<V> extends AbstractInvokeFuture<V> {
     @Override
     protected void notifyListener0(JListener<V> listener, int state, Object x) {
         try {
-            if (NORMAL == state) {
+            if (state == NORMAL) {
                 listener.complete((V) x);
             } else {
                 listener.failure((Throwable) x);
             }
         } catch (Throwable t) {
-            logger.error("An exception was thrown by {}.{}.",
-                    listener.getClass().getName(), NORMAL == state ? "complete()" : "failure()", stackTrace(t));
+            logger.error("An exception was thrown by {}.{}, {}.",
+                    listener.getClass().getName(), state == NORMAL ? "complete()" : "failure()", stackTrace(t));
         }
     }
 }
