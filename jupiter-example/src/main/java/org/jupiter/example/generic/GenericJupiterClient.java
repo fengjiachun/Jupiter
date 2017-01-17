@@ -40,7 +40,7 @@ public class GenericJupiterClient {
     public static void main(String[] args) {
         Directory directory = new ServiceMetadata("test", "GenericServiceTest", "1.0.0.daily");
 
-        JClient client = new DefaultClient().connector(new JNettyTcpConnector());
+        JClient client = new DefaultClient().withConnector(new JNettyTcpConnector());
         // 连接RegistryServer
         client.connectToRegistryServer("127.0.0.1:20001");
         // 自动管理可用连接

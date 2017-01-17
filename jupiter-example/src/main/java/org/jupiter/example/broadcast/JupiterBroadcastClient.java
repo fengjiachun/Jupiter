@@ -41,7 +41,7 @@ import static org.jupiter.rpc.InvokeType.ASYNC;
 public class JupiterBroadcastClient {
 
     public static void main(String[] args) {
-        JClient client = new DefaultClient().connector(new JNettyTcpConnector());
+        JClient client = new DefaultClient().withConnector(new JNettyTcpConnector());
 
         UnresolvedAddress[] addresses = {
                 new UnresolvedAddress("127.0.0.1", 18090),

@@ -133,7 +133,7 @@ public class JNettyTcpConnector extends NettyTcpConnector {
     }
 
     @Override
-    public void bindProcessor(ConsumerProcessor processor) {
+    public void withProcessor(ConsumerProcessor processor) {
         handler.processor(checkNotNull(processor, "processor"));
     }
 

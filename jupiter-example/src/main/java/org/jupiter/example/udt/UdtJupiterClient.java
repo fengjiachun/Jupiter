@@ -32,7 +32,7 @@ import org.jupiter.transport.netty.JNettyUdtConnector;
 public class UdtJupiterClient {
 
     public static void main(String[] args) {
-        JClient client = new DefaultClient().connector(new JNettyUdtConnector());
+        JClient client = new DefaultClient().withConnector(new JNettyUdtConnector());
         UnresolvedAddress address = new UnresolvedAddress("127.0.0.1", 18090);
         client.connector().connect(address);
 

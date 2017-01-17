@@ -38,7 +38,7 @@ import org.jupiter.transport.netty.JNettyTcpConnector;
 public class FailFastJupiterClient {
 
     public static void main(String[] args) {
-        JClient client = new DefaultClient().connector(new JNettyTcpConnector());
+        JClient client = new DefaultClient().withConnector(new JNettyTcpConnector());
         // 连接RegistryServer
         client.connectToRegistryServer("127.0.0.1:20001");
         // 自动管理可用连接

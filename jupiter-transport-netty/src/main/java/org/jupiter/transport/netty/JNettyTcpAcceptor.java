@@ -32,6 +32,7 @@ import org.jupiter.transport.processor.ProviderProcessor;
 import java.net.SocketAddress;
 
 import static org.jupiter.common.util.JConstants.READER_IDLE_TIME_SECONDS;
+import static org.jupiter.common.util.Preconditions.checkNotNull;
 
 /**
  * Jupiter tcp acceptor based on netty.
@@ -160,6 +161,6 @@ public class JNettyTcpAcceptor extends NettyTcpAcceptor {
 
     @Override
     public void withProcessor(ProviderProcessor processor) {
-        handler.processor(processor);
+        handler.processor(checkNotNull(processor, "processor"));
     }
 }

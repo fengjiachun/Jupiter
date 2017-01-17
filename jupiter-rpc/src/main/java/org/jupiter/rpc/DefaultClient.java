@@ -58,7 +58,7 @@ public class DefaultClient implements JClient {
     private final RegistryService registryService = JServiceLoader.loadFirst(RegistryService.class);
     private final String appName;
 
-    private volatile JConnector<JConnection> connector;
+    private JConnector<JConnection> connector;
 
     public DefaultClient() {
         this(UNKNOWN_APP_NAME);
@@ -79,8 +79,8 @@ public class DefaultClient implements JClient {
     }
 
     @Override
-    public JClient connector(JConnector<JConnection> connector) {
-        connector.bindProcessor(new DefaultConsumerProcessor());
+    public JClient withConnector(JConnector<JConnection> connector) {
+        connector.withProcessor(new DefaultConsumerProcessor());
         this.connector = connector;
         return this;
     }
@@ -255,10 +255,6 @@ public class DefaultClient implements JClient {
     @Override
     public void connectToRegistryServer(String connectString) {
         registryService.connectToRegistryServer(connectString);
-    }
-
-    public void setConnector(JConnector<JConnection> connector) {
-        connector(connector);
     }
 
     private static ServiceMeta transformToServiceMeta(Directory directory) {

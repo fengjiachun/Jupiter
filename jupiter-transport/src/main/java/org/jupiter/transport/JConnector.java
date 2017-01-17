@@ -39,7 +39,7 @@ public interface JConnector<C> extends Transporter {
     /**
      * Binds the rpc processor.
      */
-    void bindProcessor(ConsumerProcessor processor);
+    void withProcessor(ConsumerProcessor processor);
 
     /**
      * Connects to the remote peer.

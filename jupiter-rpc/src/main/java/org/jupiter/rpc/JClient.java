@@ -50,7 +50,7 @@ public interface JClient extends Registry {
     /**
      * Sets the connector.
      */
-    JClient connector(JConnector<JConnection> connector);
+    JClient withConnector(JConnector<JConnection> connector);
 
     /**
      * Find a service in the local scope.

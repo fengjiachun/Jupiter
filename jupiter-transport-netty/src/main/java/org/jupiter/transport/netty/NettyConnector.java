@@ -104,7 +104,7 @@ public abstract class NettyConnector implements JConnector<JConnection> {
     }
 
     @Override
-    public void bindProcessor(ConsumerProcessor processor) {
+    public void withProcessor(ConsumerProcessor processor) {
         // the default implementation does nothing
     }
 
