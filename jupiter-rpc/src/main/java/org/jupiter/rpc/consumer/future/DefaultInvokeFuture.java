@@ -52,8 +52,8 @@ public class DefaultInvokeFuture<V> extends AbstractInvokeFuture<V> {
 
     private static final InternalLogger logger = InternalLoggerFactory.getInstance(DefaultInvokeFuture.class);
 
-    private static final Signal C_TIMEOUT = Signal.valueOf(DefaultInvokeFuture.class, "client_time_out");
     private static final Signal S_TIMEOUT = Signal.valueOf(DefaultInvokeFuture.class, "server_time_out");
+    private static final Signal C_TIMEOUT = Signal.valueOf(DefaultInvokeFuture.class, "client_time_out");
 
     private static final long DEFAULT_TIMEOUT_NANOSECONDS = MILLISECONDS.toNanos(DEFAULT_TIMEOUT);
 
@@ -70,11 +70,15 @@ public class DefaultInvokeFuture<V> extends AbstractInvokeFuture<V> {
 
     private ConsumerHook[] hooks = EMPTY_HOOKS;
 
-    public static <T> DefaultInvokeFuture<T> with(long invokeId, JChannel channel, Class<T> returnType, long timeoutMillis, DispatchType dispatchType) {
+    public static <T> DefaultInvokeFuture<T> with(
+            long invokeId, JChannel channel, Class<T> returnType, long timeoutMillis, DispatchType dispatchType) {
+
         return new DefaultInvokeFuture<T>(invokeId, channel, returnType, timeoutMillis, dispatchType);
     }
 
-    private DefaultInvokeFuture(long invokeId, JChannel channel, Class<V> returnType, long timeoutMillis, DispatchType dispatchType) {
+    private DefaultInvokeFuture(
+            long invokeId, JChannel channel, Class<V> returnType, long timeoutMillis, DispatchType dispatchType) {
+
         this.invokeId = invokeId;
         this.channel = channel;
         this.returnType = returnType;
