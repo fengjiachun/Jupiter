@@ -41,7 +41,7 @@ public interface RegistryMonitor {
     /**
      * Returns to the service of all the specified service provider's address.
      */
-    List<String> listAddressesByService(String group, String version, String serviceProviderName);
+    List<String> listAddressesByService(String group, String serviceProviderName, String version);
 
     /**
      * Finds the address(host, port) of the corresponding node and returns all

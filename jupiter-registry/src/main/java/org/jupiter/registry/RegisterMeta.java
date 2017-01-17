@@ -61,20 +61,20 @@ public class RegisterMeta {
         serviceMeta.setGroup(group);
     }
 
-    public String getVersion() {
-        return serviceMeta.getVersion();
-    }
-
-    public void setVersion(String version) {
-        serviceMeta.setVersion(version);
-    }
-
     public String getServiceProviderName() {
         return serviceMeta.getServiceProviderName();
     }
 
     public void setServiceProviderName(String serviceProviderName) {
         serviceMeta.setServiceProviderName(serviceProviderName);
+    }
+
+    public String getVersion() {
+        return serviceMeta.getVersion();
+    }
+
+    public void setVersion(String version) {
+        serviceMeta.setVersion(version);
     }
 
     public Address getAddress() {
@@ -193,17 +193,17 @@ public class RegisterMeta {
     public static class ServiceMeta {
         // 组别
         private String group;
-        // 版本信息
-        private String version;
         // 服务名
         private String serviceProviderName;
+        // 版本信息
+        private String version;
 
         public ServiceMeta() {}
 
-        public ServiceMeta(String group, String version, String serviceProviderName) {
+        public ServiceMeta(String group, String serviceProviderName, String version) {
             this.group = group;
-            this.version = version;
             this.serviceProviderName = serviceProviderName;
+            this.version = version;
         }
 
         public String getGroup() {
@@ -214,20 +214,20 @@ public class RegisterMeta {
             this.group = group;
         }
 
-        public String getVersion() {
-            return version;
-        }
-
-        public void setVersion(String version) {
-            this.version = version;
-        }
-
         public String getServiceProviderName() {
             return serviceProviderName;
         }
 
         public void setServiceProviderName(String serviceProviderName) {
             this.serviceProviderName = serviceProviderName;
+        }
+
+        public String getVersion() {
+            return version;
+        }
+
+        public void setVersion(String version) {
+            this.version = version;
         }
 
         @Override
@@ -238,15 +238,15 @@ public class RegisterMeta {
             ServiceMeta that = (ServiceMeta) o;
 
             return !(group != null ? !group.equals(that.group) : that.group != null)
-                    && !(version != null ? !version.equals(that.version) : that.version != null)
-                    && !(serviceProviderName != null ? !serviceProviderName.equals(that.serviceProviderName) : that.serviceProviderName != null);
+                    && !(serviceProviderName != null ? !serviceProviderName.equals(that.serviceProviderName) : that.serviceProviderName != null)
+                    && !(version != null ? !version.equals(that.version) : that.version != null);
         }
 
         @Override
         public int hashCode() {
             int result = group != null ? group.hashCode() : 0;
-            result = 31 * result + (version != null ? version.hashCode() : 0);
             result = 31 * result + (serviceProviderName != null ? serviceProviderName.hashCode() : 0);
+            result = 31 * result + (version != null ? version.hashCode() : 0);
             return result;
         }
 
@@ -254,8 +254,8 @@ public class RegisterMeta {
         public String toString() {
             return "ServiceMeta{" +
                     "group='" + group + '\'' +
-                    ", version='" + version + '\'' +
                     ", serviceProviderName='" + serviceProviderName + '\'' +
+                    ", version='" + version + '\'' +
                     '}';
         }
     }

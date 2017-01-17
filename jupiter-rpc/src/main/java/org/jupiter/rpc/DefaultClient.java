@@ -103,10 +103,10 @@ public class DefaultClient implements JClient {
         ServiceProvider annotation = interfaceClass.getAnnotation(ServiceProvider.class);
         checkNotNull(annotation, interfaceClass + " is not a ServiceProvider interface");
         String providerName = annotation.name();
-        version = Strings.isNotBlank(version) ? version : JConstants.DEFAULT_VERSION;
         providerName = Strings.isNotBlank(providerName) ? providerName : interfaceClass.getName();
+        version = Strings.isNotBlank(version) ? version : JConstants.DEFAULT_VERSION;
 
-        return manageConnections(new ServiceMetadata(annotation.group(), version, providerName));
+        return manageConnections(new ServiceMetadata(annotation.group(), providerName, version));
     }
 
     @Override
@@ -264,8 +264,8 @@ public class DefaultClient implements JClient {
     private static ServiceMeta transformToServiceMeta(Directory directory) {
         ServiceMeta serviceMeta = new ServiceMeta();
         serviceMeta.setGroup(checkNotNull(directory.getGroup(), "group"));
-        serviceMeta.setVersion(checkNotNull(directory.getVersion(), "version"));
         serviceMeta.setServiceProviderName(checkNotNull(directory.getServiceProviderName(), "serviceProviderName"));
+        serviceMeta.setVersion(checkNotNull(directory.getVersion(), "version"));
 
         return serviceMeta;
     }

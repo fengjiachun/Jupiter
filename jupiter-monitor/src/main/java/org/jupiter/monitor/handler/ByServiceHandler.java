@@ -38,7 +38,7 @@ public class ByServiceHandler extends ChildCommandHandler<RegistryHandler> {
         }
 
         if (args.length < 5) {
-            channel.writeAndFlush("Args[2]: group, args[3]: version, args[4]: serviceProviderName" + NEWLINE);
+            channel.writeAndFlush("Args[2]: group, args[3]: serviceProviderName, args[4]: version" + NEWLINE);
             return;
         }
         Command.ChildCommand childGrep = null;

@@ -134,8 +134,8 @@ public class DefaultServer implements JServer {
         RegisterMeta meta = new RegisterMeta();
         meta.setPort(acceptor.boundPort());
         meta.setGroup(metadata.getGroup());
-        meta.setVersion(metadata.getVersion());
         meta.setServiceProviderName(metadata.getServiceProviderName());
+        meta.setVersion(metadata.getVersion());
         meta.setWeight(serviceWrapper.getWeight());
         meta.setConnCount(serviceWrapper.getConnCount());
 
@@ -251,7 +251,7 @@ public class DefaultServer implements JServer {
         }
 
         ServiceWrapper wrapper =
-                new ServiceWrapper(group, version, providerName, serviceProvider, allInterceptors, methodsParameterTypes);
+                new ServiceWrapper(group, providerName, version, serviceProvider, allInterceptors, methodsParameterTypes);
 
         wrapper.setWeight(weight);
         wrapper.setConnCount(connCount);
@@ -348,7 +348,7 @@ public class DefaultServer implements JServer {
                 }
             }
 
-            checkNotNull(implAnnotation, providerClass.getName() + " must be annotated with @ServiceProvider");
+            checkNotNull(implAnnotation, providerClass.getName() + " must be annotated with @ServiceProviderImpl");
             checkNotNull(ifAnnotation, providerClass.getName() + "'s interface must be annotated with @ServiceProvider");
 
             String group = ifAnnotation.group();

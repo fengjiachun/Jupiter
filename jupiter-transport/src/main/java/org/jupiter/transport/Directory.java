@@ -33,11 +33,11 @@ public abstract class Directory {
     /** 服务所属组别 */
     public abstract String getGroup();
 
-    /** 服务版本 */
-    public abstract String getVersion();
-
     /** 服务名称 */
     public abstract String getServiceProviderName();
+
+    /** 服务版本 */
+    public abstract String getVersion();
 
     public String directory() {
         if (directoryCache != null) {
@@ -47,9 +47,9 @@ public abstract class Directory {
         StringBuilder buf = StringBuilderHelper.get();
         buf.append(getGroup())
                 .append('-')
-                .append(getVersion())
+                .append(getServiceProviderName())
                 .append('-')
-                .append(getServiceProviderName());
+                .append(getVersion());
 
         directoryCache = buf.toString();
 

@@ -197,7 +197,7 @@ public class GenericProxyFactory {
         }
 
         // metadata
-        ServiceMetadata metadata = new ServiceMetadata(group, version, providerName);
+        ServiceMetadata metadata = new ServiceMetadata(group, providerName, version);
 
         JConnector<JConnection> connector = client.connector();
         for (UnresolvedAddress address : addresses) {

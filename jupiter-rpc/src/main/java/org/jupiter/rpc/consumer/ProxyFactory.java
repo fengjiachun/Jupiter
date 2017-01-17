@@ -183,7 +183,7 @@ public class ProxyFactory<I> {
         String version = Strings.isNotBlank(this.version) ? this.version : JConstants.DEFAULT_VERSION;
 
         // metadata
-        ServiceMetadata metadata = new ServiceMetadata(annotation.group(), version, providerName);
+        ServiceMetadata metadata = new ServiceMetadata(annotation.group(), providerName, version);
 
         JConnector<JConnection> connector = client.connector();
         for (UnresolvedAddress address : addresses) {

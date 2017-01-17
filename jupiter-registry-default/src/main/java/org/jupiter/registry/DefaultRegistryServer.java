@@ -181,8 +181,8 @@ public class DefaultRegistryServer extends NettyTcpAcceptor implements RegistryS
     }
 
     @Override
-    public List<String> listAddressesByService(String group, String version, String serviceProviderName) {
-        ServiceMeta serviceMeta = new ServiceMeta(group, version, serviceProviderName);
+    public List<String> listAddressesByService(String group, String serviceProviderName, String version) {
+        ServiceMeta serviceMeta = new ServiceMeta(group, serviceProviderName, version);
         List<Address> fromList = registerInfoContext.listAddressesByService(serviceMeta);
 
         return Lists.transform(fromList, new Function<Address, String>() {

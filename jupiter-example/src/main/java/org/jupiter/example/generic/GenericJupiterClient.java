@@ -38,7 +38,7 @@ import org.jupiter.transport.netty.JNettyTcpConnector;
 public class GenericJupiterClient {
 
     public static void main(String[] args) {
-        Directory directory = new ServiceMetadata("test", "1.0.0.daily", "GenericServiceTest");
+        Directory directory = new ServiceMetadata("test", "GenericServiceTest", "1.0.0.daily");
 
         JClient client = new DefaultClient().connector(new JNettyTcpConnector());
         // 连接RegistryServer

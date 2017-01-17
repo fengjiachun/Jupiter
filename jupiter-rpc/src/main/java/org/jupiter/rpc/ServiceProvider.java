@@ -38,12 +38,12 @@ import static org.jupiter.common.util.JConstants.DEFAULT_GROUP;
 public @interface ServiceProvider {
 
     /**
-     * 服务名称
-     */
-    String name() default "";
-
-    /**
      * 服务组别
      */
     String group() default DEFAULT_GROUP;
+
+    /**
+     * 服务名称
+     */
+    String name() default "";
 }

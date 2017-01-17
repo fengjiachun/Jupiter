@@ -98,8 +98,8 @@ public class ZookeeperRegistryService extends AbstractRegistryService {
         if (childrenCache == null) {
             String directory = String.format("/jupiter/provider/%s/%s/%s",
                     serviceMeta.getGroup(),
-                    serviceMeta.getVersion(),
-                    serviceMeta.getServiceProviderName());
+                    serviceMeta.getServiceProviderName(),
+                    serviceMeta.getVersion());
 
             PathChildrenCache newChildrenCache = new PathChildrenCache(configClient, directory, false);
             childrenCache = pathChildrenCaches.putIfAbsent(serviceMeta, newChildrenCache);
@@ -160,8 +160,8 @@ public class ZookeeperRegistryService extends AbstractRegistryService {
     protected void doRegister(final RegisterMeta meta) {
         String directory = String.format("/jupiter/provider/%s/%s/%s",
                 meta.getGroup(),
-                meta.getVersion(),
-                meta.getServiceProviderName());
+                meta.getServiceProviderName(),
+                meta.getVersion());
 
         try {
             if (configClient.checkExists().forPath(directory) == null) {
@@ -199,8 +199,8 @@ public class ZookeeperRegistryService extends AbstractRegistryService {
     protected void doUnregister(final RegisterMeta meta) {
         String directory = String.format("/jupiter/provider/%s/%s/%s",
                 meta.getGroup(),
-                meta.getVersion(),
-                meta.getServiceProviderName());
+                meta.getServiceProviderName(),
+                meta.getVersion());
 
         try {
             if (configClient.checkExists().forPath(directory) == null) {
@@ -285,8 +285,8 @@ public class ZookeeperRegistryService extends AbstractRegistryService {
             public ServiceMeta apply(ServiceMeta input) {
                 ServiceMeta copy = new ServiceMeta();
                 copy.setGroup(input.getGroup());
-                copy.setVersion(input.getVersion());
                 copy.setServiceProviderName(input.getServiceProviderName());
+                copy.setVersion(input.getVersion());
                 return copy;
             }
         });
@@ -296,8 +296,8 @@ public class ZookeeperRegistryService extends AbstractRegistryService {
         String[] array_0 = Strings.split(data, '/');
         RegisterMeta meta = new RegisterMeta();
         meta.setGroup(array_0[2]);
-        meta.setVersion(array_0[3]);
-        meta.setServiceProviderName(array_0[4]);
+        meta.setServiceProviderName(array_0[3]);
+        meta.setVersion(array_0[4]);
 
         String[] array_1 = Strings.split(array_0[5], ':');
         meta.setHost(array_1[0]);

@@ -35,15 +35,15 @@ public class ServiceMetadata extends Directory implements Serializable {
     private static final long serialVersionUID = -8908295634641380163L;
 
     private String group;               // 组别
-    private String version;             // 版本号
     private String serviceProviderName; // 服务名称
+    private String version;             // 版本号
 
     public ServiceMetadata() {}
 
-    public ServiceMetadata(String group, String version, String serviceProviderName) {
+    public ServiceMetadata(String group, String serviceProviderName, String version) {
         this.group = checkNotNull(group, "group");
-        this.version = checkNotNull(version, "version");
         this.serviceProviderName = checkNotNull(serviceProviderName, "serviceProviderName");
+        this.version = checkNotNull(version, "version");
     }
 
     @Override
@@ -56,21 +56,21 @@ public class ServiceMetadata extends Directory implements Serializable {
     }
 
     @Override
-    public String getVersion() {
-        return version;
-    }
-
-    public void setVersion(String version) {
-        this.version = version;
-    }
-
-    @Override
     public String getServiceProviderName() {
         return serviceProviderName;
     }
 
     public void setServiceProviderName(String serviceProviderName) {
         this.serviceProviderName = serviceProviderName;
+    }
+
+    @Override
+    public String getVersion() {
+        return version;
+    }
+
+    public void setVersion(String version) {
+        this.version = version;
     }
 
     @Override
@@ -81,15 +81,15 @@ public class ServiceMetadata extends Directory implements Serializable {
         ServiceMetadata metadata = (ServiceMetadata) o;
 
         return group.equals(metadata.group)
-                && version.equals(metadata.version)
-                && serviceProviderName.equals(metadata.serviceProviderName);
+                && serviceProviderName.equals(metadata.serviceProviderName)
+                && version.equals(metadata.version);
     }
 
     @Override
     public int hashCode() {
         int result = group.hashCode();
-        result = 31 * result + version.hashCode();
         result = 31 * result + serviceProviderName.hashCode();
+        result = 31 * result + version.hashCode();
         return result;
     }
 
@@ -97,8 +97,8 @@ public class ServiceMetadata extends Directory implements Serializable {
     public String toString() {
         return "ServiceMetadata{" +
                 "group='" + group + '\'' +
-                ", version='" + version + '\'' +
                 ", serviceProviderName='" + serviceProviderName + '\'' +
+                ", version='" + version + '\'' +
                 '}';
     }
 }

@@ -63,13 +63,13 @@ public class ServiceWrapper implements Serializable {
     private FlowController<JRequest> flowController;
 
     public ServiceWrapper(String group,
+                          String providerName,
                           String version,
-                          String name,
                           Object serviceProvider,
                           ProviderInterceptor[] interceptors,
                           Map<String, List<Class<?>[]>> methodsParameterTypes) {
 
-        metadata = new ServiceMetadata(group, version, name);
+        metadata = new ServiceMetadata(group, providerName, version);
 
         this.interceptors = interceptors;
         this.methodsParameterTypes = checkNotNull(methodsParameterTypes, "methodsParameterTypes");

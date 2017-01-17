@@ -59,12 +59,12 @@ public class MessageWrapper implements Serializable {
         return metadata.getGroup();
     }
 
-    public String getVersion() {
-        return metadata.getVersion();
-    }
-
     public String getServiceProviderName() {
         return metadata.getServiceProviderName();
+    }
+
+    public String getVersion() {
+        return metadata.getVersion();
     }
 
     public String getMethodName() {
