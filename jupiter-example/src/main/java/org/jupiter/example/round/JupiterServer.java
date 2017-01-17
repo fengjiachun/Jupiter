@@ -46,7 +46,7 @@ public class JupiterServer {
         try {
             monitor.start();
 
-            server.withInterceptors(new GlobalInterceptor());
+            server.withGlobalInterceptors(new GlobalInterceptor());
 
             // provider1
             ServiceTestImpl service = new ServiceTestImpl();

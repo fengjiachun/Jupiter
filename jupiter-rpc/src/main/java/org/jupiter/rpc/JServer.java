@@ -93,7 +93,7 @@ public interface JServer extends Registry {
     /**
      * Sets global {@link ProviderInterceptor}s to this server.
      */
-    void withInterceptors(ProviderInterceptor... globalInterceptors);
+    void withGlobalInterceptors(ProviderInterceptor... globalInterceptors);
 
     /**
      * Returns the global {@link FlowController} if have one.

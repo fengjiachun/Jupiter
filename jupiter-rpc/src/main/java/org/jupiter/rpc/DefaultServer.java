@@ -93,7 +93,7 @@ public class DefaultServer implements JServer {
     }
 
     @Override
-    public void withInterceptors(ProviderInterceptor... globalInterceptors) {
+    public void withGlobalInterceptors(ProviderInterceptor... globalInterceptors) {
         this.globalInterceptors = globalInterceptors;
     }
 

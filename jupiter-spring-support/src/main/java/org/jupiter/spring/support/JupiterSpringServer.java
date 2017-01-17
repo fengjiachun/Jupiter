@@ -55,7 +55,7 @@ public class JupiterSpringServer implements InitializingBean {
 
         // 全局拦截器
         if (providerInterceptors != null && providerInterceptors.length > 0) {
-            server.withInterceptors(providerInterceptors);
+            server.withGlobalInterceptors(providerInterceptors);
         }
 
         // 全局限流
