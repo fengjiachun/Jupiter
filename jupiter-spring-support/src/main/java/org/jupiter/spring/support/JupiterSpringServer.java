@@ -64,15 +64,13 @@ public class JupiterSpringServer implements InitializingBean {
         try {
             final JServer server = this.server;
 
-            if (hasRegistryServer) {
-                Runtime.getRuntime().addShutdownHook(new Thread() {
+            Runtime.getRuntime().addShutdownHook(new Thread() {
 
-                    @Override
-                    public void run() {
-                        server.shutdownGracefully();
-                    }
-                });
-            }
+                @Override
+                public void run() {
+                    server.shutdownGracefully();
+                }
+            });
 
             server.start(false);
         } catch (Exception e) {

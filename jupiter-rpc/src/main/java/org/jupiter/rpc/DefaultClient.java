@@ -93,12 +93,12 @@ public class DefaultClient implements JClient {
     }
 
     @Override
-    public JConnector.ConnectionManager manageConnections(Class<?> interfaceClass) {
-        return manageConnections(interfaceClass, JConstants.DEFAULT_VERSION);
+    public JConnector.ConnectionWatcher watchConnections(Class<?> interfaceClass) {
+        return watchConnections(interfaceClass, JConstants.DEFAULT_VERSION);
     }
 
     @Override
-    public JConnector.ConnectionManager manageConnections(Class<?> interfaceClass, String version) {
+    public JConnector.ConnectionWatcher watchConnections(Class<?> interfaceClass, String version) {
         checkNotNull(interfaceClass, "interfaceClass");
         ServiceProvider annotation = interfaceClass.getAnnotation(ServiceProvider.class);
         checkNotNull(annotation, interfaceClass + " is not a ServiceProvider interface");
@@ -106,12 +106,14 @@ public class DefaultClient implements JClient {
         providerName = Strings.isNotBlank(providerName) ? providerName : interfaceClass.getName();
         version = Strings.isNotBlank(version) ? version : JConstants.DEFAULT_VERSION;
 
-        return manageConnections(new ServiceMetadata(annotation.group(), providerName, version));
+        return watchConnections(new ServiceMetadata(annotation.group(), providerName, version));
     }
 
     @Override
-    public JConnector.ConnectionManager manageConnections(final Directory directory) {
-        JConnector.ConnectionManager manager = new JConnector.ConnectionManager() {
+    public JConnector.ConnectionWatcher watchConnections(final Directory directory) {
+        JConnector.ConnectionWatcher manager = new JConnector.ConnectionWatcher() {
+
+            private final JConnectionManager connectionManager = connector.connectionManager();
 
             private final ReentrantLock lock = new ReentrantLock();
             private final Condition notifyCondition = lock.newCondition();
@@ -144,7 +146,7 @@ public class DefaultClient implements JClient {
                         } else if (event == NotifyEvent.CHILD_REMOVED) {
                             connector.removeChannelGroup(directory, group);
                             if (connector.directoryGroup().getRefCount(group) <= 0) {
-                                JConnectionManager.cancelReconnect(address); // 取消自动重连
+                                connectionManager.cancelReconnect(address); // 取消自动重连
                             }
                         }
                     }
@@ -159,13 +161,13 @@ public class DefaultClient implements JClient {
                         for (int i = 0; i < connCount; i++) {
                             JConnection connection = connector.connect(address, async);
                             connections[i] = connection;
-                            JConnectionManager.manage(connection);
+                            connectionManager.manage(connection);
 
                             offlineListening(address, new OfflineListener() {
 
                                 @Override
                                 public void offline() {
-                                    JConnectionManager.cancelReconnect(address); // 取消自动重连
+                                    connectionManager.cancelReconnect(address); // 取消自动重连
                                     if (!group.isAvailable()) {
                                         connector.removeChannelGroup(directory, group);
                                     }
@@ -229,7 +231,7 @@ public class DefaultClient implements JClient {
 
     @Override
     public boolean awaitConnections(Directory directory, long timeoutMillis) {
-        JConnector.ConnectionManager manager = manageConnections(directory);
+        JConnector.ConnectionWatcher manager = watchConnections(directory);
         return manager.waitForAvailable(timeoutMillis);
     }
 

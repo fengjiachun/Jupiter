@@ -99,7 +99,7 @@ public class NettyChannel implements JChannel {
     @Override
     public boolean isMarkedReconnect() {
         ConnectionWatchdog watchdog = channel.pipeline().get(ConnectionWatchdog.class);
-        return watchdog != null && watchdog.isReconnect();
+        return watchdog != null && watchdog.isStarted();
     }
 
     @Override

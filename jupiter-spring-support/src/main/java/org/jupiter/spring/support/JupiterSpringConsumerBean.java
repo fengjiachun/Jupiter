@@ -99,10 +99,10 @@ public class JupiterSpringConsumerBean<T> implements FactoryBean<T>, Initializin
 
         if (client.isHasRegistryServer()) {
             // 自动管理可用连接
-            JConnector.ConnectionManager manager = client.getClient().manageConnections(interfaceClass, version);
+            JConnector.ConnectionWatcher watcher = client.getClient().watchConnections(interfaceClass, version);
             if (waitForAvailableTimeoutMillis > 0) {
                 // 等待连接可用
-                if (!manager.waitForAvailable(waitForAvailableTimeoutMillis)) {
+                if (!watcher.waitForAvailable(waitForAvailableTimeoutMillis)) {
                     throw new ConnectFailedException();
                 }
             }

@@ -44,12 +44,15 @@ public abstract class ConnectionWatchdog extends ChannelInboundHandlerAdapter im
 
     private static final InternalLogger logger = InternalLoggerFactory.getInstance(ConnectionWatchdog.class);
 
+    private static final int ST_STARTED = 1;
+    private static final int ST_STOPPED = 2;
+
     private final Bootstrap bootstrap;
     private final Timer timer;
     private final SocketAddress remoteAddress;
     private final JChannelGroup group;
 
-    private volatile boolean reconnect = true;
+    private volatile int state;
     private int attempts;
 
     public ConnectionWatchdog(Bootstrap bootstrap, Timer timer, SocketAddress remoteAddress, JChannelGroup group) {
@@ -57,14 +60,20 @@ public abstract class ConnectionWatchdog extends ChannelInboundHandlerAdapter im
         this.timer = timer;
         this.remoteAddress = remoteAddress;
         this.group = group;
+
+        start();
     }
 
-    public boolean isReconnect() {
-        return reconnect;
+    public boolean isStarted() {
+        return state == ST_STARTED;
     }
 
-    public void setReconnect(boolean reconnect) {
-        this.reconnect = reconnect;
+    public void start() {
+        state = ST_STARTED;
+    }
+
+    public void stop() {
+        state = ST_STOPPED;
     }
 
     @Override
@@ -83,7 +92,7 @@ public abstract class ConnectionWatchdog extends ChannelInboundHandlerAdapter im
 
     @Override
     public void channelInactive(ChannelHandlerContext ctx) throws Exception {
-        boolean doReconnect = reconnect && (group == null || (group.size() < group.getCapacity()));
+        boolean doReconnect = isStarted() && (group == null || (group.size() < group.getCapacity()));
         if (doReconnect) {
             if (attempts < 12) {
                 attempts++;

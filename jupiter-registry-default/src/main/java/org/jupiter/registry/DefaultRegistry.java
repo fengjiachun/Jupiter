@@ -136,7 +136,7 @@ public class DefaultRegistry extends NettyTcpConnector {
                         handler
                 };
             }};
-        watchdog.setReconnect(true);
+        watchdog.start();
 
         try {
             ChannelFuture future;
@@ -163,7 +163,11 @@ public class DefaultRegistry extends NettyTcpConnector {
 
             @Override
             public void setReconnect(boolean reconnect) {
-                watchdog.setReconnect(reconnect);
+                if (reconnect) {
+                    watchdog.start();
+                } else {
+                    watchdog.stop();
+                }
             }
         };
     }

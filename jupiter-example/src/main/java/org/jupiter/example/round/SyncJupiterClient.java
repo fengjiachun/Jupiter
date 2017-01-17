@@ -36,19 +36,27 @@ import org.jupiter.transport.netty.JNettyTcpConnector;
 public class SyncJupiterClient {
 
     public static void main(String[] args) {
-        JClient client = new DefaultClient().withConnector(new JNettyTcpConnector());
+        final JClient client = new DefaultClient().withConnector(new JNettyTcpConnector());
         // 连接RegistryServer
         client.connectToRegistryServer("127.0.0.1:20001");
         // 自动管理可用连接
-        JConnector.ConnectionManager manager1 = client.manageConnections(ServiceTest.class, "1.0.0.daily");
-        JConnector.ConnectionManager manager2 = client.manageConnections(ServiceTest2.class, "1.0.0.daily");
+        JConnector.ConnectionWatcher watcher1 = client.watchConnections(ServiceTest.class, "1.0.0.daily");
+        JConnector.ConnectionWatcher watcher2 = client.watchConnections(ServiceTest2.class, "1.0.0.daily");
         // 等待连接可用
-        if (!manager1.waitForAvailable(3000)) {
+        if (!watcher1.waitForAvailable(3000)) {
             throw new ConnectFailedException();
         }
-        if (!manager2.waitForAvailable(3000)) {
+        if (!watcher2.waitForAvailable(3000)) {
             throw new ConnectFailedException();
         }
+
+        Runtime.getRuntime().addShutdownHook(new Thread() {
+
+            @Override
+            public void run() {
+                client.shutdownGracefully();
+            }
+        });
 
         ServiceTest service1 = ProxyFactory.factory(ServiceTest.class)
                 .version("1.0.0.daily")

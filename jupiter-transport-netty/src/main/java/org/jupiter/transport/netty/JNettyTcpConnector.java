@@ -160,7 +160,7 @@ public class JNettyTcpConnector extends NettyTcpConnector {
                 };
             }
         };
-        watchdog.setReconnect(true);
+        watchdog.start();
 
         ChannelFuture future;
         try {
@@ -188,7 +188,11 @@ public class JNettyTcpConnector extends NettyTcpConnector {
 
             @Override
             public void setReconnect(boolean reconnect) {
-                watchdog.setReconnect(reconnect);
+                if (reconnect) {
+                    watchdog.start();
+                } else {
+                    watchdog.stop();
+                }
             }
         };
     }

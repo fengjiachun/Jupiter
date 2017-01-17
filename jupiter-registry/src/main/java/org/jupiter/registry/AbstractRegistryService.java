@@ -130,6 +130,23 @@ public abstract class AbstractRegistryService implements RegistryService {
         return Collections.emptyList();
     }
 
+    @Override
+    public boolean isShutdown() {
+        return shutdown.get();
+    }
+
+    @Override
+    public void shutdownGracefully() {
+        if (!shutdown.getAndSet(true)) {
+            executor.shutdown();
+            try {
+                destroy();
+            } catch (Exception ignored) {}
+        }
+    }
+
+    public abstract void destroy();
+
     public void offlineListening(Address address, OfflineListener listener) {
         CopyOnWriteArrayList<OfflineListener> listeners = offlineListeners.get(address);
         if (listeners == null) {
@@ -159,21 +176,6 @@ public abstract class AbstractRegistryService implements RegistryService {
     public ConcurrentSet<RegisterMeta> registerMetaSet() {
         return registerMetaSet;
     }
-
-    public boolean isShutdown() {
-        return shutdown.get();
-    }
-
-    public void shutdown() {
-        if (!shutdown.getAndSet(true)) {
-            executor.shutdown();
-            try {
-                destroy();
-            } catch (Exception ignored) {}
-        }
-    }
-
-    public abstract void destroy();
 
     // 通知新增或删除服务
     protected void notify(ServiceMeta serviceMeta, NotifyEvent event, long version, RegisterMeta... array) {

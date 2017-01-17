@@ -42,7 +42,7 @@ public class JupiterServer {
 
     public static void main(String[] args) {
         final JServer server = new DefaultServer().withAcceptor(new JNettyTcpAcceptor(18090));
-        MonitorServer monitor = new MonitorServer();
+        final MonitorServer monitor = new MonitorServer();
         try {
             monitor.start();
 
@@ -78,7 +78,7 @@ public class JupiterServer {
 
                 @Override
                 public void run() {
-                    server.unpublishAll();
+                    monitor.shutdownGracefully();
                     server.shutdownGracefully();
                 }
             });

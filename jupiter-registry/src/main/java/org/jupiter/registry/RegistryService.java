@@ -49,4 +49,11 @@ public interface RegistryService extends Registry {
      * Find a service in the local scope.
      */
     Collection<RegisterMeta> lookup(ServiceMeta serviceMeta);
+
+    boolean isShutdown();
+
+    /**
+     * Shutdown.
+     */
+    void shutdownGracefully();
 }

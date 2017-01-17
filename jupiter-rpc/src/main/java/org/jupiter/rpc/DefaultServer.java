@@ -219,6 +219,7 @@ public class DefaultServer implements JServer {
     @Override
     public void shutdownGracefully() {
         unpublishAll();
+        registryService.shutdownGracefully();
         acceptor.shutdownGracefully();
     }
 

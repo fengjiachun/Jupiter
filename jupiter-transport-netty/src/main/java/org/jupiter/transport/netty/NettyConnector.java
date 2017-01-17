@@ -66,6 +66,7 @@ public abstract class NettyConnector implements JConnector<JConnection> {
 
     private final ConcurrentMap<UnresolvedAddress, JChannelGroup> addressGroups = Maps.newConcurrentMap();
     private final DirectoryJChannelGroup directoryGroup = new DirectoryJChannelGroup();
+    private final JConnectionManager connectionManager = new JConnectionManager();
 
     private Bootstrap bootstrap;
     private EventLoopGroup worker;
@@ -171,7 +172,13 @@ public abstract class NettyConnector implements JConnector<JConnection> {
     }
 
     @Override
+    public JConnectionManager connectionManager() {
+        return connectionManager;
+    }
+
+    @Override
     public void shutdownGracefully() {
+        connectionManager.cancelAllReconnect();
         worker.shutdownGracefully();
     }
 

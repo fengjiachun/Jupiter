@@ -88,11 +88,16 @@ public interface JConnector<C> extends Transporter {
     DirectoryJChannelGroup directoryGroup();
 
     /**
+     * Returns the {@link JConnectionManager}.
+     */
+    JConnectionManager connectionManager();
+
+    /**
      * Shutdown the server.
      */
     void shutdownGracefully();
 
-    interface ConnectionManager {
+    interface ConnectionWatcher {
 
         /**
          * Start to connect to server.

@@ -60,17 +60,17 @@ public interface JClient extends Registry {
     /**
      * Sets auto manage the connections.
      */
-    JConnector.ConnectionManager manageConnections(Class<?> interfaceClass);
+    JConnector.ConnectionWatcher watchConnections(Class<?> interfaceClass);
 
     /**
      * Sets auto manage the connections.
      */
-    JConnector.ConnectionManager manageConnections(Class<?> interfaceClass, String version);
+    JConnector.ConnectionWatcher watchConnections(Class<?> interfaceClass, String version);
 
     /**
      * Sets auto manage the connections.
      */
-    JConnector.ConnectionManager manageConnections(Directory directory);
+    JConnector.ConnectionWatcher watchConnections(Directory directory);
 
     /**
      * Wait until the connections is available or timeout,

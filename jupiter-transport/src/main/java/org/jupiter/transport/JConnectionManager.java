@@ -33,9 +33,9 @@ public class JConnectionManager {
 
     private static final InternalLogger logger = InternalLoggerFactory.getInstance(JConnectionManager.class);
 
-    private static final ConcurrentMap<UnresolvedAddress, CopyOnWriteArrayList<JConnection>> connections = Maps.newConcurrentMap();
+    private final ConcurrentMap<UnresolvedAddress, CopyOnWriteArrayList<JConnection>> connections = Maps.newConcurrentMap();
 
-    public static void manage(JConnection connection) {
+    public void manage(JConnection connection) {
         UnresolvedAddress address = connection.getAddress();
         CopyOnWriteArrayList<JConnection> list = connections.get(address);
         if (list == null) {
@@ -48,13 +48,19 @@ public class JConnectionManager {
         list.add(connection);
     }
 
-    public static void cancelReconnect(UnresolvedAddress address) {
+    public void cancelReconnect(UnresolvedAddress address) {
         CopyOnWriteArrayList<JConnection> list = connections.remove(address);
         if (list != null) {
             for (JConnection c : list) {
                 c.setReconnect(false);
             }
             logger.warn("Cancel reconnect to: {}.", address);
+        }
+    }
+
+    public void cancelAllReconnect() {
+        for (UnresolvedAddress address : connections.keySet()) {
+            cancelReconnect(address);
         }
     }
 }

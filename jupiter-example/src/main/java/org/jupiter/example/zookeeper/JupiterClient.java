@@ -39,9 +39,9 @@ public class JupiterClient {
         // 连接RegistryServer
         client.connectToRegistryServer("127.0.0.1:2181,127.0.0.1:2182,127.0.0.1:2183");
         // 自动管理可用连接
-        JConnector.ConnectionManager manager = client.manageConnections(ServiceTest.class, "1.0.0.daily");
+        JConnector.ConnectionWatcher watcher = client.watchConnections(ServiceTest.class, "1.0.0.daily");
         // 等待连接可用
-        if (!manager.waitForAvailable(3000)) {
+        if (!watcher.waitForAvailable(3000)) {
             throw new ConnectFailedException();
         }
 

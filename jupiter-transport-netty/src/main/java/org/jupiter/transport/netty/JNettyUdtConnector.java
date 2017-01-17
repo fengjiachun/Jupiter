@@ -148,7 +148,7 @@ public class JNettyUdtConnector extends NettyUdtConnector {
                         handler
                 };
             }};
-        watchdog.setReconnect(true);
+        watchdog.start();
 
         ChannelFuture future;
         try {
@@ -176,7 +176,11 @@ public class JNettyUdtConnector extends NettyUdtConnector {
 
             @Override
             public void setReconnect(boolean reconnect) {
-                watchdog.setReconnect(reconnect);
+                if (reconnect) {
+                    watchdog.start();
+                } else {
+                    watchdog.stop();
+                }
             }
         };
     }

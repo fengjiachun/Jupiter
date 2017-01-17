@@ -44,9 +44,9 @@ public class GenericJupiterClient {
         // 连接RegistryServer
         client.connectToRegistryServer("127.0.0.1:20001");
         // 自动管理可用连接
-        JConnector.ConnectionManager manager = client.manageConnections(directory);
+        JConnector.ConnectionWatcher watcher = client.watchConnections(directory);
         // 等待连接可用
-        if (!manager.waitForAvailable(3000)) {
+        if (!watcher.waitForAvailable(3000)) {
             throw new ConnectFailedException();
         }
 
