@@ -228,8 +228,8 @@ public class DefaultServer implements JServer {
 
     ServiceWrapper registerService(
             String group,
-            String version,
             String providerName,
+            String version,
             Object serviceProvider,
             ProviderInterceptor[] interceptors,
             Map<String, List<Class<?>[]>> methodsParameterTypes,
@@ -359,8 +359,8 @@ public class DefaultServer implements JServer {
 
             return registerService(
                     group,
-                    version,
                     providerName,
+                    version,
                     serviceProvider,
                     interceptors,
                     methodsParameterTypes,
