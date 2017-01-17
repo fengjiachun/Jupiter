@@ -259,6 +259,11 @@ public class DefaultClient implements JClient {
         registryService.connectToRegistryServer(connectString);
     }
 
+    // for spring-support
+    public void setConnector(JConnector<JConnection> connector) {
+        withConnector(connector);
+    }
+
     private static ServiceMeta transformToServiceMeta(Directory directory) {
         ServiceMeta serviceMeta = new ServiceMeta();
         serviceMeta.setGroup(checkNotNull(directory.getGroup(), "group"));

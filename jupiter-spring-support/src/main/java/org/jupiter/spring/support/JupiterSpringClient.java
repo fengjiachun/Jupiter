@@ -70,6 +70,14 @@ public class JupiterSpringClient implements InitializingBean {
                 }
             }
         }
+
+        Runtime.getRuntime().addShutdownHook(new Thread() {
+
+            @Override
+            public void run() {
+                client.shutdownGracefully();
+            }
+        });
     }
 
     public JClient getClient() {

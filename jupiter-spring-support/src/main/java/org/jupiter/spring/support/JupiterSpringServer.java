@@ -61,17 +61,15 @@ public class JupiterSpringServer implements InitializingBean {
         // 全局限流
         server.withGlobalFlowController(flowController);
 
+        Runtime.getRuntime().addShutdownHook(new Thread() {
+
+            @Override
+            public void run() {
+                server.shutdownGracefully();
+            }
+        });
+
         try {
-            final JServer server = this.server;
-
-            Runtime.getRuntime().addShutdownHook(new Thread() {
-
-                @Override
-                public void run() {
-                    server.shutdownGracefully();
-                }
-            });
-
             server.start(false);
         } catch (Exception e) {
             JUnsafe.throwException(e);
