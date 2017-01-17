@@ -44,9 +44,10 @@ public class ServiceWrapper implements Serializable {
 
     private static final long serialVersionUID = 6690575889849847348L;
 
-    private final ServiceMetadata metadata;     // 服务元信息
-    private final Object serviceProvider;       // 服务对象
-
+    // 服务元信息
+    private final ServiceMetadata metadata;
+    // 服务对象
+    private final Object serviceProvider;
     // 拦截器
     private final ProviderInterceptor[] interceptors;
     // provider中所有接口的参数类型(用于根据JLS规则dispatch method)
