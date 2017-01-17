@@ -37,7 +37,7 @@ import java.util.concurrent.atomic.AtomicLong;
 public class GenericJupiterServer {
 
     public static void main(String[] args) {
-        JServer server = new DefaultServer().acceptor(new JNettyTcpAcceptor(18090));
+        JServer server = new DefaultServer().withAcceptor(new JNettyTcpAcceptor(18090));
         MonitorServer monitor = new MonitorServer();
         try {
             monitor.start();
@@ -58,7 +58,7 @@ public class GenericJupiterServer {
                     })
                     .register();
 
-//            server.setGlobalFlowController(); // 全局限流器
+//            server.withGlobalFlowController(); // 全局限流器
             server.connectToRegistryServer("127.0.0.1:20001");
             server.publish(provider);
             server.start();

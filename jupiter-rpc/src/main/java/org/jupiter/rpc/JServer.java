@@ -19,7 +19,7 @@ package org.jupiter.rpc;
 import org.jupiter.registry.Registry;
 import org.jupiter.rpc.flow.control.FlowController;
 import org.jupiter.rpc.model.metadata.ServiceWrapper;
-import org.jupiter.rpc.provider.ProviderProxyHandler;
+import org.jupiter.rpc.provider.ProviderInterceptor;
 import org.jupiter.transport.Directory;
 import org.jupiter.transport.JAcceptor;
 
@@ -44,12 +44,7 @@ public interface JServer extends Registry {
         /**
          * Sets up the service provider.
          */
-        ServiceRegistry provider(Object serviceProvider);
-
-        /**
-         * Sets up the service provider.
-         */
-        ServiceRegistry provider(ProviderProxyHandler proxyHandler, Object serviceProvider);
+        ServiceRegistry provider(Object serviceProvider, ProviderInterceptor... interceptors);
 
         /**
          * Sets the weight of this provider at current server(0 < weight <= 100).
@@ -93,27 +88,22 @@ public interface JServer extends Registry {
     /**
      * Sets the acceptor.
      */
-    JServer acceptor(JAcceptor acceptor);
+    JServer withAcceptor(JAcceptor acceptor);
 
     /**
-     * Returns the global {@link ProviderProxyHandler} if have one.
+     * Sets global {@link ProviderInterceptor}s to this server.
      */
-    ProviderProxyHandler getGlobalProviderProxyHandler();
-
-    /**
-     * Sets a global {@link ProviderProxyHandler} to this server.
-     */
-    void setGlobalProviderProxyHandler(ProviderProxyHandler providerProxyHandler);
+    void withInterceptors(ProviderInterceptor... globalInterceptors);
 
     /**
      * Returns the global {@link FlowController} if have one.
      */
-    FlowController<JRequest> getGlobalFlowController();
+    FlowController<JRequest> globalFlowController();
 
     /**
      * Sets a global {@link FlowController} to this server.
      */
-    void setGlobalFlowController(FlowController<JRequest> flowController);
+    void withGlobalFlowController(FlowController<JRequest> flowController);
 
     /**
      * To obtains a service registry.
@@ -133,7 +123,7 @@ public interface JServer extends Registry {
     /**
      * Returns all the registered services.
      */
-    List<ServiceWrapper> getRegisteredServices();
+    List<ServiceWrapper> allRegisteredServices();
 
     /**
      * Publish a service.

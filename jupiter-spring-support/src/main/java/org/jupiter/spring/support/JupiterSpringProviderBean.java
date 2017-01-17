@@ -23,7 +23,6 @@ import org.jupiter.rpc.JServer;
 import org.jupiter.rpc.flow.control.FlowController;
 import org.jupiter.rpc.model.metadata.ServiceWrapper;
 import org.jupiter.rpc.provider.ProviderInterceptor;
-import org.jupiter.rpc.provider.ProviderProxyHandler;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.context.*;
@@ -74,9 +73,7 @@ public class JupiterSpringProviderBean implements InitializingBean, ApplicationC
         JServer.ServiceRegistry registry = server.getServer().serviceRegistry();
 
         if (providerInterceptors != null && providerInterceptors.length > 0) {
-            registry.provider(
-                    new ProviderProxyHandler().withIntercept(providerInterceptors),
-                    providerImpl);
+            registry.provider(providerImpl, providerInterceptors);
         } else {
             registry.provider(providerImpl);
         }

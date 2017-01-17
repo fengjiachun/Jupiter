@@ -44,7 +44,7 @@ public class BenchmarkServer {
         SystemPropertyUtil
                 .setProperty("jupiter.metric.report.period", "1");
 
-        JServer server = new DefaultServer().acceptor(new JNettyTcpAcceptor(18099));
+        JServer server = new DefaultServer().withAcceptor(new JNettyTcpAcceptor(18099));
         server.acceptor().configGroup().child().setOption(JOption.WRITE_BUFFER_HIGH_WATER_MARK, 256 * 1024);
         server.acceptor().configGroup().child().setOption(JOption.WRITE_BUFFER_LOW_WATER_MARK, 128 * 1024);
         MonitorServer monitor = new MonitorServer();

@@ -35,8 +35,8 @@ import java.util.concurrent.CountDownLatch;
 public class FlightExecJupiterServer {
 
     private static JServer[] servers = {
-            new DefaultServer().acceptor(new JNettyTcpAcceptor(18090)),
-            new DefaultServer().acceptor(new JNettyTcpAcceptor(18091))
+            new DefaultServer().withAcceptor(new JNettyTcpAcceptor(18090)),
+            new DefaultServer().withAcceptor(new JNettyTcpAcceptor(18091))
     };
 
     public static void main(String[] args) {

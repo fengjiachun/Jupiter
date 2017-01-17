@@ -30,7 +30,7 @@ import org.jupiter.transport.netty.JNettyUdtAcceptor;
 public class UdtJupiterServer {
 
     public static void main(String[] args) {
-        JServer server = new DefaultServer().acceptor(new JNettyUdtAcceptor(18090));
+        JServer server = new DefaultServer().withAcceptor(new JNettyUdtAcceptor(18090));
         try {
             server.serviceRegistry()
                     .provider(new ServiceTestImpl())

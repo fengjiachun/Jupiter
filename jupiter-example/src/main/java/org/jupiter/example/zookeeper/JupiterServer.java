@@ -50,7 +50,7 @@ public class JupiterServer {
 
         SystemPropertyUtil.setProperty("jupiter.local.address", "127.0.0.1");
 
-        final JServer server = new DefaultServer().acceptor(new JNettyTcpAcceptor(18090));
+        final JServer server = new DefaultServer().withAcceptor(new JNettyTcpAcceptor(18090));
         MonitorServer monitor = new MonitorServer();
         try {
             monitor.start();

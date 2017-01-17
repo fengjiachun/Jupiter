@@ -37,7 +37,7 @@ public class UserExecImpl implements UserExecInterface {
 
         for (JServer s : servers) {
             System.out.println(s.acceptor().localAddress() + " -----------------------");
-            System.out.println(s.getRegisteredServices());
+            System.out.println(s.allRegisteredServices());
             System.out.println();
         }
         return "OK!";

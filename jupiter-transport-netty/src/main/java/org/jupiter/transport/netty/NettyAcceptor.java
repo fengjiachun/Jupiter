@@ -107,7 +107,7 @@ public abstract class NettyAcceptor implements JAcceptor {
     }
 
     @Override
-    public void bindProcessor(ProviderProcessor processor) {
+    public void withProcessor(ProviderProcessor processor) {
         // the default implementation does nothing
     }
 

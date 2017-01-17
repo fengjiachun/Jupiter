@@ -16,7 +16,6 @@
 
 package org.jupiter.rpc;
 
-import net.bytebuddy.ByteBuddy;
 import org.jupiter.common.concurrent.NamedThreadFactory;
 import org.jupiter.common.util.*;
 import org.jupiter.common.util.internal.logging.InternalLogger;
@@ -26,25 +25,20 @@ import org.jupiter.registry.RegistryService;
 import org.jupiter.rpc.flow.control.FlowController;
 import org.jupiter.rpc.model.metadata.ServiceMetadata;
 import org.jupiter.rpc.model.metadata.ServiceWrapper;
-import org.jupiter.rpc.provider.ProviderProxyHandler;
+import org.jupiter.rpc.provider.ProviderInterceptor;
 import org.jupiter.rpc.provider.processor.DefaultProviderProcessor;
 import org.jupiter.transport.Directory;
 import org.jupiter.transport.JAcceptor;
 
-import java.lang.reflect.Field;
 import java.lang.reflect.Method;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 
-import static net.bytebuddy.dynamic.loading.ClassLoadingStrategy.Default.INJECTION;
-import static net.bytebuddy.implementation.MethodDelegation.to;
-import static net.bytebuddy.matcher.ElementMatchers.isDeclaredBy;
-import static net.bytebuddy.matcher.ElementMatchers.not;
 import static org.jupiter.common.util.Preconditions.checkNotNull;
-import static org.jupiter.common.util.Reflects.*;
 import static org.jupiter.common.util.StackTraceUtil.stackTrace;
 
 /**
@@ -74,12 +68,12 @@ public class DefaultServer implements JServer {
     // 注册服务(SPI)
     private final RegistryService registryService = JServiceLoader.loadFirst(RegistryService.class);
 
-    // 全局拦截代理
-    private volatile ProviderProxyHandler globalProviderProxyHandler;
+    // 全局拦截器
+    private ProviderInterceptor[] globalInterceptors;
     // 全局流量控制
-    private volatile FlowController<JRequest> globalFlowController;
+    private FlowController<JRequest> globalFlowController;
 
-    private volatile JAcceptor acceptor;
+    private JAcceptor acceptor;
 
     @Override
     public JAcceptor acceptor() {
@@ -87,8 +81,8 @@ public class DefaultServer implements JServer {
     }
 
     @Override
-    public JServer acceptor(JAcceptor acceptor) {
-        acceptor.bindProcessor(new DefaultProviderProcessor(this));
+    public JServer withAcceptor(JAcceptor acceptor) {
+        acceptor.withProcessor(new DefaultProviderProcessor(this));
         this.acceptor = acceptor;
         return this;
     }
@@ -99,22 +93,17 @@ public class DefaultServer implements JServer {
     }
 
     @Override
-    public ProviderProxyHandler getGlobalProviderProxyHandler() {
-        return globalProviderProxyHandler;
+    public void withInterceptors(ProviderInterceptor... globalInterceptors) {
+        this.globalInterceptors = globalInterceptors;
     }
 
     @Override
-    public void setGlobalProviderProxyHandler(ProviderProxyHandler globalProviderProxyHandler) {
-        this.globalProviderProxyHandler = globalProviderProxyHandler;
-    }
-
-    @Override
-    public FlowController<JRequest> getGlobalFlowController() {
+    public FlowController<JRequest> globalFlowController() {
         return globalFlowController;
     }
 
     @Override
-    public void setGlobalFlowController(FlowController<JRequest> globalFlowController) {
+    public void withGlobalFlowController(FlowController<JRequest> globalFlowController) {
         this.globalFlowController = globalFlowController;
     }
 
@@ -134,7 +123,7 @@ public class DefaultServer implements JServer {
     }
 
     @Override
-    public List<ServiceWrapper> getRegisteredServices() {
+    public List<ServiceWrapper> allRegisteredServices() {
         return providerContainer.getAllServices();
     }
 
@@ -234,7 +223,7 @@ public class DefaultServer implements JServer {
     }
 
     public void setAcceptor(JAcceptor acceptor) {
-        acceptor(acceptor);
+        withAcceptor(acceptor);
     }
 
     ServiceWrapper registerService(
@@ -242,14 +231,28 @@ public class DefaultServer implements JServer {
             String version,
             String providerName,
             Object serviceProvider,
+            ProviderInterceptor[] interceptors,
             Map<String, List<Class<?>[]>> methodsParameterTypes,
             int weight,
             int connCount,
             Executor executor,
             FlowController<JRequest> flowController) {
 
-        ServiceWrapper wrapper = new ServiceWrapper(
-                group, version, providerName, serviceProvider, methodsParameterTypes);
+        ProviderInterceptor[] allInterceptors = null;
+        List<ProviderInterceptor> tempList = Lists.newArrayList();
+        if (globalInterceptors != null) {
+            Collections.addAll(tempList, globalInterceptors);
+        }
+        if (interceptors != null) {
+            Collections.addAll(tempList, interceptors);
+        }
+        if (!tempList.isEmpty()) {
+            allInterceptors = tempList.toArray(new ProviderInterceptor[tempList.size()]);
+        }
+
+        ServiceWrapper wrapper =
+                new ServiceWrapper(group, version, providerName, serviceProvider, allInterceptors, methodsParameterTypes);
+
         wrapper.setWeight(weight);
         wrapper.setConnCount(connCount);
         wrapper.setExecutor(executor);
@@ -260,74 +263,19 @@ public class DefaultServer implements JServer {
         return wrapper;
     }
 
-    // 生成provider代理类
-    private static <T> Class<? extends T> generateProviderProxyClass(ProviderProxyHandler proxyHandler, Class<T> providerCls) {
-        checkNotNull(proxyHandler, "ProviderProxyHandler");
-
-        try {
-            return new ByteBuddy()
-                    .subclass(providerCls)
-                    .method(isDeclaredBy(providerCls))
-                    .intercept(to(proxyHandler, "handler").filter(not(isDeclaredBy(Object.class))))
-                    .make()
-                    .load(providerCls.getClassLoader(), INJECTION)
-                    .getLoaded();
-        } catch (Exception e) {
-            logger.error("Generate proxy [{}, handler: {}] fail: {}.", providerCls, proxyHandler, stackTrace(e));
-
-            return providerCls;
-        }
-    }
-
-    private static <F, T> T copyProviderProperties(F provider, T proxy) {
-        checkNotNull(provider, "provider");
-        checkNotNull(proxy, "proxy");
-
-        List<String> providerFieldNames = Lists.newArrayList();
-        for (Class<?> cls = provider.getClass(); cls != null; cls = cls.getSuperclass()) {
-            try {
-                for (Field f : cls.getDeclaredFields()) {
-                    providerFieldNames.add(f.getName());
-                }
-            } catch (Throwable ignored) {}
-        }
-
-        for (String name : providerFieldNames) {
-            try {
-                setValue(proxy, name, getValue(provider, name));
-            } catch (Throwable ignored) {}
-        }
-        return proxy;
-    }
-
     class DefaultServiceRegistry implements ServiceRegistry {
 
         private Object serviceProvider;                     // 服务对象
+        private ProviderInterceptor[] interceptors;         // 拦截器
         private int weight;                                 // 权重
         private int connCount;                              // 建议客户端维持的长连接数量
-        protected Executor executor;                        // 该服务私有的线程池
-        protected FlowController<JRequest> flowController;  // 该服务私有的流量控制器
+        private Executor executor;                          // 该服务私有的线程池
+        private FlowController<JRequest> flowController;    // 该服务私有的流量控制器
 
         @Override
-        public ServiceRegistry provider(Object serviceProvider) {
-            if (globalProviderProxyHandler == null) {
-                this.serviceProvider = serviceProvider;
-            } else {
-                Class<?> globalProxyCls = generateProviderProxyClass(globalProviderProxyHandler, serviceProvider.getClass());
-                this.serviceProvider = copyProviderProperties(serviceProvider, newInstance(globalProxyCls));
-            }
-            return this;
-        }
-
-        @Override
-        public ServiceRegistry provider(ProviderProxyHandler proxyHandler, Object serviceProvider) {
-            Class<?> proxyCls = generateProviderProxyClass(proxyHandler, serviceProvider.getClass());
-            if (globalProviderProxyHandler == null) {
-                this.serviceProvider = copyProviderProperties(serviceProvider, newInstance(proxyCls));
-            } else {
-                Class<?> globalProxyCls = generateProviderProxyClass(globalProviderProxyHandler, proxyCls);
-                this.serviceProvider = copyProviderProperties(serviceProvider, newInstance(globalProxyCls));
-            }
+        public ServiceRegistry provider(Object serviceProvider, ProviderInterceptor... interceptors) {
+            this.serviceProvider = serviceProvider;
+            this.interceptors = interceptors;
             return this;
         }
 
@@ -414,6 +362,7 @@ public class DefaultServer implements JServer {
                     version,
                     providerName,
                     serviceProvider,
+                    interceptors,
                     methodsParameterTypes,
                     weight,
                     connCount,

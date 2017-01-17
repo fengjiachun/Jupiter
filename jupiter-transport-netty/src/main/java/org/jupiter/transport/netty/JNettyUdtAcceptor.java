@@ -139,7 +139,7 @@ public class JNettyUdtAcceptor extends NettyUdtAcceptor {
     }
 
     @Override
-    public void bindProcessor(ProviderProcessor processor) {
+    public void withProcessor(ProviderProcessor processor) {
         handler.processor(processor);
     }
 }

@@ -26,7 +26,6 @@ import java.lang.reflect.Proxy;
 import static net.bytebuddy.dynamic.loading.ClassLoadingStrategy.Default.INJECTION;
 import static net.bytebuddy.implementation.MethodDelegation.to;
 import static net.bytebuddy.matcher.ElementMatchers.isDeclaredBy;
-import static net.bytebuddy.matcher.ElementMatchers.not;
 import static org.jupiter.common.util.Preconditions.checkArgument;
 
 /**
@@ -69,7 +68,7 @@ public enum Proxies {
             Class<? extends T> cls = new ByteBuddy()
                     .subclass(interfaceType)
                     .method(isDeclaredBy(interfaceType))
-                    .intercept(to(handler, "handler").filter(not(isDeclaredBy(Object.class))))
+                    .intercept(to(handler, "handler"))
                     .make()
                     .load(interfaceType.getClassLoader(), INJECTION)
                     .getLoaded();

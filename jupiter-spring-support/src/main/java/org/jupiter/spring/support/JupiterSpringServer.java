@@ -22,7 +22,6 @@ import org.jupiter.rpc.JRequest;
 import org.jupiter.rpc.JServer;
 import org.jupiter.rpc.flow.control.FlowController;
 import org.jupiter.rpc.provider.ProviderInterceptor;
-import org.jupiter.rpc.provider.ProviderProxyHandler;
 import org.springframework.beans.factory.InitializingBean;
 
 /**
@@ -56,11 +55,11 @@ public class JupiterSpringServer implements InitializingBean {
 
         // 全局拦截器
         if (providerInterceptors != null && providerInterceptors.length > 0) {
-            server.setGlobalProviderProxyHandler(new ProviderProxyHandler().withIntercept(providerInterceptors));
+            server.withInterceptors(providerInterceptors);
         }
 
         // 全局限流
-        server.setGlobalFlowController(flowController);
+        server.withGlobalFlowController(flowController);
 
         try {
             final JServer server = this.server;

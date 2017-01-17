@@ -52,7 +52,7 @@
         <protostuff.version>1.5.2</protostuff.version>
         <objenesis.version>2.1</objenesis.version>
         <javassist.version>3.19.0-GA</javassist.version>
-        <bytebuddy.version>1.2.3</bytebuddy.version>
+        <bytebuddy.version>1.6.3</bytebuddy.version>
         <cglib.version>3.1</cglib.version>
         <disruptor.version>3.3.2</disruptor.version>
         <metrics.version>3.1.2</metrics.version>
@@ -66,7 +66,7 @@
 
     <dependencyManagement>
         <dependencies>
-            <!-- ### jupiter module dependency: begin -->
+            <!-- # jupiter module dependency: begin -->
             <!-- ## required dependency: begin -->
             <dependency>
                 <groupId>${project.groupId}</groupId>
@@ -147,9 +147,9 @@
                 <version>${project.version}</version>
             </dependency>
             <!-- ## optional dependency: end -->
-            <!-- ### jupiter module dependency: end -->
+            <!-- # jupiter module dependency: end -->
 
-            <!-- ### netty dependency: begin -->
+            <!-- # netty dependency: begin -->
             <dependency>
                 <groupId>io.netty</groupId>
                 <artifactId>netty-common</artifactId>
@@ -191,9 +191,9 @@
                 <artifactId>barchart-udt-bundle</artifactId>
                 <version>${barchart.version}</version>
             </dependency>
-            <!-- ### netty dependency: end -->
+            <!-- # netty dependency: end -->
 
-            <!-- ### serialization dependency: begin -->
+            <!-- # serialization dependency: begin -->
             <dependency>
                 <groupId>com.caucho</groupId>
                 <artifactId>hessian</artifactId>
@@ -214,9 +214,9 @@
                 <artifactId>protostuff-runtime</artifactId>
                 <version>${protostuff.version}</version>
             </dependency>
-            <!-- ### serialization dependency: end -->
+            <!-- # serialization dependency: end -->
 
-            <!-- ### common dependency: begin -->
+            <!-- # common dependency: begin -->
             <!-- ## required dependency: begin -->
             <dependency>
                 <groupId>org.objenesis</groupId>
@@ -263,7 +263,7 @@
                 <artifactId>slf4j-api</artifactId>
                 <version>${slf4j.version}</version>
             </dependency>
-            <!-- # zookeeper dependency: begin 只有在依赖[jupiter-registry-zookeeper]时才会需要它 -->
+            <!-- ### zookeeper dependency: begin 只有在依赖[jupiter-registry-zookeeper]时才会需要它 -->
             <dependency>
                 <groupId>org.apache.zookeeper</groupId>
                 <artifactId>zookeeper</artifactId>
@@ -307,17 +307,17 @@
                 <artifactId>curator-recipes</artifactId>
                 <version>${curator.version}</version>
             </dependency>
-            <!-- # zookeeper dependency: end -->
+            <!-- ### zookeeper dependency: end -->
 
-            <!-- # spring dependency: begin 只有在依赖[jupiter-spring-support]时才会需要它 -->
+            <!-- ### spring dependency: begin 只有在依赖[jupiter-spring-support]时才会需要它 -->
             <dependency>
                 <groupId>org.springframework</groupId>
                 <artifactId>spring-context</artifactId>
                 <version>${spring-framework.version}</version>
             </dependency>
-            <!-- # spring dependency: end -->
+            <!-- ### spring dependency: end -->
 
-            <!-- # benchmark: begin -->
+            <!-- ### benchmark: begin -->
             <dependency>
                 <groupId>org.openjdk.jmh</groupId>
                 <artifactId>jmh-core</artifactId>
@@ -328,14 +328,14 @@
                 <artifactId>jmh-generator-annprocess</artifactId>
                 <version>${jmh.version}</version>
             </dependency>
-            <!-- # benchmark dependency: end -->
+            <!-- ### benchmark dependency: end -->
             <!-- ## optional dependency: end -->
-            <!-- ### common dependency: end -->
+            <!-- # common dependency: end -->
         </dependencies>
     </dependencyManagement>
 
     <dependencies>
-        <!-- ### common test dependency: begin -->
+        <!-- # common test dependency: begin -->
         <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
@@ -348,7 +348,7 @@
             <version>${hamcrest.version}</version>
             <scope>test</scope>
         </dependency>
-        <!-- ### common test dependency: end -->
+        <!-- # common test dependency: end -->
     </dependencies>
 
     <build>

@@ -40,12 +40,6 @@ import java.util.List;
 import java.util.Map;
 
 import static org.jupiter.common.util.Preconditions.checkNotNull;
-import static org.jupiter.rpc.DispatchType.BROADCAST;
-import static org.jupiter.rpc.DispatchType.ROUND;
-import static org.jupiter.rpc.InvokeType.ASYNC;
-import static org.jupiter.rpc.InvokeType.SYNC;
-import static org.jupiter.rpc.load.balance.LoadBalancerType.RANDOM;
-import static org.jupiter.serialization.SerializerType.PROTO_STUFF;
 
 /**
  * Proxy factory
@@ -67,15 +61,15 @@ public class ProxyFactory<I> {
     // jupiter client
     private JClient client;
     // 序列化/反序列化方式
-    private SerializerType serializerType = PROTO_STUFF;
+    private SerializerType serializerType = SerializerType.PROTO_STUFF;
     // 软负载均衡类型
-    private LoadBalancerType loadBalancerType = RANDOM;
+    private LoadBalancerType loadBalancerType = LoadBalancerType.RANDOM;
     // provider地址
     private List<UnresolvedAddress> addresses;
     // 调用方式 [同步; 异步]
-    private InvokeType invokeType = SYNC;
+    private InvokeType invokeType = InvokeType.SYNC;
     // 派发方式 [单播; 组播]
-    private DispatchType dispatchType = ROUND;
+    private DispatchType dispatchType = DispatchType.ROUND;
     // 调用超时时间设置
     private long timeoutMillis;
     // 指定方法单独设置的超时时间, 方法名为key, 方法参数类型不做区别对待
@@ -105,106 +99,66 @@ public class ProxyFactory<I> {
         return interfaceClass;
     }
 
-    /**
-     * Sets the version.
-     */
     public ProxyFactory<I> version(String version) {
         this.version = version;
         return this;
     }
 
-    /**
-     * Sets the jupiter client.
-     */
     public ProxyFactory<I> client(JClient client) {
         this.client = client;
         return this;
     }
 
-    /**
-     * Sets the service serializer type.
-     */
     public ProxyFactory<I> serializerType(SerializerType serializerType) {
         this.serializerType = serializerType;
         return this;
     }
 
-    /**
-     * Sets the service load balancer type.
-     */
     public ProxyFactory<I> loadBalancerType(LoadBalancerType loadBalancerType) {
         this.loadBalancerType = loadBalancerType;
         return this;
     }
 
-    /**
-     * Adds provider's addresses.
-     */
     public ProxyFactory<I> addProviderAddress(UnresolvedAddress... addresses) {
         Collections.addAll(this.addresses, addresses);
         return this;
     }
 
-    /**
-     * Adds provider's addresses.
-     */
     public ProxyFactory<I> addProviderAddress(List<UnresolvedAddress> addresses) {
         this.addresses.addAll(addresses);
         return this;
     }
 
-    /**
-     * Synchronous blocking, asynchronous with future or asynchronous with callback,
-     * the default is synchronous.
-     */
     public ProxyFactory<I> invokeType(InvokeType invokeType) {
         this.invokeType = checkNotNull(invokeType);
         return this;
     }
 
-    /**
-     * Sets the type of dispatch, the default is {@link DispatchType#ROUND}
-     */
     public ProxyFactory<I> dispatchType(DispatchType dispatchType) {
         this.dispatchType = checkNotNull(dispatchType);
         return this;
     }
 
-    /**
-     * Timeout milliseconds.
-     */
     public ProxyFactory<I> timeoutMillis(long timeoutMillis) {
         this.timeoutMillis = timeoutMillis;
         return this;
     }
 
-    /**
-     * Method special timeout milliseconds.
-     */
     public ProxyFactory<I> methodSpecialTimeoutMillis(String methodName, long timeoutMillis) {
         methodsSpecialTimeoutMillis.put(methodName, timeoutMillis);
         return this;
     }
 
-    /**
-     * Adds hooks.
-     */
     public ProxyFactory<I> addHook(ConsumerHook... hooks) {
         Collections.addAll(this.hooks, hooks);
         return this;
     }
 
-    /**
-     * Sets cluster strategy, only support ROUND & SYNC mode.
-     */
     public ProxyFactory<I> clusterStrategy(ClusterInvoker.Strategy strategy) {
         this.strategy = strategy;
         return this;
     }
 
-    /**
-     * Sets failover strategy's retries.
-     */
     public ProxyFactory<I> failoverRetries(int retries) {
         this.retries = retries;
         return this;
@@ -213,12 +167,13 @@ public class ProxyFactory<I> {
     public I newProxyInstance() {
         // check arguments
         checkNotNull(client, "client");
-        checkNotNull(interfaceClass, "interfaceClass");
         checkNotNull(serializerType, "serializerType");
+        checkNotNull(interfaceClass, "interfaceClass");
 
-        if (dispatchType == BROADCAST && invokeType != ASYNC) {
-            throw new UnsupportedOperationException("illegal type, BROADCAST only support ASYNC");
+        if (dispatchType == DispatchType.BROADCAST && invokeType == InvokeType.SYNC) {
+            throw reject("broadcast & sync unsupported");
         }
+
         ServiceProvider annotation = interfaceClass.getAnnotation(ServiceProvider.class);
 
         checkNotNull(annotation, interfaceClass + " is not a ServiceProvider interface");
@@ -250,7 +205,7 @@ public class ProxyFactory<I> {
                 handler = new AsyncInvoker(clusterInvoker(strategy, dispatcher));
                 break;
             default:
-                throw new IllegalStateException("InvokeType: " + invokeType);
+                throw reject("invokeType: " + invokeType);
         }
 
         return Proxies.getDefault().newProxy(interfaceClass, handler);
@@ -264,7 +219,7 @@ public class ProxyFactory<I> {
             case BROADCAST:
                 return new DefaultBroadcastDispatcher(metadata, serializerType);
             default:
-                throw new IllegalStateException("DispatchType: " + dispatchType);
+                throw reject("dispatchType: " + dispatchType);
         }
     }
 
@@ -277,7 +232,11 @@ public class ProxyFactory<I> {
             case FAIL_SAFE:
                 return new FailSafeClusterInvoker(client, dispatcher);
             default:
-                throw new IllegalStateException("Strategy: " + strategy);
+                throw reject("strategy: " + strategy);
         }
+    }
+
+    private static UnsupportedOperationException reject(String message) {
+        return new UnsupportedOperationException(message);
     }
 }

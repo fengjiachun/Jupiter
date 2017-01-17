@@ -18,6 +18,7 @@ package org.jupiter.rpc.consumer;
 
 import org.jupiter.common.util.Lists;
 import org.jupiter.common.util.Maps;
+import org.jupiter.common.util.Strings;
 import org.jupiter.rpc.ConsumerHook;
 import org.jupiter.rpc.DispatchType;
 import org.jupiter.rpc.InvokeType;
@@ -45,13 +46,8 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
+import static org.jupiter.common.util.Preconditions.checkArgument;
 import static org.jupiter.common.util.Preconditions.checkNotNull;
-import static org.jupiter.rpc.DispatchType.BROADCAST;
-import static org.jupiter.rpc.DispatchType.ROUND;
-import static org.jupiter.rpc.InvokeType.ASYNC;
-import static org.jupiter.rpc.InvokeType.SYNC;
-import static org.jupiter.rpc.load.balance.LoadBalancerType.RANDOM;
-import static org.jupiter.serialization.SerializerType.PROTO_STUFF;
 
 /**
  * 泛化ProxyFactory
@@ -67,23 +63,23 @@ public class GenericProxyFactory {
 
     // 服务组别
     private String group;
-    // 服务版本号, 通常在接口不兼容时版本号才需要升级
-    private String version;
     // 服务名称
     private String providerName;
+    // 服务版本号, 通常在接口不兼容时版本号才需要升级
+    private String version;
 
     // jupiter client
     private JClient client;
     // 序列化/反序列化方式
-    private SerializerType serializerType = PROTO_STUFF;
+    private SerializerType serializerType = SerializerType.PROTO_STUFF;
     // 软负载均衡类型
-    private LoadBalancerType loadBalancerType = RANDOM;
+    private LoadBalancerType loadBalancerType = LoadBalancerType.RANDOM;
     // provider地址
     private List<UnresolvedAddress> addresses;
     // 调用方式 [同步; 异步]
-    private InvokeType invokeType = SYNC;
+    private InvokeType invokeType = InvokeType.SYNC;
     // 派发方式 [单播; 组播]
-    private DispatchType dispatchType = ROUND;
+    private DispatchType dispatchType = DispatchType.ROUND;
     // 调用超时时间设置
     private long timeoutMillis;
     // 指定方法单独设置的超时时间, 方法名为key, 方法参数类型不做区别对待
@@ -107,131 +103,82 @@ public class GenericProxyFactory {
 
     private GenericProxyFactory() {}
 
-    /**
-     * Sets the jupiter client.
-     */
     public GenericProxyFactory client(JClient client) {
         this.client = client;
         return this;
     }
 
-    /**
-     * Sets the group.
-     */
     public GenericProxyFactory group(String group) {
         this.group = group;
         return this;
     }
 
-    /**
-     * Sets the version.
-     */
-    public GenericProxyFactory version(String version) {
-        this.version = version;
-        return this;
-    }
-
-    /**
-     * Sets the service provider name.
-     */
     public GenericProxyFactory providerName(String providerName) {
         this.providerName = providerName;
         return this;
     }
 
-    /**
-     * Sets the service serializer type.
-     */
+    public GenericProxyFactory version(String version) {
+        this.version = version;
+        return this;
+    }
+
     public GenericProxyFactory serializerType(SerializerType serializerType) {
         this.serializerType = serializerType;
         return this;
     }
 
-    /**
-     * Sets the service load balancer type.
-     */
     public GenericProxyFactory loadBalancerType(LoadBalancerType loadBalancerType) {
         this.loadBalancerType = loadBalancerType;
         return this;
     }
 
-    /**
-     * Sets the group, version and service provider name.
-     */
     public GenericProxyFactory directory(Directory directory) {
         return group(directory.getGroup())
-                .version(directory.getVersion())
-                .providerName(directory.getServiceProviderName());
+                .providerName(directory.getServiceProviderName())
+                .version(directory.getVersion());
     }
 
-    /**
-     * Adds provider's addresses.
-     */
     public GenericProxyFactory addProviderAddress(UnresolvedAddress... addresses) {
         Collections.addAll(this.addresses, addresses);
         return this;
     }
 
-    /**
-     * Adds provider's addresses.
-     */
     public GenericProxyFactory addProviderAddress(List<UnresolvedAddress> addresses) {
         this.addresses.addAll(addresses);
         return this;
     }
 
-    /**
-     * Synchronous blocking, asynchronous with future or asynchronous with callback,
-     * the default is synchronous.
-     */
     public GenericProxyFactory invokeType(InvokeType invokeType) {
         this.invokeType = checkNotNull(invokeType);
         return this;
     }
 
-    /**
-     * Sets the type of dispatch, the default is {@link DispatchType#ROUND}
-     */
     public GenericProxyFactory dispatchType(DispatchType dispatchType) {
         this.dispatchType = checkNotNull(dispatchType);
         return this;
     }
 
-    /**
-     * Timeout milliseconds.
-     */
     public GenericProxyFactory timeoutMillis(long timeoutMillis) {
         this.timeoutMillis = timeoutMillis;
         return this;
     }
 
-    /**
-     * Method special timeout milliseconds.
-     */
     public GenericProxyFactory methodSpecialTimeoutMillis(String methodName, long timeoutMillis) {
         methodsSpecialTimeoutMillis.put(methodName, timeoutMillis);
         return this;
     }
 
-    /**
-     * Adds hooks.
-     */
     public GenericProxyFactory addHook(ConsumerHook... hooks) {
         Collections.addAll(this.hooks, hooks);
         return this;
     }
 
-    /**
-     * Sets cluster strategy, only support ROUND & SYNC mode.
-     */
     public GenericProxyFactory clusterStrategy(ClusterInvoker.Strategy strategy) {
         this.strategy = strategy;
         return this;
     }
 
-    /**
-     * Sets failover strategy's retries.
-     */
     public GenericProxyFactory failoverRetries(int retries) {
         this.retries = retries;
         return this;
@@ -240,13 +187,13 @@ public class GenericProxyFactory {
     public GenericInvoker newProxyInstance() {
         // check arguments
         checkNotNull(client, "client");
-        checkNotNull(group, "group");
-        checkNotNull(version, "version");
-        checkNotNull(providerName, "providerName");
         checkNotNull(serializerType, "serializerType");
+        checkArgument(Strings.isNotBlank(group), "group");
+        checkNotNull(Strings.isNotBlank(providerName), "providerName");
+        checkNotNull(Strings.isNotBlank(version), "version");
 
-        if (dispatchType == BROADCAST && invokeType != ASYNC) {
-            throw new UnsupportedOperationException("illegal type, BROADCAST only support ASYNC");
+        if (dispatchType == DispatchType.BROADCAST && invokeType == InvokeType.SYNC) {
+            throw reject("broadcast & sync unsupported");
         }
 
         // metadata
@@ -269,7 +216,7 @@ public class GenericProxyFactory {
             case ASYNC:
                 return new AsyncGenericInvoker(clusterInvoker(strategy, dispatcher));
             default:
-                throw new IllegalStateException("InvokeType: " + invokeType);
+                throw reject("invokeType: " + invokeType);
         }
     }
 
@@ -281,7 +228,7 @@ public class GenericProxyFactory {
             case BROADCAST:
                 return new DefaultBroadcastDispatcher(metadata, serializerType);
             default:
-                throw new IllegalStateException("DispatchType: " + dispatchType);
+                throw reject("dispatchType: " + dispatchType);
         }
     }
 
@@ -294,7 +241,11 @@ public class GenericProxyFactory {
             case FAIL_SAFE:
                 return new FailSafeClusterInvoker(client, dispatcher);
             default:
-                throw new IllegalStateException("Strategy: " + strategy);
+                throw reject("strategy: " + strategy);
         }
+    }
+
+    private static UnsupportedOperationException reject(String message) {
+        return new UnsupportedOperationException(message);
     }
 }

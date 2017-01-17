@@ -18,8 +18,10 @@ package org.jupiter.rpc.model.metadata;
 
 import org.jupiter.rpc.JRequest;
 import org.jupiter.rpc.flow.control.FlowController;
+import org.jupiter.rpc.provider.ProviderInterceptor;
 
 import java.io.Serializable;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Executor;
@@ -45,26 +47,30 @@ public class ServiceWrapper implements Serializable {
     private final ServiceMetadata metadata;     // 服务元信息
     private final Object serviceProvider;       // 服务对象
 
+    // 拦截器
+    private final ProviderInterceptor[] interceptors;
     // provider中所有接口的参数类型(用于根据JLS规则dispatch method)
-    private transient Map<String, List<Class<?>[]>> methodsParameterTypes;
+    private final Map<String, List<Class<?>[]>> methodsParameterTypes;
 
     // 权重 hashCode()与equals()不把weight计算在内
-    private volatile int weight = DEFAULT_WEIGHT;
+    private int weight = DEFAULT_WEIGHT;
     // 建议连接数 hashCode()与equals()不把connCount计算在内
-    private volatile int connCount = DEFAULT_CONNECTION_COUNT;
+    private int connCount = DEFAULT_CONNECTION_COUNT;
     // provider私有线程池
-    private volatile Executor executor;
+    private Executor executor;
     // provider私有流量控制器
-    private volatile FlowController<JRequest> flowController;
+    private FlowController<JRequest> flowController;
 
     public ServiceWrapper(String group,
                           String version,
                           String name,
                           Object serviceProvider,
+                          ProviderInterceptor[] interceptors,
                           Map<String, List<Class<?>[]>> methodsParameterTypes) {
 
         metadata = new ServiceMetadata(group, version, name);
 
+        this.interceptors = interceptors;
         this.methodsParameterTypes = checkNotNull(methodsParameterTypes, "methodsParameterTypes");
         this.serviceProvider = checkNotNull(serviceProvider, "serviceProvider");
     }
@@ -75,6 +81,10 @@ public class ServiceWrapper implements Serializable {
 
     public Object getServiceProvider() {
         return serviceProvider;
+    }
+
+    public ProviderInterceptor[] getInterceptors() {
+        return interceptors;
     }
 
     public int getWeight() {
@@ -133,6 +143,10 @@ public class ServiceWrapper implements Serializable {
         return "ServiceWrapper{" +
                 "metadata=" + metadata +
                 ", serviceProvider=" + serviceProvider +
+                ", interceptors=" + Arrays.toString(interceptors) +
+                ", methodsParameterTypes=" + methodsParameterTypes +
+                ", weight=" + weight +
+                ", connCount=" + connCount +
                 ", executor=" + executor +
                 ", flowController=" + flowController +
                 '}';

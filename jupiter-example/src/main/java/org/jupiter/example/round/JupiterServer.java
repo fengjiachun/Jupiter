@@ -26,7 +26,6 @@ import org.jupiter.rpc.flow.control.ControlResult;
 import org.jupiter.rpc.flow.control.FlowController;
 import org.jupiter.rpc.model.metadata.ServiceWrapper;
 import org.jupiter.rpc.provider.ProviderInterceptor;
-import org.jupiter.rpc.provider.ProviderProxyHandler;
 import org.jupiter.rpc.tracing.TraceId;
 import org.jupiter.transport.netty.JNettyTcpAcceptor;
 
@@ -41,26 +40,19 @@ import java.util.concurrent.atomic.AtomicLong;
  */
 public class JupiterServer {
 
-    // 全局interceptors, 可不设置
-    static ProviderProxyHandler globalHandler = new ProviderProxyHandler()
-            .withIntercept(new GlobalInterceptor());
-
     public static void main(String[] args) {
-        final JServer server = new DefaultServer().acceptor(new JNettyTcpAcceptor(18090));
+        final JServer server = new DefaultServer().withAcceptor(new JNettyTcpAcceptor(18090));
         MonitorServer monitor = new MonitorServer();
         try {
             monitor.start();
 
-            server.setGlobalProviderProxyHandler(globalHandler);
+            server.withInterceptors(new GlobalInterceptor());
 
-            // provider1 私有interceptors, 可不设置
-            ProviderProxyHandler privateHandler = new ProviderProxyHandler()
-                    .withIntercept(new PrivateInterceptor());
             // provider1
             ServiceTestImpl service = new ServiceTestImpl();
 
             ServiceWrapper provider1 = server.serviceRegistry()
-                    .provider(privateHandler, service)
+                    .provider(service, new PrivateInterceptor())
                     .register();
 
             // provider2
@@ -69,7 +61,7 @@ public class JupiterServer {
                     .flowController(new PrivateFlowController()) // provider级别限流器, 可不设置
                     .register();
 
-//            server.setGlobalFlowController(); // 全局限流器
+//            server.withGlobalFlowController(); // 全局限流器
             server.connectToRegistryServer("127.0.0.1:20001");
             server.publishWithInitializer(provider1, new JServer.ProviderInitializer<ServiceTestImpl>() {
 
@@ -113,26 +105,26 @@ public class JupiterServer {
     static class GlobalInterceptor implements ProviderInterceptor {
 
         @Override
-        public void beforeInvoke(TraceId traceId, String methodName, Object[] args) {
-            System.out.println("GlobalInterceptor before: " + methodName + " args: " + Arrays.toString(args));
+        public void beforeInvoke(TraceId traceId, Object provider, String methodName, Object[] args) {
+            System.out.println("GlobalInterceptor before: " + provider + "#" + methodName + " args: " + Arrays.toString(args));
         }
 
         @Override
-        public void afterInvoke(TraceId traceId, String methodName, Object[] args, Object result) {
-            System.out.println("GlobalInterceptor after: " + methodName + " args: " + Arrays.toString(args) + " result: " + result);
+        public void afterInvoke(TraceId traceId, Object provider, String methodName, Object[] args, Object result) {
+            System.out.println("GlobalInterceptor after: " + provider + "#" + methodName + " args: " + Arrays.toString(args) + " result: " + result);
         }
     }
 
     static class PrivateInterceptor implements ProviderInterceptor {
 
         @Override
-        public void beforeInvoke(TraceId traceId, String methodName, Object[] args) {
-            System.out.println("PrivateInterceptor before: " + methodName + " args: " + Arrays.toString(args));
+        public void beforeInvoke(TraceId traceId, Object provider, String methodName, Object[] args) {
+            System.out.println("PrivateInterceptor before: " + provider + "#" + methodName + " args: " + Arrays.toString(args));
         }
 
         @Override
-        public void afterInvoke(TraceId traceId, String methodName, Object[] args, Object result) {
-            System.out.println("PrivateInterceptor after: " + methodName + " args: " + Arrays.toString(args) + " result: " + result);
+        public void afterInvoke(TraceId traceId, Object provider, String methodName, Object[] args, Object result) {
+            System.out.println("PrivateInterceptor after: " + provider + "#" + methodName + " args: " + Arrays.toString(args) + " result: " + result);
         }
     }
 }

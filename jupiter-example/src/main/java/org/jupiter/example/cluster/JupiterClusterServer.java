@@ -36,11 +36,11 @@ public class JupiterClusterServer {
     public static void main(String[] args) {
         // 启动5个server
         JServer[] servers = {
-                new DefaultServer().acceptor(new JNettyTcpAcceptor(18090)),
-                new DefaultServer().acceptor(new JNettyTcpAcceptor(18091)),
-                new DefaultServer().acceptor(new JNettyTcpAcceptor(18092)),
-                new DefaultServer().acceptor(new JNettyTcpAcceptor(18093)),
-                new DefaultServer().acceptor(new JNettyTcpAcceptor(18094))
+                new DefaultServer().withAcceptor(new JNettyTcpAcceptor(18090)),
+                new DefaultServer().withAcceptor(new JNettyTcpAcceptor(18091)),
+                new DefaultServer().withAcceptor(new JNettyTcpAcceptor(18092)),
+                new DefaultServer().withAcceptor(new JNettyTcpAcceptor(18093)),
+                new DefaultServer().withAcceptor(new JNettyTcpAcceptor(18094))
         };
 
         final CountDownLatch latch = new CountDownLatch(servers.length);

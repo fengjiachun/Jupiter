@@ -38,6 +38,7 @@ import org.jupiter.rpc.model.metadata.MessageWrapper;
 import org.jupiter.rpc.model.metadata.ResultWrapper;
 import org.jupiter.rpc.model.metadata.ServiceMetadata;
 import org.jupiter.rpc.model.metadata.ServiceWrapper;
+import org.jupiter.rpc.provider.ProviderInterceptor;
 import org.jupiter.rpc.provider.processor.AbstractProviderProcessor;
 import org.jupiter.rpc.tracing.TraceId;
 import org.jupiter.rpc.tracing.TracingRecorder;
@@ -54,8 +55,8 @@ import java.util.List;
 import java.util.concurrent.Executor;
 
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
-import static org.jupiter.common.util.Reflects.fastInvoke;
-import static org.jupiter.common.util.Reflects.findMatchingParameterTypes;
+import static org.jupiter.common.util.Reflects.*;
+import static org.jupiter.common.util.StackTraceUtil.stackTrace;
 import static org.jupiter.common.util.SystemClock.millisClock;
 import static org.jupiter.rpc.tracing.TracingRecorder.Role.PROVIDER;
 import static org.jupiter.transport.Status.*;
@@ -205,16 +206,25 @@ public class MessageTask implements RejectedRunnable {
                 TracingUtil.setCurrent(traceId);
             }
 
+            Object provider = service.getServiceProvider();
+            Object[] args = msg.getArgs();
+
+            // 拦截器
+            ProviderInterceptor[] interceptors = service.getInterceptors();
+
+            if (interceptors != null) {
+                beforeInvoke(interceptors, traceId, provider, methodName, args);
+            }
+
             String callInfo = null;
             Timer.Context timerCtx = null;
             if (METRIC_NEEDED) {
                 callInfo = getCallInfo(msg.getMetadata(), methodName);
                 timerCtx = Metrics.timer(callInfo).time();
             }
+
             Object invokeResult = null;
             try {
-                Object provider = service.getServiceProvider();
-                Object[] args = msg.getArgs();
                 List<Class<?>[]> parameterTypesList = service.getMethodParameterTypes(methodName);
                 if (parameterTypesList == null) {
                     throw new NoSuchMethodException(methodName);
@@ -222,16 +232,19 @@ public class MessageTask implements RejectedRunnable {
 
                 // 根据JLS方法静态分派规则查找最匹配的方法parameterTypes
                 Class<?>[] parameterTypes = findMatchingParameterTypes(parameterTypesList, args);
-
                 invokeResult = fastInvoke(provider, methodName, parameterTypes, args);
-            } catch (Exception e) {
+            } catch (Throwable t) {
                 // biz exception
-                processor.handleException(channel, _request, SERVICE_ERROR, e);
+                processor.handleException(channel, _request, SERVICE_ERROR, t);
                 return;
             } finally {
                 long elapsed = -1;
                 if (METRIC_NEEDED) {
                     elapsed = timerCtx.stop();
+                }
+
+                if (interceptors != null) {
+                    afterInvoke(interceptors, traceId, provider, methodName, args, invokeResult);
                 }
 
                 // tracing recoding
@@ -276,6 +289,34 @@ public class MessageTask implements RejectedRunnable {
             });
         } catch (Throwable t) {
             processor.handleException(channel, _request, SERVER_ERROR, t);
+        }
+    }
+
+    @SuppressWarnings("all")
+    private static void beforeInvoke(
+            ProviderInterceptor[] interceptors, TraceId traceId, Object provider, String methodName, Object[] args) {
+
+        for (int i = 0; i < interceptors.length; i++) {
+            interceptors[i].beforeInvoke(traceId, provider, methodName, args);
+            try {
+                interceptors[i].beforeInvoke(traceId, provider, methodName, args);
+            } catch (Throwable t) {
+                logger.warn("Interceptor[{}#beforeInvoke]: {}.", simpleClassName(interceptors[i]), stackTrace(t));
+            }
+        }
+    }
+
+    @SuppressWarnings("all")
+    private static void afterInvoke(
+            ProviderInterceptor[] interceptors, TraceId traceId, Object provider, String methodName, Object[] args, Object invokeResult) {
+
+        for (int i = interceptors.length - 1; i >= 0; i--) {
+            interceptors[i].beforeInvoke(traceId, provider, methodName, args);
+            try {
+                interceptors[i].afterInvoke(traceId, provider, methodName, args, invokeResult);
+            } catch (Throwable t) {
+                logger.warn("Interceptor[{}#afterInvoke]: {}.", simpleClassName(interceptors[i]), stackTrace(t));
+            }
         }
     }
 

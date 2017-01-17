@@ -29,19 +29,21 @@ public interface ProviderInterceptor {
     /**
      * This code is executed before the method is optionally called.
      *
-     * @param traceId       id for tracing
+     * @param traceId       id for tracing, may be null if without tracing
+     * @param provider      provider be intercepted
      * @param methodName    name of the method to call
      * @param args          arguments to the method call
      */
-    void beforeInvoke(TraceId traceId, String methodName, Object[] args);
+    void beforeInvoke(TraceId traceId, Object provider, String methodName, Object[] args);
 
     /**
      * This code is executed after the method is optionally called.
      *
-     * @param traceId       id for tracing
+     * @param traceId       id for tracing, may be null if without tracing
+     * @param provider      provider be intercepted
      * @param methodName    name of the called method
      * @param args          arguments to the called method
      * @param result        result of the executed method call
      */
-    void afterInvoke(TraceId traceId, String methodName, Object[] args, Object result);
+    void afterInvoke(TraceId traceId, Object provider, String methodName, Object[] args, Object result);
 }

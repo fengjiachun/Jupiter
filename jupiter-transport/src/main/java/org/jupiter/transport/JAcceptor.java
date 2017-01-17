@@ -48,7 +48,7 @@ public interface JAcceptor extends Transporter {
     /**
      * Binds the rpc processor.
      */
-    void bindProcessor(ProviderProcessor processor);
+    void withProcessor(ProviderProcessor processor);
 
     /**
      * Start the server and wait until the server socket is closed.
