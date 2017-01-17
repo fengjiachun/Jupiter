@@ -213,7 +213,7 @@ public class MessageTask implements RejectedRunnable {
             ProviderInterceptor[] interceptors = service.getInterceptors();
 
             if (interceptors != null) {
-                beforeInvoke(interceptors, traceId, provider, methodName, args);
+                handleBeforeInvoke(interceptors, traceId, provider, methodName, args);
             }
 
             String callInfo = null;
@@ -244,7 +244,7 @@ public class MessageTask implements RejectedRunnable {
                 }
 
                 if (interceptors != null) {
-                    afterInvoke(interceptors, traceId, provider, methodName, args, invokeResult);
+                    handleAfterInvoke(interceptors, traceId, provider, methodName, args, invokeResult);
                 }
 
                 // tracing recoding
@@ -293,7 +293,7 @@ public class MessageTask implements RejectedRunnable {
     }
 
     @SuppressWarnings("all")
-    private static void beforeInvoke(
+    private static void handleBeforeInvoke(
             ProviderInterceptor[] interceptors, TraceId traceId, Object provider, String methodName, Object[] args) {
 
         for (int i = 0; i < interceptors.length; i++) {
@@ -307,7 +307,7 @@ public class MessageTask implements RejectedRunnable {
     }
 
     @SuppressWarnings("all")
-    private static void afterInvoke(
+    private static void handleAfterInvoke(
             ProviderInterceptor[] interceptors, TraceId traceId, Object provider, String methodName, Object[] args, Object invokeResult) {
 
         for (int i = interceptors.length - 1; i >= 0; i--) {
