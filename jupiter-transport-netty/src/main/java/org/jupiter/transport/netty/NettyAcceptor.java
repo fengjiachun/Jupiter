@@ -113,8 +113,8 @@ public abstract class NettyAcceptor implements JAcceptor {
 
     @Override
     public void shutdownGracefully() {
-        boss.shutdownGracefully().awaitUninterruptibly();
-        worker.shutdownGracefully().awaitUninterruptibly();
+        boss.shutdownGracefully();
+        worker.shutdownGracefully();
     }
 
     protected void setOptions() {
