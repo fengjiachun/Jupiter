@@ -24,6 +24,8 @@ import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 /**
+ * Jupiter的连接管理器, 用于自动管理(地址归组)连接.
+ *
  * jupiter
  * org.jupiter.transport
  *
@@ -35,6 +37,9 @@ public class JConnectionManager {
 
     private final ConcurrentMap<UnresolvedAddress, CopyOnWriteArrayList<JConnection>> connections = Maps.newConcurrentMap();
 
+    /**
+     * 设置为由jupiter自动管理连接
+     */
     public void manage(JConnection connection) {
         UnresolvedAddress address = connection.getAddress();
         CopyOnWriteArrayList<JConnection> list = connections.get(address);
@@ -48,6 +53,9 @@ public class JConnectionManager {
         list.add(connection);
     }
 
+    /**
+     * 取消自动重连
+     */
     public void cancelReconnect(UnresolvedAddress address) {
         CopyOnWriteArrayList<JConnection> list = connections.remove(address);
         if (list != null) {
@@ -58,6 +66,9 @@ public class JConnectionManager {
         }
     }
 
+    /**
+     * 取消自动重连
+     */
     public void cancelAllReconnect() {
         for (UnresolvedAddress address : connections.keySet()) {
             cancelReconnect(address);
