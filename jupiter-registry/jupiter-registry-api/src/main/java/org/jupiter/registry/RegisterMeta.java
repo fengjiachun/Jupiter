@@ -32,9 +32,9 @@ public class RegisterMeta {
     private Address address = new Address();
     // metadata
     private ServiceMeta serviceMeta = new ServiceMeta();
-    // 权重 hashCode()与equals()不把weight计算在内
+    // 权重 hashCode() 与 equals() 不把weight计算在内
     private volatile int weight;
-    // 建议连接数 hashCode()与equals()不把connCount计算在内
+    // 建议连接数, jupiter客户端会根据connCount的值去建立对应数量的连接, hashCode() 与 equals() 不把connCount计算在内
     private volatile int connCount;
 
     public String getHost() {

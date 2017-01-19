@@ -47,14 +47,14 @@ public class ServiceWrapper implements Serializable {
     private final ServiceMetadata metadata;
     // 服务对象
     private final Object serviceProvider;
-    // 拦截器
+    // 服务拦截器
     private final ProviderInterceptor[] interceptors;
     // provider中所有接口的参数类型(用于根据JLS规则实现方法调用的静态分派)
     private final Map<String, List<Class<?>[]>> methodsParameterTypes;
 
-    // 权重 hashCode()与equals()不把weight计算在内
+    // 权重 hashCode() 与 equals() 不把weight计算在内
     private int weight = JConstants.DEFAULT_WEIGHT;
-    // 建议连接数, jupiter客户端会根据connCount的值去建立对应数量的连接, hashCode()与equals()不把connCount计算在内
+    // 建议连接数, jupiter客户端会根据connCount的值去建立对应数量的连接, hashCode() 与 equals() 不把connCount计算在内
     private int connCount = JConstants.DEFAULT_CONNECTION_COUNT;
     // provider私有线程池
     private Executor executor;

@@ -29,7 +29,7 @@ import java.util.Collection;
 public interface RegistryService extends Registry {
 
     /**
-     * Register Service to registry server.
+     * Register service to registry server.
      */
     void register(RegisterMeta meta);
 
