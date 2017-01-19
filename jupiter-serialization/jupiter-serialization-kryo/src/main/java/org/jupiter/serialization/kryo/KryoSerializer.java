@@ -29,7 +29,7 @@ import org.objenesis.strategy.StdInstantiatorStrategy;
 /**
  * Kryo的序列化/反序列化实现.
  *
- * 要注意的是关掉了对循环引用的对象的支持, 如果一定要序列化/反序列化循环引用的类型,
+ * 要注意的是关掉了对存在循环引用的类型的支持, 如果一定要序列化/反序列化循环引用的类型,
  * 可以通过 {@link #setJavaSerializer(Class)} 设置该类型使用Java的序列化/反序列化机制,
  * 对性能有一点影响, 但只是影响一个'点', 不影响'面'.
  *
