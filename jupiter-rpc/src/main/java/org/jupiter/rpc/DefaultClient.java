@@ -51,7 +51,7 @@ public class DefaultClient implements JClient {
         ClassInitializeUtil.initClass("org.jupiter.rpc.tracing.TracingUtil", 500);
     }
 
-    // 注册服务(SPI)
+    // 服务订阅(SPI)
     private final RegistryService registryService = JServiceLoader.loadFirst(RegistryService.class);
     private final String appName;
 

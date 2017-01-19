@@ -21,6 +21,10 @@ import org.jupiter.transport.channel.JChannel;
 /**
  * Consumer's hook.
  *
+ * 客户端的钩子函数,
+ * 在请求发送时触发 {@link ConsumerHook#before(JRequest, JChannel)} 方法;
+ * 在响应回来时触发 {@link ConsumerHook#after(JResponse, JChannel)} 方法.
+ *
  * jupiter
  * org.jupiter.rpc
  *

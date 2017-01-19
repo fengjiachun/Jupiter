@@ -21,6 +21,8 @@ import org.jupiter.common.util.StringBuilderHelper;
 import java.io.Serializable;
 
 /**
+ * 链路追踪ID, 全局唯一.
+ *
  * jupiter
  * org.jupiter.rpc
  *
@@ -32,8 +34,8 @@ public class TraceId implements Serializable {
 
     public static TraceId NULL_TRACE_ID = newInstance("null");
 
-    private final String id;
-    private int node;
+    private final String id;    // 全局唯一的ID
+    private int node;           // 每经过一个节点, node的值会 +1
 
     public static TraceId newInstance(String id) {
         return new TraceId(id);

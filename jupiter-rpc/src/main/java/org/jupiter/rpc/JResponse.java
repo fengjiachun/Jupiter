@@ -23,6 +23,8 @@ import org.jupiter.transport.payload.JResponseBytes;
 /**
  * Provider's response data.
  *
+ * 响应信息载体.
+ *
  * jupiter
  * org.jupiter.rpc
  *
@@ -30,8 +32,8 @@ import org.jupiter.transport.payload.JResponseBytes;
  */
 public class JResponse {
 
-    private final JResponseBytes responseBytes; // 响应bytes[]
-    private ResultWrapper result;               // 服务调用结果
+    private final JResponseBytes responseBytes; // 响应bytes
+    private ResultWrapper result;               // 响应对象
 
     public JResponse(long id) {
         responseBytes = new JResponseBytes(id);

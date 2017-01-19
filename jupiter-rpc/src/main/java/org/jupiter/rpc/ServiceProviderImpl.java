@@ -26,7 +26,7 @@ import java.lang.annotation.Target;
 /**
  * Provider implementation annotation.
  *
- * 每个服务实现必须通过此注解来指定服务版本信息
+ * 每个服务实现必须通过此注解来指定服务版本信息.
  *
  * jupiter
  * org.jupiter.rpc

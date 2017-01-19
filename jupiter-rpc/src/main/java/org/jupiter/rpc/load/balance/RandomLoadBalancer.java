@@ -23,7 +23,7 @@ import org.jupiter.transport.channel.JChannelGroup;
 import java.util.concurrent.ThreadLocalRandom;
 
 /**
- * 加权随机负载均衡
+ * 加权随机负载均衡.
  *
  * *****************************************************************************
  *
@@ -66,6 +66,9 @@ public class RandomLoadBalancer extends AbstractLoadBalancer {
         ThreadLocalRandom random = ThreadLocalRandom.current();
 
         if (groups.isSameWeight()) {
+            // 对于大多数场景, 在预热都完成后, 很可能权重都是相同的, 那么加权随机算法将是没有必要的开销,
+            // 如果发现一个CopyOnWriteGroupList里面所有元素权重相同, 会设置一个sameWeight标记,
+            // 下一次直接退化到普通随机算法, 如果CopyOnWriteGroupList中元素出现变化, 标记会被自动取消.
             return elements[random.nextInt(length)];
         }
 
@@ -94,6 +97,8 @@ public class RandomLoadBalancer extends AbstractLoadBalancer {
             groups.setSameWeight(true);
         }
 
+        // 这一段算法参考当前的类注释中的那张图
+        //
         // 如果权重不相同且总权重大于0, 则按总权重数随机
         if (!sameWeight && sumWeight > 0) {
             int offset = random.nextInt(sumWeight);

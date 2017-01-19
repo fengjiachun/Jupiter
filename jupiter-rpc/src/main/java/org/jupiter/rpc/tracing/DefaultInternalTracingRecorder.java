@@ -23,7 +23,7 @@ import org.jupiter.common.util.internal.logging.InternalLoggerFactory;
 import java.util.concurrent.TimeUnit;
 
 /**
- * 默认记录tracing信息的方式是日志
+ * 默认记录tracing信息的方式是打印日志, 可基于SPI扩展.
  *
  * jupiter
  * org.jupiter.rpc.tracing

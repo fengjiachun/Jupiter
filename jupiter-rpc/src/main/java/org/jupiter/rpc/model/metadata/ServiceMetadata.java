@@ -25,6 +25,8 @@ import static org.jupiter.common.util.Preconditions.checkNotNull;
 /**
  * Service provider's metadata.
  *
+ * 服务的元数据.
+ *
  * jupiter
  * org.jupiter.rpc.model.metadata
  *
@@ -34,9 +36,9 @@ public class ServiceMetadata extends Directory implements Serializable {
 
     private static final long serialVersionUID = -8908295634641380163L;
 
-    private String group;               // 组别
+    private String group;               // 服务组别
     private String serviceProviderName; // 服务名称
-    private String version;             // 版本号
+    private String version;             // 服务版本号
 
     public ServiceMetadata() {}
 

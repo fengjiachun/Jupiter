@@ -17,7 +17,7 @@
 package org.jupiter.rpc;
 
 /**
- * 请求派发方式, 支持单播以及组播.
+ * 请求派发方式, 支持单播以及广播.
  *
  * jupiter
  * org.jupiter.rpc
@@ -26,7 +26,7 @@ package org.jupiter.rpc;
  */
 public enum DispatchType {
     ROUND,      // 单播
-    BROADCAST;  // 组播
+    BROADCAST;  // 广播
 
     public static DispatchType parse(String name) {
         for (DispatchType s : values()) {

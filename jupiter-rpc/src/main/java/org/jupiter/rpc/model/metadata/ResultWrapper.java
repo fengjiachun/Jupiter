@@ -23,6 +23,8 @@ import java.io.Serializable;
 /**
  * Response data wrapper.
  *
+ * 响应消息包装.
+ *
  * jupiter
  * org.jupiter.rpc.model.metadata
  *
@@ -32,8 +34,8 @@ public class ResultWrapper implements Serializable {
 
     private static final long serialVersionUID = -1126932930252953428L;
 
-    private Object result;
-    private String error;
+    private Object result;  // 响应结果对象
+    private String error;   // 错误信息(通常会包含异常的堆栈信息)
 
     public Object getResult() {
         return result;

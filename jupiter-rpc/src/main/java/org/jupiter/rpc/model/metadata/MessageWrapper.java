@@ -24,6 +24,8 @@ import java.util.Arrays;
 /**
  * Request data wrapper.
  *
+ * 请求消息包装.
+ *
  * jupiter
  * org.jupiter.rpc.model.metadata
  *
@@ -34,10 +36,10 @@ public class MessageWrapper implements Serializable {
     private static final long serialVersionUID = 1009813828866652852L;
 
     private String appName;                 // 应用名称
-    private final ServiceMetadata metadata; // metadata
-    private String methodName;              // 方法名称
+    private final ServiceMetadata metadata; // 目标服务元数据
+    private String methodName;              // 目标方法名称
     private Object[] args;                  // 目标方法参数
-    private TraceId traceId;                // trace id
+    private TraceId traceId;                // 链路追踪ID(全局唯一)
 
     public MessageWrapper(ServiceMetadata metadata) {
         this.metadata = metadata;

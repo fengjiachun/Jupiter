@@ -228,7 +228,7 @@ public class MessageTask implements RejectedRunnable {
                     throw new NoSuchMethodException(methodName);
                 }
 
-                // 根据JLS方法静态分派规则查找最匹配的方法parameterTypes
+                // 根据JLS方法调用的静态分派规则查找最匹配的方法parameterTypes
                 Class<?>[] parameterTypes = Reflects.findMatchingParameterTypes(parameterTypesList, args);
                 invokeResult = Reflects.fastInvoke(provider, methodName, parameterTypes, args);
             } catch (Throwable t) {

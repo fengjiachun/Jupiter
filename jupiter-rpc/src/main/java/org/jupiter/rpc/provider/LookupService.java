@@ -30,7 +30,7 @@ import org.jupiter.rpc.model.metadata.ServiceWrapper;
 public interface LookupService {
 
     /**
-     * Lookup the service.
+     * Lookup the service by {@link Directory}.
      */
     ServiceWrapper lookupService(Directory directory);
 }

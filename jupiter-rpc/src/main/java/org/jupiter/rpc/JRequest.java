@@ -22,6 +22,8 @@ import org.jupiter.transport.payload.JRequestBytes;
 /**
  * Consumer's request data.
  *
+ * 请求信息载体.
+ *
  * jupiter
  * org.jupiter.rpc
  *
@@ -29,8 +31,8 @@ import org.jupiter.transport.payload.JRequestBytes;
  */
 public class JRequest {
 
-    private final JRequestBytes requestBytes;   // 请求bytes[]
-    private MessageWrapper message;             // 请求数据
+    private final JRequestBytes requestBytes;   // 请求bytes
+    private MessageWrapper message;             // 请求对象
 
     public JRequest() {
         this(new JRequestBytes());

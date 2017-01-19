@@ -17,7 +17,7 @@
 package org.jupiter.rpc;
 
 /**
- * 远程调用方式, 支持同步调用和异步调用.
+ * 远程调用方式, 支持同步调用和异步调用, 异步方式支持Future以及Listener.
  *
  * jupiter
  * org.jupiter.rpc
@@ -26,7 +26,7 @@ package org.jupiter.rpc;
  */
 public enum InvokeType {
     SYNC,   // 同步调用
-    ASYNC;  // 异步Future方式
+    ASYNC;  // 异步调用
 
     public static InvokeType parse(String name) {
         for (InvokeType s : values()) {

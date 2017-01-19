@@ -29,6 +29,15 @@ import java.util.concurrent.atomic.AtomicInteger;
 import static org.jupiter.common.util.StackTraceUtil.stackTrace;
 
 /**
+ * 链路追踪ID生成的工具类.
+ *
+ * 一个 {@link TraceId} 包含以下内容(30位):
+ * 1  ~ 8  位: 本机IP地址(16进制), 可能是网卡中第一个有效的IP地址
+ * 9  ~ 21 位: 当前时间, 毫秒数
+ * 22 ~ 25 位: 本地自增ID(1000 ~ 9191)
+ * 26      位: d (进程flag)
+ * 27 ~ 30 位: 当前进程ID(16进制)
+ *
  * jupiter
  * org.jupiter.rpc.tracing
  *
@@ -49,9 +58,9 @@ public class TracingUtil {
     private static final char PID_FLAG = 'd';
     private static final String IP_16;
     private static final String PID;
-    private static final int MIN_ID = 1000;
-    private static final int MAX_ID = 9000;
-    private static final AtomicInteger id = new AtomicInteger(MIN_ID);
+    private static final int ID_BASE = 1000;
+    private static final int ID_MASK = (1 << 13) - 1;
+    private static final AtomicInteger id = new AtomicInteger(0);
 
     static {
         String _ip_16;
@@ -189,12 +198,6 @@ public class TracingUtil {
     }
 
     private static int getNextId() {
-        for (;;) {
-            int current = id.get();
-            int next = (current > MAX_ID) ? MIN_ID : current + 1;
-            if (id.compareAndSet(current, next)) {
-                return next;
-            }
-        }
+        return (id.getAndIncrement() & Integer.MAX_VALUE & ID_MASK) + ID_BASE;
     }
 }
