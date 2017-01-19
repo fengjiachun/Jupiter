@@ -27,8 +27,10 @@ import org.jupiter.serialization.SerializerType;
 import org.objenesis.strategy.StdInstantiatorStrategy;
 
 /**
- * Kryo序列化/反序列化实现, 关掉了对循环引用的对象的支持, 如果要序列化/反序列化循环引用的对象,
- * 可以通过 {@link #setJavaSerializer(Class)} 设置该对象使用Java的序列化/反序列化机制,
+ * Kryo的序列化/反序列化实现.
+ *
+ * 要注意的是关掉了对循环引用的对象的支持, 如果一定要序列化/反序列化循环引用的类型,
+ * 可以通过 {@link #setJavaSerializer(Class)} 设置该类型使用Java的序列化/反序列化机制,
  * 对性能有一点影响, 但只是影响一个'点', 不影响'面'.
  *
  * jupiter

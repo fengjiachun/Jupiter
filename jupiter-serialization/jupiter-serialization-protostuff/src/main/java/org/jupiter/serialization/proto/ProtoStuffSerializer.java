@@ -30,6 +30,8 @@ import org.jupiter.serialization.SerializerType;
 import java.util.concurrent.ConcurrentMap;
 
 /**
+ * Protostuff的序列化/反序列化实现, jupiter中默认的实现.
+ *
  * jupiter
  * org.jupiter.serialization.proto
  *

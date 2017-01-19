@@ -30,6 +30,8 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 
 /**
+ * Hessian的序列化/反序列化实现
+ *
  * jupiter
  * org.jupiter.serialization.hessian
  *

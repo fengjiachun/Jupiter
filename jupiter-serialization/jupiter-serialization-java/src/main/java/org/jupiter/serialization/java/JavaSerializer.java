@@ -26,6 +26,8 @@ import org.jupiter.serialization.SerializerType;
 import java.io.*;
 
 /**
+ * Java自身的序列化/反序列化实现.
+ *
  * jupiter
  * org.jupiter.serialization.java
  *
