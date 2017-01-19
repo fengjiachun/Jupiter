@@ -27,6 +27,7 @@ import io.netty.util.HashedWheelTimer;
 import io.netty.util.concurrent.DefaultThreadFactory;
 import io.netty.util.internal.PlatformDependent;
 import org.jupiter.common.concurrent.NamedThreadFactory;
+import org.jupiter.common.util.JConstants;
 import org.jupiter.transport.JAcceptor;
 import org.jupiter.transport.JConfig;
 import org.jupiter.transport.JOption;
@@ -36,8 +37,6 @@ import org.jupiter.transport.processor.ProviderProcessor;
 import java.net.InetSocketAddress;
 import java.net.SocketAddress;
 import java.util.concurrent.ThreadFactory;
-
-import static org.jupiter.common.util.JConstants.AVAILABLE_PROCESSORS;
 
 /**
  * jupiter
@@ -60,7 +59,7 @@ public abstract class NettyAcceptor implements JAcceptor {
     protected volatile ByteBufAllocator allocator;
 
     public NettyAcceptor(Protocol protocol, SocketAddress localAddress) {
-        this(protocol, localAddress, AVAILABLE_PROCESSORS << 1);
+        this(protocol, localAddress, JConstants.AVAILABLE_PROCESSORS << 1);
     }
 
     public NettyAcceptor(Protocol protocol, SocketAddress localAddress, int nWorkers) {

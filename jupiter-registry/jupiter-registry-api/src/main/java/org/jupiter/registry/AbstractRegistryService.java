@@ -16,8 +16,8 @@
 
 package org.jupiter.registry;
 
-import org.jupiter.common.concurrent.collection.ConcurrentSet;
 import org.jupiter.common.concurrent.NamedThreadFactory;
+import org.jupiter.common.concurrent.collection.ConcurrentSet;
 import org.jupiter.common.util.Lists;
 import org.jupiter.common.util.Maps;
 import org.jupiter.common.util.Pair;
@@ -34,10 +34,6 @@ import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 import static org.jupiter.common.util.StackTraceUtil.stackTrace;
-import static org.jupiter.registry.NotifyListener.*;
-import static org.jupiter.registry.NotifyListener.NotifyEvent.*;
-import static org.jupiter.registry.RegisterMeta.Address;
-import static org.jupiter.registry.RegisterMeta.ServiceMeta;
 
 /**
  * jupiter
@@ -54,14 +50,16 @@ public abstract class AbstractRegistryService implements RegistryService {
             Executors.newSingleThreadExecutor(new NamedThreadFactory("registry.executor"));
     private final AtomicBoolean shutdown = new AtomicBoolean(false);
 
-    private final Map<ServiceMeta, Pair<Long, List<RegisterMeta>>> registries = Maps.newHashMap();
+    private final Map<RegisterMeta.ServiceMeta, Pair<Long, List<RegisterMeta>>> registries = Maps.newHashMap();
     private final ReentrantReadWriteLock registriesLock = new ReentrantReadWriteLock();
 
-    private final ConcurrentMap<ServiceMeta, CopyOnWriteArrayList<NotifyListener>> subscribeListeners = Maps.newConcurrentMap();
-    private final ConcurrentMap<Address, CopyOnWriteArrayList<OfflineListener>> offlineListeners = Maps.newConcurrentMap();
+    private final ConcurrentMap<RegisterMeta.ServiceMeta, CopyOnWriteArrayList<NotifyListener>> subscribeListeners =
+            Maps.newConcurrentMap();
+    private final ConcurrentMap<RegisterMeta.Address, CopyOnWriteArrayList<OfflineListener>> offlineListeners =
+            Maps.newConcurrentMap();
 
     // Consumer已订阅的信息
-    private final ConcurrentSet<ServiceMeta> subscribeSet = new ConcurrentSet<>();
+    private final ConcurrentSet<RegisterMeta.ServiceMeta> subscribeSet = new ConcurrentSet<>();
     // Provider已发布的注册信息
     private final ConcurrentSet<RegisterMeta> registerMetaSet = new ConcurrentSet<>();
 
@@ -98,7 +96,7 @@ public abstract class AbstractRegistryService implements RegistryService {
     }
 
     @Override
-    public void subscribe(ServiceMeta serviceMeta, NotifyListener listener) {
+    public void subscribe(RegisterMeta.ServiceMeta serviceMeta, NotifyListener listener) {
         CopyOnWriteArrayList<NotifyListener> listeners = subscribeListeners.get(serviceMeta);
         if (listeners == null) {
             CopyOnWriteArrayList<NotifyListener> newListeners = new CopyOnWriteArrayList<>();
@@ -113,7 +111,7 @@ public abstract class AbstractRegistryService implements RegistryService {
     }
 
     @Override
-    public Collection<RegisterMeta> lookup(ServiceMeta serviceMeta) {
+    public Collection<RegisterMeta> lookup(RegisterMeta.ServiceMeta serviceMeta) {
         Pair<Long, List<RegisterMeta>> data;
 
         final Lock readLock = registriesLock.readLock();
@@ -147,7 +145,7 @@ public abstract class AbstractRegistryService implements RegistryService {
 
     public abstract void destroy();
 
-    public void offlineListening(Address address, OfflineListener listener) {
+    public void offlineListening(RegisterMeta.Address address, OfflineListener listener) {
         CopyOnWriteArrayList<OfflineListener> listeners = offlineListeners.get(address);
         if (listeners == null) {
             CopyOnWriteArrayList<OfflineListener> newListeners = new CopyOnWriteArrayList<>();
@@ -159,7 +157,7 @@ public abstract class AbstractRegistryService implements RegistryService {
         listeners.add(listener);
     }
 
-    public void offline(Address address) {
+    public void offline(RegisterMeta.Address address) {
         // remove & notify
         CopyOnWriteArrayList<OfflineListener> listeners = offlineListeners.remove(address);
         if (listeners != null) {
@@ -169,7 +167,7 @@ public abstract class AbstractRegistryService implements RegistryService {
         }
     }
 
-    public ConcurrentSet<ServiceMeta> subscribeSet() {
+    public ConcurrentSet<RegisterMeta.ServiceMeta> subscribeSet() {
         return subscribeSet;
     }
 
@@ -178,7 +176,9 @@ public abstract class AbstractRegistryService implements RegistryService {
     }
 
     // 通知新增或删除服务
-    protected void notify(ServiceMeta serviceMeta, NotifyEvent event, long version, RegisterMeta... array) {
+    protected void notify(
+            RegisterMeta.ServiceMeta serviceMeta, NotifyListener.NotifyEvent event, long version, RegisterMeta... array) {
+
         if (array == null || array.length == 0) {
             return;
         }
@@ -190,7 +190,7 @@ public abstract class AbstractRegistryService implements RegistryService {
         try {
             Pair<Long, List<RegisterMeta>> data = registries.get(serviceMeta);
             if (data == null) {
-                if (event == CHILD_REMOVED) {
+                if (event == NotifyListener.NotifyEvent.CHILD_REMOVED) {
                     return;
                 }
                 List<RegisterMeta> metaList = Lists.newArrayList(array);
@@ -200,11 +200,11 @@ public abstract class AbstractRegistryService implements RegistryService {
                 long oldVersion = data.getKey();
                 List<RegisterMeta> metaList = data.getValue();
                 if (oldVersion < version || (version < 0 && oldVersion > 0 /* version 溢出 */)) {
-                    if (event == CHILD_REMOVED) {
+                    if (event == NotifyListener.NotifyEvent.CHILD_REMOVED) {
                         for (RegisterMeta m : array) {
                             metaList.remove(m);
                         }
-                    } else if (event == CHILD_ADDED) {
+                    } else if (event == NotifyListener.NotifyEvent.CHILD_ADDED) {
                         Collections.addAll(metaList, array);
                     }
                     data = Pair.of(version, metaList);
@@ -229,7 +229,7 @@ public abstract class AbstractRegistryService implements RegistryService {
         }
     }
 
-    protected abstract void doSubscribe(ServiceMeta serviceMeta);
+    protected abstract void doSubscribe(RegisterMeta.ServiceMeta serviceMeta);
 
     protected abstract void doRegister(RegisterMeta meta);
 

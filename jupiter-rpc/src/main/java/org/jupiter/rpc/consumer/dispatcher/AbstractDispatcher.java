@@ -16,6 +16,7 @@
 
 package org.jupiter.rpc.consumer.dispatcher;
 
+import org.jupiter.common.util.JConstants;
 import org.jupiter.common.util.Maps;
 import org.jupiter.common.util.SystemClock;
 import org.jupiter.common.util.internal.logging.InternalLogger;
@@ -32,6 +33,7 @@ import org.jupiter.rpc.tracing.TracingUtil;
 import org.jupiter.serialization.Serializer;
 import org.jupiter.serialization.SerializerFactory;
 import org.jupiter.serialization.SerializerType;
+import org.jupiter.transport.Status;
 import org.jupiter.transport.channel.CopyOnWriteGroupList;
 import org.jupiter.transport.channel.JChannel;
 import org.jupiter.transport.channel.JChannelGroup;
@@ -41,11 +43,7 @@ import org.jupiter.transport.payload.JRequestBytes;
 import java.util.List;
 import java.util.Map;
 
-import static org.jupiter.common.util.JConstants.DEFAULT_TIMEOUT;
-import static org.jupiter.rpc.ConsumerHook.EMPTY_HOOKS;
-import static org.jupiter.rpc.DispatchType.ROUND;
-import static org.jupiter.rpc.tracing.TracingRecorder.Role.CONSUMER;
-import static org.jupiter.transport.Status.CLIENT_ERROR;
+import static org.jupiter.common.util.StackTraceUtil.stackTrace;
 
 /**
  * jupiter
@@ -57,11 +55,11 @@ abstract class AbstractDispatcher implements Dispatcher {
 
     private static final InternalLogger logger = InternalLoggerFactory.getInstance(AbstractDispatcher.class);
 
-    private final LoadBalancer loadBalancer;        // 软负载均衡
-    private final ServiceMetadata metadata;         // 目标服务元信息
-    private final Serializer serializerImpl;        // 序列化/反序列化impl
-    private ConsumerHook[] hooks = EMPTY_HOOKS;     // 消费者端钩子函数
-    private long timeoutMillis = DEFAULT_TIMEOUT;   // 调用超时时间设置
+    private final LoadBalancer loadBalancer;                    // 软负载均衡
+    private final ServiceMetadata metadata;                     // 目标服务元信息
+    private final Serializer serializerImpl;                    // 序列化/反序列化impl
+    private ConsumerHook[] hooks = ConsumerHook.EMPTY_HOOKS;    // 消费者端钩子函数
+    private long timeoutMillis = JConstants.DEFAULT_TIMEOUT;    // 调用超时时间设置
     // 针对指定方法单独设置的超时时间, 方法名为key, 方法参数类型不做区别对待
     private Map<String, Long> methodsSpecialTimeoutMillis = Maps.newHashMap();
 
@@ -169,7 +167,8 @@ abstract class AbstractDispatcher implements Dispatcher {
             message.setTraceId(traceId);
 
             TracingRecorder recorder = TracingUtil.getRecorder();
-            recorder.recording(CONSUMER, traceId.asText(), metadata.directory(), methodName, channel);
+            recorder.recording(
+                    TracingRecorder.Role.CONSUMER, traceId.asText(), metadata.directory(), methodName, channel);
         }
         return message;
     }
@@ -188,7 +187,7 @@ abstract class AbstractDispatcher implements Dispatcher {
                 // 标记已发送
                 future.markSent();
 
-                if (dispatchType == ROUND) {
+                if (dispatchType == DispatchType.ROUND) {
                     requestBytes.nullBytes();
                 }
 
@@ -200,17 +199,17 @@ abstract class AbstractDispatcher implements Dispatcher {
 
             @Override
             public void operationFailure(JChannel channel, Throwable cause) throws Exception {
-                if (dispatchType == ROUND) {
+                if (dispatchType == DispatchType.ROUND) {
                     requestBytes.nullBytes();
                 }
 
-                logger.warn("Writes {} fail on {}, {}.", request, channel, cause);
+                logger.warn("Writes {} fail on {}, {}.", request, channel, stackTrace(cause));
 
                 ResultWrapper result = new ResultWrapper();
                 result.setError(cause);
 
                 JResponse response = new JResponse(requestBytes.invokeId());
-                response.status(CLIENT_ERROR);
+                response.status(Status.CLIENT_ERROR);
                 response.result(result);
 
                 DefaultInvokeFuture.received(channel, response);

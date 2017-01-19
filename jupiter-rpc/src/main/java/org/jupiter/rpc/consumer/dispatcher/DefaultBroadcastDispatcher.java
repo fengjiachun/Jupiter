@@ -17,6 +17,7 @@
 package org.jupiter.rpc.consumer.dispatcher;
 
 import org.jupiter.rpc.ConsumerHook;
+import org.jupiter.rpc.DispatchType;
 import org.jupiter.rpc.JClient;
 import org.jupiter.rpc.JRequest;
 import org.jupiter.rpc.consumer.future.DefaultInvokeFuture;
@@ -28,8 +29,6 @@ import org.jupiter.serialization.Serializer;
 import org.jupiter.serialization.SerializerType;
 import org.jupiter.transport.channel.JChannel;
 import org.jupiter.transport.channel.JChannelGroup;
-
-import static org.jupiter.rpc.DispatchType.BROADCAST;
 
 /**
  * 组播方式派发消息.
@@ -81,9 +80,10 @@ public class DefaultBroadcastDispatcher extends AbstractDispatcher {
         long timeoutMillis = methodSpecialTimeoutMillis(methodName);
         for (int i = 0; i < channels.length; i++) {
             JChannel ch = channels[i];
-            DefaultInvokeFuture<T> future = DefaultInvokeFuture.with(invokeId, ch, returnType, timeoutMillis, BROADCAST)
+            DefaultInvokeFuture<T> future = DefaultInvokeFuture
+                    .with(invokeId, ch, returnType, timeoutMillis, DispatchType.BROADCAST)
                     .hooks(hooks);
-            futures[i] = write(ch, request, future, BROADCAST);
+            futures[i] = write(ch, request, future, DispatchType.BROADCAST);
         }
 
         return DefaultInvokeFutureGroup.with(futures);

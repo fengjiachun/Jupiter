@@ -18,11 +18,9 @@ package org.jupiter.rpc.executor;
 
 import org.jupiter.common.concurrent.disruptor.TaskDispatcher;
 import org.jupiter.common.concurrent.disruptor.WaitStrategyType;
+import org.jupiter.common.util.SystemPropertyUtil;
 
 import java.util.concurrent.Executor;
-
-import static org.jupiter.common.concurrent.disruptor.WaitStrategyType.*;
-import static org.jupiter.common.util.SystemPropertyUtil.get;
 
 /**
  * Provide a disruptor implementation of executor.
@@ -41,17 +39,17 @@ public class DisruptorExecutorFactory extends AbstractExecutorFactory {
                 "processor",
                 queueCapacity(target),
                 maxWorks(target),
-                waitStrategyType(target, LITE_BLOCKING_WAIT));
+                waitStrategyType(target, WaitStrategyType.LITE_BLOCKING_WAIT));
     }
 
     private WaitStrategyType waitStrategyType(Target target, WaitStrategyType defaultType) {
         WaitStrategyType strategyType = null;
         switch (target) {
             case CONSUMER:
-                strategyType = parse(get(CONSUMER_DISRUPTOR_WAIT_STRATEGY_TYPE));
+                strategyType = WaitStrategyType.parse(SystemPropertyUtil.get(CONSUMER_DISRUPTOR_WAIT_STRATEGY_TYPE));
                 break;
             case PROVIDER:
-                strategyType = parse(get(PROVIDER_DISRUPTOR_WAIT_STRATEGY_TYPE));
+                strategyType = WaitStrategyType.parse(SystemPropertyUtil.get(PROVIDER_DISRUPTOR_WAIT_STRATEGY_TYPE));
                 break;
         }
 

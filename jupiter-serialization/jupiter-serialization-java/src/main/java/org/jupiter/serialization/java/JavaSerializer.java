@@ -21,10 +21,9 @@ import org.jupiter.common.util.internal.JUnsafe;
 import org.jupiter.common.util.internal.UnsafeReferenceFieldUpdater;
 import org.jupiter.common.util.internal.UnsafeUpdater;
 import org.jupiter.serialization.Serializer;
+import org.jupiter.serialization.SerializerType;
 
 import java.io.*;
-
-import static org.jupiter.serialization.SerializerType.JAVA;
 
 /**
  * jupiter
@@ -47,7 +46,7 @@ public class JavaSerializer extends Serializer {
 
     @Override
     public byte code() {
-        return JAVA.value();
+        return SerializerType.JAVA.value();
     }
 
     @Override

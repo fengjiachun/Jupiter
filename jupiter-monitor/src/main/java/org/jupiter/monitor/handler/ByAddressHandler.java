@@ -17,10 +17,9 @@
 package org.jupiter.monitor.handler;
 
 import io.netty.channel.Channel;
+import org.jupiter.common.util.JConstants;
 import org.jupiter.monitor.Command;
 import org.jupiter.registry.RegistryMonitor;
-
-import static org.jupiter.common.util.JConstants.NEWLINE;
 
 /**
  * jupiter
@@ -38,7 +37,7 @@ public class ByAddressHandler extends ChildCommandHandler<RegistryHandler> {
         }
 
         if (args.length < 4) {
-            channel.writeAndFlush("Args[2]: host, args[3]: port" + NEWLINE);
+            channel.writeAndFlush("Args[2]: host, args[3]: port" + JConstants.NEWLINE);
             return;
         }
         Command.ChildCommand childGrep = null;
@@ -49,10 +48,10 @@ public class ByAddressHandler extends ChildCommandHandler<RegistryHandler> {
         for (String a : monitor.listServicesByAddress(args[2], Integer.parseInt(args[3]))) {
             if (childGrep != null && childGrep == Command.ChildCommand.GREP) {
                 if (a.contains(args[5])) {
-                    channel.writeAndFlush(a + NEWLINE);
+                    channel.writeAndFlush(a + JConstants.NEWLINE);
                 }
             } else {
-                channel.writeAndFlush(a + NEWLINE);
+                channel.writeAndFlush(a + JConstants.NEWLINE);
             }
         }
     }

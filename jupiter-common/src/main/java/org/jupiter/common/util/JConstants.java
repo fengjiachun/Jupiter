@@ -20,8 +20,6 @@ import java.nio.charset.Charset;
 import java.nio.charset.UnsupportedCharsetException;
 import java.util.Formatter;
 
-import static org.jupiter.common.util.SystemPropertyUtil.*;
-
 /**
  * Jupiter constants.
  *
@@ -63,33 +61,46 @@ public final class JConstants {
     /** 服务默认版本号 */
     public static final String DEFAULT_VERSION = "1.0.0";
     /** 默认的调用超时时间为3秒 **/
-    public static final long DEFAULT_TIMEOUT = getInt("jupiter.rpc.invoke.timeout", 3 * 1000);
+    public static final long DEFAULT_TIMEOUT =
+            SystemPropertyUtil.getInt("jupiter.rpc.invoke.timeout", 3 * 1000);
     /** Server链路read空闲检测, 默认60秒, 60秒没读到任何数据会强制关闭连接 */
-    public static final int READER_IDLE_TIME_SECONDS = getInt("jupiter.io.reader.idle.time.seconds", 60);
+    public static final int READER_IDLE_TIME_SECONDS =
+            SystemPropertyUtil.getInt("jupiter.io.reader.idle.time.seconds", 60);
     /** Client链路write空闲检测, 默认30秒, 30秒没有向链路中写入任何数据时Client会主动向Server发送心跳数据包 */
-    public static final int WRITER_IDLE_TIME_SECONDS = getInt("jupiter.io.writer.idle.time.seconds", 30);
+    public static final int WRITER_IDLE_TIME_SECONDS =
+            SystemPropertyUtil.getInt("jupiter.io.writer.idle.time.seconds", 30);
 
     /** Load balancer 默认预热时间 **/
-    public static final int DEFAULT_WARM_UP = getInt("jupiter.rpc.load-balancer.warm-up", 10 * 60 * 1000);
+    public static final int DEFAULT_WARM_UP =
+            SystemPropertyUtil.getInt("jupiter.rpc.load-balancer.warm-up", 10 * 60 * 1000);
     /** Load balancer 默认权重 **/
-    public static final int DEFAULT_WEIGHT = getInt("jupiter.rpc.load-balancer.default.weight", 50);
+    public static final int DEFAULT_WEIGHT =
+            SystemPropertyUtil.getInt("jupiter.rpc.load-balancer.default.weight", 50);
     /** Load balancer 最大权重 **/
-    public static final int MAX_WEIGHT = getInt("jupiter.rpc.load-balancer.max.weight", 100);
+    public static final int MAX_WEIGHT =
+            SystemPropertyUtil.getInt("jupiter.rpc.load-balancer.max.weight", 100);
 
     /** Suggest that the count of connections **/
-    public static final int DEFAULT_CONNECTION_COUNT = getInt("jupiter.rpc.suggest.connection.count", AVAILABLE_PROCESSORS);
+    public static final int DEFAULT_CONNECTION_COUNT =
+            SystemPropertyUtil.getInt("jupiter.rpc.suggest.connection.count", AVAILABLE_PROCESSORS);
 
     /** Processor.executor 核心线程数 **/
-    public static final int PROCESSOR_CORE_WORKERS = getInt("jupiter.processor.executor.core.workers", AVAILABLE_PROCESSORS << 1);
+    public static final int PROCESSOR_CORE_WORKERS =
+            SystemPropertyUtil.getInt("jupiter.processor.executor.core.workers", AVAILABLE_PROCESSORS << 1);
     /** Processor.executor 最大线程数的限制 **/
-    public static final int PROCESSOR_MAX_WORKS = getInt("jupiter.processor.executor.max.workers", 512);
+    public static final int PROCESSOR_MAX_WORKS =
+            SystemPropertyUtil.getInt("jupiter.processor.executor.max.workers", 512);
     /** Processor.executor 队列的容量限制 **/
-    public static final int PROCESSOR_WORKER_QUEUE_CAPACITY = getInt("jupiter.processor.executor.queue.capacity", 32768);
+    public static final int PROCESSOR_WORKER_QUEUE_CAPACITY =
+            SystemPropertyUtil.getInt("jupiter.processor.executor.queue.capacity", 32768);
 
     /** Metrics csv reporter */
-    public static final boolean METRIC_CSV_REPORTER = getBoolean("jupiter.metric.csv.reporter", false);
+    public static final boolean METRIC_CSV_REPORTER =
+            SystemPropertyUtil.getBoolean("jupiter.metric.csv.reporter", false);
     /** Metrics csv reporter directory */
-    public static final String METRIC_CSV_REPORTER_DIRECTORY = get("jupiter.metric.csv.reporter.directory", get("user.dir"));
+    public static final String METRIC_CSV_REPORTER_DIRECTORY =
+            SystemPropertyUtil.get("jupiter.metric.csv.reporter.directory", SystemPropertyUtil.get("user.dir"));
     /** Metrics reporter period */
-    public static final int METRIC_REPORT_PERIOD = getInt("jupiter.metric.report.period", 15);
+    public static final int METRIC_REPORT_PERIOD =
+            SystemPropertyUtil.getInt("jupiter.metric.report.period", 15);
 }

@@ -28,15 +28,12 @@ import org.jupiter.transport.*;
 import org.jupiter.transport.channel.JChannelGroup;
 
 import java.util.Collection;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.ReentrantLock;
 
-import static java.util.concurrent.TimeUnit.MILLISECONDS;
-import static org.jupiter.common.util.JConstants.UNKNOWN_APP_NAME;
 import static org.jupiter.common.util.Preconditions.checkNotNull;
-import static org.jupiter.registry.RegisterMeta.Address;
-import static org.jupiter.registry.RegisterMeta.ServiceMeta;
 
 /**
  * Jupiter默认客户端实现.
@@ -61,7 +58,7 @@ public class DefaultClient implements JClient {
     private JConnector<JConnection> connector;
 
     public DefaultClient() {
-        this(UNKNOWN_APP_NAME);
+        this(JConstants.UNKNOWN_APP_NAME);
     }
 
     public DefaultClient(String appName) {
@@ -87,7 +84,7 @@ public class DefaultClient implements JClient {
 
     @Override
     public Collection<RegisterMeta> lookup(Directory directory) {
-        ServiceMeta serviceMeta = transformToServiceMeta(directory);
+        RegisterMeta.ServiceMeta serviceMeta = transformToServiceMeta(directory);
 
         return registryService.lookup(serviceMeta);
     }
@@ -207,10 +204,10 @@ public class DefaultClient implements JClient {
                 try {
                     while (!connector.isDirectoryAvailable(directory)) {
                         signalNeeded.set(true);
-                        notifyCondition.await(timeoutMillis, MILLISECONDS);
+                        notifyCondition.await(timeoutMillis, TimeUnit.MILLISECONDS);
 
                         available = connector.isDirectoryAvailable(directory);
-                        if (available || (System.nanoTime() - start) > MILLISECONDS.toNanos(timeoutMillis)) {
+                        if (available || (System.nanoTime() - start) > TimeUnit.MILLISECONDS.toNanos(timeoutMillis)) {
                             break;
                         }
                     }
@@ -264,8 +261,8 @@ public class DefaultClient implements JClient {
         withConnector(connector);
     }
 
-    private static ServiceMeta transformToServiceMeta(Directory directory) {
-        ServiceMeta serviceMeta = new ServiceMeta();
+    private static RegisterMeta.ServiceMeta transformToServiceMeta(Directory directory) {
+        RegisterMeta.ServiceMeta serviceMeta = new RegisterMeta.ServiceMeta();
         serviceMeta.setGroup(checkNotNull(directory.getGroup(), "group"));
         serviceMeta.setServiceProviderName(checkNotNull(directory.getServiceProviderName(), "serviceProviderName"));
         serviceMeta.setVersion(checkNotNull(directory.getVersion(), "version"));
@@ -273,7 +270,7 @@ public class DefaultClient implements JClient {
         return serviceMeta;
     }
 
-    private static Address transformToAddress(UnresolvedAddress address) {
-        return new Address(address.getHost(), address.getPort());
+    private static RegisterMeta.Address transformToAddress(UnresolvedAddress address) {
+        return new RegisterMeta.Address(address.getHost(), address.getPort());
     }
 }

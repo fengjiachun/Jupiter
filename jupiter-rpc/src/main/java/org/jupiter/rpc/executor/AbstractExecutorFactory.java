@@ -17,8 +17,7 @@
 package org.jupiter.rpc.executor;
 
 import org.jupiter.common.util.JConstants;
-
-import static org.jupiter.common.util.SystemPropertyUtil.getInt;
+import org.jupiter.common.util.SystemPropertyUtil;
 
 /**
  * jupiter
@@ -32,9 +31,9 @@ public abstract class AbstractExecutorFactory implements ExecutorFactory {
         int defaultValue = JConstants.PROCESSOR_CORE_WORKERS;
         switch (target) {
             case CONSUMER:
-                return getInt(CONSUMER_EXECUTOR_CORE_WORKERS, defaultValue);
+                return SystemPropertyUtil.getInt(CONSUMER_EXECUTOR_CORE_WORKERS, defaultValue);
             case PROVIDER:
-                return getInt(PROVIDER_EXECUTOR_CORE_WORKERS, defaultValue);
+                return SystemPropertyUtil.getInt(PROVIDER_EXECUTOR_CORE_WORKERS, defaultValue);
             default:
                 return defaultValue;
         }
@@ -44,9 +43,9 @@ public abstract class AbstractExecutorFactory implements ExecutorFactory {
         int defaultValue = JConstants.PROCESSOR_MAX_WORKS;
         switch (target) {
             case CONSUMER:
-                return getInt(CONSUMER_EXECUTOR_MAX_WORKERS, defaultValue);
+                return SystemPropertyUtil.getInt(CONSUMER_EXECUTOR_MAX_WORKERS, defaultValue);
             case PROVIDER:
-                return getInt(PROVIDER_EXECUTOR_MAX_WORKERS, defaultValue);
+                return SystemPropertyUtil.getInt(PROVIDER_EXECUTOR_MAX_WORKERS, defaultValue);
             default:
                 return defaultValue;
         }
@@ -56,9 +55,9 @@ public abstract class AbstractExecutorFactory implements ExecutorFactory {
         int defaultValue = JConstants.PROCESSOR_WORKER_QUEUE_CAPACITY;
         switch (target) {
             case CONSUMER:
-                return getInt(CONSUMER_EXECUTOR_QUEUE_CAPACITY, defaultValue);
+                return SystemPropertyUtil.getInt(CONSUMER_EXECUTOR_QUEUE_CAPACITY, defaultValue);
             case PROVIDER:
-                return getInt(PROVIDER_EXECUTOR_QUEUE_CAPACITY, defaultValue);
+                return SystemPropertyUtil.getInt(PROVIDER_EXECUTOR_QUEUE_CAPACITY, defaultValue);
             default:
                 return defaultValue;
         }

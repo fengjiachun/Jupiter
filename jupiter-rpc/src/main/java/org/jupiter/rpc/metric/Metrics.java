@@ -17,11 +17,11 @@
 package org.jupiter.rpc.metric;
 
 import com.codahale.metrics.*;
+import org.jupiter.common.util.JConstants;
 
 import java.io.File;
+import java.util.concurrent.TimeUnit;
 
-import static java.util.concurrent.TimeUnit.MINUTES;
-import static org.jupiter.common.util.JConstants.*;
 import static org.jupiter.common.util.Preconditions.checkNotNull;
 
 /**
@@ -37,21 +37,24 @@ public class Metrics {
     private static final MetricRegistry metricRegistry = new MetricRegistry();
     private static final ScheduledReporter scheduledReporter;
     static {
-        if (METRIC_CSV_REPORTER) {
-            scheduledReporter = CsvReporter.forRegistry(metricRegistry).build(new File(METRIC_CSV_REPORTER_DIRECTORY));
+        if (JConstants.METRIC_CSV_REPORTER) {
+            scheduledReporter = CsvReporter
+                    .forRegistry(metricRegistry)
+                    .build(new File(JConstants.METRIC_CSV_REPORTER_DIRECTORY));
         } else {
             ScheduledReporter _reporter;
             try {
-                _reporter = Slf4jReporter.forRegistry(metricRegistry)
-                                            .withLoggingLevel(Slf4jReporter.LoggingLevel.WARN)
-                                            .build();
+                _reporter = Slf4jReporter
+                        .forRegistry(metricRegistry)
+                        .withLoggingLevel(Slf4jReporter.LoggingLevel.WARN)
+                        .build();
             } catch (NoClassDefFoundError e) {
                 // No Slf4j
                 _reporter = ConsoleReporter.forRegistry(metricRegistry).build();
             }
             scheduledReporter = _reporter;
         }
-        scheduledReporter.start(METRIC_REPORT_PERIOD, MINUTES);
+        scheduledReporter.start(JConstants.METRIC_REPORT_PERIOD, TimeUnit.MINUTES);
     }
 
     /**

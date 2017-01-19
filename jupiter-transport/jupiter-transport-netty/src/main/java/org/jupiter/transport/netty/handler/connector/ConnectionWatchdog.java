@@ -28,8 +28,7 @@ import org.jupiter.transport.netty.channel.NettyChannel;
 import org.jupiter.transport.netty.handler.ChannelHandlerHolder;
 
 import java.net.SocketAddress;
-
-import static java.util.concurrent.TimeUnit.MILLISECONDS;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Connections watchdog.
@@ -98,7 +97,7 @@ public abstract class ConnectionWatchdog extends ChannelInboundHandlerAdapter im
                 attempts++;
             }
             long timeout = 2 << attempts;
-            timer.newTimeout(this, timeout, MILLISECONDS);
+            timer.newTimeout(this, timeout, TimeUnit.MILLISECONDS);
         }
 
         logger.warn("Disconnects with {}, address: {}, reconnect: {}.", ctx.channel(), remoteAddress, doReconnect);

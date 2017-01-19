@@ -17,12 +17,11 @@
 package org.jupiter.monitor.handler;
 
 import io.netty.channel.Channel;
+import org.jupiter.common.util.JConstants;
 import org.jupiter.monitor.Command;
 import org.jupiter.registry.RegistryMonitor;
 
 import java.util.List;
-
-import static org.jupiter.common.util.JConstants.NEWLINE;
 
 /**
  * jupiter
@@ -41,7 +40,7 @@ public class AddressHandler extends ChildCommandHandler<RegistryHandler> {
 
         Command.ChildCommand target = command.parseChild(args[2]);
         if (target == null) {
-            channel.writeAndFlush("Wrong args denied!" + NEWLINE);
+            channel.writeAndFlush("Wrong args denied!" + JConstants.NEWLINE);
             return;
         }
 
@@ -65,10 +64,10 @@ public class AddressHandler extends ChildCommandHandler<RegistryHandler> {
         for (String a : addresses) {
             if (childGrep != null && childGrep == Command.ChildCommand.GREP) {
                 if (a.contains(args[4])) {
-                    channel.writeAndFlush(a + NEWLINE);
+                    channel.writeAndFlush(a + JConstants.NEWLINE);
                 }
             } else {
-                channel.writeAndFlush(a + NEWLINE);
+                channel.writeAndFlush(a + JConstants.NEWLINE);
             }
         }
     }

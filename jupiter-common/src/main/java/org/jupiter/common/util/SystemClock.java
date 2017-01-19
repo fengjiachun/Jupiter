@@ -19,9 +19,8 @@ package org.jupiter.common.util;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ThreadFactory;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicLong;
-
-import static java.util.concurrent.TimeUnit.MILLISECONDS;
 
 /**
  * {@link SystemClock} is a optimized substitute of {@link System#currentTimeMillis()} for avoiding context switch overload.
@@ -64,7 +63,7 @@ public class SystemClock {
             public void run() {
                 now.set(System.currentTimeMillis());
             }
-        }, precision, precision, MILLISECONDS);
+        }, precision, precision, TimeUnit.MILLISECONDS);
     }
 
     public long now() {

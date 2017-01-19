@@ -17,10 +17,9 @@
 package org.jupiter.monitor.handler;
 
 import io.netty.channel.Channel;
+import org.jupiter.common.util.JConstants;
 import org.jupiter.monitor.Command;
 import org.jupiter.monitor.metric.MetricsReporter;
-
-import static org.jupiter.common.util.JConstants.NEWLINE;
 
 /**
  * jupiter
@@ -34,7 +33,7 @@ public class MetricsHandler implements CommandHandler {
     public void handle(Channel channel, Command command, String... args) {
         if (AuthHandler.checkAuth(channel)) {
             if (args.length < 2) {
-                channel.writeAndFlush("Need second arg!" + NEWLINE);
+                channel.writeAndFlush("Need second arg!" + JConstants.NEWLINE);
                 return;
             }
 
@@ -47,7 +46,7 @@ public class MetricsHandler implements CommandHandler {
                         break;
                 }
             } else {
-                channel.writeAndFlush("Wrong args denied!" + NEWLINE);
+                channel.writeAndFlush("Wrong args denied!" + JConstants.NEWLINE);
             }
         }
     }

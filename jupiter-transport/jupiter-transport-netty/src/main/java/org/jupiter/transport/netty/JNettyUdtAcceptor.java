@@ -21,6 +21,7 @@ import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelInitializer;
 import io.netty.channel.udt.UdtChannel;
 import io.netty.channel.udt.nio.NioUdtProvider;
+import org.jupiter.common.util.JConstants;
 import org.jupiter.transport.JConfig;
 import org.jupiter.transport.JOption;
 import org.jupiter.transport.netty.handler.IdleStateChecker;
@@ -32,7 +33,6 @@ import org.jupiter.transport.processor.ProviderProcessor;
 
 import java.net.SocketAddress;
 
-import static org.jupiter.common.util.JConstants.READER_IDLE_TIME_SECONDS;
 import static org.jupiter.common.util.Preconditions.checkNotNull;
 
 /**
@@ -126,7 +126,7 @@ public class JNettyUdtAcceptor extends NettyUdtAcceptor {
                     @Override
                     protected void initChannel(UdtChannel ch) throws Exception {
                         ch.pipeline().addLast(
-                                new IdleStateChecker(timer, READER_IDLE_TIME_SECONDS, 0, 0),
+                                new IdleStateChecker(timer, JConstants.READER_IDLE_TIME_SECONDS, 0, 0),
                                 idleStateTrigger,
                                 new ProtocolDecoder(),
                                 encoder,

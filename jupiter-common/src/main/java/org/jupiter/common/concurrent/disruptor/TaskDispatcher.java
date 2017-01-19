@@ -18,16 +18,13 @@ package org.jupiter.common.concurrent.disruptor;
 
 import com.lmax.disruptor.*;
 import com.lmax.disruptor.dsl.Disruptor;
+import com.lmax.disruptor.dsl.ProducerType;
 import org.jupiter.common.concurrent.NamedThreadFactory;
 import org.jupiter.common.concurrent.RejectedTaskPolicyWithReport;
 import org.jupiter.common.util.Pow2;
 
 import java.util.concurrent.*;
 
-import static com.lmax.disruptor.dsl.ProducerType.MULTI;
-import static java.util.concurrent.TimeUnit.MILLISECONDS;
-import static java.util.concurrent.TimeUnit.SECONDS;
-import static org.jupiter.common.concurrent.disruptor.WaitStrategyType.BLOCKING_WAIT;
 import static org.jupiter.common.util.Preconditions.checkArgument;
 
 /**
@@ -83,10 +80,12 @@ public class TaskDispatcher implements Dispatcher<Runnable>, Executor {
     private final Executor reserveExecutor;
 
     public TaskDispatcher(int numWorkers) {
-        this(numWorkers, "task.dispatcher", BUFFER_SIZE, 0, BLOCKING_WAIT);
+        this(numWorkers, "task.dispatcher", BUFFER_SIZE, 0, WaitStrategyType.BLOCKING_WAIT);
     }
 
-    public TaskDispatcher(int numWorkers, String threadFactoryName, int bufSize, int numReserveWorkers, WaitStrategyType waitStrategyType) {
+    public TaskDispatcher(
+            int numWorkers, String threadFactoryName, int bufSize, int numReserveWorkers, WaitStrategyType waitStrategyType) {
+
         checkArgument(bufSize > 0, "bufSize must be larger than 0");
         if (!Pow2.isPowerOfTwo(bufSize)) {
             bufSize = Pow2.roundToPowerOfTwo(bufSize);
@@ -97,7 +96,7 @@ public class TaskDispatcher implements Dispatcher<Runnable>, Executor {
                     0,
                     numReserveWorkers,
                     60L,
-                    SECONDS,
+                    TimeUnit.SECONDS,
                     new SynchronousQueue<Runnable>(),
                     new NamedThreadFactory("reserve.processor"),
                     new RejectedTaskPolicyWithReport("reserve.processor"));
@@ -114,7 +113,7 @@ public class TaskDispatcher implements Dispatcher<Runnable>, Executor {
                 waitStrategy = new LiteBlockingWaitStrategy();
                 break;
             case PHASED_BACK_OFF_WAIT:
-                waitStrategy = PhasedBackoffWaitStrategy.withLock(1, 1, MILLISECONDS);
+                waitStrategy = PhasedBackoffWaitStrategy.withLock(1, 1, TimeUnit.MILLISECONDS);
                 break;
             case SLEEPING_WAIT:
                 waitStrategy = new SleepingWaitStrategy();
@@ -134,12 +133,12 @@ public class TaskDispatcher implements Dispatcher<Runnable>, Executor {
         Disruptor<MessageEvent<Runnable>> dr;
         if (numWorkers == 1) {
             dr = new Disruptor<>(
-                    eventFactory, bufSize, Executors.newSingleThreadExecutor(tFactory), MULTI, waitStrategy);
+                    eventFactory, bufSize, Executors.newSingleThreadExecutor(tFactory), ProducerType.MULTI, waitStrategy);
             dr.handleExceptionsWith(new IgnoreExceptionHandler()); // ignore exception
             dr.handleEventsWith(new TaskHandler());
         } else {
             dr = new Disruptor<>(
-                    eventFactory, bufSize, Executors.newCachedThreadPool(tFactory), MULTI, waitStrategy);
+                    eventFactory, bufSize, Executors.newCachedThreadPool(tFactory), ProducerType.MULTI, waitStrategy);
             dr.handleExceptionsWith(new IgnoreExceptionHandler()); // ignore exception
             TaskHandler[] handlers = new TaskHandler[numWorkers];
             for (int i = 0; i < numWorkers; i++) {

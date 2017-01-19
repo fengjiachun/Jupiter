@@ -17,14 +17,13 @@
 package org.jupiter.registry;
 
 import org.jupiter.common.util.Lists;
+import org.jupiter.common.util.Reflects;
 import org.jupiter.common.util.SystemPropertyUtil;
 import org.jupiter.common.util.internal.JUnsafe;
 
 import java.lang.reflect.Constructor;
 import java.net.SocketAddress;
 import java.util.List;
-
-import static org.jupiter.common.util.Reflects.findMatchingParameterTypes;
 
 /**
  * jupiter
@@ -87,7 +86,7 @@ public interface RegistryServer extends RegistryMonitor {
                 throw new UnsupportedOperationException("unsupported default registry");
             }
 
-            Class<?>[] parameterTypes = findMatchingParameterTypes(allConstructorsParameterTypes, parameters);
+            Class<?>[] parameterTypes = Reflects.findMatchingParameterTypes(allConstructorsParameterTypes, parameters);
             if (parameterTypes == null) {
                 throw new IllegalArgumentException("parameter types");
             }

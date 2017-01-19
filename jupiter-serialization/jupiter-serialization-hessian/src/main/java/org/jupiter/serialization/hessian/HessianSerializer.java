@@ -23,12 +23,11 @@ import org.jupiter.common.util.internal.JUnsafe;
 import org.jupiter.common.util.internal.UnsafeReferenceFieldUpdater;
 import org.jupiter.common.util.internal.UnsafeUpdater;
 import org.jupiter.serialization.Serializer;
+import org.jupiter.serialization.SerializerType;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-
-import static org.jupiter.serialization.SerializerType.HESSIAN;
 
 /**
  * jupiter
@@ -51,7 +50,7 @@ public class HessianSerializer extends Serializer {
 
     @Override
     public byte code() {
-        return HESSIAN.value();
+        return SerializerType.HESSIAN.value();
     }
 
     @Override

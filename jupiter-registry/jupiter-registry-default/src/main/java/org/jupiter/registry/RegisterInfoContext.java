@@ -24,8 +24,6 @@ import java.util.List;
 import java.util.concurrent.ConcurrentMap;
 
 import static org.jupiter.common.util.Preconditions.checkNotNull;
-import static org.jupiter.registry.RegisterMeta.Address;
-import static org.jupiter.registry.RegisterMeta.ServiceMeta;
 
 /**
  * 注册服务的全局信息, 同时也供monitor程序使用.
@@ -38,16 +36,21 @@ import static org.jupiter.registry.RegisterMeta.ServiceMeta;
 public class RegisterInfoContext {
 
     // 指定服务都有哪些节点注册
-    private final ConcurrentMap<ServiceMeta, ConfigWithVersion<ConcurrentMap<Address, RegisterMeta>>>
+    private final ConcurrentMap<RegisterMeta.ServiceMeta, ConfigWithVersion<ConcurrentMap<RegisterMeta.Address, RegisterMeta>>>
             globalRegisterInfoMap = Maps.newConcurrentMap();
     // 指定节点都注册了哪些服务
-    private final ConcurrentMap<Address, ConcurrentSet<ServiceMeta>> globalServiceMetaMap = Maps.newConcurrentMap();
+    private final ConcurrentMap<RegisterMeta.Address, ConcurrentSet<RegisterMeta.ServiceMeta>>
+            globalServiceMetaMap = Maps.newConcurrentMap();
 
-    public ConfigWithVersion<ConcurrentMap<Address, RegisterMeta>> getRegisterMeta(ServiceMeta serviceMeta) {
-        ConfigWithVersion<ConcurrentMap<Address, RegisterMeta>> config = globalRegisterInfoMap.get(serviceMeta);
+    public ConfigWithVersion<ConcurrentMap<RegisterMeta.Address, RegisterMeta>> getRegisterMeta
+            (RegisterMeta.ServiceMeta serviceMeta) {
+
+        ConfigWithVersion<ConcurrentMap<RegisterMeta.Address, RegisterMeta>> config =
+                globalRegisterInfoMap.get(serviceMeta);
         if (config == null) {
-            ConfigWithVersion<ConcurrentMap<Address, RegisterMeta>> newConfig = ConfigWithVersion.newInstance();
-            newConfig.setConfig(Maps.<Address, RegisterMeta>newConcurrentMap());
+            ConfigWithVersion<ConcurrentMap<RegisterMeta.Address, RegisterMeta>> newConfig =
+                    ConfigWithVersion.newInstance();
+            newConfig.setConfig(Maps.<RegisterMeta.Address, RegisterMeta>newConcurrentMap());
             config = globalRegisterInfoMap.putIfAbsent(serviceMeta, newConfig);
             if (config == null) {
                 config = newConfig;
@@ -56,10 +59,10 @@ public class RegisterInfoContext {
         return config;
     }
 
-    public ConcurrentSet<ServiceMeta> getServiceMeta(Address address) {
-        ConcurrentSet<ServiceMeta> serviceMetaSet = globalServiceMetaMap.get(address);
+    public ConcurrentSet<RegisterMeta.ServiceMeta> getServiceMeta(RegisterMeta.Address address) {
+        ConcurrentSet<RegisterMeta.ServiceMeta> serviceMetaSet = globalServiceMetaMap.get(address);
         if (serviceMetaSet == null) {
-            ConcurrentSet<ServiceMeta> newServiceMetaSet = new ConcurrentSet<>();
+            ConcurrentSet<RegisterMeta.ServiceMeta> newServiceMetaSet = new ConcurrentSet<>();
             serviceMetaSet = globalServiceMetaMap.putIfAbsent(address, newServiceMetaSet);
             if (serviceMetaSet == null) {
                 serviceMetaSet = newServiceMetaSet;
@@ -68,21 +71,21 @@ public class RegisterInfoContext {
         return serviceMetaSet;
     }
 
-    public Object publishLock(ConfigWithVersion<ConcurrentMap<Address, RegisterMeta>> config) {
+    public Object publishLock(ConfigWithVersion<ConcurrentMap<RegisterMeta.Address, RegisterMeta>> config) {
         return checkNotNull(config, "publish lock");
     }
 
     // - Monitor -------------------------------------------------------------------------------------------------------
 
-    public List<Address> listPublisherHosts() {
+    public List<RegisterMeta.Address> listPublisherHosts() {
         return Lists.newArrayList(globalServiceMetaMap.keySet());
     }
 
-    public List<Address> listAddressesByService(ServiceMeta serviceMeta) {
+    public List<RegisterMeta.Address> listAddressesByService(RegisterMeta.ServiceMeta serviceMeta) {
         return Lists.newArrayList(getRegisterMeta(serviceMeta).getConfig().keySet());
     }
 
-    public List<ServiceMeta> listServicesByAddress(Address address) {
+    public List<RegisterMeta.ServiceMeta> listServicesByAddress(RegisterMeta.Address address) {
         return Lists.newArrayList(getServiceMeta(address));
     }
 }

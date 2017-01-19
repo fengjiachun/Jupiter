@@ -27,6 +27,7 @@ import io.netty.util.concurrent.DefaultThreadFactory;
 import io.netty.util.internal.PlatformDependent;
 import org.jupiter.common.concurrent.NamedThreadFactory;
 import org.jupiter.common.util.ClassInitializeUtil;
+import org.jupiter.common.util.JConstants;
 import org.jupiter.common.util.Maps;
 import org.jupiter.common.util.internal.logging.InternalLogger;
 import org.jupiter.common.util.internal.logging.InternalLoggerFactory;
@@ -42,7 +43,6 @@ import java.util.Collection;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.ThreadFactory;
 
-import static org.jupiter.common.util.JConstants.AVAILABLE_PROCESSORS;
 import static org.jupiter.common.util.Preconditions.checkNotNull;
 
 /**
@@ -75,7 +75,7 @@ public abstract class NettyConnector implements JConnector<JConnection> {
     protected volatile ByteBufAllocator allocator;
 
     public NettyConnector(Protocol protocol) {
-        this(protocol, AVAILABLE_PROCESSORS + 1);
+        this(protocol, JConstants.AVAILABLE_PROCESSORS + 1);
     }
 
     public NettyConnector(Protocol protocol, int nWorkers) {

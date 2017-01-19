@@ -16,12 +16,12 @@
 
 package org.jupiter.rpc;
 
+import org.jupiter.common.util.JConstants;
+
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
-
-import static org.jupiter.common.util.JConstants.DEFAULT_GROUP;
 
 /**
  * Provider interface annotation.
@@ -40,7 +40,7 @@ public @interface ServiceProvider {
     /**
      * 服务组别
      */
-    String group() default DEFAULT_GROUP;
+    String group() default JConstants.DEFAULT_GROUP;
 
     /**
      * 服务名称

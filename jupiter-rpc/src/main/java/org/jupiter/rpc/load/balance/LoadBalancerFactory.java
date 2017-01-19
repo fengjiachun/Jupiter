@@ -16,9 +16,6 @@
 
 package org.jupiter.rpc.load.balance;
 
-import static org.jupiter.rpc.load.balance.LoadBalancerType.RANDOM;
-import static org.jupiter.rpc.load.balance.LoadBalancerType.ROUND_ROBIN;
-
 /**
  * jupiter
  * org.jupiter.rpc.load.balance
@@ -28,11 +25,11 @@ import static org.jupiter.rpc.load.balance.LoadBalancerType.ROUND_ROBIN;
 public final class LoadBalancerFactory {
 
     public static LoadBalancer loadBalancer(LoadBalancerType type) {
-        if (type == RANDOM) {
+        if (type == LoadBalancerType.RANDOM) {
             return RandomLoadBalancer.instance();
         }
 
-        if (type == ROUND_ROBIN) {
+        if (type == LoadBalancerType.ROUND_ROBIN) {
             return RoundRobinLoadBalancer.instance();
         }
 

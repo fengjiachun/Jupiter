@@ -23,9 +23,8 @@ import com.esotericsoftware.kryo.serializers.JavaSerializer;
 import org.jupiter.common.concurrent.collection.ConcurrentSet;
 import org.jupiter.common.util.internal.InternalThreadLocal;
 import org.jupiter.serialization.Serializer;
+import org.jupiter.serialization.SerializerType;
 import org.objenesis.strategy.StdInstantiatorStrategy;
-
-import static org.jupiter.serialization.SerializerType.KRYO;
 
 /**
  * jupiter
@@ -74,7 +73,7 @@ public class KryoSerializer extends Serializer {
 
     @Override
     public byte code() {
-        return KRYO.value();
+        return SerializerType.KRYO.value();
     }
 
     @Override

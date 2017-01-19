@@ -17,18 +17,13 @@
 package org.jupiter.example.broadcast;
 
 import org.jupiter.example.ServiceTest;
-import org.jupiter.rpc.DefaultClient;
-import org.jupiter.rpc.JClient;
-import org.jupiter.rpc.JListener;
+import org.jupiter.rpc.*;
 import org.jupiter.rpc.consumer.ProxyFactory;
 import org.jupiter.rpc.consumer.future.InvokeFuture;
 import org.jupiter.rpc.consumer.future.InvokeFutureContext;
 import org.jupiter.rpc.consumer.future.InvokeFutureGroup;
 import org.jupiter.transport.UnresolvedAddress;
 import org.jupiter.transport.netty.JNettyTcpConnector;
-
-import static org.jupiter.rpc.DispatchType.BROADCAST;
-import static org.jupiter.rpc.InvokeType.ASYNC;
 
 /**
  * 组播调用客户端
@@ -60,8 +55,8 @@ public class JupiterBroadcastClient {
         ServiceTest service = ProxyFactory.factory(ServiceTest.class)
                 .version("1.0.0.daily")
                 .client(client)
-                .dispatchType(BROADCAST)
-                .invokeType(ASYNC)
+                .dispatchType(DispatchType.BROADCAST)
+                .invokeType(InvokeType.ASYNC)
                 .addProviderAddress(addresses)
                 .newProxyInstance();
 

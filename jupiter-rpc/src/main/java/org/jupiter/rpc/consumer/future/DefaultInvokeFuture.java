@@ -16,6 +16,7 @@
 
 package org.jupiter.rpc.consumer.future;
 
+import org.jupiter.common.util.JConstants;
 import org.jupiter.common.util.Maps;
 import org.jupiter.common.util.Signal;
 import org.jupiter.common.util.internal.logging.InternalLogger;
@@ -28,18 +29,15 @@ import org.jupiter.rpc.exception.JupiterBizException;
 import org.jupiter.rpc.exception.JupiterRemoteException;
 import org.jupiter.rpc.exception.JupiterTimeoutException;
 import org.jupiter.rpc.model.metadata.ResultWrapper;
+import org.jupiter.transport.Status;
 import org.jupiter.transport.channel.JChannel;
 
 import java.net.SocketAddress;
 import java.util.concurrent.ConcurrentMap;
+import java.util.concurrent.TimeUnit;
 
-import static java.util.concurrent.TimeUnit.MILLISECONDS;
-import static java.util.concurrent.TimeUnit.NANOSECONDS;
-import static org.jupiter.common.util.JConstants.DEFAULT_TIMEOUT;
 import static org.jupiter.common.util.Preconditions.checkNotNull;
 import static org.jupiter.common.util.StackTraceUtil.stackTrace;
-import static org.jupiter.rpc.ConsumerHook.EMPTY_HOOKS;
-import static org.jupiter.transport.Status.*;
 
 /**
  * jupiter
@@ -55,7 +53,7 @@ public class DefaultInvokeFuture<V> extends AbstractInvokeFuture<V> {
     private static final Signal S_TIMEOUT = Signal.valueOf(DefaultInvokeFuture.class, "server_time_out");
     private static final Signal C_TIMEOUT = Signal.valueOf(DefaultInvokeFuture.class, "client_time_out");
 
-    private static final long DEFAULT_TIMEOUT_NANOSECONDS = MILLISECONDS.toNanos(DEFAULT_TIMEOUT);
+    private static final long DEFAULT_TIMEOUT_NANOSECONDS = TimeUnit.MILLISECONDS.toNanos(JConstants.DEFAULT_TIMEOUT);
 
     private static final ConcurrentMap<Long, DefaultInvokeFuture<?>> roundFutures = Maps.newConcurrentMapLong();
     private static final ConcurrentMap<String, DefaultInvokeFuture<?>> broadcastFutures = Maps.newConcurrentMap();
@@ -68,7 +66,7 @@ public class DefaultInvokeFuture<V> extends AbstractInvokeFuture<V> {
 
     private volatile boolean sent = false;
 
-    private ConsumerHook[] hooks = EMPTY_HOOKS;
+    private ConsumerHook[] hooks = ConsumerHook.EMPTY_HOOKS;
 
     public static <T> DefaultInvokeFuture<T> with(
             long invokeId, JChannel channel, Class<T> returnType, long timeoutMillis, DispatchType dispatchType) {
@@ -82,7 +80,7 @@ public class DefaultInvokeFuture<V> extends AbstractInvokeFuture<V> {
         this.invokeId = invokeId;
         this.channel = channel;
         this.returnType = returnType;
-        this.timeout = timeoutMillis > 0 ? MILLISECONDS.toNanos(timeoutMillis) : DEFAULT_TIMEOUT_NANOSECONDS;
+        this.timeout = timeoutMillis > 0 ? TimeUnit.MILLISECONDS.toNanos(timeoutMillis) : DEFAULT_TIMEOUT_NANOSECONDS;
 
         switch (dispatchType) {
             case ROUND:
@@ -104,15 +102,15 @@ public class DefaultInvokeFuture<V> extends AbstractInvokeFuture<V> {
     @Override
     public V getResult() throws Throwable {
         try {
-            return get(timeout, NANOSECONDS);
+            return get(timeout, TimeUnit.NANOSECONDS);
         } catch (Signal s) {
             SocketAddress address = channel.remoteAddress();
             if (s == TIMEOUT) {
-                throw new JupiterTimeoutException(address, sent ? SERVER_TIMEOUT : CLIENT_TIMEOUT);
+                throw new JupiterTimeoutException(address, sent ? Status.SERVER_TIMEOUT : Status.CLIENT_TIMEOUT);
             } else if (s == S_TIMEOUT) {
-                throw new JupiterTimeoutException(address, SERVER_TIMEOUT);
+                throw new JupiterTimeoutException(address, Status.SERVER_TIMEOUT);
             } else if (s == C_TIMEOUT) {
-                throw new JupiterTimeoutException(address, CLIENT_TIMEOUT);
+                throw new JupiterTimeoutException(address, Status.CLIENT_TIMEOUT);
             } else {
                 throw new JupiterRemoteException(s.name(), address);
             }
@@ -129,9 +127,9 @@ public class DefaultInvokeFuture<V> extends AbstractInvokeFuture<V> {
                 if (x instanceof Signal) {
                     SocketAddress address = channel.remoteAddress();
                     if (x == S_TIMEOUT) {
-                        cause = new JupiterTimeoutException(address, SERVER_TIMEOUT);
+                        cause = new JupiterTimeoutException(address, Status.SERVER_TIMEOUT);
                     } else if (x == C_TIMEOUT) {
-                        cause = new JupiterTimeoutException(address, CLIENT_TIMEOUT);
+                        cause = new JupiterTimeoutException(address, Status.CLIENT_TIMEOUT);
                     } else {
                         cause = new JupiterRemoteException(((Signal) x).name(), address);
                     }
@@ -163,14 +161,14 @@ public class DefaultInvokeFuture<V> extends AbstractInvokeFuture<V> {
     private void doReceived(JResponse response) {
         byte status = response.status();
 
-        if (status == OK.value()) {
+        if (status == Status.OK.value()) {
             ResultWrapper wrapper = response.result();
             set((V) wrapper.getResult());
-        } else if (status == SERVER_TIMEOUT.value()) {
+        } else if (status == Status.SERVER_TIMEOUT.value()) {
             setException(S_TIMEOUT);
-        } else if (status == CLIENT_TIMEOUT.value()) {
+        } else if (status == Status.CLIENT_TIMEOUT.value()) {
             setException(C_TIMEOUT);
-        } else if (status == SERVICE_ERROR.value()) {
+        } else if (status == Status.SERVICE_ERROR.value()) {
             setException(new JupiterBizException(response.toString(), channel.remoteAddress()));
         } else {
             setException(new JupiterRemoteException(response.toString(), channel.remoteAddress()));
@@ -220,7 +218,7 @@ public class DefaultInvokeFuture<V> extends AbstractInvokeFuture<V> {
 
                     Thread.sleep(30);
                 } catch (Throwable t) {
-                    logger.error("An exception has been caught while scanning the timeout futures {}.", t);
+                    logger.error("An exception has been caught while scanning the timeout futures {}.", stackTrace(t));
                 }
             }
         }
@@ -232,7 +230,7 @@ public class DefaultInvokeFuture<V> extends AbstractInvokeFuture<V> {
 
             if (System.nanoTime() - future.startTime > future.timeout) {
                 JResponse response = new JResponse(future.invokeId);
-                response.status(future.sent ? SERVER_TIMEOUT : CLIENT_TIMEOUT);
+                response.status(future.sent ? Status.SERVER_TIMEOUT : Status.CLIENT_TIMEOUT);
 
                 DefaultInvokeFuture.received(future.channel, response);
             }

@@ -19,16 +19,14 @@ package org.jupiter.rpc.executor;
 import org.jupiter.common.concurrent.NamedThreadFactory;
 import org.jupiter.common.concurrent.RejectedTaskPolicyWithReport;
 import org.jupiter.common.util.Strings;
+import org.jupiter.common.util.SystemPropertyUtil;
 import org.jupiter.common.util.internal.logging.InternalLogger;
 import org.jupiter.common.util.internal.logging.InternalLoggerFactory;
 
 import java.lang.reflect.Constructor;
 import java.util.concurrent.*;
 
-import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.jupiter.common.util.StackTraceUtil.stackTrace;
-import static org.jupiter.common.util.SystemPropertyUtil.get;
-import static org.jupiter.rpc.executor.ThreadPoolExecutorFactory.WorkerQueueType.*;
 
 /**
  * Provide a {@link ThreadPoolExecutor} implementation of executor.
@@ -49,7 +47,7 @@ public class ThreadPoolExecutorFactory extends AbstractExecutorFactory {
                 coreWorks(target),
                 maxWorks(target),
                 120L,
-                SECONDS,
+                TimeUnit.SECONDS,
                 workQueue(target),
                 new NamedThreadFactory("processor"),
                 createRejectedPolicy(target, new RejectedTaskPolicyWithReport("processor")));
@@ -57,7 +55,7 @@ public class ThreadPoolExecutorFactory extends AbstractExecutorFactory {
 
     private BlockingQueue<Runnable> workQueue(Target target) {
         BlockingQueue<Runnable> workQueue = null;
-        WorkerQueueType queueType = queueType(target, ARRAY_BLOCKING_QUEUE);
+        WorkerQueueType queueType = queueType(target, WorkerQueueType.ARRAY_BLOCKING_QUEUE);
         int queueCapacity = queueCapacity(target);
         switch (queueType) {
             case LINKED_BLOCKING_QUEUE:
@@ -75,10 +73,10 @@ public class ThreadPoolExecutorFactory extends AbstractExecutorFactory {
         WorkerQueueType queueType = null;
         switch (target) {
             case CONSUMER:
-                queueType = parse(get(CONSUMER_EXECUTOR_QUEUE_TYPE));
+                queueType = WorkerQueueType.parse(SystemPropertyUtil.get(CONSUMER_EXECUTOR_QUEUE_TYPE));
                 break;
             case PROVIDER:
-                queueType = parse(get(PROVIDER_EXECUTOR_QUEUE_TYPE));
+                queueType = WorkerQueueType.parse(SystemPropertyUtil.get(PROVIDER_EXECUTOR_QUEUE_TYPE));
                 break;
         }
 
@@ -90,10 +88,10 @@ public class ThreadPoolExecutorFactory extends AbstractExecutorFactory {
         String handlerClass = null;
         switch (target) {
             case CONSUMER:
-                handlerClass = get(CONSUMER_THREAD_POOL_REJECTED_HANDLER);
+                handlerClass = SystemPropertyUtil.get(CONSUMER_THREAD_POOL_REJECTED_HANDLER);
                 break;
             case PROVIDER:
-                handlerClass = get(PROVIDER_THREAD_POOL_REJECTED_HANDLER);
+                handlerClass = SystemPropertyUtil.get(PROVIDER_THREAD_POOL_REJECTED_HANDLER);
                 break;
         }
         if (Strings.isNotBlank(handlerClass)) {

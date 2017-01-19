@@ -20,7 +20,9 @@ import com.codahale.metrics.Histogram;
 import com.codahale.metrics.Meter;
 import com.codahale.metrics.Timer;
 import org.jupiter.common.concurrent.RejectedRunnable;
+import org.jupiter.common.util.Reflects;
 import org.jupiter.common.util.StringBuilderHelper;
+import org.jupiter.common.util.SystemClock;
 import org.jupiter.common.util.SystemPropertyUtil;
 import org.jupiter.common.util.internal.UnsafeIntegerFieldUpdater;
 import org.jupiter.common.util.internal.UnsafeUpdater;
@@ -53,13 +55,9 @@ import org.jupiter.transport.payload.JResponseBytes;
 
 import java.util.List;
 import java.util.concurrent.Executor;
+import java.util.concurrent.TimeUnit;
 
-import static java.util.concurrent.TimeUnit.MILLISECONDS;
-import static org.jupiter.common.util.Reflects.*;
 import static org.jupiter.common.util.StackTraceUtil.stackTrace;
-import static org.jupiter.common.util.SystemClock.millisClock;
-import static org.jupiter.rpc.tracing.TracingRecorder.Role.PROVIDER;
-import static org.jupiter.transport.Status.*;
 
 /**
  *
@@ -110,21 +108,21 @@ public class MessageTask implements RejectedRunnable {
             msg = serializer.readObject(bytes, MessageWrapper.class);
             _request.message(msg);
         } catch (Throwable t) {
-            rejected(BAD_REQUEST, new JupiterBadRequestException(t.getMessage()));
+            rejected(Status.BAD_REQUEST, new JupiterBadRequestException(t.getMessage()));
             return;
         }
 
         // 查找服务
         final ServiceWrapper service = _processor.lookupService(msg.getMetadata());
         if (service == null) {
-            rejected(SERVICE_NOT_FOUND, new JupiterServiceNotFoundException(String.valueOf(msg)));
+            rejected(Status.SERVICE_NOT_FOUND, new JupiterServiceNotFoundException(String.valueOf(msg)));
             return;
         }
 
         // 全局流量控制
         ControlResult ctrl = _processor.flowControl(_request);
         if (!ctrl.isAllowed()) {
-            rejected(APP_FLOW_CONTROL, new JupiterFlowControlException(String.valueOf(ctrl)));
+            rejected(Status.APP_FLOW_CONTROL, new JupiterFlowControlException(String.valueOf(ctrl)));
             return;
         }
 
@@ -133,7 +131,7 @@ public class MessageTask implements RejectedRunnable {
         if (childController != null) {
             ctrl = childController.flowControl(_request);
             if (!ctrl.isAllowed()) {
-                rejected(PROVIDER_FLOW_CONTROL, new JupiterFlowControlException(String.valueOf(ctrl)));
+                rejected(Status.PROVIDER_FLOW_CONTROL, new JupiterFlowControlException(String.valueOf(ctrl)));
                 return;
             }
         }
@@ -156,7 +154,7 @@ public class MessageTask implements RejectedRunnable {
 
     @Override
     public void rejected() {
-        rejected(SERVER_BUSY, new JupiterServerBusyException(String.valueOf(request)));
+        rejected(Status.SERVER_BUSY, new JupiterServerBusyException(String.valueOf(request)));
     }
 
     // 当服务拒绝方法被调用时一般分以下几种情况:
@@ -231,11 +229,11 @@ public class MessageTask implements RejectedRunnable {
                 }
 
                 // 根据JLS方法静态分派规则查找最匹配的方法parameterTypes
-                Class<?>[] parameterTypes = findMatchingParameterTypes(parameterTypesList, args);
-                invokeResult = fastInvoke(provider, methodName, parameterTypes, args);
+                Class<?>[] parameterTypes = Reflects.findMatchingParameterTypes(parameterTypesList, args);
+                invokeResult = Reflects.fastInvoke(provider, methodName, parameterTypes, args);
             } catch (Throwable t) {
                 // biz exception
-                processor.handleException(channel, _request, SERVICE_ERROR, t);
+                processor.handleException(channel, _request, Status.SERVICE_ERROR, t);
                 return;
             } finally {
                 long elapsed = -1;
@@ -253,7 +251,7 @@ public class MessageTask implements RejectedRunnable {
                         callInfo = getCallInfo(msg.getMetadata(), methodName);
                     }
                     TracingRecorder recorder = TracingUtil.getRecorder();
-                    recorder.recording(PROVIDER, traceId.asText(), callInfo, elapsed, channel);
+                    recorder.recording(TracingRecorder.Role.PROVIDER, traceId.asText(), callInfo, elapsed, channel);
                 }
             }
 
@@ -275,7 +273,8 @@ public class MessageTask implements RejectedRunnable {
                 @Override
                 public void operationSuccess(JChannel channel) throws Exception {
                     if (METRIC_NEEDED) {
-                        MetricsHolder.processingTimer.update(millisClock().now() - _request.timestamp(), MILLISECONDS);
+                        MetricsHolder.processingTimer.update(
+                                SystemClock.millisClock().now() - _request.timestamp(), TimeUnit.MILLISECONDS);
                     }
                 }
 
@@ -283,12 +282,12 @@ public class MessageTask implements RejectedRunnable {
                 public void operationFailure(JChannel channel, Throwable cause) throws Exception {
                     logger.error(
                             "Service response[traceId: {}] sent failed, elapsed: {} millis, channel: {}, cause: {}.",
-                            traceId, millisClock().now() - _request.timestamp(), channel, cause
+                            traceId, SystemClock.millisClock().now() - _request.timestamp(), channel, cause
                     );
                 }
             });
         } catch (Throwable t) {
-            processor.handleException(channel, _request, SERVER_ERROR, t);
+            processor.handleException(channel, _request, Status.SERVER_ERROR, t);
         }
     }
 
@@ -301,7 +300,7 @@ public class MessageTask implements RejectedRunnable {
             try {
                 interceptors[i].beforeInvoke(traceId, provider, methodName, args);
             } catch (Throwable t) {
-                logger.warn("Interceptor[{}#beforeInvoke]: {}.", simpleClassName(interceptors[i]), stackTrace(t));
+                logger.warn("Interceptor[{}#beforeInvoke]: {}.", Reflects.simpleClassName(interceptors[i]), stackTrace(t));
             }
         }
     }
@@ -315,7 +314,7 @@ public class MessageTask implements RejectedRunnable {
             try {
                 interceptors[i].afterInvoke(traceId, provider, methodName, args, invokeResult);
             } catch (Throwable t) {
-                logger.warn("Interceptor[{}#afterInvoke]: {}.", simpleClassName(interceptors[i]), stackTrace(t));
+                logger.warn("Interceptor[{}#afterInvoke]: {}.", Reflects.simpleClassName(interceptors[i]), stackTrace(t));
             }
         }
     }

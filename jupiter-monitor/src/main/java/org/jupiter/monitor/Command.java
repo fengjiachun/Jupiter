@@ -21,8 +21,6 @@ import org.jupiter.monitor.handler.*;
 
 import java.util.Map;
 
-import static org.jupiter.monitor.Command.ChildCommand.*;
-
 /**
  * Monitor command.
  *
@@ -34,8 +32,15 @@ import static org.jupiter.monitor.Command.ChildCommand.*;
 public enum Command {
     AUTH("Login with password", new AuthHandler()),
     HELP("Help information", new HelpHandler()),
-    METRICS("Performance metrics", new MetricsHandler(), REPORT),
-    REGISTRY("Registry info(P/S command must follow behind ADDRESS)", new RegistryHandler(), ADDRESS, P, S, BY_SERVICE, BY_ADDRESS, GREP),
+    METRICS("Performance metrics", new MetricsHandler(),
+            ChildCommand.REPORT),
+    REGISTRY("Registry info(P/S command must follow behind ADDRESS)", new RegistryHandler(),
+            ChildCommand.ADDRESS,
+            ChildCommand.P,
+            ChildCommand.S,
+            ChildCommand.BY_SERVICE,
+            ChildCommand.BY_ADDRESS,
+            ChildCommand.GREP),
     QUIT("Quit monitor", new QuitHandler());
 
     private final String description;

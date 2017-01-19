@@ -75,7 +75,7 @@ public abstract class AbstractProviderProcessor implements
 
             @Override
             public void operationFailure(JChannel channel, Throwable cause) throws Exception {
-                logger.warn("Service error message sent failed: {}, {}.", channel, cause);
+                logger.warn("Service error message sent failed: {}, {}.", channel, stackTrace(cause));
             }
         });
     }

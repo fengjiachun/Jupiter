@@ -19,6 +19,7 @@ package org.jupiter.transport.netty.channel;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelFutureListener;
 import org.jupiter.common.concurrent.atomic.AtomicUpdater;
+import org.jupiter.common.util.JConstants;
 import org.jupiter.common.util.Lists;
 import org.jupiter.common.util.SystemClock;
 import org.jupiter.common.util.SystemPropertyUtil;
@@ -31,16 +32,11 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicIntegerFieldUpdater;
 import java.util.concurrent.atomic.AtomicReferenceFieldUpdater;
 import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.ReentrantLock;
-
-import static java.util.concurrent.TimeUnit.MILLISECONDS;
-import static java.util.concurrent.TimeUnit.MINUTES;
-import static org.jupiter.common.util.JConstants.DEFAULT_WARM_UP;
-import static org.jupiter.common.util.JConstants.DEFAULT_WEIGHT;
-import static org.jupiter.common.util.JConstants.MAX_WEIGHT;
 
 /**
  * jupiter
@@ -51,7 +47,7 @@ import static org.jupiter.common.util.JConstants.MAX_WEIGHT;
 public class NettyChannelGroup implements JChannelGroup {
 
     private static long LOSS_INTERVAL = SystemPropertyUtil
-            .getLong("jupiter.io.channel.group.loss.interval.millis", MINUTES.toMillis(5));
+            .getLong("jupiter.io.channel.group.loss.interval.millis", TimeUnit.MINUTES.toMillis(5));
 
     private static final AtomicReferenceFieldUpdater<CopyOnWriteArrayList, Object[]> channelsUpdater =
             AtomicUpdater.newAtomicReferenceFieldUpdater(CopyOnWriteArrayList.class, Object[].class, "array");
@@ -90,8 +86,8 @@ public class NettyChannelGroup implements JChannelGroup {
     @SuppressWarnings("unused")
     private volatile int index = 0;
     private volatile int capacity = Integer.MAX_VALUE;
-    private volatile int weight = DEFAULT_WEIGHT; // the weight for this group
-    private volatile int warmUp = DEFAULT_WARM_UP; // warm-up time
+    private volatile int weight = JConstants.DEFAULT_WEIGHT; // the weight for this group
+    private volatile int warmUp = JConstants.DEFAULT_WARM_UP; // warm-up time
     private volatile long timestamp = SystemClock.millisClock().now();
     private volatile long deadlineMillis = -1;
 
@@ -204,11 +200,11 @@ public class NettyChannelGroup implements JChannelGroup {
         try {
             while (!isAvailable()) {
                 signalNeededUpdater.set(this, 1); // set signal needed to true
-                notifyCondition.await(timeoutMillis, MILLISECONDS);
+                notifyCondition.await(timeoutMillis, TimeUnit.MILLISECONDS);
 
                 available = isAvailable();
 
-                if (available || (System.nanoTime() - start) > MILLISECONDS.toNanos(timeoutMillis)) {
+                if (available || (System.nanoTime() - start) > TimeUnit.MILLISECONDS.toNanos(timeoutMillis)) {
                     break;
                 }
             }
@@ -228,7 +224,7 @@ public class NettyChannelGroup implements JChannelGroup {
 
     @Override
     public void setWeight(int weight) {
-        this.weight = weight > MAX_WEIGHT ? MAX_WEIGHT : weight;
+        this.weight = weight > JConstants.MAX_WEIGHT ? JConstants.MAX_WEIGHT : weight;
     }
 
     @Override

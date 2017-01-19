@@ -26,14 +26,12 @@ import io.netty.util.Attribute;
 import io.netty.util.AttributeKey;
 import io.netty.util.ReferenceCountUtil;
 import org.jupiter.common.concurrent.collection.ConcurrentSet;
-import org.jupiter.common.util.Maps;
-import org.jupiter.common.util.Pair;
-import org.jupiter.common.util.Signal;
-import org.jupiter.common.util.SystemClock;
+import org.jupiter.common.util.*;
 import org.jupiter.common.util.internal.logging.InternalLogger;
 import org.jupiter.common.util.internal.logging.InternalLoggerFactory;
 import org.jupiter.serialization.Serializer;
 import org.jupiter.serialization.SerializerFactory;
+import org.jupiter.serialization.SerializerType;
 import org.jupiter.transport.*;
 import org.jupiter.transport.channel.JChannel;
 import org.jupiter.transport.exception.ConnectFailedException;
@@ -50,19 +48,10 @@ import java.net.InetSocketAddress;
 import java.net.SocketAddress;
 import java.util.List;
 import java.util.concurrent.ConcurrentMap;
+import java.util.concurrent.TimeUnit;
 
-import static java.util.concurrent.TimeUnit.SECONDS;
-import static org.jupiter.common.util.JConstants.WRITER_IDLE_TIME_SECONDS;
 import static org.jupiter.common.util.Preconditions.checkNotNull;
 import static org.jupiter.common.util.StackTraceUtil.stackTrace;
-import static org.jupiter.registry.NotifyListener.NotifyEvent.CHILD_ADDED;
-import static org.jupiter.registry.NotifyListener.NotifyEvent.CHILD_REMOVED;
-import static org.jupiter.registry.RegisterMeta.Address;
-import static org.jupiter.registry.RegisterMeta.ServiceMeta;
-import static org.jupiter.serialization.SerializerType.PROTO_STUFF;
-import static org.jupiter.transport.JProtocolHeader.*;
-import static org.jupiter.transport.exception.IoSignals.ILLEGAL_MAGIC;
-import static org.jupiter.transport.exception.IoSignals.ILLEGAL_SIGN;
 
 /**
  * The client of registration center.
@@ -76,8 +65,10 @@ public class DefaultRegistry extends NettyTcpConnector {
 
     private static final InternalLogger logger = InternalLoggerFactory.getInstance(DefaultRegistry.class);
 
-    private static final AttributeKey<ConcurrentSet<ServiceMeta>> C_SUBSCRIBE_KEY = AttributeKey.valueOf("client.subscribed");
-    private static final AttributeKey<ConcurrentSet<RegisterMeta>> C_PUBLISH_KEY = AttributeKey.valueOf("client.published");
+    private static final AttributeKey<ConcurrentSet<RegisterMeta.ServiceMeta>> C_SUBSCRIBE_KEY =
+            AttributeKey.valueOf("client.subscribed");
+    private static final AttributeKey<ConcurrentSet<RegisterMeta>> C_PUBLISH_KEY =
+            AttributeKey.valueOf("client.published");
 
     // 没收到对端ack确认, 需要重发的消息
     private final ConcurrentMap<Long, MessageNonAck> messagesNonAck = Maps.newConcurrentMap();
@@ -106,7 +97,7 @@ public class DefaultRegistry extends NettyTcpConnector {
     protected void doInit() {
         // child options
         config().setOption(JOption.SO_REUSEADDR, true);
-        config().setOption(JOption.CONNECT_TIMEOUT_MILLIS, (int) SECONDS.toMillis(3));
+        config().setOption(JOption.CONNECT_TIMEOUT_MILLIS, (int) TimeUnit.SECONDS.toMillis(3));
         // channel factory
         bootstrap().channelFactory(TcpChannelProvider.NIO_CONNECTOR);
     }
@@ -128,7 +119,7 @@ public class DefaultRegistry extends NettyTcpConnector {
             public ChannelHandler[] handlers() {
                 return new ChannelHandler[] {
                         this,
-                        new IdleStateChecker(timer, 0, WRITER_IDLE_TIME_SECONDS, 0),
+                        new IdleStateChecker(timer, 0, JConstants.WRITER_IDLE_TIME_SECONDS, 0),
                         idleStateTrigger,
                         new MessageDecoder(),
                         encoder,
@@ -175,11 +166,11 @@ public class DefaultRegistry extends NettyTcpConnector {
     /**
      * Sent the subscription information to registry server.
      */
-    public void doSubscribe(ServiceMeta serviceMeta) {
+    public void doSubscribe(RegisterMeta.ServiceMeta serviceMeta) {
         registryService.subscribeSet().add(serviceMeta);
 
-        Message msg = new Message(PROTO_STUFF.value());
-        msg.messageCode(SUBSCRIBE_SERVICE);
+        Message msg = new Message(SerializerType.PROTO_STUFF.value());
+        msg.messageCode(JProtocolHeader.SUBSCRIBE_SERVICE);
         msg.data(serviceMeta);
 
         Channel ch = channel;
@@ -199,8 +190,8 @@ public class DefaultRegistry extends NettyTcpConnector {
     public void doRegister(RegisterMeta meta) {
         registryService.registerMetaSet().add(meta);
 
-        Message msg = new Message(PROTO_STUFF.value());
-        msg.messageCode(PUBLISH_SERVICE);
+        Message msg = new Message(SerializerType.PROTO_STUFF.value());
+        msg.messageCode(JProtocolHeader.PUBLISH_SERVICE);
         msg.data(meta);
 
         Channel ch = channel;
@@ -220,8 +211,8 @@ public class DefaultRegistry extends NettyTcpConnector {
     public void doUnregister(final RegisterMeta meta) {
         registryService.registerMetaSet().remove(meta);
 
-        Message msg = new Message(PROTO_STUFF.value());
-        msg.messageCode(PUBLISH_CANCEL_SERVICE);
+        Message msg = new Message(SerializerType.PROTO_STUFF.value());
+        msg.messageCode(JProtocolHeader.PUBLISH_CANCEL_SERVICE);
         msg.data(meta);
 
         channel.writeAndFlush(msg)
@@ -264,11 +255,11 @@ public class DefaultRegistry extends NettyTcpConnector {
     }
 
     // 在channel打标记(订阅过的服务)
-    private static boolean attachSubscribeEventOnChannel(ServiceMeta serviceMeta, Channel channel) {
-        Attribute<ConcurrentSet<ServiceMeta>> attr = channel.attr(C_SUBSCRIBE_KEY);
-        ConcurrentSet<ServiceMeta> serviceMetaSet = attr.get();
+    private static boolean attachSubscribeEventOnChannel(RegisterMeta.ServiceMeta serviceMeta, Channel channel) {
+        Attribute<ConcurrentSet<RegisterMeta.ServiceMeta>> attr = channel.attr(C_SUBSCRIBE_KEY);
+        ConcurrentSet<RegisterMeta.ServiceMeta> serviceMetaSet = attr.get();
         if (serviceMetaSet == null) {
-            ConcurrentSet<ServiceMeta> newServiceMetaSet = new ConcurrentSet<>();
+            ConcurrentSet<RegisterMeta.ServiceMeta> newServiceMetaSet = new ConcurrentSet<>();
             serviceMetaSet = attr.setIfAbsent(newServiceMetaSet);
             if (serviceMetaSet == null) {
                 serviceMetaSet = newServiceMetaSet;
@@ -342,9 +333,9 @@ public class DefaultRegistry extends NettyTcpConnector {
                     byte s_code = header.serializerCode();
 
                     switch (header.messageCode()) {
-                        case PUBLISH_SERVICE:
-                        case PUBLISH_CANCEL_SERVICE:
-                        case OFFLINE_NOTICE: {
+                        case JProtocolHeader.PUBLISH_SERVICE:
+                        case JProtocolHeader.PUBLISH_CANCEL_SERVICE:
+                        case JProtocolHeader.OFFLINE_NOTICE: {
                             byte[] bytes = new byte[header.bodyLength()];
                             in.readBytes(bytes);
 
@@ -355,12 +346,12 @@ public class DefaultRegistry extends NettyTcpConnector {
 
                             break;
                         }
-                        case ACK:
+                        case JProtocolHeader.ACK:
                             out.add(new Acknowledge(header.id()));
 
                             break;
                         default:
-                            throw ILLEGAL_SIGN;
+                            throw IoSignals.ILLEGAL_SIGN;
 
                     }
                     checkpoint(State.HEADER_MAGIC);
@@ -368,8 +359,8 @@ public class DefaultRegistry extends NettyTcpConnector {
         }
 
         private static void checkMagic(short magic) throws Signal {
-            if (magic != MAGIC) {
-                throw ILLEGAL_MAGIC;
+            if (magic != JProtocolHeader.MAGIC) {
+                throw IoSignals.ILLEGAL_MAGIC;
             }
         }
 
@@ -411,7 +402,7 @@ public class DefaultRegistry extends NettyTcpConnector {
             Serializer serializer = SerializerFactory.getSerializer(s_code);
             byte[] bytes = serializer.writeObject(msg);
 
-            out.writeShort(MAGIC)
+            out.writeShort(JProtocolHeader.MAGIC)
                     .writeByte(sign)
                     .writeByte(0)
                     .writeLong(0)
@@ -430,17 +421,27 @@ public class DefaultRegistry extends NettyTcpConnector {
                 Message obj = (Message) msg;
 
                 switch (obj.messageCode()) {
-                    case PUBLISH_SERVICE: {
-                        Pair<ServiceMeta, ?> data = (Pair<ServiceMeta, ?>) obj.data();
+                    case JProtocolHeader.PUBLISH_SERVICE: {
+                        Pair<RegisterMeta.ServiceMeta, ?> data = (Pair<RegisterMeta.ServiceMeta, ?>) obj.data();
                         Object metaObj = data.getValue();
 
                         if (metaObj instanceof List) {
                             List<RegisterMeta> list = (List<RegisterMeta>) metaObj;
                             RegisterMeta[] array = new RegisterMeta[list.size()];
                             list.toArray(array);
-                            registryService.notify(data.getKey(), CHILD_ADDED, obj.version(), array);
+                            registryService.notify(
+                                    data.getKey(),
+                                    NotifyListener.NotifyEvent.CHILD_ADDED,
+                                    obj.version(),
+                                    array
+                            );
                         } else if (metaObj instanceof RegisterMeta) {
-                            registryService.notify(data.getKey(), CHILD_ADDED, obj.version(), (RegisterMeta) metaObj);
+                            registryService.notify(
+                                    data.getKey(),
+                                    NotifyListener.NotifyEvent.CHILD_ADDED,
+                                    obj.version(),
+                                    (RegisterMeta) metaObj
+                            );
                         }
 
                         ctx.channel()
@@ -452,9 +453,11 @@ public class DefaultRegistry extends NettyTcpConnector {
 
                         break;
                     }
-                    case PUBLISH_CANCEL_SERVICE: {
-                        Pair<ServiceMeta, RegisterMeta> data = (Pair<ServiceMeta, RegisterMeta>) obj.data();
-                        registryService.notify(data.getKey(), CHILD_REMOVED, obj.version(), data.getValue());
+                    case JProtocolHeader.PUBLISH_CANCEL_SERVICE: {
+                        Pair<RegisterMeta.ServiceMeta, RegisterMeta> data =
+                                (Pair<RegisterMeta.ServiceMeta, RegisterMeta>) obj.data();
+                        registryService.notify(
+                                data.getKey(), NotifyListener.NotifyEvent.CHILD_REMOVED, obj.version(), data.getValue());
 
                         ctx.channel()
                                 .writeAndFlush(new Acknowledge(obj.sequence()))  // 回复ACK
@@ -465,8 +468,8 @@ public class DefaultRegistry extends NettyTcpConnector {
 
                         break;
                     }
-                    case OFFLINE_NOTICE:
-                        Address address = (Address) obj.data();
+                    case JProtocolHeader.OFFLINE_NOTICE:
+                        RegisterMeta.Address address = (RegisterMeta.Address) obj.data();
 
                         logger.info("Offline notice on {}.", address);
 
@@ -488,14 +491,14 @@ public class DefaultRegistry extends NettyTcpConnector {
             Channel ch = (channel = ctx.channel());
 
             // 重新订阅
-            for (ServiceMeta serviceMeta : registryService.subscribeSet()) {
+            for (RegisterMeta.ServiceMeta serviceMeta : registryService.subscribeSet()) {
                 // 与doSubscribe()中的write有竞争
                 if (!attachSubscribeEventOnChannel(serviceMeta, ch)) {
                     continue;
                 }
 
-                Message msg = new Message(PROTO_STUFF.value());
-                msg.messageCode(SUBSCRIBE_SERVICE);
+                Message msg = new Message(SerializerType.PROTO_STUFF.value());
+                msg.messageCode(JProtocolHeader.SUBSCRIBE_SERVICE);
                 msg.data(serviceMeta);
 
                 ch.writeAndFlush(msg)
@@ -512,8 +515,8 @@ public class DefaultRegistry extends NettyTcpConnector {
                     continue;
                 }
 
-                Message msg = new Message(PROTO_STUFF.value());
-                msg.messageCode(PUBLISH_SERVICE);
+                Message msg = new Message(SerializerType.PROTO_STUFF.value());
+                msg.messageCode(JProtocolHeader.PUBLISH_SERVICE);
                 msg.data(meta);
 
                 ch.writeAndFlush(msg)
@@ -543,7 +546,7 @@ public class DefaultRegistry extends NettyTcpConnector {
             for (;;) {
                 try {
                     for (MessageNonAck m : messagesNonAck.values()) {
-                        if (SystemClock.millisClock().now() - m.timestamp > SECONDS.toMillis(10)) {
+                        if (SystemClock.millisClock().now() - m.timestamp > TimeUnit.SECONDS.toMillis(10)) {
 
                             // 移除
                             if (messagesNonAck.remove(m.id) == null) {
@@ -561,7 +564,7 @@ public class DefaultRegistry extends NettyTcpConnector {
 
                     Thread.sleep(300);
                 } catch (Throwable t) {
-                    logger.error("An exception has been caught while scanning the timeout acknowledges {}.", t);
+                    logger.error("An exception has been caught while scanning the timeout acknowledges {}.", stackTrace(t));
                 }
             }
         }

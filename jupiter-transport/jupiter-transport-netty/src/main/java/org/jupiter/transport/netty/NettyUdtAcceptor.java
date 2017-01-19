@@ -23,6 +23,7 @@ import io.netty.channel.EventLoopGroup;
 import io.netty.channel.WriteBufferWaterMark;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.udt.nio.NioUdtProvider;
+import org.jupiter.common.util.JConstants;
 import org.jupiter.common.util.internal.logging.InternalLogger;
 import org.jupiter.common.util.internal.logging.InternalLoggerFactory;
 import org.jupiter.transport.JConfigGroup;
@@ -30,9 +31,6 @@ import org.jupiter.transport.JConfigGroup;
 import java.net.InetSocketAddress;
 import java.net.SocketAddress;
 import java.util.concurrent.ThreadFactory;
-
-import static org.jupiter.common.util.JConstants.NEWLINE;
-import static org.jupiter.transport.netty.NettyConfig.*;
 
 /**
  * jupiter
@@ -44,7 +42,7 @@ public abstract class NettyUdtAcceptor extends NettyAcceptor {
 
     private static final InternalLogger logger = InternalLoggerFactory.getInstance(NettyUdtAcceptor.class);
 
-    private final NettyUdtConfigGroup configGroup = new NettyUdtConfigGroup();
+    private final NettyConfig.NettyUdtConfigGroup configGroup = new NettyConfig.NettyUdtConfigGroup();
 
     public NettyUdtAcceptor(int port) {
         super(Protocol.UDT, new InetSocketAddress(port));
@@ -73,11 +71,11 @@ public abstract class NettyUdtAcceptor extends NettyAcceptor {
         ServerBootstrap boot = bootstrap();
 
         // parent options
-        NettyUdtConfigGroup.ParentConfig parent = configGroup.parent();
+        NettyConfig.NettyUdtConfigGroup.ParentConfig parent = configGroup.parent();
         boot.option(ChannelOption.SO_BACKLOG, parent.getBacklog());
 
         // child options
-        NettyUdtConfigGroup.ChildConfig child = configGroup.child();
+        NettyConfig.NettyUdtConfigGroup.ChildConfig child = configGroup.child();
         boot.childOption(ChannelOption.SO_REUSEADDR, child.isReuseAddress());
         if (child.getRcvBuf() > 0) {
             boot.childOption(ChannelOption.SO_RCVBUF, child.getRcvBuf());
@@ -112,7 +110,7 @@ public abstract class NettyUdtAcceptor extends NettyAcceptor {
         ChannelFuture future = bind(localAddress).sync();
 
         logger.info("Jupiter UDT server start" + (sync ? ", and waits until the server socket closed." : ".")
-                + NEWLINE + " {}.", toString());
+                + JConstants.NEWLINE + " {}.", toString());
 
         if (sync) {
             // wait until the server socket is closed.
@@ -133,6 +131,6 @@ public abstract class NettyUdtAcceptor extends NettyAcceptor {
 
     @Override
     public String toString() {
-        return "Socket localAddress:[" + localAddress + "]" + NEWLINE + bootstrap();
+        return "Socket localAddress:[" + localAddress + "]" + JConstants.NEWLINE + bootstrap();
     }
 }

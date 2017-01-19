@@ -24,10 +24,10 @@ import io.netty.util.ReferenceCountUtil;
 import org.jupiter.common.util.Signal;
 import org.jupiter.common.util.internal.logging.InternalLogger;
 import org.jupiter.common.util.internal.logging.InternalLoggerFactory;
-import org.jupiter.transport.payload.JResponseBytes;
 import org.jupiter.transport.channel.JChannel;
 import org.jupiter.transport.exception.IoSignals;
 import org.jupiter.transport.netty.channel.NettyChannel;
+import org.jupiter.transport.payload.JResponseBytes;
 import org.jupiter.transport.processor.ConsumerProcessor;
 
 import static org.jupiter.common.util.StackTraceUtil.stackTrace;
@@ -52,7 +52,7 @@ public class ConnectorHandler extends ChannelInboundHandlerAdapter {
             try {
                 processor.handleResponse(jChannel, (JResponseBytes) msg);
             } catch (Throwable t) {
-                logger.error("An exception has been caught {}, on {} #channelRead().", t, jChannel);
+                logger.error("An exception has been caught {}, on {} #channelRead().", stackTrace(t), jChannel);
             }
         } else {
             logger.warn("Unexpected message type received: {}.", msg.getClass());

@@ -18,8 +18,7 @@ package org.jupiter.transport.netty;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
-
-import static org.jupiter.transport.JProtocolHeader.*;
+import org.jupiter.transport.JProtocolHeader;
 
 /**
  * Shared heartbeat content.
@@ -34,9 +33,9 @@ public class Heartbeats {
     private static final ByteBuf HEARTBEAT_BUF;
 
     static {
-        ByteBuf buf = Unpooled.buffer(HEAD_LENGTH);
-        buf.writeShort(MAGIC);
-        buf.writeByte(HEARTBEAT); // 心跳包这里可忽略高地址的4位序列化/反序列化标志
+        ByteBuf buf = Unpooled.buffer(JProtocolHeader.HEAD_LENGTH);
+        buf.writeShort(JProtocolHeader.MAGIC);
+        buf.writeByte(JProtocolHeader.HEARTBEAT); // 心跳包这里可忽略高地址的4位序列化/反序列化标志
         buf.writeByte(0);
         buf.writeLong(0);
         buf.writeInt(0);

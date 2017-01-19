@@ -23,6 +23,7 @@ import io.netty.channel.EventLoopGroup;
 import io.netty.channel.WriteBufferWaterMark;
 import io.netty.channel.epoll.EpollEventLoopGroup;
 import io.netty.channel.nio.NioEventLoopGroup;
+import org.jupiter.common.util.JConstants;
 import org.jupiter.common.util.internal.logging.InternalLogger;
 import org.jupiter.common.util.internal.logging.InternalLoggerFactory;
 import org.jupiter.transport.JConfigGroup;
@@ -30,9 +31,6 @@ import org.jupiter.transport.JConfigGroup;
 import java.net.InetSocketAddress;
 import java.net.SocketAddress;
 import java.util.concurrent.ThreadFactory;
-
-import static org.jupiter.common.util.JConstants.NEWLINE;
-import static org.jupiter.transport.netty.NettyConfig.*;
 
 /**
  * jupiter
@@ -45,7 +43,7 @@ public abstract class NettyTcpAcceptor extends NettyAcceptor {
     private static final InternalLogger logger = InternalLoggerFactory.getInstance(NettyTcpAcceptor.class);
 
     private final boolean nativeEt; // Use native epoll ET
-    private final NettyTcpConfigGroup configGroup = new NettyTcpConfigGroup();
+    private final NettyConfig.NettyTcpConfigGroup configGroup = new NettyConfig.NettyTcpConfigGroup();
 
     public NettyTcpAcceptor(int port) {
         super(Protocol.TCP, new InetSocketAddress(port));
@@ -102,7 +100,7 @@ public abstract class NettyTcpAcceptor extends NettyAcceptor {
         ServerBootstrap boot = bootstrap();
 
         // parent options
-        NettyTcpConfigGroup.ParentConfig parent = configGroup.parent();
+        NettyConfig.NettyTcpConfigGroup.ParentConfig parent = configGroup.parent();
         boot.option(ChannelOption.SO_BACKLOG, parent.getBacklog());
         boot.option(ChannelOption.SO_REUSEADDR, parent.isReuseAddress());
         if (parent.getRcvBuf() > 0) {
@@ -110,7 +108,7 @@ public abstract class NettyTcpAcceptor extends NettyAcceptor {
         }
 
         // child options
-        NettyTcpConfigGroup.ChildConfig child = configGroup.child();
+        NettyConfig.NettyTcpConfigGroup.ChildConfig child = configGroup.child();
         boot.childOption(ChannelOption.SO_REUSEADDR, child.isReuseAddress())
                 .childOption(ChannelOption.SO_KEEPALIVE, child.isKeepAlive())
                 .childOption(ChannelOption.TCP_NODELAY, child.isTcpNoDelay())
@@ -151,7 +149,7 @@ public abstract class NettyTcpAcceptor extends NettyAcceptor {
         ChannelFuture future = bind(localAddress).sync();
 
         logger.info("Jupiter TCP server start" + (sync ? ", and waits until the server socket closed." : ".")
-                + NEWLINE + " {}.", toString());
+                + JConstants.NEWLINE + " {}.", toString());
 
         if (sync) {
             // wait until the server socket is closed.
@@ -191,6 +189,6 @@ public abstract class NettyTcpAcceptor extends NettyAcceptor {
     @Override
     public String toString() {
         return "Socket address:[" + localAddress + ']' + ", nativeET: " + isNativeEt()
-                + NEWLINE + bootstrap();
+                + JConstants.NEWLINE + bootstrap();
     }
 }

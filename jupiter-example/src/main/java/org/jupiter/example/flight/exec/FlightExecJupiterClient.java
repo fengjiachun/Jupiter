@@ -21,18 +21,13 @@ import org.jupiter.common.util.SystemPropertyUtil;
 import org.jupiter.flight.exec.ExecResult;
 import org.jupiter.flight.exec.JavaClassExec;
 import org.jupiter.flight.exec.JavaCompiler;
-import org.jupiter.rpc.DefaultClient;
-import org.jupiter.rpc.JClient;
-import org.jupiter.rpc.JListener;
+import org.jupiter.rpc.*;
 import org.jupiter.rpc.consumer.ProxyFactory;
 import org.jupiter.rpc.consumer.future.InvokeFutureContext;
 import org.jupiter.rpc.consumer.future.InvokeFutureGroup;
 import org.jupiter.transport.JConnector;
 import org.jupiter.transport.exception.ConnectFailedException;
 import org.jupiter.transport.netty.JNettyTcpConnector;
-
-import static org.jupiter.rpc.DispatchType.BROADCAST;
-import static org.jupiter.rpc.InvokeType.ASYNC;
 
 /**
  * 客户端编译, 服务端执行, 以java的方式, 留一个方便线上调试的口子.
@@ -58,8 +53,8 @@ public class FlightExecJupiterClient {
         JavaClassExec service = ProxyFactory.factory(JavaClassExec.class)
                 .version("1.0.0")
                 .client(client)
-                .dispatchType(BROADCAST)
-                .invokeType(ASYNC)
+                .dispatchType(DispatchType.BROADCAST)
+                .invokeType(InvokeType.ASYNC)
                 .newProxyInstance();
 
         try {

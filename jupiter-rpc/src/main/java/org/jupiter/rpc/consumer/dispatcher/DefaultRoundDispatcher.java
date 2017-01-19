@@ -16,6 +16,7 @@
 
 package org.jupiter.rpc.consumer.dispatcher;
 
+import org.jupiter.rpc.DispatchType;
 import org.jupiter.rpc.JClient;
 import org.jupiter.rpc.JRequest;
 import org.jupiter.rpc.consumer.future.DefaultInvokeFuture;
@@ -26,8 +27,6 @@ import org.jupiter.rpc.model.metadata.ServiceMetadata;
 import org.jupiter.serialization.Serializer;
 import org.jupiter.serialization.SerializerType;
 import org.jupiter.transport.channel.JChannel;
-
-import static org.jupiter.rpc.DispatchType.ROUND;
 
 /**
  * 单播方式派发消息.
@@ -69,9 +68,10 @@ public class DefaultRoundDispatcher extends AbstractDispatcher {
         request.bytes(s_code, bytes);
 
         long timeoutMillis = methodSpecialTimeoutMillis(methodName);
-        DefaultInvokeFuture<T> future = DefaultInvokeFuture.with(request.invokeId(), channel, returnType, timeoutMillis, ROUND)
+        DefaultInvokeFuture<T> future = DefaultInvokeFuture
+                .with(request.invokeId(), channel, returnType, timeoutMillis, DispatchType.ROUND)
                 .hooks(hooks());
 
-        return write(channel, request, future, ROUND);
+        return write(channel, request, future, DispatchType.ROUND);
     }
 }

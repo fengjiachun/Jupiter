@@ -16,12 +16,12 @@
 
 package org.jupiter.rpc.consumer.future;
 
+import org.jupiter.common.util.Reflects;
 import org.jupiter.common.util.internal.logging.InternalLogger;
 import org.jupiter.common.util.internal.logging.InternalLoggerFactory;
 import org.jupiter.rpc.JListener;
 
 import static org.jupiter.common.util.Preconditions.checkNotNull;
-import static org.jupiter.common.util.Reflects.getTypeDefaultValue;
 import static org.jupiter.common.util.StackTraceUtil.stackTrace;
 
 /**
@@ -61,7 +61,7 @@ public class FailSafeInvokeFuture<V> implements InvokeFuture<V> {
         } catch (Throwable t) {
             logger.warn("Ignored exception on [Fail-safe] : {}.", stackTrace(t));
         }
-        return (V) getTypeDefaultValue(returnType());
+        return (V) Reflects.getTypeDefaultValue(returnType());
     }
 
     @Override
@@ -123,7 +123,7 @@ public class FailSafeInvokeFuture<V> implements InvokeFuture<V> {
         public void failure(Throwable cause) {
             logger.warn("Ignored exception on [Fail-safe] : {}.", stackTrace(cause));
 
-            listener.complete((T) getTypeDefaultValue(returnType()));
+            listener.complete((T) Reflects.getTypeDefaultValue(returnType()));
         }
     }
 }

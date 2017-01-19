@@ -24,6 +24,7 @@ import io.netty.handler.codec.Delimiters;
 import io.netty.handler.codec.string.StringDecoder;
 import io.netty.handler.codec.string.StringEncoder;
 import io.netty.util.ReferenceCountUtil;
+import org.jupiter.common.util.JConstants;
 import org.jupiter.common.util.Strings;
 import org.jupiter.common.util.internal.logging.InternalLogger;
 import org.jupiter.common.util.internal.logging.InternalLoggerFactory;
@@ -35,8 +36,6 @@ import org.jupiter.transport.netty.TcpChannelProvider;
 
 import java.net.SocketAddress;
 
-import static org.jupiter.common.util.JConstants.NEWLINE;
-import static org.jupiter.common.util.JConstants.UTF8;
 import static org.jupiter.common.util.StackTraceUtil.stackTrace;
 
 /**
@@ -74,7 +73,7 @@ public class MonitorServer extends NettyTcpAcceptor {
 
     // handlers
     private final TelnetHandler handler = new TelnetHandler();
-    private final StringEncoder encoder = new StringEncoder(UTF8);
+    private final StringEncoder encoder = new StringEncoder(JConstants.UTF8);
 
     private volatile RegistryMonitor registryMonitor;
 
@@ -97,7 +96,7 @@ public class MonitorServer extends NettyTcpAcceptor {
                     protected void initChannel(SocketChannel ch) throws Exception {
                         ch.pipeline().addLast(
                                 new DelimiterBasedFrameDecoder(8192, Delimiters.lineDelimiter()),
-                                new StringDecoder(UTF8),
+                                new StringDecoder(JConstants.UTF8),
                                 encoder,
                                 handler);
                     }
@@ -133,7 +132,7 @@ public class MonitorServer extends NettyTcpAcceptor {
 
                 Command command = Command.parse(args[0]);
                 if (command == null) {
-                    ctx.writeAndFlush("invalid command!" + NEWLINE);
+                    ctx.writeAndFlush("invalid command!" + JConstants.NEWLINE);
                     return;
                 }
 

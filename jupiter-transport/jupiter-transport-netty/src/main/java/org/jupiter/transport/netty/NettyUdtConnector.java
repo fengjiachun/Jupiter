@@ -28,8 +28,6 @@ import org.jupiter.transport.JConfig;
 
 import java.util.concurrent.ThreadFactory;
 
-import static org.jupiter.transport.netty.NettyConfig.*;
-
 /**
  * jupiter
  * org.jupiter.transport.netty
@@ -38,7 +36,7 @@ import static org.jupiter.transport.netty.NettyConfig.*;
  */
 public abstract class NettyUdtConnector extends NettyConnector {
 
-    private final NettyUdtConfigGroup.ChildConfig childConfig = new NettyUdtConfigGroup.ChildConfig();
+    private final NettyConfig.NettyUdtConfigGroup.ChildConfig childConfig = new NettyConfig.NettyUdtConfigGroup.ChildConfig();
 
     public NettyUdtConnector() {
         super(Protocol.UDT);
@@ -56,7 +54,7 @@ public abstract class NettyUdtConnector extends NettyConnector {
 
         Bootstrap boot = bootstrap();
 
-        NettyUdtConfigGroup.ChildConfig child = childConfig;
+        NettyConfig.NettyUdtConfigGroup.ChildConfig child = childConfig;
 
         // child options
         boot.option(ChannelOption.SO_REUSEADDR, child.isReuseAddress());

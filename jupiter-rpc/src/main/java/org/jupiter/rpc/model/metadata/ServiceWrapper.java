@@ -16,6 +16,7 @@
 
 package org.jupiter.rpc.model.metadata;
 
+import org.jupiter.common.util.JConstants;
 import org.jupiter.rpc.JRequest;
 import org.jupiter.rpc.flow.control.FlowController;
 import org.jupiter.rpc.provider.ProviderInterceptor;
@@ -26,8 +27,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Executor;
 
-import static org.jupiter.common.util.JConstants.DEFAULT_CONNECTION_COUNT;
-import static org.jupiter.common.util.JConstants.DEFAULT_WEIGHT;
 import static org.jupiter.common.util.Preconditions.checkNotNull;
 
 /**
@@ -54,9 +53,9 @@ public class ServiceWrapper implements Serializable {
     private final Map<String, List<Class<?>[]>> methodsParameterTypes;
 
     // 权重 hashCode()与equals()不把weight计算在内
-    private int weight = DEFAULT_WEIGHT;
+    private int weight = JConstants.DEFAULT_WEIGHT;
     // 建议连接数 hashCode()与equals()不把connCount计算在内
-    private int connCount = DEFAULT_CONNECTION_COUNT;
+    private int connCount = JConstants.DEFAULT_CONNECTION_COUNT;
     // provider私有线程池
     private Executor executor;
     // provider私有流量控制器

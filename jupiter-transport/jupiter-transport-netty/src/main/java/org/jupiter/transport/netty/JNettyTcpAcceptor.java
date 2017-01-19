@@ -20,6 +20,7 @@ import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelInitializer;
 import io.netty.channel.socket.SocketChannel;
+import org.jupiter.common.util.JConstants;
 import org.jupiter.transport.JConfig;
 import org.jupiter.transport.JOption;
 import org.jupiter.transport.netty.handler.IdleStateChecker;
@@ -31,7 +32,6 @@ import org.jupiter.transport.processor.ProviderProcessor;
 
 import java.net.SocketAddress;
 
-import static org.jupiter.common.util.JConstants.READER_IDLE_TIME_SECONDS;
 import static org.jupiter.common.util.Preconditions.checkNotNull;
 
 /**
@@ -146,7 +146,7 @@ public class JNettyTcpAcceptor extends NettyTcpAcceptor {
             @Override
             protected void initChannel(SocketChannel ch) throws Exception {
                 ch.pipeline().addLast(
-                        new IdleStateChecker(timer, READER_IDLE_TIME_SECONDS, 0, 0),
+                        new IdleStateChecker(timer, JConstants.READER_IDLE_TIME_SECONDS, 0, 0),
                         idleStateTrigger,
                         new ProtocolDecoder(),
                         encoder,

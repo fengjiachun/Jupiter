@@ -21,11 +21,10 @@ import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.MessageToByteEncoder;
 import org.jupiter.common.util.Reflects;
+import org.jupiter.transport.JProtocolHeader;
 import org.jupiter.transport.payload.BytesHolder;
 import org.jupiter.transport.payload.JRequestBytes;
 import org.jupiter.transport.payload.JResponseBytes;
-
-import static org.jupiter.transport.JProtocolHeader.*;
 
 /**
  * **************************************************************************************************
@@ -66,12 +65,12 @@ public class ProtocolEncoder extends MessageToByteEncoder<BytesHolder> {
 
     private void doEncodeRequest(JRequestBytes request, ByteBuf out) {
         byte s_code = request.serializerCode();
-        byte sign = (byte) ((s_code << 4) + REQUEST);
+        byte sign = (byte) ((s_code << 4) + JProtocolHeader.REQUEST);
         long invokeId = request.invokeId();
         byte[] bytes = request.bytes();
         int length = bytes.length;
 
-        out.writeShort(MAGIC)
+        out.writeShort(JProtocolHeader.MAGIC)
                 .writeByte(sign)
                 .writeByte(0x00)
                 .writeLong(invokeId)
@@ -81,13 +80,13 @@ public class ProtocolEncoder extends MessageToByteEncoder<BytesHolder> {
 
     private void doEncodeResponse(JResponseBytes response, ByteBuf out) {
         byte s_code = response.serializerCode();
-        byte sign = (byte) ((s_code << 4) + RESPONSE);
+        byte sign = (byte) ((s_code << 4) + JProtocolHeader.RESPONSE);
         byte status = response.status();
         long invokeId = response.id();
         byte[] bytes = response.bytes();
         int length = bytes.length;
 
-        out.writeShort(MAGIC)
+        out.writeShort(JProtocolHeader.MAGIC)
                 .writeByte(sign)
                 .writeByte(status)
                 .writeLong(invokeId)

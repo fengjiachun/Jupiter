@@ -16,6 +16,7 @@
 
 package org.jupiter.rpc.consumer.cluster;
 
+import org.jupiter.common.util.Reflects;
 import org.jupiter.common.util.internal.logging.InternalLogger;
 import org.jupiter.common.util.internal.logging.InternalLoggerFactory;
 import org.jupiter.rpc.JClient;
@@ -28,7 +29,6 @@ import org.jupiter.rpc.exception.JupiterBizException;
 import org.jupiter.rpc.exception.JupiterRemoteException;
 
 import static org.jupiter.common.util.Preconditions.checkArgument;
-import static org.jupiter.common.util.Reflects.simpleClassName;
 import static org.jupiter.common.util.StackTraceUtil.stackTrace;
 
 /**
@@ -56,7 +56,7 @@ public class FailOverClusterInvoker extends AbstractClusterInvoker {
 
         checkArgument(
                 dispatcher instanceof DefaultRoundDispatcher,
-                simpleClassName(dispatcher) + " is unsupported [FailOverClusterInvoker]"
+                Reflects.simpleClassName(dispatcher) + " is unsupported [FailOverClusterInvoker]"
         );
 
         if (retries >= 0) {

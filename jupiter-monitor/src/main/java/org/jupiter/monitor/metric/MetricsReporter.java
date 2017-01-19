@@ -17,6 +17,7 @@
 package org.jupiter.monitor.metric;
 
 import com.codahale.metrics.ConsoleReporter;
+import org.jupiter.common.util.JConstants;
 import org.jupiter.common.util.StackTraceUtil;
 import org.jupiter.common.util.internal.UnsafeReferenceFieldUpdater;
 import org.jupiter.common.util.internal.UnsafeUpdater;
@@ -25,8 +26,6 @@ import org.jupiter.rpc.metric.Metrics;
 import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
 import java.io.UnsupportedEncodingException;
-
-import static org.jupiter.common.util.JConstants.UTF8_CHARSET;
 
 /**
  * Indicators measure used to provide data for the monitor.
@@ -55,7 +54,7 @@ public class MetricsReporter {
     private static String consoleOutput() {
         String output;
         try {
-            output = buf.toString(UTF8_CHARSET);
+            output = buf.toString(JConstants.UTF8_CHARSET);
             if (bufUpdater.get(buf).length > 1024 * 64) {
                 bufUpdater.set(buf, new byte[1024 * 32]);
             }

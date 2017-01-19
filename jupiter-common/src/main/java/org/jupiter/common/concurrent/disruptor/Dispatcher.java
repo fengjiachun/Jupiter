@@ -16,7 +16,7 @@
 
 package org.jupiter.common.concurrent.disruptor;
 
-import static org.jupiter.common.util.JConstants.AVAILABLE_PROCESSORS;
+import org.jupiter.common.util.JConstants;
 
 /**
  * Task message dispatcher.
@@ -29,12 +29,15 @@ import static org.jupiter.common.util.JConstants.AVAILABLE_PROCESSORS;
 public interface Dispatcher<T> {
 
     int BUFFER_SIZE = 32768;
-    int MAX_NUM_WORKERS = AVAILABLE_PROCESSORS << 3;
+    int MAX_NUM_WORKERS = JConstants.AVAILABLE_PROCESSORS << 3;
 
     /**
-     * Dispatch task message.
+     * Dispatch a task message.
      */
     boolean dispatch(T message);
 
+    /**
+     * Shutdown
+     */
     void shutdown();
 }

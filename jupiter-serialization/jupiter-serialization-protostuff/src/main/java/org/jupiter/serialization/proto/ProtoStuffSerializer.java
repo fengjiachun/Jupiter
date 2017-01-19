@@ -25,10 +25,9 @@ import org.jupiter.common.util.Reflects;
 import org.jupiter.common.util.SystemPropertyUtil;
 import org.jupiter.common.util.internal.InternalThreadLocal;
 import org.jupiter.serialization.Serializer;
+import org.jupiter.serialization.SerializerType;
 
 import java.util.concurrent.ConcurrentMap;
-
-import static org.jupiter.serialization.SerializerType.PROTO_STUFF;
 
 /**
  * jupiter
@@ -68,7 +67,7 @@ public class ProtoStuffSerializer extends Serializer {
 
     @Override
     public byte code() {
-        return PROTO_STUFF.value();
+        return SerializerType.PROTO_STUFF.value();
     }
 
     @SuppressWarnings("unchecked")

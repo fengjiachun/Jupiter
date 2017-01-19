@@ -17,15 +17,15 @@
 package org.jupiter.common.util;
 
 import net.bytebuddy.ByteBuddy;
+import net.bytebuddy.dynamic.loading.ClassLoadingStrategy;
+import net.bytebuddy.implementation.MethodDelegation;
+import net.bytebuddy.matcher.ElementMatchers;
 import net.sf.cglib.proxy.Enhancer;
 import net.sf.cglib.proxy.MethodInterceptor;
 
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Proxy;
 
-import static net.bytebuddy.dynamic.loading.ClassLoadingStrategy.Default.INJECTION;
-import static net.bytebuddy.implementation.MethodDelegation.to;
-import static net.bytebuddy.matcher.ElementMatchers.isDeclaredBy;
 import static org.jupiter.common.util.Preconditions.checkArgument;
 
 /**
@@ -67,10 +67,10 @@ public enum Proxies {
         public <T> T newProxy(Class<T> interfaceType, Object handler) {
             Class<? extends T> cls = new ByteBuddy()
                     .subclass(interfaceType)
-                    .method(isDeclaredBy(interfaceType))
-                    .intercept(to(handler, "handler"))
+                    .method(ElementMatchers.isDeclaredBy(interfaceType))
+                    .intercept(MethodDelegation.to(handler, "handler"))
                     .make()
-                    .load(interfaceType.getClassLoader(), INJECTION)
+                    .load(interfaceType.getClassLoader(), ClassLoadingStrategy.Default.INJECTION)
                     .getLoaded();
 
             return Reflects.newInstance(cls);

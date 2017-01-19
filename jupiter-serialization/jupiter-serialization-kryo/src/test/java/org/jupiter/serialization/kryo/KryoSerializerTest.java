@@ -19,6 +19,7 @@ package org.jupiter.serialization.kryo;
 import org.junit.Test;
 import org.jupiter.serialization.Serializer;
 import org.jupiter.serialization.SerializerFactory;
+import org.jupiter.serialization.SerializerType;
 
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -26,7 +27,6 @@ import java.util.List;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
-import static org.jupiter.serialization.SerializerType.KRYO;
 
 /**
  * jupiter
@@ -38,7 +38,7 @@ public class KryoSerializerTest {
 
     @Test
     public void testSerializer() {
-        Serializer serializer = SerializerFactory.getSerializer(KRYO.value());
+        Serializer serializer = SerializerFactory.getSerializer(SerializerType.KRYO.value());
         ResultWrapper wrapper = new ResultWrapper();
         wrapper.setResult("test");
         wrapper.setError(new RuntimeException("test"));

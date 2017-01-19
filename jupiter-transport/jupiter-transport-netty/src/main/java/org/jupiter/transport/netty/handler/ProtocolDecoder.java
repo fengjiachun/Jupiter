@@ -23,13 +23,11 @@ import org.jupiter.common.util.Signal;
 import org.jupiter.common.util.SystemClock;
 import org.jupiter.common.util.SystemPropertyUtil;
 import org.jupiter.transport.JProtocolHeader;
+import org.jupiter.transport.exception.IoSignals;
 import org.jupiter.transport.payload.JRequestBytes;
 import org.jupiter.transport.payload.JResponseBytes;
 
 import java.util.List;
-
-import static org.jupiter.transport.JProtocolHeader.*;
-import static org.jupiter.transport.exception.IoSignals.*;
 
 /**
  * **************************************************************************************************
@@ -96,9 +94,9 @@ public class ProtocolDecoder extends ReplayingDecoder<ProtocolDecoder.State> {
                 checkpoint(State.BODY);
             case BODY:
                 switch (header.messageCode()) {
-                    case HEARTBEAT:
+                    case JProtocolHeader.HEARTBEAT:
                         break;
-                    case REQUEST: {
+                    case JProtocolHeader.REQUEST: {
                         int length = checkBodyLength(header.bodyLength());
                         byte[] bytes = new byte[length];
                         in.readBytes(bytes);
@@ -111,7 +109,7 @@ public class ProtocolDecoder extends ReplayingDecoder<ProtocolDecoder.State> {
 
                         break;
                     }
-                    case RESPONSE: {
+                    case JProtocolHeader.RESPONSE: {
                         int length = checkBodyLength(header.bodyLength());
                         byte[] bytes = new byte[length];
                         in.readBytes(bytes);
@@ -125,21 +123,21 @@ public class ProtocolDecoder extends ReplayingDecoder<ProtocolDecoder.State> {
                         break;
                     }
                     default:
-                        throw ILLEGAL_SIGN;
+                        throw IoSignals.ILLEGAL_SIGN;
                 }
                 checkpoint(State.HEADER_MAGIC);
         }
     }
 
     private static void checkMagic(short magic) throws Signal {
-        if (magic != MAGIC) {
-            throw ILLEGAL_MAGIC;
+        if (magic != JProtocolHeader.MAGIC) {
+            throw IoSignals.ILLEGAL_MAGIC;
         }
     }
 
     private static int checkBodyLength(int size) throws Signal {
         if (size > MAX_BODY_SIZE) {
-            throw BODY_TOO_LARGE;
+            throw IoSignals.BODY_TOO_LARGE;
         }
         return size;
     }

@@ -18,8 +18,6 @@ package org.jupiter.registry;
 
 import java.util.Collection;
 
-import static org.jupiter.registry.RegisterMeta.*;
-
 /**
  * Registry service.
  *
@@ -43,13 +41,16 @@ public interface RegistryService extends Registry {
     /**
      * Subscribe a service from registry server.
      */
-    void subscribe(ServiceMeta serviceMeta, NotifyListener listener);
+    void subscribe(RegisterMeta.ServiceMeta serviceMeta, NotifyListener listener);
 
     /**
      * Find a service in the local scope.
      */
-    Collection<RegisterMeta> lookup(ServiceMeta serviceMeta);
+    Collection<RegisterMeta> lookup(RegisterMeta.ServiceMeta serviceMeta);
 
+    /**
+     * Returns {@code true} if {@link RegistryService} is shutdown.
+     */
     boolean isShutdown();
 
     /**

@@ -24,11 +24,11 @@ import io.netty.util.ReferenceCountUtil;
 import org.jupiter.common.util.Signal;
 import org.jupiter.common.util.internal.logging.InternalLogger;
 import org.jupiter.common.util.internal.logging.InternalLoggerFactory;
-import org.jupiter.transport.payload.JRequestBytes;
 import org.jupiter.transport.Status;
 import org.jupiter.transport.channel.JChannel;
 import org.jupiter.transport.exception.IoSignals;
 import org.jupiter.transport.netty.channel.NettyChannel;
+import org.jupiter.transport.payload.JRequestBytes;
 import org.jupiter.transport.processor.ProviderProcessor;
 
 import java.util.concurrent.atomic.AtomicInteger;

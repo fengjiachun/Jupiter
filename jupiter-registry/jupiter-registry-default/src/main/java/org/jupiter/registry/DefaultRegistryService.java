@@ -27,7 +27,6 @@ import java.util.concurrent.ConcurrentMap;
 
 import static org.jupiter.common.util.Preconditions.checkArgument;
 import static org.jupiter.common.util.Preconditions.checkNotNull;
-import static org.jupiter.registry.RegisterMeta.ServiceMeta;
 
 /**
  * Default registry service.
@@ -44,7 +43,7 @@ public class DefaultRegistryService extends AbstractRegistryService {
     private final ConcurrentMap<UnresolvedAddress, DefaultRegistry> clients = Maps.newConcurrentMap();
 
     @Override
-    protected void doSubscribe(ServiceMeta serviceMeta) {
+    protected void doSubscribe(RegisterMeta.ServiceMeta serviceMeta) {
         Collection<DefaultRegistry> allClients = clients.values();
         checkArgument(!allClients.isEmpty(), "init needed");
 

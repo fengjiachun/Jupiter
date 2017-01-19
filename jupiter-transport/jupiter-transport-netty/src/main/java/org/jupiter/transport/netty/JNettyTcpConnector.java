@@ -21,6 +21,7 @@ import io.netty.channel.Channel;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelInitializer;
+import org.jupiter.common.util.JConstants;
 import org.jupiter.transport.JConnection;
 import org.jupiter.transport.JOption;
 import org.jupiter.transport.UnresolvedAddress;
@@ -36,9 +37,8 @@ import org.jupiter.transport.processor.ConsumerProcessor;
 
 import java.net.InetSocketAddress;
 import java.net.SocketAddress;
+import java.util.concurrent.TimeUnit;
 
-import static java.util.concurrent.TimeUnit.SECONDS;
-import static org.jupiter.common.util.JConstants.WRITER_IDLE_TIME_SECONDS;
 import static org.jupiter.common.util.Preconditions.checkNotNull;
 
 /**
@@ -123,7 +123,7 @@ public class JNettyTcpConnector extends NettyTcpConnector {
     protected void doInit() {
         // child options
         config().setOption(JOption.SO_REUSEADDR, true);
-        config().setOption(JOption.CONNECT_TIMEOUT_MILLIS, (int) SECONDS.toMillis(3));
+        config().setOption(JOption.CONNECT_TIMEOUT_MILLIS, (int) TimeUnit.SECONDS.toMillis(3));
         // channel factory
         if (isNativeEt()) {
             bootstrap().channelFactory(TcpChannelProvider.NATIVE_CONNECTOR);
@@ -152,7 +152,7 @@ public class JNettyTcpConnector extends NettyTcpConnector {
             public ChannelHandler[] handlers() {
                 return new ChannelHandler[] {
                         this,
-                        new IdleStateChecker(timer, 0, WRITER_IDLE_TIME_SECONDS, 0),
+                        new IdleStateChecker(timer, 0, JConstants.WRITER_IDLE_TIME_SECONDS, 0),
                         idleStateTrigger,
                         new ProtocolDecoder(),
                         encoder,

@@ -25,8 +25,6 @@ import org.jupiter.common.util.SystemClock;
 
 import java.util.concurrent.TimeUnit;
 
-import static java.util.concurrent.TimeUnit.*;
-
 /**
  * 基于{@link HashedWheelTimer}的空闲链路监测.
  *
@@ -81,7 +79,7 @@ public class IdleStateChecker extends ChannelDuplexHandler {
             int writerIdleTimeSeconds,
             int allIdleTimeSeconds) {
 
-        this(timer, readerIdleTimeSeconds, writerIdleTimeSeconds, allIdleTimeSeconds, SECONDS);
+        this(timer, readerIdleTimeSeconds, writerIdleTimeSeconds, allIdleTimeSeconds, TimeUnit.SECONDS);
     }
 
     public IdleStateChecker(
@@ -223,17 +221,17 @@ public class IdleStateChecker extends ChannelDuplexHandler {
         if (readerIdleTimeMillis > 0) {
             readerIdleTimeout = timer.newTimeout(
                     new ReaderIdleTimeoutTask(ctx),
-                    readerIdleTimeMillis, MILLISECONDS);
+                    readerIdleTimeMillis, TimeUnit.MILLISECONDS);
         }
         if (writerIdleTimeMillis > 0) {
             writerIdleTimeout = timer.newTimeout(
                     new WriterIdleTimeoutTask(ctx),
-                    writerIdleTimeMillis, MILLISECONDS);
+                    writerIdleTimeMillis, TimeUnit.MILLISECONDS);
         }
         if (allIdleTimeMillis > 0) {
             allIdleTimeout = timer.newTimeout(
                     new AllIdleTimeoutTask(ctx),
-                    allIdleTimeMillis, MILLISECONDS);
+                    allIdleTimeMillis, TimeUnit.MILLISECONDS);
         }
     }
 
@@ -279,7 +277,7 @@ public class IdleStateChecker extends ChannelDuplexHandler {
             }
             if (nextDelay <= 0) {
                 // Reader is idle - set a new timeout and notify the callback.
-                readerIdleTimeout = timer.newTimeout(this, readerIdleTimeMillis, MILLISECONDS);
+                readerIdleTimeout = timer.newTimeout(this, readerIdleTimeMillis, TimeUnit.MILLISECONDS);
                 try {
                     IdleStateEvent event;
                     if (firstReaderIdleEvent) {
@@ -294,7 +292,7 @@ public class IdleStateChecker extends ChannelDuplexHandler {
                 }
             } else {
                 // Read occurred before the timeout - set a new timeout with shorter delay.
-                readerIdleTimeout = timer.newTimeout(this, nextDelay, MILLISECONDS);
+                readerIdleTimeout = timer.newTimeout(this, nextDelay, TimeUnit.MILLISECONDS);
             }
         }
     }
@@ -317,7 +315,7 @@ public class IdleStateChecker extends ChannelDuplexHandler {
             long nextDelay = writerIdleTimeMillis - (SystemClock.millisClock().now() - lastWriteTime);
             if (nextDelay <= 0) {
                 // Writer is idle - set a new timeout and notify the callback.
-                writerIdleTimeout = timer.newTimeout(this, writerIdleTimeMillis, MILLISECONDS);
+                writerIdleTimeout = timer.newTimeout(this, writerIdleTimeMillis, TimeUnit.MILLISECONDS);
                 try {
                     IdleStateEvent event;
                     if (firstWriterIdleEvent) {
@@ -332,7 +330,7 @@ public class IdleStateChecker extends ChannelDuplexHandler {
                 }
             } else {
                 // Write occurred before the timeout - set a new timeout with shorter delay.
-                writerIdleTimeout = timer.newTimeout(this, nextDelay, MILLISECONDS);
+                writerIdleTimeout = timer.newTimeout(this, nextDelay, TimeUnit.MILLISECONDS);
             }
         }
     }
@@ -359,7 +357,7 @@ public class IdleStateChecker extends ChannelDuplexHandler {
             if (nextDelay <= 0) {
                 // Both reader and writer are idle - set a new timeout and
                 // notify the callback.
-                allIdleTimeout = timer.newTimeout(this, allIdleTimeMillis, MILLISECONDS);
+                allIdleTimeout = timer.newTimeout(this, allIdleTimeMillis, TimeUnit.MILLISECONDS);
                 try {
                     IdleStateEvent event;
                     if (firstAllIdleEvent) {
@@ -375,7 +373,7 @@ public class IdleStateChecker extends ChannelDuplexHandler {
             } else {
                 // Either read or write occurred before the timeout - set a new
                 // timeout with shorter delay.
-                allIdleTimeout = timer.newTimeout(this, nextDelay, MILLISECONDS);
+                allIdleTimeout = timer.newTimeout(this, nextDelay, TimeUnit.MILLISECONDS);
             }
         }
     }

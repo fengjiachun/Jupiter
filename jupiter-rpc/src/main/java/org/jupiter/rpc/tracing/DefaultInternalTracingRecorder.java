@@ -20,7 +20,7 @@ import org.jupiter.common.util.StringBuilderHelper;
 import org.jupiter.common.util.internal.logging.InternalLogger;
 import org.jupiter.common.util.internal.logging.InternalLoggerFactory;
 
-import static java.util.concurrent.TimeUnit.NANOSECONDS;
+import java.util.concurrent.TimeUnit;
 
 /**
  * 默认记录tracing信息的方式是日志
@@ -56,7 +56,7 @@ public class DefaultInternalTracingRecorder extends TracingRecorder {
                         .append(", callInfo: ")
                         .append(args[1])
                         .append(", elapsed: ")
-                        .append(NANOSECONDS.toMillis((long) args[2]))
+                        .append(TimeUnit.NANOSECONDS.toMillis((long) args[2]))
                         .append(" millis, on ")
                         .append(args[3]).toString();
 
