@@ -164,6 +164,7 @@ public class TaskDispatcher implements Dispatcher<Runnable>, Executor {
             }
             return true;
         } catch (InsufficientCapacityException e) {
+            // 这个异常是Disruptor当做全局goto使用的, 是单例的并且没有堆栈信息, 不必担心抛出异常的性能问题
             return false;
         }
     }
