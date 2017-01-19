@@ -86,7 +86,7 @@ public class KryoSerializer extends Serializer {
         } finally {
             output.clear();
 
-            // 防止hold太大块的内存
+            // 防止hold过大的内存块一直不释放
             if (output.getBuffer().length > MAX_CACHED_BUF_SIZE) {
                 output.setBuffer(new byte[DEFAULT_BUF_SIZE], -1);
             }

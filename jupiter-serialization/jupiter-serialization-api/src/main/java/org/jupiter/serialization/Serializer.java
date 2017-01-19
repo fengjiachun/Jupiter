@@ -19,6 +19,8 @@ package org.jupiter.serialization;
 /**
  * This interface provides an abstract view for one or more serializer impl.
  *
+ * SerializerImpl是基于SPI加载的, 会加载所有(jupiter-serialization-XXX), 并可以同时可以支持所有引入的SerializerImpl.
+ *
  * jupiter
  * org.jupiter.serialization
  *

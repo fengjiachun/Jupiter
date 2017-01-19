@@ -49,7 +49,8 @@ public class ProtoStuffSerializer extends Serializer {
     public static final boolean ALWAYS_USE_SUN_REFLECTION_FACTORY = true;
 
     static {
-        // RuntimeEnv
+        // 禁止反序列化时构造方法被调用, 防止有些类的构造方法内有令人惊喜的逻辑
+        // 详见 io.protostuff.runtime.RuntimeEnv
         String value = String.valueOf(ALWAYS_USE_SUN_REFLECTION_FACTORY);
         SystemPropertyUtil
                 .setProperty("protostuff.runtime.always_use_sun_reflection_factory", value);
@@ -77,7 +78,7 @@ public class ProtoStuffSerializer extends Serializer {
 
         LinkedBuffer buf = bufThreadLocal.get();
         try {
-            // TODO toByteArray里面一坨的 memory copy 需要优化一下
+            // TODO toByteArray里面一坨的 memory copy 如果哪天有好办法了可以优化一下
             return ProtostuffIOUtil.toByteArray(obj, schema, buf);
         } finally {
             buf.clear(); // for reuse

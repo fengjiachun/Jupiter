@@ -26,7 +26,7 @@ import org.jupiter.transport.UnresolvedAddress;
 import org.jupiter.transport.netty.JNettyTcpConnector;
 
 /**
- * 组播调用客户端
+ * 广播调用客户端
  *
  * jupiter
  * org.jupiter.example.broadcast

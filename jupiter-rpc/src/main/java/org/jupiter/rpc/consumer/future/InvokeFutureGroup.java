@@ -19,11 +19,11 @@ package org.jupiter.rpc.consumer.future;
 /**
  * For broadcast future.
  *
- * 用于支持组播调用的 {@link InvokeFuture}, 不建议也不支持同步获取批量结果.
+ * 用于支持广播调用的 {@link InvokeFuture}, 不建议也不支持同步获取批量结果.
  *
- * 有两种方式获取组播调用结果:
+ * 有两种方式获取广播调用结果:
  *
- *  1. 直接添加 {@link org.jupiter.rpc.JListener} 来实现回调(组播场景下一个listener会被回调多次);
+ *  1. 直接添加 {@link org.jupiter.rpc.JListener} 来实现回调(所有响应信息都会触发这同一个listener);
  *  2. 通过 {@link #futures()} 获取 InvokeFuture[] 再分别调用 {@link InvokeFuture#getResult()}.
  *
  * jupiter

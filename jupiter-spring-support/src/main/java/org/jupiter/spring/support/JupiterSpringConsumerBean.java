@@ -44,26 +44,24 @@ import java.util.Map;
  */
 public class JupiterSpringConsumerBean<T> implements FactoryBean<T>, InitializingBean {
 
-    private static final ConsumerHook[] EMPTY_HOOKS = new ConsumerHook[0];
-
     private JupiterSpringClient client;
 
-    private Class<T> interfaceClass;                        // 接口类型
-    private String version;                                 // 服务版本号
-    private SerializerType serializerType;                  // 序列化/反序列化方式
-    private LoadBalancerType loadBalancerType;              // 软负载均衡类型
-    private long waitForAvailableTimeoutMillis = -1;        // 如果大于0, 表示阻塞等待直到连接可用并且该值为等待时间
+    private Class<T> interfaceClass;                            // 服务接口类型
+    private String version;                                     // 服务版本号
+    private SerializerType serializerType;                      // 序列化/反序列化方式
+    private LoadBalancerType loadBalancerType;                  // 软负载均衡类型
+    private long waitForAvailableTimeoutMillis = -1;            // 如果大于0, 表示阻塞等待直到连接可用并且该值为等待时间
 
-    private transient T proxy;                              // consumer代理对象
+    private transient T proxy;                                  // consumer代理对象
 
-    private InvokeType invokeType;                          // 调用方式 [同步; 异步]
-    private DispatchType dispatchType;                      // 派发方式 [单播; 组播]
-    private long timeoutMillis;                             // 调用超时时间设置
-    private Map<String, Long> methodsSpecialTimeoutMillis;  // 指定方法单独设置的超时时间, 方法名为key, 方法参数类型不做区别对待
-    private ConsumerHook[] hooks = EMPTY_HOOKS;             // 消费者端钩子函数
-    private String providerAddresses;                       // provider地址列表, 逗号分隔(IP直连)
-    private ClusterInvoker.Strategy clusterStrategy;        // 集群容错策略(只支持单播的同步/异步调用)
-    private int failoverRetries;                            // failover重试次数
+    private InvokeType invokeType;                              // 调用方式 [同步, 异步]
+    private DispatchType dispatchType;                          // 派发方式 [单播, 广播]
+    private long timeoutMillis;                                 // 调用超时时间设置
+    private Map<String, Long> methodsSpecialTimeoutMillis;      // 指定方法单独设置的超时时间, 方法名为key, 方法参数类型不做区别对待
+    private ConsumerHook[] hooks = ConsumerHook.EMPTY_HOOKS;    // 消费者端钩子函数
+    private String providerAddresses;                           // provider地址列表, 逗号分隔(IP直连)
+    private ClusterInvoker.Strategy clusterStrategy;            // 集群容错策略
+    private int failoverRetries;                                // failover重试次数
 
     @Override
     public T getObject() throws Exception {

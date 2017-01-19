@@ -15,7 +15,7 @@
  */
 
 /**
- * 组播example
+ * 广播example
  *
  * 1. 先启动JupiterBroadcastServer
  * 2. 再启动JupiterBroadcastClient

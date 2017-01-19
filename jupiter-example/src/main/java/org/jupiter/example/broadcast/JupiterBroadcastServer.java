@@ -24,7 +24,7 @@ import org.jupiter.transport.netty.JNettyTcpAcceptor;
 import java.util.concurrent.CountDownLatch;
 
 /**
- * 组播调用服务端
+ * 广播调用服务端
  *
  * jupiter
  * org.jupiter.example.broadcast

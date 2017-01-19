@@ -32,7 +32,7 @@ public class InvokeFutureContext {
     private static final ThreadLocal<InvokeFuture<?>> futureThreadLocal = new ThreadLocal<>();
 
     /**
-     * 获取单播/组播调用的 {@link InvokeFuture}, 不协助类型转换.
+     * 获取单播/广播调用的 {@link InvokeFuture}, 不协助类型转换.
      */
     public static InvokeFuture<?> future() {
         InvokeFuture<?> future = checkNotNull(futureThreadLocal.get(), "future");
@@ -51,7 +51,7 @@ public class InvokeFutureContext {
     }
 
     /**
-     * 获取组播调用的 {@link InvokeFutureGroup} 并协助类型转换, {@code expectReturnType} 为期望定的返回值类型.
+     * 获取广播调用的 {@link InvokeFutureGroup} 并协助类型转换, {@code expectReturnType} 为期望定的返回值类型.
      */
     public static <V> InvokeFutureGroup<V> futureBroadcast(Class<V> expectReturnType) {
         InvokeFuture<?> f = future();

@@ -58,7 +58,7 @@ public class DefaultInvokeFuture<V> extends AbstractInvokeFuture<V> {
     private static final ConcurrentMap<Long, DefaultInvokeFuture<?>> roundFutures = Maps.newConcurrentMapLong();
     private static final ConcurrentMap<String, DefaultInvokeFuture<?>> broadcastFutures = Maps.newConcurrentMap();
 
-    private final long invokeId; // request id, 组播的场景可重复
+    private final long invokeId; // request.invokeId, 广播的场景可以重复
     private final JChannel channel;
     private final Class<V> returnType;
     private final long timeout;
@@ -182,9 +182,9 @@ public class DefaultInvokeFuture<V> extends AbstractInvokeFuture<V> {
 
     public static void received(JChannel channel, JResponse response) {
         long invokeId = response.id();
-        // 在不知道是组播还是单播的情况下需要组播做出性能让步, 查询两次Map
         DefaultInvokeFuture<?> future = roundFutures.remove(invokeId);
         if (future == null) {
+            // 广播场景下做出了一点让步, 多查询了一次roundFutures
             future = broadcastFutures.remove(subInvokeId(channel, invokeId));
         }
         if (future == null) {

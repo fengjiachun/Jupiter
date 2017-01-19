@@ -70,7 +70,7 @@ public class HessianSerializer extends Serializer {
 
             buf.reset(); // for reuse
 
-            // 防止hold太大块的内存
+            // 防止hold过大的内存块一直不释放
             if (bufUpdater.get(buf).length > MAX_CACHED_BUF_SIZE) {
                 bufUpdater.set(buf, new byte[DEFAULT_BUF_SIZE]);
             }

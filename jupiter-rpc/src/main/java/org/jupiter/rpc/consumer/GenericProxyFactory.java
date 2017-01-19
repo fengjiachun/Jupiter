@@ -76,9 +76,9 @@ public class GenericProxyFactory {
     private LoadBalancerType loadBalancerType = LoadBalancerType.RANDOM;
     // provider地址
     private List<UnresolvedAddress> addresses;
-    // 调用方式 [同步; 异步]
+    // 调用方式 [同步, 异步]
     private InvokeType invokeType = InvokeType.SYNC;
-    // 派发方式 [单播; 组播]
+    // 派发方式 [单播, 广播]
     private DispatchType dispatchType = DispatchType.ROUND;
     // 调用超时时间设置
     private long timeoutMillis;

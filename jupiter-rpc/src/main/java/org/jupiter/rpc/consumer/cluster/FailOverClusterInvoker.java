@@ -36,7 +36,7 @@ import static org.jupiter.common.util.StackTraceUtil.stackTrace;
  *
  * 建议只用于幂等性操作, 通常比较合适用于读操作.
  *
- * 注意failover不能支持组播的调用方式.
+ * 注意failover不能支持广播的调用方式.
  *
  * https://en.wikipedia.org/wiki/Failover
  *
