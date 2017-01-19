@@ -65,13 +65,14 @@ public class JProtocolHeader {
     // protostuff   = 0x01
     // hessian      = 0x02
     // kryo         = 0x03
+    // java         = 0x04
     // ...
     // XX1          = 0x0e
     // XX2          = 0x0f
     private byte serializerCode;    // sign 高地址4位
-    private byte status;
-    private long id;
-    private int bodyLength;
+    private byte status;            // 响应状态码
+    private long id;                // request.invokeId, 用于映射 <ID, Request, Response> 三元组
+    private int bodyLength;         // 消息体长度
 
     public void sign(byte sign) {
         // sign 低地址4位
