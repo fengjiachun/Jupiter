@@ -21,17 +21,15 @@
     <parent>
         <artifactId>jupiter</artifactId>
         <groupId>org.jupiter</groupId>
-        <version>1.1.16</version>
+        <version>1.2.0</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
     <artifactId>jupiter-transport</artifactId>
-    <packaging>jar</packaging>
+    <packaging>pom</packaging>
 
-    <dependencies>
-        <dependency>
-            <groupId>${project.groupId}</groupId>
-            <artifactId>jupiter-common</artifactId>
-        </dependency>
-    </dependencies>
+    <modules>
+        <module>jupiter-transport-api</module>
+        <module>jupiter-transport-netty</module>
+    </modules>
 </project>

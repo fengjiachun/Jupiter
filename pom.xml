@@ -23,24 +23,17 @@
     <groupId>org.jupiter</groupId>
     <artifactId>jupiter</artifactId>
     <packaging>pom</packaging>
-    <version>1.1.16</version>
+    <version>1.2.0</version>
     <modules>
         <module>jupiter-common</module>
         <module>jupiter-example</module>
         <module>jupiter-flightexec</module>
         <module>jupiter-monitor</module>
         <module>jupiter-registry</module>
-        <module>jupiter-registry-default</module>
-        <module>jupiter-registry-zookeeper</module>
         <module>jupiter-rpc</module>
         <module>jupiter-serialization</module>
-        <module>jupiter-serialization-hessian</module>
-        <module>jupiter-serialization-java</module>
-        <module>jupiter-serialization-kryo</module>
-        <module>jupiter-serialization-protostuff</module>
         <module>jupiter-spring-support</module>
         <module>jupiter-transport</module>
-        <module>jupiter-transport-netty</module>
     </modules>
 
     <properties>
@@ -75,24 +68,27 @@
             </dependency>
             <dependency>
                 <groupId>${project.groupId}</groupId>
-                <artifactId>jupiter-registry</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>${project.groupId}</groupId>
                 <artifactId>jupiter-rpc</artifactId>
                 <version>${project.version}</version>
             </dependency>
+
+            <!-- ### api: begin -->
             <dependency>
                 <groupId>${project.groupId}</groupId>
-                <artifactId>jupiter-serialization</artifactId>
+                <artifactId>jupiter-registry-api</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
                 <groupId>${project.groupId}</groupId>
-                <artifactId>jupiter-transport</artifactId>
+                <artifactId>jupiter-serialization-api</artifactId>
                 <version>${project.version}</version>
             </dependency>
+            <dependency>
+                <groupId>${project.groupId}</groupId>
+                <artifactId>jupiter-transport-api</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <!-- ### api: end -->
             <!-- ## required dependency: end -->
 
             <!-- ## optional dependency: begin -->
@@ -108,6 +104,13 @@
             </dependency>
             <dependency>
                 <groupId>${project.groupId}</groupId>
+                <artifactId>jupiter-spring-support</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+
+            <!-- ### registry impl: begin -->
+            <dependency>
+                <groupId>${project.groupId}</groupId>
                 <artifactId>jupiter-registry-default</artifactId>
                 <version>${project.version}</version>
             </dependency>
@@ -116,6 +119,9 @@
                 <artifactId>jupiter-registry-zookeeper</artifactId>
                 <version>${project.version}</version>
             </dependency>
+            <!-- ### registry impl: end -->
+
+            <!-- ### serialization impl: begin -->
             <dependency>
                 <groupId>${project.groupId}</groupId>
                 <artifactId>jupiter-serialization-hessian</artifactId>
@@ -136,16 +142,15 @@
                 <artifactId>jupiter-serialization-protostuff</artifactId>
                 <version>${project.version}</version>
             </dependency>
-            <dependency>
-                <groupId>${project.groupId}</groupId>
-                <artifactId>jupiter-spring-support</artifactId>
-                <version>${project.version}</version>
-            </dependency>
+            <!-- ### serialization impl: end -->
+
+            <!-- ### transport impl: begin -->
             <dependency>
                 <groupId>${project.groupId}</groupId>
                 <artifactId>jupiter-transport-netty</artifactId>
                 <version>${project.version}</version>
             </dependency>
+            <!-- ### transport impl: end -->
             <!-- ## optional dependency: end -->
             <!-- # jupiter module dependency: end -->
 

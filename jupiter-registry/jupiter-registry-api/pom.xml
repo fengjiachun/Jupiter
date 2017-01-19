@@ -19,26 +19,19 @@
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <parent>
-        <artifactId>jupiter</artifactId>
+        <artifactId>jupiter-registry</artifactId>
         <groupId>org.jupiter</groupId>
-        <version>1.1.16</version>
+        <version>1.2.0</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>jupiter-serialization-kryo</artifactId>
+    <artifactId>jupiter-registry-api</artifactId>
+    <packaging>jar</packaging>
 
     <dependencies>
         <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>jupiter-common</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>${project.groupId}</groupId>
-            <artifactId>jupiter-serialization</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>com.esotericsoftware.kryo</groupId>
-            <artifactId>kryo</artifactId>
         </dependency>
     </dependencies>
 </project>
