@@ -21,7 +21,7 @@ import java.util.EventListener;
 /**
  * Callback is often triggered by the core thread (may be an IO thread).
  * Be careful, do not to have time-consuming operations within
- * {@link JListener#complete(Object)} and {@link JListener#failure(Throwable)}.
+ * {@link #complete(Object)} and {@link #failure(Throwable)}.
  *
  * jupiter
  * org.jupiter.rpc

@@ -28,7 +28,7 @@ import org.jupiter.transport.netty.handler.connector.ConnectionWatchdog;
 import java.net.SocketAddress;
 
 /**
- * 对Netty {@link Channel} 的包装, 通过静态方法 {@link NettyChannel#attachChannel(Channel)} 获取一个实例,
+ * 对Netty {@link Channel} 的包装, 通过静态方法 {@link #attachChannel(Channel)} 获取一个实例,
  * {@link NettyChannel} 实例构造后会attach到对应 {@link Channel} 上, 不需要每次创建.
  *
  * jupiter

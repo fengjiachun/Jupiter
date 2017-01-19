@@ -27,7 +27,7 @@ import org.jupiter.rpc.consumer.future.InvokeFutureContext;
 import java.lang.reflect.Method;
 
 /**
- * Asynchronous call, {@link AsyncInvoker#invoke(Method, Object[])}
+ * Asynchronous call, {@link #invoke(Method, Object[])}
  * returns a default value of the corresponding method.
  *
  * 异步调用.

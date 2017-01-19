@@ -19,9 +19,9 @@ package org.jupiter.common.util;
 import org.jupiter.common.util.internal.*;
 
 /**
- * 基于 {@link ThreadLocal} 的 {@link StringBuilder} 重复利用
+ * 基于 {@link org.jupiter.common.util.internal.InternalThreadLocal} 的 {@link StringBuilder} 重复利用.
  *
- * 注意: 不要在相同的线程中嵌套使用, 太大的StringBuilder也请不要使用这个类, 会导致hold超大块内存
+ * 注意: 不要在相同的线程中嵌套使用, 太大的StringBuilder也请不要使用这个类, 会导致hold超大块内存一直不释放.
  *
  * jupiter
  * org.jupiter.common.util

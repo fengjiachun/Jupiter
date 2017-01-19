@@ -16,8 +16,8 @@ package org.jupiter.common.concurrent.collection;
 import java.util.Map;
 
 /**
- * A simple implementation of {@link java.util.Map.Entry}.
- * Does not implement {@link java.util.Map.Entry#setValue(Object)}, that is done by users of the class.
+ * A simple implementation of {@link Map.Entry}.
+ * Does not implement {@link Map.Entry#setValue(Object)}, that is done by users of the class.
  *
  * @param <TypeK> the type of keys maintained by this map
  * @param <TypeV> the type of mapped values
