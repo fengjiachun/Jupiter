@@ -52,10 +52,6 @@ public class JRequest {
         return requestBytes.timestamp();
     }
 
-    public void timestamp(long timestamp) {
-        requestBytes.timestamp(timestamp);
-    }
-
     public byte serializerCode() {
         return requestBytes.serializerCode();
     }

@@ -21,6 +21,8 @@ import java.util.List;
 /**
  * Jupiter transport config.
  *
+ * 传输层配置选项, 通常多用于配置网络层参数.
+ *
  * jupiter
  * org.jupiter.transport
  *

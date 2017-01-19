@@ -17,6 +17,7 @@
 package org.jupiter.transport;
 
 /**
+ *
  * jupiter
  * org.jupiter.transport
  *
@@ -25,12 +26,12 @@ package org.jupiter.transport;
 public interface Transporter {
 
     /**
-     * Transport protocol
+     * Returns the transport protocol
      */
     Protocol protocol();
 
     /**
-     * Transport protocol
+     * 传输层协议, 支持 TCP 和 UDT.
      */
     enum Protocol {
         TCP,

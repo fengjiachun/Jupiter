@@ -28,9 +28,13 @@ import java.util.concurrent.atomic.AtomicLong;
  */
 public class JRequestBytes extends BytesHolder {
 
+    // 请求ID自增器, 用于映射 <ID, Request, Response> 三元组,
+    // 收到当前ID对应的Response并处理完成后这个ID就可以复用了, 所以不用担心AtomicLong溢出
     private static final AtomicLong invokeIdGenerator = new AtomicLong(0);
 
+    // 用于映射 <ID, Request, Response> 三元组
     private final long invokeId;
+    // jupiter-transport层会在协议解析完成后打上一个时间戳, 用于后续监控对该请求的处理时间
     private transient long timestamp;
 
     public JRequestBytes() {

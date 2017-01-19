@@ -19,7 +19,7 @@ package org.jupiter.transport;
 import org.jupiter.common.util.StringBuilderHelper;
 
 /**
- * 目录服务
+ * 服务目录: <服务组别, 服务名称, 服务版本号>
  *
  * jupiter
  * org.jupiter.transport
@@ -36,7 +36,7 @@ public abstract class Directory {
     /** 服务名称 */
     public abstract String getServiceProviderName();
 
-    /** 服务版本 */
+    /** 服务版本号 */
     public abstract String getVersion();
 
     public String directory() {
