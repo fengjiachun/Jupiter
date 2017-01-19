@@ -17,7 +17,7 @@
 package org.jupiter.transport.payload;
 
 /**
- * 消息体字节数组的暂存, 避免在IO线程中序列化/反序列化;
+ * 消息体bytes载体, 避免在IO线程中序列化/反序列化, jupiter-transport这一层不关注消息体的对象结构.
  *
  * 在jupiter框架内只有一种情况下会导致不同线程对 {@code BytesHolder} 读/写, 就是transport层decoder会将数据写进
  * {@code BytesHolder} 封装到 {@code Runnable} 中并提交到{@code Executor}, 但这并不会导致内存一致性相关问题,

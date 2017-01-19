@@ -17,6 +17,8 @@
 package org.jupiter.transport.payload;
 
 /**
+ * 响应的消息体bytes载体, 避免在IO线程中序列化/反序列化, jupiter-transport这一层不关注消息体的对象结构.
+ *
  * jupiter
  * org.jupiter.transport.payload
  *
