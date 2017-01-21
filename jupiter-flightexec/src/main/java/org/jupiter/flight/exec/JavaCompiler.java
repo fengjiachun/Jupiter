@@ -30,6 +30,8 @@ import java.util.List;
 /**
  * Java compiler, base on javac.
  *
+ * 基于javac的编译工具.
+ *
  * jupiter
  * org.jupiter.flight.exec
  *

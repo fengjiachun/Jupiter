@@ -86,7 +86,7 @@ public interface RegistryServer extends RegistryMonitor {
                 throw new UnsupportedOperationException("unsupported default registry");
             }
 
-            // 查找最匹配的参数类型
+            // 根据JLS方法调用的静态分派规则查找最匹配的方法parameterTypes
             Class<?>[] parameterTypes = Reflects.findMatchingParameterTypes(allConstructorsParameterTypes, parameters);
             if (parameterTypes == null) {
                 throw new IllegalArgumentException("parameter types");

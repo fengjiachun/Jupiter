@@ -39,7 +39,7 @@ public final class Ints {
      */
     public static int checkedCast(long value) {
         int result = (int) value;
-        checkArgument(result == value, "Out of range: " + value);
+        checkArgument(result == value, "out of range: " + value);
         return result;
     }
 

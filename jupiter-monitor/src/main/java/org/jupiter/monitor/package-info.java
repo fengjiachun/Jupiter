@@ -14,17 +14,8 @@
  * limitations under the License.
  */
 
-package org.jupiter.flight.exec;
-
 /**
- * 你需要实现这个接口, 来把你新写的"内容"注入到开启flight.exec的服务端.
- *
- * jupiter
- * org.jupiter.flight.exec
- *
- * @author jiachun.fjc
+ * 这是个监控模块, 它还是个孩子, 还不够成熟, 只是来实验一种思路, 我期望它本身对其他模块是不侵入的,
+ * 你只要在同一个java进程内启动它, 它就可以自动监控jupiter其他模块.
  */
-public interface UserExecInterface {
-
-    Object exec();
-}
+package org.jupiter.monitor;

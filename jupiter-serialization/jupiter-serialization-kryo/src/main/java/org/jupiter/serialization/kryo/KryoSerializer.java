@@ -61,6 +61,7 @@ public class KryoSerializer extends Serializer {
         }
     };
 
+    // 目的是复用 Output 中的 byte[], Output 本身只是个壳子, 没有复用价值
     private static final InternalThreadLocal<Output> outputThreadLocal = new InternalThreadLocal<Output>() {
 
         @Override

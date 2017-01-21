@@ -14,17 +14,17 @@
  * limitations under the License.
  */
 
-package org.jupiter.flight.exec;
-
 /**
- * 你需要实现这个接口, 来把你新写的"内容"注入到开启flight.exec的服务端.
+ * Jupiter example:
  *
- * jupiter
- * org.jupiter.flight.exec
+ *  broadcast.*:        广播场景代码示例
+ *  cluster.*:          集群容错策略代码示例
+ *  flight.exec.*:      运行中调试/线上代码逻辑调整等功能(不重启)
+ *  generic.*:          泛化调用代码示例
+ *  round.*             单播调用代码示例, 应该是最常用的一种模式
+ *  spring.*            与spring集成的代码示例
+ *  udt.*:              基于udt实现远程调用的代码示例
+ *  zookeeper.*:        利用zookeeper做注册中心的代码示例
  *
- * @author jiachun.fjc
  */
-public interface UserExecInterface {
-
-    Object exec();
-}
+package org.jupiter.example;

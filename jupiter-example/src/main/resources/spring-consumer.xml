@@ -76,7 +76,7 @@
             ConsumerHook[] hooks                            // consumer hook
             String providerAddresses                        // provider地址列表, 逗号分隔(IP直连)
             ClusterInvoker.Strategy clusterStrategy;        // 集群容错策略
-            int failoverRetries                             // fail_over重试次数
+            int failoverRetries                             // fail_over的重试次数
         -->
     </bean>
 </beans>

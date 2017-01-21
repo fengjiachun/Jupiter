@@ -61,7 +61,7 @@ public class JupiterSpringConsumerBean<T> implements FactoryBean<T>, Initializin
     private ConsumerHook[] hooks = ConsumerHook.EMPTY_HOOKS;    // 消费者端钩子函数
     private String providerAddresses;                           // provider地址列表, 逗号分隔(IP直连)
     private ClusterInvoker.Strategy clusterStrategy;            // 集群容错策略
-    private int failoverRetries;                                // failover重试次数
+    private int failoverRetries;                                // failover重试次数(只对ClusterInvoker.Strategy.FAIL_OVER有效)
 
     @Override
     public T getObject() throws Exception {

@@ -158,10 +158,8 @@ public class MessageTask implements RejectedRunnable {
     }
 
     // 当服务拒绝方法被调用时一般分以下几种情况:
-    //  1. 非法请求;
-    //  2. 服务端处理能力出现瓶颈;
-    //
-    // 回复响应后会自动关闭当前连接, Jupiter客户端会自动重连并重新预热, 在加权负载均衡的情况下权重是一点一点升上来的
+    //  1. 非法请求, close当前连接;
+    //  2. 服务端处理能力出现瓶颈, close当前连接, jupiter客户端会自动重连, 在加权负载均衡的情况下权重是一点一点升上来的.
     private void rejected(Status status, Throwable cause) {
         // stack copy
         final JRequest _request = request;

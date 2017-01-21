@@ -42,6 +42,7 @@ public class HessianSerializer extends Serializer {
     private static final UnsafeReferenceFieldUpdater<ByteArrayOutputStream, byte[]> bufUpdater =
             UnsafeUpdater.newReferenceFieldUpdater(ByteArrayOutputStream.class, "buf");
 
+    // 目的是复用 ByteArrayOutputStream 中的 byte[]
     private static final InternalThreadLocal<ByteArrayOutputStream> bufThreadLocal = new InternalThreadLocal<ByteArrayOutputStream>() {
 
         @Override

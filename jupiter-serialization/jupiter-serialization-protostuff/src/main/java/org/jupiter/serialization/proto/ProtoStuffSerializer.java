@@ -60,6 +60,7 @@ public class ProtoStuffSerializer extends Serializer {
 
     private static final ConcurrentMap<Class<?>, Schema<?>> schemaCache = Maps.newConcurrentMap();
 
+    // 目的是复用 LinkedBuffer 中链表头结点 byte[]
     private static final InternalThreadLocal<LinkedBuffer> bufThreadLocal = new InternalThreadLocal<LinkedBuffer>() {
 
         @Override
@@ -80,7 +81,7 @@ public class ProtoStuffSerializer extends Serializer {
 
         LinkedBuffer buf = bufThreadLocal.get();
         try {
-            // TODO toByteArray里面一坨的 memory copy 如果哪天有好办法了可以优化一下
+            // TODO toByteArray里面一坨的 memory copy 如果哪天有好办法了会优化一下
             return ProtostuffIOUtil.toByteArray(obj, schema, buf);
         } finally {
             buf.clear(); // for reuse

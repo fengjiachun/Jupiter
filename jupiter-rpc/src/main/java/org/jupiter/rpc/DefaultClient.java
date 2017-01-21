@@ -84,7 +84,7 @@ public class DefaultClient implements JClient {
 
     @Override
     public Collection<RegisterMeta> lookup(Directory directory) {
-        RegisterMeta.ServiceMeta serviceMeta = transformToServiceMeta(directory);
+        RegisterMeta.ServiceMeta serviceMeta = toServiceMeta(directory);
 
         return registryService.lookup(serviceMeta);
     }
@@ -234,13 +234,13 @@ public class DefaultClient implements JClient {
 
     @Override
     public void subscribe(Directory directory, NotifyListener listener) {
-        registryService.subscribe(transformToServiceMeta(directory), listener);
+        registryService.subscribe(toServiceMeta(directory), listener);
     }
 
     @Override
     public void offlineListening(UnresolvedAddress address, OfflineListener listener) {
         if (registryService instanceof AbstractRegistryService) {
-            ((AbstractRegistryService) registryService).offlineListening(transformToAddress(address), listener);
+            ((AbstractRegistryService) registryService).offlineListening(toAddress(address), listener);
         } else {
             throw new UnsupportedOperationException();
         }
@@ -256,12 +256,12 @@ public class DefaultClient implements JClient {
         registryService.connectToRegistryServer(connectString);
     }
 
-    // for spring-support
+    // setter for spring-support
     public void setConnector(JConnector<JConnection> connector) {
         withConnector(connector);
     }
 
-    private static RegisterMeta.ServiceMeta transformToServiceMeta(Directory directory) {
+    private static RegisterMeta.ServiceMeta toServiceMeta(Directory directory) {
         RegisterMeta.ServiceMeta serviceMeta = new RegisterMeta.ServiceMeta();
         serviceMeta.setGroup(checkNotNull(directory.getGroup(), "group"));
         serviceMeta.setServiceProviderName(checkNotNull(directory.getServiceProviderName(), "serviceProviderName"));
@@ -270,7 +270,7 @@ public class DefaultClient implements JClient {
         return serviceMeta;
     }
 
-    private static RegisterMeta.Address transformToAddress(UnresolvedAddress address) {
+    private static RegisterMeta.Address toAddress(UnresolvedAddress address) {
         return new RegisterMeta.Address(address.getHost(), address.getPort());
     }
 }

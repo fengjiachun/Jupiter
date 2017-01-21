@@ -55,6 +55,10 @@ import java.util.concurrent.atomic.AtomicLong;
  * 2016-01-09 01:46:38.279 WARN  [main] [BenchmarkClient] - Request count: 128000000, time: 1089 second, qps: 117539
  *
  *
+ * 2017-1-21:
+ *  从我在自己笔记本上的测试结果猜测, 目前版本(1.2.0)性能应该会有一些提升, 但是一直没有合适的服务器用作测试, 不知道现在的具体性能实际到底如何.
+ *
+ *
  * 飞行记录: -XX:+UnlockCommercialFeatures -XX:+FlightRecorder
  *
  * jupiter

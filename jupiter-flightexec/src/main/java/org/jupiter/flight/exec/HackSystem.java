@@ -24,6 +24,8 @@ import java.nio.channels.Channel;
 import java.util.Properties;
 
 /**
+ * Hack {@link java.lang.System}.
+ *
  * jupiter
  * org.jupiter.flight.exec
  *
