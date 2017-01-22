@@ -41,6 +41,23 @@ public abstract class FastMethodAccessor {
     private String[] methodNames;
     private Class<?>[][] parameterTypes_s;
 
+    /**
+     * 用ASM生成的类继承 {@link FastMethodAccessor} 并实现这个抽象方法
+     *
+     * 子类是已下面伪代码这样类似的方式来避免反射调用的:
+     *
+     *  public Object invoke(Object object, int methodIndex, Object... args) {
+     *      switch(methodIndex) {
+     *          case 0:
+     *              return 直接调用 this.methodNames[0] 对应的方法;
+     *          case 1:
+     *              return 直接调用 this.methodNames[1] 对应的方法;
+     *          case ...
+     *      }
+     *      throw new IllegalArgumentException("method not found: " + methodIndex);
+     *  }
+     *
+     */
     public abstract Object invoke(Object object, int methodIndex, Object... args);
 
     public Object invoke(Object object, String methodName, Class<?>[] parameterTypes, Object... args) {
