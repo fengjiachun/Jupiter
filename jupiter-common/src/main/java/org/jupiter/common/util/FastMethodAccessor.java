@@ -94,19 +94,19 @@ public abstract class FastMethodAccessor {
         }
 
         String className = type.getName();
-        String accessorClassName = className + "FastMethodAccessor";
-
+        String accessorClassName = className + "_FastMethodAccessor";
         String accessorClassNameInternal = accessorClassName.replace('.', '/');
         String classNameInternal = className.replace('.', '/');
+        String superClassNameInternal = FastMethodAccessor.class.getName().replace('.', '/');
 
         ClassWriter cw = new ClassWriter(ClassWriter.COMPUTE_MAXS);
         MethodVisitor mv;
-        cw.visit(V1_1, ACC_PUBLIC + ACC_SUPER, accessorClassNameInternal, null, "org/jupiter/common/util/FastMethodAccessor", null);
+        cw.visit(V1_1, ACC_PUBLIC + ACC_SUPER, accessorClassNameInternal, null, superClassNameInternal, null);
         {
             mv = cw.visitMethod(ACC_PUBLIC, "<init>", "()V", null, null);
             mv.visitCode();
             mv.visitVarInsn(ALOAD, 0);
-            mv.visitMethodInsn(INVOKESPECIAL, "org/jupiter/common/util/FastMethodAccessor", "<init>", "()V", false);
+            mv.visitMethodInsn(INVOKESPECIAL, superClassNameInternal, "<init>", "()V", false);
             mv.visitInsn(RETURN);
             mv.visitMaxs(0, 0);
             mv.visitEnd();
@@ -253,12 +253,12 @@ public abstract class FastMethodAccessor {
             mv.visitMaxs(0, 0);
             mv.visitEnd();
         }
+
         cw.visitEnd();
         byte[] bytes = cw.toByteArray();
 
         AccessorClassLoader loader = AccessorClassLoader.get(type);
         Class<?> accessorClass = loader.defineClass(accessorClassName, bytes);
-
         try {
             FastMethodAccessor accessor = (FastMethodAccessor) accessorClass.newInstance();
             accessor.methodNames = methodNames;
