@@ -53,7 +53,7 @@ public class MethodInvokeBenchmark {
     static final Object[] args = new Object[] { "Jupiter" };
     static class ByteBuddyProxyHandler {
 
-        @SuppressWarnings("UnusedParameters")
+        @SuppressWarnings("unused")
         @RuntimeType
         public Object invoke(@SuperCall Callable<Object> superMethod, @AllArguments @RuntimeType Object[] args) throws Throwable {
             return superMethod.call();
@@ -63,7 +63,7 @@ public class MethodInvokeBenchmark {
     static ReflectClass1 reflectClass1 = new ReflectClass1();
 
     @Benchmark
-    public void cglibFastInvoke() {
+    public void fastInvoke() {
         Reflects.fastInvoke(reflectClass1, "method", parameterTypes, args);
     }
 
@@ -81,10 +81,10 @@ public class MethodInvokeBenchmark {
     public void buddyInvoke() {
         byteBuddyProxyObj.method("Jupiter");
     }
-}
 
-class ReflectClass1 {
-    public String method(String arg) {
-        return arg;
+    public static class ReflectClass1 {
+        public String method(String arg) {
+            return arg;
+        }
     }
 }

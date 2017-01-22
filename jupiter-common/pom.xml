@@ -34,8 +34,8 @@
             <artifactId>objenesis</artifactId>
         </dependency>
         <dependency>
-            <groupId>cglib</groupId>
-            <artifactId>cglib-nodep</artifactId>
+            <groupId>org.ow2.asm</groupId>
+            <artifactId>asm</artifactId>
         </dependency>
         <dependency>
             <groupId>net.bytebuddy</groupId>

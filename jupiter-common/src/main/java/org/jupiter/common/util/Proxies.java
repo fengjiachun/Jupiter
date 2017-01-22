@@ -20,8 +20,6 @@ import net.bytebuddy.ByteBuddy;
 import net.bytebuddy.dynamic.loading.ClassLoadingStrategy;
 import net.bytebuddy.implementation.MethodDelegation;
 import net.bytebuddy.matcher.ElementMatchers;
-import net.sf.cglib.proxy.Enhancer;
-import net.sf.cglib.proxy.MethodInterceptor;
 
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Proxy;
@@ -45,20 +43,6 @@ public enum Proxies {
                     interfaceType.getClassLoader(), new Class<?>[] { interfaceType }, (InvocationHandler) handler);
 
             return interfaceType.cast(object);
-        }
-    }),
-    CG_LIB(new ProxyDelegate() {
-
-        @Override
-        public <T> T newProxy(Class<T> interfaceType, Object handler) {
-            checkArgument(handler instanceof MethodInterceptor, "handler must be a MethodInterceptor");
-
-            Enhancer enhancer = new Enhancer();
-            enhancer.setSuperclass(interfaceType);
-            enhancer.setCallback((MethodInterceptor) handler);
-            enhancer.setClassLoader(interfaceType.getClassLoader());
-
-            return interfaceType.cast(enhancer.create());
         }
     }),
     BYTE_BUDDY(new ProxyDelegate() {

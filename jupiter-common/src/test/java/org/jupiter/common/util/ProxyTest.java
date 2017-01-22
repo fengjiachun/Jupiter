@@ -19,8 +19,6 @@ package org.jupiter.common.util;
 import net.bytebuddy.implementation.bind.annotation.AllArguments;
 import net.bytebuddy.implementation.bind.annotation.Origin;
 import net.bytebuddy.implementation.bind.annotation.RuntimeType;
-import net.sf.cglib.proxy.MethodInterceptor;
-import net.sf.cglib.proxy.MethodProxy;
 import org.openjdk.jmh.annotations.*;
 import org.openjdk.jmh.runner.Runner;
 import org.openjdk.jmh.runner.RunnerException;
@@ -52,6 +50,8 @@ import java.util.concurrent.TimeUnit;
  * ProxyTest.byteBuddyProxy      ss      10  2400.000 ±  780.720   ns/op
  * ProxyTest.cglibProxy          ss      10  3400.000 ± 1912.365   ns/op
  * ProxyTest.jdkProxy            ss      10  2400.000 ±  780.720   ns/op
+ *
+ * 2017-01-23 Jupiter中的CGLib依赖已经去掉
  *
  * jupiter
  * org.jupiter.common.util
@@ -88,16 +88,8 @@ public class ProxyTest {
             return method.getName();
         }
     }
-    static class CGLibProxyHandler implements MethodInterceptor {
-
-        @Override
-        public Object intercept(Object o, Method method, Object[] objects, MethodProxy methodProxy) throws Throwable {
-            return method.getName();
-        }
-    }
     static TestInterface jdkProxyObj = Proxies.JDK_PROXY.newProxy(TestInterface.class, new JdkProxyHandler());
     static TestInterface byteBuddyProxyObj = Proxies.BYTE_BUDDY.newProxy(TestInterface.class, new ByteBuddyProxyHandler());
-    static TestInterface cglibProxyObj = Proxies.CG_LIB.newProxy(TestInterface.class, new CGLibProxyHandler());
 
     @Benchmark
     public static void jdkProxy() {
@@ -107,11 +99,6 @@ public class ProxyTest {
     @Benchmark
     public static void byteBuddyProxy() {
         byteBuddyProxyObj.test1("hello");
-    }
-
-    @Benchmark
-    public static void cglibProxy() {
-        cglibProxyObj.test1("hello");
     }
 }
 

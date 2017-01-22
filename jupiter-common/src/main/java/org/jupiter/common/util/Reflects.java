@@ -16,15 +16,16 @@
 
 package org.jupiter.common.util;
 
-import net.sf.cglib.reflect.FastClass;
 import org.jupiter.common.util.internal.JUnsafe;
 import org.objenesis.Objenesis;
 import org.objenesis.ObjenesisStd;
 
-import java.lang.reflect.*;
+import java.lang.reflect.Field;
+import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
+import java.lang.reflect.Type;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.ConcurrentMap;
 
 import static org.jupiter.common.util.Preconditions.checkNotNull;
 
@@ -39,7 +40,6 @@ import static org.jupiter.common.util.Preconditions.checkNotNull;
 public final class Reflects {
 
     private static final Objenesis objenesis = new ObjenesisStd(true);
-    private static final ConcurrentMap<Class<?>, FastClass> fastClassCache = Maps.newConcurrentMap();
 
     /**
      * Maps primitive {@link Class}es to their corresponding wrapper {@link Class}.
@@ -139,7 +139,7 @@ public final class Reflects {
     }
 
     /**
-     * Invokes the underlying method, fast invoke using cglib's FastClass.
+     * Invokes the underlying method, fast invoke using ASM.
      *
      * @param obj            the object the underlying method is invoked from
      * @param methodName     the method name this object
@@ -148,23 +148,8 @@ public final class Reflects {
      * @return the result of dispatching the method represented by this object on {@code obj} with parameters
      */
     public static Object fastInvoke(Object obj, String methodName, Class<?>[] parameterTypes, Object[] args) {
-        Class<?> clazz = obj.getClass();
-        FastClass fastClass = fastClassCache.get(clazz);
-        if (fastClass == null) {
-            FastClass newFastClass = FastClass.create(clazz);
-            fastClass = fastClassCache.putIfAbsent(clazz, newFastClass);
-            if (fastClass == null) {
-                fastClass = newFastClass;
-            }
-        }
-
-        Object value = null;
-        try {
-            value = fastClass.invoke(methodName, parameterTypes, obj, args);
-        } catch (InvocationTargetException e) {
-            JUnsafe.throwException(e);
-        }
-        return value;
+        FastMethodAccessor accessor = FastMethodAccessor.get(obj.getClass());
+        return accessor.invoke(obj, methodName, parameterTypes, args);
     }
 
     /**
