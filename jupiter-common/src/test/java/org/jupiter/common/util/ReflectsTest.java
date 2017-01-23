@@ -20,7 +20,6 @@ import org.junit.Test;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
@@ -64,55 +63,54 @@ public class ReflectsTest {
         List<Class<?>[]> list = methodsParameterTypes.get("method");
         Object[] args = new Object[] { 1, new StringBuilder("ss") };
         Class<?>[] parameterTypes = Reflects.findMatchingParameterTypes(list, args);
-        System.out.println(Arrays.toString(parameterTypes));
-//        Reflects.fastInvoke(new ServiceImpl(), "method", parameterTypes, args);
-    }
-}
-
-class ReflectClass0 {
-
-    public ReflectClass0() {
-        System.out.println("ReflectClass");
+        Reflects.fastInvoke(new ServiceImpl(), "method", parameterTypes, args);
     }
 
-    public String method(String arg) {
-        return "Hello " + arg;
-    }
-}
+    public static class ReflectClass0 {
 
-interface Service {
+        public ReflectClass0() {
+            System.out.println("ReflectClass");
+        }
 
-    void method(Integer i, String s);
-    void method(Integer i, CharSequence s);
-    void method(int i, String s);
-    void method(int i, CharSequence s);
-    void method(long i, CharSequence s);
-}
-
-class ServiceImpl implements Service {
-
-    @Override
-    public void method(Integer i, String s) {
-        System.out.println("Integer i, String s");
+        public String method(String arg) {
+            return "Hello " + arg;
+        }
     }
 
-    @Override
-    public void method(Integer i, CharSequence s) {
-        System.out.println("Integer i, CharSequence s");
+    public interface Service {
+
+        void method(Integer i, String s);
+        void method(Integer i, CharSequence s);
+        void method(int i, String s);
+        void method(int i, CharSequence s);
+        void method(long i, CharSequence s);
     }
 
-    @Override
-    public void method(int i, String s) {
-        System.out.println("int i, String s");
-    }
+    public static class ServiceImpl implements Service {
 
-    @Override
-    public void method(int i, CharSequence s) {
-        System.out.println("int i, CharSequence s");
-    }
+        @Override
+        public void method(Integer i, String s) {
+            System.out.println("Integer i, String s");
+        }
 
-    @Override
-    public void method(long i, CharSequence s) {
-        System.out.println("long i, CharSequence s");
+        @Override
+        public void method(Integer i, CharSequence s) {
+            System.out.println("Integer i, CharSequence s");
+        }
+
+        @Override
+        public void method(int i, String s) {
+            System.out.println("int i, String s");
+        }
+
+        @Override
+        public void method(int i, CharSequence s) {
+            System.out.println("int i, CharSequence s");
+        }
+
+        @Override
+        public void method(long i, CharSequence s) {
+            System.out.println("long i, CharSequence s");
+        }
     }
 }
