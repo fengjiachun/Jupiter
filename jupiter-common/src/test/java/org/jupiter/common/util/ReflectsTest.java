@@ -20,6 +20,7 @@ import org.junit.Test;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
@@ -63,7 +64,8 @@ public class ReflectsTest {
         List<Class<?>[]> list = methodsParameterTypes.get("method");
         Object[] args = new Object[] { 1, new StringBuilder("ss") };
         Class<?>[] parameterTypes = Reflects.findMatchingParameterTypes(list, args);
-        Reflects.fastInvoke(new ServiceImpl(), "method", parameterTypes, args);
+        System.out.println(Arrays.toString(parameterTypes));
+//        Reflects.fastInvoke(new ServiceImpl(), "method", parameterTypes, args);
     }
 }
 
