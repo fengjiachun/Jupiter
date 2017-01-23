@@ -46,7 +46,7 @@ public abstract class FastMethodAccessor {
      *
      * 子类 invoke() 以下面的方式规避反射调用:
      *
-     *  public Object invoke(Object object, int methodIndex, Object... args) {
+     *  public Object invoke(Object obj, int methodIndex, Object... args) {
      *      switch(methodIndex) {
      *          case 0:
      *              return 直接调用 this.methodNames[0] 对应的方法;
@@ -58,10 +58,10 @@ public abstract class FastMethodAccessor {
      *  }
      *
      */
-    public abstract Object invoke(Object object, int methodIndex, Object... args);
+    public abstract Object invoke(Object obj, int methodIndex, Object... args);
 
-    public Object invoke(Object object, String methodName, Class<?>[] parameterTypes, Object... args) {
-        return invoke(object, getIndex(methodName, parameterTypes), args);
+    public Object invoke(Object obj, String methodName, Class<?>[] parameterTypes, Object... args) {
+        return invoke(obj, getIndex(methodName, parameterTypes), args);
     }
 
     public int getIndex(String methodName, Class<?>... parameterTypes) {
@@ -99,11 +99,11 @@ public abstract class FastMethodAccessor {
             recursiveAddInterfaceMethodsToList(type, methods);
         }
 
-        int methodLength = methods.size();
-        String[] methodNames = new String[methodLength];
-        Class<?>[][] parameterTypes_s = new Class[methodLength][];
-        Class<?>[] returnTypes = new Class[methodLength];
-        for (int i = 0; i < methodLength; i++) {
+        int n = methods.size();
+        String[] methodNames = new String[n];
+        Class<?>[][] parameterTypes_s = new Class[n][];
+        Class<?>[] returnTypes = new Class[n];
+        for (int i = 0; i < n; i++) {
             Method method = methods.get(i);
             methodNames[i] = method.getName();
             parameterTypes_s[i] = method.getParameterTypes();
@@ -119,6 +119,8 @@ public abstract class FastMethodAccessor {
         ClassWriter cw = new ClassWriter(ClassWriter.COMPUTE_MAXS);
         MethodVisitor mv;
         cw.visit(V1_1, ACC_PUBLIC + ACC_SUPER, accessorClassNameInternal, null, superClassNameInternal, null);
+
+        // 无参构造方法
         {
             mv = cw.visitMethod(ACC_PUBLIC, "<init>", "()V", null, null);
             mv.visitCode();
@@ -128,25 +130,29 @@ public abstract class FastMethodAccessor {
             mv.visitMaxs(0, 0);
             mv.visitEnd();
         }
+
+        // 实现父类抽象方法: public Object invoke(Object obj, int methodIndex, Object... args);
         {
             mv = cw.visitMethod(ACC_PUBLIC + ACC_VARARGS, "invoke", "(Ljava/lang/Object;I[Ljava/lang/Object;)Ljava/lang/Object;", null, null);
             mv.visitCode();
 
-            if (!methods.isEmpty()) {
+            if (n > 0) {
+                // 强制转换第一个参数 obj 为 指定类型(Class<?> type)
                 mv.visitVarInsn(ALOAD, 1);
                 mv.visitTypeInsn(CHECKCAST, classNameInternal);
                 mv.visitVarInsn(ASTORE, 4);
 
+                // 生成 switch 语句
                 mv.visitVarInsn(ILOAD, 2);
-                Label[] labels = new Label[methodLength];
-                for (int i = 0; i < methodLength; i++) {
+                Label[] labels = new Label[n];
+                for (int i = 0; i < n; i++) {
                     labels[i] = new Label();
                 }
-                Label defaultLabel = new Label();
+                Label defaultLabel = new Label(); // the default handler block
                 mv.visitTableSwitchInsn(0, labels.length - 1, defaultLabel, labels);
 
                 StringBuilder buf = new StringBuilder(128);
-                for (int i = 0; i < methodLength; i++) {
+                for (int i = 0; i < n; i++) {
                     mv.visitLabel(labels[i]);
                     if (i == 0) {
                         mv.visitFrame(Opcodes.F_APPEND, 1, new Object[] { classNameInternal }, 0, null);
@@ -160,12 +166,13 @@ public abstract class FastMethodAccessor {
 
                     Class<?>[] parameterTypes = parameterTypes_s[i];
                     Class<?> returnType = returnTypes[i];
-                    for (int parameterIndex = 0; parameterIndex < parameterTypes.length; parameterIndex++) {
+                    for (int p_index = 0; p_index < parameterTypes.length; p_index++) {
                         mv.visitVarInsn(ALOAD, 3);
-                        mv.visitIntInsn(BIPUSH, parameterIndex);
+                        mv.visitIntInsn(BIPUSH, p_index);
                         mv.visitInsn(AALOAD);
 
-                        Type p_type = Type.getType(parameterTypes[parameterIndex]);
+                        // 基本类型参数强转并拆箱, 对象类型(包含数组)强转
+                        Type p_type = Type.getType(parameterTypes[p_index]);
                         switch (p_type.getSort()) {
                             case Type.BOOLEAN:
                                 mv.visitTypeInsn(CHECKCAST, "java/lang/Boolean");
@@ -209,17 +216,16 @@ public abstract class FastMethodAccessor {
                         buf.append(p_type.getDescriptor());
                     }
 
-                    buf.append(')');
-                    buf.append(Type.getDescriptor(returnType));
-                    int invoke;
+                    buf.append(')').append(Type.getDescriptor(returnType));
+
+                    // 生成方法直接调用代码, 规避反射
                     if (isInterface) {
-                        invoke = INVOKEINTERFACE;
+                        mv.visitMethodInsn(INVOKEINTERFACE, classNameInternal, methodNames[i], buf.toString(), true);
                     } else if (Modifier.isStatic(methods.get(i).getModifiers())) {
-                        invoke = INVOKESTATIC;
+                        mv.visitMethodInsn(INVOKESTATIC, classNameInternal, methodNames[i], buf.toString(), false);
                     } else {
-                        invoke = INVOKEVIRTUAL;
+                        mv.visitMethodInsn(INVOKEVIRTUAL, classNameInternal, methodNames[i], buf.toString(), false);
                     }
-                    mv.visitMethodInsn(invoke, classNameInternal, methodNames[i], buf.toString(), invoke == INVOKEINTERFACE);
 
                     Type r_type = Type.getType(returnType);
                     switch (r_type.getSort()) {
@@ -253,9 +259,11 @@ public abstract class FastMethodAccessor {
                     }
                     mv.visitInsn(ARETURN);
                 }
-                mv.visitLabel(defaultLabel);
+                mv.visitLabel(defaultLabel); // 空的 default 语句块
                 mv.visitFrame(Opcodes.F_SAME, 0, null, 0, null);
             }
+
+            // throw exception (method not found)
             mv.visitTypeInsn(NEW, "java/lang/IllegalArgumentException");
             mv.visitInsn(DUP);
             mv.visitTypeInsn(NEW, "java/lang/StringBuilder");
