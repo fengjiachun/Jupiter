@@ -44,7 +44,7 @@ public abstract class FastMethodAccessor {
     /**
      * 用ASM生成的类继承 {@link FastMethodAccessor} 并实现这个抽象方法
      *
-     * 子类是已下面伪代码这样类似的方式来避免反射调用的:
+     * 子类 invoke() 以下面的方式规避反射调用:
      *
      *  public Object invoke(Object object, int methodIndex, Object... args) {
      *      switch(methodIndex) {
@@ -304,13 +304,10 @@ public abstract class FastMethodAccessor {
 
     static class AccessorClassLoader extends ClassLoader {
 
-        private static final WeakHashMap<ClassLoader, WeakReference<AccessorClassLoader>> accessorClassLoaders
-                = new WeakHashMap<>();
+        private static final WeakHashMap<ClassLoader, WeakReference<AccessorClassLoader>> accessorClassLoaders = new WeakHashMap<>();
 
-        private static final ClassLoader selfContextParentClassLoader =
-                getParentClassLoader(AccessorClassLoader.class);
-        private static volatile AccessorClassLoader selfContextAccessorClassLoader =
-                new AccessorClassLoader(selfContextParentClassLoader);
+        private static final ClassLoader selfContextParentClassLoader = getParentClassLoader(AccessorClassLoader.class);
+        private static volatile AccessorClassLoader selfContextAccessorClassLoader = new AccessorClassLoader(selfContextParentClassLoader);
 
         public AccessorClassLoader(ClassLoader parent) {
             super(parent);

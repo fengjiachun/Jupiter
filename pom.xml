@@ -44,7 +44,7 @@
         <kryo.version>2.23.0</kryo.version>
         <protostuff.version>1.5.2</protostuff.version>
         <objenesis.version>2.1</objenesis.version>
-        <asm.version>5.0.4</asm.version>
+        <asm.version>5.2</asm.version>
         <javassist.version>3.19.0-GA</javassist.version>
         <bytebuddy.version>1.6.3</bytebuddy.version>
         <disruptor.version>3.3.2</disruptor.version>
