@@ -259,7 +259,7 @@ public class CopyOnWriteGroupList {
             return false;
         }
 
-        for (int i = 0; i < len; ++i) {
+        for (int i = 0; i < len; i++) {
             if (!eq(elements[i], otherElements[i])) {
                 return false;
             }
