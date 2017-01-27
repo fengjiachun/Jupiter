@@ -20,14 +20,12 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.concurrent.locks.ReentrantLock;
 
-import static org.jupiter.common.util.Preconditions.checkNotNull;
-
 /**
  * 相同服务, 不同服务节点的channel group容器,
  * 线程安全(写时复制), 实现原理类似 {@link java.util.concurrent.CopyOnWriteArrayList}.
- *
+ * <p/>
  * update操作仅支持addIfAbsent/remove, update操作会同时更新对应服务节点(group)的引用计数.
- *
+ * <p/>
  * jupiter
  * org.jupiter.transport.channel
  *
@@ -113,67 +111,102 @@ public class CopyOnWriteGroupList {
         return get(getArray(), index);
     }
 
-    @SuppressWarnings("all")
+    /**
+     * Removes the first occurrence of the specified element from this list,
+     * if it is present.  If this list does not contain the element, it is
+     * unchanged.  More formally, removes the element with the lowest index
+     * {@code i} such that
+     * <tt>(o==null&nbsp;?&nbsp;get(i)==null&nbsp;:&nbsp;o.equals(get(i)))</tt>
+     * (if such an element exists).  Returns {@code true} if this list
+     * contained the specified element (or equivalently, if this list
+     * changed as a result of the call).
+     *
+     * @param o element to be removed from this list, if present
+     * @return {@code true} if this list contained the specified element
+     */
     public boolean remove(JChannelGroup o) {
+        JChannelGroup[] snapshot = getArray();
+        int index = indexOf(o, snapshot, 0, snapshot.length);
+        return (index >= 0) && remove(o, snapshot, index);
+    }
+
+    /**
+     * A version of remove(JChannelGroup) using the strong hint that given
+     * recent snapshot contains o at the given index.
+     */
+    private boolean remove(JChannelGroup o, JChannelGroup[] snapshot, int index) {
         final ReentrantLock lock = this.lock;
         lock.lock();
         try {
-            JChannelGroup[] elements = getArray();
-            int len = elements.length;
-            if (len != 0) {
-                // Copy while searching for element to remove
-                // This wins in the normal case of element being present
-                int newlen = len - 1;
-                JChannelGroup[] newElements = new JChannelGroup[newlen];
-
-                for (int i = 0; i < newlen; ++i) {
-                    if (eq(o, elements[i])) {
-                        // found one;  copy remaining and exit
-                        for (int k = i + 1; k < len; ++k) {
-                            newElements[k - 1] = elements[k];
-                        }
-                        setArray(newElements);
-                        parent.decrementRefCount(o); // ref count -1
-                        return true;
-                    } else {
-                        newElements[i] = elements[i];
+            JChannelGroup[] current = getArray();
+            int len = current.length;
+            if (snapshot != current) findIndex: {
+                int prefix = Math.min(index, len);
+                for (int i = 0; i < prefix; i++) {
+                    if (current[i] != snapshot[i] && eq(o, current[i])) {
+                        index = i;
+                        break findIndex;
                     }
                 }
-
-                // special handling for last cell
-                if (eq(o, elements[newlen])) {
-                    setArray(newElements);
-                    parent.decrementRefCount(o); // ref count -1
-                    return true;
+                if (index >= len) {
+                    return false;
+                }
+                if (current[index] == o) {
+                    break findIndex;
+                }
+                index = indexOf(o, current, index, len);
+                if (index < 0) {
+                    return false;
                 }
             }
-            return false;
+            JChannelGroup[] newElements = new JChannelGroup[len - 1];
+            System.arraycopy(current, 0, newElements, 0, index);
+            System.arraycopy(current, index + 1, newElements, index, len - index - 1);
+            setArray(newElements);
+            parent.decrementRefCount(o); // reference count -1
+            return true;
         } finally {
             lock.unlock();
         }
     }
 
+    /**
+     * Appends the element, if not present.
+     *
+     * @param o element to be added to this list, if absent
+     * @return {@code true} if the element was added
+     */
     public boolean addIfAbsent(JChannelGroup o) {
-        checkNotNull(o, "group");
+        JChannelGroup[] snapshot = getArray();
+        return indexOf(o, snapshot, 0, snapshot.length) < 0 && addIfAbsent(o, snapshot);
+    }
 
+    /**
+     * A version of addIfAbsent using the strong hint that given
+     * recent snapshot does not contain o.
+     */
+    private boolean addIfAbsent(JChannelGroup o, JChannelGroup[] snapshot) {
         final ReentrantLock lock = this.lock;
         lock.lock();
         try {
-            // Copy while checking if already present.
-            // This wins in the most common case where it is not present
-            JChannelGroup[] elements = getArray();
-            int len = elements.length;
-            JChannelGroup[] newElements = new JChannelGroup[len + 1];
-            for (int i = 0; i < len; ++i) {
-                if (eq(o, elements[i])) {
-                    return false; // exit, throwing away copy
-                } else {
-                    newElements[i] = elements[i];
+            JChannelGroup[] current = getArray();
+            int len = current.length;
+            if (snapshot != current) {
+                // optimize for lost race to another addXXX operation
+                int common = Math.min(snapshot.length, len);
+                for (int i = 0; i < common; i++) {
+                    if (current[i] != snapshot[i] && eq(o, current[i])) {
+                        return false;
+                    }
+                }
+                if (indexOf(o, current, common, len) >= 0) {
+                    return false;
                 }
             }
+            JChannelGroup[] newElements = Arrays.copyOf(current, len + 1);
             newElements[len] = o;
             setArray(newElements);
-            parent.incrementRefCount(o); // ref count +1
+            parent.incrementRefCount(o); // reference count +1
             return true;
         } finally {
             lock.unlock();
@@ -239,8 +272,7 @@ public class CopyOnWriteGroupList {
     public int hashCode() {
         int hashCode = 1;
         JChannelGroup[] elements = getArray();
-        int len = elements.length;
-        for (int i = 0; i < len; ++i) {
+        for (int i = 0, len = elements.length; i < len; i++) {
             JChannelGroup o = elements[i];
             hashCode = 31 * hashCode + (o == null ? 0 : o.hashCode());
         }
