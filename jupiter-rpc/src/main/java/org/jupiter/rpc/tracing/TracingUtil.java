@@ -148,7 +148,9 @@ public class TracingUtil {
 
             value = (String) getName.invoke(bean);
         } catch (Exception e) {
-            logger.debug("Could not invoke ManagementFactory.getRuntimeMXBean().getName(), {}.", stackTrace(e));
+            if (logger.isDebugEnabled()) {
+                logger.debug("Could not invoke ManagementFactory.getRuntimeMXBean().getName(), {}.", stackTrace(e));
+            }
 
             value = "";
         }
@@ -198,6 +200,7 @@ public class TracingUtil {
     }
 
     private static int getNextId() {
+        // (1000 + 0) ~ (1000 + 8191)
         return (id.getAndIncrement() & Integer.MAX_VALUE & ID_MASK) + ID_BASE;
     }
 }

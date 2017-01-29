@@ -32,17 +32,9 @@ public final class StackTraceUtil {
             return "null";
         }
 
-        PrintWriter pw = null;
-        try {
-            StringWriter sw = new StringWriter();
-            pw = new PrintWriter(sw);
-            t.printStackTrace(pw);
-            return sw.toString();
-        } finally {
-            if (pw != null) {
-                pw.close();
-            }
-        }
+        StringWriter out = new StringWriter();
+        t.printStackTrace(new PrintWriter(out));
+        return out.toString();
     }
 
     private StackTraceUtil() {}
