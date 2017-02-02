@@ -37,7 +37,7 @@ public class CopyOnWriteGroupList {
 
     private final DirectoryJChannelGroup parent;
 
-    transient final ReentrantLock lock = new ReentrantLock();
+    private transient final ReentrantLock lock = new ReentrantLock();
 
     private volatile transient JChannelGroup[] array;
     private transient boolean sameWeight; // 无volatile修饰, 通过array保证可见性
