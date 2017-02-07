@@ -327,6 +327,8 @@ public abstract class FastMethodAccessor {
 
         static AccessorClassLoader get(Class<?> type) {
             ClassLoader parent = getParentClassLoader(type);
+
+            // 1. 最快路径:
             if (selfContextParentClassLoader.equals(parent)) {
                 if (selfContextAccessorClassLoader == null) {
                     synchronized (accessorClassLoaders) { // DCL with volatile semantics
@@ -336,6 +338,8 @@ public abstract class FastMethodAccessor {
                 }
                 return selfContextAccessorClassLoader;
             }
+
+            // 2. 常规查找:
             synchronized (accessorClassLoaders) {
                 WeakReference<AccessorClassLoader> ref = accessorClassLoaders.get(parent);
                 if (ref != null) {
