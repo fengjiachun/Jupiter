@@ -296,7 +296,6 @@ public class MessageTask implements RejectedRunnable {
             ProviderInterceptor[] interceptors, TraceId traceId, Object provider, String methodName, Object[] args) {
 
         for (int i = 0; i < interceptors.length; i++) {
-            interceptors[i].beforeInvoke(traceId, provider, methodName, args);
             try {
                 interceptors[i].beforeInvoke(traceId, provider, methodName, args);
             } catch (Throwable t) {
@@ -310,7 +309,6 @@ public class MessageTask implements RejectedRunnable {
             ProviderInterceptor[] interceptors, TraceId traceId, Object provider, String methodName, Object[] args, Object invokeResult, Throwable failCause) {
 
         for (int i = interceptors.length - 1; i >= 0; i--) {
-            interceptors[i].beforeInvoke(traceId, provider, methodName, args);
             try {
                 interceptors[i].afterInvoke(traceId, provider, methodName, args, invokeResult, failCause);
             } catch (Throwable t) {
