@@ -1,7 +1,7 @@
 [![Build Status](https://travis-ci.org/fengjiachun/Jupiter.svg?branch=master)](https://travis-ci.org/fengjiachun/Jupiter)
 
 ####Jupiter:
-- Jupiter是一款性能还不错的, 轻量级的分布式服务框架
+- Jupiter是一款性能很不错的, 轻量级的分布式服务框架
 
 ####Jupiter Architecture:
 
@@ -30,8 +30,10 @@
 ####文档:
 - [Wiki](https://github.com/fengjiachun/Jupiter/wiki)
 
+####性能:
+- 小数据包请求, 在四核心的刀片服务器上可达到17w+的qps, 具体参见wiki
+
 ####其他
-- 闲暇时间写着玩的, 娱乐性质, 不过如有人希望尝试使用, 我承诺会一直维护
-    + qq交流群: 397633380
-    + 邮件交流: jiachun_fjc@163.com
+- qq交流群: 397633380
+- 邮件交流: jiachun_fjc@163.com
 
