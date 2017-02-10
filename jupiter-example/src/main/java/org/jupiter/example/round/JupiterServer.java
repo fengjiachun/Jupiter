@@ -110,7 +110,7 @@ public class JupiterServer {
         }
 
         @Override
-        public void afterInvoke(TraceId traceId, Object provider, String methodName, Object[] args, Object result) {
+        public void afterInvoke(TraceId traceId, Object provider, String methodName, Object[] args, Object result, Throwable failCause) {
             System.out.println("GlobalInterceptor after: " + provider + "#" + methodName + " args: " + Arrays.toString(args) + " result: " + result);
         }
     }
@@ -123,7 +123,7 @@ public class JupiterServer {
         }
 
         @Override
-        public void afterInvoke(TraceId traceId, Object provider, String methodName, Object[] args, Object result) {
+        public void afterInvoke(TraceId traceId, Object provider, String methodName, Object[] args, Object result, Throwable failCaus) {
             System.out.println("PrivateInterceptor after: " + provider + "#" + methodName + " args: " + Arrays.toString(args) + " result: " + result);
         }
     }

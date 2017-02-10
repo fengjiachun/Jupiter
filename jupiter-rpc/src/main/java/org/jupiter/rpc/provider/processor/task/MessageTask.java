@@ -220,6 +220,7 @@ public class MessageTask implements RejectedRunnable {
             }
 
             Object invokeResult = null;
+            Throwable failCause = null;
             try {
                 List<Class<?>[]> parameterTypesList = service.getMethodParameterTypes(methodName);
                 if (parameterTypesList == null) {
@@ -232,6 +233,7 @@ public class MessageTask implements RejectedRunnable {
             } catch (Throwable t) {
                 // biz exception
                 processor.handleException(channel, _request, Status.SERVICE_ERROR, t);
+                failCause = t;
                 return;
             } finally {
                 long elapsed = -1;
@@ -240,7 +242,7 @@ public class MessageTask implements RejectedRunnable {
                 }
 
                 if (interceptors != null) {
-                    handleAfterInvoke(interceptors, traceId, provider, methodName, args, invokeResult);
+                    handleAfterInvoke(interceptors, traceId, provider, methodName, args, invokeResult, failCause);
                 }
 
                 // tracing recoding
@@ -305,12 +307,12 @@ public class MessageTask implements RejectedRunnable {
 
     @SuppressWarnings("all")
     private static void handleAfterInvoke(
-            ProviderInterceptor[] interceptors, TraceId traceId, Object provider, String methodName, Object[] args, Object invokeResult) {
+            ProviderInterceptor[] interceptors, TraceId traceId, Object provider, String methodName, Object[] args, Object invokeResult, Throwable failCause) {
 
         for (int i = interceptors.length - 1; i >= 0; i--) {
             interceptors[i].beforeInvoke(traceId, provider, methodName, args);
             try {
-                interceptors[i].afterInvoke(traceId, provider, methodName, args, invokeResult);
+                interceptors[i].afterInvoke(traceId, provider, methodName, args, invokeResult, failCause);
             } catch (Throwable t) {
                 logger.warn("Interceptor[{}#afterInvoke]: {}.", Reflects.simpleClassName(interceptors[i]), stackTrace(t));
             }
