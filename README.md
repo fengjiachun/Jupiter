@@ -31,7 +31,7 @@
 - [Wiki](https://github.com/fengjiachun/Jupiter/wiki)
 
 ####性能:
-- 小数据包请求, 在四核心的刀片服务器上可达到17w+的qps, 具体参见wiki
+- 小数据包请求在四核心的刀片服务器上可达到17w+的qps, 详情参见[Benchmark](https://github.com/fengjiachun/Jupiter/wiki/Benchmark)
 
 ####其他
 - qq交流群: 397633380
