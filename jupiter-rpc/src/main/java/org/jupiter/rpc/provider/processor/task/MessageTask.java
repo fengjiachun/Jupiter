@@ -292,8 +292,11 @@ public class MessageTask implements RejectedRunnable {
     }
 
     @SuppressWarnings("all")
-    private static void handleBeforeInvoke(
-            ProviderInterceptor[] interceptors, TraceId traceId, Object provider, String methodName, Object[] args) {
+    private static void handleBeforeInvoke(ProviderInterceptor[] interceptors,
+                                           TraceId traceId,
+                                           Object provider,
+                                           String methodName,
+                                           Object[] args) {
 
         for (int i = 0; i < interceptors.length; i++) {
             try {
@@ -305,8 +308,13 @@ public class MessageTask implements RejectedRunnable {
     }
 
     @SuppressWarnings("all")
-    private static void handleAfterInvoke(
-            ProviderInterceptor[] interceptors, TraceId traceId, Object provider, String methodName, Object[] args, Object invokeResult, Throwable failCause) {
+    private static void handleAfterInvoke(ProviderInterceptor[] interceptors,
+                                          TraceId traceId,
+                                          Object provider,
+                                          String methodName,
+                                          Object[] args,
+                                          Object invokeResult,
+                                          Throwable failCause) {
 
         for (int i = interceptors.length - 1; i >= 0; i--) {
             try {
