@@ -291,7 +291,7 @@ public class MessageTask implements RejectedRunnable {
     }
 
     private void handleException(Class<?>[] exceptionTypes, Throwable failCause) {
-        if (exceptionTypes != null && exceptionTypes.length > 0) {
+        if (exceptionTypes.length > 0) {
             Class<?> failType = failCause.getClass();
             for (Class<?> eType : exceptionTypes) {
                 if (eType.isAssignableFrom(failType)) {
