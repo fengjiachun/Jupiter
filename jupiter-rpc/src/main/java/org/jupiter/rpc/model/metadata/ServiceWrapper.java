@@ -17,6 +17,7 @@
 package org.jupiter.rpc.model.metadata;
 
 import org.jupiter.common.util.JConstants;
+import org.jupiter.common.util.Pair;
 import org.jupiter.rpc.JRequest;
 import org.jupiter.rpc.flow.control.FlowController;
 import org.jupiter.rpc.provider.ProviderInterceptor;
@@ -49,8 +50,10 @@ public class ServiceWrapper implements Serializable {
     private final Object serviceProvider;
     // 服务拦截器
     private final ProviderInterceptor[] interceptors;
-    // provider中所有接口的参数类型(用于根据JLS规则实现方法调用的静态分派)
-    private final Map<String, List<Class<?>[]>> methodsParameterTypes;
+    // key:     method name
+    // value:   pair.first:  方法参数类型(用于根据JLS规则实现方法调用的静态分派)
+    //          pair.second: 方法显式声明抛出的异常类型
+    private final Map<String, List<Pair<Class<?>[], Class<?>[]>>> extensions;
 
     // 权重 hashCode() 与 equals() 不把weight计算在内
     private int weight = JConstants.DEFAULT_WEIGHT;
@@ -66,12 +69,12 @@ public class ServiceWrapper implements Serializable {
                           String version,
                           Object serviceProvider,
                           ProviderInterceptor[] interceptors,
-                          Map<String, List<Class<?>[]>> methodsParameterTypes) {
+                          Map<String, List<Pair<Class<?>[], Class<?>[]>>> extensions) {
 
         metadata = new ServiceMetadata(group, providerName, version);
 
         this.interceptors = interceptors;
-        this.methodsParameterTypes = checkNotNull(methodsParameterTypes, "methodsParameterTypes");
+        this.extensions = checkNotNull(extensions, "extensions");
         this.serviceProvider = checkNotNull(serviceProvider, "serviceProvider");
     }
 
@@ -119,8 +122,8 @@ public class ServiceWrapper implements Serializable {
         this.flowController = flowController;
     }
 
-    public List<Class<?>[]> getMethodParameterTypes(String methodName) {
-        return methodsParameterTypes.get(methodName);
+    public List<Pair<Class<?>[], Class<?>[]>> getMethodExtension(String methodName) {
+        return extensions.get(methodName);
     }
 
     @Override
@@ -144,7 +147,7 @@ public class ServiceWrapper implements Serializable {
                 "metadata=" + metadata +
                 ", serviceProvider=" + serviceProvider +
                 ", interceptors=" + Arrays.toString(interceptors) +
-                ", methodsParameterTypes=" + methodsParameterTypes +
+                ", extensions=" + extensions +
                 ", weight=" + weight +
                 ", connCount=" + connCount +
                 ", executor=" + executor +

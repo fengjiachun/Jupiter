@@ -423,21 +423,21 @@ public class DefaultRegistry extends NettyTcpConnector {
                 switch (obj.messageCode()) {
                     case JProtocolHeader.PUBLISH_SERVICE: {
                         Pair<RegisterMeta.ServiceMeta, ?> data = (Pair<RegisterMeta.ServiceMeta, ?>) obj.data();
-                        Object metaObj = data.getValue();
+                        Object metaObj = data.getSecond();
 
                         if (metaObj instanceof List) {
                             List<RegisterMeta> list = (List<RegisterMeta>) metaObj;
                             RegisterMeta[] array = new RegisterMeta[list.size()];
                             list.toArray(array);
                             registryService.notify(
-                                    data.getKey(),
+                                    data.getFirst(),
                                     NotifyListener.NotifyEvent.CHILD_ADDED,
                                     obj.version(),
                                     array
                             );
                         } else if (metaObj instanceof RegisterMeta) {
                             registryService.notify(
-                                    data.getKey(),
+                                    data.getFirst(),
                                     NotifyListener.NotifyEvent.CHILD_ADDED,
                                     obj.version(),
                                     (RegisterMeta) metaObj
@@ -449,7 +449,7 @@ public class DefaultRegistry extends NettyTcpConnector {
                                 .addListener(ChannelFutureListener.FIRE_EXCEPTION_ON_FAILURE);
 
                         logger.info("Publish from RegistryServer {}, metadata : {}, version: {}.",
-                                data.getKey(), metaObj, obj.version());
+                                data.getFirst(), metaObj, obj.version());
 
                         break;
                     }
@@ -457,14 +457,14 @@ public class DefaultRegistry extends NettyTcpConnector {
                         Pair<RegisterMeta.ServiceMeta, RegisterMeta> data =
                                 (Pair<RegisterMeta.ServiceMeta, RegisterMeta>) obj.data();
                         registryService.notify(
-                                data.getKey(), NotifyListener.NotifyEvent.CHILD_REMOVED, obj.version(), data.getValue());
+                                data.getFirst(), NotifyListener.NotifyEvent.CHILD_REMOVED, obj.version(), data.getSecond());
 
                         ctx.channel()
                                 .writeAndFlush(new Acknowledge(obj.sequence()))  // 回复ACK
                                 .addListener(ChannelFutureListener.FIRE_EXCEPTION_ON_FAILURE);
 
                         logger.info("Publish cancel from RegistryServer {}, metadata : {}, version: {}.",
-                                data.getKey(), data.getValue(), obj.version());
+                                data.getFirst(), data.getSecond(), obj.version());
 
                         break;
                     }

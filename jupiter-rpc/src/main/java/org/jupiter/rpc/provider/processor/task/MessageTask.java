@@ -20,10 +20,7 @@ import com.codahale.metrics.Histogram;
 import com.codahale.metrics.Meter;
 import com.codahale.metrics.Timer;
 import org.jupiter.common.concurrent.RejectedRunnable;
-import org.jupiter.common.util.Reflects;
-import org.jupiter.common.util.StringBuilderHelper;
-import org.jupiter.common.util.SystemClock;
-import org.jupiter.common.util.SystemPropertyUtil;
+import org.jupiter.common.util.*;
 import org.jupiter.common.util.internal.UnsafeIntegerFieldUpdater;
 import org.jupiter.common.util.internal.UnsafeUpdater;
 import org.jupiter.common.util.internal.logging.InternalLogger;
@@ -169,9 +166,9 @@ public class MessageTask implements RejectedRunnable {
         }
 
         ResultWrapper result = new ResultWrapper();
-        result.setError(cause);
+        result.setErrorToString(cause);
 
-        logger.warn("Service rejected: {}.", result.getError());
+        logger.warn("Service rejected: {}.", result);
 
         byte s_code = _request.serializerCode();
         Serializer serializer = SerializerFactory.getSerializer(s_code);
@@ -221,19 +218,21 @@ public class MessageTask implements RejectedRunnable {
 
             Object invokeResult = null;
             Throwable failCause = null;
+            Class<?>[] exceptionTypes = null;
             try {
-                List<Class<?>[]> parameterTypesList = service.getMethodParameterTypes(methodName);
-                if (parameterTypesList == null) {
+                List<Pair<Class<?>[], Class<?>[]>> methodExtension = service.getMethodExtension(methodName);
+                if (methodExtension == null) {
                     throw new NoSuchMethodException(methodName);
                 }
 
                 // 根据JLS方法调用的静态分派规则查找最匹配的方法parameterTypes
-                Class<?>[] parameterTypes = Reflects.findMatchingParameterTypes(parameterTypesList, args);
+                Pair<Class<?>[], Class<?>[]> pair = Reflects.findMatchingParameterTypesExt(methodExtension, args);
+                Class<?>[] parameterTypes = pair.getFirst();
+                exceptionTypes = pair.getSecond();
                 invokeResult = Reflects.fastInvoke(provider, methodName, parameterTypes, args);
             } catch (Throwable t) {
-                // biz exception
-                processor.handleException(channel, _request, Status.SERVICE_ERROR, t);
-                failCause = t;
+                // handle biz exception
+                handleException(exceptionTypes, failCause = t);
                 return;
             } finally {
                 long elapsed = -1;
@@ -289,6 +288,22 @@ public class MessageTask implements RejectedRunnable {
         } catch (Throwable t) {
             processor.handleException(channel, _request, Status.SERVER_ERROR, t);
         }
+    }
+
+    private void handleException(Class<?>[] exceptionTypes, Throwable failCause) {
+        if (exceptionTypes != null && exceptionTypes.length > 0) {
+            Class<?> failType = failCause.getClass();
+            for (Class<?> eType : exceptionTypes) {
+                if (eType.isAssignableFrom(failType)) {
+                    // 预期内的异常
+                    processor.handleException(channel, request, Status.SERVICE_EXPECT_ERROR, failCause);
+                    return;
+                }
+            }
+        }
+
+        // 预期外的异常
+        processor.handleException(channel, request, Status.SERVICE_UN_EXPECT_ERROR, failCause);
     }
 
     @SuppressWarnings("all")

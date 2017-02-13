@@ -34,8 +34,7 @@ public class ResultWrapper implements Serializable {
 
     private static final long serialVersionUID = -1126932930252953428L;
 
-    private Object result;  // 响应结果对象
-    private String error;   // 错误信息(通常会包含异常的堆栈信息)
+    private Object result; // 响应结果对象, 也可能是异常对象, 响应状态决定
 
     public Object getResult() {
         return result;
@@ -45,23 +44,18 @@ public class ResultWrapper implements Serializable {
         this.result = result;
     }
 
-    public String getError() {
-        return error;
-    }
-
-    public void setError(String error) {
-        this.error = error;
-    }
-
     public void setError(Throwable t) {
-        this.error = StackTraceUtil.stackTrace(t);
+        result = t;
+    }
+
+    public void setErrorToString(Throwable t) {
+        result = StackTraceUtil.stackTrace(t);
     }
 
     @Override
     public String toString() {
         return "ResultWrapper{" +
                 "result=" + result +
-                ", error=" + error +
                 '}';
     }
 }

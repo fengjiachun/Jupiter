@@ -107,10 +107,6 @@ public class DefaultInvokeFuture<V> extends AbstractInvokeFuture<V> {
             SocketAddress address = channel.remoteAddress();
             if (s == TIMEOUT) {
                 throw new JupiterTimeoutException(address, sent ? Status.SERVER_TIMEOUT : Status.CLIENT_TIMEOUT);
-            } else if (s == S_TIMEOUT) {
-                throw new JupiterTimeoutException(address, Status.SERVER_TIMEOUT);
-            } else if (s == C_TIMEOUT) {
-                throw new JupiterTimeoutException(address, Status.CLIENT_TIMEOUT);
             } else {
                 throw new JupiterRemoteException(s.name(), address);
             }
@@ -123,19 +119,7 @@ public class DefaultInvokeFuture<V> extends AbstractInvokeFuture<V> {
             if (state == NORMAL) {
                 listener.complete((V) x);
             } else {
-                Throwable cause = (Throwable) x;
-                if (x instanceof Signal) {
-                    SocketAddress address = channel.remoteAddress();
-                    if (x == S_TIMEOUT) {
-                        cause = new JupiterTimeoutException(address, Status.SERVER_TIMEOUT);
-                    } else if (x == C_TIMEOUT) {
-                        cause = new JupiterTimeoutException(address, Status.CLIENT_TIMEOUT);
-                    } else {
-                        cause = new JupiterRemoteException(((Signal) x).name(), address);
-                    }
-                }
-
-                listener.failure(cause);
+                listener.failure((Throwable) x);
             }
         } catch (Throwable t) {
             logger.error("An exception was thrown by {}.{}, {}.",
@@ -165,13 +149,23 @@ public class DefaultInvokeFuture<V> extends AbstractInvokeFuture<V> {
             ResultWrapper wrapper = response.result();
             set((V) wrapper.getResult());
         } else if (status == Status.SERVER_TIMEOUT.value()) {
-            setException(S_TIMEOUT);
+            Throwable e = new JupiterTimeoutException(channel.remoteAddress(), Status.SERVER_TIMEOUT);
+            setException(e);
         } else if (status == Status.CLIENT_TIMEOUT.value()) {
-            setException(C_TIMEOUT);
-        } else if (status == Status.SERVICE_ERROR.value()) {
-            setException(new JupiterBizException(response.toString(), channel.remoteAddress()));
+            Throwable e = new JupiterTimeoutException(channel.remoteAddress(), Status.CLIENT_TIMEOUT);
+            setException(e);
+        } else if (status == Status.SERVICE_EXPECT_ERROR.value()) {
+            ResultWrapper wrapper = response.result();
+            Throwable e = (Throwable) wrapper.getResult();
+            setException(e);
+        } else if (status == Status.SERVICE_UN_EXPECT_ERROR.value()) {
+            ResultWrapper wrapper = response.result();
+            String message = String.valueOf(wrapper.getResult());
+            Throwable e = new JupiterBizException(message, channel.remoteAddress());
+            setException(e);
         } else {
-            setException(new JupiterRemoteException(response.toString(), channel.remoteAddress()));
+            Throwable e = new JupiterRemoteException(response.toString(), channel.remoteAddress());
+            setException(e);
         }
 
         // call hook's after method

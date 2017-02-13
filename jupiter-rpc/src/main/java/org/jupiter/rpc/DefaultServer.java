@@ -232,7 +232,7 @@ public class DefaultServer implements JServer {
             String version,
             Object serviceProvider,
             ProviderInterceptor[] interceptors,
-            Map<String, List<Class<?>[]>> methodsParameterTypes,
+            Map<String, List<Pair<Class<?>[], Class<?>[]>>> extensions,
             int weight,
             int connCount,
             Executor executor,
@@ -251,7 +251,7 @@ public class DefaultServer implements JServer {
         }
 
         ServiceWrapper wrapper =
-                new ServiceWrapper(group, providerName, version, serviceProvider, allInterceptors, methodsParameterTypes);
+                new ServiceWrapper(group, providerName, version, serviceProvider, allInterceptors, extensions);
 
         wrapper.setWeight(weight);
         wrapper.setConnCount(connCount);
@@ -312,7 +312,10 @@ public class DefaultServer implements JServer {
             ServiceProviderImpl implAnnotation = null;
             ServiceProvider ifAnnotation = null;
             String providerName = null;
-            Map<String, List<Class<?>[]>> methodsParameterTypes = Maps.newHashMap();
+            // key:     method name
+            // value:   pair.first:  方法参数类型(用于根据JLS规则实现方法调用的静态分派)
+            //          pair.second: 方法显式声明抛出的异常类型
+            Map<String, List<Pair<Class<?>[], Class<?>[]>>> extensions = Maps.newHashMap();
             for (Class<?> cls = providerClass; cls != Object.class; cls = cls.getSuperclass()) {
                 if (implAnnotation == null) {
                     implAnnotation = cls.getAnnotation(ServiceProviderImpl.class);
@@ -329,15 +332,15 @@ public class DefaultServer implements JServer {
                         providerName = ifAnnotation.name();
                         providerName = Strings.isNotBlank(providerName) ? providerName : providerInterface.getName();
 
-                        // method's parameterTypes
+                        // method's extensions
                         for (Method method : providerInterface.getMethods()) {
                             String methodName = method.getName();
-                            List<Class<?>[]> list = methodsParameterTypes.get(methodName);
+                            List<Pair<Class<?>[], Class<?>[]>> list = extensions.get(methodName);
                             if (list == null) {
                                 list = Lists.newArrayList();
-                                methodsParameterTypes.put(methodName, list);
+                                extensions.put(methodName, list);
                             }
-                            list.add(method.getParameterTypes());
+                            list.add(Pair.of(method.getParameterTypes(), method.getExceptionTypes()));
                         }
                         break;
                     }
@@ -363,7 +366,7 @@ public class DefaultServer implements JServer {
                     version,
                     serviceProvider,
                     interceptors,
-                    methodsParameterTypes,
+                    extensions,
                     weight,
                     connCount,
                     executor,

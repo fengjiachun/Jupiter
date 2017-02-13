@@ -206,7 +206,7 @@ abstract class AbstractDispatcher implements Dispatcher {
                 logger.warn("Writes {} fail on {}, {}.", request, channel, stackTrace(cause));
 
                 ResultWrapper result = new ResultWrapper();
-                result.setError(cause);
+                result.setErrorToString(cause);
 
                 JResponse response = new JResponse(requestBytes.invokeId());
                 response.status(Status.CLIENT_ERROR);

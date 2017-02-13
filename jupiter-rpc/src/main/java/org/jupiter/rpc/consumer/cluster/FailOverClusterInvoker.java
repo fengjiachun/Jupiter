@@ -116,6 +116,7 @@ public class FailOverClusterInvoker extends AbstractClusterInvoker {
     }
 
     private static boolean isFailoverNeeded(Throwable cause) {
-        return cause == null || !(cause instanceof JupiterBizException);
+        return cause == null
+                || (cause instanceof JupiterRemoteException && !(cause instanceof JupiterBizException));
     }
 }

@@ -57,7 +57,11 @@ public abstract class AbstractProviderProcessor implements
         logger.error("An exception has been caught while processing request: {}, {}.", invokeId, stackTrace(cause));
 
         ResultWrapper result = new ResultWrapper();
-        result.setError(cause);
+        if (Status.SERVICE_EXPECT_ERROR.value() == status) {
+            result.setError(cause);
+        } else {
+            result.setErrorToString(cause);
+        }
 
         Serializer serializer = SerializerFactory.getSerializer(s_code);
         byte[] bytes = serializer.writeObject(result);

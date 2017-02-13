@@ -123,7 +123,7 @@ public abstract class AbstractRegistryService implements RegistryService {
         }
 
         if (data != null) {
-            return Lists.newArrayList(data.getValue());
+            return Lists.newArrayList(data.getSecond());
         }
         return Collections.emptyList();
     }
@@ -197,8 +197,8 @@ public abstract class AbstractRegistryService implements RegistryService {
                 data = Pair.of(version, metaList);
                 notifyNeeded = true;
             } else {
-                long oldVersion = data.getKey();
-                List<RegisterMeta> metaList = data.getValue();
+                long oldVersion = data.getFirst();
+                List<RegisterMeta> metaList = data.getSecond();
                 if (oldVersion < version || (version < 0 && oldVersion > 0 /* version 溢出 */)) {
                     if (event == NotifyListener.NotifyEvent.CHILD_REMOVED) {
                         for (RegisterMeta m : array) {
