@@ -16,13 +16,18 @@
 
 package org.jupiter.rpc.consumer.processor.task;
 
+import org.jupiter.common.util.internal.logging.InternalLogger;
+import org.jupiter.common.util.internal.logging.InternalLoggerFactory;
 import org.jupiter.rpc.JResponse;
 import org.jupiter.rpc.consumer.future.DefaultInvokeFuture;
 import org.jupiter.rpc.model.metadata.ResultWrapper;
 import org.jupiter.serialization.Serializer;
 import org.jupiter.serialization.SerializerFactory;
+import org.jupiter.transport.Status;
 import org.jupiter.transport.channel.JChannel;
 import org.jupiter.transport.payload.JResponseBytes;
+
+import static org.jupiter.common.util.StackTraceUtil.stackTrace;
 
 /**
  * jupiter
@@ -31,6 +36,8 @@ import org.jupiter.transport.payload.JResponseBytes;
  * @author jiachun.fjc
  */
 public class MessageTask implements Runnable {
+
+    private static final InternalLogger logger = InternalLoggerFactory.getInstance(MessageTask.class);
 
     private final JChannel channel;
     private final JResponse response;
@@ -51,7 +58,15 @@ public class MessageTask implements Runnable {
         _responseBytes.nullBytes();
 
         Serializer serializer = SerializerFactory.getSerializer(s_code);
-        _response.result(serializer.readObject(bytes, ResultWrapper.class));
+        ResultWrapper wrapper = null;
+        try {
+            wrapper = serializer.readObject(bytes, ResultWrapper.class);
+        } catch (Throwable t) {
+            logger.error("Deserialize object failed: {}.", stackTrace(t));
+
+            _response.status(Status.DESERIALIZATION_FAIL);
+        }
+        _response.result(wrapper);
 
         DefaultInvokeFuture.received(channel, _response);
     }

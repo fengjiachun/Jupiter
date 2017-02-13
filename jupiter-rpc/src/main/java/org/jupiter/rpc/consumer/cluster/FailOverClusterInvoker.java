@@ -27,6 +27,7 @@ import org.jupiter.rpc.consumer.future.FailOverInvokeFuture;
 import org.jupiter.rpc.consumer.future.InvokeFuture;
 import org.jupiter.rpc.exception.JupiterBizException;
 import org.jupiter.rpc.exception.JupiterRemoteException;
+import org.jupiter.rpc.exception.JupiterSerializationException;
 
 import static org.jupiter.common.util.Preconditions.checkArgument;
 import static org.jupiter.common.util.StackTraceUtil.stackTrace;
@@ -116,7 +117,18 @@ public class FailOverClusterInvoker extends AbstractClusterInvoker {
     }
 
     private static boolean isFailoverNeeded(Throwable cause) {
-        return cause == null
-                || (cause instanceof JupiterRemoteException && !(cause instanceof JupiterBizException));
+        if (cause == null) {
+            return true;
+        }
+
+        if (cause instanceof JupiterRemoteException) {
+            if (cause instanceof JupiterBizException) {
+                return false;
+            }
+            if (cause instanceof JupiterSerializationException) {
+                return false;
+            }
+        }
+        return true;
     }
 }

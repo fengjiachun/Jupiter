@@ -27,6 +27,7 @@ import org.jupiter.rpc.JListener;
 import org.jupiter.rpc.JResponse;
 import org.jupiter.rpc.exception.JupiterBizException;
 import org.jupiter.rpc.exception.JupiterRemoteException;
+import org.jupiter.rpc.exception.JupiterSerializationException;
 import org.jupiter.rpc.exception.JupiterTimeoutException;
 import org.jupiter.rpc.model.metadata.ResultWrapper;
 import org.jupiter.transport.Status;
@@ -148,30 +149,37 @@ public class DefaultInvokeFuture<V> extends AbstractInvokeFuture<V> {
         if (status == Status.OK.value()) {
             ResultWrapper wrapper = response.result();
             set((V) wrapper.getResult());
-        } else if (status == Status.SERVER_TIMEOUT.value()) {
-            Throwable e = new JupiterTimeoutException(channel.remoteAddress(), Status.SERVER_TIMEOUT);
-            setException(e);
-        } else if (status == Status.CLIENT_TIMEOUT.value()) {
-            Throwable e = new JupiterTimeoutException(channel.remoteAddress(), Status.CLIENT_TIMEOUT);
-            setException(e);
-        } else if (status == Status.SERVICE_EXPECT_ERROR.value()) {
-            ResultWrapper wrapper = response.result();
-            Throwable e = (Throwable) wrapper.getResult();
-            setException(e);
-        } else if (status == Status.SERVICE_UN_EXPECT_ERROR.value()) {
-            ResultWrapper wrapper = response.result();
-            String message = String.valueOf(wrapper.getResult());
-            Throwable e = new JupiterBizException(message, channel.remoteAddress());
-            setException(e);
         } else {
-            Throwable e = new JupiterRemoteException(response.toString(), channel.remoteAddress());
-            setException(e);
+            setException(status, response);
         }
 
         // call hook's after method
         for (int i = 0; i < hooks.length; i++) {
             hooks[i].after(response, channel);
         }
+    }
+
+    private void setException(byte status, JResponse response) {
+        Throwable cause;
+
+        if (status == Status.SERVER_TIMEOUT.value()) {
+            cause = new JupiterTimeoutException(channel.remoteAddress(), Status.SERVER_TIMEOUT);
+        } else if (status == Status.CLIENT_TIMEOUT.value()) {
+            cause = new JupiterTimeoutException(channel.remoteAddress(), Status.CLIENT_TIMEOUT);
+        } else if (status == Status.DESERIALIZATION_FAIL.value()) {
+            cause = new JupiterSerializationException(channel.remoteAddress());
+        } else if (status == Status.SERVICE_EXPECT_ERROR.value()) {
+            ResultWrapper wrapper = response.result();
+            cause = (Throwable) wrapper.getResult();
+        } else if (status == Status.SERVICE_UN_EXPECT_ERROR.value()) {
+            ResultWrapper wrapper = response.result();
+            String message = String.valueOf(wrapper.getResult());
+            cause = new JupiterBizException(message, channel.remoteAddress());
+        } else {
+            cause = new JupiterRemoteException(response.toString(), channel.remoteAddress());
+        }
+
+        setException(cause);
     }
 
     public static void received(JChannel channel, JResponse response) {

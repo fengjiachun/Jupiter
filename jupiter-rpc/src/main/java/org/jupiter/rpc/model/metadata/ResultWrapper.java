@@ -34,7 +34,7 @@ public class ResultWrapper implements Serializable {
 
     private static final long serialVersionUID = -1126932930252953428L;
 
-    private Object result; // 响应结果对象, 也可能是异常对象, 响应状态决定
+    private Object result; // 响应结果对象, 也可能是异常对象, 由响应状态决定
 
     public Object getResult() {
         return result;

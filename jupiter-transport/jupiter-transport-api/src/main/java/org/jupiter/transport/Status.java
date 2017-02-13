@@ -37,7 +37,8 @@ public enum Status {
     SERVICE_EXPECT_ERROR    ((byte) 0x52, "SERVICE_EXPECT_ERROR"),      // 服务错误 - 服务执行时出现预期内的异常
     SERVICE_UN_EXPECT_ERROR ((byte) 0x53, "SERVICE_UN_EXPECT_ERROR"),   // 服务错误 - 服务执行意外出错
     APP_FLOW_CONTROL        ((byte) 0x54, "APP_FLOW_CONTROL"),          // 服务错误 - App级别服务限流
-    PROVIDER_FLOW_CONTROL   ((byte) 0x55, "PROVIDER_FLOW_CONTROL");     // 服务错误 - Provider级别服务限流
+    PROVIDER_FLOW_CONTROL   ((byte) 0x55, "PROVIDER_FLOW_CONTROL"),     // 服务错误 - Provider级别服务限流
+    DESERIALIZATION_FAIL    ((byte) 0x60, "DESERIALIZATION_FAIL");      // 客户端反序列化错误
 
     Status(byte value, String description) {
         this.value = value;
