@@ -112,7 +112,7 @@ public class FailOverClusterInvoker extends AbstractClusterInvoker {
                 }
             });
         } else {
-            future.setFailure(new JupiterRemoteException(name() + " failed: ", lastCause));
+            future.setFailure(lastCause);
         }
     }
 
