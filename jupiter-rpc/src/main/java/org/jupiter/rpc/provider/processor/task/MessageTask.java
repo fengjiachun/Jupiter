@@ -174,8 +174,7 @@ public class MessageTask implements RejectedRunnable {
         // 在业务线程中序列化, 减轻IO线程负担
         byte[] bytes = serializer.writeObject(result);
 
-        final long invokeId = _request.invokeId();
-        JResponseBytes response = new JResponseBytes(invokeId);
+        JResponseBytes response = new JResponseBytes(_request.invokeId());
         response.status(status.value());
         response.bytes(s_code, bytes);
         channel.write(response, JChannel.CLOSE);
