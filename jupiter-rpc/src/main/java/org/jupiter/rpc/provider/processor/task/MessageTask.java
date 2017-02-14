@@ -151,33 +151,15 @@ public class MessageTask implements RejectedRunnable {
         rejected(Status.SERVER_BUSY, new JupiterServerBusyException(String.valueOf(request)));
     }
 
-    // 当服务拒绝方法被调用时一般分以下几种情况:
-    //  1. 非法请求, close当前连接;
-    //  2. 服务端处理能力出现瓶颈, close当前连接, jupiter客户端会自动重连, 在加权负载均衡的情况下权重是一点一点升上来的.
     private void rejected(Status status, JupiterRemoteException cause) {
-        // stack copy
-        final JRequest _request = request;
-
         if (METRIC_NEEDED) {
             MetricsHolder.rejectionMeter.mark();
         }
 
-        logger.warn("Service rejected: {}, {}.", channel.remoteAddress(), stackTrace(cause));
-
-        ResultWrapper result = new ResultWrapper();
-        // 截断cause, 避免客户端无法找到cause类型而无法序列化
-        cause = ExceptionUtil.cutCause(cause);
-        result.setError(cause);
-
-        byte s_code = _request.serializerCode();
-        Serializer serializer = SerializerFactory.getSerializer(s_code);
-        // 在业务线程中序列化, 减轻IO线程负担
-        byte[] bytes = serializer.writeObject(result);
-
-        JResponseBytes response = new JResponseBytes(_request.invokeId());
-        response.status(status.value());
-        response.bytes(s_code, bytes);
-        channel.write(response, JChannel.CLOSE);
+        // 当服务拒绝方法被调用时一般分以下几种情况:
+        //  1. 非法请求, close当前连接;
+        //  2. 服务端处理能力出现瓶颈, close当前连接, jupiter客户端会自动重连, 在加权负载均衡的情况下权重是一点一点升上来的.
+        processor.handleRejected(channel, request, status, cause);
     }
 
     private void process(ServiceWrapper service) {
