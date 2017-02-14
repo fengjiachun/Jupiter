@@ -33,17 +33,16 @@ import org.jupiter.serialization.Serializer;
 import org.jupiter.serialization.SerializerFactory;
 import org.jupiter.serialization.SerializerType;
 import org.jupiter.transport.*;
-import org.jupiter.transport.channel.JChannel;
 import org.jupiter.transport.exception.ConnectFailedException;
 import org.jupiter.transport.exception.IoSignals;
 import org.jupiter.transport.netty.NettyTcpConnector;
 import org.jupiter.transport.netty.TcpChannelProvider;
-import org.jupiter.transport.netty.channel.NettyChannel;
 import org.jupiter.transport.netty.handler.AcknowledgeEncoder;
 import org.jupiter.transport.netty.handler.IdleStateChecker;
 import org.jupiter.transport.netty.handler.connector.ConnectionWatchdog;
 import org.jupiter.transport.netty.handler.connector.ConnectorIdleStateTrigger;
 
+import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.net.SocketAddress;
 import java.util.List;
@@ -417,6 +416,8 @@ public class DefaultRegistry extends NettyTcpConnector {
         @SuppressWarnings("unchecked")
         @Override
         public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
+            Channel ch = ctx.channel();
+
             if (msg instanceof Message) {
                 Message obj = (Message) msg;
 
@@ -444,8 +445,7 @@ public class DefaultRegistry extends NettyTcpConnector {
                             );
                         }
 
-                        ctx.channel()
-                                .writeAndFlush(new Acknowledge(obj.sequence()))  // 回复ACK
+                        ch.writeAndFlush(new Acknowledge(obj.sequence()))  // 回复ACK
                                 .addListener(ChannelFutureListener.FIRE_EXCEPTION_ON_FAILURE);
 
                         logger.info("Publish from RegistryServer {}, metadata : {}, version: {}.",
@@ -459,8 +459,7 @@ public class DefaultRegistry extends NettyTcpConnector {
                         registryService.notify(
                                 data.getFirst(), NotifyListener.NotifyEvent.CHILD_REMOVED, obj.version(), data.getSecond());
 
-                        ctx.channel()
-                                .writeAndFlush(new Acknowledge(obj.sequence()))  // 回复ACK
+                        ch.writeAndFlush(new Acknowledge(obj.sequence()))  // 回复ACK
                                 .addListener(ChannelFutureListener.FIRE_EXCEPTION_ON_FAILURE);
 
                         logger.info("Publish cancel from RegistryServer {}, metadata : {}, version: {}.",
@@ -480,7 +479,7 @@ public class DefaultRegistry extends NettyTcpConnector {
             } else if (msg instanceof Acknowledge) {
                 handleAcknowledge((Acknowledge) msg);
             } else {
-                logger.warn("Unexpected msg type received: {}.", msg.getClass());
+                logger.warn("Unexpected message type received: {}, channel: {}.", msg.getClass(), ch);
 
                 ReferenceCountUtil.release(msg);
             }
@@ -529,18 +528,25 @@ public class DefaultRegistry extends NettyTcpConnector {
 
         @Override
         public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
-            JChannel jChannel = NettyChannel.attachChannel(ctx.channel());
+            Channel ch = ctx.channel();
+
             if (cause instanceof Signal) {
-                IoSignals.handleSignal((Signal) cause, jChannel);
+                logger.error("An I/O signal was caught: {}, force to close channel: {}.", ((Signal) cause).name(), ch);
+
+                ch.close();
+            } else if (cause instanceof IOException) {
+                logger.error("An I/O exception was caught: {}, force to close channel: {}.", stackTrace(cause), ch);
+
+                ch.close();
             } else {
-                logger.error("An exception has been caught {}, on {}.", stackTrace(cause), jChannel);
+                logger.error("An unexpected exception was caught: {}, channel: {}.", stackTrace(cause), ch);
             }
         }
     }
 
     private class AckTimeoutScanner implements Runnable {
 
-        @SuppressWarnings("InfiniteLoopStatement")
+        @SuppressWarnings("all")
         @Override
         public void run() {
             for (;;) {
@@ -564,7 +570,7 @@ public class DefaultRegistry extends NettyTcpConnector {
 
                     Thread.sleep(300);
                 } catch (Throwable t) {
-                    logger.error("An exception has been caught while scanning the timeout acknowledges {}.", stackTrace(t));
+                    logger.error("An exception was caught while scanning the timeout acknowledges {}.", stackTrace(t));
                 }
             }
         }

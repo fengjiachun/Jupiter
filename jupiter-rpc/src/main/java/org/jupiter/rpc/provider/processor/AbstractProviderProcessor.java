@@ -78,7 +78,7 @@ public abstract class AbstractProviderProcessor implements
 
     private void handleException(JChannel channel, long invokeId, byte s_code, byte status, Throwable cause) {
         logger.error(
-                "An exception has been caught while processing request: {}, {}, {}.",
+                "An exception was caught while processing request: {}, {}, {}.",
                 invokeId, channel.remoteAddress(), stackTrace(cause)
         );
 

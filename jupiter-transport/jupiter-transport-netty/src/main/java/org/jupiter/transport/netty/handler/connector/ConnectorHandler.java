@@ -24,11 +24,11 @@ import io.netty.util.ReferenceCountUtil;
 import org.jupiter.common.util.Signal;
 import org.jupiter.common.util.internal.logging.InternalLogger;
 import org.jupiter.common.util.internal.logging.InternalLoggerFactory;
-import org.jupiter.transport.channel.JChannel;
-import org.jupiter.transport.exception.IoSignals;
 import org.jupiter.transport.netty.channel.NettyChannel;
 import org.jupiter.transport.payload.JResponseBytes;
 import org.jupiter.transport.processor.ConsumerProcessor;
+
+import java.io.IOException;
 
 import static org.jupiter.common.util.StackTraceUtil.stackTrace;
 
@@ -47,15 +47,16 @@ public class ConnectorHandler extends ChannelInboundHandlerAdapter {
 
     @Override
     public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
+        Channel ch = ctx.channel();
+
         if (msg instanceof JResponseBytes) {
-            JChannel jChannel = NettyChannel.attachChannel(ctx.channel());
             try {
-                processor.handleResponse(jChannel, (JResponseBytes) msg);
+                processor.handleResponse(NettyChannel.attachChannel(ch), (JResponseBytes) msg);
             } catch (Throwable t) {
-                logger.error("An exception has been caught {}, on {} #channelRead().", stackTrace(t), jChannel);
+                logger.error("An exception was caught {}, on {} #channelRead().", stackTrace(t), ch);
             }
         } else {
-            logger.warn("Unexpected message type received: {}.", msg.getClass());
+            logger.warn("Unexpected message type received: {}, channel: {}.", msg.getClass(), ch);
 
             ReferenceCountUtil.release(msg);
         }
@@ -84,11 +85,18 @@ public class ConnectorHandler extends ChannelInboundHandlerAdapter {
 
     @Override
     public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
-        JChannel jChannel = NettyChannel.attachChannel(ctx.channel());
+        Channel ch = ctx.channel();
+
         if (cause instanceof Signal) {
-            IoSignals.handleSignal((Signal) cause, jChannel);
+            logger.error("An I/O signal was caught: {}, force to close channel: {}.", ((Signal) cause).name(), ch);
+
+            ch.close();
+        } else if (cause instanceof IOException) {
+            logger.error("An I/O exception was caught: {}, force to close channel: {}.", stackTrace(cause), ch);
+
+            ch.close();
         } else {
-            logger.error("An exception has been caught {}, on {}.", stackTrace(cause), jChannel);
+            logger.error("An unexpected exception was caught: {}, channel: {}.", stackTrace(cause), ch);
         }
     }
 

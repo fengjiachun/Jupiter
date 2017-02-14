@@ -124,6 +124,8 @@ public class MonitorServer extends NettyTcpAcceptor {
 
         @Override
         public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
+            Channel ch = ctx.channel();
+
             if (msg instanceof String) {
                 String[] args = Strings.split(((String) msg).replace("\r\n", ""), ' ');
                 if (args == null || args.length == 0) {
@@ -132,7 +134,7 @@ public class MonitorServer extends NettyTcpAcceptor {
 
                 Command command = Command.parse(args[0]);
                 if (command == null) {
-                    ctx.writeAndFlush("invalid command!" + JConstants.NEWLINE);
+                    ch.writeAndFlush("invalid command!" + JConstants.NEWLINE);
                     return;
                 }
 
@@ -142,9 +144,9 @@ public class MonitorServer extends NettyTcpAcceptor {
                         ((RegistryHandler) handler).setRegistryMonitor(registryMonitor);
                     }
                 }
-                handler.handle(ctx.channel(), command, args);
+                handler.handle(ch, command, args);
             } else {
-                logger.warn("Unexpected msg type received: {}.", msg.getClass());
+                logger.warn("Unexpected message type received: {}, channel: {}.", msg.getClass(), ch);
 
                 ReferenceCountUtil.release(msg);
             }
@@ -152,7 +154,7 @@ public class MonitorServer extends NettyTcpAcceptor {
 
         @Override
         public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
-            logger.error("An exception has been caught {}, on {}.", stackTrace(cause), ctx.channel());
+            logger.error("An exception was caught: {}, channel {}.", stackTrace(cause), ctx.channel());
 
             ctx.close();
         }

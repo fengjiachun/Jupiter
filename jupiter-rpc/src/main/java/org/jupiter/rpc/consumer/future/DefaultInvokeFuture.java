@@ -222,7 +222,7 @@ public class DefaultInvokeFuture<V> extends AbstractInvokeFuture<V> {
 
                     Thread.sleep(30);
                 } catch (Throwable t) {
-                    logger.error("An exception has been caught while scanning the timeout futures {}.", stackTrace(t));
+                    logger.error("An exception was caught while scanning the timeout futures {}.", stackTrace(t));
                 }
             }
         }

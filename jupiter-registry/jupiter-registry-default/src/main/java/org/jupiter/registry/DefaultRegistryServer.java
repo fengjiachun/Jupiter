@@ -40,15 +40,14 @@ import org.jupiter.transport.Acknowledge;
 import org.jupiter.transport.JConfig;
 import org.jupiter.transport.JOption;
 import org.jupiter.transport.JProtocolHeader;
-import org.jupiter.transport.channel.JChannel;
 import org.jupiter.transport.exception.IoSignals;
 import org.jupiter.transport.netty.NettyTcpAcceptor;
 import org.jupiter.transport.netty.TcpChannelProvider;
-import org.jupiter.transport.netty.channel.NettyChannel;
 import org.jupiter.transport.netty.handler.AcknowledgeEncoder;
 import org.jupiter.transport.netty.handler.IdleStateChecker;
 import org.jupiter.transport.netty.handler.acceptor.AcceptorIdleStateTrigger;
 
+import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.net.SocketAddress;
 import java.util.List;
@@ -549,7 +548,7 @@ public class DefaultRegistryServer extends NettyTcpAcceptor implements RegistryS
 
         @Override
         public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
-            Channel channel = ctx.channel();
+            Channel ch = ctx.channel();
 
             if (msg instanceof Message) {
                 Message obj = (Message) msg;
@@ -559,28 +558,28 @@ public class DefaultRegistryServer extends NettyTcpAcceptor implements RegistryS
                     case JProtocolHeader.PUBLISH_CANCEL_SERVICE:
                         RegisterMeta meta = (RegisterMeta) obj.data();
                         if (Strings.isNullOrEmpty(meta.getHost())) {
-                            SocketAddress address = channel.remoteAddress();
+                            SocketAddress address = ch.remoteAddress();
                             if (address instanceof InetSocketAddress) {
                                 meta.setHost(((InetSocketAddress) address).getAddress().getHostAddress());
                             } else {
-                                logger.warn("Could not get remote host: {}, info: {}", channel, meta);
+                                logger.warn("Could not get remote host: {}, info: {}", ch, meta);
 
                                 return;
                             }
                         }
 
                         if (obj.messageCode() == JProtocolHeader.PUBLISH_SERVICE) {
-                            handlePublish(meta, channel);
+                            handlePublish(meta, ch);
                         } else if (obj.messageCode() == JProtocolHeader.PUBLISH_CANCEL_SERVICE) {
-                            handlePublishCancel(meta, channel);
+                            handlePublishCancel(meta, ch);
                         }
-                        channel.writeAndFlush(new Acknowledge(obj.sequence())) // 回复ACK
+                        ch.writeAndFlush(new Acknowledge(obj.sequence())) // 回复ACK
                                 .addListener(ChannelFutureListener.FIRE_EXCEPTION_ON_FAILURE);
 
                         break;
                     case JProtocolHeader.SUBSCRIBE_SERVICE:
-                        handleSubscribe((RegisterMeta.ServiceMeta) obj.data(), channel);
-                        channel.writeAndFlush(new Acknowledge(obj.sequence())) // 回复ACK
+                        handleSubscribe((RegisterMeta.ServiceMeta) obj.data(), ch);
+                        ch.writeAndFlush(new Acknowledge(obj.sequence())) // 回复ACK
                                 .addListener(ChannelFutureListener.FIRE_EXCEPTION_ON_FAILURE);
 
                         break;
@@ -590,9 +589,9 @@ public class DefaultRegistryServer extends NettyTcpAcceptor implements RegistryS
                         break;
                 }
             } else if (msg instanceof Acknowledge) {
-                handleAcknowledge((Acknowledge) msg, channel);
+                handleAcknowledge((Acknowledge) msg, ch);
             } else {
-                logger.warn("Unexpected msg type received:{}.", msg.getClass());
+                logger.warn("Unexpected message type received: {}, channel: {}.", msg.getClass(), ch);
 
                 ReferenceCountUtil.release(msg);
             }
@@ -646,11 +645,18 @@ public class DefaultRegistryServer extends NettyTcpAcceptor implements RegistryS
 
         @Override
         public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
-            JChannel jChannel = NettyChannel.attachChannel(ctx.channel());
+            Channel ch = ctx.channel();
+
             if (cause instanceof Signal) {
-                IoSignals.handleSignal((Signal) cause, jChannel);
+                logger.error("An I/O signal was caught: {}, force to close channel: {}.", ((Signal) cause).name(), ch);
+
+                ch.close();
+            } else if (cause instanceof IOException) {
+                logger.error("An I/O exception was caught: {}, force to close channel: {}.", stackTrace(cause), cause);
+
+                ch.close();
             } else {
-                logger.error("An exception has been caught {}, on {}.", stackTrace(cause), jChannel);
+                logger.error("An unexpected exception was caught: {}, channel: {}.", stackTrace(cause), ch);
             }
         }
     }
@@ -686,7 +692,7 @@ public class DefaultRegistryServer extends NettyTcpAcceptor implements RegistryS
 
                     Thread.sleep(300);
                 } catch (Throwable t) {
-                    logger.error("An exception has been caught while scanning the timeout acknowledges {}.", stackTrace(t));
+                    logger.error("An exception was caught while scanning the timeout acknowledges {}.", stackTrace(t));
                 }
             }
         }
