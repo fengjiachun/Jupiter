@@ -63,7 +63,7 @@ public class MessageTask implements Runnable {
         try {
             wrapper = serializer.readObject(bytes, ResultWrapper.class);
         } catch (Throwable t) {
-            logger.error("Deserialize object failed: {}.", stackTrace(t));
+            logger.error("Deserialize object failed: {}, {}.", channel.remoteAddress(), stackTrace(t));
 
             _response.status(Status.DESERIALIZATION_FAIL);
             wrapper = new ResultWrapper();
