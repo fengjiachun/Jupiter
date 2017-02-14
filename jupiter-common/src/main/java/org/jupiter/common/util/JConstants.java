@@ -84,16 +84,6 @@ public final class JConstants {
     public static final int DEFAULT_CONNECTION_COUNT =
             SystemPropertyUtil.getInt("jupiter.rpc.suggest.connection.count", AVAILABLE_PROCESSORS);
 
-    /** Processor.executor 核心线程数 **/
-    public static final int PROCESSOR_CORE_WORKERS =
-            SystemPropertyUtil.getInt("jupiter.processor.executor.core.workers", AVAILABLE_PROCESSORS << 1);
-    /** Processor.executor 最大线程数的限制 **/
-    public static final int PROCESSOR_MAX_WORKS =
-            SystemPropertyUtil.getInt("jupiter.processor.executor.max.workers", 512);
-    /** Processor.executor 队列的容量限制 **/
-    public static final int PROCESSOR_WORKER_QUEUE_CAPACITY =
-            SystemPropertyUtil.getInt("jupiter.processor.executor.queue.capacity", 32768);
-
     /** Metrics csv reporter */
     public static final boolean METRIC_CSV_REPORTER =
             SystemPropertyUtil.getBoolean("jupiter.metric.csv.reporter", false);

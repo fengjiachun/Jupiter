@@ -28,38 +28,35 @@ import org.jupiter.common.util.SystemPropertyUtil;
 public abstract class AbstractExecutorFactory implements ExecutorFactory {
 
     protected int coreWorks(Target target) {
-        int defaultValue = JConstants.PROCESSOR_CORE_WORKERS;
         switch (target) {
             case CONSUMER:
-                return SystemPropertyUtil.getInt(CONSUMER_EXECUTOR_CORE_WORKERS, defaultValue);
+                return SystemPropertyUtil.getInt(CONSUMER_EXECUTOR_CORE_WORKERS, JConstants.AVAILABLE_PROCESSORS << 1);
             case PROVIDER:
-                return SystemPropertyUtil.getInt(PROVIDER_EXECUTOR_CORE_WORKERS, defaultValue);
+                return SystemPropertyUtil.getInt(PROVIDER_EXECUTOR_CORE_WORKERS, JConstants.AVAILABLE_PROCESSORS << 4);
             default:
-                return defaultValue;
+                throw new IllegalArgumentException(String.valueOf(target));
         }
     }
 
     protected int maxWorks(Target target) {
-        int defaultValue = JConstants.PROCESSOR_MAX_WORKS;
         switch (target) {
             case CONSUMER:
-                return SystemPropertyUtil.getInt(CONSUMER_EXECUTOR_MAX_WORKERS, defaultValue);
+                return SystemPropertyUtil.getInt(CONSUMER_EXECUTOR_MAX_WORKERS, JConstants.AVAILABLE_PROCESSORS << 3);
             case PROVIDER:
-                return SystemPropertyUtil.getInt(PROVIDER_EXECUTOR_MAX_WORKERS, defaultValue);
+                return SystemPropertyUtil.getInt(PROVIDER_EXECUTOR_MAX_WORKERS, JConstants.AVAILABLE_PROCESSORS << 7);
             default:
-                return defaultValue;
+                throw new IllegalArgumentException(String.valueOf(target));
         }
     }
 
     protected int queueCapacity(Target target) {
-        int defaultValue = JConstants.PROCESSOR_WORKER_QUEUE_CAPACITY;
         switch (target) {
             case CONSUMER:
-                return SystemPropertyUtil.getInt(CONSUMER_EXECUTOR_QUEUE_CAPACITY, defaultValue);
+                return SystemPropertyUtil.getInt(CONSUMER_EXECUTOR_QUEUE_CAPACITY, 32768);
             case PROVIDER:
-                return SystemPropertyUtil.getInt(PROVIDER_EXECUTOR_QUEUE_CAPACITY, defaultValue);
+                return SystemPropertyUtil.getInt(PROVIDER_EXECUTOR_QUEUE_CAPACITY, 32768);
             default:
-                return defaultValue;
+                throw new IllegalArgumentException(String.valueOf(target));
         }
     }
 }
