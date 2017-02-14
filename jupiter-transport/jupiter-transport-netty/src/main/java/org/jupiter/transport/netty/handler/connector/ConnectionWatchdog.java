@@ -77,14 +77,15 @@ public abstract class ConnectionWatchdog extends ChannelInboundHandlerAdapter im
 
     @Override
     public void channelActive(ChannelHandlerContext ctx) throws Exception {
-        Channel channel = ctx.channel();
+        Channel ch = ctx.channel();
+
         if (group != null) {
-            group.add(NettyChannel.attachChannel(channel));
+            group.add(NettyChannel.attachChannel(ch));
         }
 
         attempts = 0;
 
-        logger.info("Connects with {}.", channel);
+        logger.info("Connects with {}.", ch);
 
         ctx.fireChannelActive();
     }

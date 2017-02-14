@@ -599,10 +599,10 @@ public class DefaultRegistryServer extends NettyTcpAcceptor implements RegistryS
 
         @Override
         public void channelInactive(ChannelHandlerContext ctx) throws Exception {
-            Channel channel = ctx.channel();
+            Channel ch = ctx.channel();
 
             // 取消之前发布的所有服务
-            ConcurrentSet<RegisterMeta> registerMetaSet = channel.attr(S_PUBLISH_KEY).get();
+            ConcurrentSet<RegisterMeta> registerMetaSet = ch.attr(S_PUBLISH_KEY).get();
 
             if (registerMetaSet == null || registerMetaSet.isEmpty()) {
                 return;
@@ -613,7 +613,7 @@ public class DefaultRegistryServer extends NettyTcpAcceptor implements RegistryS
                 if (address == null) {
                     address = meta.getAddress();
                 }
-                handlePublishCancel(meta, channel);
+                handlePublishCancel(meta, ch);
             }
 
             if (address != null) {

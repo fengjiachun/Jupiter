@@ -136,7 +136,9 @@ public class IdleStateChecker extends ChannelDuplexHandler {
     @SuppressWarnings("StatementWithEmptyBody")
     @Override
     public void handlerAdded(ChannelHandlerContext ctx) throws Exception {
-        if (ctx.channel().isActive() && ctx.channel().isRegistered()) {
+        Channel ch = ctx.channel();
+
+        if (ch.isActive() && ch.isRegistered()) {
             // channelActive() event has been fired already, which means this.channelActive() will
             // not be invoked. We have to initialize here instead.
             initialize(ctx);
