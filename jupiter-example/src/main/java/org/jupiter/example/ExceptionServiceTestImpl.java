@@ -28,7 +28,11 @@ import org.jupiter.rpc.ServiceProviderImpl;
 public class ExceptionServiceTestImpl implements ExceptionServiceTest {
 
     @Override
-    public String hello() throws IllegalAccessException {
-        throw new IllegalAccessException("hello");
+    public String hello(int i) throws IllegalArgumentException {
+        if (i > 0) {
+            throw new IllegalArgumentException("expected exception");
+        } else {
+            throw new UnsupportedOperationException("unexpected exception");
+        }
     }
 }

@@ -162,7 +162,7 @@ public class MessageTask implements RejectedRunnable {
             MetricsHolder.rejectionMeter.mark();
         }
 
-        logger.warn("Service rejected: {}.", stackTrace(cause));
+        logger.warn("Service rejected: {}, {}.", channel.remoteAddress(), stackTrace(cause));
 
         ResultWrapper result = new ResultWrapper();
         // 截断cause, 避免客户端无法找到cause类型而无法序列化
@@ -297,14 +297,14 @@ public class MessageTask implements RejectedRunnable {
                 // 会在客户端抛出无法反序列化异常, 目前为止我没有更好的办法
                 if (eType.isAssignableFrom(failType)) {
                     // 预期内的异常
-                    processor.handleException(channel, request, Status.SERVICE_EXPECT_ERROR, failCause);
+                    processor.handleException(channel, request, Status.SERVICE_EXPECTED_ERROR, failCause);
                     return;
                 }
             }
         }
 
         // 预期外的异常
-        processor.handleException(channel, request, Status.SERVICE_UN_EXPECT_ERROR, failCause);
+        processor.handleException(channel, request, Status.SERVICE_UNEXPECTED_ERROR, failCause);
     }
 
     @SuppressWarnings("all")

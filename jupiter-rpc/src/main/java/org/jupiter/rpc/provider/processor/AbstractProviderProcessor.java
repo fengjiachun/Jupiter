@@ -55,7 +55,10 @@ public abstract class AbstractProviderProcessor implements
     }
 
     private void handleException(JChannel channel, long invokeId, byte s_code, byte status, Throwable cause) {
-        logger.error("An exception has been caught while processing request: {}, {}.", invokeId, stackTrace(cause));
+        logger.error(
+                "An exception has been caught while processing request: {}, {}, {}.",
+                invokeId, channel.remoteAddress(), stackTrace(cause)
+        );
 
         ResultWrapper result = new ResultWrapper();
         // 截断cause, 避免客户端无法找到cause类型而无法序列化

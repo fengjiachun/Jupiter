@@ -168,10 +168,10 @@ public class DefaultInvokeFuture<V> extends AbstractInvokeFuture<V> {
         } else if (status == Status.DESERIALIZATION_FAIL.value()) {
             ResultWrapper wrapper = response.result();
             cause = (JupiterSerializationException) wrapper.getResult();
-        } else if (status == Status.SERVICE_EXPECT_ERROR.value()) {
+        } else if (status == Status.SERVICE_EXPECTED_ERROR.value()) {
             ResultWrapper wrapper = response.result();
             cause = (Throwable) wrapper.getResult();
-        } else if (status == Status.SERVICE_UN_EXPECT_ERROR.value()) {
+        } else if (status == Status.SERVICE_UNEXPECTED_ERROR.value()) {
             ResultWrapper wrapper = response.result();
             String message = String.valueOf(wrapper.getResult());
             cause = new JupiterBizException(message, channel.remoteAddress());

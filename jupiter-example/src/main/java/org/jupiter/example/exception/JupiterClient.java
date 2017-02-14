@@ -60,11 +60,21 @@ public class JupiterClient {
                 .newProxyInstance();
 
         try {
-            service.hello();
-        } catch (IllegalAccessException e) {
+            service.hello(1);
+        } catch (Exception e) {
+            System.err.println("remote stack trace =========================");
             e.printStackTrace();
-            System.out.println("=========================");
-            System.out.println("expect exception message: " + e.getMessage());
+            System.err.println("=========================");
+            System.err.println("expected message: " + e.getMessage());
+        }
+
+        try {
+            service.hello(0);
+        } catch (Exception e) {
+            System.err.println("local stack trace =========================");
+            e.printStackTrace();
+            System.err.println("=========================");
+            System.err.println("unexpected message: " + e.getMessage());
         }
     }
 }

@@ -27,5 +27,5 @@ import org.jupiter.rpc.ServiceProvider;
 @ServiceProvider(group = "test")
 public interface ExceptionServiceTest {
 
-    String hello() throws IllegalAccessException;
+    String hello(int i) throws IllegalArgumentException;
 }
