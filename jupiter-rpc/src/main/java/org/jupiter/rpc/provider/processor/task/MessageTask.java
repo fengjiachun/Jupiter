@@ -274,8 +274,7 @@ public class MessageTask implements RejectedRunnable {
         if (exceptionTypes.length > 0) {
             Class<?> failType = failCause.getClass();
             for (Class<?> eType : exceptionTypes) {
-                // 如果抛出声明异常的子类, 客户端可能会因为不存在子类类型而无法序列化
-                // 会在客户端抛出无法反序列化异常, 目前为止我没有更好的办法
+                // 如果抛出声明异常的子类, 客户端可能会因为不存在子类类型而无法序列化, 会在客户端抛出无法反序列化异常
                 if (eType.isAssignableFrom(failType)) {
                     // 预期内的异常
                     processor.handleException(channel, request, Status.SERVICE_EXPECTED_ERROR, failCause);
