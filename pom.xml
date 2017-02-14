@@ -268,7 +268,7 @@
                 <artifactId>slf4j-api</artifactId>
                 <version>${slf4j.version}</version>
             </dependency>
-            <!-- ### zookeeper dependency: begin 只有在依赖[jupiter-registry-zookeeper]时才会需要它 -->
+            <!-- ### zookeeper dependency: begin 只有在依赖 [jupiter-registry-zookeeper] 时才会需要它 -->
             <dependency>
                 <groupId>org.apache.zookeeper</groupId>
                 <artifactId>zookeeper</artifactId>
@@ -314,7 +314,7 @@
             </dependency>
             <!-- ### zookeeper dependency: end -->
 
-            <!-- ### spring dependency: begin 只有在依赖[jupiter-spring-support]时才会需要它 -->
+            <!-- ### spring dependency: begin 只有在依赖 [jupiter-spring-support] 时才会需要它 -->
             <dependency>
                 <groupId>org.springframework</groupId>
                 <artifactId>spring-context</artifactId>
