@@ -20,6 +20,7 @@ import org.jupiter.common.util.internal.logging.InternalLogger;
 import org.jupiter.common.util.internal.logging.InternalLoggerFactory;
 import org.jupiter.rpc.JResponse;
 import org.jupiter.rpc.consumer.future.DefaultInvokeFuture;
+import org.jupiter.rpc.exception.JupiterSerializationException;
 import org.jupiter.rpc.model.metadata.ResultWrapper;
 import org.jupiter.serialization.Serializer;
 import org.jupiter.serialization.SerializerFactory;
@@ -58,13 +59,15 @@ public class MessageTask implements Runnable {
         _responseBytes.nullBytes();
 
         Serializer serializer = SerializerFactory.getSerializer(s_code);
-        ResultWrapper wrapper = null;
+        ResultWrapper wrapper;
         try {
             wrapper = serializer.readObject(bytes, ResultWrapper.class);
         } catch (Throwable t) {
             logger.error("Deserialize object failed: {}.", stackTrace(t));
 
             _response.status(Status.DESERIALIZATION_FAIL);
+            wrapper = new ResultWrapper();
+            wrapper.setError(new JupiterSerializationException(t));
         }
         _response.result(wrapper);
 

@@ -161,13 +161,13 @@ public class DefaultInvokeFuture<V> extends AbstractInvokeFuture<V> {
 
     private void setException(byte status, JResponse response) {
         Throwable cause;
-
         if (status == Status.SERVER_TIMEOUT.value()) {
             cause = new JupiterTimeoutException(channel.remoteAddress(), Status.SERVER_TIMEOUT);
         } else if (status == Status.CLIENT_TIMEOUT.value()) {
             cause = new JupiterTimeoutException(channel.remoteAddress(), Status.CLIENT_TIMEOUT);
         } else if (status == Status.DESERIALIZATION_FAIL.value()) {
-            cause = new JupiterSerializationException(channel.remoteAddress());
+            ResultWrapper wrapper = response.result();
+            cause = (JupiterSerializationException) wrapper.getResult();
         } else if (status == Status.SERVICE_EXPECT_ERROR.value()) {
             ResultWrapper wrapper = response.result();
             cause = (Throwable) wrapper.getResult();
@@ -176,9 +176,14 @@ public class DefaultInvokeFuture<V> extends AbstractInvokeFuture<V> {
             String message = String.valueOf(wrapper.getResult());
             cause = new JupiterBizException(message, channel.remoteAddress());
         } else {
-            cause = new JupiterRemoteException(response.toString(), channel.remoteAddress());
+            ResultWrapper wrapper = response.result();
+            Object result = wrapper.getResult();
+            if (result != null && result instanceof JupiterRemoteException) {
+                cause = (JupiterRemoteException) result;
+            } else {
+                cause = new JupiterRemoteException(response.toString(), channel.remoteAddress());
+            }
         }
-
         setException(cause);
     }
 

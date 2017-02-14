@@ -16,8 +16,8 @@
 
 package org.jupiter.spring.support;
 
+import org.jupiter.common.util.ExceptionUtil;
 import org.jupiter.common.util.Strings;
-import org.jupiter.common.util.internal.JUnsafe;
 import org.jupiter.rpc.JRequest;
 import org.jupiter.rpc.JServer;
 import org.jupiter.rpc.flow.control.FlowController;
@@ -72,7 +72,7 @@ public class JupiterSpringServer implements InitializingBean {
         try {
             server.start(false);
         } catch (Exception e) {
-            JUnsafe.throwException(e);
+            ExceptionUtil.throwException(e);
         }
     }
 

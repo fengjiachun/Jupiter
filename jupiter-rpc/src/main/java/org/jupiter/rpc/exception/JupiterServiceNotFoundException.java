@@ -26,7 +26,7 @@ package org.jupiter.rpc.exception;
  *
  * @author jiachun.fjc
  */
-public class JupiterServiceNotFoundException extends RuntimeException {
+public class JupiterServiceNotFoundException extends JupiterRemoteException {
 
     private static final long serialVersionUID = -2277731243490443074L;
 

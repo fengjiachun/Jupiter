@@ -26,7 +26,7 @@ package org.jupiter.rpc.exception;
  *
  * @author jiachun.fjc
  */
-public class JupiterBadRequestException extends RuntimeException {
+public class JupiterBadRequestException extends JupiterRemoteException {
 
     private static final long serialVersionUID = -6603241073638657127L;
 

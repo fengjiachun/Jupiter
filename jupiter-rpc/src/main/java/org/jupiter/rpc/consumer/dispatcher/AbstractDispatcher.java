@@ -23,6 +23,7 @@ import org.jupiter.common.util.internal.logging.InternalLogger;
 import org.jupiter.common.util.internal.logging.InternalLoggerFactory;
 import org.jupiter.rpc.*;
 import org.jupiter.rpc.consumer.future.DefaultInvokeFuture;
+import org.jupiter.rpc.exception.JupiterRemoteException;
 import org.jupiter.rpc.load.balance.LoadBalancer;
 import org.jupiter.rpc.model.metadata.MessageWrapper;
 import org.jupiter.rpc.model.metadata.ResultWrapper;
@@ -206,7 +207,7 @@ abstract class AbstractDispatcher implements Dispatcher {
                 logger.warn("Writes {} fail on {}, {}.", request, channel, stackTrace(cause));
 
                 ResultWrapper result = new ResultWrapper();
-                result.setErrorToString(cause);
+                result.setError(new JupiterRemoteException(cause));
 
                 JResponse response = new JResponse(requestBytes.invokeId());
                 response.status(Status.CLIENT_ERROR);

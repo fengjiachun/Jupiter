@@ -31,7 +31,6 @@ import io.netty.util.ReferenceCountUtil;
 import io.netty.util.concurrent.GlobalEventExecutor;
 import org.jupiter.common.concurrent.collection.ConcurrentSet;
 import org.jupiter.common.util.*;
-import org.jupiter.common.util.internal.JUnsafe;
 import org.jupiter.common.util.internal.logging.InternalLogger;
 import org.jupiter.common.util.internal.logging.InternalLoggerFactory;
 import org.jupiter.serialization.Serializer;
@@ -209,7 +208,7 @@ public class DefaultRegistryServer extends NettyTcpAcceptor implements RegistryS
         try {
             start();
         } catch (InterruptedException e) {
-            JUnsafe.throwException(e);
+            ExceptionUtil.throwException(e);
         }
     }
 

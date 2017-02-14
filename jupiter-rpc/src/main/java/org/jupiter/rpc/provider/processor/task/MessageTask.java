@@ -26,10 +26,7 @@ import org.jupiter.common.util.internal.UnsafeUpdater;
 import org.jupiter.common.util.internal.logging.InternalLogger;
 import org.jupiter.common.util.internal.logging.InternalLoggerFactory;
 import org.jupiter.rpc.JRequest;
-import org.jupiter.rpc.exception.JupiterBadRequestException;
-import org.jupiter.rpc.exception.JupiterFlowControlException;
-import org.jupiter.rpc.exception.JupiterServerBusyException;
-import org.jupiter.rpc.exception.JupiterServiceNotFoundException;
+import org.jupiter.rpc.exception.*;
 import org.jupiter.rpc.flow.control.ControlResult;
 import org.jupiter.rpc.flow.control.FlowController;
 import org.jupiter.rpc.metric.Metrics;
@@ -157,7 +154,7 @@ public class MessageTask implements RejectedRunnable {
     // 当服务拒绝方法被调用时一般分以下几种情况:
     //  1. 非法请求, close当前连接;
     //  2. 服务端处理能力出现瓶颈, close当前连接, jupiter客户端会自动重连, 在加权负载均衡的情况下权重是一点一点升上来的.
-    private void rejected(Status status, Throwable cause) {
+    private void rejected(Status status, JupiterRemoteException cause) {
         // stack copy
         final JRequest _request = request;
 
@@ -165,10 +162,12 @@ public class MessageTask implements RejectedRunnable {
             MetricsHolder.rejectionMeter.mark();
         }
 
-        ResultWrapper result = new ResultWrapper();
-        result.setErrorToString(cause);
+        logger.warn("Service rejected: {}.", stackTrace(cause));
 
-        logger.warn("Service rejected: {}.", result);
+        ResultWrapper result = new ResultWrapper();
+        // 截断cause, 避免客户端无法找到cause类型而无法序列化
+        cause = ExceptionUtil.cutCause(cause);
+        result.setError(cause);
 
         byte s_code = _request.serializerCode();
         Serializer serializer = SerializerFactory.getSerializer(s_code);

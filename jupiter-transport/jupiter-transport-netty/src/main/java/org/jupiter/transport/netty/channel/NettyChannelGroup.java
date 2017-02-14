@@ -19,11 +19,7 @@ package org.jupiter.transport.netty.channel;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelFutureListener;
 import org.jupiter.common.concurrent.atomic.AtomicUpdater;
-import org.jupiter.common.util.JConstants;
-import org.jupiter.common.util.Lists;
-import org.jupiter.common.util.SystemClock;
-import org.jupiter.common.util.SystemPropertyUtil;
-import org.jupiter.common.util.internal.JUnsafe;
+import org.jupiter.common.util.*;
 import org.jupiter.transport.UnresolvedAddress;
 import org.jupiter.transport.channel.JChannel;
 import org.jupiter.transport.channel.JChannelGroup;
@@ -209,7 +205,7 @@ public class NettyChannelGroup implements JChannelGroup {
                 }
             }
         } catch (InterruptedException e) {
-            JUnsafe.throwException(e);
+            ExceptionUtil.throwException(e);
         } finally {
             _look.unlock();
         }

@@ -26,7 +26,7 @@ package org.jupiter.rpc.exception;
  *
  * @author jiachun.fjc
  */
-public class JupiterFlowControlException extends RuntimeException {
+public class JupiterFlowControlException extends JupiterRemoteException {
 
     private static final long serialVersionUID = 3478741195763320940L;
 

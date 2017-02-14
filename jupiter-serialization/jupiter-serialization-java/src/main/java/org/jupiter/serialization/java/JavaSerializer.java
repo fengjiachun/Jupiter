@@ -16,8 +16,8 @@
 
 package org.jupiter.serialization.java;
 
+import org.jupiter.common.util.ExceptionUtil;
 import org.jupiter.common.util.internal.InternalThreadLocal;
-import org.jupiter.common.util.internal.JUnsafe;
 import org.jupiter.common.util.internal.UnsafeReferenceFieldUpdater;
 import org.jupiter.common.util.internal.UnsafeUpdater;
 import org.jupiter.serialization.Serializer;
@@ -62,7 +62,7 @@ public class JavaSerializer extends Serializer {
             output.flush();
             return buf.toByteArray();
         } catch (IOException e) {
-            JUnsafe.throwException(e);
+            ExceptionUtil.throwException(e);
         } finally {
             if (output != null) {
                 try {
@@ -88,7 +88,7 @@ public class JavaSerializer extends Serializer {
             Object obj = input.readObject();
             return clazz.cast(obj);
         } catch (Exception e) {
-            JUnsafe.throwException(e);
+            ExceptionUtil.throwException(e);
         } finally {
             if (input != null) {
                 try {

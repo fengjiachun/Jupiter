@@ -16,8 +16,6 @@
 
 package org.jupiter.common.util;
 
-import org.jupiter.common.util.internal.JUnsafe;
-
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
@@ -41,7 +39,7 @@ public class MD5Util {
             MessageDigest message = java.security.MessageDigest.getInstance("MD5");
             messageDigestHolder.set(message);
         } catch (NoSuchAlgorithmException e) {
-            JUnsafe.throwException(e);
+            ExceptionUtil.throwException(e);
         }
     }
 
@@ -62,7 +60,7 @@ public class MD5Util {
 
             return digestHex.toString();
         } catch (Exception e) {
-            JUnsafe.throwException(e);
+            ExceptionUtil.throwException(e);
         }
         return "";
     }

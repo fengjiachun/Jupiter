@@ -16,6 +16,7 @@
 
 package org.jupiter.rpc.provider.processor;
 
+import org.jupiter.common.util.ExceptionUtil;
 import org.jupiter.common.util.internal.logging.InternalLogger;
 import org.jupiter.common.util.internal.logging.InternalLoggerFactory;
 import org.jupiter.rpc.JRequest;
@@ -57,11 +58,9 @@ public abstract class AbstractProviderProcessor implements
         logger.error("An exception has been caught while processing request: {}, {}.", invokeId, stackTrace(cause));
 
         ResultWrapper result = new ResultWrapper();
-        if (Status.SERVICE_EXPECT_ERROR.value() == status) {
-            result.setError(cause);
-        } else {
-            result.setErrorToString(cause);
-        }
+        // 截断cause, 避免客户端无法找到cause类型而无法序列化
+        cause = ExceptionUtil.cutCause(cause);
+        result.setError(cause);
 
         Serializer serializer = SerializerFactory.getSerializer(s_code);
         byte[] bytes = serializer.writeObject(result);

@@ -16,7 +16,7 @@
 
 package org.jupiter.flight.exec;
 
-import org.jupiter.common.util.internal.JUnsafe;
+import org.jupiter.common.util.ExceptionUtil;
 import org.jupiter.rpc.ServiceProviderImpl;
 
 /**
@@ -50,7 +50,7 @@ public class JavaClassExecProvider implements JavaClassExec {
 
             executor = (UserExecInterface) clazz.newInstance();
         } catch (Throwable t) {
-            JUnsafe.throwException(t);
+            ExceptionUtil.throwException(t);
         }
 
         synchronized (HackSystem.class) {

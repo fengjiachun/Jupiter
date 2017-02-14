@@ -16,10 +16,10 @@
 
 package org.jupiter.registry;
 
+import org.jupiter.common.util.ExceptionUtil;
 import org.jupiter.common.util.Lists;
 import org.jupiter.common.util.Reflects;
 import org.jupiter.common.util.SystemPropertyUtil;
-import org.jupiter.common.util.internal.JUnsafe;
 
 import java.lang.reflect.Constructor;
 import java.net.SocketAddress;
@@ -97,7 +97,7 @@ public interface RegistryServer extends RegistryMonitor {
                 c.setAccessible(true);
                 return c.newInstance(parameters);
             } catch (Exception e) {
-                JUnsafe.throwException(e);
+                ExceptionUtil.throwException(e);
             }
             return null; // should never get here
         }

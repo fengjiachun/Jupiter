@@ -18,8 +18,8 @@ package org.jupiter.serialization.hessian;
 
 import com.caucho.hessian.io.Hessian2Input;
 import com.caucho.hessian.io.Hessian2Output;
+import org.jupiter.common.util.ExceptionUtil;
 import org.jupiter.common.util.internal.InternalThreadLocal;
-import org.jupiter.common.util.internal.JUnsafe;
 import org.jupiter.common.util.internal.UnsafeReferenceFieldUpdater;
 import org.jupiter.common.util.internal.UnsafeUpdater;
 import org.jupiter.serialization.Serializer;
@@ -65,7 +65,7 @@ public class HessianSerializer extends Serializer {
             output.flush();
             return buf.toByteArray();
         } catch (IOException e) {
-            JUnsafe.throwException(e);
+            ExceptionUtil.throwException(e);
         } finally {
             try {
                 output.close();
@@ -88,7 +88,7 @@ public class HessianSerializer extends Serializer {
             Object obj = input.readObject(clazz);
             return clazz.cast(obj);
         } catch (IOException e) {
-            JUnsafe.throwException(e);
+            ExceptionUtil.throwException(e);
         } finally {
             try {
                 input.close();

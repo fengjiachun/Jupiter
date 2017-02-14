@@ -16,11 +16,7 @@
 
 package org.jupiter.rpc;
 
-import org.jupiter.common.util.ClassInitializeUtil;
-import org.jupiter.common.util.JConstants;
-import org.jupiter.common.util.JServiceLoader;
-import org.jupiter.common.util.Strings;
-import org.jupiter.common.util.internal.JUnsafe;
+import org.jupiter.common.util.*;
 import org.jupiter.registry.*;
 import org.jupiter.rpc.consumer.processor.DefaultConsumerProcessor;
 import org.jupiter.rpc.model.metadata.ServiceMetadata;
@@ -212,7 +208,7 @@ public class DefaultClient implements JClient {
                         }
                     }
                 } catch (InterruptedException e) {
-                    JUnsafe.throwException(e);
+                    ExceptionUtil.throwException(e);
                 } finally {
                     _look.unlock();
                 }

@@ -16,8 +16,6 @@
 
 package org.jupiter.rpc.model.metadata;
 
-import org.jupiter.common.util.StackTraceUtil;
-
 import java.io.Serializable;
 
 /**
@@ -44,12 +42,8 @@ public class ResultWrapper implements Serializable {
         this.result = result;
     }
 
-    public void setError(Throwable t) {
-        result = t;
-    }
-
-    public void setErrorToString(Throwable t) {
-        result = StackTraceUtil.stackTrace(t);
+    public void setError(Throwable cause) {
+        result = cause;
     }
 
     @Override

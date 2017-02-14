@@ -16,7 +16,6 @@
 
 package org.jupiter.common.util;
 
-import org.jupiter.common.util.internal.JUnsafe;
 import org.objenesis.Objenesis;
 import org.objenesis.ObjenesisStd;
 
@@ -108,7 +107,7 @@ public final class Reflects {
             try {
                 return clazz.newInstance();
             } catch (Exception e) {
-                JUnsafe.throwException(e);
+                ExceptionUtil.throwException(e);
             }
         } else {
             // without any constructor being called
@@ -133,7 +132,7 @@ public final class Reflects {
             method.setAccessible(true);
             value = method.invoke(obj, args);
         } catch (Exception e) {
-            JUnsafe.throwException(e);
+            ExceptionUtil.throwException(e);
         }
         return value;
     }
@@ -186,7 +185,7 @@ public final class Reflects {
             Field fd = setAccessible(getField(clazz, name));
             value = fd.get(null);
         } catch (Exception e) {
-            JUnsafe.throwException(e);
+            ExceptionUtil.throwException(e);
         }
         return value;
     }
@@ -205,7 +204,7 @@ public final class Reflects {
             Field fd = setAccessible(getField(clazz, name));
             fd.set(null, value);
         } catch (Exception e) {
-            JUnsafe.throwException(e);
+            ExceptionUtil.throwException(e);
         }
     }
 
@@ -223,7 +222,7 @@ public final class Reflects {
             Field fd = setAccessible(getField(o.getClass(), name));
             value = fd.get(o);
         } catch (Exception e) {
-            JUnsafe.throwException(e);
+            ExceptionUtil.throwException(e);
         }
         return value;
     }
@@ -241,7 +240,7 @@ public final class Reflects {
             Field fd = setAccessible(getField(o.getClass(), name));
             fd.set(o, value);
         } catch (Exception e) {
-            JUnsafe.throwException(e);
+            ExceptionUtil.throwException(e);
         }
     }
 

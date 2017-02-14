@@ -16,6 +16,8 @@
 
 package org.jupiter.common.util.internal;
 
+import org.jupiter.common.util.ExceptionUtil;
+
 /**
  * jupiter
  * org.jupiter.common.util.internal
@@ -65,7 +67,7 @@ public class InternalThreadLocal<V> {
         try {
             v = initialValue();
         } catch (Exception e) {
-            JUnsafe.throwException(e);
+            ExceptionUtil.throwException(e);
         }
 
         threadLocalMap.setIndexedVariable(index, v);
@@ -100,7 +102,7 @@ public class InternalThreadLocal<V> {
             try {
                 onRemoval((V) v);
             } catch (Exception e) {
-                JUnsafe.throwException(e);
+                ExceptionUtil.throwException(e);
             }
         }
     }
