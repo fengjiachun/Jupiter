@@ -67,7 +67,7 @@
        <artifactId>jupiter-serialization-protostuff</artifactId>
        <version>1.2.0</version>
     </dependency>
-    <!-- 注册中心 -->
+    <!-- 注册中心, jupiter-registry-zookeeper/jupiter-registry-default二选一 -->
     <dependency>
        <groupId>org.jupiter-rpc</groupId>
        <artifactId>jupiter-registry-zookeeper</artifactId>
