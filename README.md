@@ -35,55 +35,55 @@
 
 ####Maven依赖:
 
-       <dependency>
-           <groupId>org.jupiter-rpc</groupId>
-           <artifactId>jupiter-rpc</artifactId>
-           <version>1.2.0</version>
-       </dependency>
-       <!-- 传输层 -->
-       <dependency>
-           <groupId>org.jupiter-rpc</groupId>
-           <artifactId>jupiter-transport-netty</artifactId>
-           <version>1.2.0</version>
-       </dependency>
-       <!-- 序列化/反序列化, 可选择只其中依赖一种或者同时依赖多种 -->
-       <dependency>
-           <groupId>org.jupiter-rpc</groupId>
-           <artifactId>jupiter-serialization-hessian</artifactId>
-           <version>1.2.0</version>
-       </dependency>
-       <dependency>
-           <groupId>org.jupiter-rpc</groupId>
-           <artifactId>jupiter-serialization-java</artifactId>
-           <version>1.2.0</version>
-       </dependency>
-       <dependency>
-           <groupId>org.jupiter-rpc</groupId>
-           <artifactId>jupiter-serialization-kryo</artifactId>
-           <version>1.2.0</version>
-       </dependency>
-       <dependency>
-           <groupId>org.jupiter-rpc</groupId>
-           <artifactId>jupiter-serialization-protostuff</artifactId>
-           <version>1.2.0</version>
-       </dependency>
-       <!-- 注册中心 -->
-       <dependency>
-           <groupId>org.jupiter-rpc</groupId>
-           <artifactId>jupiter-registry-zookeeper</artifactId>
-           <version>1.2.0</version>
-       </dependency>
-       <!-- 集成Spring支持, 如不集成Spring可不依赖 -->
-       <dependency>
-           <groupId>org.jupiter-rpc</groupId>
-           <artifactId>jupiter-spring-support</artifactId>
-           <version>1.2.0</version>
-       </dependency>
-       <dependency>
-           <groupId>org.springframework</groupId>
-           <artifactId>spring-context</artifactId>
-           <version>4.3.0.RELEASE</version>
-       </dependency>
+    <dependency>
+       <groupId>org.jupiter-rpc</groupId>
+       <artifactId>jupiter-rpc</artifactId>
+       <version>1.2.0</version>
+    </dependency>
+    <!-- 传输层 -->
+    <dependency>
+       <groupId>org.jupiter-rpc</groupId>
+       <artifactId>jupiter-transport-netty</artifactId>
+       <version>1.2.0</version>
+    </dependency>
+    <!-- 序列化/反序列化, 可选择只其中依赖一种或者同时依赖多种 -->
+    <dependency>
+       <groupId>org.jupiter-rpc</groupId>
+       <artifactId>jupiter-serialization-hessian</artifactId>
+       <version>1.2.0</version>
+    </dependency>
+    <dependency>
+       <groupId>org.jupiter-rpc</groupId>
+       <artifactId>jupiter-serialization-java</artifactId>
+       <version>1.2.0</version>
+    </dependency>
+    <dependency>
+       <groupId>org.jupiter-rpc</groupId>
+       <artifactId>jupiter-serialization-kryo</artifactId>
+       <version>1.2.0</version>
+    </dependency>
+    <dependency>
+       <groupId>org.jupiter-rpc</groupId>
+       <artifactId>jupiter-serialization-protostuff</artifactId>
+       <version>1.2.0</version>
+    </dependency>
+    <!-- 注册中心 -->
+    <dependency>
+       <groupId>org.jupiter-rpc</groupId>
+       <artifactId>jupiter-registry-zookeeper</artifactId>
+       <version>1.2.0</version>
+    </dependency>
+    <!-- 集成Spring支持, 如不集成Spring可不依赖 -->
+    <dependency>
+       <groupId>org.jupiter-rpc</groupId>
+       <artifactId>jupiter-spring-support</artifactId>
+       <version>1.2.0</version>
+    </dependency>
+    <dependency>
+       <groupId>org.springframework</groupId>
+       <artifactId>spring-context</artifactId>
+       <version>4.3.0.RELEASE</version>
+    </dependency>
 
 
 ####其他
