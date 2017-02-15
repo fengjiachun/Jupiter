@@ -298,7 +298,7 @@ public class MessageTask implements RejectedRunnable {
             try {
                 interceptors[i].beforeInvoke(traceId, provider, methodName, args);
             } catch (Throwable t) {
-                logger.warn("Interceptor[{}#beforeInvoke]: {}.", Reflects.simpleClassName(interceptors[i]), stackTrace(t));
+                logger.error("Interceptor[{}#beforeInvoke]: {}.", Reflects.simpleClassName(interceptors[i]), stackTrace(t));
             }
         }
     }
@@ -316,7 +316,7 @@ public class MessageTask implements RejectedRunnable {
             try {
                 interceptors[i].afterInvoke(traceId, provider, methodName, args, invokeResult, failCause);
             } catch (Throwable t) {
-                logger.warn("Interceptor[{}#afterInvoke]: {}.", Reflects.simpleClassName(interceptors[i]), stackTrace(t));
+                logger.error("Interceptor[{}#afterInvoke]: {}.", Reflects.simpleClassName(interceptors[i]), stackTrace(t));
             }
         }
     }

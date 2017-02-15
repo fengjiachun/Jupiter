@@ -104,7 +104,9 @@ public class ThreadPoolExecutorFactory extends AbstractExecutorFactory {
                     handler = (RejectedExecutionHandler) cls.newInstance();
                 }
             } catch (Exception e) {
-                logger.warn("Construct {} failed, {}.", handlerClass, stackTrace(e));
+                if (logger.isWarnEnabled()) {
+                    logger.warn("Construct {} failed, {}.", handlerClass, stackTrace(e));
+                }
             }
         }
 

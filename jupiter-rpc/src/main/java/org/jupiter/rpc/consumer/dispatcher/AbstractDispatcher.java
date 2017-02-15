@@ -204,7 +204,9 @@ abstract class AbstractDispatcher implements Dispatcher {
                     requestBytes.nullBytes();
                 }
 
-                logger.warn("Writes {} fail on {}, {}.", request, channel, stackTrace(cause));
+                if (logger.isWarnEnabled()) {
+                    logger.warn("Writes {} fail on {}, {}.", request, channel, stackTrace(cause));
+                }
 
                 ResultWrapper result = new ResultWrapper();
                 result.setError(new JupiterRemoteException(cause));

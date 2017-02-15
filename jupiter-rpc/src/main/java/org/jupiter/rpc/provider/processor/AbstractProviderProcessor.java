@@ -47,40 +47,32 @@ public abstract class AbstractProviderProcessor implements
 
     @Override
     public void handleException(JChannel channel, JRequestBytes request, Status status, Throwable cause) {
-        handleException(channel, request.invokeId(), request.serializerCode(), status.value(), cause);
+        logger.error("An exception was caught while processing request: {}, {}.",
+                channel.remoteAddress(), stackTrace(cause));
+
+        doHandleException(
+                channel, request.invokeId(), request.serializerCode(), status.value(), cause, false);
     }
 
     public void handleException(JChannel channel, JRequest request, Status status, Throwable cause) {
-        handleException(channel, request.invokeId(), request.serializerCode(), status.value(), cause);
+        logger.error("An exception was caught while processing request: {}, {}.",
+                channel.remoteAddress(), stackTrace(cause));
+
+        doHandleException(
+                channel, request.invokeId(), request.serializerCode(), status.value(), cause, false);
     }
 
     public void handleRejected(JChannel channel, JRequest request, Status status, Throwable cause) {
-        logger.warn("Service rejected: {}, {}.", channel.remoteAddress(), stackTrace(cause));
+        if (logger.isWarnEnabled()) {
+            logger.warn("Service rejected: {}, {}.", channel.remoteAddress(), stackTrace(cause));
+        }
 
-        ResultWrapper result = new ResultWrapper();
-        // 截断cause, 避免客户端无法找到cause类型而无法序列化
-        cause = ExceptionUtil.cutCause(cause);
-        result.setError(cause);
-
-        byte s_code = request.serializerCode();
-        Serializer serializer = SerializerFactory.getSerializer(s_code);
-        // 在业务线程中序列化, 减轻IO线程负担
-        byte[] bytes = serializer.writeObject(result);
-
-        JResponseBytes response = new JResponseBytes(request.invokeId());
-        response.status(status.value());
-        response.bytes(s_code, bytes);
-        // 当服务拒绝方法被调用时一般分以下几种情况:
-        //  1. 非法请求, close当前连接;
-        //  2. 服务端处理能力出现瓶颈, close当前连接, jupiter客户端会自动重连, 在加权负载均衡的情况下权重是一点一点升上来的.
-        channel.write(response, JChannel.CLOSE);
+        doHandleException(
+                channel, request.invokeId(), request.serializerCode(), status.value(), cause, true);
     }
 
-    private void handleException(JChannel channel, long invokeId, byte s_code, byte status, Throwable cause) {
-        logger.error(
-                "An exception was caught while processing request: {}, {}, {}.",
-                invokeId, channel.remoteAddress(), stackTrace(cause)
-        );
+    private void doHandleException(
+            JChannel channel, long invokeId, byte s_code, byte status, Throwable cause, boolean closeChannel) {
 
         ResultWrapper result = new ResultWrapper();
         // 截断cause, 避免客户端无法找到cause类型而无法序列化
@@ -94,17 +86,23 @@ public abstract class AbstractProviderProcessor implements
         response.status(status);
         response.bytes(s_code, bytes);
 
-        channel.write(response, new JFutureListener<JChannel>() {
+        if (closeChannel) {
+            channel.write(response, JChannel.CLOSE);
+        } else {
+            channel.write(response, new JFutureListener<JChannel>() {
 
-            @Override
-            public void operationSuccess(JChannel channel) throws Exception {
-                logger.debug("Service error message sent out: {}.", channel);
-            }
+                @Override
+                public void operationSuccess(JChannel channel) throws Exception {
+                    logger.debug("Service error message sent out: {}.", channel);
+                }
 
-            @Override
-            public void operationFailure(JChannel channel, Throwable cause) throws Exception {
-                logger.warn("Service error message sent failed: {}, {}.", channel, stackTrace(cause));
-            }
-        });
+                @Override
+                public void operationFailure(JChannel channel, Throwable cause) throws Exception {
+                    if (logger.isWarnEnabled()) {
+                        logger.warn("Service error message sent failed: {}, {}.", channel, stackTrace(cause));
+                    }
+                }
+            });
+        }
     }
 }

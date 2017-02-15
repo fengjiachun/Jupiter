@@ -24,6 +24,8 @@ import java.lang.reflect.Field;
 import java.security.AccessController;
 import java.security.PrivilegedAction;
 
+import static org.jupiter.common.util.StackTraceUtil.stackTrace;
+
 /**
  * For the {@link sun.misc.Unsafe} access.
  *
@@ -45,7 +47,9 @@ public final class JUnsafe {
             unsafeField.setAccessible(true);
             unsafe = (Unsafe) unsafeField.get(null);
         } catch (Throwable t) {
-            logger.warn("sun.misc.Unsafe.theUnsafe: unavailable, {}.", t);
+            if (logger.isWarnEnabled()) {
+                logger.warn("sun.misc.Unsafe.theUnsafe: unavailable, {}.", stackTrace(t));
+            }
 
             unsafe = null;
         }

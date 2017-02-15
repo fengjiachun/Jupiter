@@ -102,12 +102,13 @@ public class FailOverClusterInvoker extends AbstractClusterInvoker {
 
                 @Override
                 public void failure(Throwable cause) {
-                    logger.warn("[Fail-over] retry, [{}] attempts left, [method: {}], [metadata: {}], {}.",
-                            tryCount - 1,
-                            methodName,
-                            dispatcher.metadata(),
-                            stackTrace(cause)
-                    );
+                    if (logger.isWarnEnabled()) {
+                        logger.warn("[Fail-over] retry, [{}] attempts left, [method: {}], [metadata: {}], {}.",
+                                tryCount - 1,
+                                methodName,
+                                dispatcher.metadata(),
+                                stackTrace(cause));
+                    }
 
                     invoke0(methodName, args, returnType, tryCount - 1, future, cause);
                 }

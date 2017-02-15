@@ -59,7 +59,9 @@ public class FailSafeInvokeFuture<V> implements InvokeFuture<V> {
         try {
             return future.getResult();
         } catch (Throwable t) {
-            logger.warn("Ignored exception on [Fail-safe] : {}.", stackTrace(t));
+            if (logger.isWarnEnabled()) {
+                logger.warn("Ignored exception on [Fail-safe]: {}.", stackTrace(t));
+            }
         }
         return (V) Reflects.getTypeDefaultValue(returnType());
     }
@@ -121,7 +123,9 @@ public class FailSafeInvokeFuture<V> implements InvokeFuture<V> {
 
         @Override
         public void failure(Throwable cause) {
-            logger.warn("Ignored exception on [Fail-safe] : {}.", stackTrace(cause));
+            if (logger.isWarnEnabled()) {
+                logger.warn("Ignored exception on [Fail-safe]: {}.", stackTrace(cause));
+            }
 
             listener.complete((T) Reflects.getTypeDefaultValue(returnType()));
         }

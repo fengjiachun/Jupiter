@@ -224,7 +224,10 @@ public class DefaultRegistry extends NettyTcpConnector {
                             if (ch.isActive()) {
                                 ch.pipeline().fireExceptionCaught(future.cause());
                             } else {
-                                logger.warn("Unregister {} fail because of channel is inactive: {}.", meta, stackTrace(future.cause()));
+                                if (logger.isWarnEnabled()) {
+                                    logger.warn("Unregister {} fail because of channel is inactive: {}.",
+                                            meta, stackTrace(future.cause()));
+                                }
                             }
                         }
                     }
@@ -448,8 +451,10 @@ public class DefaultRegistry extends NettyTcpConnector {
                         ch.writeAndFlush(new Acknowledge(obj.sequence()))  // 回复ACK
                                 .addListener(ChannelFutureListener.FIRE_EXCEPTION_ON_FAILURE);
 
-                        logger.info("Publish from RegistryServer {}, metadata : {}, version: {}.",
-                                data.getFirst(), metaObj, obj.version());
+                        if (logger.isInfoEnabled()) {
+                            logger.info("Publish from RegistryServer {}, metadata: {}, version: {}.",
+                                    data.getFirst(), metaObj, obj.version());
+                        }
 
                         break;
                     }
@@ -462,8 +467,10 @@ public class DefaultRegistry extends NettyTcpConnector {
                         ch.writeAndFlush(new Acknowledge(obj.sequence()))  // 回复ACK
                                 .addListener(ChannelFutureListener.FIRE_EXCEPTION_ON_FAILURE);
 
-                        logger.info("Publish cancel from RegistryServer {}, metadata : {}, version: {}.",
-                                data.getFirst(), data.getSecond(), obj.version());
+                        if (logger.isInfoEnabled()) {
+                            logger.info("Publish cancel from RegistryServer {}, metadata: {}, version: {}.",
+                                    data.getFirst(), data.getSecond(), obj.version());
+                        }
 
                         break;
                     }
@@ -479,7 +486,9 @@ public class DefaultRegistry extends NettyTcpConnector {
             } else if (msg instanceof Acknowledge) {
                 handleAcknowledge((Acknowledge) msg);
             } else {
-                logger.warn("Unexpected message type received: {}, channel: {}.", msg.getClass(), ch);
+                if (logger.isWarnEnabled()) {
+                    logger.warn("Unexpected message type received: {}, channel: {}.", msg.getClass(), ch);
+                }
 
                 ReferenceCountUtil.release(msg);
             }

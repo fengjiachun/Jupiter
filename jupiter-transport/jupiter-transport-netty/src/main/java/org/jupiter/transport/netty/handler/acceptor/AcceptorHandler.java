@@ -59,7 +59,9 @@ public class AcceptorHandler extends ChannelInboundHandlerAdapter {
                 processor.handleException(jChannel, (JRequestBytes) msg, Status.SERVER_ERROR, t);
             }
         } else {
-            logger.warn("Unexpected message type received: {}, channel: {}.", msg.getClass(), ch);
+            if (logger.isWarnEnabled()) {
+                logger.warn("Unexpected message type received: {}, channel: {}.", msg.getClass(), ch);
+            }
 
             ReferenceCountUtil.release(msg);
         }
@@ -92,14 +94,18 @@ public class AcceptorHandler extends ChannelInboundHandlerAdapter {
         // 低水位线: ChannelOption.WRITE_BUFFER_LOW_WATER_MARK
         if (!ch.isWritable()) {
             // 当前channel的缓冲区(OutboundBuffer)大小超过了WRITE_BUFFER_HIGH_WATER_MARK
-            logger.warn("{} is not writable, high water mask: {}, the number of flushed entries that are not written yet: {}.",
-                    ch, config.getWriteBufferHighWaterMark(), ch.unsafe().outboundBuffer().size());
+            if (logger.isWarnEnabled()) {
+                logger.warn("{} is not writable, high water mask: {}, the number of flushed entries that are not written yet: {}.",
+                        ch, config.getWriteBufferHighWaterMark(), ch.unsafe().outboundBuffer().size());
+            }
 
             config.setAutoRead(false);
         } else {
             // 曾经高于高水位线的OutboundBuffer现在已经低于WRITE_BUFFER_LOW_WATER_MARK了
-            logger.warn("{} is writable(rehabilitate), low water mask: {}, the number of flushed entries that are not written yet: {}.",
-                    ch, config.getWriteBufferLowWaterMark(), ch.unsafe().outboundBuffer().size());
+            if (logger.isWarnEnabled()) {
+                logger.warn("{} is writable(rehabilitate), low water mask: {}, the number of flushed entries that are not written yet: {}.",
+                        ch, config.getWriteBufferLowWaterMark(), ch.unsafe().outboundBuffer().size());
+            }
 
             config.setAutoRead(true);
         }

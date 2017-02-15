@@ -85,7 +85,9 @@ public class ZookeeperRegistryService extends AbstractRegistryService {
                 registerMetaList.add(parseRegisterMeta(String.format("%s/%s", directory, p)));
             }
         } catch (Exception e) {
-            logger.warn("Lookup service meta: {} path failed, {}.", serviceMeta, stackTrace(e));
+            if (logger.isWarnEnabled()) {
+                logger.warn("Lookup service meta: {} path failed, {}.", serviceMeta, stackTrace(e));
+            }
         }
         return registerMetaList;
     }
@@ -154,7 +156,9 @@ public class ZookeeperRegistryService extends AbstractRegistryService {
                 try {
                     childrenCache.start();
                 } catch (Exception e) {
-                    logger.warn("Subscribe {} failed, {}.", directory, stackTrace(e));
+                    if (logger.isWarnEnabled()) {
+                        logger.warn("Subscribe {} failed, {}.", directory, stackTrace(e));
+                    }
                 }
             }
         }
@@ -172,7 +176,9 @@ public class ZookeeperRegistryService extends AbstractRegistryService {
                 configClient.create().creatingParentsIfNeeded().forPath(directory);
             }
         } catch (Exception e) {
-            logger.warn("Create parent path failed, directory: {}, {}.", directory, stackTrace(e));
+            if (logger.isWarnEnabled()) {
+                logger.warn("Create parent path failed, directory: {}, {}.", directory, stackTrace(e));
+            }
         }
 
         try {
@@ -195,7 +201,9 @@ public class ZookeeperRegistryService extends AbstractRegistryService {
                             String.valueOf(meta.getWeight()),
                             String.valueOf(meta.getConnCount())));
         } catch (Exception e) {
-            logger.warn("Create register meta: {} path failed, {}.", meta, stackTrace(e));
+            if (logger.isWarnEnabled()) {
+                logger.warn("Create register meta: {} path failed, {}.", meta, stackTrace(e));
+            }
         }
     }
 
@@ -211,7 +219,9 @@ public class ZookeeperRegistryService extends AbstractRegistryService {
                 return;
             }
         } catch (Exception e) {
-            logger.warn("Check exists with parent path failed, directory: {}, {}.", directory, stackTrace(e));
+            if (logger.isWarnEnabled()) {
+                logger.warn("Check exists with parent path failed, directory: {}, {}.", directory, stackTrace(e));
+            }
         }
 
         try {
@@ -233,7 +243,9 @@ public class ZookeeperRegistryService extends AbstractRegistryService {
                             String.valueOf(meta.getWeight()),
                             String.valueOf(meta.getConnCount())));
         } catch (Exception e) {
-            logger.warn("Delete register meta: {} path failed, {}.", meta, stackTrace(e));
+            if (logger.isWarnEnabled()) {
+                logger.warn("Delete register meta: {} path failed, {}.", meta, stackTrace(e));
+            }
         }
     }
 

@@ -146,7 +146,9 @@ public class MonitorServer extends NettyTcpAcceptor {
                 }
                 handler.handle(ch, command, args);
             } else {
-                logger.warn("Unexpected message type received: {}, channel: {}.", msg.getClass(), ch);
+                if (logger.isWarnEnabled()) {
+                    logger.warn("Unexpected message type received: {}, channel: {}.", msg.getClass(), ch);
+                }
 
                 ReferenceCountUtil.release(msg);
             }

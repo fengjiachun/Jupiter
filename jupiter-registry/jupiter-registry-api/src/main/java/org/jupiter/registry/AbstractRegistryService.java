@@ -75,7 +75,9 @@ public abstract class AbstractRegistryService implements RegistryService {
                         doRegister(meta);
                     } catch (Throwable t) {
                         if (meta != null) {
-                            logger.warn("Register [{}] fail: {}, will try again...", meta.getServiceMeta(), stackTrace(t));
+                            if (logger.isWarnEnabled()) {
+                                logger.warn("Register [{}] fail: {}, will try again...", meta.getServiceMeta(), stackTrace(t));
+                            }
 
                             queue.add(meta);
                         }

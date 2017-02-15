@@ -48,6 +48,7 @@ public class ByteObjectHashMap<V> implements ByteObjectMap<V> {
     private final Set<Byte> keySet = new KeySet();
     private final Set<Entry<Byte, V>> entrySet = new EntrySet();
     private final Iterable<PrimitiveEntry<V>> entries = new Iterable<PrimitiveEntry<V>>() {
+
         @Override
         public Iterator<PrimitiveEntry<V>> iterator() {
             return new PrimitiveIterator();

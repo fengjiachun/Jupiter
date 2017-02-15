@@ -23,6 +23,8 @@ import java.security.AccessController;
 import java.security.PrivilegedAction;
 import java.util.regex.Pattern;
 
+import static org.jupiter.common.util.StackTraceUtil.*;
+
 /**
  * A collection of utility methods to retrieve and parse the values of the Java system properties.
  *
@@ -84,7 +86,9 @@ public class SystemPropertyUtil {
                 });
             }
         } catch (Exception e) {
-            logger.warn("Unable to retrieve a system property '{}'; default values will be used.", key, e);
+            if (logger.isWarnEnabled()) {
+                logger.warn("Unable to retrieve a system property '{}'; default values will be used, {}.", key, stackTrace(e));
+            }
         }
 
         if (value == null) {
@@ -122,10 +126,7 @@ public class SystemPropertyUtil {
             return false;
         }
 
-        logger.warn(
-                "Unable to parse the boolean system property '{}':{} - using the default value: {}",
-                key, value, def
-        );
+        logger.warn("Unable to parse the boolean system property '{}':{} - using the default value: {}.", key, value, def);
 
         return def;
     }
@@ -154,10 +155,7 @@ public class SystemPropertyUtil {
             } catch (Exception ignored) {}
         }
 
-        logger.warn(
-                "Unable to parse the integer system property '{}':{} - using the default value: {}",
-                key, value, def
-        );
+        logger.warn("Unable to parse the integer system property '{}':{} - using the default value: {}.", key, value, def);
 
         return def;
     }
@@ -184,10 +182,7 @@ public class SystemPropertyUtil {
             } catch (Exception ignored) {}
         }
 
-        logger.warn(
-                "Unable to parse the long integer system property '{}':{} - using the default value: {}",
-                key, value, def
-        );
+        logger.warn("Unable to parse the long integer system property '{}':{} - using the default value: {}.", key, value, def);
 
         return def;
     }
