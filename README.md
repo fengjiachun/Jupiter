@@ -171,13 +171,14 @@
 >             // 连接RegistryServer
 >             client.connectToRegistryServer("127.0.0.1:20001");
 >             // 自动管理可用连接
->             JConnector.ConnectionManager manager = client.manageConnections(ServiceTest.class);
+>             JConnector.ConnectionWatcher watcher = client.watchConnections(ServiceTest.class);
 >             // 等待连接可用
->             if (!manager.waitForAvailable(3000)) {
+>             if (!watcher.waitForAvailable(3000)) {
 >                 throw new ConnectFailedException();
 >             }
 >
 >             ServiceTest service = ProxyFactory.factory(ServiceTest.class)
+>                     .version("1.0.0")
 >                     .client(client)
 >                     .newProxyInstance();
 >
