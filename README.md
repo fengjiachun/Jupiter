@@ -76,7 +76,7 @@
     <!-- 注册中心, jupiter-registry-zookeeper/jupiter-registry-default二选一 -->
     <dependency>
        <groupId>org.jupiter-rpc</groupId>
-       <artifactId>jupiter-registry-zookeeper</artifactId>
+       <artifactId>jupiter-registry-default</artifactId>
        <version>1.2.0</version>
     </dependency>
     <!-- 集成Spring支持, 如不集成Spring可不依赖 -->
@@ -129,7 +129,9 @@
 >    - 每个服务实现必须通过此注解来指定服务版本信息
 >        + version: 服务版本号(选填, 默认版本号为'1.0.0')
 
-3. 启动默认的注册中心:
+3. 启动注册中心:
+> 选择1: 使用jupiter默认的注册中心:
+>
 >     public class HelloJupiterRegistryServer {
 >
 >         public static void main(String[] args) {
@@ -142,6 +144,17 @@
 >             }
 >         }
 >     }
+>
+> 选择2: 使用[zookeeper](https://zookeeper.apache.org/doc/trunk/zookeeperStarted.html)作为注册中心:
+>
+>     默认注册中心只建议在测试环境使用, 线上建议使用zookeeper实现
+>     在server和client中配置jupiter-registry-zookeeper依赖并去除jupiter-registry-default依赖
+>
+>     <dependency>
+>         <groupId>org.jupiter-rpc</groupId>
+>         <artifactId>jupiter-registry-zookeeper</artifactId>
+>         <version>1.2.0</version>
+>     </dependency>
 
 4. 启动服务提供(Server):
 >     public class HelloJupiterServer {
