@@ -37,11 +37,11 @@
 
 ####快速入门
 
-####工程依赖:
+#####工程依赖:
 + JDK1.7或更高版本
 + 依赖管理工具: Maven3.x版本
 
-####Maven依赖:
+#####Maven依赖:
 
     <dependency>
        <groupId>org.jupiter-rpc</groupId>
@@ -105,7 +105,7 @@
        <version>1.2.0</version>
     </dependency>
 
-####简单调用示例:
+#####简单调用示例:
 1. 创建服务接口:
 >     @ServiceProvider(group = "test", name = "serviceTest")
 >     public interface ServiceTest {
@@ -150,7 +150,7 @@
 > 选择2: 使用[zookeeper](https://zookeeper.apache.org/doc/trunk/zookeeperStarted.html)作为注册中心:
 >
 >     默认注册中心只建议在测试环境使用, 线上建议使用zookeeper实现
->     在server和client中配置jupiter-registry-zookeeper依赖并去除jupiter-registry-default依赖
+>     在server和client中配置jupiter-registry-zookeeper依赖并去除jupiter-registry-default依赖即可, 无需其他改动
 >
 >     <dependency>
 >         <groupId>org.jupiter-rpc</groupId>
@@ -201,7 +201,7 @@
 >         }
 >     }
 
-####结合Spring使用示例:
+#####结合Spring使用示例:
 1. [Server端配置](https://github.com/fengjiachun/Jupiter/blob/master/jupiter-example/src/main/resources/spring-provider.xml):
 >
 >     <!-- netty的网络层实现(建议单例) -->
@@ -253,7 +253,8 @@
 >     </bean>
 [Server/Client代码示例](https://github.com/fengjiachun/Jupiter/tree/master/jupiter-example/src/main/java/org/jupiter/example/spring)
 
-####[更多示例代码](https://github.com/fengjiachun/Jupiter/tree/master/jupiter-example/src/main/java/org/jupiter/example)
+#####[更多示例代码](https://github.com/fengjiachun/Jupiter/tree/master/jupiter-example/src/main/java/org/jupiter/example)
+
 
 ####其他
 - qq交流群: 397633380
