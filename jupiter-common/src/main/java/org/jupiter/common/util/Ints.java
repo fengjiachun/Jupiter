@@ -65,9 +65,8 @@ public final class Ints {
      * @param value from which to search for next power of 2
      * @return The next power of 2 or the value itself if it is a power of 2
      */
-    public static int findNextPositivePowerOfTwo(final int value) {
-        assert value > Integer.MIN_VALUE && value < 0x40000000;
-        return 1 << (32 - Integer.numberOfLeadingZeros(value - 1));
+    public static int findNextPositivePowerOfTwo(int value) {
+        return value <= 0 ? 1 : value >= 0x40000000 ? 0x40000000 : 1 << (32 - Integer.numberOfLeadingZeros(value - 1));
     }
 
     private Ints() {}
