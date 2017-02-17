@@ -47,13 +47,7 @@ public final class Ints {
      * Returns the {@code int} nearest in value to {@code value}.
      */
     public static int saturatedCast(long value) {
-        if (value > Integer.MAX_VALUE) {
-            return Integer.MAX_VALUE;
-        }
-        if (value < Integer.MIN_VALUE) {
-            return Integer.MIN_VALUE;
-        }
-        return (int) value;
+        return value > Integer.MAX_VALUE ? Integer.MAX_VALUE : value < Integer.MIN_VALUE ? Integer.MIN_VALUE : (int) value;
     }
 
     /**
