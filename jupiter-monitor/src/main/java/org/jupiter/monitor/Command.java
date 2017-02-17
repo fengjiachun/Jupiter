@@ -32,6 +32,8 @@ import java.util.Map;
 public enum Command {
     AUTH("Login with password", new AuthHandler()),
     HELP("Help information", new HelpHandler()),
+    STACK("Prints java stack traces of java threads for current java process", new JStackHandler()),
+    MEMORY_USAGE("Prints memory usage for current java process", new MemoryUsageHandler()),
     METRICS("Performance metrics", new MetricsHandler(),
             ChildCommand.REPORT),
     REGISTRY("Registry info(P/S command must follow behind ADDRESS)", new RegistryHandler(),
@@ -41,7 +43,7 @@ public enum Command {
             ChildCommand.BY_SERVICE,
             ChildCommand.BY_ADDRESS,
             ChildCommand.GREP),
-    QUIT("Quit monitor", new QuitHandler());
+    QUIT("Quit monitor", new QuitHandler()),;
 
     private final String description;
     private final CommandHandler handler;

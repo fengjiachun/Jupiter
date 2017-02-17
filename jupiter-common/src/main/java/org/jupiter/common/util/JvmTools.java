@@ -1,0 +1,78 @@
+/*
+ * Copyright (c) 2015 The Jupiter Project
+ *
+ * Licensed under the Apache License, version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at:
+ *
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package org.jupiter.common.util;
+
+import java.lang.management.ManagementFactory;
+import java.lang.management.MemoryMXBean;
+import java.lang.management.MemoryUsage;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+
+/**
+ * Jupiter
+ * org.jupiter.common.util
+ *
+ * @author jiachun.fjc
+ */
+public class JvmTools {
+
+    public static List<String> jStack() throws Exception {
+        List<String> stackList = new LinkedList<>();
+        Map<Thread, StackTraceElement[]> allStackTraces = Thread.getAllStackTraces();
+        for (Map.Entry<Thread, StackTraceElement[]> entry : allStackTraces.entrySet()) {
+            Thread thread = entry.getKey();
+            StackTraceElement[] stackTraces = entry.getValue();
+
+            stackList.add(
+                    String.format(
+                            "\"%s\" tid=%s isDaemon=%s priority=%s" + JConstants.NEWLINE,
+                            thread.getName(),
+                            thread.getId(),
+                            thread.isDaemon(),
+                            thread.getPriority()
+                    )
+            );
+
+            stackList.add("java.lang.Thread.State: " + thread.getState() + JConstants.NEWLINE);
+
+            if (stackTraces != null) {
+                for (StackTraceElement s : stackTraces) {
+                    stackList.add("    " + s.toString() + JConstants.NEWLINE);
+                }
+            }
+        }
+        return stackList;
+    }
+
+    public static List<String> memoryUsage() throws Exception {
+        MemoryUsage heapMemoryUsage = MXBeanHolder.memoryMxBean.getHeapMemoryUsage();
+        MemoryUsage nonHeapMemoryUsage = MXBeanHolder.memoryMxBean.getNonHeapMemoryUsage();
+
+        List<String> memoryUsageList = new LinkedList<>();
+        memoryUsageList.add("********************************** Memory Usage **********************************" + JConstants.NEWLINE);
+        memoryUsageList.add("Heap Memory Usage: " + heapMemoryUsage.toString() + JConstants.NEWLINE);
+        memoryUsageList.add("NonHeap Memory Usage: " + nonHeapMemoryUsage.toString() + JConstants.NEWLINE);
+
+        return memoryUsageList;
+    }
+
+    private static class MXBeanHolder {
+
+        static final MemoryMXBean memoryMxBean = ManagementFactory.getMemoryMXBean();
+    }
+}

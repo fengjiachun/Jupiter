@@ -18,36 +18,30 @@ package org.jupiter.monitor.handler;
 
 import io.netty.channel.Channel;
 import org.jupiter.common.util.JConstants;
+import org.jupiter.common.util.JvmTools;
+import org.jupiter.common.util.StackTraceUtil;
 import org.jupiter.monitor.Command;
 
+import java.util.List;
+
 /**
- * jupiter
+ * Jupiter
  * org.jupiter.monitor.handler
  *
  * @author jiachun.fjc
  */
-public class HelpHandler implements CommandHandler {
+public class MemoryUsageHandler implements CommandHandler {
 
     @Override
     public void handle(Channel channel, Command command, String... args) {
-        StringBuilder buf = new StringBuilder();
-        buf.append("-- Help ------------------------------------------------------------------------")
-                .append(JConstants.NEWLINE);
-        for (Command parent : Command.values()) {
-            buf.append(String.format("%1$-32s", parent.name().toLowerCase()))
-                    .append(parent.description())
-                    .append(JConstants.NEWLINE);
-
-            for (Command.ChildCommand child : parent.children()) {
-                buf.append(String.format("%1$36s", "-"))
-                        .append(child.name().toLowerCase())
-                        .append(' ')
-                        .append(child.description())
-                        .append(JConstants.NEWLINE);
+        try {
+            List<String> memoryUsageList = JvmTools.memoryUsage();
+            for (String usage : memoryUsageList) {
+                channel.writeAndFlush(usage);
             }
-
-            buf.append(JConstants.NEWLINE);
+            channel.writeAndFlush(JConstants.NEWLINE);
+        } catch (Exception e) {
+            channel.writeAndFlush(StackTraceUtil.stackTrace(e));
         }
-        channel.writeAndFlush(buf.toString());
     }
 }

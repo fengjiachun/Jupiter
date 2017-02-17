@@ -155,6 +155,14 @@ public class MonitorServer extends NettyTcpAcceptor {
         }
 
         @Override
+        public void channelActive(ChannelHandlerContext ctx) throws Exception {
+            ctx.writeAndFlush(JConstants.NEWLINE + "Welcome to jupiter monitor! Please auth with password." + JConstants.NEWLINE);
+            Command command = Command.parse("help");
+            CommandHandler handler = command.handler();
+            handler.handle(ctx.channel(), command);
+        }
+
+        @Override
         public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
             logger.error("An exception was caught: {}, channel {}.", stackTrace(cause), ctx.channel());
 
