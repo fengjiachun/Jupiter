@@ -46,46 +46,46 @@
     <dependency>
        <groupId>org.jupiter-rpc</groupId>
        <artifactId>jupiter-rpc</artifactId>
-       <version>1.2.0</version>
+       <version>1.2.1</version>
     </dependency>
     <!-- 传输层 -->
     <dependency>
        <groupId>org.jupiter-rpc</groupId>
        <artifactId>jupiter-transport-netty</artifactId>
-       <version>1.2.0</version>
+       <version>1.2.1</version>
     </dependency>
     <!-- 序列化/反序列化, 可选择只其中依赖一种或者同时依赖多种 -->
     <dependency>
        <groupId>org.jupiter-rpc</groupId>
        <artifactId>jupiter-serialization-hessian</artifactId>
-       <version>1.2.0</version>
+       <version>1.2.1</version>
     </dependency>
     <dependency>
        <groupId>org.jupiter-rpc</groupId>
        <artifactId>jupiter-serialization-java</artifactId>
-       <version>1.2.0</version>
+       <version>1.2.1</version>
     </dependency>
     <dependency>
        <groupId>org.jupiter-rpc</groupId>
        <artifactId>jupiter-serialization-kryo</artifactId>
-       <version>1.2.0</version>
+       <version>1.2.1</version>
     </dependency>
     <dependency>
        <groupId>org.jupiter-rpc</groupId>
        <artifactId>jupiter-serialization-protostuff</artifactId>
-       <version>1.2.0</version>
+       <version>1.2.1</version>
     </dependency>
     <!-- 注册中心, jupiter-registry-zookeeper/jupiter-registry-default二选一 -->
     <dependency>
        <groupId>org.jupiter-rpc</groupId>
        <artifactId>jupiter-registry-default</artifactId>
-       <version>1.2.0</version>
+       <version>1.2.1</version>
     </dependency>
     <!-- 集成Spring支持, 如不集成Spring可不依赖 -->
     <dependency>
        <groupId>org.jupiter-rpc</groupId>
        <artifactId>jupiter-spring-support</artifactId>
-       <version>1.2.0</version>
+       <version>1.2.1</version>
     </dependency>
     <dependency>
        <groupId>org.springframework</groupId>
@@ -96,13 +96,13 @@
     <dependency>
        <groupId>org.jupiter-rpc</groupId>
        <artifactId>jupiter-monitor</artifactId>
-       <version>1.2.0</version>
+       <version>1.2.1</version>
     </dependency>
     <!-- flightexec(可选) -->
     <dependency>
        <groupId>org.jupiter-rpc</groupId>
        <artifactId>jupiter-flightexec</artifactId>
-       <version>1.2.0</version>
+       <version>1.2.1</version>
     </dependency>
 
 #####简单调用示例:
@@ -155,7 +155,7 @@
 >     <dependency>
 >         <groupId>org.jupiter-rpc</groupId>
 >         <artifactId>jupiter-registry-zookeeper</artifactId>
->         <version>1.2.0</version>
+>         <version>1.2.1</version>
 >     </dependency>
 
 4. 启动服务提供(Server):
