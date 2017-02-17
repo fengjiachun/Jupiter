@@ -43,7 +43,7 @@ public enum Command {
             ChildCommand.BY_SERVICE,
             ChildCommand.BY_ADDRESS,
             ChildCommand.GREP),
-    QUIT("Quit monitor", new QuitHandler()),;
+    QUIT("Quit monitor", new QuitHandler());
 
     private final String description;
     private final CommandHandler handler;
