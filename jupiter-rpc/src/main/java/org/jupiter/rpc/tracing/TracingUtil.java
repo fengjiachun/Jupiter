@@ -18,11 +18,11 @@ package org.jupiter.rpc.tracing;
 
 import org.jupiter.common.util.*;
 import org.jupiter.common.util.internal.InternalThreadLocal;
-import org.jupiter.common.util.internal.JUnsafe;
 import org.jupiter.common.util.internal.logging.InternalLogger;
 import org.jupiter.common.util.internal.logging.InternalLoggerFactory;
 
-import java.lang.reflect.Method;
+import java.lang.management.ManagementFactory;
+import java.lang.management.RuntimeMXBean;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -65,8 +65,9 @@ public class TracingUtil {
     static {
         String _ip_16;
         try {
-            _ip_16 = getIP_16(SystemPropertyUtil.get("jupiter.local.address", NetUtil.getLocalAddress()));
-        } catch (Exception e) {
+            String ip = SystemPropertyUtil.get("jupiter.local.address", NetUtil.getLocalAddress());
+            _ip_16 = getIP_16(ip);
+        } catch (Throwable t) {
             _ip_16 = "ffffffff";
         }
         IP_16 = _ip_16;
@@ -74,7 +75,7 @@ public class TracingUtil {
         String _pid;
         try {
             _pid = getHexProcessId(getProcessId());
-        } catch (Exception e) {
+        } catch (Throwable t) {
             _pid = "0000";
         }
         PID = _pid;
@@ -135,36 +136,27 @@ public class TracingUtil {
      * http://stackoverflow.com/questions/35842/how-can-a-java-program-get-its-own-process-id
      */
     private static int getProcessId() {
-        String value;
+        String value = "";
         try {
-            ClassLoader loader = JUnsafe.getSystemClassLoader();
-            // invoke java.lang.management.ManagementFactory.getRuntimeMXBean().getName()
-            Class<?> managementFactoryType = Class.forName("java.lang.management.ManagementFactory", true, loader);
-            Class<?> runtimeMxBeanType = Class.forName("java.lang.management.RuntimeMXBean", true, loader);
-
-            Method getRuntimeMXBean = managementFactoryType.getMethod("getRuntimeMXBean");
-            Object bean = getRuntimeMXBean.invoke(null);
-            Method getName = runtimeMxBeanType.getDeclaredMethod("getName");
-
-            value = (String) getName.invoke(bean);
-        } catch (Exception e) {
+            RuntimeMXBean runtime = ManagementFactory.getRuntimeMXBean();
+            value = runtime.getName();
+        } catch (Throwable t) {
             if (logger.isDebugEnabled()) {
-                logger.debug("Could not invoke ManagementFactory.getRuntimeMXBean().getName(), {}.", stackTrace(e));
+                logger.debug("Could not invoke ManagementFactory.getRuntimeMXBean().getName(), {}.", stackTrace(t));
             }
-
-            value = "";
         }
+
+        // something like '<pid>@<hostname>', at least in SUN / Oracle JVMs
         int atIndex = value.indexOf('@');
         if (atIndex >= 0) {
             value = value.substring(0, atIndex);
         }
 
-        int pid;
+        int pid = -1;
         try {
             pid = Integer.parseInt(value);
-        } catch (NumberFormatException e) {
-            // value did not contain an integer.
-            pid = -1;
+        } catch (NumberFormatException ignored) {
+            // value did not contain an integer
         }
 
         if (pid < 0 || pid > MAX_PROCESS_ID) {
