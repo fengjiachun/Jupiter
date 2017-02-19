@@ -247,9 +247,12 @@
 >     <bean id="serviceTest" class="org.jupiter.spring.support.JupiterSpringConsumerBean">
 >         <property name="client" ref="client" />
 >         <property name="interfaceClass" value="org.jupiter.example.ServiceTest" />
->         <!--<property name="serializerType" value="proto_stuff" />-->
->         <!--or-->
->         <!--<property name="serializerType" value="hessian" />-->
+>
+>         <!-- 以下都选项可不填 -->
+>
+>         <!-- 服务版本号, 通常在接口不兼容时版本号才需要升级 -->
+>         <property name="version" value="1.0.0" />
+>         <property name="serializerType" value="proto_stuff" />
 >     </bean>
 [Server/Client代码示例](https://github.com/fengjiachun/Jupiter/tree/master/jupiter-example/src/main/java/org/jupiter/example/spring)
 
