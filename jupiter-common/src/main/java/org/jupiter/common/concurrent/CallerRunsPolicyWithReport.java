@@ -16,9 +16,6 @@
 
 package org.jupiter.common.concurrent;
 
-import org.jupiter.common.util.internal.logging.InternalLogger;
-import org.jupiter.common.util.internal.logging.InternalLoggerFactory;
-
 import java.util.concurrent.ThreadPoolExecutor;
 
 /**
@@ -29,21 +26,24 @@ import java.util.concurrent.ThreadPoolExecutor;
  *
  * @author jiachun.fjc
  */
-public class CallerRunsPolicyWithReport extends ThreadPoolExecutor.CallerRunsPolicy {
-
-    private static final InternalLogger logger = InternalLoggerFactory.getInstance(CallerRunsPolicyWithReport.class);
-
-    private final String threadPoolName;
+public class CallerRunsPolicyWithReport extends AbstractRejectedExecutionHandler {
 
     public CallerRunsPolicyWithReport(String threadPoolName) {
-        this.threadPoolName = threadPoolName;
+        super(threadPoolName, true);
+    }
+
+    public CallerRunsPolicyWithReport(String threadPoolName, boolean dumpNeeded) {
+        super(threadPoolName, dumpNeeded);
     }
 
     @Override
     public void rejectedExecution(Runnable r, ThreadPoolExecutor e) {
-
         logger.error("Thread pool [{}] is exhausted! {}.", threadPoolName, e.toString());
 
-        super.rejectedExecution(r, e);
+        dumpJvmInfo();
+
+        if (!e.isShutdown()) {
+            r.run();
+        }
     }
 }

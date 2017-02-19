@@ -16,11 +16,7 @@
 
 package org.jupiter.common.concurrent;
 
-import org.jupiter.common.util.internal.logging.InternalLogger;
-import org.jupiter.common.util.internal.logging.InternalLoggerFactory;
-
 import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.RejectedExecutionHandler;
 import java.util.concurrent.ThreadPoolExecutor;
 
 /**
@@ -32,20 +28,21 @@ import java.util.concurrent.ThreadPoolExecutor;
  *
  * @author jiachun.fjc
  */
-public class RejectedTaskPolicyWithReport implements RejectedExecutionHandler {
-
-    private static final InternalLogger logger = InternalLoggerFactory.getInstance(RejectedTaskPolicyWithReport.class);
-
-    private final String threadPoolName;
+public class RejectedTaskPolicyWithReport extends AbstractRejectedExecutionHandler {
 
     public RejectedTaskPolicyWithReport(String threadPoolName) {
-        this.threadPoolName = threadPoolName;
+        super(threadPoolName, true);
+    }
+
+    public RejectedTaskPolicyWithReport(String threadPoolName, boolean dumpNeeded) {
+        super(threadPoolName, dumpNeeded);
     }
 
     @Override
     public void rejectedExecution(Runnable r, ThreadPoolExecutor e) {
-
         logger.error("Thread pool [{}] is exhausted! {}.", threadPoolName, e.toString());
+
+        dumpJvmInfo();
 
         if (r instanceof RejectedRunnable) {
             ((RejectedRunnable) r).rejected(); // 交给用户来处理

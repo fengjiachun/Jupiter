@@ -16,6 +16,9 @@
 
 package org.jupiter.common.util;
 
+import com.sun.management.HotSpotDiagnosticMXBean;
+
+import java.io.File;
 import java.lang.management.ManagementFactory;
 import java.lang.management.MemoryMXBean;
 import java.lang.management.MemoryUsage;
@@ -71,8 +74,28 @@ public class JvmTools {
         return memoryUsageList;
     }
 
-    private static class MXBeanHolder {
+    public static double memoryUsed() throws Exception {
+        MemoryUsage heapMemoryUsage = MXBeanHolder.memoryMxBean.getHeapMemoryUsage();
+        return (double) (heapMemoryUsage.getUsed()) / heapMemoryUsage.getMax();
+    }
 
+    /**
+     * Dumps the heap to the outputFile file in the same format as the hprof heap dump.
+     * @param outputFile    the system-dependent filename
+     * @param live          if true dump only live objects i.e. objects that are reachable from others
+     */
+    @SuppressWarnings("all")
+    public static void jMap(String outputFile, boolean live) throws Exception {
+        File file = new File(outputFile);
+        if (file.exists()) {
+            file.delete();
+        }
+        MXBeanHolder.hotSpotDiagnosticMxBean.dumpHeap(outputFile, live);
+    }
+
+    private static class MXBeanHolder {
         static final MemoryMXBean memoryMxBean = ManagementFactory.getMemoryMXBean();
+        static final HotSpotDiagnosticMXBean hotSpotDiagnosticMxBean =
+                ManagementFactory.getPlatformMXBean(HotSpotDiagnosticMXBean.class);
     }
 }
