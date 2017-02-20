@@ -42,15 +42,15 @@ public class ThreadPoolExecutorFactory extends AbstractExecutorFactory {
     private static final InternalLogger logger = InternalLoggerFactory.getInstance(ThreadPoolExecutorFactory.class);
 
     @Override
-    public Executor newExecutor(Target target) {
+    public Executor newExecutor(Target target, String name) {
         return new ThreadPoolExecutor(
                 coreWorks(target),
                 maxWorks(target),
                 120L,
                 TimeUnit.SECONDS,
                 workQueue(target),
-                new NamedThreadFactory("processor"),
-                createRejectedPolicy(target, new RejectedTaskPolicyWithReport("processor")));
+                new NamedThreadFactory(name),
+                createRejectedPolicy(target, new RejectedTaskPolicyWithReport(name)));
     }
 
     private BlockingQueue<Runnable> workQueue(Target target) {

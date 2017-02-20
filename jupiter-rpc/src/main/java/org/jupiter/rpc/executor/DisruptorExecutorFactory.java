@@ -33,10 +33,10 @@ import java.util.concurrent.Executor;
 public class DisruptorExecutorFactory extends AbstractExecutorFactory {
 
     @Override
-    public Executor newExecutor(Target target) {
+    public Executor newExecutor(Target target, String name) {
         return new TaskDispatcher(
                 coreWorks(target),
-                "processor",
+                name,
                 queueCapacity(target),
                 maxWorks(target),
                 waitStrategyType(target, WaitStrategyType.LITE_BLOCKING_WAIT));

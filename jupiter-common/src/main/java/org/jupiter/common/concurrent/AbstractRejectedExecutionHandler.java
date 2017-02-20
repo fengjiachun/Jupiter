@@ -18,18 +18,21 @@ package org.jupiter.common.concurrent;
 
 import org.jupiter.common.util.JConstants;
 import org.jupiter.common.util.JvmTools;
-import org.jupiter.common.util.StackTraceUtil;
 import org.jupiter.common.util.internal.logging.InternalLogger;
 import org.jupiter.common.util.internal.logging.InternalLoggerFactory;
 
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.RejectedExecutionHandler;
 import java.util.concurrent.atomic.AtomicBoolean;
+
+import static org.jupiter.common.util.StackTraceUtil.stackTrace;
 
 /**
  * Jupiter
@@ -57,23 +60,31 @@ public abstract class AbstractRejectedExecutionHandler implements RejectedExecut
 
                 @Override
                 public void run() {
-                    FileOutputStream stackOutput = null;
+                    String now = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date());
+                    String name = threadPoolName + "_" + now;
+                    FileOutputStream fileOutput = null;
                     try {
-                        stackOutput = new FileOutputStream(new File("jupiter.dump_" + threadPoolName + ".log"));
+                        fileOutput = new FileOutputStream(new File("jupiter.dump_" + name + ".log"));
+
                         List<String> stacks = JvmTools.jStack();
                         for (String s : stacks) {
-                            stackOutput.write(s.getBytes(JConstants.UTF8));
+                            fileOutput.write(s.getBytes(JConstants.UTF8));
+                        }
+
+                        List<String> memoryUsages = JvmTools.memoryUsage();
+                        for (String m : memoryUsages) {
+                            fileOutput.write(m.getBytes(JConstants.UTF8));
                         }
 
                         if (JvmTools.memoryUsed() > 0.9) {
-                            JvmTools.jMap("jupiter.dump_" + threadPoolName + ".bin", false);
+                            JvmTools.jMap("jupiter.dump_" + name + ".bin", false);
                         }
                     } catch (Throwable t) {
-                        logger.error("Dump jvm info error: {}.", StackTraceUtil.stackTrace(t));
+                        logger.error("Dump jvm info error: {}.", stackTrace(t));
                     } finally {
-                        if (stackOutput != null) {
+                        if (fileOutput != null) {
                             try {
-                                stackOutput.close();
+                                fileOutput.close();
                             } catch (IOException ignored) {}
                         }
                     }

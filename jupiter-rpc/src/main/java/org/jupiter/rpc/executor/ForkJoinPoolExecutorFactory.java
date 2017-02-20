@@ -38,10 +38,10 @@ public class ForkJoinPoolExecutorFactory extends AbstractExecutorFactory {
     private static final InternalLogger logger = InternalLoggerFactory.getInstance(ForkJoinPoolExecutorFactory.class);
 
     @Override
-    public Executor newExecutor(Target target) {
+    public Executor newExecutor(Target target, String name) {
         return new ForkJoinPool(
                 coreWorks(target),
-                new DefaultForkJoinWorkerThreadFactory("fjp.processor"),
+                new DefaultForkJoinWorkerThreadFactory(name),
                 new DefaultUncaughtExceptionHandler(), true);
     }
 

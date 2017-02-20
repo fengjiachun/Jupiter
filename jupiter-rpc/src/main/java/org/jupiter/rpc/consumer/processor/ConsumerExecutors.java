@@ -33,7 +33,7 @@ public class ConsumerExecutors {
 
     static {
         ExecutorFactory factory = (ExecutorFactory) JServiceLoader.loadFirst(ConsumerExecutorFactory.class);
-        executor = factory.newExecutor(ExecutorFactory.Target.CONSUMER);
+        executor = factory.newExecutor(ExecutorFactory.Target.CONSUMER, "jupiter-consumer-processor");
     }
 
     public static Executor executor() {

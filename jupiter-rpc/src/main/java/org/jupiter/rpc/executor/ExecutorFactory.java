@@ -31,7 +31,7 @@ import java.util.concurrent.Executor;
  */
 public interface ExecutorFactory extends ConsumerExecutorFactory, ProviderExecutorFactory {
 
-    Executor newExecutor(Target target);
+    Executor newExecutor(Target target, String name);
 
     enum Target {
         CONSUMER,
