@@ -33,7 +33,7 @@ public class JRequestBytes extends BytesHolder {
     //
     // ID可在<Long.MIN_VALUE, Long.MAX_VALUE>范围内从小到大循环利用,
     // 所以溢出是没关系的, 并且只是从理论上才有溢出的可能,
-    // 比如一个100万qps的系统把 0 ~ Long.MAX_VALUE 范围内的ID都使用完大概需要29万年
+    // 比如一个100万qps的系统把 0 ~ Long.MAX_VALUE 范围内的ID都使用完大概需要29万年.
     private static final AtomicLong invokeIdGenerator = new AtomicLong(0);
 
     // 用于映射 <ID, Request, Response> 三元组
