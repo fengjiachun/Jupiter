@@ -29,7 +29,8 @@ import java.util.concurrent.atomic.AtomicLong;
 public class JRequestBytes extends BytesHolder {
 
     // 请求ID自增器, 用于映射 <ID, Request, Response> 三元组,
-    // 收到当前ID对应的Response并处理完成后这个ID就可以复用了, 所以不用担心AtomicLong溢出
+    // 当收到当前ID对应的Response并处理完成后这个ID就可以再次使用了
+    // ID可在<0x8000000000000000L, 0x7fffffffffffffffL>范围内从小到大循环利用(溢出没关系)
     private static final AtomicLong invokeIdGenerator = new AtomicLong(0);
 
     // 用于映射 <ID, Request, Response> 三元组
