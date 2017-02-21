@@ -30,11 +30,11 @@ package org.jupiter.transport;
  *  └ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ┘
  *
  * 消息头16个字节定长
- * = 2 // MAGIC = (short) 0xbabe
- * + 1 // 消息标志位, 低地址4位用来表示消息类型Request/Response/Heartbeat等, 高地址4位用来表示序列化类型
+ * = 2 // magic = (short) 0xbabe
+ * + 1 // 消息标志位, 低地址4位用来表示消息类型request/response/heartbeat等, 高地址4位用来表示序列化类型
  * + 1 // 状态位, 设置请求响应状态
  * + 8 // 消息 id, long 类型
- * + 4 // 消息体 body 长度, int类型
+ * + 4 // 消息体 body 长度, int 类型
  *
  * jupiter
  * org.jupiter.transport
@@ -71,7 +71,7 @@ public class JProtocolHeader {
     // XX2          = 0x0f
     private byte serializerCode;    // sign 高地址4位
     private byte status;            // 响应状态码
-    private long id;                // request.invokeId, 用于映射 <Id, Request, Response> 三元组
+    private long id;                // request.invokeId, 用于映射 <id, request, response> 三元组
     private int bodyLength;         // 消息体长度
 
     public void sign(byte sign) {

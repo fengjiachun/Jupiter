@@ -28,15 +28,14 @@ import java.util.concurrent.atomic.AtomicLong;
  */
 public class JRequestBytes extends BytesHolder {
 
-    // 请求Id自增器, 用于映射 <Id, Request, Response> 三元组
+    // 请求id自增器, 用于映射 <id, request, response> 三元组
     //
-    // Id在进程内唯一即可, 在收到当前Id对应的Response并处理完成后这个Id就可以再次使用了,
-    // 所以Id可在 <Long.MIN_VALUE ~ Long.MAX_VALUE> 范围内从小到大循环利用,
-    // 即使溢出也是没关系的, 并且只是从理论上才有溢出的可能, 比如一个100万qps的系统
-    // 把 <0 ~ Long.MAX_VALUE> 范围内的Id都使用完大概需要29万年.
+    // id在 <request, response> 生命周期内保证进程内唯一即可, 在Id对应的Response被处理完成后这个id就可以再次使用了,
+    // 所以id可在 <Long.MIN_VALUE ~ Long.MAX_VALUE> 范围内从小到大循环利用, 即使溢出也是没关系的, 并且只是从理论上
+    // 才有溢出的可能, 比如一个100万qps的系统把 <0 ~ Long.MAX_VALUE> 范围内的id都使用完大概需要29万年.
     private static final AtomicLong invokeIdGenerator = new AtomicLong(0);
 
-    // 用于映射 <Id, Request, Response> 三元组
+    // 用于映射 <id, request, response> 三元组
     private final long invokeId;
     // jupiter-transport层会在协议解析完成后打上一个时间戳, 用于后续监控对该请求的处理时间
     private transient long timestamp;

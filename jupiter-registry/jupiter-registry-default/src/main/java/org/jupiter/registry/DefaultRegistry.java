@@ -298,11 +298,11 @@ public class DefaultRegistry extends NettyTcpConnector {
      *  └ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ┘
      *
      * 消息头16个字节定长
-     * = 2 // MAGIC = (short) 0xbabe
+     * = 2 // magic = (short) 0xbabe
      * + 1 // 消息标志位, 低地址4位用来表示消息类型, 高地址4位用来表示序列化类型
      * + 1 // 空
      * + 8 // 消息 id, long 类型
-     * + 4 // 消息体 body 长度, int类型
+     * + 4 // 消息体 body 长度, int 类型
      */
     static class MessageDecoder extends ReplayingDecoder<MessageDecoder.State> {
 
@@ -388,11 +388,11 @@ public class DefaultRegistry extends NettyTcpConnector {
      *  └ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ┘
      *
      * 消息头16个字节定长
-     * = 2 // MAGIC = (short) 0xbabe
+     * = 2 // magic = (short) 0xbabe
      * + 1 // 消息标志位, 低地址4位用来表示消息类型, 高地址4位用来表示序列化类型
      * + 1 // 空
      * + 8 // 消息 id, long 类型
-     * + 4 // 消息体 body 长度, int类型
+     * + 4 // 消息体 body 长度, int 类型
      */
     @ChannelHandler.Sharable
     static class MessageEncoder extends MessageToByteEncoder<Message> {

@@ -38,11 +38,11 @@ import org.jupiter.transport.payload.JResponseBytes;
  *  └ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ┘
  *
  * 消息头16个字节定长
- * = 2 // MAGIC = (short) 0xbabe
- * + 1 // 消息标志位, 低地址4位用来表示消息类型Request/Response/Heartbeat等, 高地址4位用来表示序列化类型
+ * = 2 // magic = (short) 0xbabe
+ * + 1 // 消息标志位, 低地址4位用来表示消息类型request/response/heartbeat等, 高地址4位用来表示序列化类型
  * + 1 // 状态位, 设置请求响应状态
  * + 8 // 消息 id, long 类型
- * + 4 // 消息体 body 长度, int类型
+ * + 4 // 消息体 body 长度, int 类型
  *
  * jupiter
  * org.jupiter.transport.netty.handler
