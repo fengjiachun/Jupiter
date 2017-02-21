@@ -26,7 +26,7 @@ package org.jupiter.transport.payload;
  */
 public class JResponseBytes extends BytesHolder {
 
-    // 用于映射 <ID, Request, Response> 三元组
+    // 用于映射 <Id, Request, Response> 三元组
     private final long id; // request.invokeId
     private byte status;
 
