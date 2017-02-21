@@ -186,11 +186,11 @@ public class GenericProxyFactory {
 
     public GenericInvoker newProxyInstance() {
         // check arguments
-        checkNotNull(client, "client");
-        checkNotNull(serializerType, "serializerType");
         checkArgument(Strings.isNotBlank(group), "group");
         checkNotNull(Strings.isNotBlank(providerName), "providerName");
         checkNotNull(Strings.isNotBlank(version), "version");
+        checkNotNull(client, "client");
+        checkNotNull(serializerType, "serializerType");
 
         if (dispatchType == DispatchType.BROADCAST && invokeType == InvokeType.SYNC) {
             throw reject("broadcast & sync unsupported");

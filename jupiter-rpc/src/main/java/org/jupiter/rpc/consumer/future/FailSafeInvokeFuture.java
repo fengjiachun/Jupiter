@@ -21,11 +21,12 @@ import org.jupiter.common.util.internal.logging.InternalLogger;
 import org.jupiter.common.util.internal.logging.InternalLoggerFactory;
 import org.jupiter.rpc.JListener;
 
-import static org.jupiter.common.util.Preconditions.checkNotNull;
 import static org.jupiter.common.util.StackTraceUtil.stackTrace;
 
 /**
  * 用于实现fail-safe集群容错方案的 {@link InvokeFuture}.
+ *
+ * 同步调用时发生异常时只打印日志.
  *
  * jupiter
  * org.jupiter.rpc.consumer.future
@@ -68,13 +69,13 @@ public class FailSafeInvokeFuture<V> implements InvokeFuture<V> {
 
     @Override
     public InvokeFuture<V> addListener(JListener<V> listener) {
-        future.addListener(failSafeListener(listener));
+        future.addListener(listener);
         return this;
     }
 
     @Override
     public InvokeFuture<V> addListeners(JListener<V>... listeners) {
-        future.addListeners(failSafeListeners(listeners));
+        future.addListeners(listeners);
         return this;
     }
 
@@ -92,42 +93,5 @@ public class FailSafeInvokeFuture<V> implements InvokeFuture<V> {
 
     public InvokeFuture<V> future() {
         return future;
-    }
-
-    private JListener<V> failSafeListener(JListener<V> listener) {
-        return new FailSafeListener<>(listener);
-    }
-
-    private JListener<V>[] failSafeListeners(JListener<V>... listeners) {
-        checkNotNull(listeners, "listeners");
-
-        JListener<V>[] failSafeListeners = new JListener[listeners.length];
-        for (int i = 0; i < listeners.length; i++) {
-            failSafeListeners[i] = failSafeListener(listeners[i]);
-        }
-        return failSafeListeners;
-    }
-
-    class FailSafeListener<T> implements JListener<T> {
-
-        private final JListener<T> listener;
-
-        FailSafeListener(JListener<T> listener) {
-            this.listener = listener;
-        }
-
-        @Override
-        public void complete(T result) {
-            listener.complete(result);
-        }
-
-        @Override
-        public void failure(Throwable cause) {
-            if (logger.isWarnEnabled()) {
-                logger.warn("Ignored exception on [Fail-safe]: {}.", stackTrace(cause));
-            }
-
-            listener.complete((T) Reflects.getTypeDefaultValue(returnType()));
-        }
     }
 }

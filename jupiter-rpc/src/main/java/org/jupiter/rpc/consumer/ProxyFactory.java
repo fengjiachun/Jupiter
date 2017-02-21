@@ -166,9 +166,9 @@ public class ProxyFactory<I> {
 
     public I newProxyInstance() {
         // check arguments
+        checkNotNull(interfaceClass, "interfaceClass");
         checkNotNull(client, "client");
         checkNotNull(serializerType, "serializerType");
-        checkNotNull(interfaceClass, "interfaceClass");
 
         if (dispatchType == DispatchType.BROADCAST && invokeType == InvokeType.SYNC) {
             throw reject("broadcast & sync unsupported");
