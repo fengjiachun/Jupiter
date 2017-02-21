@@ -14,7 +14,7 @@ import java.util.concurrent.ConcurrentMap;
  * Forked from <a href="https://github.com/JCTools/JCTools">JCTools</a>.
  */
 
-@SuppressWarnings("ALL")
+@SuppressWarnings("all")
 public class perf_hash_test extends Thread {
 
     static int _read_ratio, _gr, _pr;

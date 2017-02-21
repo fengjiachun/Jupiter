@@ -34,6 +34,9 @@ import java.util.Map;
  */
 public class JvmTools {
 
+    /**
+     * Returns java stack traces of java threads for the current java process.
+     */
     public static List<String> jStack() throws Exception {
         List<String> stackList = new LinkedList<>();
         Map<Thread, StackTraceElement[]> allStackTraces = Thread.getAllStackTraces();
@@ -62,6 +65,9 @@ public class JvmTools {
         return stackList;
     }
 
+    /**
+     * Returns memory usage for the current java process.
+     */
     public static List<String> memoryUsage() throws Exception {
         MemoryUsage heapMemoryUsage = MXBeanHolder.memoryMxBean.getHeapMemoryUsage();
         MemoryUsage nonHeapMemoryUsage = MXBeanHolder.memoryMxBean.getNonHeapMemoryUsage();
@@ -74,6 +80,9 @@ public class JvmTools {
         return memoryUsageList;
     }
 
+    /**
+     * Returns the heap memory used for the current java process.
+     */
     public static double memoryUsed() throws Exception {
         MemoryUsage heapMemoryUsage = MXBeanHolder.memoryMxBean.getHeapMemoryUsage();
         return (double) (heapMemoryUsage.getUsed()) / heapMemoryUsage.getMax();
