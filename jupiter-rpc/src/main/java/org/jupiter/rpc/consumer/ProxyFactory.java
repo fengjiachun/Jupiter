@@ -31,6 +31,7 @@ import org.jupiter.rpc.load.balance.LoadBalancerFactory;
 import org.jupiter.rpc.load.balance.LoadBalancerType;
 import org.jupiter.rpc.model.metadata.ServiceMetadata;
 import org.jupiter.serialization.SerializerType;
+import org.jupiter.transport.Directory;
 import org.jupiter.transport.JConnection;
 import org.jupiter.transport.JConnector;
 import org.jupiter.transport.UnresolvedAddress;
@@ -39,12 +40,13 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
+import static org.jupiter.common.util.Preconditions.checkArgument;
 import static org.jupiter.common.util.Preconditions.checkNotNull;
 
 /**
  * Proxy factory
  *
- * Consumer对象代理工厂
+ * Consumer对象代理工厂, [group, providerName, version]
  *
  * jupiter
  * org.jupiter.rpc.consumer
@@ -55,6 +57,10 @@ public class ProxyFactory<I> {
 
     // 接口类型
     private final Class<I> interfaceClass;
+    // 服务组别
+    private String group;
+    // 服务名称
+    private String providerName;
     // 服务版本号, 通常在接口不兼容时版本号才需要升级
     private String version;
 
@@ -99,9 +105,25 @@ public class ProxyFactory<I> {
         return interfaceClass;
     }
 
+    public ProxyFactory<I> group(String group) {
+        this.group = group;
+        return this;
+    }
+
+    public ProxyFactory<I> providerName(String providerName) {
+        this.providerName = providerName;
+        return this;
+    }
+
     public ProxyFactory<I> version(String version) {
         this.version = version;
         return this;
+    }
+
+    public ProxyFactory<I> directory(Directory directory) {
+        return group(directory.getGroup())
+                .providerName(directory.getServiceProviderName())
+                .version(directory.getVersion());
     }
 
     public ProxyFactory<I> client(JClient client) {
@@ -167,6 +189,26 @@ public class ProxyFactory<I> {
     public I newProxyInstance() {
         // check arguments
         checkNotNull(interfaceClass, "interfaceClass");
+
+        ServiceProvider annotation = interfaceClass.getAnnotation(ServiceProvider.class);
+
+        if (annotation != null) {
+            checkArgument(
+                    group == null,
+                    interfaceClass.getName() + " has a @ServiceProvider annotation, can't set [group] again"
+            );
+            checkArgument(
+                    providerName == null,
+                    interfaceClass.getName() + " has a @ServiceProvider annotation, can't set [providerName] again"
+            );
+
+            group = annotation.group();
+            String name = annotation.name();
+            providerName = Strings.isNotBlank(name) ? name : interfaceClass.getName();
+        }
+
+        checkArgument(Strings.isNotBlank(group), "group");
+        checkArgument(Strings.isNotBlank(providerName), "providerName");
         checkNotNull(client, "client");
         checkNotNull(serializerType, "serializerType");
 
@@ -174,16 +216,12 @@ public class ProxyFactory<I> {
             throw reject("broadcast & sync unsupported");
         }
 
-        ServiceProvider annotation = interfaceClass.getAnnotation(ServiceProvider.class);
-
-        checkNotNull(annotation, interfaceClass + " is not a ServiceProvider interface");
-
-        String providerName = annotation.name();
-        providerName = Strings.isNotBlank(providerName) ? providerName : interfaceClass.getName();
-        String version = Strings.isNotBlank(this.version) ? this.version : JConstants.DEFAULT_VERSION;
-
         // metadata
-        ServiceMetadata metadata = new ServiceMetadata(annotation.group(), providerName, version);
+        ServiceMetadata metadata = new ServiceMetadata(
+                group,
+                providerName,
+                Strings.isNotBlank(version) ? version : JConstants.DEFAULT_VERSION
+        );
 
         JConnector<JConnection> connector = client.connector();
         for (UnresolvedAddress address : addresses) {

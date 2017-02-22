@@ -77,13 +77,20 @@ public abstract class FastMethodAccessor {
     public static FastMethodAccessor get(Class<?> type) {
         FastMethodAccessor accessor = fastAccessorCache.get(type);
         if (accessor == null) {
-            FastMethodAccessor newAccessor = create(type);
-            accessor = fastAccessorCache.putIfAbsent(type, newAccessor);
-            if (accessor == null) {
-                accessor = newAccessor;
+            synchronized (getClassLock(type)) {
+                accessor = fastAccessorCache.get(type);
+                if (accessor == null) {
+                    accessor = create(type);
+                    fastAccessorCache.put(type, accessor);
+                }
+                return accessor;
             }
         }
         return accessor;
+    }
+
+    private static Class<?> getClassLock(Class<?> type) {
+        return type;
     }
 
     private static FastMethodAccessor create(Class<?> type) {

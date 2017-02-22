@@ -47,7 +47,10 @@ public class JupiterSpringConsumerBean<T> implements FactoryBean<T>, Initializin
     private JupiterSpringClient client;
 
     private Class<T> interfaceClass;                            // 服务接口类型
-    private String version;                                     // 服务版本号
+
+    private String group;                                       // 服务组别
+    private String providerName;                                // 服务名称
+    private String version;                                     // 服务版本号, 通常在接口不兼容时版本号才需要升级
     private SerializerType serializerType;                      // 序列化/反序列化方式
     private LoadBalancerType loadBalancerType;                  // 软负载均衡类型
     private long waitForAvailableTimeoutMillis = -1;            // 如果大于0, 表示阻塞等待直到连接可用并且该值为等待时间
@@ -86,6 +89,14 @@ public class JupiterSpringConsumerBean<T> implements FactoryBean<T>, Initializin
     private void init() {
         ProxyFactory<T> factory = ProxyFactory.factory(interfaceClass)
                 .version(version);
+
+        if (group != null) {
+            factory.group(group);
+        }
+
+        if (providerName != null) {
+            factory.providerName(providerName);
+        }
 
         if (serializerType != null) {
             factory.serializerType(serializerType);
@@ -170,6 +181,22 @@ public class JupiterSpringConsumerBean<T> implements FactoryBean<T>, Initializin
 
     public void setInterfaceClass(Class<T> interfaceClass) {
         this.interfaceClass = interfaceClass;
+    }
+
+    public String getGroup() {
+        return group;
+    }
+
+    public void setGroup(String group) {
+        this.group = group;
+    }
+
+    public String getProviderName() {
+        return providerName;
+    }
+
+    public void setProviderName(String providerName) {
+        this.providerName = providerName;
     }
 
     public String getVersion() {

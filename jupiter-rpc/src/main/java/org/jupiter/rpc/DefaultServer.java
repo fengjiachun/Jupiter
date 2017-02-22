@@ -38,6 +38,7 @@ import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 
+import static org.jupiter.common.util.Preconditions.checkArgument;
 import static org.jupiter.common.util.Preconditions.checkNotNull;
 import static org.jupiter.common.util.StackTraceUtil.stackTrace;
 
@@ -267,6 +268,10 @@ public class DefaultServer implements JServer {
 
         private Object serviceProvider;                     // 服务对象
         private ProviderInterceptor[] interceptors;         // 拦截器
+        private Class<?> interfaceClass;                    // 接口类型
+        private String group;                               // 服务组别
+        private String providerName;                        // 服务名称
+        private String version;                             // 服务版本号, 通常在接口不兼容时版本号才需要升级
         private int weight;                                 // 权重
         private int connCount;                              // 建议客户端维持的长连接数量
         private Executor executor;                          // 该服务私有的线程池
@@ -276,6 +281,30 @@ public class DefaultServer implements JServer {
         public ServiceRegistry provider(Object serviceProvider, ProviderInterceptor... interceptors) {
             this.serviceProvider = serviceProvider;
             this.interceptors = interceptors;
+            return this;
+        }
+
+        @Override
+        public ServiceRegistry interfaceClass(Class<?> interfaceClass) {
+            this.interfaceClass = interfaceClass;
+            return this;
+        }
+
+        @Override
+        public ServiceRegistry group(String group) {
+            this.group = group;
+            return this;
+        }
+
+        @Override
+        public ServiceRegistry providerName(String providerName) {
+            this.providerName = providerName;
+            return this;
+        }
+
+        @Override
+        public ServiceRegistry version(String version) {
+            this.version = version;
             return this;
         }
 
@@ -311,11 +340,6 @@ public class DefaultServer implements JServer {
 
             ServiceProviderImpl implAnnotation = null;
             ServiceProvider ifAnnotation = null;
-            String providerName = null;
-            // key:     method name
-            // value:   pair.first:  方法参数类型(用于根据JLS规则实现方法调用的静态分派)
-            //          pair.second: 方法显式声明抛出的异常类型
-            Map<String, List<Pair<Class<?>[], Class<?>[]>>> extensions = Maps.newHashMap();
             for (Class<?> cls = providerClass; cls != Object.class; cls = cls.getSuperclass()) {
                 if (implAnnotation == null) {
                     implAnnotation = cls.getAnnotation(ServiceProviderImpl.class);
@@ -323,25 +347,18 @@ public class DefaultServer implements JServer {
 
                 Class<?>[] interfaces = cls.getInterfaces();
                 if (interfaces != null) {
-                    for (Class<?> providerInterface : interfaces) {
-                        ifAnnotation = providerInterface.getAnnotation(ServiceProvider.class);
+                    for (Class<?> i : interfaces) {
+                        ifAnnotation = i.getAnnotation(ServiceProvider.class);
                         if (ifAnnotation == null) {
                             continue;
                         }
 
-                        providerName = ifAnnotation.name();
-                        providerName = Strings.isNotBlank(providerName) ? providerName : providerInterface.getName();
+                        checkArgument(
+                                interfaceClass == null,
+                                i.getName() + " has a @ServiceProvider annotation, can't set [interfaceClass] again"
+                        );
 
-                        // method's extensions
-                        for (Method method : providerInterface.getMethods()) {
-                            String methodName = method.getName();
-                            List<Pair<Class<?>[], Class<?>[]>> list = extensions.get(methodName);
-                            if (list == null) {
-                                list = Lists.newArrayList();
-                                extensions.put(methodName, list);
-                            }
-                            list.add(Pair.of(method.getParameterTypes(), method.getExceptionTypes()));
-                        }
+                        interfaceClass = i;
                         break;
                     }
                 }
@@ -351,14 +368,50 @@ public class DefaultServer implements JServer {
                 }
             }
 
-            checkNotNull(implAnnotation, providerClass.getName() + " must be annotated with @ServiceProviderImpl");
-            checkNotNull(ifAnnotation, providerClass.getName() + "'s interface must be annotated with @ServiceProvider");
+            if (ifAnnotation != null) {
+                checkArgument(
+                        group == null,
+                        interfaceClass.getName() + " has a @ServiceProvider annotation, can't set [group] again"
+                );
+                checkArgument(
+                        providerName == null,
+                        interfaceClass.getName() + " has a @ServiceProvider annotation, can't set [providerName] again"
+                );
 
-            String group = ifAnnotation.group();
-            String version = implAnnotation.version();
+                group = ifAnnotation.group();
+                String name = ifAnnotation.name();
+                providerName = Strings.isNotBlank(name) ? name : interfaceClass.getName();
+            }
 
-            checkNotNull(group, "group");
-            checkNotNull(version, "version");
+            if (implAnnotation != null) {
+                checkArgument(
+                        version == null,
+                        providerClass.getName() + " has a @ServiceProviderImpl annotation, can't set [version] again"
+                );
+
+                version = implAnnotation.version();
+            }
+
+            checkNotNull(interfaceClass, "interfaceClass");
+            checkArgument(Strings.isNotBlank(group), "group");
+            checkArgument(Strings.isNotBlank(providerName), "providerName");
+            checkArgument(Strings.isNotBlank(version), "version");
+
+            // method's extensions
+            //
+            // key:     method name
+            // value:   pair.first:  方法参数类型(用于根据JLS规则实现方法调用的静态分派)
+            //          pair.second: 方法显式声明抛出的异常类型
+            Map<String, List<Pair<Class<?>[], Class<?>[]>>> extensions = Maps.newHashMap();
+            for (Method method : interfaceClass.getMethods()) {
+                String methodName = method.getName();
+                List<Pair<Class<?>[], Class<?>[]>> list = extensions.get(methodName);
+                if (list == null) {
+                    list = Lists.newArrayList();
+                    extensions.put(methodName, list);
+                }
+                list.add(Pair.of(method.getParameterTypes(), method.getExceptionTypes()));
+            }
 
             return registerService(
                     group,

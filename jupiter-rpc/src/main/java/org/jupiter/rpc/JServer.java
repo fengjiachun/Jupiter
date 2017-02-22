@@ -37,37 +37,57 @@ import java.util.concurrent.Executor;
 public interface JServer extends Registry {
 
     /**
-     * Service registry.
+     * 本地服务注册.
      */
     interface ServiceRegistry {
 
         /**
-         * Sets up the service provider.
+         * 设置服务对象和拦截器, 拦截器可为空.
          */
         ServiceRegistry provider(Object serviceProvider, ProviderInterceptor... interceptors);
 
         /**
-         * Sets the weight of this provider at current server(0 < weight <= 100).
+         * 设置服务接口类型, 如果服务接口带 {@link ServiceProvider} 注解, 那么不要再调用此方法, 否则注册会发生异常.
+         */
+        ServiceRegistry interfaceClass(Class<?> interfaceClass);
+
+        /**
+         * 设置服务组别, 如果服务接口带 {@link ServiceProvider} 注解, 那么不要再调用此方法, 否则注册会发生异常.
+         */
+        ServiceRegistry group(String group);
+
+        /**
+         * 设置服务名称, 如果服务接口带 {@link ServiceProvider} 注解, 那么不要再调用此方法, 否则注册会发生异常.
+         */
+        ServiceRegistry providerName(String providerName);
+
+        /**
+         * 设置服务版本号, 如果服务接口带 {@link ServiceProvider} 注解, 那么不要再调用此方法, 否则注册会发生异常.
+         */
+        ServiceRegistry version(String version);
+
+        /**
+         * 设置服务权重(0 < weight <= 100).
          */
         ServiceRegistry weight(int weight);
 
         /**
-         * Suggest that the number of connections
+         * 给client的建议, 通常client应参考此值来建立指定数量的连接.
          */
         ServiceRegistry connCount(int connCount);
 
         /**
-         * Sets a private {@link Executor} to this provider.
+         * 设置服务提供者私有的线程池, 为了和其他服务提供者资源隔离.
          */
         ServiceRegistry executor(Executor executor);
 
         /**
-         * Sets a private {@link FlowController} to this provider.
+         * 设置一个私有的流量限制器.
          */
         ServiceRegistry flowController(FlowController<JRequest> flowController);
 
         /**
-         * Register this provider to local scope.
+         * 注册服务到本地容器.
          */
         ServiceWrapper register();
     }
@@ -75,115 +95,103 @@ public interface JServer extends Registry {
     interface ProviderInitializer<T> {
 
         /**
-         * Init service provider bean.
+         * 初始化指定服务提供者.
          */
         void init(T provider);
     }
 
     /**
-     * Returns the acceptor.
+     * 网络层acceptor.
      */
     JAcceptor acceptor();
 
     /**
-     * Sets the acceptor.
+     * 设置网络层acceptor.
      */
     JServer withAcceptor(JAcceptor acceptor);
 
     /**
-     * Sets global {@link ProviderInterceptor}s to this server.
+     * 设置全局的拦截器, 会拦截所有的服务提供者.
      */
     void withGlobalInterceptors(ProviderInterceptor... globalInterceptors);
 
     /**
-     * Returns the global {@link FlowController} if have one.
+     * 返回已设置的全局的拦截器.
      */
     FlowController<JRequest> globalFlowController();
 
     /**
-     * Sets a global {@link FlowController} to this server.
+     * 设置全局的流量控制器.
      */
     void withGlobalFlowController(FlowController<JRequest> flowController);
 
     /**
-     * To obtains a service registry.
+     * 获取服务注册(本地)工具.
      */
     ServiceRegistry serviceRegistry();
 
     /**
-     * Lookup the service.
+     * 根据服务目录查找对应服务提供者.
      */
     ServiceWrapper lookupService(Directory directory);
 
     /**
-     * Removes the registered service.
+     * 根据服务目录移除对应服务提供者.
      */
     ServiceWrapper removeService(Directory directory);
 
     /**
-     * Returns all the registered services.
+     * 注册所有服务到本地容器.
      */
     List<ServiceWrapper> allRegisteredServices();
 
     /**
-     * Publish a service.
-     *
-     * @param serviceWrapper service provider wrapper, created by {@link ServiceRegistry}
+     * 发布指定服务到注册中心.
      */
     void publish(ServiceWrapper serviceWrapper);
 
     /**
-     * Publish services.
-     *
-     * @param serviceWrappers service provider wrapper, created by {@link ServiceRegistry}
+     * 发布指定服务列表到注册中心.
      */
     void publish(ServiceWrapper... serviceWrappers);
 
     /**
-     * When initialization is complete, then publish the service.
-     *
-     * @param serviceWrapper    service provider wrapper, created by {@link ServiceRegistry}
-     * @param initializer       provider initializer
+     * 服务提供者初始化完成后再发布服务到注册中心(延迟发布服务).
      */
     <T> void publishWithInitializer(ServiceWrapper serviceWrapper, ProviderInitializer<T> initializer);
 
     /**
-     * When initialization is complete, then publish the service.
-     *
-     * @param serviceWrapper    service provider wrapper, created by {@link ServiceRegistry}
-     * @param initializer       provider initializer
-     * @param executor          executor for initializer
+     * 服务提供者初始化完成后再发布服务到注册中心(延迟发布服务), 并设置服务私有的线程池来执行初始化操作.
      */
     <T> void publishWithInitializer(ServiceWrapper serviceWrapper, ProviderInitializer<T> initializer, Executor executor);
 
     /**
-     * Publish all services.
+     * 发布本地所有服务到注册中心.
      */
     void publishAll();
 
     /**
-     * Unpublish a service.
-     * @param serviceWrapper service provider wrapper, created by {@link ServiceRegistry}
+     * 从注册中心把指定服务下线.
      */
     void unpublish(ServiceWrapper serviceWrapper);
 
     /**
-     * Unpublish all services.
+     * 从注册中心把本地所有服务全部下线.
      */
     void unpublishAll();
 
     /**
-     * Start the server.
+     * 启动server, 以同步阻塞的方式启动.
      */
     void start() throws InterruptedException;
 
     /**
-     * Start the server.
+     * 启动server, 可通过参数指定异步/同步的方式启动.
      */
     void start(boolean sync) throws InterruptedException;
 
     /**
-     * Unpublish all services and shutdown acceptor.
+     * 优雅关闭server.
      */
     void shutdownGracefully();
 }

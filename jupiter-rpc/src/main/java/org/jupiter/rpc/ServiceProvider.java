@@ -26,7 +26,7 @@ import java.lang.annotation.Target;
 /**
  * Provider interface annotation.
  *
- * 每个服务接口必须通过此注解来指定服务信息.
+ * 建议每个服务接口通过此注解来指定服务信息, 如不希望业务代码对jupiter依赖也可以不使用此注解而手动去设置服务信息.
  *
  * jupiter
  * org.jupiter.rpc

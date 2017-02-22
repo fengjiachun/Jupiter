@@ -49,7 +49,7 @@ public class FailSafeJupiterClient {
         }
 
         // 同步调用
-        System.err.println("同步调用fail-fast测试...........");
+        System.err.println("同步调用fail-safe测试...........");
         ClusterService syncService = ProxyFactory.factory(ClusterService.class)
                 .version("1.0.0")
                 .client(client)
@@ -64,7 +64,7 @@ public class FailSafeJupiterClient {
         }
 
         // 异步调用
-        System.err.println("异步调用fail-fast测试...........");
+        System.err.println("异步调用fail-safe测试...........");
         ClusterService asyncService = ProxyFactory.factory(ClusterService.class)
                 .version("1.0.0")
                 .client(client)

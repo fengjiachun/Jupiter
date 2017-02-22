@@ -16,6 +16,7 @@
 
 package org.jupiter.rpc.consumer;
 
+import org.jupiter.common.util.JConstants;
 import org.jupiter.common.util.Lists;
 import org.jupiter.common.util.Maps;
 import org.jupiter.common.util.Strings;
@@ -103,11 +104,6 @@ public class GenericProxyFactory {
 
     private GenericProxyFactory() {}
 
-    public GenericProxyFactory client(JClient client) {
-        this.client = client;
-        return this;
-    }
-
     public GenericProxyFactory group(String group) {
         this.group = group;
         return this;
@@ -123,6 +119,17 @@ public class GenericProxyFactory {
         return this;
     }
 
+    public GenericProxyFactory directory(Directory directory) {
+        return group(directory.getGroup())
+                .providerName(directory.getServiceProviderName())
+                .version(directory.getVersion());
+    }
+
+    public GenericProxyFactory client(JClient client) {
+        this.client = client;
+        return this;
+    }
+
     public GenericProxyFactory serializerType(SerializerType serializerType) {
         this.serializerType = serializerType;
         return this;
@@ -131,12 +138,6 @@ public class GenericProxyFactory {
     public GenericProxyFactory loadBalancerType(LoadBalancerType loadBalancerType) {
         this.loadBalancerType = loadBalancerType;
         return this;
-    }
-
-    public GenericProxyFactory directory(Directory directory) {
-        return group(directory.getGroup())
-                .providerName(directory.getServiceProviderName())
-                .version(directory.getVersion());
     }
 
     public GenericProxyFactory addProviderAddress(UnresolvedAddress... addresses) {
@@ -187,8 +188,7 @@ public class GenericProxyFactory {
     public GenericInvoker newProxyInstance() {
         // check arguments
         checkArgument(Strings.isNotBlank(group), "group");
-        checkNotNull(Strings.isNotBlank(providerName), "providerName");
-        checkNotNull(Strings.isNotBlank(version), "version");
+        checkArgument(Strings.isNotBlank(providerName), "providerName");
         checkNotNull(client, "client");
         checkNotNull(serializerType, "serializerType");
 
@@ -197,7 +197,11 @@ public class GenericProxyFactory {
         }
 
         // metadata
-        ServiceMetadata metadata = new ServiceMetadata(group, providerName, version);
+        ServiceMetadata metadata = new ServiceMetadata(
+                group,
+                providerName,
+                Strings.isNotBlank(version) ? version : JConstants.DEFAULT_VERSION
+        );
 
         JConnector<JConnection> connector = client.connector();
         for (UnresolvedAddress address : addresses) {
