@@ -39,23 +39,30 @@ import java.util.concurrent.ConcurrentMap;
  */
 public class ProtoStuffSerializer extends Serializer {
 
-    /**
-     * If true, the constructor will always be obtained from {@code ReflectionFactory.newConstructorFromSerialization}.
-     *
-     * Enable this if you intend to avoid deserialize objects whose no-args constructor initializes (unwanted)
-     * internal state. This applies to complex/framework objects.
-     *
-     * If you intend to fill default field values using your default constructor, leave this disabled. This normally
-     * applies to java beans/data objects.
-     */
-    public static final boolean ALWAYS_USE_SUN_REFLECTION_FACTORY = true;
-
     static {
-        // 禁止反序列化时构造方法被调用, 防止有些类的构造方法内有令人惊喜的逻辑
         // 详见 io.protostuff.runtime.RuntimeEnv
-        String value = String.valueOf(ALWAYS_USE_SUN_REFLECTION_FACTORY);
+
+        // If true, the constructor will always be obtained from {@code ReflectionFactory.newConstructorFromSerialization}.
+        //
+        // Enable this if you intend to avoid deserialize objects whose no-args constructor initializes (unwanted)
+        // internal state. This applies to complex/framework objects.
+        //
+        // If you intend to fill default field values using your default constructor, leave this disabled. This normally
+        // applies to java beans/data objects.
+        //
+        // 默认 true, 禁止反序列化时构造方法被调用, 防止有些类的构造方法内有令人惊喜的逻辑
+        String always_use_sun_reflection_factory = SystemPropertyUtil
+                .get("jupiter.serializer.protostuff.always_use_sun_reflection_factory", "true");
         SystemPropertyUtil
-                .setProperty("protostuff.runtime.always_use_sun_reflection_factory", value);
+                .setProperty("protostuff.runtime.always_use_sun_reflection_factory", always_use_sun_reflection_factory);
+
+        // Disabled by default.  Writes a sentinel value (uint32) in place of null values.
+        //
+        // 默认 false, 不允许数组中的元素为 null
+        String allow_null_array_element = SystemPropertyUtil
+                .get("jupiter.serializer.protostuff.allow_null_array_element", "false");
+        SystemPropertyUtil
+                .setProperty("protostuff.runtime.allow_null_array_element", allow_null_array_element);
     }
 
     private static final ConcurrentMap<Class<?>, Schema<?>> schemaCache = Maps.newConcurrentMap();
@@ -81,7 +88,6 @@ public class ProtoStuffSerializer extends Serializer {
 
         LinkedBuffer buf = bufThreadLocal.get();
         try {
-            // TODO toByteArray里面一坨的 memory copy 如果哪天有好办法了会优化一下
             return ProtostuffIOUtil.toByteArray(obj, schema, buf);
         } finally {
             buf.clear(); // for reuse
