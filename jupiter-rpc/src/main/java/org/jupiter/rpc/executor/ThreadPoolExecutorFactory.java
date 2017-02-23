@@ -98,7 +98,7 @@ public class ThreadPoolExecutorFactory extends AbstractExecutorFactory {
             try {
                 Class<?> cls = Class.forName(handlerClass);
                 try {
-                    Constructor<?> constructor = cls.getConstructor(String.class);
+                    Constructor<?> constructor = cls.getConstructor(String.class, String.class);
                     handler = (RejectedExecutionHandler) constructor.newInstance(name, "jupiter");
                 } catch (NoSuchMethodException e) {
                     handler = (RejectedExecutionHandler) cls.newInstance();
