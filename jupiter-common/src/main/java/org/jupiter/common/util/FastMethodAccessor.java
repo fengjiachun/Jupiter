@@ -77,6 +77,7 @@ public abstract class FastMethodAccessor {
     public static FastMethodAccessor get(Class<?> type) {
         FastMethodAccessor accessor = fastAccessorCache.get(type);
         if (accessor == null) {
+            // avoid duplicate class definition
             synchronized (getClassLock(type)) {
                 accessor = fastAccessorCache.get(type);
                 if (accessor == null) {
