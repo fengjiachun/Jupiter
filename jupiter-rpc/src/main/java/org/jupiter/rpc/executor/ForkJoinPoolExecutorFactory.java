@@ -16,6 +16,7 @@
 
 package org.jupiter.rpc.executor;
 
+import org.jupiter.common.util.StackTraceUtil;
 import org.jupiter.common.util.internal.InternalForkJoinWorkerThread;
 import org.jupiter.common.util.internal.logging.InternalLogger;
 import org.jupiter.common.util.internal.logging.InternalLoggerFactory;
@@ -67,7 +68,7 @@ public class ForkJoinPoolExecutorFactory extends AbstractExecutorFactory {
 
         @Override
         public void uncaughtException(Thread t, Throwable e) {
-            logger.error("Uncaught exception in thread: {}", t.getName(), e);
+            logger.error("Uncaught exception in thread[{}]: {}.", t.getName(), StackTraceUtil.stackTrace(e));
         }
     }
 }
