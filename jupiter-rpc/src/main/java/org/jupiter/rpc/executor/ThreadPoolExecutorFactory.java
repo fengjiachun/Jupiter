@@ -50,7 +50,7 @@ public class ThreadPoolExecutorFactory extends AbstractExecutorFactory {
                 TimeUnit.SECONDS,
                 workQueue(target),
                 new NamedThreadFactory(name),
-                createRejectedPolicy(target, new RejectedTaskPolicyWithReport(name)));
+                createRejectedPolicy(target, name, new RejectedTaskPolicyWithReport(name, "jupiter")));
     }
 
     private BlockingQueue<Runnable> workQueue(Target target) {
@@ -83,7 +83,7 @@ public class ThreadPoolExecutorFactory extends AbstractExecutorFactory {
         return queueType == null ? defaultType : queueType;
     }
 
-    private RejectedExecutionHandler createRejectedPolicy(Target target, RejectedExecutionHandler defaultHandler) {
+    private RejectedExecutionHandler createRejectedPolicy(Target target, String name, RejectedExecutionHandler defaultHandler) {
         RejectedExecutionHandler handler = null;
         String handlerClass = null;
         switch (target) {
@@ -99,7 +99,7 @@ public class ThreadPoolExecutorFactory extends AbstractExecutorFactory {
                 Class<?> cls = Class.forName(handlerClass);
                 try {
                     Constructor<?> constructor = cls.getConstructor(String.class);
-                    handler = (RejectedExecutionHandler) constructor.newInstance("processor");
+                    handler = (RejectedExecutionHandler) constructor.newInstance(name, "jupiter");
                 } catch (NoSuchMethodException e) {
                     handler = (RejectedExecutionHandler) cls.newInstance();
                 }

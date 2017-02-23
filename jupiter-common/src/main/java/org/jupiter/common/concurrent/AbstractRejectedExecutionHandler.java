@@ -47,11 +47,13 @@ public abstract class AbstractRejectedExecutionHandler implements RejectedExecut
     private static final ExecutorService dumpExecutor = Executors.newSingleThreadExecutor();
 
     protected final String threadPoolName;
-    protected final AtomicBoolean dumpNeeded;
+    private final AtomicBoolean dumpNeeded;
+    private final String dumpPrefixName;
 
-    public AbstractRejectedExecutionHandler(String threadPoolName, boolean dumpNeeded) {
+    public AbstractRejectedExecutionHandler(String threadPoolName, boolean dumpNeeded, String dumpPrefixName) {
         this.threadPoolName = threadPoolName;
         this.dumpNeeded = new AtomicBoolean(dumpNeeded);
+        this.dumpPrefixName = dumpPrefixName;
     }
 
     public void dumpJvmInfo() {
@@ -64,7 +66,7 @@ public abstract class AbstractRejectedExecutionHandler implements RejectedExecut
                     String name = threadPoolName + "_" + now;
                     FileOutputStream fileOutput = null;
                     try {
-                        fileOutput = new FileOutputStream(new File("jupiter.dump_" + name + ".log"));
+                        fileOutput = new FileOutputStream(new File(dumpPrefixName + ".dump_" + name + ".log"));
 
                         List<String> stacks = JvmTools.jStack();
                         for (String s : stacks) {
@@ -77,7 +79,7 @@ public abstract class AbstractRejectedExecutionHandler implements RejectedExecut
                         }
 
                         if (JvmTools.memoryUsed() > 0.9) {
-                            JvmTools.jMap("jupiter.dump_" + name + ".bin", false);
+                            JvmTools.jMap(dumpPrefixName + ".dump_" + name + ".bin", false);
                         }
                     } catch (Throwable t) {
                         logger.error("Dump jvm info error: {}.", stackTrace(t));

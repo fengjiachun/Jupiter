@@ -80,11 +80,15 @@ public class TaskDispatcher implements Dispatcher<Runnable>, Executor {
     private final Executor reserveExecutor;
 
     public TaskDispatcher(int numWorkers) {
-        this(numWorkers, "task.dispatcher", BUFFER_SIZE, 0, WaitStrategyType.BLOCKING_WAIT);
+        this(numWorkers, "task.dispatcher", BUFFER_SIZE, 0, WaitStrategyType.BLOCKING_WAIT, null);
     }
 
-    public TaskDispatcher(
-            int numWorkers, String threadFactoryName, int bufSize, int numReserveWorkers, WaitStrategyType waitStrategyType) {
+    public TaskDispatcher(int numWorkers,
+                          String threadFactoryName,
+                          int bufSize,
+                          int numReserveWorkers,
+                          WaitStrategyType waitStrategyType,
+                          String dumpPrefixName) {
 
         checkArgument(bufSize > 0, "bufSize must be larger than 0");
         if (!Pow2.isPowerOfTwo(bufSize)) {
@@ -92,14 +96,23 @@ public class TaskDispatcher implements Dispatcher<Runnable>, Executor {
         }
 
         if (numReserveWorkers > 0) {
+            String name = "reserve.processor";
+
+            RejectedExecutionHandler handler;
+            if (dumpPrefixName == null) {
+                handler = new RejectedTaskPolicyWithReport(name);
+            } else {
+                handler = new RejectedTaskPolicyWithReport(name, dumpPrefixName);
+            }
+
             reserveExecutor = new ThreadPoolExecutor(
                     0,
                     numReserveWorkers,
                     60L,
                     TimeUnit.SECONDS,
                     new SynchronousQueue<Runnable>(),
-                    new NamedThreadFactory("reserve.processor"),
-                    new RejectedTaskPolicyWithReport("reserve.processor"));
+                    new NamedThreadFactory(name),
+                    handler);
         } else {
             reserveExecutor = null;
         }

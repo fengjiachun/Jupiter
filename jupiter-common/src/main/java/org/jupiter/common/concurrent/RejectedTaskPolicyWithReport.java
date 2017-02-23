@@ -31,11 +31,11 @@ import java.util.concurrent.ThreadPoolExecutor;
 public class RejectedTaskPolicyWithReport extends AbstractRejectedExecutionHandler {
 
     public RejectedTaskPolicyWithReport(String threadPoolName) {
-        super(threadPoolName, true);
+        super(threadPoolName, false, "");
     }
 
-    public RejectedTaskPolicyWithReport(String threadPoolName, boolean dumpNeeded) {
-        super(threadPoolName, dumpNeeded);
+    public RejectedTaskPolicyWithReport(String threadPoolName, String dumpPrefixName) {
+        super(threadPoolName, true, dumpPrefixName);
     }
 
     @Override

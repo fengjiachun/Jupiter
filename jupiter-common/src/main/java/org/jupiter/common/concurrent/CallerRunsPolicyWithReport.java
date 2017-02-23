@@ -29,11 +29,11 @@ import java.util.concurrent.ThreadPoolExecutor;
 public class CallerRunsPolicyWithReport extends AbstractRejectedExecutionHandler {
 
     public CallerRunsPolicyWithReport(String threadPoolName) {
-        super(threadPoolName, true);
+        super(threadPoolName, false, "");
     }
 
-    public CallerRunsPolicyWithReport(String threadPoolName, boolean dumpNeeded) {
-        super(threadPoolName, dumpNeeded);
+    public CallerRunsPolicyWithReport(String threadPoolName, String dumpPrefixName) {
+        super(threadPoolName, true, dumpPrefixName);
     }
 
     @Override

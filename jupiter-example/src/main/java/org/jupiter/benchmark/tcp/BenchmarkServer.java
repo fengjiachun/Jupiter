@@ -43,6 +43,8 @@ public class BenchmarkServer {
                 .setProperty("jupiter.metric.csv.reporter", "false");
         SystemPropertyUtil
                 .setProperty("jupiter.metric.report.period", "1");
+        SystemPropertyUtil
+                .setProperty("jupiter.executor.factory.provider.queue.capacity", "65536");
 
         JServer server = new DefaultServer().withAcceptor(new JNettyTcpAcceptor(18099));
         server.acceptor().configGroup().child().setOption(JOption.WRITE_BUFFER_HIGH_WATER_MARK, 256 * 1024);

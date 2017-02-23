@@ -30,11 +30,11 @@ import java.util.concurrent.ThreadPoolExecutor;
 public class DiscardTaskPolicyWithReport extends AbstractRejectedExecutionHandler {
 
     public DiscardTaskPolicyWithReport(String threadPoolName) {
-        super(threadPoolName, true);
+        super(threadPoolName, false, "");
     }
 
-    public DiscardTaskPolicyWithReport(String threadPoolName, boolean dumpNeeded) {
-        super(threadPoolName, dumpNeeded);
+    public DiscardTaskPolicyWithReport(String threadPoolName, String dumpPrefixName) {
+        super(threadPoolName, true, dumpPrefixName);
     }
 
     @Override

@@ -39,7 +39,8 @@ public class DisruptorExecutorFactory extends AbstractExecutorFactory {
                 name,
                 queueCapacity(target),
                 maxWorks(target),
-                waitStrategyType(target, WaitStrategyType.LITE_BLOCKING_WAIT));
+                waitStrategyType(target, WaitStrategyType.LITE_BLOCKING_WAIT),
+                "jupiter");
     }
 
     private WaitStrategyType waitStrategyType(Target target, WaitStrategyType defaultType) {

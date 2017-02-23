@@ -29,11 +29,11 @@ import java.util.concurrent.ThreadPoolExecutor;
 public class BlockingProducersPolicyWithReport extends AbstractRejectedExecutionHandler {
 
     public BlockingProducersPolicyWithReport(String threadPoolName) {
-        super(threadPoolName, true);
+        super(threadPoolName, false, "");
     }
 
-    public BlockingProducersPolicyWithReport(String threadPoolName, boolean dumpNeeded) {
-        super(threadPoolName, dumpNeeded);
+    public BlockingProducersPolicyWithReport(String threadPoolName, String dumpPrefixName) {
+        super(threadPoolName, true, dumpPrefixName);
     }
 
     @Override
