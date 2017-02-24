@@ -101,12 +101,12 @@ public interface JServer extends Registry {
     }
 
     /**
-     * 网络层 acceptor.
+     * 网络层acceptor.
      */
     JAcceptor acceptor();
 
     /**
-     * 设置网络层 acceptor.
+     * 设置网络层acceptor.
      */
     JServer withAcceptor(JAcceptor acceptor);
 
@@ -181,17 +181,17 @@ public interface JServer extends Registry {
     void unpublishAll();
 
     /**
-     * 启动 jupiter server, 以同步阻塞的方式启动.
+     * 启动jupiter server, 以同步阻塞的方式启动.
      */
     void start() throws InterruptedException;
 
     /**
-     * 启动 jupiter server, 可通过参数指定异步/同步的方式启动.
+     * 启动jupiter server, 可通过参数指定异步/同步的方式启动.
      */
     void start(boolean sync) throws InterruptedException;
 
     /**
-     * 优雅关闭 jupiter server.
+     * 优雅关闭jupiter server.
      */
     void shutdownGracefully();
 }

@@ -43,12 +43,12 @@ public interface JClient extends Registry {
     String appName();
 
     /**
-     * 网络层 connector.
+     * 网络层connector.
      */
     JConnector<JConnection> connector();
 
     /**
-     * 设置网络层 connector.
+     * 设置网络层connector.
      */
     JClient withConnector(JConnector<JConnection> connector);
 
@@ -58,17 +58,17 @@ public interface JClient extends Registry {
     Collection<RegisterMeta> lookup(Directory directory);
 
     /**
-     * 设置对指定服务由 jupiter 自动管理连接.
+     * 设置对指定服务由jupiter自动管理连接.
      */
     JConnector.ConnectionWatcher watchConnections(Class<?> interfaceClass);
 
     /**
-     * 设置对指定服务由 jupiter 自动管理连接.
+     * 设置对指定服务由jupiter自动管理连接.
      */
     JConnector.ConnectionWatcher watchConnections(Class<?> interfaceClass, String version);
 
     /**
-     * 设置对指定服务由 jupiter 自动管理连接.
+     * 设置对指定服务由jupiter自动管理连接.
      */
     JConnector.ConnectionWatcher watchConnections(Directory directory);
 
@@ -88,7 +88,7 @@ public interface JClient extends Registry {
     void offlineListening(UnresolvedAddress address, OfflineListener listener);
 
     /**
-     * 优雅关闭 jupiter client.
+     * 优雅关闭jupiter client.
      */
     void shutdownGracefully();
 }
