@@ -38,7 +38,7 @@ import java.util.Collection;
 public interface JClient extends Registry {
 
     /**
-     * 每一个应用都建议设置一个 appName.
+     * 每一个应用都建议设置一个appName.
      */
     String appName();
 
