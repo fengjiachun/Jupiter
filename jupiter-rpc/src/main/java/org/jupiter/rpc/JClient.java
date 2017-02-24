@@ -38,58 +38,57 @@ import java.util.Collection;
 public interface JClient extends Registry {
 
     /**
-     * Everyone should got a app name.
+     * 每一个应用都建议设置一个 appName.
      */
     String appName();
 
     /**
-     * Returns the connector.
+     * 网络层 connector.
      */
     JConnector<JConnection> connector();
 
     /**
-     * Sets the connector.
+     * 设置网络层 connector.
      */
     JClient withConnector(JConnector<JConnection> connector);
 
     /**
-     * Find a service in the local scope.
+     * 从本地容器查找服务信息.
      */
     Collection<RegisterMeta> lookup(Directory directory);
 
     /**
-     * Sets auto manage the connections.
+     * 设置对指定服务由 jupiter 自动管理连接.
      */
     JConnector.ConnectionWatcher watchConnections(Class<?> interfaceClass);
 
     /**
-     * Sets auto manage the connections.
+     * 设置对指定服务由 jupiter 自动管理连接.
      */
     JConnector.ConnectionWatcher watchConnections(Class<?> interfaceClass, String version);
 
     /**
-     * Sets auto manage the connections.
+     * 设置对指定服务由 jupiter 自动管理连接.
      */
     JConnector.ConnectionWatcher watchConnections(Directory directory);
 
     /**
-     * Wait until the connections is available or timeout,
-     * if available return true, otherwise return false.
+     * 阻塞等待一直到该服务有可用连接或者超时.
      */
     boolean awaitConnections(Directory directory, long timeoutMillis);
 
     /**
-     * Subscribe a service from registry server.
+     * 从注册中心订阅一个服务.
      */
     void subscribe(Directory directory, NotifyListener listener);
 
     /**
-     * Provider offline notification.
+     * 服务下线通知.
      */
     void offlineListening(UnresolvedAddress address, OfflineListener listener);
 
     /**
-     * Shutdown.
+     * 优雅关闭 jupiter client.
      */
     void shutdownGracefully();
 }
