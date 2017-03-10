@@ -32,7 +32,10 @@ public class ConsumerExecutors {
     private static final Executor executor;
 
     static {
-        ExecutorFactory factory = (ExecutorFactory) JServiceLoader.load(ConsumerExecutorFactory.class).iterator().next();
+        ExecutorFactory factory = (ExecutorFactory) JServiceLoader
+                .load(ConsumerExecutorFactory.class)
+                .iterator()
+                .next();
         executor = factory.newExecutor(ExecutorFactory.Target.CONSUMER, "jupiter-consumer-processor");
     }
 
