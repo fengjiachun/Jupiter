@@ -34,18 +34,18 @@ public final class SerializerFactory {
 
     private static final InternalLogger logger = InternalLoggerFactory.getInstance(SerializerFactory.class);
 
-    private static final ByteObjectMap<Serializer> serializerMapping = new ByteObjectHashMap<>();
+    private static final ByteObjectMap<Serializer> serializers = new ByteObjectHashMap<>();
 
     static {
-        Iterable<Serializer> serializers = JServiceLoader.load(Serializer.class);
-        for (Serializer s : serializers) {
-            serializerMapping.put(s.code(), s);
+        Iterable<Serializer> all = JServiceLoader.load(Serializer.class);
+        for (Serializer s : all) {
+            serializers.put(s.code(), s);
         }
-        logger.info("Support serializers: {}.", serializerMapping);
+        logger.info("Supported serializers: {}.", serializers);
     }
 
     public static Serializer getSerializer(byte code) {
-        Serializer serializer = serializerMapping.get(code);
+        Serializer serializer = serializers.get(code);
 
         if (serializer == null) {
             throw new NullPointerException("unsupported serializerImpl with code: " + code);
