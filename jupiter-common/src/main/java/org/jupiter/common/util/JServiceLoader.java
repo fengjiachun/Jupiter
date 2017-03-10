@@ -27,7 +27,7 @@ import static org.jupiter.common.util.Preconditions.checkNotNull;
 
 /**
  * A simple service-provider loading facility (SPI).
- * <p/>
+ *
  * jupiter
  * org.jupiter.common.util
  *
