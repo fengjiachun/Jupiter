@@ -32,7 +32,7 @@ public class ProviderExecutors {
     private static final Executor executor;
 
     static {
-        ExecutorFactory factory = (ExecutorFactory) JServiceLoader.loadFirst(ProviderExecutorFactory.class);
+        ExecutorFactory factory = (ExecutorFactory) JServiceLoader.load(ProviderExecutorFactory.class).iterator().next();
         executor = factory.newExecutor(ExecutorFactory.Target.PROVIDER, "jupiter-provider-processor");
     }
 

@@ -48,7 +48,9 @@ public class DefaultClient implements JClient {
     }
 
     // 服务订阅(SPI)
-    private final RegistryService registryService = JServiceLoader.loadFirst(RegistryService.class);
+    private final RegistryService registryService = JServiceLoader
+            .load(RegistryService.class)
+            .find(SystemPropertyUtil.get("jupiter.registry.impl", "default"));
     private final String appName;
 
     private JConnector<JConnection> connector;

@@ -49,7 +49,7 @@ public class TracingUtil {
 
     private static final boolean TRACING_NEEDED = SystemPropertyUtil.getBoolean("jupiter.tracing.needed", true);
 
-    private static final TracingRecorder tracingRecorder = JServiceLoader.loadFirst(TracingRecorder.class);
+    private static final TracingRecorder tracingRecorder = JServiceLoader.load(TracingRecorder.class).iterator().next();
 
     private static final InternalThreadLocal<TraceId> traceThreadLocal = new InternalThreadLocal<>();
 

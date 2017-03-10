@@ -67,7 +67,9 @@ public class DefaultServer implements JServer {
     // provider本地容器
     private final ServiceProviderContainer providerContainer = new DefaultServiceProviderContainer();
     // 服务发布(SPI)
-    private final RegistryService registryService = JServiceLoader.loadFirst(RegistryService.class);
+    private final RegistryService registryService = JServiceLoader
+            .load(RegistryService.class)
+            .find(SystemPropertyUtil.get("jupiter.registry.impl", "default"));
 
     // 全局拦截器
     private ProviderInterceptor[] globalInterceptors;

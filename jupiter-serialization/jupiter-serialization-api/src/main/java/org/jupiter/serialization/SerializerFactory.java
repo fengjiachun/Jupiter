@@ -22,8 +22,6 @@ import org.jupiter.common.util.collection.ByteObjectMap;
 import org.jupiter.common.util.internal.logging.InternalLogger;
 import org.jupiter.common.util.internal.logging.InternalLoggerFactory;
 
-import java.util.List;
-
 /**
  * Holds all serializers.
  *
@@ -39,13 +37,11 @@ public final class SerializerFactory {
     private static final ByteObjectMap<Serializer> serializerMapping = new ByteObjectHashMap<>();
 
     static {
-        List<Serializer> serializerList = JServiceLoader.loadAll(Serializer.class);
-
-        logger.info("Support serializers: {}.", serializerList);
-
-        for (Serializer s : serializerList) {
+        Iterable<Serializer> serializers = JServiceLoader.load(Serializer.class);
+        for (Serializer s : serializers) {
             serializerMapping.put(s.code(), s);
         }
+        logger.info("Support serializers: {}.", serializerMapping);
     }
 
     public static Serializer getSerializer(byte code) {

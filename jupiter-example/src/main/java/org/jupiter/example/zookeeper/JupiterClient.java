@@ -16,6 +16,7 @@
 
 package org.jupiter.example.zookeeper;
 
+import org.jupiter.common.util.SystemPropertyUtil;
 import org.jupiter.example.ServiceTest;
 import org.jupiter.rpc.DefaultClient;
 import org.jupiter.rpc.JClient;
@@ -35,6 +36,8 @@ import org.jupiter.transport.netty.JNettyTcpConnector;
 public class JupiterClient {
 
     public static void main(String[] args) {
+        // 设置使用zookeeper作为注册中心
+        SystemPropertyUtil.setProperty("jupiter.registry.impl", "zookeeper");
         JClient client = new DefaultClient().withConnector(new JNettyTcpConnector());
         // 连接RegistryServer
         client.connectToRegistryServer("127.0.0.1:2181,127.0.0.1:2182,127.0.0.1:2183");

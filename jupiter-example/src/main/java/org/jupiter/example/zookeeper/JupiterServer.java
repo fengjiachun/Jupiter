@@ -49,6 +49,8 @@ public class JupiterServer {
         }
 
         SystemPropertyUtil.setProperty("jupiter.local.address", "127.0.0.1");
+        // 设置使用zookeeper作为注册中心
+        SystemPropertyUtil.setProperty("jupiter.registry.impl", "zookeeper");
 
         final JServer server = new DefaultServer().withAcceptor(new JNettyTcpAcceptor(18090));
         MonitorServer monitor = new MonitorServer();
