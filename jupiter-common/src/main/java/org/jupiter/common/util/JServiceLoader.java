@@ -57,6 +57,10 @@ public final class JServiceLoader<S> implements Iterable<S> {
         return new JServiceLoader<>(service, loader);
     }
 
+    public S first() {
+        return iterator().next();
+    }
+
     public S find(String implName) {
         for (S s : providers.values()) {
             SpiImpl spi = s.getClass().getAnnotation(SpiImpl.class);
