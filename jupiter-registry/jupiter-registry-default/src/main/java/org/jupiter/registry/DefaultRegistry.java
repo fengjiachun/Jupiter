@@ -78,10 +78,12 @@ public class DefaultRegistry extends NettyTcpConnector {
     private final MessageEncoder encoder = new MessageEncoder();
     private final AcknowledgeEncoder ackEncoder = new AcknowledgeEncoder();
 
+    private final AbstractRegistryService registryService;
+
     // 每个ConfigClient只保留一个有效channel
     private volatile Channel channel;
 
-    private AbstractRegistryService registryService;
+    private volatile SerializerType serializerType = SerializerType.getDefault();
 
     public DefaultRegistry(AbstractRegistryService registryService) {
         this(registryService, 1);
@@ -162,13 +164,17 @@ public class DefaultRegistry extends NettyTcpConnector {
         };
     }
 
+    public void serializerType(SerializerType serializerType) {
+        this.serializerType = serializerType;
+    }
+
     /**
      * Sent the subscription information to registry server.
      */
     public void doSubscribe(RegisterMeta.ServiceMeta serviceMeta) {
         registryService.subscribeSet().add(serviceMeta);
 
-        Message msg = new Message(SerializerType.getDefault().value());
+        Message msg = new Message(serializerType.value());
         msg.messageCode(JProtocolHeader.SUBSCRIBE_SERVICE);
         msg.data(serviceMeta);
 
@@ -189,7 +195,7 @@ public class DefaultRegistry extends NettyTcpConnector {
     public void doRegister(RegisterMeta meta) {
         registryService.registerMetaSet().add(meta);
 
-        Message msg = new Message(SerializerType.getDefault().value());
+        Message msg = new Message(serializerType.value());
         msg.messageCode(JProtocolHeader.PUBLISH_SERVICE);
         msg.data(meta);
 
@@ -210,7 +216,7 @@ public class DefaultRegistry extends NettyTcpConnector {
     public void doUnregister(final RegisterMeta meta) {
         registryService.registerMetaSet().remove(meta);
 
-        Message msg = new Message(SerializerType.getDefault().value());
+        Message msg = new Message(serializerType.value());
         msg.messageCode(JProtocolHeader.PUBLISH_CANCEL_SERVICE);
         msg.data(meta);
 
@@ -505,7 +511,7 @@ public class DefaultRegistry extends NettyTcpConnector {
                     continue;
                 }
 
-                Message msg = new Message(SerializerType.getDefault().value());
+                Message msg = new Message(serializerType.value());
                 msg.messageCode(JProtocolHeader.SUBSCRIBE_SERVICE);
                 msg.data(serviceMeta);
 
@@ -523,7 +529,7 @@ public class DefaultRegistry extends NettyTcpConnector {
                     continue;
                 }
 
-                Message msg = new Message(SerializerType.getDefault().value());
+                Message msg = new Message(serializerType.value());
                 msg.messageCode(JProtocolHeader.PUBLISH_SERVICE);
                 msg.data(meta);
 

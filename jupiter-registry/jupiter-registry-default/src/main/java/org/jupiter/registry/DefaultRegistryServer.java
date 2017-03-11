@@ -93,6 +93,8 @@ public class DefaultRegistryServer extends NettyTcpAcceptor implements RegistryS
     private final MessageEncoder encoder = new MessageEncoder();
     private final AcknowledgeEncoder ackEncoder = new AcknowledgeEncoder();
 
+    private volatile SerializerType serializerType = SerializerType.getDefault();
+
     public DefaultRegistryServer(int port) {
         super(port, false);
     }
@@ -211,6 +213,10 @@ public class DefaultRegistryServer extends NettyTcpAcceptor implements RegistryS
         }
     }
 
+    public void serializerType(SerializerType serializerType) {
+        this.serializerType = serializerType;
+    }
+
     // 添加指定机器指定服务, 然后全量发布到所有客户端
     private void handlePublish(RegisterMeta meta, Channel channel) {
 
@@ -227,7 +233,7 @@ public class DefaultRegistryServer extends NettyTcpAcceptor implements RegistryS
             if (config.getConfig().putIfAbsent(meta.getAddress(), meta) == null) {
                 registerInfoContext.getServiceMeta(meta.getAddress()).add(serviceMeta);
 
-                final Message msg = new Message(SerializerType.getDefault().value());
+                final Message msg = new Message(serializerType.value());
                 msg.messageCode(JProtocolHeader.PUBLISH_SERVICE);
                 msg.version(config.newVersion()); // 版本号+1
                 msg.data(Pair.of(serviceMeta, meta));
@@ -270,7 +276,7 @@ public class DefaultRegistryServer extends NettyTcpAcceptor implements RegistryS
             if (data != null) {
                 registerInfoContext.getServiceMeta(address).remove(serviceMeta);
 
-                final Message msg = new Message(SerializerType.getDefault().value());
+                final Message msg = new Message(serializerType.value());
                 msg.messageCode(JProtocolHeader.PUBLISH_CANCEL_SERVICE);
                 msg.version(config.newVersion()); // 版本号+1
                 msg.data(Pair.of(serviceMeta, data));
@@ -307,7 +313,7 @@ public class DefaultRegistryServer extends NettyTcpAcceptor implements RegistryS
             return;
         }
 
-        final Message msg = new Message(SerializerType.getDefault().value());
+        final Message msg = new Message(serializerType.value());
         msg.messageCode(JProtocolHeader.PUBLISH_SERVICE);
         msg.version(config.getVersion()); // 版本号
         List<RegisterMeta> registerMetaList = Lists.newArrayList(config.getConfig().values());
@@ -330,7 +336,7 @@ public class DefaultRegistryServer extends NettyTcpAcceptor implements RegistryS
 
         logger.info("OfflineNotice on {}.", address);
 
-        Message msg = new Message(SerializerType.getDefault().value());
+        Message msg = new Message(serializerType.value());
         msg.messageCode(JProtocolHeader.OFFLINE_NOTICE);
         msg.data(address);
         subscriberChannels.writeAndFlush(msg);
