@@ -46,7 +46,7 @@
 #####Maven依赖:
 
     <properties>
-        <jupiter.version>1.2.2</jupiter.version>
+        <jupiter.version>1.2.3</jupiter.version>
     </properties>
 
     <dependency>
