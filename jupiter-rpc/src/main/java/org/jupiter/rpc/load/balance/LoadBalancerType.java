@@ -34,4 +34,8 @@ public enum LoadBalancerType {
         }
         return null;
     }
+
+    public static LoadBalancerType getDefault() {
+        return RANDOM;
+    }
 }

@@ -36,4 +36,8 @@ public enum DispatchType {
         }
         return null;
     }
+
+    public static DispatchType getDefault() {
+        return ROUND;
+    }
 }

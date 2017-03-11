@@ -168,7 +168,7 @@ public class DefaultRegistry extends NettyTcpConnector {
     public void doSubscribe(RegisterMeta.ServiceMeta serviceMeta) {
         registryService.subscribeSet().add(serviceMeta);
 
-        Message msg = new Message(SerializerType.PROTO_STUFF.value());
+        Message msg = new Message(SerializerType.getDefault().value());
         msg.messageCode(JProtocolHeader.SUBSCRIBE_SERVICE);
         msg.data(serviceMeta);
 
@@ -189,7 +189,7 @@ public class DefaultRegistry extends NettyTcpConnector {
     public void doRegister(RegisterMeta meta) {
         registryService.registerMetaSet().add(meta);
 
-        Message msg = new Message(SerializerType.PROTO_STUFF.value());
+        Message msg = new Message(SerializerType.getDefault().value());
         msg.messageCode(JProtocolHeader.PUBLISH_SERVICE);
         msg.data(meta);
 
@@ -210,7 +210,7 @@ public class DefaultRegistry extends NettyTcpConnector {
     public void doUnregister(final RegisterMeta meta) {
         registryService.registerMetaSet().remove(meta);
 
-        Message msg = new Message(SerializerType.PROTO_STUFF.value());
+        Message msg = new Message(SerializerType.getDefault().value());
         msg.messageCode(JProtocolHeader.PUBLISH_CANCEL_SERVICE);
         msg.data(meta);
 
@@ -505,7 +505,7 @@ public class DefaultRegistry extends NettyTcpConnector {
                     continue;
                 }
 
-                Message msg = new Message(SerializerType.PROTO_STUFF.value());
+                Message msg = new Message(SerializerType.getDefault().value());
                 msg.messageCode(JProtocolHeader.SUBSCRIBE_SERVICE);
                 msg.data(serviceMeta);
 
@@ -523,7 +523,7 @@ public class DefaultRegistry extends NettyTcpConnector {
                     continue;
                 }
 
-                Message msg = new Message(SerializerType.PROTO_STUFF.value());
+                Message msg = new Message(SerializerType.getDefault().value());
                 msg.messageCode(JProtocolHeader.PUBLISH_SERVICE);
                 msg.data(meta);
 

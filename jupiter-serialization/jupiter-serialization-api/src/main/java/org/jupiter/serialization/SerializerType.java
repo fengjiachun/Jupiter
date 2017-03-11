@@ -55,4 +55,8 @@ public enum SerializerType {
         }
         return null;
     }
+
+    public static SerializerType getDefault() {
+        return PROTO_STUFF;
+    }
 }

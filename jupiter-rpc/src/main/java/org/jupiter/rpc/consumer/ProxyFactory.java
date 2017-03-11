@@ -67,15 +67,15 @@ public class ProxyFactory<I> {
     // jupiter client
     private JClient client;
     // 序列化/反序列化方式
-    private SerializerType serializerType = SerializerType.PROTO_STUFF;
+    private SerializerType serializerType = SerializerType.getDefault();
     // 软负载均衡类型
-    private LoadBalancerType loadBalancerType = LoadBalancerType.RANDOM;
+    private LoadBalancerType loadBalancerType = LoadBalancerType.getDefault();
     // provider地址
     private List<UnresolvedAddress> addresses;
     // 调用方式 [同步, 异步]
-    private InvokeType invokeType = InvokeType.SYNC;
+    private InvokeType invokeType = InvokeType.getDefault();
     // 派发方式 [单播, 广播]
-    private DispatchType dispatchType = DispatchType.ROUND;
+    private DispatchType dispatchType = DispatchType.getDefault();
     // 调用超时时间设置
     private long timeoutMillis;
     // 指定方法单独设置的超时时间, 方法名为key, 方法参数类型不做区别对待
@@ -83,7 +83,7 @@ public class ProxyFactory<I> {
     // 消费者端钩子函数
     private List<ConsumerHook> hooks;
     // 集群容错策略
-    private ClusterInvoker.Strategy strategy = ClusterInvoker.Strategy.FAIL_FAST;
+    private ClusterInvoker.Strategy strategy = ClusterInvoker.Strategy.getDefault();
     // failover重试次数
     private int retries = 2;
 

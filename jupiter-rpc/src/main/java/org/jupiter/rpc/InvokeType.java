@@ -36,4 +36,8 @@ public enum InvokeType {
         }
         return null;
     }
+
+    public static InvokeType getDefault() {
+        return SYNC;
+    }
 }

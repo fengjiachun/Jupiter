@@ -227,7 +227,7 @@ public class DefaultRegistryServer extends NettyTcpAcceptor implements RegistryS
             if (config.getConfig().putIfAbsent(meta.getAddress(), meta) == null) {
                 registerInfoContext.getServiceMeta(meta.getAddress()).add(serviceMeta);
 
-                final Message msg = new Message(SerializerType.PROTO_STUFF.value());
+                final Message msg = new Message(SerializerType.getDefault().value());
                 msg.messageCode(JProtocolHeader.PUBLISH_SERVICE);
                 msg.version(config.newVersion()); // 版本号+1
                 msg.data(Pair.of(serviceMeta, meta));
@@ -270,7 +270,7 @@ public class DefaultRegistryServer extends NettyTcpAcceptor implements RegistryS
             if (data != null) {
                 registerInfoContext.getServiceMeta(address).remove(serviceMeta);
 
-                final Message msg = new Message(SerializerType.PROTO_STUFF.value());
+                final Message msg = new Message(SerializerType.getDefault().value());
                 msg.messageCode(JProtocolHeader.PUBLISH_CANCEL_SERVICE);
                 msg.version(config.newVersion()); // 版本号+1
                 msg.data(Pair.of(serviceMeta, data));
@@ -307,7 +307,7 @@ public class DefaultRegistryServer extends NettyTcpAcceptor implements RegistryS
             return;
         }
 
-        final Message msg = new Message(SerializerType.PROTO_STUFF.value());
+        final Message msg = new Message(SerializerType.getDefault().value());
         msg.messageCode(JProtocolHeader.PUBLISH_SERVICE);
         msg.version(config.getVersion()); // 版本号
         List<RegisterMeta> registerMetaList = Lists.newArrayList(config.getConfig().values());
@@ -330,7 +330,7 @@ public class DefaultRegistryServer extends NettyTcpAcceptor implements RegistryS
 
         logger.info("OfflineNotice on {}.", address);
 
-        Message msg = new Message(SerializerType.PROTO_STUFF.value());
+        Message msg = new Message(SerializerType.getDefault().value());
         msg.messageCode(JProtocolHeader.OFFLINE_NOTICE);
         msg.data(address);
         subscriberChannels.writeAndFlush(msg);

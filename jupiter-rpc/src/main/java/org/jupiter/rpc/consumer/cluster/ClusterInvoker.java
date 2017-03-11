@@ -45,6 +45,10 @@ public interface ClusterInvoker {
             }
             return null;
         }
+
+        public static Strategy getDefault() {
+            return FAIL_FAST;
+        }
     }
 
     String name();
