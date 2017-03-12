@@ -1,4 +1,5 @@
 [![Build Status](https://travis-ci.org/fengjiachun/Jupiter.svg?branch=master)](https://travis-ci.org/fengjiachun/Jupiter)
+[![Maven Central](https://img.shields.io/maven-central/v/org.jupiter-rpc/jupiter.svg?label=Maven Central)](http://search.maven.org/#search%7Cga%7C1%7Cg%3A%22org.jupiter-rpc%22%20AND%20jupiter)
 
 ####Jupiter:
 - Jupiter是一款性能非常不错的, 轻量级的分布式服务框架
@@ -42,7 +43,7 @@
 + 依赖管理工具: Maven3.x版本
 
 #####[最新版本OSS下载](https://oss.sonatype.org/#nexus-search;quick~org.jupiter-rpc)
-#####[最新版本Maven中心仓库下载](http://search.maven.org/#search%7Cga%7C1%7Corg.jupiter-rpc)
+#####[最新版本Maven中心仓库下载](http://search.maven.org/#search%7Cga%7C1%7Cg%3A%22org.jupiter-rpc%22%20AND%20jupiter)
 #####Maven依赖:
 
     <properties>
