@@ -1,6 +1,6 @@
-[![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://github.com/fengjiachun/Jupiter/blob/master/LICENSE)
+[![License](https://img.shields.io/badge/license-apache%202.0-blue.svg)](https://github.com/fengjiachun/Jupiter/blob/master/LICENSE)
 [![Build Status](https://travis-ci.org/fengjiachun/Jupiter.svg?branch=master)](https://travis-ci.org/fengjiachun/Jupiter)
-[![Maven Central](https://img.shields.io/maven-central/v/org.jupiter-rpc/jupiter.svg?label=Maven Central)](http://search.maven.org/#search%7Cga%7C1%7Cg%3A%22org.jupiter-rpc%22%20AND%20jupiter)
+[![Maven Central](https://img.shields.io/maven-central/v/org.jupiter-rpc/jupiter.svg)](http://search.maven.org/#search%7Cga%7C1%7Cg%3A%22org.jupiter-rpc%22%20AND%20jupiter)
 
 ####Jupiter:
 - Jupiter是一款性能非常不错的, 轻量级的分布式服务框架
