@@ -93,7 +93,13 @@ public class DefaultRegistryServer extends NettyTcpAcceptor implements RegistryS
     private final MessageEncoder encoder = new MessageEncoder();
     private final AcknowledgeEncoder ackEncoder = new AcknowledgeEncoder();
 
-    private volatile SerializerType serializerType = SerializerType.getDefault();
+    // 序列化/反序列化方式
+    private final SerializerType serializerType;
+
+    {
+        SerializerType expected = SerializerType.parse(SystemPropertyUtil.get("jupiter.registry.default.serializer_type"));
+        serializerType = expected == null ? SerializerType.getDefault() : expected;
+    }
 
     public DefaultRegistryServer(int port) {
         super(port, false);
@@ -211,10 +217,6 @@ public class DefaultRegistryServer extends NettyTcpAcceptor implements RegistryS
         } catch (InterruptedException e) {
             ExceptionUtil.throwException(e);
         }
-    }
-
-    public void serializerType(SerializerType serializerType) {
-        this.serializerType = serializerType;
     }
 
     // 添加指定机器指定服务, 然后全量发布到所有客户端

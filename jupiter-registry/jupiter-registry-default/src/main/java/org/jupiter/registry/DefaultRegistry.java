@@ -78,12 +78,18 @@ public class DefaultRegistry extends NettyTcpConnector {
     private final MessageEncoder encoder = new MessageEncoder();
     private final AcknowledgeEncoder ackEncoder = new AcknowledgeEncoder();
 
+    // 序列化/反序列化方式
+    private final SerializerType serializerType;
+
+    {
+        SerializerType expected = SerializerType.parse(SystemPropertyUtil.get("jupiter.registry.default.serializer_type"));
+        serializerType = expected == null ? SerializerType.getDefault() : expected;
+    }
+
     private final AbstractRegistryService registryService;
 
     // 每个ConfigClient只保留一个有效channel
     private volatile Channel channel;
-
-    private volatile SerializerType serializerType = SerializerType.getDefault();
 
     public DefaultRegistry(AbstractRegistryService registryService) {
         this(registryService, 1);
@@ -162,10 +168,6 @@ public class DefaultRegistry extends NettyTcpConnector {
                 }
             }
         };
-    }
-
-    public void serializerType(SerializerType serializerType) {
-        this.serializerType = serializerType;
     }
 
     /**
