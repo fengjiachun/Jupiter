@@ -2,10 +2,10 @@
 [![Maven Central](https://img.shields.io/maven-central/v/org.jupiter-rpc/jupiter.svg?label=Maven%20Central)](http://search.maven.org/#search%7Cga%7C1%7Cg%3A%22org.jupiter-rpc%22%20AND%20jupiter)
 [![Build Status](https://travis-ci.org/fengjiachun/Jupiter.svg?branch=master)](https://travis-ci.org/fengjiachun/Jupiter)
 
-####Jupiter:
+#### Jupiter:
 - Jupiter是一款性能非常不错的, 轻量级的分布式服务框架
 
-####Jupiter Architecture:
+#### Jupiter Architecture:
 
            ═ ═ ═▷ init         ─ ─ ─ ▷ async       ──────▶ sync
     ----------------------------------------------------------------------------------------
@@ -29,7 +29,7 @@
 
     ---------------------------------------------------------------------------------------
 
-####性能:
+#### 性能:
 - 小数据包请求(不带业务)在四核刀片服务器上可达到17w+的tps, 详情见 [Benchmark](https://github.com/fengjiachun/Jupiter/wiki/Benchmark)
 
 ####文档:
@@ -37,15 +37,15 @@
 
 
 
-####快速入门:
+#### 快速入门:
 
-#####工程依赖:
+##### 工程依赖:
 + JDK1.7或更高版本
 + 依赖管理工具: Maven3.x版本
 
-#####[最新版本OSS下载](https://oss.sonatype.org/#nexus-search;quick~org.jupiter-rpc)
-#####[最新版本Maven中心仓库下载](http://search.maven.org/#search%7Cga%7C1%7Cg%3A%22org.jupiter-rpc%22%20AND%20jupiter)
-#####Maven依赖:
+##### [最新版本OSS下载](https://oss.sonatype.org/#nexus-search;quick~org.jupiter-rpc)
+##### [最新版本Maven中心仓库下载](http://search.maven.org/#search%7Cga%7C1%7Cg%3A%22org.jupiter-rpc%22%20AND%20jupiter)
+##### Maven依赖:
 
     <properties>
         <jupiter.version>1.2.3</jupiter.version>
@@ -113,7 +113,7 @@
        <version>${jupiter.version}</version>
     </dependency>
 
-#####简单调用示例:
+##### 简单调用示例:
 1. 创建服务接口:
 >     @ServiceProvider(group = "test", name = "serviceTest")
 >     public interface ServiceTest {
@@ -209,7 +209,7 @@
 >         }
 >     }
 
-#####结合Spring使用示例:
+##### 结合Spring使用示例:
 1. [Server端配置](https://github.com/fengjiachun/Jupiter/blob/master/jupiter-example/src/main/resources/spring-provider.xml):
 >
 >     <!-- netty的网络层实现(建议单例) -->
@@ -264,10 +264,10 @@
 >     </bean>
 [Server/Client代码示例](https://github.com/fengjiachun/Jupiter/tree/master/jupiter-example/src/main/java/org/jupiter/example/spring)
 
-#####[更多示例代码](https://github.com/fengjiachun/Jupiter/tree/master/jupiter-example/src/main/java/org/jupiter/example)
+##### [更多示例代码](https://github.com/fengjiachun/Jupiter/tree/master/jupiter-example/src/main/java/org/jupiter/example)
 
 
-####其他
+#### 其他
 - qq交流群: 397633380
 - 邮件交流: jiachun_fjc@163.com
 
