@@ -196,17 +196,6 @@
                 <artifactId>netty-transport-native-epoll</artifactId>
                 <version>${netty.version}</version>
             </dependency>
-            <dependency>
-                <groupId>io.netty</groupId>
-                <artifactId>netty-transport-udt</artifactId>
-                <version>${netty.version}</version>
-            </dependency>
-            <dependency>
-                <!-- scope: runtime -->
-                <groupId>com.barchart.udt</groupId>
-                <artifactId>barchart-udt-bundle</artifactId>
-                <version>${barchart.version}</version>
-            </dependency>
             <!-- # netty dependency: end -->
 
             <!-- # serialization dependency: begin -->
