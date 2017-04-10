@@ -32,7 +32,7 @@ public class TraceId implements Serializable {
 
     private static final long serialVersionUID = 2901824755629719770L;
 
-    public static TraceId NULL_TRACE_ID = newInstance("null");
+    public static final TraceId NULL_TRACE_ID = newInstance("null");
 
     private final String id;    // 全局唯一的ID
     private int node;           // 每经过一个节点, node的值会 +1
