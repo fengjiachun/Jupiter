@@ -195,19 +195,18 @@ public class DefaultClient implements JClient {
                     return true;
                 }
 
+                long remains = TimeUnit.MILLISECONDS.toNanos(timeoutMillis);
                 boolean available = false;
-                long start = System.nanoTime();
+
                 final ReentrantLock _look = lock;
                 _look.lock();
                 try {
-                    // avoid "spurious wakeup"
+                    // avoid "spurious wakeup" occurs
                     while (!connector.isDirectoryAvailable(directory)) {
                         signalNeeded.set(true);
-                        if (!notifyCondition.await(timeoutMillis, TimeUnit.MILLISECONDS)) {
-                            break; // timeout
-                        }
+                        remains = notifyCondition.awaitNanos(remains);
                         available = connector.isDirectoryAvailable(directory);
-                        if (available || (System.nanoTime() - start) > TimeUnit.MILLISECONDS.toNanos(timeoutMillis)) {
+                        if (remains <= 0 || available) {
                             break;
                         }
                     }
