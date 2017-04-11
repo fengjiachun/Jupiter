@@ -200,10 +200,12 @@ public class DefaultClient implements JClient {
                 final ReentrantLock _look = lock;
                 _look.lock();
                 try {
+                    // avoid "spurious wakeup"
                     while (!connector.isDirectoryAvailable(directory)) {
                         signalNeeded.set(true);
-                        notifyCondition.await(timeoutMillis, TimeUnit.MILLISECONDS);
-
+                        if (!notifyCondition.await(timeoutMillis, TimeUnit.MILLISECONDS)) {
+                            break; // timeout
+                        }
                         available = connector.isDirectoryAvailable(directory);
                         if (available || (System.nanoTime() - start) > TimeUnit.MILLISECONDS.toNanos(timeoutMillis)) {
                             break;
