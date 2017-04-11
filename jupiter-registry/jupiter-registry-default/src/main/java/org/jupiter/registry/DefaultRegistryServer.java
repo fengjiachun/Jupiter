@@ -71,7 +71,7 @@ import static org.jupiter.common.util.StackTraceUtil.stackTrace;
  *
  * @author jiachun.fjc
  */
-public class DefaultRegistryServer extends NettyTcpAcceptor implements RegistryServer {
+public final class DefaultRegistryServer extends NettyTcpAcceptor implements RegistryServer {
 
     private static final InternalLogger logger = InternalLoggerFactory.getInstance(DefaultRegistryServer.class);
 

@@ -32,11 +32,11 @@ import io.netty.channel.socket.nio.NioSocketChannel;
  */
 public final class TcpChannelProvider<T extends Channel> implements ChannelFactory<T> {
 
-    public static ChannelFactory<ServerChannel> NIO_ACCEPTOR = new TcpChannelProvider<>(TypeIO.NIO, KindChannel.ACCEPTOR);
-    public static ChannelFactory<ServerChannel> NATIVE_ACCEPTOR = new TcpChannelProvider<>(TypeIO.NATIVE, KindChannel.ACCEPTOR);
+    public static final ChannelFactory<ServerChannel> NIO_ACCEPTOR = new TcpChannelProvider<>(TypeIO.NIO, KindChannel.ACCEPTOR);
+    public static final ChannelFactory<ServerChannel> NATIVE_ACCEPTOR = new TcpChannelProvider<>(TypeIO.NATIVE, KindChannel.ACCEPTOR);
 
-    public static ChannelFactory<Channel> NIO_CONNECTOR = new TcpChannelProvider<>(TypeIO.NIO, KindChannel.CONNECTOR);
-    public static ChannelFactory<Channel> NATIVE_CONNECTOR = new TcpChannelProvider<>(TypeIO.NATIVE, KindChannel.CONNECTOR);
+    public static final ChannelFactory<Channel> NIO_CONNECTOR = new TcpChannelProvider<>(TypeIO.NIO, KindChannel.CONNECTOR);
+    public static final ChannelFactory<Channel> NATIVE_CONNECTOR = new TcpChannelProvider<>(TypeIO.NATIVE, KindChannel.CONNECTOR);
 
     public TcpChannelProvider(TypeIO typeIO, KindChannel kindChannel) {
         this.typeIO = typeIO;

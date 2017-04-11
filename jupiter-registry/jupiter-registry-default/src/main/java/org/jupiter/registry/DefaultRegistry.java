@@ -60,7 +60,7 @@ import static org.jupiter.common.util.StackTraceUtil.stackTrace;
  *
  * @author jiachun.fjc
  */
-public class DefaultRegistry extends NettyTcpConnector {
+public final class DefaultRegistry extends NettyTcpConnector {
 
     private static final InternalLogger logger = InternalLoggerFactory.getInstance(DefaultRegistry.class);
 
