@@ -203,9 +203,7 @@ public class DefaultClient implements JClient {
                     // avoid "spurious wakeup" occurs
                     while (!(available = connector.isDirectoryAvailable(directory))) {
                         signalNeeded.set(true);
-                        remains = notifyCondition.awaitNanos(remains);
-                        available = connector.isDirectoryAvailable(directory);
-                        if (remains <= 0 || available) {
+                        if ((remains = notifyCondition.awaitNanos(remains)) <= 0) {
                             break;
                         }
                     }
