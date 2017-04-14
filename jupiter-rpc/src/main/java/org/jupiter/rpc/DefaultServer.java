@@ -459,7 +459,7 @@ public class DefaultServer implements JServer {
     }
 
     // 本地provider容器默认实现
-    class DefaultServiceProviderContainer implements ServiceProviderContainer {
+    private static final class DefaultServiceProviderContainer implements ServiceProviderContainer {
 
         private final ConcurrentMap<String, ServiceWrapper> serviceProviders = Maps.newConcurrentMap();
 
