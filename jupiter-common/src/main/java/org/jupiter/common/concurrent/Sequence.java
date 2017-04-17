@@ -115,7 +115,7 @@ public class Sequence extends RhsPadding {
      * @return the updated value
      */
     public long incrementAndGet() {
-        return UNSAFE.getAndAddLong(this, VALUE_OFFSET, 1L) + 1L;
+        return addAndGet(1L);
     }
 
     /**
@@ -125,7 +125,15 @@ public class Sequence extends RhsPadding {
      * @return the updated value
      */
     public long addAndGet(long delta) {
-        return UNSAFE.getAndAddLong(this, VALUE_OFFSET, delta) + delta;
+        long currentValue;
+        long newValue;
+
+        do {
+            currentValue = get();
+            newValue = currentValue + delta;
+        } while (!compareAndSet(currentValue, newValue));
+
+        return newValue;
     }
 
     @Override
