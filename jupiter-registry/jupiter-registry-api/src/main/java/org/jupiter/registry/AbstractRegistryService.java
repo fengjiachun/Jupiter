@@ -45,7 +45,7 @@ public abstract class AbstractRegistryService implements RegistryService {
 
     private static final InternalLogger logger = InternalLoggerFactory.getInstance(AbstractRegistryService.class);
 
-    private final LinkedBlockingQueue<RegisterMeta> queue = new LinkedBlockingQueue<>(1024);
+    private final LinkedBlockingQueue<RegisterMeta> queue = new LinkedBlockingQueue<>();
     private final ExecutorService executor =
             Executors.newSingleThreadExecutor(new NamedThreadFactory("registry.executor"));
     private final AtomicBoolean shutdown = new AtomicBoolean(false);
@@ -94,7 +94,9 @@ public abstract class AbstractRegistryService implements RegistryService {
 
     @Override
     public void unregister(RegisterMeta meta) {
-        doUnregister(meta);
+        if (!queue.remove(meta)) {
+            doUnregister(meta);
+        }
     }
 
     @Override
