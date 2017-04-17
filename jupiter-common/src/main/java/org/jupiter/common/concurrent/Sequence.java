@@ -19,6 +19,20 @@ package org.jupiter.common.concurrent;
 import org.jupiter.common.util.internal.JUnsafe;
 import sun.misc.Unsafe;
 
+/**
+ * 利用对象继承的内存布局规则来padding避免false sharing, 注意其中对象头会至少占用8个字节
+ * ---------------------------------------
+ *  For 32 bit JVM:
+ *      _mark   : 4 byte constant
+ *      _klass  : 4 byte pointer to class
+ *  For 64 bit JVM:
+ *      _mark   : 8 byte constant
+ *      _klass  : 8 byte pointer to class
+ *  For 64 bit JVM with compressed-oops:
+ *      _mark   : 8 byte constant
+ *      _klass  : 4 byte pointer to class
+ * ---------------------------------------
+ */
 class LhsPadding {
     @SuppressWarnings("unused")
     protected long p01, p02, p03, p04, p05, p06, p07;
