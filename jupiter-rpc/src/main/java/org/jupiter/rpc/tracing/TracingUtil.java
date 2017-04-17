@@ -58,8 +58,8 @@ public class TracingUtil {
     private static final char PID_FLAG = 'd';
     private static final String IP_16;
     private static final String PID;
-    private static final int ID_BASE = 1000;
-    private static final int ID_MASK = (1 << 13) - 1; // 8192 - 1
+    private static final long ID_BASE = 1000;
+    private static final long ID_MASK = (1 << 13) - 1; // 8192 - 1
     private static final Sequence sequence = new Sequence();
 
     static {
