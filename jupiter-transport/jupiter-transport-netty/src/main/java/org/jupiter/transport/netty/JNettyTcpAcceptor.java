@@ -81,10 +81,16 @@ import static org.jupiter.common.util.Preconditions.checkNotNull;
  */
 public class JNettyTcpAcceptor extends NettyTcpAcceptor {
 
+    public static final int DEFAULT_ACCEPTOR_PORT = 18090;
+
     // handlers
     private final AcceptorIdleStateTrigger idleStateTrigger = new AcceptorIdleStateTrigger();
     private final ProtocolEncoder encoder = new ProtocolEncoder();
     private final AcceptorHandler handler = new AcceptorHandler();
+
+    public JNettyTcpAcceptor() {
+        super(DEFAULT_ACCEPTOR_PORT);
+    }
 
     public JNettyTcpAcceptor(int port) {
         super(port);

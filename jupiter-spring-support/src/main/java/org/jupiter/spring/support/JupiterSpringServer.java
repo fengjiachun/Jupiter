@@ -18,11 +18,15 @@ package org.jupiter.spring.support;
 
 import org.jupiter.common.util.ExceptionUtil;
 import org.jupiter.common.util.Strings;
+import org.jupiter.rpc.DefaultServer;
 import org.jupiter.rpc.JRequest;
 import org.jupiter.rpc.JServer;
 import org.jupiter.rpc.flow.control.FlowController;
 import org.jupiter.rpc.provider.ProviderInterceptor;
+import org.jupiter.transport.JAcceptor;
 import org.springframework.beans.factory.InitializingBean;
+
+import static org.jupiter.common.util.Preconditions.checkNotNull;
 
 /**
  * 服务端 acceptor wrapper, 负责初始化并启动acceptor.
@@ -47,6 +51,10 @@ public class JupiterSpringServer implements InitializingBean {
     }
 
     private void init() {
+        if (server == null) {
+            server = createDefaultServer();
+        }
+
         // 注册中心
         if (Strings.isNotBlank(registryServerAddresses)) {
             server.connectToRegistryServer(registryServerAddresses);
@@ -114,5 +122,20 @@ public class JupiterSpringServer implements InitializingBean {
 
     public void setFlowController(FlowController<JRequest> flowController) {
         this.flowController = flowController;
+    }
+
+    private JServer createDefaultServer() {
+        return new DefaultServer().withAcceptor(createDefaultAcceptor());
+    }
+
+    private JAcceptor createDefaultAcceptor() {
+        JAcceptor defaultAcceptor = null;
+        try {
+            Class<?> clazz = Class.forName("org.jupiter.transport.netty.JNettyTcpAcceptor");
+            defaultAcceptor = (JAcceptor) clazz.newInstance();
+        } catch (Exception e) {
+            ExceptionUtil.throwException(e);
+        }
+        return checkNotNull(defaultAcceptor, "default acceptor");
     }
 }

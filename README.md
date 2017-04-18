@@ -48,7 +48,7 @@
 ##### Maven依赖:
 
     <properties>
-        <jupiter.version>1.2.3</jupiter.version>
+        <jupiter.version>1.2.4</jupiter.version>
     </properties>
 
     <dependency>
@@ -212,18 +212,7 @@
 ##### 结合Spring使用示例:
 1. [Server端配置](https://github.com/fengjiachun/Jupiter/blob/master/jupiter-example/src/main/resources/spring-provider.xml):
 >
->     <!-- netty的网络层实现(建议单例) -->
->     <bean id="nettyTcpAcceptor" class="org.jupiter.transport.netty.JNettyTcpAcceptor">
->         <constructor-arg index="0" value="18090" />
->     </bean>
->
->     <!-- jupiter server(建议单例) -->
->     <bean id="jupiterServer" class="org.jupiter.rpc.DefaultServer">
->         <property name="acceptor" ref="nettyTcpAcceptor" />
->     </bean>
->
 >     <bean id="server" class="org.jupiter.spring.support.JupiterSpringServer">
->         <property name="server" ref="jupiterServer" />
 >         <!-- 注册中心地址, 逗号分隔 -->
 >         <property name="registryServerAddresses" value="127.0.0.1:20001" />
 >     </bean>
@@ -237,16 +226,7 @@
 
 2. [Client端配置](https://github.com/fengjiachun/Jupiter/blob/master/jupiter-example/src/main/resources/spring-consumer.xml):
 >
->     <!-- netty的网络层实现(建议单例) -->
->     <bean id="nettyTcpConnector" class="org.jupiter.transport.netty.JNettyTcpConnector" />
->
->     <!-- jupiter client(建议单例) -->
->     <bean id="jupiterClient" class="org.jupiter.rpc.DefaultClient">
->         <property name="connector" ref="nettyTcpConnector" />
->     </bean>
->
 >     <bean id="client" class="org.jupiter.spring.support.JupiterSpringClient">
->         <property name="client" ref="jupiterClient" />
 >         <!-- 注册中心地址, 逗号分隔 -->
 >         <property name="registryServerAddresses" value="127.0.0.1:20001" />
 >     </bean>

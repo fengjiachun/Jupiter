@@ -20,17 +20,17 @@
        xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
 
     <!-- netty的网络层实现(建议单例) -->
-    <bean id="nettyTcpAcceptor" class="org.jupiter.transport.netty.JNettyTcpAcceptor">
-        <constructor-arg index="0" value="18090" />
-    </bean>
+    <!--<bean id="nettyTcpAcceptor" class="org.jupiter.transport.netty.JNettyTcpAcceptor">-->
+        <!--<constructor-arg index="0" value="18090" />-->
+    <!--</bean>-->
 
     <!-- jupiter server(建议单例) -->
-    <bean id="jupiterServer" class="org.jupiter.rpc.DefaultServer">
-        <property name="acceptor" ref="nettyTcpAcceptor" />
-    </bean>
+    <!--<bean id="jupiterServer" class="org.jupiter.rpc.DefaultServer">-->
+        <!--<property name="acceptor" ref="nettyTcpAcceptor" />-->
+    <!--</bean>-->
 
     <bean id="server" class="org.jupiter.spring.support.JupiterSpringServer">
-        <property name="server" ref="jupiterServer" />
+        <!--<property name="server" ref="jupiterServer" />-->
         <!-- 注册中心地址, 逗号分隔 -->
         <property name="registryServerAddresses" value="127.0.0.1:20001" />
 
