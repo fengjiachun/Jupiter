@@ -19,6 +19,7 @@ package org.jupiter.spring.support;
 import org.jupiter.common.util.ExceptionUtil;
 import org.jupiter.common.util.Lists;
 import org.jupiter.common.util.Strings;
+import org.jupiter.common.util.SystemPropertyUtil;
 import org.jupiter.rpc.DefaultClient;
 import org.jupiter.rpc.JClient;
 import org.jupiter.transport.JConnection;
@@ -134,7 +135,9 @@ public class JupiterSpringClient implements InitializingBean {
     private JConnector<JConnection> createDefaultConnector() {
         JConnector<JConnection> defaultConnector = null;
         try {
-            Class<?> clazz = Class.forName("org.jupiter.transport.netty.JNettyTcpConnector");
+            String className = SystemPropertyUtil
+                    .get("jupiter.io.default.connector", "org.jupiter.transport.netty.JNettyTcpConnector");
+            Class<?> clazz = Class.forName(className);
             defaultConnector = (JConnector<JConnection>) clazz.newInstance();
         } catch (Exception e) {
             ExceptionUtil.throwException(e);

@@ -18,6 +18,7 @@ package org.jupiter.spring.support;
 
 import org.jupiter.common.util.ExceptionUtil;
 import org.jupiter.common.util.Strings;
+import org.jupiter.common.util.SystemPropertyUtil;
 import org.jupiter.rpc.DefaultServer;
 import org.jupiter.rpc.JRequest;
 import org.jupiter.rpc.JServer;
@@ -131,7 +132,9 @@ public class JupiterSpringServer implements InitializingBean {
     private JAcceptor createDefaultAcceptor() {
         JAcceptor defaultAcceptor = null;
         try {
-            Class<?> clazz = Class.forName("org.jupiter.transport.netty.JNettyTcpAcceptor");
+            String className = SystemPropertyUtil
+                    .get("jupiter.io.default.acceptor", "org.jupiter.transport.netty.JNettyTcpAcceptor");
+            Class<?> clazz = Class.forName(className);
             defaultAcceptor = (JAcceptor) clazz.newInstance();
         } catch (Exception e) {
             ExceptionUtil.throwException(e);
