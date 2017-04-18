@@ -408,7 +408,7 @@ public final class DefaultRegistry extends NettyTcpConnector {
         @Override
         protected void encode(ChannelHandlerContext ctx, Message msg, ByteBuf out) throws Exception {
             byte s_code = msg.serializerCode();
-            byte sign = (byte) ((s_code << 4) + msg.messageCode());
+            byte sign = JProtocolHeader.toSign(s_code, msg.messageCode());
             Serializer serializer = SerializerFactory.getSerializer(s_code);
             byte[] bytes = serializer.writeObject(msg);
 

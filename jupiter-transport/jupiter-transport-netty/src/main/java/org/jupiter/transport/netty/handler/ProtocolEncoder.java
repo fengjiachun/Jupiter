@@ -64,8 +64,7 @@ public class ProtocolEncoder extends MessageToByteEncoder<BytesHolder> {
     }
 
     private void doEncodeRequest(JRequestBytes request, ByteBuf out) {
-        byte s_code = request.serializerCode();
-        byte sign = (byte) ((s_code << 4) + JProtocolHeader.REQUEST);
+        byte sign = JProtocolHeader.toSign(request.serializerCode(), JProtocolHeader.REQUEST);
         long invokeId = request.invokeId();
         byte[] bytes = request.bytes();
         int length = bytes.length;
@@ -79,8 +78,7 @@ public class ProtocolEncoder extends MessageToByteEncoder<BytesHolder> {
     }
 
     private void doEncodeResponse(JResponseBytes response, ByteBuf out) {
-        byte s_code = response.serializerCode();
-        byte sign = (byte) ((s_code << 4) + JProtocolHeader.RESPONSE);
+        byte sign = JProtocolHeader.toSign(response.serializerCode(), JProtocolHeader.RESPONSE);
         byte status = response.status();
         long invokeId = response.id();
         byte[] bytes = response.bytes();
