@@ -32,9 +32,11 @@
 
 package org.jupiter.common.util;
 
-import java.util.Map;
+import java.util.concurrent.ConcurrentMap;
+import java.util.concurrent.atomic.AtomicInteger;
 
-import static org.jupiter.common.util.Preconditions.*;
+import static org.jupiter.common.util.Preconditions.checkArgument;
+import static org.jupiter.common.util.Preconditions.checkNotNull;
 
 /**
  * A pool of {@link Constant}s.
@@ -43,9 +45,9 @@ import static org.jupiter.common.util.Preconditions.*;
  */
 public abstract class ConstantPool<T extends Constant<T>> {
 
-    private final Map<String, T> constants = Maps.newHashMap();
+    private final ConcurrentMap<String, T> constants = Maps.newConcurrentMap();
 
-    private int nextId = 1;
+    private final AtomicInteger nextId = new AtomicInteger(1);
 
     /**
      * Shortcut of {@link #valueOf(String) valueOf(firstNameComponent.getName() + "#" + secondNameComponent)}.
@@ -66,51 +68,60 @@ public abstract class ConstantPool<T extends Constant<T>> {
      * @param name the name of the {@link Constant}
      */
     public T valueOf(String name) {
-        T c;
-
-        synchronized (constants) {
-            if (exists(name)) {
-                c = constants.get(name);
-            } else {
-                c = newInstance0(name);
-            }
-        }
-
-        return c;
+        checkArgument(!Strings.isNullOrEmpty(name), "empty name");
+        return getOrCreate(name);
     }
 
     /**
-     * Creates a new {@link Constant} for the given {@param name} or fail with an
-     * {@link IllegalArgumentException} if a {@link Constant} for the given {@param name} exists.
+     * Get existing constant by name or creates new one if not exists. Threadsafe
+     *
+     * @param name the name of the {@link Constant}
      */
-    public T newInstance(String name) {
-        if (exists(name)) {
-            throw new IllegalArgumentException(String.format("'%s' is already in use", name));
+    private T getOrCreate(String name) {
+        T constant = constants.get(name);
+        if (constant == null) {
+            final T newConstant = newConstant(nextId.getAndIncrement(), name);
+            constant = constants.putIfAbsent(name, newConstant);
+            if (constant == null) {
+                constant =  newConstant;
+            }
         }
-
-        return newInstance0(name);
+        return constant;
     }
 
     /**
      * Returns {@code true} if exists for the given {@code name}.
      */
     public boolean exists(String name) {
-        checkNotNull(name, "name");
-        checkArgument(!name.isEmpty(), "empty name");
-
-        synchronized (constants) {
-            return constants.containsKey(name);
-        }
+        checkArgument(!Strings.isNullOrEmpty(name), "empty name");
+        return constants.containsKey(name);
     }
 
-    private T newInstance0(String name) {
-        checkNotNull(name, "name");
-        synchronized (constants) {
-            T c = newConstant(nextId, name);
-            constants.put(name, c);
-            nextId++;
-            return c;
+    /**
+     * Creates a new {@link Constant} for the given {@code name} or fail with an
+     * {@link IllegalArgumentException} if a {@link Constant} for the given {@code name} exists.
+     */
+    public T newInstance(String name) {
+        checkArgument(!Strings.isNullOrEmpty(name), "empty name");
+        return createOrThrow(name);
+    }
+
+    /**
+     * Creates constant by name or throws exception. Threadsafe
+     *
+     * @param name the name of the {@link Constant}
+     */
+    private T createOrThrow(String name) {
+        T constant = constants.get(name);
+        if (constant == null) {
+            final T newConstant = newConstant(nextId.getAndIncrement(), name);
+            constant = constants.putIfAbsent(name, newConstant);
+            if (constant == null) {
+                return newConstant;
+            }
         }
+
+        throw new IllegalArgumentException(String.format("'%s' is already in use", name));
     }
 
     protected abstract T newConstant(int id, String name);
