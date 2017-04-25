@@ -30,7 +30,7 @@ import java.util.regex.Pattern;
  */
 public class NetUtil {
 
-    private static final Pattern IP_PATTERN = Pattern.compile("\\d{1,3}(\\.\\d{1,3}){3,5}$");
+    private static final Pattern IP_PATTERN = Pattern.compile("\\d{1,3}(\\.\\d{1,3}){3}$");
     private static final String LOCAL_IP_ADDRESS;
 
     static {
