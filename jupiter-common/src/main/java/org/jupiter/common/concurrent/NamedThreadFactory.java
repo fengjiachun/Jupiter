@@ -68,12 +68,10 @@ public class NamedThreadFactory implements ThreadFactory {
         String name = prefix + nextId.getAndIncrement();
         Thread t = new InternalThread(group, r, name, 0);
         try {
-            // 尽可能的避免 Thread#setDaemon() 被调用
             if (t.isDaemon() != daemon) {
                 t.setDaemon(daemon);
             }
 
-            // 尽可能的避免 Thread#setPriority() 被调用
             if (t.getPriority() != priority) {
                 t.setPriority(priority);
             }
