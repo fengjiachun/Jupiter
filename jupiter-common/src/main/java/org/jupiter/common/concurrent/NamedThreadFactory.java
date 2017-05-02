@@ -63,12 +63,20 @@ public class NamedThreadFactory implements ThreadFactory {
 
     @Override
     public Thread newThread(Runnable r) {
-        checkNotNull(r, "runnable obj was null.");
+        checkNotNull(r, "runnable");
 
         String name = prefix + nextId.getAndIncrement();
         Thread t = new InternalThread(group, r, name, 0);
         try {
-        	t.setDaemon(daemon);
+            if (t.isDaemon()) {
+                if (!daemon) {
+                    t.setDaemon(false);
+                }
+            } else {
+                if (daemon) {
+                    t.setDaemon(true);
+                }
+            }
 
             if (t.getPriority() != priority) {
                 t.setPriority(priority);
