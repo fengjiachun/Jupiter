@@ -69,14 +69,8 @@ public class NamedThreadFactory implements ThreadFactory {
         Thread t = new InternalThread(group, r, name, 0);
         try {
             // 尽可能的避免 Thread#setDaemon() 被调用
-            if (t.isDaemon()) {
-                if (!daemon) {
-                    t.setDaemon(false);
-                }
-            } else {
-                if (daemon) {
-                    t.setDaemon(true);
-                }
+            if (t.isDaemon() != daemon) {
+                t.setDaemon(daemon);
             }
 
             // 尽可能的避免 Thread#setPriority() 被调用
