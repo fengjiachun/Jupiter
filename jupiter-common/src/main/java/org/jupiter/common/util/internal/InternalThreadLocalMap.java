@@ -60,12 +60,12 @@ class RhsPadding extends Fields {
  */
 public final class InternalThreadLocalMap extends RhsPadding {
 
-    public static final Object UNSET = new Object();
-
     private static final int STRING_BUILDER_MAX_CAPACITY = 1024 << 6;
 
     private static final ThreadLocal<InternalThreadLocalMap> slowThreadLocalMap = new ThreadLocal<>();
     private static final AtomicInteger nextIndex = new AtomicInteger();
+
+    public static final Object UNSET = new Object();
 
     public static InternalThreadLocalMap getIfSet() {
         Thread thread = Thread.currentThread();
