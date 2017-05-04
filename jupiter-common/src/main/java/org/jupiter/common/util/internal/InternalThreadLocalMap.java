@@ -62,6 +62,8 @@ public final class InternalThreadLocalMap extends RhsPadding {
 
     public static final Object UNSET = new Object();
 
+    private static final int STRING_BUILDER_MAX_CAPACITY = 1024 << 6;
+
     private static final ThreadLocal<InternalThreadLocalMap> slowThreadLocalMap = new ThreadLocal<>();
     private static final AtomicInteger nextIndex = new AtomicInteger();
 
@@ -162,7 +164,7 @@ public final class InternalThreadLocalMap extends RhsPadding {
 
     public StringBuilder stringBuilder() {
         StringBuilder builder = stringBuilder;
-        if (builder == null || builder.capacity() > (1024 << 6) /* ensure memory overhead */ ) {
+        if (builder == null || builder.capacity() > STRING_BUILDER_MAX_CAPACITY /* ensure memory overhead */ ) {
             stringBuilder = builder = new StringBuilder(512);
         } else {
             builder.setLength(0);
