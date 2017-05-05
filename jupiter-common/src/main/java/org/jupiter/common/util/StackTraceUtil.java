@@ -16,8 +16,9 @@
 
 package org.jupiter.common.util;
 
-import java.io.PrintWriter;
-import java.io.StringWriter;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.PrintStream;
 
 /**
  * jupiter
@@ -32,9 +33,17 @@ public final class StackTraceUtil {
             return "null";
         }
 
-        StringWriter out = new StringWriter();
-        t.printStackTrace(new PrintWriter(out));
-        return out.toString();
+        ByteArrayOutputStream out = new ByteArrayOutputStream();
+        PrintStream ps = new PrintStream(out);
+        t.printStackTrace(ps);
+        ps.flush();
+        try {
+            return new String(out.toByteArray());
+        } finally {
+            try {
+                out.close();
+            } catch (IOException ignored) {}
+        }
     }
 
     private StackTraceUtil() {}
