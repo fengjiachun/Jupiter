@@ -53,7 +53,6 @@ public class JupiterSpringProviderBean implements InitializingBean, ApplicationC
     private String providerName;                                // 服务名称
     private String version;                                     // 服务版本号, 通常在接口不兼容时版本号才需要升级
     private int weight;                                         // 权重
-    private int connCount;                                      // 建议客户端维持的长连接数量
     private Executor executor;                                  // 该服务私有的线程池
     private FlowController<JRequest> flowController;            // 该服务私有的流量控制器
     private JServer.ProviderInitializer<?> providerInitializer; // 服务延迟初始化
@@ -100,7 +99,6 @@ public class JupiterSpringProviderBean implements InitializingBean, ApplicationC
 
         serviceWrapper = registry
                 .weight(weight)
-                .connCount(connCount)
                 .executor(executor)
                 .flowController(flowController)
                 .register();
@@ -168,14 +166,6 @@ public class JupiterSpringProviderBean implements InitializingBean, ApplicationC
 
     public void setWeight(int weight) {
         this.weight = weight;
-    }
-
-    public int getConnCount() {
-        return connCount;
-    }
-
-    public void setConnCount(int connCount) {
-        this.connCount = connCount;
     }
 
     public Executor getExecutor() {

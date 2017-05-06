@@ -53,7 +53,6 @@
         <!--
             ProviderInterceptor[] providerInterceptors          // 私有拦截器
             int weight                                          // 权重
-            int connCount                                       // 建议客户端维持的长连接数量
             Executor executor                                   // 该服务私有的线程池
             FlowController<JRequest> flowController             // 该服务私有的流量控制器
             JServer.ProviderInitializer<?> providerInitializer  // 服务延迟初始化

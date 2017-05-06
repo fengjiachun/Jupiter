@@ -76,6 +76,7 @@ public class DefaultServer implements JServer {
     // 全局流量控制
     private FlowController<JRequest> globalFlowController;
 
+    // IO acceptor
     private JAcceptor acceptor;
 
     @Override
@@ -140,7 +141,7 @@ public class DefaultServer implements JServer {
         meta.setServiceProviderName(metadata.getServiceProviderName());
         meta.setVersion(metadata.getVersion());
         meta.setWeight(serviceWrapper.getWeight());
-        meta.setConnCount(serviceWrapper.getConnCount());
+        meta.setConnCount(JConstants.SUGGESTED_CONNECTION_COUNT);
 
         registryService.register(meta);
     }
@@ -197,7 +198,7 @@ public class DefaultServer implements JServer {
         meta.setVersion(metadata.getVersion());
         meta.setServiceProviderName(metadata.getServiceProviderName());
         meta.setWeight(serviceWrapper.getWeight());
-        meta.setConnCount(serviceWrapper.getConnCount());
+        meta.setConnCount(JConstants.SUGGESTED_CONNECTION_COUNT);
 
         registryService.unregister(meta);
     }
@@ -237,7 +238,6 @@ public class DefaultServer implements JServer {
             ProviderInterceptor[] interceptors,
             Map<String, List<Pair<Class<?>[], Class<?>[]>>> extensions,
             int weight,
-            int connCount,
             Executor executor,
             FlowController<JRequest> flowController) {
 
@@ -257,7 +257,6 @@ public class DefaultServer implements JServer {
                 new ServiceWrapper(group, providerName, version, serviceProvider, allInterceptors, extensions);
 
         wrapper.setWeight(weight);
-        wrapper.setConnCount(connCount);
         wrapper.setExecutor(executor);
         wrapper.setFlowController(flowController);
 
@@ -275,7 +274,6 @@ public class DefaultServer implements JServer {
         private String providerName;                        // 服务名称
         private String version;                             // 服务版本号, 通常在接口不兼容时版本号才需要升级
         private int weight;                                 // 权重
-        private int connCount;                              // 建议客户端维持的长连接数量
         private Executor executor;                          // 该服务私有的线程池
         private FlowController<JRequest> flowController;    // 该服务私有的流量控制器
 
@@ -313,12 +311,6 @@ public class DefaultServer implements JServer {
         @Override
         public ServiceRegistry weight(int weight) {
             this.weight = weight;
-            return this;
-        }
-
-        @Override
-        public ServiceRegistry connCount(int connCount) {
-            this.connCount = connCount;
             return this;
         }
 
@@ -423,7 +415,6 @@ public class DefaultServer implements JServer {
                     interceptors,
                     extensions,
                     weight,
-                    connCount,
                     executor,
                     flowController
             );

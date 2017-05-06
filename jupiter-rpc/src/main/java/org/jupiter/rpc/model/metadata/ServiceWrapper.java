@@ -57,8 +57,6 @@ public class ServiceWrapper implements Serializable {
 
     // 权重 hashCode() 与 equals() 不把weight计算在内
     private int weight = JConstants.DEFAULT_WEIGHT;
-    // 建议连接数, jupiter客户端会根据connCount的值去建立对应数量的连接, hashCode() 与 equals() 不把connCount计算在内
-    private int connCount = JConstants.DEFAULT_CONNECTION_COUNT;
     // provider私有线程池
     private Executor executor;
     // provider私有流量控制器
@@ -96,14 +94,6 @@ public class ServiceWrapper implements Serializable {
 
     public void setWeight(int weight) {
         this.weight = weight;
-    }
-
-    public int getConnCount() {
-        return connCount;
-    }
-
-    public void setConnCount(int connCount) {
-        this.connCount = connCount;
     }
 
     public Executor getExecutor() {
@@ -149,7 +139,6 @@ public class ServiceWrapper implements Serializable {
                 ", interceptors=" + Arrays.toString(interceptors) +
                 ", extensions=" + extensions +
                 ", weight=" + weight +
-                ", connCount=" + connCount +
                 ", executor=" + executor +
                 ", flowController=" + flowController +
                 '}';

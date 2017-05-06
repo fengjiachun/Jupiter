@@ -60,7 +60,6 @@ public class JupiterServer {
             ServiceWrapper provider = server.serviceRegistry()
                     .provider(new ServiceTestImpl())
                     .weight(60)
-                    .connCount(1)
                     .flowController(new FlowController<JRequest>() { // provider级别限流器, 可以不设置
 
                         private AtomicLong count = new AtomicLong();
