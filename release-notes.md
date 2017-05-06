@@ -3,7 +3,7 @@ Jupiter release notes
 
 ### 2017-05-06:
 
-- 移除Atomic*FieldUpdater, 使用jdk默认的实现, 1.8后续版本jdk使用了intrinsics后更快
+- 存在addAndGet场景时, 不使用jupiter自带的Atomic*FieldUpdater, 使用jdk默认的实现, 1.8后续版本jdk使用了intrinsics后更快
 
 ### 2017-04-18: version 1.2.4
 
