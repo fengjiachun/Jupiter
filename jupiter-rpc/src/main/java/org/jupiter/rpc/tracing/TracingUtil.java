@@ -16,7 +16,6 @@
 
 package org.jupiter.rpc.tracing;
 
-import org.jupiter.common.concurrent.Sequence;
 import org.jupiter.common.util.*;
 import org.jupiter.common.util.internal.InternalThreadLocal;
 import org.jupiter.common.util.internal.logging.InternalLogger;
@@ -25,6 +24,7 @@ import org.jupiter.common.util.internal.logging.InternalLoggerFactory;
 import java.lang.management.ManagementFactory;
 import java.lang.management.RuntimeMXBean;
 import java.util.concurrent.ThreadLocalRandom;
+import java.util.concurrent.atomic.AtomicLong;
 
 import static org.jupiter.common.util.StackTraceUtil.stackTrace;
 
@@ -60,7 +60,7 @@ public class TracingUtil {
     private static final String PID;
     private static final long ID_BASE = 1000;
     private static final long ID_MASK = (1 << 13) - 1; // 8192 - 1
-    private static final Sequence sequence = new Sequence();
+    private static final AtomicLong sequence = new AtomicLong();
 
     static {
         String _ip_16;
