@@ -99,14 +99,17 @@ public class ChannelGroup implements JChannelGroup {
     }
 
     @Override
-    public int getWeight() {
-        return weight;
+    public int getWeight(String directory) {
+        return 0;
     }
 
     @Override
-    public void setWeight(int weight) {
-        this.weight = weight;
+    public void setWeight(String directory, int weight) {
+
     }
+
+    @Override
+    public void removeWeight(String directory) {}
 
     @Override
     public int getWarmUp() {

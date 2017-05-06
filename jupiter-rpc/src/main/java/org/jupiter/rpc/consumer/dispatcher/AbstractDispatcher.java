@@ -119,14 +119,14 @@ abstract class AbstractDispatcher implements Dispatcher {
         return timeoutMillis;
     }
 
-    protected JChannel select(JClient client, MessageWrapper message) {
+    protected JChannel select(JClient client) {
         // stack copy
         final ServiceMetadata _metadata = metadata;
 
         CopyOnWriteGroupList groups = client
                 .connector()
                 .directory(_metadata);
-        JChannelGroup group = loadBalancer.select(groups, message);
+        JChannelGroup group = loadBalancer.select(groups, _metadata);
 
         if (group != null) {
             if (group.isAvailable()) {

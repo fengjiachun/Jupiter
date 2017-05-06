@@ -138,8 +138,10 @@ public class DefaultClient implements JClient {
                             } else {
                                 onSucceed(group, signalNeeded.getAndSet(false));
                             }
+                            group.setWeight(directory.directory(), registerMeta.getWeight()); // 设置权重
                         } else if (event == NotifyEvent.CHILD_REMOVED) {
                             connector.removeChannelGroup(directory, group);
+                            group.removeWeight(directory.directory());
                             if (connector.directoryGroup().getRefCount(group) <= 0) {
                                 connectionManager.cancelReconnect(address); // 取消自动重连
                             }
@@ -151,7 +153,6 @@ public class DefaultClient implements JClient {
                         connCount = connCount < 1 ? 1 : connCount;
 
                         JConnection[] connections = new JConnection[connCount];
-                        group.setWeight(registerMeta.getWeight()); // 设置权重
                         group.setCapacity(connCount);
                         for (int i = 0; i < connCount; i++) {
                             JConnection connection = connector.connect(address, async);
@@ -224,8 +225,8 @@ public class DefaultClient implements JClient {
 
     @Override
     public boolean awaitConnections(Directory directory, long timeoutMillis) {
-        JConnector.ConnectionWatcher manager = watchConnections(directory);
-        return manager.waitForAvailable(timeoutMillis);
+        JConnector.ConnectionWatcher watcher = watchConnections(directory);
+        return watcher.waitForAvailable(timeoutMillis);
     }
 
     @Override

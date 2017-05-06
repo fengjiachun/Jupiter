@@ -27,6 +27,7 @@ import org.jupiter.transport.channel.JChannelGroup;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
+import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicIntegerFieldUpdater;
@@ -71,6 +72,8 @@ public class NettyChannelGroup implements JChannelGroup {
         }
     };
 
+    private final ConcurrentMap<String, Integer> weights = Maps.newConcurrentMap();
+
     private final UnresolvedAddress address;
 
     private final ReentrantLock lock = new ReentrantLock();
@@ -82,7 +85,6 @@ public class NettyChannelGroup implements JChannelGroup {
     @SuppressWarnings("unused")
     private volatile int index = 0;
     private volatile int capacity = Integer.MAX_VALUE;
-    private volatile int weight = JConstants.DEFAULT_WEIGHT; // the weight for this group
     private volatile int warmUp = JConstants.DEFAULT_WARM_UP; // warm-up time
     private volatile long timestamp = SystemClock.millisClock().now();
     private volatile long deadlineMillis = -1;
@@ -214,13 +216,22 @@ public class NettyChannelGroup implements JChannelGroup {
     }
 
     @Override
-    public int getWeight() {
-        return weight > 0 ? weight : 0;
+    public int getWeight(String directory) {
+        Integer weight = weights.get(directory);
+        return weight == null ? JConstants.DEFAULT_WEIGHT : weight;
     }
 
     @Override
-    public void setWeight(int weight) {
-        this.weight = weight > JConstants.MAX_WEIGHT ? JConstants.MAX_WEIGHT : weight;
+    public void setWeight(String directory, int weight) {
+        if (weight == JConstants.DEFAULT_WEIGHT) {
+            return;
+        }
+        weights.put(directory, weight > JConstants.MAX_WEIGHT ? JConstants.MAX_WEIGHT : weight);
+    }
+
+    @Override
+    public void removeWeight(String directory) {
+        weights.remove(directory);
     }
 
     @Override
@@ -269,7 +280,6 @@ public class NettyChannelGroup implements JChannelGroup {
 
         return "NettyChannelGroup{" +
                 "channels=" + channels +
-                ", weight=" + weight +
                 ", warmUp=" + warmUp +
                 ", time=" + dateFormat.format(new Date(timestamp)) +
                 ", address=" + address +

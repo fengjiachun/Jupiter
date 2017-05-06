@@ -55,7 +55,7 @@ public class DefaultRoundDispatcher extends AbstractDispatcher {
         message.setArgs(args);
 
         // 通过软负载均衡选择一个channel
-        JChannel channel = select(client, message);
+        JChannel channel = select(client);
 
         doTracing(message, methodName, channel);
 

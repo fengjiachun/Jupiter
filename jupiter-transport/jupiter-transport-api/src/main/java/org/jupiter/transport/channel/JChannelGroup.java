@@ -89,14 +89,19 @@ public interface JChannelGroup {
     boolean waitForAvailable(long timeoutMillis);
 
     /**
-     * Weight of this group.
+     * Weight of service.
      */
-    int getWeight();
+    int getWeight(String directory);
 
     /**
-     * Sets weight of this group.
+     * Sets the weight of service.
      */
-    void setWeight(int weight);
+    void setWeight(String directory, int weight);
+
+    /**
+     * Removes the weight of service.
+     */
+    void removeWeight(String directory);
 
     /**
      * Warm-up time.
