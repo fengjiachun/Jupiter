@@ -16,7 +16,6 @@
 
 package org.jupiter.rpc.load.balance;
 
-import org.jupiter.common.concurrent.atomic.AtomicUpdater;
 import org.jupiter.rpc.model.metadata.MessageWrapper;
 import org.jupiter.transport.channel.CopyOnWriteGroupList;
 import org.jupiter.transport.channel.JChannelGroup;
@@ -64,7 +63,7 @@ import java.util.concurrent.atomic.AtomicIntegerFieldUpdater;
 public class RoundRobinLoadBalancer extends AbstractLoadBalancer {
 
     private static final AtomicIntegerFieldUpdater<RoundRobinLoadBalancer> indexUpdater =
-            AtomicUpdater.newAtomicIntegerFieldUpdater(RoundRobinLoadBalancer.class, "index");
+            AtomicIntegerFieldUpdater.newUpdater(RoundRobinLoadBalancer.class, "index");
 
     @SuppressWarnings("unused")
     private volatile int index = 0;

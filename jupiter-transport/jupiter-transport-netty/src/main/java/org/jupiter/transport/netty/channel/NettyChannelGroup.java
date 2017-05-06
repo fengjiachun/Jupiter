@@ -18,7 +18,6 @@ package org.jupiter.transport.netty.channel;
 
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelFutureListener;
-import org.jupiter.common.concurrent.atomic.AtomicUpdater;
 import org.jupiter.common.util.*;
 import org.jupiter.transport.UnresolvedAddress;
 import org.jupiter.transport.channel.JChannel;
@@ -46,11 +45,11 @@ public class NettyChannelGroup implements JChannelGroup {
             .getLong("jupiter.io.channel.group.loss.interval.millis", TimeUnit.MINUTES.toMillis(5));
 
     private static final AtomicReferenceFieldUpdater<CopyOnWriteArrayList, Object[]> channelsUpdater =
-            AtomicUpdater.newAtomicReferenceFieldUpdater(CopyOnWriteArrayList.class, Object[].class, "array");
+            AtomicReferenceFieldUpdater.newUpdater(CopyOnWriteArrayList.class, Object[].class, "array");
     private static final AtomicIntegerFieldUpdater<NettyChannelGroup> signalNeededUpdater =
-            AtomicUpdater.newAtomicIntegerFieldUpdater(NettyChannelGroup.class, "signalNeeded");
+            AtomicIntegerFieldUpdater.newUpdater(NettyChannelGroup.class, "signalNeeded");
     private static final AtomicIntegerFieldUpdater<NettyChannelGroup> indexUpdater =
-            AtomicUpdater.newAtomicIntegerFieldUpdater(NettyChannelGroup.class, "index");
+            AtomicIntegerFieldUpdater.newUpdater(NettyChannelGroup.class, "index");
 
     private static final ThreadLocal<SimpleDateFormat> dateFormatThreadLocal = new ThreadLocal<SimpleDateFormat>() {
 
