@@ -39,14 +39,6 @@ public class UnsafeIntegerFieldUpdater<U> {
         offset = unsafe.objectFieldOffset(field);
     }
 
-    public boolean compareAndSet(U obj, int expect, int update) {
-        return unsafe.compareAndSwapInt(obj, offset, expect, update);
-    }
-
-    public boolean weakCompareAndSet(U obj, int expect, int update) {
-        return unsafe.compareAndSwapInt(obj, offset, expect, update);
-    }
-
     public void set(U obj, int newValue) {
         unsafe.putInt(obj, offset, newValue);
     }

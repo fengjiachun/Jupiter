@@ -39,14 +39,6 @@ public class UnsafeLongFieldUpdater<U> {
         offset = unsafe.objectFieldOffset(field);
     }
 
-    public boolean compareAndSet(U obj, long expect, long update) {
-        return unsafe.compareAndSwapLong(obj, offset, expect, update);
-    }
-
-    public boolean weakCompareAndSet(U obj, long expect, long update) {
-        return unsafe.compareAndSwapLong(obj, offset, expect, update);
-    }
-
     public void set(U obj, long newValue) {
         unsafe.putLong(obj, offset, newValue);
     }

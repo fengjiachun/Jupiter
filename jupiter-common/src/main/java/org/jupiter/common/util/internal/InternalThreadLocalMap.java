@@ -16,8 +16,6 @@
 
 package org.jupiter.common.util.internal;
 
-import org.jupiter.common.util.SystemPropertyUtil;
-
 import java.util.Arrays;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -64,11 +62,6 @@ public final class InternalThreadLocalMap extends RhsPadding {
 
     private static final UnsafeReferenceFieldUpdater<StringBuilder, char[]> stringBuilderValueUpdater =
             UnsafeUpdater.newReferenceFieldUpdater(StringBuilder.class.getSuperclass(), "value");
-
-    private static final int DEFAULT_STRING_BUILDER_MAX_CAPACITY =
-            SystemPropertyUtil.getInt("jupiter.internal.thread.local.string_builder_max_capacity", 1024 << 6);
-    private static final int DEFAULT_STRING_BUILDER_INITIAL_CAPACITY =
-            SystemPropertyUtil.getInt("jupiter.internal.thread.local.string_builder_initial_capacity", 512);
 
     private static final ThreadLocal<InternalThreadLocalMap> slowThreadLocalMap = new ThreadLocal<>();
     private static final AtomicInteger nextIndex = new AtomicInteger();
@@ -173,11 +166,11 @@ public final class InternalThreadLocalMap extends RhsPadding {
     public StringBuilder stringBuilder() {
         StringBuilder builder = stringBuilder;
         if (builder == null) {
-            stringBuilder = builder = new StringBuilder(DEFAULT_STRING_BUILDER_INITIAL_CAPACITY);
+            stringBuilder = builder = new StringBuilder(512);
         } else {
-            if (builder.capacity() > DEFAULT_STRING_BUILDER_MAX_CAPACITY) {
+            if (builder.capacity() > 65535) {
                 // ensure memory overhead
-                stringBuilderValueUpdater.set(builder, new char[DEFAULT_STRING_BUILDER_INITIAL_CAPACITY]);
+                stringBuilderValueUpdater.set(builder, new char[512]);
             }
             builder.setLength(0);
         }
