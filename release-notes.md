@@ -1,6 +1,10 @@
 Jupiter release notes
 ------------------------
 
+### 2017-05-06:
+
+- 移除实现的Atomic*FieldUpdater, 使用jdk默认的实现
+
 ### 2017-04-18: version 1.2.4
 
 - 升级Netty版本到4.1.9.Final
