@@ -79,7 +79,7 @@ public class NettyChannelGroup implements JChannelGroup {
     private final ReentrantLock lock = new ReentrantLock();
     private final Condition notifyCondition = lock.newCondition();
     // attempts to elide conditional wake-ups when the lock is uncontended.
-    @SuppressWarnings("unused")
+    @SuppressWarnings({"unused", "FieldCanBeLocal"})
     private volatile int signalNeeded = 0; // 0: false, 1: true
 
     @SuppressWarnings("unused")
@@ -187,22 +187,19 @@ public class NettyChannelGroup implements JChannelGroup {
 
     @Override
     public boolean waitForAvailable(long timeoutMillis) {
-        if (isAvailable()) {
+        boolean available = isAvailable();
+        if (available) {
             return true;
         }
+        long remains = TimeUnit.MILLISECONDS.toNanos(timeoutMillis);
 
-        boolean available = false;
-        long start = System.nanoTime();
         final ReentrantLock _look = lock;
         _look.lock();
         try {
-            while (!isAvailable()) {
-                signalNeededUpdater.set(this, 1); // set signal needed to true
-                notifyCondition.await(timeoutMillis, TimeUnit.MILLISECONDS);
-
-                available = isAvailable();
-
-                if (available || (System.nanoTime() - start) > TimeUnit.MILLISECONDS.toNanos(timeoutMillis)) {
+            // avoid "spurious wakeup" occurs
+            while (!(available = isAvailable())) {
+                signalNeeded = 1; // set signal needed to true
+                if ((remains = notifyCondition.awaitNanos(remains)) <= 0) {
                     break;
                 }
             }
