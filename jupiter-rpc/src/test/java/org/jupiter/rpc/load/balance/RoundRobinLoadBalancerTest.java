@@ -54,7 +54,7 @@ public class RoundRobinLoadBalancerTest {
             c.weight = 1;
             groupList.addIfAbsent(c);
         }
-        groupList.get(15).setWeight(directory.directory(), 3);
+        groupList.get(15).setWeight(directory, 3);
 
         LoadBalancer lb = new RoundRobinLoadBalancer();
         len += 2;

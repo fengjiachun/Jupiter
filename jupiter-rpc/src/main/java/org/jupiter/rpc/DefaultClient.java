@@ -138,10 +138,10 @@ public class DefaultClient implements JClient {
                             } else {
                                 onSucceed(group, signalNeeded.getAndSet(false));
                             }
-                            group.setWeight(directory.directory(), registerMeta.getWeight()); // 设置权重
+                            group.setWeight(directory, registerMeta.getWeight()); // 设置权重
                         } else if (event == NotifyEvent.CHILD_REMOVED) {
                             connector.removeChannelGroup(directory, group);
-                            group.removeWeight(directory.directory());
+                            group.removeWeight(directory);
                             if (connector.directoryGroup().getRefCount(group) <= 0) {
                                 connectionManager.cancelReconnect(address); // 取消自动重连
                             }

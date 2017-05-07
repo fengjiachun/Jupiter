@@ -20,6 +20,7 @@ import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelFutureListener;
 import org.jupiter.common.atomic.AtomicUpdater;
 import org.jupiter.common.util.*;
+import org.jupiter.transport.Directory;
 import org.jupiter.transport.UnresolvedAddress;
 import org.jupiter.transport.channel.JChannel;
 import org.jupiter.transport.channel.JChannelGroup;
@@ -34,6 +35,8 @@ import java.util.concurrent.atomic.AtomicIntegerFieldUpdater;
 import java.util.concurrent.atomic.AtomicReferenceFieldUpdater;
 import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.ReentrantLock;
+
+import static org.jupiter.common.util.Preconditions.*;
 
 /**
  * jupiter
@@ -213,22 +216,28 @@ public class NettyChannelGroup implements JChannelGroup {
     }
 
     @Override
-    public int getWeight(String directory) {
-        Integer weight = weights.get(directory);
+    public int getWeight(Directory directory) {
+        checkNotNull(directory, "directory");
+
+        Integer weight = weights.get(directory.directory());
         return weight == null ? JConstants.DEFAULT_WEIGHT : weight;
     }
 
     @Override
-    public void setWeight(String directory, int weight) {
+    public void setWeight(Directory directory, int weight) {
+        checkNotNull(directory, "directory");
+
         if (weight == JConstants.DEFAULT_WEIGHT) {
             return;
         }
-        weights.put(directory, weight > JConstants.MAX_WEIGHT ? JConstants.MAX_WEIGHT : weight);
+        weights.put(directory.directory(), weight > JConstants.MAX_WEIGHT ? JConstants.MAX_WEIGHT : weight);
     }
 
     @Override
-    public void removeWeight(String directory) {
-        weights.remove(directory);
+    public void removeWeight(Directory directory) {
+        checkNotNull(directory, "directory");
+
+        weights.remove(directory.directory());
     }
 
     @Override

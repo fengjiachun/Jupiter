@@ -16,6 +16,7 @@
 
 package org.jupiter.transport.channel;
 
+import org.jupiter.transport.Directory;
 import org.jupiter.transport.UnresolvedAddress;
 
 import java.util.List;
@@ -91,17 +92,17 @@ public interface JChannelGroup {
     /**
      * Weight of service.
      */
-    int getWeight(String directory);
+    int getWeight(Directory directory);
 
     /**
      * Sets the weight of service.
      */
-    void setWeight(String directory, int weight);
+    void setWeight(Directory directory, int weight);
 
     /**
      * Removes the weight of service.
      */
-    void removeWeight(String directory);
+    void removeWeight(Directory directory);
 
     /**
      * Warm-up time.
