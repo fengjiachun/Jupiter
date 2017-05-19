@@ -21,6 +21,8 @@ import io.netty.channel.ChannelFactory;
 import io.netty.channel.ServerChannel;
 import io.netty.channel.epoll.EpollServerSocketChannel;
 import io.netty.channel.epoll.EpollSocketChannel;
+import io.netty.channel.kqueue.KQueueServerSocketChannel;
+import io.netty.channel.kqueue.KQueueSocketChannel;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
 import io.netty.channel.socket.nio.NioSocketChannel;
 
@@ -33,10 +35,12 @@ import io.netty.channel.socket.nio.NioSocketChannel;
 public final class TcpChannelProvider<T extends Channel> implements ChannelFactory<T> {
 
     public static final ChannelFactory<ServerChannel> NIO_ACCEPTOR = new TcpChannelProvider<>(TypeIO.NIO, KindChannel.ACCEPTOR);
-    public static final ChannelFactory<ServerChannel> NATIVE_ACCEPTOR = new TcpChannelProvider<>(TypeIO.NATIVE, KindChannel.ACCEPTOR);
+    public static final ChannelFactory<ServerChannel> NATIVE_EPOLL_ACCEPTOR = new TcpChannelProvider<>(TypeIO.NATIVE_EPOLL, KindChannel.ACCEPTOR);
+    public static final ChannelFactory<ServerChannel> NATIVE_KQUEUE_ACCEPTOR = new TcpChannelProvider<>(TypeIO.NATIVE_KQUEUE, KindChannel.ACCEPTOR);
 
     public static final ChannelFactory<Channel> NIO_CONNECTOR = new TcpChannelProvider<>(TypeIO.NIO, KindChannel.CONNECTOR);
-    public static final ChannelFactory<Channel> NATIVE_CONNECTOR = new TcpChannelProvider<>(TypeIO.NATIVE, KindChannel.CONNECTOR);
+    public static final ChannelFactory<Channel> NATIVE_EPOLL_CONNECTOR = new TcpChannelProvider<>(TypeIO.NATIVE_EPOLL, KindChannel.CONNECTOR);
+    public static final ChannelFactory<Channel> NATIVE_KQUEUE_CONNECTOR = new TcpChannelProvider<>(TypeIO.NATIVE_KQUEUE, KindChannel.CONNECTOR);
 
     public TcpChannelProvider(TypeIO typeIO, KindChannel kindChannel) {
         this.typeIO = typeIO;
@@ -54,8 +58,10 @@ public final class TcpChannelProvider<T extends Channel> implements ChannelFacto
                 switch (typeIO) {
                     case NIO:
                         return (T) new NioServerSocketChannel();
-                    case NATIVE:
+                    case NATIVE_EPOLL:
                         return (T) new EpollServerSocketChannel();
+                    case NATIVE_KQUEUE:
+                        return (T) new KQueueServerSocketChannel();
                     default:
                         throw new IllegalStateException("invalid type IO: " + typeIO);
                 }
@@ -63,8 +69,10 @@ public final class TcpChannelProvider<T extends Channel> implements ChannelFacto
                 switch (typeIO) {
                     case NIO:
                         return (T) new NioSocketChannel();
-                    case NATIVE:
+                    case NATIVE_EPOLL:
                         return (T) new EpollSocketChannel();
+                    case NATIVE_KQUEUE:
+                        return (T) new KQueueSocketChannel();
                     default:
                         throw new IllegalStateException("invalid type IO: " + typeIO);
                 }
@@ -75,7 +83,8 @@ public final class TcpChannelProvider<T extends Channel> implements ChannelFacto
 
     public enum TypeIO {
         NIO,
-        NATIVE
+        NATIVE_EPOLL,
+        NATIVE_KQUEUE
     }
 
     public enum KindChannel {

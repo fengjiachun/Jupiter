@@ -22,7 +22,6 @@ import io.netty.channel.*;
 import io.netty.channel.group.ChannelGroup;
 import io.netty.channel.group.ChannelMatcher;
 import io.netty.channel.group.DefaultChannelGroup;
-import io.netty.channel.socket.SocketChannel;
 import io.netty.handler.codec.MessageToByteEncoder;
 import io.netty.handler.codec.ReplayingDecoder;
 import io.netty.util.Attribute;
@@ -42,7 +41,6 @@ import org.jupiter.transport.JOption;
 import org.jupiter.transport.JProtocolHeader;
 import org.jupiter.transport.exception.IoSignals;
 import org.jupiter.transport.netty.NettyTcpAcceptor;
-import org.jupiter.transport.netty.TcpChannelProvider;
 import org.jupiter.transport.netty.handler.AcknowledgeEncoder;
 import org.jupiter.transport.netty.handler.IdleStateChecker;
 import org.jupiter.transport.netty.handler.acceptor.AcceptorIdleStateTrigger;
@@ -135,20 +133,21 @@ public final class DefaultRegistryServer extends NettyTcpAcceptor implements Reg
     public ChannelFuture bind(SocketAddress localAddress) {
         ServerBootstrap boot = bootstrap();
 
-        boot.channelFactory(TcpChannelProvider.NIO_ACCEPTOR)
-                .childHandler(new ChannelInitializer<SocketChannel>() {
+        initChannelFactory();
 
-                    @Override
-                    protected void initChannel(SocketChannel ch) throws Exception {
-                        ch.pipeline().addLast(
-                                new IdleStateChecker(timer, JConstants.READER_IDLE_TIME_SECONDS, 0, 0),
-                                idleStateTrigger,
-                                new MessageDecoder(),
-                                encoder,
-                                ackEncoder,
-                                handler);
-                    }
-                });
+        boot.childHandler(new ChannelInitializer<Channel>() {
+
+            @Override
+            protected void initChannel(Channel ch) throws Exception {
+                ch.pipeline().addLast(
+                        new IdleStateChecker(timer, JConstants.READER_IDLE_TIME_SECONDS, 0, 0),
+                        idleStateTrigger,
+                        new MessageDecoder(),
+                        encoder,
+                        ackEncoder,
+                        handler);
+            }
+        });
 
         setOptions();
 

@@ -125,11 +125,7 @@ public class JNettyTcpConnector extends NettyTcpConnector {
         config().setOption(JOption.SO_REUSEADDR, true);
         config().setOption(JOption.CONNECT_TIMEOUT_MILLIS, (int) TimeUnit.SECONDS.toMillis(3));
         // channel factory
-        if (isNativeEt()) {
-            bootstrap().channelFactory(TcpChannelProvider.NATIVE_CONNECTOR);
-        } else {
-            bootstrap().channelFactory(TcpChannelProvider.NIO_CONNECTOR);
-        }
+        initChannelFactory();
     }
 
     @Override

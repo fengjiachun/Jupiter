@@ -22,6 +22,7 @@ import io.netty.channel.ChannelOption;
 import io.netty.channel.EventLoopGroup;
 import io.netty.channel.WriteBufferWaterMark;
 import io.netty.channel.epoll.EpollEventLoopGroup;
+import io.netty.channel.kqueue.KQueueEventLoopGroup;
 import io.netty.channel.nio.NioEventLoopGroup;
 import org.jupiter.common.util.JConstants;
 import org.jupiter.common.util.internal.logging.InternalLogger;
@@ -42,54 +43,54 @@ public abstract class NettyTcpAcceptor extends NettyAcceptor {
 
     private static final InternalLogger logger = InternalLoggerFactory.getInstance(NettyTcpAcceptor.class);
 
-    private final boolean nativeEt; // Use native epoll ET
+    private final boolean isNative; // use native transport
     private final NettyConfig.NettyTcpConfigGroup configGroup = new NettyConfig.NettyTcpConfigGroup();
 
     public NettyTcpAcceptor(int port) {
         super(Protocol.TCP, new InetSocketAddress(port));
-        nativeEt = true;
+        isNative = true;
         init();
     }
 
     public NettyTcpAcceptor(SocketAddress localAddress) {
         super(Protocol.TCP, localAddress);
-        nativeEt = true;
+        isNative = true;
         init();
     }
 
     public NettyTcpAcceptor(int port, int nWorks) {
         super(Protocol.TCP, new InetSocketAddress(port), nWorks);
-        nativeEt = true;
+        isNative = true;
         init();
     }
 
     public NettyTcpAcceptor(SocketAddress localAddress, int nWorks) {
         super(Protocol.TCP, localAddress, nWorks);
-        nativeEt = true;
+        isNative = true;
         init();
     }
 
-    public NettyTcpAcceptor(int port, boolean nativeEt) {
+    public NettyTcpAcceptor(int port, boolean isNative) {
         super(Protocol.TCP, new InetSocketAddress(port));
-        this.nativeEt = nativeEt;
+        this.isNative = isNative;
         init();
     }
 
-    public NettyTcpAcceptor(SocketAddress localAddress, boolean nativeEt) {
+    public NettyTcpAcceptor(SocketAddress localAddress, boolean isNative) {
         super(Protocol.TCP, localAddress);
-        this.nativeEt = nativeEt;
+        this.isNative = isNative;
         init();
     }
 
-    public NettyTcpAcceptor(int port, int nWorks, boolean nativeEt) {
+    public NettyTcpAcceptor(int port, int nWorks, boolean isNative) {
         super(Protocol.TCP, new InetSocketAddress(port), nWorks);
-        this.nativeEt = nativeEt;
+        this.isNative = isNative;
         init();
     }
 
-    public NettyTcpAcceptor(SocketAddress localAddress, int nWorks, boolean nativeEt) {
+    public NettyTcpAcceptor(SocketAddress localAddress, int nWorks, boolean isNative) {
         super(Protocol.TCP, localAddress, nWorks);
-        this.nativeEt = nativeEt;
+        this.isNative = isNative;
         init();
     }
 
@@ -164,6 +165,8 @@ public abstract class NettyTcpAcceptor extends NettyAcceptor {
         EventLoopGroup boss = boss();
         if (boss instanceof EpollEventLoopGroup) {
             ((EpollEventLoopGroup) boss).setIoRatio(bossIoRatio);
+        } else if (boss instanceof KQueueEventLoopGroup) {
+            ((KQueueEventLoopGroup) boss).setIoRatio(bossIoRatio);
         } else if (boss instanceof NioEventLoopGroup) {
             ((NioEventLoopGroup) boss).setIoRatio(bossIoRatio);
         }
@@ -171,6 +174,8 @@ public abstract class NettyTcpAcceptor extends NettyAcceptor {
         EventLoopGroup worker = worker();
         if (worker instanceof EpollEventLoopGroup) {
             ((EpollEventLoopGroup) worker).setIoRatio(workerIoRatio);
+        } else if (worker instanceof KQueueEventLoopGroup) {
+            ((KQueueEventLoopGroup) worker).setIoRatio(workerIoRatio);
         } else if (worker instanceof NioEventLoopGroup) {
             ((NioEventLoopGroup) worker).setIoRatio(workerIoRatio);
         }
@@ -178,19 +183,45 @@ public abstract class NettyTcpAcceptor extends NettyAcceptor {
 
     @Override
     protected EventLoopGroup initEventLoopGroup(int nThreads, ThreadFactory tFactory) {
-        return isNativeEt() ? new EpollEventLoopGroup(nThreads, tFactory) : new NioEventLoopGroup(nThreads, tFactory);
+        if (isNativeEPoll()) {
+            return new EpollEventLoopGroup(nThreads, tFactory);
+        }
+        if (isNativeKQueue()) {
+            return new KQueueEventLoopGroup(nThreads, tFactory);
+        }
+        return new NioEventLoopGroup(nThreads, tFactory);
     }
 
     /**
-     * Netty provides the native socket transport for Linux using JNI based on Epoll Edge Triggered(ET).
+     * Netty provides the native socket transport for Linux using JNI.
      */
-    public boolean isNativeEt() {
-        return nativeEt && NativeSupport.isSupportNativeET();
+    public boolean isNativeEPoll() {
+        return isNative && NativeSupport.isNativeEPollAvailable();
+    }
+
+    /**
+     * Netty provides the native socket transport for BSD systems such as MacOS using JNI.
+     */
+    public boolean isNativeKQueue() {
+        return isNative && NativeSupport.isNativeKQueueAvailable();
+    }
+
+    protected void initChannelFactory() {
+        if (isNativeEPoll()) {
+            bootstrap().channelFactory(TcpChannelProvider.NATIVE_EPOLL_ACCEPTOR);
+        } else if (isNativeKQueue()) {
+            bootstrap().channelFactory(TcpChannelProvider.NATIVE_KQUEUE_ACCEPTOR);
+        } else {
+            bootstrap().channelFactory(TcpChannelProvider.NIO_ACCEPTOR);
+        }
     }
 
     @Override
     public String toString() {
-        return "Socket address:[" + localAddress + ']' + ", nativeET: " + isNativeEt()
-                + JConstants.NEWLINE + bootstrap();
+        return "Socket address:[" + localAddress + ']'
+                + ", isNativeEPoll: " + isNativeEPoll()
+                + ", isNativeKQueue: " + isNativeKQueue()
+                + JConstants.NEWLINE
+                + bootstrap();
     }
 }

@@ -19,7 +19,6 @@ package org.jupiter.registry;
 import io.netty.bootstrap.Bootstrap;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.*;
-import io.netty.channel.socket.nio.NioSocketChannel;
 import io.netty.handler.codec.MessageToByteEncoder;
 import io.netty.handler.codec.ReplayingDecoder;
 import io.netty.util.Attribute;
@@ -36,7 +35,6 @@ import org.jupiter.transport.*;
 import org.jupiter.transport.exception.ConnectFailedException;
 import org.jupiter.transport.exception.IoSignals;
 import org.jupiter.transport.netty.NettyTcpConnector;
-import org.jupiter.transport.netty.TcpChannelProvider;
 import org.jupiter.transport.netty.handler.AcknowledgeEncoder;
 import org.jupiter.transport.netty.handler.IdleStateChecker;
 import org.jupiter.transport.netty.handler.connector.ConnectionWatchdog;
@@ -96,7 +94,7 @@ public final class DefaultRegistry extends NettyTcpConnector {
     }
 
     public DefaultRegistry(AbstractRegistryService registryService, int nWorkers) {
-        super(nWorkers);
+        super(nWorkers, false);
         this.registryService = checkNotNull(registryService, "registryService");
     }
 
@@ -106,7 +104,7 @@ public final class DefaultRegistry extends NettyTcpConnector {
         config().setOption(JOption.SO_REUSEADDR, true);
         config().setOption(JOption.CONNECT_TIMEOUT_MILLIS, (int) TimeUnit.SECONDS.toMillis(3));
         // channel factory
-        bootstrap().channelFactory(TcpChannelProvider.NIO_CONNECTOR);
+        initChannelFactory();
     }
 
     /**
@@ -139,10 +137,10 @@ public final class DefaultRegistry extends NettyTcpConnector {
         try {
             ChannelFuture future;
             synchronized (bootstrapLock()) {
-                boot.handler(new ChannelInitializer<NioSocketChannel>() {
+                boot.handler(new ChannelInitializer<Channel>() {
 
                     @Override
-                    protected void initChannel(NioSocketChannel ch) throws Exception {
+                    protected void initChannel(Channel ch) throws Exception {
                         ch.pipeline().addLast(watchdog.handlers());
                     }
                 });

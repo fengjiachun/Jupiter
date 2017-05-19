@@ -17,9 +17,9 @@
 package org.jupiter.transport.netty;
 
 import io.netty.bootstrap.ServerBootstrap;
+import io.netty.channel.Channel;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelInitializer;
-import io.netty.channel.socket.SocketChannel;
 import org.jupiter.common.util.JConstants;
 import org.jupiter.transport.JConfig;
 import org.jupiter.transport.JOption;
@@ -142,15 +142,12 @@ public class JNettyTcpAcceptor extends NettyTcpAcceptor {
     public ChannelFuture bind(SocketAddress localAddress) {
         ServerBootstrap boot = bootstrap();
 
-        if (isNativeEt()) {
-            boot.channelFactory(TcpChannelProvider.NATIVE_ACCEPTOR);
-        } else {
-            boot.channelFactory(TcpChannelProvider.NIO_ACCEPTOR);
-        }
-        boot.childHandler(new ChannelInitializer<SocketChannel>() {
+        initChannelFactory();
+
+        boot.childHandler(new ChannelInitializer<Channel>() {
 
             @Override
-            protected void initChannel(SocketChannel ch) throws Exception {
+            protected void initChannel(Channel ch) throws Exception {
                 ch.pipeline().addLast(
                         new IdleStateChecker(timer, JConstants.READER_IDLE_TIME_SECONDS, 0, 0),
                         idleStateTrigger,

@@ -16,8 +16,11 @@
 
 package org.jupiter.transport.netty;
 
+import io.netty.channel.epoll.Epoll;
+import io.netty.channel.kqueue.KQueue;
+
 /**
- * Netty provides the native socket transport for Linux using JNI based on Epoll Edge Triggered(ET).
+ * Netty provides the native socket transport using JNI.
  * This transport has higher performance and produces less garbage.
  *
  * jupiter
@@ -27,24 +30,17 @@ package org.jupiter.transport.netty;
  */
 public final class NativeSupport {
 
-    private static final boolean SUPPORT_NATIVE_ET;
-
-    static {
-        // epoll
-        boolean epoll;
-        try {
-            Class.forName("io.netty.channel.epoll.Native");
-            epoll = true;
-        } catch (Throwable e) {
-            epoll = false;
-        }
-        SUPPORT_NATIVE_ET = epoll;
-    }
-
     /**
      * The native socket transport for Linux using JNI.
      */
-    public static boolean isSupportNativeET() {
-        return SUPPORT_NATIVE_ET;
+    public static boolean isNativeEPollAvailable() {
+        return Epoll.isAvailable();
+    }
+
+    /**
+     * The native socket transport for BSD systems such as MacOS using JNI.
+     */
+    public static boolean isNativeKQueueAvailable() {
+        return KQueue.isAvailable();
     }
 }
