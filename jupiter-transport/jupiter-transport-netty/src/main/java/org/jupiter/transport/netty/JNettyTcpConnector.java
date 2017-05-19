@@ -107,16 +107,16 @@ public class JNettyTcpConnector extends NettyTcpConnector {
 
     public JNettyTcpConnector() {}
 
-    public JNettyTcpConnector(boolean nativeEt) {
-        super(nativeEt);
+    public JNettyTcpConnector(boolean isNative) {
+        super(isNative);
     }
 
     public JNettyTcpConnector(int nWorkers) {
         super(nWorkers);
     }
 
-    public JNettyTcpConnector(int nWorkers, boolean nativeEt) {
-        super(nWorkers, nativeEt);
+    public JNettyTcpConnector(int nWorkers, boolean isNative) {
+        super(nWorkers, isNative);
     }
 
     @Override
