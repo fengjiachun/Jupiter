@@ -111,9 +111,9 @@ final class MessageFormatter {
     /**
      * Performs single argument substitution for the 'messagePattern' passed as
      * parameter.
-     * <p/>
+     *
      * For example,
-     * <p/>
+     *
      * <pre>
      * MessageFormatter.format(&quot;Hi {}.&quot;, &quot;there&quot;);
      * </pre>
@@ -132,9 +132,9 @@ final class MessageFormatter {
     /**
      * Performs a two argument substitution for the 'messagePattern' passed as
      * parameter.
-     * <p/>
+     *
      * For example,
-     * <p/>
+     *
      * <pre>
      * MessageFormatter.format(&quot;Hi {}. My name is {}.&quot;, &quot;Alice&quot;, &quot;Bob&quot;);
      * </pre>
