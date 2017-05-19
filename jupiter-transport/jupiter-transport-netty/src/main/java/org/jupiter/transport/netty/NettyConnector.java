@@ -84,7 +84,7 @@ public abstract class NettyConnector implements JConnector<JConnection> {
     }
 
     protected void init() {
-        ThreadFactory workerFactory = new DefaultThreadFactory("jupiter.connector", Thread.MAX_PRIORITY);
+        ThreadFactory workerFactory = workerThreadFactory("jupiter.connector");
         worker = initEventLoopGroup(nWorkers, workerFactory);
 
         bootstrap = new Bootstrap().group(worker);
@@ -98,6 +98,10 @@ public abstract class NettyConnector implements JConnector<JConnection> {
     }
 
     protected abstract void doInit();
+
+    protected ThreadFactory workerThreadFactory(String name) {
+        return new DefaultThreadFactory(name, Thread.MAX_PRIORITY);
+    }
 
     @Override
     public Protocol protocol() {

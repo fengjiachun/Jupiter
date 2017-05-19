@@ -69,8 +69,8 @@ public abstract class NettyAcceptor implements JAcceptor {
     }
 
     protected void init() {
-        ThreadFactory bossFactory = new DefaultThreadFactory("jupiter.acceptor.boss", Thread.MAX_PRIORITY);
-        ThreadFactory workerFactory = new DefaultThreadFactory("jupiter.acceptor.worker", Thread.MAX_PRIORITY);
+        ThreadFactory bossFactory = bossThreadFactory("jupiter.acceptor.boss");
+        ThreadFactory workerFactory = workerThreadFactory("jupiter.acceptor.worker");
         boss = initEventLoopGroup(1, bossFactory);
         worker = initEventLoopGroup(nWorkers, workerFactory);
 
@@ -114,6 +114,14 @@ public abstract class NettyAcceptor implements JAcceptor {
     public void shutdownGracefully() {
         boss.shutdownGracefully();
         worker.shutdownGracefully();
+    }
+
+    protected ThreadFactory bossThreadFactory(String name) {
+        return new DefaultThreadFactory(name, Thread.MAX_PRIORITY);
+    }
+
+    protected ThreadFactory workerThreadFactory(String name) {
+        return new DefaultThreadFactory(name, Thread.MAX_PRIORITY);
     }
 
     protected void setOptions() {

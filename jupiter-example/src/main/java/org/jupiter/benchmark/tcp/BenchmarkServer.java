@@ -16,12 +16,16 @@
 
 package org.jupiter.benchmark.tcp;
 
+import net.openhft.affinity.AffinityStrategies;
 import org.jupiter.common.util.SystemPropertyUtil;
 import org.jupiter.monitor.MonitorServer;
 import org.jupiter.rpc.DefaultServer;
 import org.jupiter.rpc.JServer;
 import org.jupiter.transport.JOption;
+import org.jupiter.transport.netty.AffinityNettyThreadFactory;
 import org.jupiter.transport.netty.JNettyTcpAcceptor;
+
+import java.util.concurrent.ThreadFactory;
 
 /**
  * 飞行记录: -XX:+UnlockCommercialFeatures -XX:+FlightRecorder
@@ -46,7 +50,13 @@ public class BenchmarkServer {
         SystemPropertyUtil
                 .setProperty("jupiter.executor.factory.provider.queue.capacity", "65536");
 
-        JServer server = new DefaultServer().withAcceptor(new JNettyTcpAcceptor(18099));
+        JServer server = new DefaultServer().withAcceptor(new JNettyTcpAcceptor(18099) {
+
+            @Override
+            protected ThreadFactory workerThreadFactory(String name) {
+                return new AffinityNettyThreadFactory(name, AffinityStrategies.DIFFERENT_CORE);
+            }
+        });
         server.acceptor().configGroup().child().setOption(JOption.WRITE_BUFFER_HIGH_WATER_MARK, 256 * 1024);
         server.acceptor().configGroup().child().setOption(JOption.WRITE_BUFFER_LOW_WATER_MARK, 128 * 1024);
         MonitorServer monitor = new MonitorServer();
