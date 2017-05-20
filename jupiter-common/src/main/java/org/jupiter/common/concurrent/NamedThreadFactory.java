@@ -37,24 +37,18 @@ public class NamedThreadFactory implements ThreadFactory {
 
     private static final InternalLogger logger = InternalLoggerFactory.getInstance(NamedThreadFactory.class);
 
-    private static final AtomicInteger poolId = new AtomicInteger();
-
     private final AtomicInteger nextId = new AtomicInteger();
-    private final String prefix;
+    private final String name;
     private final boolean daemon;
     private final int priority;
     private final ThreadGroup group;
 
-    public NamedThreadFactory() {
-        this("pool-" + poolId.incrementAndGet(), false, Thread.NORM_PRIORITY);
+    public NamedThreadFactory(String name) {
+        this(name, false, Thread.NORM_PRIORITY);
     }
 
-    public NamedThreadFactory(String prefix) {
-        this(prefix, false, Thread.NORM_PRIORITY);
-    }
-
-    public NamedThreadFactory(String prefix, boolean daemon, int priority) {
-        this.prefix = prefix + " #";
+    public NamedThreadFactory(String name, boolean daemon, int priority) {
+        this.name = name + " #";
         this.daemon = daemon;
         this.priority = priority;
         SecurityManager s = System.getSecurityManager();
@@ -65,8 +59,8 @@ public class NamedThreadFactory implements ThreadFactory {
     public Thread newThread(Runnable r) {
         checkNotNull(r, "runnable");
 
-        String name = prefix + nextId.getAndIncrement();
-        Thread t = new InternalThread(group, r, name, 0);
+        String name = this.name + nextId.getAndIncrement();
+        Thread t = new InternalThread(group, r, name);
         try {
             if (t.isDaemon() != daemon) {
                 t.setDaemon(daemon);

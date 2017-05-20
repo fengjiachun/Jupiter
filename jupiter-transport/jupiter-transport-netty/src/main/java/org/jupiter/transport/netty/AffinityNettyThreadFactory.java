@@ -40,27 +40,32 @@ public class AffinityNettyThreadFactory implements ThreadFactory {
 
     private static final InternalLogger logger = InternalLoggerFactory.getInstance(AffinityNettyThreadFactory.class);
 
+    private int id = 1;
     private final String name;
     private final boolean daemon;
+    private final int priority;
+    protected final ThreadGroup group;
     private final AffinityStrategy[] strategies;
     private AffinityLock lastAffinityLock = null;
-    private int id = 1;
 
     public AffinityNettyThreadFactory(String name, AffinityStrategy... strategies) {
-        this(name, true, strategies);
+        this(name, false, Thread.NORM_PRIORITY, strategies);
     }
 
-    public AffinityNettyThreadFactory(String name, boolean daemon, AffinityStrategy... strategies) {
-        this.name = name;
+    public AffinityNettyThreadFactory(String name, boolean daemon, int priority, AffinityStrategy... strategies) {
+        this.name = "affinity." + name + " #";
         this.daemon = daemon;
+        this.priority = priority;
+        SecurityManager s = System.getSecurityManager();
+        group = (s == null) ? Thread.currentThread().getThreadGroup() : s.getThreadGroup();
         this.strategies = strategies.length == 0 ? new AffinityStrategy[] { AffinityStrategies.ANY } : strategies;
     }
 
     @Override
     public synchronized Thread newThread(Runnable r) {
-        final String name2 = "affinity." + name + '-' + id++;
+        String name2 = name + id++;
         final Runnable r2 = new DefaultRunnableDecorator(r);
-        final Runnable r3 = new Runnable() {
+        Runnable r3 = new Runnable() {
 
             @Override
             public void run() {
@@ -75,16 +80,26 @@ public class AffinityNettyThreadFactory implements ThreadFactory {
                 }
             }
         };
-        Thread t = new FastThreadLocalThread(r3, name2);
+
+        Thread t = new FastThreadLocalThread(group, r3, name2);
+
         try {
             if (t.isDaemon() != daemon) {
                 t.setDaemon(daemon);
+            }
+
+            if (t.getPriority() != priority) {
+                t.setPriority(priority);
             }
         } catch (Exception ignored) { /* doesn't matter even if failed to set. */ }
 
         logger.debug("Creates new {}.", t);
 
         return t;
+    }
+
+    public ThreadGroup getThreadGroup() {
+        return group;
     }
 
     private static final class DefaultRunnableDecorator implements Runnable {
