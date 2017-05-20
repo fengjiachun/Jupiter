@@ -46,7 +46,7 @@ public class AffinityNamedThreadFactory implements ThreadFactory {
     private final int priority;
     private final ThreadGroup group;
     private final AffinityStrategy[] strategies;
-    private volatile AffinityLock lastAffinityLock = null;
+    private AffinityLock lastAffinityLock = null;
 
     public AffinityNamedThreadFactory(String name, AffinityStrategy... strategies) {
         this(name, false, Thread.NORM_PRIORITY, strategies);
@@ -76,11 +76,14 @@ public class AffinityNamedThreadFactory implements ThreadFactory {
 
             @Override
             public void run() {
-                AffinityLock al = lastAffinityLock == null ? AffinityLock.acquireLock() : lastAffinityLock.acquireLock(strategies);
-                try {
+                AffinityLock al;
+                synchronized (AffinityNamedThreadFactory.this) {
+                    al = lastAffinityLock == null ? AffinityLock.acquireLock() : lastAffinityLock.acquireLock(strategies);
                     if (al.cpuId() >= 0) {
                         lastAffinityLock = al;
                     }
+                }
+                try {
                     r.run();
                 } finally {
                     al.release();
