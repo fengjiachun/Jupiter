@@ -23,8 +23,6 @@ import org.jupiter.common.util.internal.logging.InternalLoggerFactory;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import static org.jupiter.common.util.Preconditions.checkNotNull;
-
 /**
  * Named thread factory.
  *
@@ -57,10 +55,8 @@ public class NamedThreadFactory implements ThreadFactory {
 
     @Override
     public Thread newThread(Runnable r) {
-        checkNotNull(r, "runnable");
-
-        String name = this.name + nextId.getAndIncrement();
-        Thread t = new InternalThread(group, r, name);
+        String name2 = name + nextId.getAndIncrement();
+        Thread t = new InternalThread(group, r, name2);
         try {
             if (t.isDaemon() != daemon) {
                 t.setDaemon(daemon);
