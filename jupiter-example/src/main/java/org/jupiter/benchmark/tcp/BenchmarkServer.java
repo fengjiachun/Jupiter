@@ -54,7 +54,7 @@ public class BenchmarkServer {
 
             @Override
             protected ThreadFactory workerThreadFactory(String name) {
-                return new AffinityNettyThreadFactory(name, AffinityStrategies.DIFFERENT_CORE);
+                return new AffinityNettyThreadFactory(name, Thread.MAX_PRIORITY, AffinityStrategies.DIFFERENT_CORE);
             }
         });
         server.acceptor().configGroup().child().setOption(JOption.WRITE_BUFFER_HIGH_WATER_MARK, 256 * 1024);

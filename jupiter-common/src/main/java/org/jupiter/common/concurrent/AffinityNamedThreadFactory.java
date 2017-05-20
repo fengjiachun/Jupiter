@@ -51,6 +51,14 @@ public class AffinityNamedThreadFactory implements ThreadFactory {
         this(name, false, Thread.NORM_PRIORITY, strategies);
     }
 
+    public AffinityNamedThreadFactory(String name, boolean daemon, AffinityStrategy... strategies) {
+        this(name, daemon, Thread.NORM_PRIORITY, strategies);
+    }
+
+    public AffinityNamedThreadFactory(String name, int priority, AffinityStrategy... strategies) {
+        this(name, false, priority, strategies);
+    }
+
     public AffinityNamedThreadFactory(String name, boolean daemon, int priority, AffinityStrategy... strategies) {
         this.name = "affinity." + name + " #";
         this.daemon = daemon;

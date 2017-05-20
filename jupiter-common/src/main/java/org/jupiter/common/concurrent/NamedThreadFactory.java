@@ -35,7 +35,7 @@ public class NamedThreadFactory implements ThreadFactory {
 
     private static final InternalLogger logger = InternalLoggerFactory.getInstance(NamedThreadFactory.class);
 
-    private final AtomicInteger nextId = new AtomicInteger();
+    private final AtomicInteger id = new AtomicInteger();
     private final String name;
     private final boolean daemon;
     private final int priority;
@@ -43,6 +43,14 @@ public class NamedThreadFactory implements ThreadFactory {
 
     public NamedThreadFactory(String name) {
         this(name, false, Thread.NORM_PRIORITY);
+    }
+
+    public NamedThreadFactory(String name, boolean daemon) {
+        this(name, daemon, Thread.NORM_PRIORITY);
+    }
+
+    public NamedThreadFactory(String name, int priority) {
+        this(name, false, priority);
     }
 
     public NamedThreadFactory(String name, boolean daemon, int priority) {
@@ -55,7 +63,7 @@ public class NamedThreadFactory implements ThreadFactory {
 
     @Override
     public Thread newThread(Runnable r) {
-        String name2 = name + nextId.getAndIncrement();
+        String name2 = name + id.getAndIncrement();
         Thread t = new InternalThread(group, r, name2);
         try {
             if (t.isDaemon() != daemon) {
