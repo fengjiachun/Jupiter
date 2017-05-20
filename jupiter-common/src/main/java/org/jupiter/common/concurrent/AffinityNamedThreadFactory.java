@@ -43,7 +43,7 @@ public class AffinityNamedThreadFactory implements ThreadFactory {
     private final String name;
     private final boolean daemon;
     private final int priority;
-    protected final ThreadGroup group;
+    private final ThreadGroup group;
     private final AffinityStrategy[] strategies;
     private AffinityLock lastAffinityLock = null;
 
