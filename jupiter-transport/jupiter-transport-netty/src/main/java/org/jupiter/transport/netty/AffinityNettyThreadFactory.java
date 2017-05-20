@@ -25,6 +25,7 @@ import org.jupiter.common.util.internal.logging.InternalLogger;
 import org.jupiter.common.util.internal.logging.InternalLoggerFactory;
 
 import java.util.concurrent.ThreadFactory;
+import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * This is a ThreadFactory which assigns threads based the strategies provided.
@@ -40,13 +41,13 @@ public class AffinityNettyThreadFactory implements ThreadFactory {
 
     private static final InternalLogger logger = InternalLoggerFactory.getInstance(AffinityNettyThreadFactory.class);
 
-    private int id = 1;
+    private final AtomicInteger id = new AtomicInteger();
     private final String name;
     private final boolean daemon;
     private final int priority;
     private final ThreadGroup group;
     private final AffinityStrategy[] strategies;
-    private AffinityLock lastAffinityLock = null;
+    private volatile AffinityLock lastAffinityLock = null;
 
     public AffinityNettyThreadFactory(String name, AffinityStrategy... strategies) {
         this(name, false, Thread.NORM_PRIORITY, strategies);
@@ -70,8 +71,8 @@ public class AffinityNettyThreadFactory implements ThreadFactory {
     }
 
     @Override
-    public synchronized Thread newThread(Runnable r) {
-        String name2 = name + id++;
+    public Thread newThread(Runnable r) {
+        String name2 = name + id.getAndIncrement();
         final Runnable r2 = new DefaultRunnableDecorator(r);
         Runnable r3 = new Runnable() {
 
