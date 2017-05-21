@@ -80,6 +80,9 @@ public class AffinityNamedThreadFactory implements ThreadFactory {
                 synchronized (AffinityNamedThreadFactory.this) {
                     al = lastAffinityLock == null ? AffinityLock.acquireLock() : lastAffinityLock.acquireLock(strategies);
                     if (al.cpuId() >= 0) {
+                        if (!al.isBound()) {
+                            al.bind();
+                        }
                         lastAffinityLock = al;
                     }
                 }

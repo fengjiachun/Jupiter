@@ -82,6 +82,9 @@ public class AffinityNettyThreadFactory implements ThreadFactory {
                 synchronized (AffinityNettyThreadFactory.this) {
                     al = lastAffinityLock == null ? AffinityLock.acquireLock() : lastAffinityLock.acquireLock(strategies);
                     if (al.cpuId() >= 0) {
+                        if (!al.isBound()) {
+                            al.bind();
+                        }
                         lastAffinityLock = al;
                     }
                 }
