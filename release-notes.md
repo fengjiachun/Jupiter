@@ -1,8 +1,9 @@
 Jupiter release notes
 ------------------------
 
-### 2017-05-19:
+### 2017-05-22:
 
+- Spring.scheme支持 [\#21](https://github.com/fengjiachun/Jupiter/issues/21)
 - [Thread Affinity](https://github.com/OpenHFT/Java-Thread-Affinity)
 
 ### 2017-05-19: version 1.2.5
