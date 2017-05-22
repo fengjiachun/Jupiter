@@ -212,36 +212,30 @@
 ##### 结合Spring使用示例:
 1. [Server端配置](https://github.com/fengjiachun/Jupiter/blob/master/jupiter-example/src/main/resources/spring-provider.xml):
 >
->     <bean id="server" class="org.jupiter.spring.support.JupiterSpringServer">
->         <!-- 注册中心地址, 逗号分隔 -->
->         <property name="registryServerAddresses" value="127.0.0.1:20001" />
->     </bean>
+>     <jupiter:server id="jupiterServer">
+>         <jupiter:property registryServerAddresses="127.0.0.1:20001" />
+>     </jupiter:server>
 >
 >     <!-- provider -->
 >     <bean id="serviceTest" class="org.jupiter.example.ServiceTestImpl" />
->     <bean class="org.jupiter.spring.support.JupiterSpringProviderBean">
->         <property name="server" ref="server" />
->         <property name="providerImpl" ref="serviceTest" />
->     </bean>
+>
+>     <jupiter:provider id="serviceTestProvider" server="jupiterServer" providerImpl="serviceTest">
+>         <jupiter:property weight="100"/>
+>     </jupiter:provider>
 
 2. [Client端配置](https://github.com/fengjiachun/Jupiter/blob/master/jupiter-example/src/main/resources/spring-consumer.xml):
 >
->     <bean id="client" class="org.jupiter.spring.support.JupiterSpringClient">
->         <!-- 注册中心地址, 逗号分隔 -->
->         <property name="registryServerAddresses" value="127.0.0.1:20001" />
->     </bean>
+>     <jupiter:client id="jupiterClient">
+>         <jupiter:property registryServerAddresses="127.0.0.1:20001" />
+>     </jupiter:client>
 >
 >     <!-- consumer -->
->     <bean id="serviceTest" class="org.jupiter.spring.support.JupiterSpringConsumerBean">
->         <property name="client" ref="client" />
->         <property name="interfaceClass" value="org.jupiter.example.ServiceTest" />
->
->         <!-- 以下都选项可不填 -->
->
->         <!-- 服务版本号, 通常在接口不兼容时版本号才需要升级 -->
->         <property name="version" value="1.0.0" />
->         <property name="serializerType" value="proto_stuff" />
->     </bean>
+>     <jupiter:consumer id="serviceTest" client="jupiterClient" interfaceClass="org.jupiter.example.ServiceTest">
+>         <jupiter:property version="1.0.0.daily" />
+>         <jupiter:property serializerType="proto_stuff" />
+>         <jupiter:property loadBalancerType="round_robin" />
+>         <jupiter:property clusterStrategy="fail_over" />
+>     </jupiter:consumer>
 [Server/Client代码示例](https://github.com/fengjiachun/Jupiter/tree/master/jupiter-example/src/main/java/org/jupiter/example/spring)
 
 ##### [更多示例代码](https://github.com/fengjiachun/Jupiter/tree/master/jupiter-example/src/main/java/org/jupiter/example)
