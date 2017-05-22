@@ -209,6 +209,8 @@
 >         }
 >     }
 
+[Server/Client代码示例](https://github.com/fengjiachun/Jupiter/tree/master/jupiter-example/src/main/java/org/jupiter/example/round)
+
 ##### 结合Spring使用示例:
 1. [Server端配置](https://github.com/fengjiachun/Jupiter/blob/master/jupiter-example/src/main/resources/spring-provider.xml):
 >
@@ -236,7 +238,8 @@
 >         <jupiter:property loadBalancerType="round_robin" />
 >         <jupiter:property clusterStrategy="fail_over" />
 >     </jupiter:consumer>
-[Server/Client代码示例](https://github.com/fengjiachun/Jupiter/tree/master/jupiter-example/src/main/java/org/jupiter/example/spring)
+
+[JupiterServer/JupiterClient代码示例](https://github.com/fengjiachun/Jupiter/tree/master/jupiter-example/src/main/java/org/jupiter/example/spring)
 
 ##### [更多示例代码](https://github.com/fengjiachun/Jupiter/tree/master/jupiter-example/src/main/java/org/jupiter/example)
 
