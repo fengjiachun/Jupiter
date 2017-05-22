@@ -162,7 +162,7 @@ public class JupiterBeanDefinitionParser implements BeanDefinitionParser {
         return registerBean(def, element, parserContext);
     }
 
-    private BeanDefinition registerBean(RootBeanDefinition def, Element element, ParserContext parserContext) {
+    private BeanDefinition registerBean(RootBeanDefinition definition, Element element, ParserContext parserContext) {
         String id = element.getAttribute("id");
         if (Strings.isNullOrEmpty(id)) {
             id = beanClass.getSimpleName();
@@ -171,10 +171,10 @@ public class JupiterBeanDefinitionParser implements BeanDefinitionParser {
             throw new IllegalStateException("Duplicate jupiter bean id: " + id);
         }
 
-        BeanDefinitionHolder holder = new BeanDefinitionHolder(def, id);
+        BeanDefinitionHolder holder = new BeanDefinitionHolder(definition, id);
         BeanDefinitionReaderUtils.registerBeanDefinition(holder, parserContext.getRegistry());
 
-        return def;
+        return definition;
     }
 
     private static void addProperty(RootBeanDefinition definition, Element element, String propertyName, boolean required) {
