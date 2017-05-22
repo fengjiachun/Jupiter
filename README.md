@@ -239,7 +239,7 @@
 >         <jupiter:property clusterStrategy="fail_over" />
 >     </jupiter:consumer>
 
-[JupiterServer/JupiterClient代码示例](https://github.com/fengjiachun/Jupiter/tree/master/jupiter-example/src/main/java/org/jupiter/example/spring)
+[SpringServer/SpringClient代码示例](https://github.com/fengjiachun/Jupiter/tree/master/jupiter-example/src/main/java/org/jupiter/example/spring)
 
 ##### [更多示例代码](https://github.com/fengjiachun/Jupiter/tree/master/jupiter-example/src/main/java/org/jupiter/example)
 
