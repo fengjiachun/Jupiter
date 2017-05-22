@@ -41,20 +41,14 @@ class FormattingTuple {
 
     private final String message;
     private final Throwable throwable;
-    private final Object[] argArray;
 
     FormattingTuple(String message) {
-        this(message, null, null);
+        this(message, null);
     }
 
-    FormattingTuple(String message, Object[] argArray, Throwable throwable) {
+    FormattingTuple(String message, Throwable throwable) {
         this.message = message;
         this.throwable = throwable;
-        if (throwable == null) {
-            this.argArray = argArray;
-        } else {
-            this.argArray = trimmedCopy(argArray);
-        }
     }
 
     static Object[] trimmedCopy(Object[] argArray) {
@@ -69,10 +63,6 @@ class FormattingTuple {
 
     public String getMessage() {
         return message;
-    }
-
-    public Object[] getArgArray() {
-        return argArray;
     }
 
     public Throwable getThrowable() {
