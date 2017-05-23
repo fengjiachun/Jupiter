@@ -253,7 +253,7 @@
         </xsd:attribute>
         <xsd:attribute name="waitForAvailableTimeoutMillis" type="xsd:long" use="optional">
             <xsd:annotation>
-                <xsd:documentation><![CDATA[ The wait for available timeout millis. ]]></xsd:documentation>
+                <xsd:documentation><![CDATA[ The wait for service available timeout millis. ]]></xsd:documentation>
             </xsd:annotation>
         </xsd:attribute>
         <xsd:attribute name="invokeType" type="invokeTypeType" use="optional">
