@@ -35,15 +35,15 @@ import java.util.Map;
  *
  * @author jiachun.fjc
  */
-public abstract class ClusterBridging {
+public abstract class ClusterStrategyBridging {
 
     protected final ClusterInvoker defaultClusterInvoker;
     private final Map<String, ClusterInvoker> methodSpecialClusterInvokerMapping;
 
-    public ClusterBridging(JClient client,
-                           Dispatcher dispatcher,
-                           ClusterStrategyConfig defaultStrategy,
-                           List<MethodSpecialConfig> methodSpecialConfigs) {
+    public ClusterStrategyBridging(JClient client,
+                                   Dispatcher dispatcher,
+                                   ClusterStrategyConfig defaultStrategy,
+                                   List<MethodSpecialConfig> methodSpecialConfigs) {
 
         this.defaultClusterInvoker = createClusterInvoker(client, dispatcher, defaultStrategy);
         this.methodSpecialClusterInvokerMapping = Maps.newHashMap();

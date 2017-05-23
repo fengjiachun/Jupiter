@@ -42,7 +42,7 @@ import java.util.List;
  *
  * @author jiachun.fjc
  */
-public class AsyncInvoker extends ClusterBridging {
+public class AsyncInvoker extends ClusterStrategyBridging {
 
     public AsyncInvoker(JClient client,
                         Dispatcher dispatcher,

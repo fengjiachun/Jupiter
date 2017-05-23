@@ -36,7 +36,7 @@ import java.util.List;
  *
  * @author jiachun.fjc
  */
-public class AsyncGenericInvoker extends ClusterBridging implements GenericInvoker {
+public class AsyncGenericInvoker extends ClusterStrategyBridging implements GenericInvoker {
 
     public AsyncGenericInvoker(JClient client,
                                Dispatcher dispatcher,

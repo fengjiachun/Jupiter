@@ -39,7 +39,7 @@ import java.util.List;
  *
  * @author jiachun.fjc
  */
-public class SyncInvoker extends ClusterBridging {
+public class SyncInvoker extends ClusterStrategyBridging {
 
     public SyncInvoker(JClient client,
                        Dispatcher dispatcher,
