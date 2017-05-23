@@ -51,6 +51,9 @@
         <jupiter:property failoverRetries="2" />
         <!-- 超时时间设置 -->
         <jupiter:property timeoutMillis="3000" />
+        <jupiter:methodSpecials>
+            <jupiter:methodSpecial methodName="sayHello" timeoutMillis="5000"/>
+        </jupiter:methodSpecials>
         <!-- 可选配置 -->
         <!--
             SerializerType serializerType                   // 序列化/反序列化方式
@@ -59,7 +62,7 @@
             InvokeType invokeType                           // 调用方式 [同步, 异步]
             DispatchType dispatchType                       // 派发方式 [单播, 广播]
             long timeoutMillis                              // 调用超时时间设置
-            Map<String, Long> methodsSpecialTimeoutMillis   // 指定方法单独设置的超时时间, 方法名为key, 方法参数类型不做区别对待
+            List<MethodSpecial> methodSpecials;             // 指定方法的单独设置, 方法参数类型不做区别对待
             ConsumerHook[] hooks                            // consumer hook
             String providerAddresses                        // provider地址列表, 逗号分隔(IP直连)
             ClusterInvoker.Strategy clusterStrategy;        // 集群容错策略

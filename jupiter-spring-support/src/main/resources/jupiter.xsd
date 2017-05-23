@@ -153,6 +153,25 @@
         </xsd:restriction>
     </xsd:simpleType>
 
+    <xsd:complexType name="methodSpecialType">
+        <xsd:attribute name="methodName" type="xsd:string" use="required">
+            <xsd:annotation>
+                <xsd:documentation><![CDATA[ The method name. ]]></xsd:documentation>
+            </xsd:annotation>
+        </xsd:attribute>
+        <xsd:attribute name="timeoutMillis" type="xsd:long" use="required">
+            <xsd:annotation>
+                <xsd:documentation><![CDATA[ The method special timeout millis. ]]></xsd:documentation>
+            </xsd:annotation>
+        </xsd:attribute>
+    </xsd:complexType>
+
+    <xsd:complexType name="methodSpecialsType">
+        <xsd:choice minOccurs="1" maxOccurs="unbounded">
+            <xsd:element name="methodSpecial" type="methodSpecialType"/>
+        </xsd:choice>
+    </xsd:complexType>
+
     <xsd:complexType name="jupiterServerType">
         <xsd:complexContent>
             <xsd:extension base="idType">
@@ -252,11 +271,6 @@
                 <xsd:documentation><![CDATA[ The invoke timeout millis. ]]></xsd:documentation>
             </xsd:annotation>
         </xsd:attribute>
-        <xsd:attribute name="methodsSpecialTimeoutMillis" type="xsd:string" use="optional">
-            <xsd:annotation>
-                <xsd:documentation><![CDATA[ The method special invoke timeout millis. ]]></xsd:documentation>
-            </xsd:annotation>
-        </xsd:attribute>
         <xsd:attribute name="hooks" type="xsd:string" use="optional">
             <xsd:annotation>
                 <xsd:documentation><![CDATA[ The hooks. ]]></xsd:documentation>
@@ -304,6 +318,7 @@
             <xsd:extension base="idType">
                 <xsd:choice minOccurs="0" maxOccurs="unbounded">
                     <xsd:element name="property" type="consumerPropertyType"/>
+                    <xsd:element name="methodSpecials" type="methodSpecialsType"/>
                 </xsd:choice>
                 <xsd:attribute name="client" type="xsd:string" use="required">
                     <xsd:annotation>

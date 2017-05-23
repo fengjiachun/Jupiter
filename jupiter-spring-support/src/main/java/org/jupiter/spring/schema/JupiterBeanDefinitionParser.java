@@ -16,7 +16,9 @@
 
 package org.jupiter.spring.schema;
 
+import org.jupiter.common.util.Lists;
 import org.jupiter.common.util.Strings;
+import org.jupiter.rpc.model.metadata.MethodSpecial;
 import org.jupiter.spring.support.JupiterSpringClient;
 import org.jupiter.spring.support.JupiterSpringConsumerBean;
 import org.jupiter.spring.support.JupiterSpringProviderBean;
@@ -32,6 +34,8 @@ import org.springframework.beans.factory.xml.ParserContext;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
+
+import java.util.List;
 
 /**
  * Jupiter
@@ -118,12 +122,12 @@ public class JupiterBeanDefinitionParser implements BeanDefinitionParser {
             if (item instanceof Element) {
                 String localName = item.getLocalName();
                 if (localName.equals("property")) {
+                    addProperty(def, (Element) item, "weight", false);
                     addPropertyReference(def, (Element) item, "providerInterceptors", false);
                     addPropertyReference(def, (Element) item, "executor", false);
                     addPropertyReference(def, (Element) item, "flowController", false);
                     addPropertyReference(def, (Element) item, "providerInitializer", false);
                     addPropertyReference(def, (Element) item, "providerInitializerExecutor", false);
-                    addProperty(def, (Element) item, "weight", false);
                 }
             }
         }
@@ -138,6 +142,8 @@ public class JupiterBeanDefinitionParser implements BeanDefinitionParser {
         addPropertyReference(def, element, "client", true);
         addProperty(def, element, "interfaceClass", true);
 
+        List<MethodSpecial> methodSpecials = Lists.newArrayList();
+
         NodeList childNodes = element.getChildNodes();
         for (int i = 0; i < childNodes.getLength(); i++) {
             Node item = childNodes.item(i);
@@ -150,13 +156,26 @@ public class JupiterBeanDefinitionParser implements BeanDefinitionParser {
                     addProperty(def, (Element) item, "invokeType", false);
                     addProperty(def, (Element) item, "dispatchType", false);
                     addProperty(def, (Element) item, "timeoutMillis", false);
-                    addPropertyReference(def, (Element) item, "methodsSpecialTimeoutMillis", false);
-                    addPropertyReference(def, (Element) item, "hooks", false);
                     addProperty(def, (Element) item, "providerAddresses", false);
                     addProperty(def, (Element) item, "clusterStrategy", false);
                     addProperty(def, (Element) item, "failoverRetries", false);
+                    addPropertyReference(def, (Element) item, "hooks", false);
+                } else if (localName.equals("methodSpecials")) {
+                    NodeList mList = item.getChildNodes();
+                    for (int j = 0; j < mList.getLength(); j++) {
+                        Node mItem = mList.item(j);
+                        if (mItem instanceof Element) {
+                            String methodName = ((Element) mItem).getAttribute("methodName");
+                            String timeoutMillis = ((Element) mItem).getAttribute("timeoutMillis");
+                            methodSpecials.add(MethodSpecial.of(methodName, Long.parseLong(timeoutMillis)));
+                        }
+                    }
                 }
             }
+        }
+
+        if (!methodSpecials.isEmpty()) {
+            def.getPropertyValues().addPropertyValue("methodSpecials", methodSpecials);
         }
 
         return registerBean(def, element, parserContext);

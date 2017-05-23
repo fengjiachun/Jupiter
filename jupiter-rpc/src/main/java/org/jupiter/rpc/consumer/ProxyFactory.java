@@ -16,7 +16,10 @@
 
 package org.jupiter.rpc.consumer;
 
-import org.jupiter.common.util.*;
+import org.jupiter.common.util.JConstants;
+import org.jupiter.common.util.Lists;
+import org.jupiter.common.util.Proxies;
+import org.jupiter.common.util.Strings;
 import org.jupiter.rpc.*;
 import org.jupiter.rpc.consumer.cluster.ClusterInvoker;
 import org.jupiter.rpc.consumer.cluster.FailFastClusterInvoker;
@@ -29,6 +32,7 @@ import org.jupiter.rpc.consumer.invoker.AsyncInvoker;
 import org.jupiter.rpc.consumer.invoker.SyncInvoker;
 import org.jupiter.rpc.load.balance.LoadBalancerFactory;
 import org.jupiter.rpc.load.balance.LoadBalancerType;
+import org.jupiter.rpc.model.metadata.MethodSpecial;
 import org.jupiter.rpc.model.metadata.ServiceMetadata;
 import org.jupiter.serialization.SerializerType;
 import org.jupiter.transport.Directory;
@@ -38,7 +42,6 @@ import org.jupiter.transport.UnresolvedAddress;
 
 import java.util.Collections;
 import java.util.List;
-import java.util.Map;
 
 import static org.jupiter.common.util.Preconditions.checkArgument;
 import static org.jupiter.common.util.Preconditions.checkNotNull;
@@ -78,8 +81,8 @@ public class ProxyFactory<I> {
     private DispatchType dispatchType = DispatchType.getDefault();
     // 调用超时时间设置
     private long timeoutMillis;
-    // 指定方法单独设置的超时时间, 方法名为key, 方法参数类型不做区别对待
-    private Map<String, Long> methodsSpecialTimeoutMillis;
+    // 指定方法的单独设置, 方法参数类型不做区别对待
+    private List<MethodSpecial> methodSpecials;
     // 消费者端钩子函数
     private List<ConsumerHook> hooks;
     // 集群容错策略
@@ -92,7 +95,7 @@ public class ProxyFactory<I> {
         // 初始化数据
         factory.addresses = Lists.newArrayList();
         factory.hooks = Lists.newArrayList();
-        factory.methodsSpecialTimeoutMillis = Maps.newHashMap();
+        factory.methodSpecials = Lists.newArrayList();
 
         return factory;
     }
@@ -166,8 +169,8 @@ public class ProxyFactory<I> {
         return this;
     }
 
-    public ProxyFactory<I> methodSpecialTimeoutMillis(String methodName, long timeoutMillis) {
-        methodsSpecialTimeoutMillis.put(methodName, timeoutMillis);
+    public ProxyFactory<I> addMethodSpecials(MethodSpecial... methodSpecials) {
+        Collections.addAll(this.methodSpecials, methodSpecials);
         return this;
     }
 
@@ -232,7 +235,7 @@ public class ProxyFactory<I> {
         Dispatcher dispatcher = dispatcher(metadata, serializerType)
                 .hooks(hooks)
                 .timeoutMillis(timeoutMillis)
-                .methodsSpecialTimeoutMillis(methodsSpecialTimeoutMillis);
+                .methodSpecials(methodSpecials);
 
         Object handler;
         switch (invokeType) {

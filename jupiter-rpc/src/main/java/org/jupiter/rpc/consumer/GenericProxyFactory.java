@@ -18,7 +18,6 @@ package org.jupiter.rpc.consumer;
 
 import org.jupiter.common.util.JConstants;
 import org.jupiter.common.util.Lists;
-import org.jupiter.common.util.Maps;
 import org.jupiter.common.util.Strings;
 import org.jupiter.rpc.ConsumerHook;
 import org.jupiter.rpc.DispatchType;
@@ -36,6 +35,7 @@ import org.jupiter.rpc.consumer.invoker.GenericInvoker;
 import org.jupiter.rpc.consumer.invoker.SyncGenericInvoker;
 import org.jupiter.rpc.load.balance.LoadBalancerFactory;
 import org.jupiter.rpc.load.balance.LoadBalancerType;
+import org.jupiter.rpc.model.metadata.MethodSpecial;
 import org.jupiter.rpc.model.metadata.ServiceMetadata;
 import org.jupiter.serialization.SerializerType;
 import org.jupiter.transport.Directory;
@@ -45,7 +45,6 @@ import org.jupiter.transport.UnresolvedAddress;
 
 import java.util.Collections;
 import java.util.List;
-import java.util.Map;
 
 import static org.jupiter.common.util.Preconditions.checkArgument;
 import static org.jupiter.common.util.Preconditions.checkNotNull;
@@ -83,8 +82,8 @@ public class GenericProxyFactory {
     private DispatchType dispatchType = DispatchType.getDefault();
     // 调用超时时间设置
     private long timeoutMillis;
-    // 指定方法单独设置的超时时间, 方法名为key, 方法参数类型不做区别对待
-    private Map<String, Long> methodsSpecialTimeoutMillis;
+    // 指定方法的单独设置, 方法参数类型不做区别对待
+    private List<MethodSpecial> methodSpecials;
     // 消费者端钩子函数
     private List<ConsumerHook> hooks;
     // 集群容错策略
@@ -97,7 +96,7 @@ public class GenericProxyFactory {
         // 初始化数据
         factory.addresses = Lists.newArrayList();
         factory.hooks = Lists.newArrayList();
-        factory.methodsSpecialTimeoutMillis = Maps.newHashMap();
+        factory.methodSpecials = Lists.newArrayList();
 
         return factory;
     }
@@ -165,8 +164,8 @@ public class GenericProxyFactory {
         return this;
     }
 
-    public GenericProxyFactory methodSpecialTimeoutMillis(String methodName, long timeoutMillis) {
-        methodsSpecialTimeoutMillis.put(methodName, timeoutMillis);
+    public GenericProxyFactory addMethodSpecials(MethodSpecial... methodSpecials) {
+        Collections.addAll(this.methodSpecials, methodSpecials);
         return this;
     }
 
@@ -212,7 +211,7 @@ public class GenericProxyFactory {
         Dispatcher dispatcher = dispatcher(metadata, serializerType)
                 .hooks(hooks)
                 .timeoutMillis(timeoutMillis)
-                .methodsSpecialTimeoutMillis(methodsSpecialTimeoutMillis);
+                .methodSpecials(methodSpecials);
 
         switch (invokeType) {
             case SYNC:

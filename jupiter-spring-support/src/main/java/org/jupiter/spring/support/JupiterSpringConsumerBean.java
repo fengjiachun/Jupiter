@@ -24,6 +24,7 @@ import org.jupiter.rpc.InvokeType;
 import org.jupiter.rpc.consumer.ProxyFactory;
 import org.jupiter.rpc.consumer.cluster.ClusterInvoker;
 import org.jupiter.rpc.load.balance.LoadBalancerType;
+import org.jupiter.rpc.model.metadata.MethodSpecial;
 import org.jupiter.serialization.SerializerType;
 import org.jupiter.transport.JConnector;
 import org.jupiter.transport.UnresolvedAddress;
@@ -32,7 +33,6 @@ import org.springframework.beans.factory.FactoryBean;
 import org.springframework.beans.factory.InitializingBean;
 
 import java.util.List;
-import java.util.Map;
 
 /**
  * Consumer bean, 负责构造并初始化 consumer 代理对象.
@@ -60,7 +60,7 @@ public class JupiterSpringConsumerBean<T> implements FactoryBean<T>, Initializin
     private InvokeType invokeType;                              // 调用方式 [同步, 异步]
     private DispatchType dispatchType;                          // 派发方式 [单播, 广播]
     private long timeoutMillis;                                 // 调用超时时间设置
-    private Map<String, Long> methodsSpecialTimeoutMillis;      // 指定方法单独设置的超时时间, 方法名为key, 方法参数类型不做区别对待
+    private List<MethodSpecial> methodSpecials;                 // 指定方法的单独设置, 方法参数类型不做区别对待
     private ConsumerHook[] hooks = ConsumerHook.EMPTY_HOOKS;    // 消费者端钩子函数
     private String providerAddresses;                           // provider地址列表, 逗号分隔(IP直连)
     private ClusterInvoker.Strategy clusterStrategy;            // 集群容错策略
@@ -144,9 +144,9 @@ public class JupiterSpringConsumerBean<T> implements FactoryBean<T>, Initializin
             factory.timeoutMillis(timeoutMillis);
         }
 
-        if (methodsSpecialTimeoutMillis != null) {
-            for (Map.Entry<String, Long> entry : methodsSpecialTimeoutMillis.entrySet()) {
-                factory.methodSpecialTimeoutMillis(entry.getKey(), entry.getValue());
+        if (methodSpecials != null) {
+            for (MethodSpecial m : methodSpecials) {
+                factory.addMethodSpecials(m);
             }
         }
 
@@ -264,12 +264,12 @@ public class JupiterSpringConsumerBean<T> implements FactoryBean<T>, Initializin
         this.timeoutMillis = timeoutMillis;
     }
 
-    public Map<String, Long> getMethodsSpecialTimeoutMillis() {
-        return methodsSpecialTimeoutMillis;
+    public List<MethodSpecial> getMethodSpecials() {
+        return methodSpecials;
     }
 
-    public void setMethodsSpecialTimeoutMillis(Map<String, Long> methodsSpecialTimeoutMillis) {
-        this.methodsSpecialTimeoutMillis = methodsSpecialTimeoutMillis;
+    public void setMethodSpecials(List<MethodSpecial> methodSpecials) {
+        this.methodSpecials = methodSpecials;
     }
 
     public ConsumerHook[] getHooks() {
