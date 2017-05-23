@@ -3,6 +3,7 @@ Jupiter release notes
 
 ### 2017-05-22:
 
+- 集群容错策略的配置细化到方法粒度 [\#22](https://github.com/fengjiachun/Jupiter/issues/22)
 - Spring.scheme支持 [\#21](https://github.com/fengjiachun/Jupiter/issues/21)
 - [Thread Affinity](https://github.com/OpenHFT/Java-Thread-Affinity)
 

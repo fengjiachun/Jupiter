@@ -39,12 +39,12 @@ public class FailFastClusterInvoker extends AbstractClusterInvoker {
     }
 
     @Override
-    public String name() {
-        return "Fail-fast";
+    public Strategy strategy() {
+        return Strategy.FAIL_FAST;
     }
 
     @Override
     public <T> InvokeFuture<T> invoke(String methodName, Object[] args, Class<T> returnType) throws Exception {
-        return dispatcher.dispatch(client, methodName, args, returnType);
+        return super.invoke(methodName, args, returnType);
     }
 }

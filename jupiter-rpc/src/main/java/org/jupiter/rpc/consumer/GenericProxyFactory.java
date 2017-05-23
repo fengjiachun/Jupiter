@@ -24,9 +24,6 @@ import org.jupiter.rpc.DispatchType;
 import org.jupiter.rpc.InvokeType;
 import org.jupiter.rpc.JClient;
 import org.jupiter.rpc.consumer.cluster.ClusterInvoker;
-import org.jupiter.rpc.consumer.cluster.FailFastClusterInvoker;
-import org.jupiter.rpc.consumer.cluster.FailOverClusterInvoker;
-import org.jupiter.rpc.consumer.cluster.FailSafeClusterInvoker;
 import org.jupiter.rpc.consumer.dispatcher.DefaultBroadcastDispatcher;
 import org.jupiter.rpc.consumer.dispatcher.DefaultRoundDispatcher;
 import org.jupiter.rpc.consumer.dispatcher.Dispatcher;
@@ -35,7 +32,8 @@ import org.jupiter.rpc.consumer.invoker.GenericInvoker;
 import org.jupiter.rpc.consumer.invoker.SyncGenericInvoker;
 import org.jupiter.rpc.load.balance.LoadBalancerFactory;
 import org.jupiter.rpc.load.balance.LoadBalancerType;
-import org.jupiter.rpc.model.metadata.MethodSpecial;
+import org.jupiter.rpc.model.metadata.ClusterStrategyConfig;
+import org.jupiter.rpc.model.metadata.MethodSpecialConfig;
 import org.jupiter.rpc.model.metadata.ServiceMetadata;
 import org.jupiter.serialization.SerializerType;
 import org.jupiter.transport.Directory;
@@ -82,8 +80,8 @@ public class GenericProxyFactory {
     private DispatchType dispatchType = DispatchType.getDefault();
     // 调用超时时间设置
     private long timeoutMillis;
-    // 指定方法的单独设置, 方法参数类型不做区别对待
-    private List<MethodSpecial> methodSpecials;
+    // 指定方法的单独配置, 方法参数类型不做区别对待
+    private List<MethodSpecialConfig> methodSpecialConfigs;
     // 消费者端钩子函数
     private List<ConsumerHook> hooks;
     // 集群容错策略
@@ -96,7 +94,7 @@ public class GenericProxyFactory {
         // 初始化数据
         factory.addresses = Lists.newArrayList();
         factory.hooks = Lists.newArrayList();
-        factory.methodSpecials = Lists.newArrayList();
+        factory.methodSpecialConfigs = Lists.newArrayList();
 
         return factory;
     }
@@ -164,8 +162,8 @@ public class GenericProxyFactory {
         return this;
     }
 
-    public GenericProxyFactory addMethodSpecials(MethodSpecial... methodSpecials) {
-        Collections.addAll(this.methodSpecials, methodSpecials);
+    public GenericProxyFactory addMethodSpecialConfig(MethodSpecialConfig... methodSpecialConfigs) {
+        Collections.addAll(this.methodSpecialConfigs, methodSpecialConfigs);
         return this;
     }
 
@@ -211,13 +209,14 @@ public class GenericProxyFactory {
         Dispatcher dispatcher = dispatcher(metadata, serializerType)
                 .hooks(hooks)
                 .timeoutMillis(timeoutMillis)
-                .methodSpecials(methodSpecials);
+                .methodSpecialConfigs(methodSpecialConfigs);
 
+        ClusterStrategyConfig strategyConfig = ClusterStrategyConfig.of(strategy, retries);
         switch (invokeType) {
             case SYNC:
-                return new SyncGenericInvoker(clusterInvoker(strategy, dispatcher));
+                return new SyncGenericInvoker(client, dispatcher, strategyConfig, methodSpecialConfigs);
             case ASYNC:
-                return new AsyncGenericInvoker(clusterInvoker(strategy, dispatcher));
+                return new AsyncGenericInvoker(client, dispatcher, strategyConfig, methodSpecialConfigs);
             default:
                 throw reject("invokeType: " + invokeType);
         }
@@ -232,19 +231,6 @@ public class GenericProxyFactory {
                 return new DefaultBroadcastDispatcher(metadata, serializerType);
             default:
                 throw reject("dispatchType: " + dispatchType);
-        }
-    }
-
-    private ClusterInvoker clusterInvoker(ClusterInvoker.Strategy strategy, Dispatcher dispatcher) {
-        switch (strategy) {
-            case FAIL_FAST:
-                return new FailFastClusterInvoker(client, dispatcher);
-            case FAIL_OVER:
-                return new FailOverClusterInvoker(client, dispatcher, retries);
-            case FAIL_SAFE:
-                return new FailSafeClusterInvoker(client, dispatcher);
-            default:
-                throw reject("strategy: " + strategy);
         }
     }
 

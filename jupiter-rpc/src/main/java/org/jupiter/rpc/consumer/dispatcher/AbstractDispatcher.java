@@ -26,7 +26,7 @@ import org.jupiter.rpc.consumer.future.DefaultInvokeFuture;
 import org.jupiter.rpc.exception.JupiterRemoteException;
 import org.jupiter.rpc.load.balance.LoadBalancer;
 import org.jupiter.rpc.model.metadata.MessageWrapper;
-import org.jupiter.rpc.model.metadata.MethodSpecial;
+import org.jupiter.rpc.model.metadata.MethodSpecialConfig;
 import org.jupiter.rpc.model.metadata.ResultWrapper;
 import org.jupiter.rpc.model.metadata.ServiceMetadata;
 import org.jupiter.rpc.tracing.TraceId;
@@ -63,7 +63,7 @@ abstract class AbstractDispatcher implements Dispatcher {
     private ConsumerHook[] hooks = ConsumerHook.EMPTY_HOOKS;    // 消费者端钩子函数
     private long timeoutMillis = JConstants.DEFAULT_TIMEOUT;    // 调用超时时间设置
     // 针对指定方法单独设置的超时时间, 方法名为key, 方法参数类型不做区别对待
-    private Map<String, Long> methodSpecialsTimeoutMillis = Maps.newHashMap();
+    private Map<String, Long> methodSpecialTimeoutMapping = Maps.newHashMap();
 
     public AbstractDispatcher(ServiceMetadata metadata, SerializerType serializerType) {
         this(null, metadata, serializerType);
@@ -105,19 +105,22 @@ abstract class AbstractDispatcher implements Dispatcher {
     }
 
     @Override
-    public Dispatcher methodSpecials(List<MethodSpecial> methodSpecials) {
-        if (!methodSpecials.isEmpty()) {
-            for (MethodSpecial m : methodSpecials) {
-                methodSpecialsTimeoutMillis.put(m.getMethodName(), m.getTimeoutMillis());
+    public Dispatcher methodSpecialConfigs(List<MethodSpecialConfig> methodSpecialConfigs) {
+        if (!methodSpecialConfigs.isEmpty()) {
+            for (MethodSpecialConfig config : methodSpecialConfigs) {
+                long timeoutMillis = config.getTimeoutMillis();
+                if (timeoutMillis > 0) {
+                    methodSpecialTimeoutMapping.put(config.getMethodName(), timeoutMillis);
+                }
             }
         }
         return this;
     }
 
-    public long methodSpecialTimeoutMillis(String methodName) {
-        Long methodSpecialTimeoutMillis = methodSpecialsTimeoutMillis.get(methodName);
-        if (methodSpecialTimeoutMillis != null && methodSpecialTimeoutMillis > 0) {
-            return methodSpecialTimeoutMillis;
+    public long getMethodSpecialTimeoutMillis(String methodName) {
+        Long methodTimeoutMillis = methodSpecialTimeoutMapping.get(methodName);
+        if (methodTimeoutMillis != null && methodTimeoutMillis > 0) {
+            return methodTimeoutMillis;
         }
         return timeoutMillis;
     }

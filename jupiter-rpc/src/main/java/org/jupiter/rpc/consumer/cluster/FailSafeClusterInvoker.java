@@ -40,13 +40,13 @@ public class FailSafeClusterInvoker extends AbstractClusterInvoker {
     }
 
     @Override
-    public String name() {
-        return "Fail-safe";
+    public Strategy strategy() {
+        return Strategy.FAIL_SAFE;
     }
 
     @Override
     public <T> InvokeFuture<T> invoke(String methodName, Object[] args, Class<T> returnType) throws Exception {
-        InvokeFuture<T> future = dispatcher.dispatch(client, methodName, args, returnType);
+        InvokeFuture<T> future = super.invoke(methodName, args, returnType);
         return FailSafeInvokeFuture.with(future);
     }
 }

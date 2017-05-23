@@ -24,7 +24,7 @@ import org.jupiter.rpc.InvokeType;
 import org.jupiter.rpc.consumer.ProxyFactory;
 import org.jupiter.rpc.consumer.cluster.ClusterInvoker;
 import org.jupiter.rpc.load.balance.LoadBalancerType;
-import org.jupiter.rpc.model.metadata.MethodSpecial;
+import org.jupiter.rpc.model.metadata.MethodSpecialConfig;
 import org.jupiter.serialization.SerializerType;
 import org.jupiter.transport.JConnector;
 import org.jupiter.transport.UnresolvedAddress;
@@ -60,7 +60,7 @@ public class JupiterSpringConsumerBean<T> implements FactoryBean<T>, Initializin
     private InvokeType invokeType;                              // 调用方式 [同步, 异步]
     private DispatchType dispatchType;                          // 派发方式 [单播, 广播]
     private long timeoutMillis;                                 // 调用超时时间设置
-    private List<MethodSpecial> methodSpecials;                 // 指定方法的单独设置, 方法参数类型不做区别对待
+    private List<MethodSpecialConfig> methodSpecialConfigs;     // 指定方法的单独配置, 方法参数类型不做区别对待
     private ConsumerHook[] hooks = ConsumerHook.EMPTY_HOOKS;    // 消费者端钩子函数
     private String providerAddresses;                           // provider地址列表, 逗号分隔(IP直连)
     private ClusterInvoker.Strategy clusterStrategy;            // 集群容错策略
@@ -144,9 +144,9 @@ public class JupiterSpringConsumerBean<T> implements FactoryBean<T>, Initializin
             factory.timeoutMillis(timeoutMillis);
         }
 
-        if (methodSpecials != null) {
-            for (MethodSpecial m : methodSpecials) {
-                factory.addMethodSpecials(m);
+        if (methodSpecialConfigs != null) {
+            for (MethodSpecialConfig config : methodSpecialConfigs) {
+                factory.addMethodSpecialConfig(config);
             }
         }
 
@@ -264,12 +264,12 @@ public class JupiterSpringConsumerBean<T> implements FactoryBean<T>, Initializin
         this.timeoutMillis = timeoutMillis;
     }
 
-    public List<MethodSpecial> getMethodSpecials() {
-        return methodSpecials;
+    public List<MethodSpecialConfig> getMethodSpecialConfigs() {
+        return methodSpecialConfigs;
     }
 
-    public void setMethodSpecials(List<MethodSpecial> methodSpecials) {
-        this.methodSpecials = methodSpecials;
+    public void setMethodSpecialConfigs(List<MethodSpecialConfig> methodSpecialConfigs) {
+        this.methodSpecialConfigs = methodSpecialConfigs;
     }
 
     public ConsumerHook[] getHooks() {

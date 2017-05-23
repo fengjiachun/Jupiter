@@ -153,22 +153,32 @@
         </xsd:restriction>
     </xsd:simpleType>
 
-    <xsd:complexType name="methodSpecialType">
+    <xsd:complexType name="methodSpecialConfigType">
         <xsd:attribute name="methodName" type="xsd:string" use="required">
             <xsd:annotation>
                 <xsd:documentation><![CDATA[ The method name. ]]></xsd:documentation>
             </xsd:annotation>
         </xsd:attribute>
-        <xsd:attribute name="timeoutMillis" type="xsd:long" use="required">
+        <xsd:attribute name="timeoutMillis" type="xsd:long" use="optional">
             <xsd:annotation>
                 <xsd:documentation><![CDATA[ The method special timeout millis. ]]></xsd:documentation>
             </xsd:annotation>
         </xsd:attribute>
+        <xsd:attribute name="clusterStrategy" type="clusterStrategyType" use="optional">
+            <xsd:annotation>
+                <xsd:documentation><![CDATA[ The method special cluster strategy. ]]></xsd:documentation>
+            </xsd:annotation>
+        </xsd:attribute>
+        <xsd:attribute name="failoverRetries" type="xsd:integer" use="optional">
+            <xsd:annotation>
+                <xsd:documentation><![CDATA[ The method special failover retries. ]]></xsd:documentation>
+            </xsd:annotation>
+        </xsd:attribute>
     </xsd:complexType>
 
-    <xsd:complexType name="methodSpecialsType">
+    <xsd:complexType name="methodSpecialConfigsType">
         <xsd:choice minOccurs="1" maxOccurs="unbounded">
-            <xsd:element name="methodSpecial" type="methodSpecialType"/>
+            <xsd:element name="methodSpecial" type="methodSpecialConfigType"/>
         </xsd:choice>
     </xsd:complexType>
 
@@ -318,7 +328,7 @@
             <xsd:extension base="idType">
                 <xsd:choice minOccurs="0" maxOccurs="unbounded">
                     <xsd:element name="property" type="consumerPropertyType"/>
-                    <xsd:element name="methodSpecials" type="methodSpecialsType"/>
+                    <xsd:element name="methodSpecials" type="methodSpecialConfigsType"/>
                 </xsd:choice>
                 <xsd:attribute name="client" type="xsd:string" use="required">
                     <xsd:annotation>

@@ -67,7 +67,7 @@ public class DefaultRoundDispatcher extends AbstractDispatcher {
         request.message(message);
         request.bytes(s_code, bytes);
 
-        long timeoutMillis = methodSpecialTimeoutMillis(methodName);
+        long timeoutMillis = getMethodSpecialTimeoutMillis(methodName);
         DefaultInvokeFuture<T> future = DefaultInvokeFuture
                 .with(request.invokeId(), channel, returnType, timeoutMillis, DispatchType.ROUND)
                 .hooks(hooks());

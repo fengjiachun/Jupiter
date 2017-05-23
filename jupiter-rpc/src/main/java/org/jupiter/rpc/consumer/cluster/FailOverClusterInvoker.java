@@ -16,6 +16,7 @@
 
 package org.jupiter.rpc.consumer.cluster;
 
+import org.jupiter.common.util.ExceptionUtil;
 import org.jupiter.common.util.Reflects;
 import org.jupiter.common.util.internal.logging.InternalLogger;
 import org.jupiter.common.util.internal.logging.InternalLoggerFactory;
@@ -69,8 +70,8 @@ public class FailOverClusterInvoker extends AbstractClusterInvoker {
     }
 
     @Override
-    public String name() {
-        return "Fail-over";
+    public Strategy strategy() {
+        return Strategy.FAIL_OVER;
     }
 
     @Override
@@ -84,35 +85,39 @@ public class FailOverClusterInvoker extends AbstractClusterInvoker {
     }
 
     private <T> void invoke0(final String methodName,
-                         final Object[] args,
-                         final Class<T> returnType,
-                         final int tryCount,
-                         final FailOverInvokeFuture<T> future,
-                         Throwable lastCause) {
+                             final Object[] args,
+                             final Class<T> returnType,
+                             final int tryCount,
+                             final FailOverInvokeFuture<T> future,
+                             Throwable lastCause) {
 
         if (tryCount > 0 && isFailoverNeeded(lastCause)) {
-            InvokeFuture<T> f = dispatcher.dispatch(client, methodName, args, returnType);
+            try {
+                InvokeFuture<T> f = super.invoke(methodName, args, returnType);
 
-            f.addListener(new JListener<T>() {
+                f.addListener(new JListener<T>() {
 
-                @Override
-                public void complete(T result) {
-                    future.setSuccess(result);
-                }
-
-                @Override
-                public void failure(Throwable cause) {
-                    if (logger.isWarnEnabled()) {
-                        logger.warn("[Fail-over] retry, [{}] attempts left, [method: {}], [metadata: {}], {}.",
-                                tryCount - 1,
-                                methodName,
-                                dispatcher.metadata(),
-                                stackTrace(cause));
+                    @Override
+                    public void complete(T result) {
+                        future.setSuccess(result);
                     }
 
-                    invoke0(methodName, args, returnType, tryCount - 1, future, cause);
-                }
-            });
+                    @Override
+                    public void failure(Throwable cause) {
+                        if (logger.isWarnEnabled()) {
+                            logger.warn("[Fail-over] retry, [{}] attempts left, [method: {}], [metadata: {}], {}.",
+                                    tryCount - 1,
+                                    methodName,
+                                    metadata(),
+                                    stackTrace(cause));
+                        }
+
+                        invoke0(methodName, args, returnType, tryCount - 1, future, cause);
+                    }
+                });
+            } catch (Throwable t) {
+                ExceptionUtil.throwException(t);
+            }
         } else {
             future.setFailure(lastCause);
         }

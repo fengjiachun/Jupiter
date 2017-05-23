@@ -77,7 +77,7 @@ public class DefaultBroadcastDispatcher extends AbstractDispatcher {
         long invokeId = request.invokeId();
         ConsumerHook[] hooks = hooks();
         InvokeFuture<T>[] futures = new DefaultInvokeFuture[channels.length];
-        long timeoutMillis = methodSpecialTimeoutMillis(methodName);
+        long timeoutMillis = getMethodSpecialTimeoutMillis(methodName);
         for (int i = 0; i < channels.length; i++) {
             JChannel ch = channels[i];
             DefaultInvokeFuture<T> future = DefaultInvokeFuture

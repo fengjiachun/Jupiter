@@ -236,7 +236,13 @@
 >         <jupiter:property version="1.0.0.daily" />
 >         <jupiter:property serializerType="proto_stuff" />
 >         <jupiter:property loadBalancerType="round_robin" />
+>         <jupiter:property timeoutMillis="3000" />
 >         <jupiter:property clusterStrategy="fail_over" />
+>         <jupiter:property failoverRetries="2" />
+>         <jupiter:methodSpecials>
+>             <!-- 方法的单独配置 -->
+>             <jupiter:methodSpecial methodName="sayHello" timeoutMillis="5000" clusterStrategy="fail_fast" />
+>         </jupiter:methodSpecials>
 >     </jupiter:consumer>
 
 [SpringServer/SpringClient代码示例](https://github.com/fengjiachun/Jupiter/tree/master/jupiter-example/src/main/java/org/jupiter/example/spring)

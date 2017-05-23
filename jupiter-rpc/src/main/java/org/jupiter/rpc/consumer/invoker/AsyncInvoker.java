@@ -20,11 +20,15 @@ import net.bytebuddy.implementation.bind.annotation.AllArguments;
 import net.bytebuddy.implementation.bind.annotation.Origin;
 import net.bytebuddy.implementation.bind.annotation.RuntimeType;
 import org.jupiter.common.util.Reflects;
-import org.jupiter.rpc.consumer.cluster.ClusterInvoker;
+import org.jupiter.rpc.JClient;
+import org.jupiter.rpc.consumer.dispatcher.Dispatcher;
 import org.jupiter.rpc.consumer.future.InvokeFuture;
 import org.jupiter.rpc.consumer.future.InvokeFutureContext;
+import org.jupiter.rpc.model.metadata.ClusterStrategyConfig;
+import org.jupiter.rpc.model.metadata.MethodSpecialConfig;
 
 import java.lang.reflect.Method;
+import java.util.List;
 
 /**
  * Asynchronous call, {@link #invoke(Method, Object[])}
@@ -37,18 +41,20 @@ import java.lang.reflect.Method;
  *
  * @author jiachun.fjc
  */
-public class AsyncInvoker {
+public class AsyncInvoker extends AbstractClusterProxy {
 
-    private final ClusterInvoker clusterInvoker;
+    public AsyncInvoker(JClient client,
+                        Dispatcher dispatcher,
+                        ClusterStrategyConfig defaultStrategy,
+                        List<MethodSpecialConfig> methodSpecialConfigs) {
 
-    public AsyncInvoker(ClusterInvoker clusterInvoker) {
-        this.clusterInvoker = clusterInvoker;
+        super(client, dispatcher, defaultStrategy, methodSpecialConfigs);
     }
 
     @RuntimeType
     public Object invoke(@Origin Method method, @AllArguments @RuntimeType Object[] args) throws Throwable {
         Class<?> returnType = method.getReturnType();
-        InvokeFuture<?> future = clusterInvoker.invoke(method.getName(), args, returnType);
+        InvokeFuture<?> future = doInvoke(method.getName(), args, returnType);
         InvokeFutureContext.set(future);
         return Reflects.getTypeDefaultValue(returnType);
     }

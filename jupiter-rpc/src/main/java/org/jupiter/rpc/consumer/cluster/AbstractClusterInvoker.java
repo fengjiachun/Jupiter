@@ -18,6 +18,8 @@ package org.jupiter.rpc.consumer.cluster;
 
 import org.jupiter.rpc.JClient;
 import org.jupiter.rpc.consumer.dispatcher.Dispatcher;
+import org.jupiter.rpc.consumer.future.InvokeFuture;
+import org.jupiter.rpc.model.metadata.ServiceMetadata;
 
 /**
  * jupiter
@@ -27,8 +29,8 @@ import org.jupiter.rpc.consumer.dispatcher.Dispatcher;
  */
 public abstract class AbstractClusterInvoker implements ClusterInvoker {
 
-    protected final JClient client;
-    protected final Dispatcher dispatcher;
+    private final JClient client;
+    private final Dispatcher dispatcher;
 
     public AbstractClusterInvoker(JClient client, Dispatcher dispatcher) {
         this.client = client;
@@ -36,7 +38,16 @@ public abstract class AbstractClusterInvoker implements ClusterInvoker {
     }
 
     @Override
+    public <T> InvokeFuture<T> invoke(String methodName, Object[] args, Class<T> returnType) throws Exception {
+        return dispatcher.dispatch(client, methodName, args, returnType);
+    }
+
+    public ServiceMetadata metadata() {
+        return dispatcher.metadata();
+    }
+
+    @Override
     public String toString() {
-        return name();
+        return strategy().name();
     }
 }

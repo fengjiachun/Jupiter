@@ -19,7 +19,7 @@ package org.jupiter.rpc.consumer.dispatcher;
 import org.jupiter.rpc.ConsumerHook;
 import org.jupiter.rpc.JClient;
 import org.jupiter.rpc.consumer.future.InvokeFuture;
-import org.jupiter.rpc.model.metadata.MethodSpecial;
+import org.jupiter.rpc.model.metadata.MethodSpecialConfig;
 import org.jupiter.rpc.model.metadata.ServiceMetadata;
 
 import java.util.List;
@@ -40,5 +40,5 @@ public interface Dispatcher {
 
     Dispatcher timeoutMillis(long timeoutMillis);
 
-    Dispatcher methodSpecials(List<MethodSpecial> methodSpecials);
+    Dispatcher methodSpecialConfigs(List<MethodSpecialConfig> methodSpecialConfigs);
 }

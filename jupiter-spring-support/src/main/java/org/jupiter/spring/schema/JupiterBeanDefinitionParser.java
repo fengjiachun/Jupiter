@@ -18,7 +18,8 @@ package org.jupiter.spring.schema;
 
 import org.jupiter.common.util.Lists;
 import org.jupiter.common.util.Strings;
-import org.jupiter.rpc.model.metadata.MethodSpecial;
+import org.jupiter.rpc.model.metadata.ClusterStrategyConfig;
+import org.jupiter.rpc.model.metadata.MethodSpecialConfig;
 import org.jupiter.spring.support.JupiterSpringClient;
 import org.jupiter.spring.support.JupiterSpringConsumerBean;
 import org.jupiter.spring.support.JupiterSpringProviderBean;
@@ -77,7 +78,7 @@ public class JupiterBeanDefinitionParser implements BeanDefinitionParser {
             Node item = childNodes.item(i);
             if (item instanceof Element) {
                 String localName = item.getLocalName();
-                if (localName.equals("property")) {
+                if ("property".equals(localName)) {
                     addProperty(def, (Element) item, "registryServerAddresses", false);
                     addPropertyReference(def, (Element) item, "providerInterceptors", false);
                     addPropertyReference(def, (Element) item, "flowController", false);
@@ -99,7 +100,7 @@ public class JupiterBeanDefinitionParser implements BeanDefinitionParser {
             Node item = childNodes.item(i);
             if (item instanceof Element) {
                 String localName = item.getLocalName();
-                if (localName.equals("property")) {
+                if ("property".equals(localName)) {
                     addProperty(def, (Element) item, "registryServerAddresses", false);
                     addProperty(def, (Element) item, "providerServerAddresses", false);
                 }
@@ -121,7 +122,7 @@ public class JupiterBeanDefinitionParser implements BeanDefinitionParser {
             Node item = childNodes.item(i);
             if (item instanceof Element) {
                 String localName = item.getLocalName();
-                if (localName.equals("property")) {
+                if ("property".equals(localName)) {
                     addProperty(def, (Element) item, "weight", false);
                     addPropertyReference(def, (Element) item, "providerInterceptors", false);
                     addPropertyReference(def, (Element) item, "executor", false);
@@ -142,14 +143,14 @@ public class JupiterBeanDefinitionParser implements BeanDefinitionParser {
         addPropertyReference(def, element, "client", true);
         addProperty(def, element, "interfaceClass", true);
 
-        List<MethodSpecial> methodSpecials = Lists.newArrayList();
+        List<MethodSpecialConfig> methodSpecialConfigs = Lists.newArrayList();
 
         NodeList childNodes = element.getChildNodes();
         for (int i = 0; i < childNodes.getLength(); i++) {
             Node item = childNodes.item(i);
             if (item instanceof Element) {
                 String localName = item.getLocalName();
-                if (localName.equals("property")) {
+                if ("property".equals(localName)) {
                     addProperty(def, (Element) item, "version", false);
                     addProperty(def, (Element) item, "loadBalancerType", false);
                     addProperty(def, (Element) item, "waitForAvailableTimeoutMillis", false);
@@ -160,22 +161,30 @@ public class JupiterBeanDefinitionParser implements BeanDefinitionParser {
                     addProperty(def, (Element) item, "clusterStrategy", false);
                     addProperty(def, (Element) item, "failoverRetries", false);
                     addPropertyReference(def, (Element) item, "hooks", false);
-                } else if (localName.equals("methodSpecials")) {
-                    NodeList mList = item.getChildNodes();
-                    for (int j = 0; j < mList.getLength(); j++) {
-                        Node mItem = mList.item(j);
-                        if (mItem instanceof Element) {
-                            String methodName = ((Element) mItem).getAttribute("methodName");
-                            String timeoutMillis = ((Element) mItem).getAttribute("timeoutMillis");
-                            methodSpecials.add(MethodSpecial.of(methodName, Long.parseLong(timeoutMillis)));
+                } else if ("methodSpecials".equals(localName)) {
+                    NodeList configList = item.getChildNodes();
+                    for (int j = 0; j < configList.getLength(); j++) {
+                        Node configItem = configList.item(j);
+                        if (configItem instanceof Element) {
+                            if ("methodSpecial".equals(configItem.getLocalName())) {
+                                String methodName = ((Element) configItem).getAttribute("methodName");
+                                String timeoutMillis = ((Element) configItem).getAttribute("timeoutMillis");
+                                String clusterStrategy = ((Element) configItem).getAttribute("clusterStrategy");
+                                String failoverRetries = ((Element) configItem).getAttribute("failoverRetries");
+
+                                MethodSpecialConfig config = MethodSpecialConfig.of(methodName)
+                                        .timeoutMillis(Long.parseLong(timeoutMillis))
+                                        .strategy(ClusterStrategyConfig.of(clusterStrategy, failoverRetries));
+                                methodSpecialConfigs.add(config);
+                            }
                         }
                     }
                 }
             }
         }
 
-        if (!methodSpecials.isEmpty()) {
-            def.getPropertyValues().addPropertyValue("methodSpecials", methodSpecials);
+        if (!methodSpecialConfigs.isEmpty()) {
+            def.getPropertyValues().addPropertyValue("methodSpecialConfigs", methodSpecialConfigs);
         }
 
         return registerBean(def, element, parserContext);
