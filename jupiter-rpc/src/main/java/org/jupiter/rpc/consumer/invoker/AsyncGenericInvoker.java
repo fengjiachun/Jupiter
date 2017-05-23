@@ -17,6 +17,7 @@
 package org.jupiter.rpc.consumer.invoker;
 
 import org.jupiter.rpc.JClient;
+import org.jupiter.rpc.consumer.cluster.ClusterInvoker;
 import org.jupiter.rpc.consumer.dispatcher.Dispatcher;
 import org.jupiter.rpc.consumer.future.InvokeFuture;
 import org.jupiter.rpc.consumer.future.InvokeFutureContext;
@@ -35,7 +36,7 @@ import java.util.List;
  *
  * @author jiachun.fjc
  */
-public class AsyncGenericInvoker extends AbstractClusterProxy implements GenericInvoker {
+public class AsyncGenericInvoker extends ClusterBridging implements GenericInvoker {
 
     public AsyncGenericInvoker(JClient client,
                                Dispatcher dispatcher,
@@ -47,7 +48,8 @@ public class AsyncGenericInvoker extends AbstractClusterProxy implements Generic
 
     @Override
     public Object $invoke(String methodName, Object... args) throws Throwable {
-        InvokeFuture<?> future = doInvoke(methodName, args, Object.class);
+        ClusterInvoker invoker = getClusterInvoker(methodName);
+        InvokeFuture<?> future = invoker.invoke(methodName, args, Object.class);
         InvokeFutureContext.set(future);
         return null;
     }

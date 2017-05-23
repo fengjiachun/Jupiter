@@ -16,7 +16,6 @@
 
 package org.jupiter.rpc.consumer.cluster;
 
-import org.jupiter.common.util.ExceptionUtil;
 import org.jupiter.common.util.Reflects;
 import org.jupiter.common.util.internal.logging.InternalLogger;
 import org.jupiter.common.util.internal.logging.InternalLoggerFactory;
@@ -92,32 +91,28 @@ public class FailOverClusterInvoker extends AbstractClusterInvoker {
                              Throwable lastCause) {
 
         if (tryCount > 0 && isFailoverNeeded(lastCause)) {
-            try {
-                InvokeFuture<T> f = super.invoke(methodName, args, returnType);
+            InvokeFuture<T> f = dispatcher.dispatch(client, methodName, args, returnType);
 
-                f.addListener(new JListener<T>() {
+            f.addListener(new JListener<T>() {
 
-                    @Override
-                    public void complete(T result) {
-                        future.setSuccess(result);
+                @Override
+                public void complete(T result) {
+                    future.setSuccess(result);
+                }
+
+                @Override
+                public void failure(Throwable cause) {
+                    if (logger.isWarnEnabled()) {
+                        logger.warn("[Fail-over] retry, [{}] attempts left, [method: {}], [metadata: {}], {}.",
+                                tryCount - 1,
+                                methodName,
+                                dispatcher.metadata(),
+                                stackTrace(cause));
                     }
 
-                    @Override
-                    public void failure(Throwable cause) {
-                        if (logger.isWarnEnabled()) {
-                            logger.warn("[Fail-over] retry, [{}] attempts left, [method: {}], [metadata: {}], {}.",
-                                    tryCount - 1,
-                                    methodName,
-                                    metadata(),
-                                    stackTrace(cause));
-                        }
-
-                        invoke0(methodName, args, returnType, tryCount - 1, future, cause);
-                    }
-                });
-            } catch (Throwable t) {
-                ExceptionUtil.throwException(t);
-            }
+                    invoke0(methodName, args, returnType, tryCount - 1, future, cause);
+                }
+            });
         } else {
             future.setFailure(lastCause);
         }

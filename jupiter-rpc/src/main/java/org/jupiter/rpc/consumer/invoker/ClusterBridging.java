@@ -23,7 +23,6 @@ import org.jupiter.rpc.consumer.cluster.FailFastClusterInvoker;
 import org.jupiter.rpc.consumer.cluster.FailOverClusterInvoker;
 import org.jupiter.rpc.consumer.cluster.FailSafeClusterInvoker;
 import org.jupiter.rpc.consumer.dispatcher.Dispatcher;
-import org.jupiter.rpc.consumer.future.InvokeFuture;
 import org.jupiter.rpc.model.metadata.ClusterStrategyConfig;
 import org.jupiter.rpc.model.metadata.MethodSpecialConfig;
 
@@ -36,15 +35,15 @@ import java.util.Map;
  *
  * @author jiachun.fjc
  */
-public abstract class AbstractClusterProxy {
+public abstract class ClusterBridging {
 
-    private final ClusterInvoker defaultClusterInvoker;
+    protected final ClusterInvoker defaultClusterInvoker;
     private final Map<String, ClusterInvoker> methodSpecialClusterInvokerMapping;
 
-    public AbstractClusterProxy(JClient client,
-                                Dispatcher dispatcher,
-                                ClusterStrategyConfig defaultStrategy,
-                                List<MethodSpecialConfig> methodSpecialConfigs) {
+    public ClusterBridging(JClient client,
+                           Dispatcher dispatcher,
+                           ClusterStrategyConfig defaultStrategy,
+                           List<MethodSpecialConfig> methodSpecialConfigs) {
 
         this.defaultClusterInvoker = createClusterInvoker(client, dispatcher, defaultStrategy);
         this.methodSpecialClusterInvokerMapping = Maps.newHashMap();
@@ -59,17 +58,9 @@ public abstract class AbstractClusterProxy {
         }
     }
 
-    protected <T> InvokeFuture<T> doInvoke(String methodName, Object[] args, Class<T> returnType) throws Exception {
-        ClusterInvoker invoker = getClusterInvoker(methodName);
-        return invoker.invoke(methodName, args, returnType);
-    }
-
-    private ClusterInvoker getClusterInvoker(String methodName) {
+    public ClusterInvoker getClusterInvoker(String methodName) {
         ClusterInvoker invoker = methodSpecialClusterInvokerMapping.get(methodName);
-        if (invoker == null) {
-            invoker = defaultClusterInvoker;
-        }
-        return invoker;
+        return invoker != null ? invoker : defaultClusterInvoker;
     }
 
     private ClusterInvoker createClusterInvoker(JClient client, Dispatcher dispatcher, ClusterStrategyConfig strategy) {

@@ -21,6 +21,7 @@ import net.bytebuddy.implementation.bind.annotation.Origin;
 import net.bytebuddy.implementation.bind.annotation.RuntimeType;
 import org.jupiter.common.util.Reflects;
 import org.jupiter.rpc.JClient;
+import org.jupiter.rpc.consumer.cluster.ClusterInvoker;
 import org.jupiter.rpc.consumer.dispatcher.Dispatcher;
 import org.jupiter.rpc.consumer.future.InvokeFuture;
 import org.jupiter.rpc.consumer.future.InvokeFutureContext;
@@ -41,7 +42,7 @@ import java.util.List;
  *
  * @author jiachun.fjc
  */
-public class AsyncInvoker extends AbstractClusterProxy {
+public class AsyncInvoker extends ClusterBridging {
 
     public AsyncInvoker(JClient client,
                         Dispatcher dispatcher,
@@ -53,8 +54,10 @@ public class AsyncInvoker extends AbstractClusterProxy {
 
     @RuntimeType
     public Object invoke(@Origin Method method, @AllArguments @RuntimeType Object[] args) throws Throwable {
+        String methodName = method.getName();
         Class<?> returnType = method.getReturnType();
-        InvokeFuture<?> future = doInvoke(method.getName(), args, returnType);
+        ClusterInvoker invoker = getClusterInvoker(methodName);
+        InvokeFuture<?> future = invoker.invoke(methodName, args, returnType);
         InvokeFutureContext.set(future);
         return Reflects.getTypeDefaultValue(returnType);
     }

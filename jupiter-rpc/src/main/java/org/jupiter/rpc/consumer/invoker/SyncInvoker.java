@@ -20,6 +20,7 @@ import net.bytebuddy.implementation.bind.annotation.AllArguments;
 import net.bytebuddy.implementation.bind.annotation.Origin;
 import net.bytebuddy.implementation.bind.annotation.RuntimeType;
 import org.jupiter.rpc.JClient;
+import org.jupiter.rpc.consumer.cluster.ClusterInvoker;
 import org.jupiter.rpc.consumer.dispatcher.Dispatcher;
 import org.jupiter.rpc.consumer.future.InvokeFuture;
 import org.jupiter.rpc.model.metadata.ClusterStrategyConfig;
@@ -38,7 +39,7 @@ import java.util.List;
  *
  * @author jiachun.fjc
  */
-public class SyncInvoker extends AbstractClusterProxy {
+public class SyncInvoker extends ClusterBridging {
 
     public SyncInvoker(JClient client,
                        Dispatcher dispatcher,
@@ -50,7 +51,9 @@ public class SyncInvoker extends AbstractClusterProxy {
 
     @RuntimeType
     public Object invoke(@Origin Method method, @AllArguments @RuntimeType Object[] args) throws Throwable {
-        InvokeFuture<?> future = doInvoke(method.getName(), args, method.getReturnType());
+        String methodName = method.getName();
+        ClusterInvoker invoker = getClusterInvoker(methodName);
+        InvokeFuture<?> future = invoker.invoke(methodName, args, method.getReturnType());
         return future.getResult();
     }
 }
