@@ -37,7 +37,7 @@ import java.util.Map;
  */
 public abstract class ClusterStrategyBridging {
 
-    protected final ClusterInvoker defaultClusterInvoker;
+    private final ClusterInvoker defaultClusterInvoker;
     private final Map<String, ClusterInvoker> methodSpecialClusterInvokerMapping;
 
     public ClusterStrategyBridging(JClient client,
