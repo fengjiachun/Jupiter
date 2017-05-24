@@ -19,6 +19,7 @@ package org.jupiter.common.concurrent;
 import net.openhft.affinity.AffinityLock;
 import net.openhft.affinity.AffinityStrategies;
 import net.openhft.affinity.AffinityStrategy;
+import org.jupiter.common.util.ClassUtil;
 import org.jupiter.common.util.internal.InternalThread;
 import org.jupiter.common.util.internal.logging.InternalLogger;
 import org.jupiter.common.util.internal.logging.InternalLoggerFactory;
@@ -39,6 +40,11 @@ import java.util.concurrent.atomic.AtomicInteger;
 public class AffinityNamedThreadFactory implements ThreadFactory {
 
     private static final InternalLogger logger = InternalLoggerFactory.getInstance(AffinityNamedThreadFactory.class);
+
+    static {
+        // 检查是否存在slf4j, 使用Affinity必须显式引入slf4j依赖
+        ClassUtil.classCheck("org.slf4j.Logger");
+    }
 
     private final AtomicInteger id = new AtomicInteger();
     private final String name;

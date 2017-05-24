@@ -26,7 +26,7 @@ import io.netty.util.HashedWheelTimer;
 import io.netty.util.concurrent.DefaultThreadFactory;
 import io.netty.util.internal.PlatformDependent;
 import org.jupiter.common.concurrent.NamedThreadFactory;
-import org.jupiter.common.util.ClassInitializeUtil;
+import org.jupiter.common.util.ClassUtil;
 import org.jupiter.common.util.JConstants;
 import org.jupiter.common.util.Maps;
 import org.jupiter.common.util.internal.logging.InternalLogger;
@@ -58,7 +58,7 @@ public abstract class NettyConnector implements JConnector<JConnection> {
     static {
         // touch off DefaultChannelId.<clinit>
         // because getProcessId() sometimes too slow
-        ClassInitializeUtil.initClass("io.netty.channel.DefaultChannelId", 500);
+        ClassUtil.classInitialize("io.netty.channel.DefaultChannelId", 500);
     }
 
     protected final Protocol protocol;
