@@ -152,18 +152,18 @@ public class ServiceTestImpl implements ServiceTest {
 * 选择1: 使用jupiter默认的注册中心:
 
 ```java
-     public class HelloJupiterRegistryServer {
+public class HelloJupiterRegistryServer {
 
-         public static void main(String[] args) {
-             // 注册中心
-             RegistryServer registryServer = RegistryServer.Default.createRegistryServer(20001, 1);
-             try {
-                 registryServer.startRegistryServer();
-             } catch (InterruptedException e) {
-                 e.printStackTrace();
-             }
-         }
-     }
+    public static void main(String[] args) {
+        // 注册中心
+        RegistryServer registryServer = RegistryServer.Default.createRegistryServer(20001, 1);
+        try {
+            registryServer.startRegistryServer();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+    }
+}
 ```
 
 
@@ -232,7 +232,7 @@ public class HelloJupiterClient {
 [Server/Client代码示例](https://github.com/fengjiachun/Jupiter/tree/master/jupiter-example/src/main/java/org/jupiter/example/round)
 
 ##### 结合Spring使用示例:
-1. [Server端配置](https://github.com/fengjiachun/Jupiter/blob/master/jupiter-example/src/main/resources/spring-provider.xml):
+###### 1. [Server端配置](https://github.com/fengjiachun/Jupiter/blob/master/jupiter-example/src/main/resources/spring-provider.xml):
 
 ```xml
 <jupiter:server id="jupiterServer">
@@ -247,7 +247,7 @@ public class HelloJupiterClient {
 </jupiter:provider>
 ```
 
-2. [Client端配置](https://github.com/fengjiachun/Jupiter/blob/master/jupiter-example/src/main/resources/spring-consumer.xml):
+###### 2. [Client端配置](https://github.com/fengjiachun/Jupiter/blob/master/jupiter-example/src/main/resources/spring-consumer.xml):
 
 ```xml
 <jupiter:client id="jupiterClient">
