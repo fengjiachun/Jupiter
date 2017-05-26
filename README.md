@@ -149,7 +149,7 @@ public class ServiceTestImpl implements ServiceTest {
 
 ###### 3. 启动注册中心:
 
-* 选择1: 使用jupiter默认的注册中心:
+###### - 选择1: 使用jupiter默认的注册中心:
 
 ```java
 public class HelloJupiterRegistryServer {
@@ -167,7 +167,7 @@ public class HelloJupiterRegistryServer {
 ```
 
 
-* 选择2: 使用[zookeeper](https://zookeeper.apache.org/doc/trunk/zookeeperStarted.html)作为注册中心:
+###### - 选择2: 使用[zookeeper](https://zookeeper.apache.org/doc/trunk/zookeeperStarted.html)作为注册中心:
 
 ```xml
 默认注册中心只建议在测试环境使用, 线上建议使用zookeeper实现
