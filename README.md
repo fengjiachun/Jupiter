@@ -123,7 +123,6 @@ public interface ServiceTest {
     String sayHelloString();
 }
 
-
 @ServiceProvider:
     - 建议每个服务接口通过此注解来指定服务信息, 如不希望业务代码对jupiter依赖也可以不使用此注解而手动去设置服务信息
         + group: 服务组别(选填, 默认组别为'Jupiter')
