@@ -1,6 +1,10 @@
 Jupiter release notes
 ------------------------
 
+### 2016-06-06:
+
+- 传输层默认使用java nio, 而不使用netty提供的native epoll/kqueue
+
 ### 2017-05-24: version 1.2.6
 
 - 集群容错策略的配置细化到方法粒度 [\#22](https://github.com/fengjiachun/Jupiter/issues/22)
