@@ -154,7 +154,7 @@ public abstract class NettyTcpConnector extends NettyConnector {
         } else if (isNativeKQueue()) {
             bootstrap().channelFactory(TcpChannelProvider.NATIVE_KQUEUE_CONNECTOR);
         } else {
-            bootstrap().channelFactory(TcpChannelProvider.NIO_CONNECTOR);
+            bootstrap().channelFactory(TcpChannelProvider.JAVA_NIO_CONNECTOR);
         }
     }
 

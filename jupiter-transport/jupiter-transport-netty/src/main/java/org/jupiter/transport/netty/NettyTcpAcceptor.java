@@ -212,7 +212,7 @@ public abstract class NettyTcpAcceptor extends NettyAcceptor {
         } else if (isNativeKQueue()) {
             bootstrap().channelFactory(TcpChannelProvider.NATIVE_KQUEUE_ACCEPTOR);
         } else {
-            bootstrap().channelFactory(TcpChannelProvider.NIO_ACCEPTOR);
+            bootstrap().channelFactory(TcpChannelProvider.JAVA_NIO_ACCEPTOR);
         }
     }
 
