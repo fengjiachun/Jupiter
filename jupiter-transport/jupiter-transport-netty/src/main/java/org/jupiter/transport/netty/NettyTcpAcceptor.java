@@ -228,7 +228,7 @@ public abstract class NettyTcpAcceptor extends NettyAcceptor {
     @Override
     public String toString() {
         return "Socket address:[" + localAddress + ']'
-                + ", Socket Type: " + socketType()
+                + ", socket type: " + socketType()
                 + JConstants.NEWLINE
                 + bootstrap();
     }
