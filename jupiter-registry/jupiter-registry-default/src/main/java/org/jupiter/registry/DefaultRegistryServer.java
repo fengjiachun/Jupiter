@@ -703,11 +703,13 @@ public final class DefaultRegistryServer extends NettyTcpAcceptor implements Reg
                             }
                         }
                     }
-
-                    Thread.sleep(300);
                 } catch (Throwable t) {
                     logger.error("An exception was caught while scanning the timeout acknowledges {}.", stackTrace(t));
                 }
+
+                try {
+                    Thread.sleep(300);
+                } catch (InterruptedException ignored) {}
             }
         }
     }
