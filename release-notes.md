@@ -1,7 +1,7 @@
 Jupiter release notes
 ------------------------
 
-### 2016-06-06:
+### 2016-06-15:
 
 - 传输层默认使用java nio, 而不使用netty提供的native epoll/kqueue [netty issues#6837](https://github.com/netty/netty/issues/6837)
 - 升级[Disruptor](https://github.com/LMAX-Exchange/disruptor)到v3.3.6
