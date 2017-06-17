@@ -20,8 +20,8 @@
     <!-- 标准输出 -->
     <appender name="STD_OUT" class="ch.qos.logback.core.ConsoleAppender">
         <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
-			<pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} %-5level [%thread] [%logger{0}] - %msg%n</pattern>
-		</encoder>
+            <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} %-5level [%thread] [%logger{0}] - %msg%n</pattern>
+        </encoder>
     </appender>
 
     <!--<appender name="FILE_OUT" class="ch.qos.logback.core.FileAppender">-->
