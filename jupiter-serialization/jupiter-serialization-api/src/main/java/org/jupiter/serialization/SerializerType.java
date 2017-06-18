@@ -56,6 +56,15 @@ public enum SerializerType {
         return null;
     }
 
+    public static SerializerType parse(byte value) {
+        for (SerializerType s : values()) {
+            if (s.value() == value) {
+                return s;
+            }
+        }
+        return null;
+    }
+
     public static SerializerType getDefault() {
         return PROTO_STUFF;
     }
