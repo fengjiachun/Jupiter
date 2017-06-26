@@ -203,9 +203,9 @@ public class MessageTask implements RejectedRunnable {
                 }
 
                 // 根据JLS方法调用的静态分派规则查找最匹配的方法parameterTypes
-                Pair<Class<?>[], Class<?>[]> pair = Reflects.findMatchingParameterTypesExt(methodExtension, args);
-                Class<?>[] parameterTypes = pair.getFirst();
-                exceptionTypes = pair.getSecond();
+                Pair<Class<?>[], Class<?>[]> bestMatch = Reflects.findMatchingParameterTypesExt(methodExtension, args);
+                Class<?>[] parameterTypes = bestMatch.getFirst();
+                exceptionTypes = bestMatch.getSecond();
                 invokeResult = Reflects.fastInvoke(provider, methodName, parameterTypes, args);
             } catch (Throwable t) {
                 // handle biz exception
