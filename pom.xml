@@ -36,6 +36,7 @@
     </scm>
 
     <modules>
+        <module>jupiter-all</module>
         <module>jupiter-common</module>
         <module>jupiter-example</module>
         <module>jupiter-flightexec</module>
@@ -45,7 +46,6 @@
         <module>jupiter-serialization</module>
         <module>jupiter-spring-support</module>
         <module>jupiter-transport</module>
-        <module>jupiter-all</module>
     </modules>
 
     <properties>
