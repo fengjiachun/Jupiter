@@ -100,19 +100,19 @@ public final class DefaultRegistryServer extends NettyTcpAcceptor implements Reg
     }
 
     public DefaultRegistryServer(int port) {
-        super(port, false);
+        super(port);
     }
 
     public DefaultRegistryServer(SocketAddress address) {
-        super(address, false);
+        super(address);
     }
 
     public DefaultRegistryServer(int port, int nWorks) {
-        super(port, nWorks, false);
+        super(port, nWorks);
     }
 
     public DefaultRegistryServer(SocketAddress address, int nWorks) {
-        super(address, nWorks, false);
+        super(address, nWorks);
     }
 
     @Override
@@ -703,11 +703,13 @@ public final class DefaultRegistryServer extends NettyTcpAcceptor implements Reg
                             }
                         }
                     }
-
-                    Thread.sleep(300);
                 } catch (Throwable t) {
                     logger.error("An exception was caught while scanning the timeout acknowledges {}.", stackTrace(t));
                 }
+
+                try {
+                    Thread.sleep(300);
+                } catch (InterruptedException ignored) {}
             }
         }
     }

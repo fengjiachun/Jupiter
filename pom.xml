@@ -23,7 +23,7 @@
     <artifactId>jupiter</artifactId>
     <groupId>org.jupiter-rpc</groupId>
     <packaging>pom</packaging>
-    <version>1.2.6</version>
+    <version>1.2.7</version>
 
     <name>Jupiter</name>
     <description>Jupiter is a distributed RPC framework.</description>
@@ -58,7 +58,7 @@
         <asm.version>5.2</asm.version>
         <javassist.version>3.19.0-GA</javassist.version>
         <bytebuddy.version>1.6.3</bytebuddy.version>
-        <disruptor.version>3.3.2</disruptor.version>
+        <disruptor.version>3.3.6</disruptor.version>
         <metrics.version>3.1.2</metrics.version>
         <affinity.version>3.0.6</affinity.version>
         <slf4j.version>1.7.5</slf4j.version>

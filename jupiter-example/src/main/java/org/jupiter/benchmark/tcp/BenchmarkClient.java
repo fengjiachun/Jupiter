@@ -77,7 +77,7 @@ public class BenchmarkClient {
         SystemPropertyUtil.setProperty("jupiter.tracing.needed", "false");
         SystemPropertyUtil.setProperty("jupiter.use.non_blocking_hash", "true");
 
-        JClient client = new DefaultClient().withConnector(new JNettyTcpConnector(processors + 1) {
+        JClient client = new DefaultClient().withConnector(new JNettyTcpConnector(processors + 1, true) {
 
 //            @Override
 //            protected ThreadFactory workerThreadFactory(String name) {

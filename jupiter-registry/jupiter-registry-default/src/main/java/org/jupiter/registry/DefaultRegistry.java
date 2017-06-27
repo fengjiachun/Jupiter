@@ -94,7 +94,7 @@ public final class DefaultRegistry extends NettyTcpConnector {
     }
 
     public DefaultRegistry(AbstractRegistryService registryService, int nWorkers) {
-        super(nWorkers, false);
+        super(nWorkers);
         this.registryService = checkNotNull(registryService, "registryService");
     }
 

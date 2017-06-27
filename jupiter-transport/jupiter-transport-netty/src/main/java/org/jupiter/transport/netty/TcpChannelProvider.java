@@ -34,60 +34,60 @@ import io.netty.channel.socket.nio.NioSocketChannel;
  */
 public final class TcpChannelProvider<T extends Channel> implements ChannelFactory<T> {
 
-    public static final ChannelFactory<ServerChannel> NIO_ACCEPTOR = new TcpChannelProvider<>(TypeIO.NIO, KindChannel.ACCEPTOR);
-    public static final ChannelFactory<ServerChannel> NATIVE_EPOLL_ACCEPTOR = new TcpChannelProvider<>(TypeIO.NATIVE_EPOLL, KindChannel.ACCEPTOR);
-    public static final ChannelFactory<ServerChannel> NATIVE_KQUEUE_ACCEPTOR = new TcpChannelProvider<>(TypeIO.NATIVE_KQUEUE, KindChannel.ACCEPTOR);
+    public static final ChannelFactory<ServerChannel> JAVA_NIO_ACCEPTOR = new TcpChannelProvider<>(SocketType.JAVA_NIO, ChannelType.ACCEPTOR);
+    public static final ChannelFactory<ServerChannel> NATIVE_EPOLL_ACCEPTOR = new TcpChannelProvider<>(SocketType.NATIVE_EPOLL, ChannelType.ACCEPTOR);
+    public static final ChannelFactory<ServerChannel> NATIVE_KQUEUE_ACCEPTOR = new TcpChannelProvider<>(SocketType.NATIVE_KQUEUE, ChannelType.ACCEPTOR);
 
-    public static final ChannelFactory<Channel> NIO_CONNECTOR = new TcpChannelProvider<>(TypeIO.NIO, KindChannel.CONNECTOR);
-    public static final ChannelFactory<Channel> NATIVE_EPOLL_CONNECTOR = new TcpChannelProvider<>(TypeIO.NATIVE_EPOLL, KindChannel.CONNECTOR);
-    public static final ChannelFactory<Channel> NATIVE_KQUEUE_CONNECTOR = new TcpChannelProvider<>(TypeIO.NATIVE_KQUEUE, KindChannel.CONNECTOR);
+    public static final ChannelFactory<Channel> JAVA_NIO_CONNECTOR = new TcpChannelProvider<>(SocketType.JAVA_NIO, ChannelType.CONNECTOR);
+    public static final ChannelFactory<Channel> NATIVE_EPOLL_CONNECTOR = new TcpChannelProvider<>(SocketType.NATIVE_EPOLL, ChannelType.CONNECTOR);
+    public static final ChannelFactory<Channel> NATIVE_KQUEUE_CONNECTOR = new TcpChannelProvider<>(SocketType.NATIVE_KQUEUE, ChannelType.CONNECTOR);
 
-    public TcpChannelProvider(TypeIO typeIO, KindChannel kindChannel) {
-        this.typeIO = typeIO;
-        this.kindChannel = kindChannel;
+    public TcpChannelProvider(SocketType socketType, ChannelType channelType) {
+        this.socketType = socketType;
+        this.channelType = channelType;
     }
 
-    private final TypeIO typeIO;
-    private final KindChannel kindChannel;
+    private final SocketType socketType;
+    private final ChannelType channelType;
 
     @SuppressWarnings("unchecked")
     @Override
     public T newChannel() {
-        switch (kindChannel) {
+        switch (channelType) {
             case ACCEPTOR:
-                switch (typeIO) {
-                    case NIO:
+                switch (socketType) {
+                    case JAVA_NIO:
                         return (T) new NioServerSocketChannel();
                     case NATIVE_EPOLL:
                         return (T) new EpollServerSocketChannel();
                     case NATIVE_KQUEUE:
                         return (T) new KQueueServerSocketChannel();
                     default:
-                        throw new IllegalStateException("invalid type IO: " + typeIO);
+                        throw new IllegalStateException("invalid socket type: " + socketType);
                 }
             case CONNECTOR:
-                switch (typeIO) {
-                    case NIO:
+                switch (socketType) {
+                    case JAVA_NIO:
                         return (T) new NioSocketChannel();
                     case NATIVE_EPOLL:
                         return (T) new EpollSocketChannel();
                     case NATIVE_KQUEUE:
                         return (T) new KQueueSocketChannel();
                     default:
-                        throw new IllegalStateException("invalid type IO: " + typeIO);
+                        throw new IllegalStateException("invalid socket type: " + socketType);
                 }
             default:
-                throw new IllegalStateException("invalid kind channel: " + kindChannel);
+                throw new IllegalStateException("invalid channel type: " + channelType);
         }
     }
 
-    public enum TypeIO {
-        NIO,
-        NATIVE_EPOLL,
-        NATIVE_KQUEUE
+    public enum SocketType {
+        JAVA_NIO,
+        NATIVE_EPOLL,   // for linux
+        NATIVE_KQUEUE   // for bsd systems
     }
 
-    public enum KindChannel {
+    public enum ChannelType {
         ACCEPTOR,
         CONNECTOR
     }

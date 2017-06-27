@@ -125,8 +125,14 @@ public class TaskDispatcher implements Dispatcher<Runnable>, Executor {
             case LITE_BLOCKING_WAIT:
                 waitStrategy = new LiteBlockingWaitStrategy();
                 break;
+            case TIMEOUT_BLOCKING_WAIT:
+                waitStrategy = new TimeoutBlockingWaitStrategy(1000, TimeUnit.MILLISECONDS);
+                break;
+            case LITE_TIMEOUT_BLOCKING_WAIT:
+                waitStrategy = new LiteTimeoutBlockingWaitStrategy(1000, TimeUnit.MILLISECONDS);
+                break;
             case PHASED_BACK_OFF_WAIT:
-                waitStrategy = PhasedBackoffWaitStrategy.withLock(1, 1, TimeUnit.MILLISECONDS);
+                waitStrategy = PhasedBackoffWaitStrategy.withLiteLock(1, 1, TimeUnit.MILLISECONDS);
                 break;
             case SLEEPING_WAIT:
                 waitStrategy = new SleepingWaitStrategy();
@@ -141,18 +147,14 @@ public class TaskDispatcher implements Dispatcher<Runnable>, Executor {
                 throw new UnsupportedOperationException(waitStrategyType.toString());
         }
 
-        ThreadFactory tFactory = new NamedThreadFactory(threadFactoryName);
+        ThreadFactory threadFactory = new NamedThreadFactory(threadFactoryName);
+        Disruptor<MessageEvent<Runnable>> dr =
+                new Disruptor<>(eventFactory, bufSize, threadFactory, ProducerType.MULTI, waitStrategy);
+        dr.setDefaultExceptionHandler(new LoggingExceptionHandler());
         numWorkers = Math.min(Math.abs(numWorkers), MAX_NUM_WORKERS);
-        Disruptor<MessageEvent<Runnable>> dr;
         if (numWorkers == 1) {
-            dr = new Disruptor<>(
-                    eventFactory, bufSize, Executors.newSingleThreadExecutor(tFactory), ProducerType.MULTI, waitStrategy);
-            dr.handleExceptionsWith(new IgnoreExceptionHandler()); // ignore exception
             dr.handleEventsWith(new TaskHandler());
         } else {
-            dr = new Disruptor<>(
-                    eventFactory, bufSize, Executors.newCachedThreadPool(tFactory), ProducerType.MULTI, waitStrategy);
-            dr.handleExceptionsWith(new IgnoreExceptionHandler()); // ignore exception
             TaskHandler[] handlers = new TaskHandler[numWorkers];
             for (int i = 0; i < numWorkers; i++) {
                 handlers[i] = new TaskHandler();

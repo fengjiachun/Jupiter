@@ -50,7 +50,7 @@ public class BenchmarkServer {
         SystemPropertyUtil
                 .setProperty("jupiter.executor.factory.provider.queue.capacity", "65536");
 
-        JServer server = new DefaultServer().withAcceptor(new JNettyTcpAcceptor(18099) {
+        JServer server = new DefaultServer().withAcceptor(new JNettyTcpAcceptor(18099, true) {
 
             @Override
             protected ThreadFactory workerThreadFactory(String name) {

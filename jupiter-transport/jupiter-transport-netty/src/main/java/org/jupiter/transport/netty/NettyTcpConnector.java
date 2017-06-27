@@ -43,7 +43,7 @@ public abstract class NettyTcpConnector extends NettyConnector {
 
     public NettyTcpConnector() {
         super(Protocol.TCP);
-        isNative = true;
+        isNative = false;
         init();
     }
 
@@ -55,7 +55,7 @@ public abstract class NettyTcpConnector extends NettyConnector {
 
     public NettyTcpConnector(int nWorkers) {
         super(Protocol.TCP, nWorkers);
-        isNative = true;
+        isNative = false;
         init();
     }
 
@@ -125,43 +125,51 @@ public abstract class NettyTcpConnector extends NettyConnector {
 
     @Override
     protected EventLoopGroup initEventLoopGroup(int nThreads, ThreadFactory tFactory) {
-        if (isNativeEPoll()) {
-            return new EpollEventLoopGroup(nThreads, tFactory);
+        TcpChannelProvider.SocketType socketType = socketType();
+        switch (socketType) {
+            case NATIVE_EPOLL:
+                return new EpollEventLoopGroup(nThreads, tFactory);
+            case NATIVE_KQUEUE:
+                return new KQueueEventLoopGroup(nThreads, tFactory);
+            case JAVA_NIO:
+                return new NioEventLoopGroup(nThreads, tFactory);
+            default:
+                throw new IllegalStateException("invalid socket type: " + socketType);
         }
-        if (isNativeKQueue()) {
-            return new KQueueEventLoopGroup(nThreads, tFactory);
-        }
-        return new NioEventLoopGroup(nThreads, tFactory);
-    }
-
-    /**
-     * Netty provides the native socket transport for Linux using JNI.
-     */
-    public boolean isNativeEPoll() {
-        return isNative && NativeSupport.isNativeEPollAvailable();
-    }
-
-    /**
-     * Netty provides the native socket transport for BSD systems such as MacOS using JNI.
-     */
-    public boolean isNativeKQueue() {
-        return isNative && NativeSupport.isNativeKQueueAvailable();
     }
 
     protected void initChannelFactory() {
-        if (isNativeEPoll()) {
-            bootstrap().channelFactory(TcpChannelProvider.NATIVE_EPOLL_CONNECTOR);
-        } else if (isNativeKQueue()) {
-            bootstrap().channelFactory(TcpChannelProvider.NATIVE_KQUEUE_CONNECTOR);
-        } else {
-            bootstrap().channelFactory(TcpChannelProvider.NIO_CONNECTOR);
+        TcpChannelProvider.SocketType socketType = socketType();
+        switch (socketType) {
+            case NATIVE_EPOLL:
+                bootstrap().channelFactory(TcpChannelProvider.NATIVE_EPOLL_CONNECTOR);
+                break;
+            case NATIVE_KQUEUE:
+                bootstrap().channelFactory(TcpChannelProvider.NATIVE_KQUEUE_CONNECTOR);
+                break;
+            case JAVA_NIO:
+                bootstrap().channelFactory(TcpChannelProvider.JAVA_NIO_CONNECTOR);
+                break;
+            default:
+                throw new IllegalStateException("invalid socket type: " + socketType);
         }
+    }
+
+    private TcpChannelProvider.SocketType socketType() {
+        if (isNative && NativeSupport.isNativeEPollAvailable()) {
+            // netty provides the native socket transport for Linux using JNI.
+            return TcpChannelProvider.SocketType.NATIVE_EPOLL;
+        }
+        if (isNative && NativeSupport.isNativeKQueueAvailable()) {
+            // netty provides the native socket transport for BSD systems such as MacOS using JNI.
+            return TcpChannelProvider.SocketType.NATIVE_KQUEUE;
+        }
+        return TcpChannelProvider.SocketType.JAVA_NIO;
     }
 
     @Override
     public String toString() {
-        return "isNativeEPoll: " + isNativeEPoll()
-                + ", isNativeKQueue: " + isNativeKQueue()
+        return "Socket type: " + socketType()
                 + JConstants.NEWLINE
                 + bootstrap();
     }

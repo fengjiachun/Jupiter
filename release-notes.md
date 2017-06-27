@@ -1,6 +1,11 @@
 Jupiter release notes
 ------------------------
 
+### 2016-06-15: version 1.2.7
+
+- 升级[Disruptor](https://github.com/LMAX-Exchange/disruptor)到v3.3.6
+- 传输层默认使用java nio, 而不使用netty提供的native epoll/kqueue [netty issues#6837](https://github.com/netty/netty/issues/6837)
+
 ### 2017-05-24: version 1.2.6
 
 - 集群容错策略的配置细化到方法粒度 [\#22](https://github.com/fengjiachun/Jupiter/issues/22)
