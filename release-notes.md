@@ -1,9 +1,10 @@
 Jupiter release notes
 ------------------------
 
-### 2016-06-28:
+### 2016-06-28: version 1.2.8
 
-- jupiter-all [\#19](https://github.com/fengjiachun/Jupiter/issues/19)
+- 新增模块 jupiter-all [\#19](https://github.com/fengjiachun/Jupiter/issues/19)
+- Bug fix: JConnector.ConnectionWatcher#waitForAvailable() 返回值不准确
 
 ### 2016-06-15: version 1.2.7
 
@@ -22,7 +23,7 @@ Jupiter release notes
 - 移除org.jupiter.rpc.model.metadata.ServiceWrapper#connCount, connCount修正为JServer粒度的参数
 - 修复权重问题
 - 升级Netty版本到4.1.11.Final
-- netty-transport-native-kqueue 支持 [\#20](https://github.com/fengjiachun/Jupiter/issues/20)
+- 新增 netty-transport-native-kqueue 支持 [\#20](https://github.com/fengjiachun/Jupiter/issues/20)
 
 ### 2017-04-18: version 1.2.4
 
