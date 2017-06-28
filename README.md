@@ -115,10 +115,8 @@ public class HelloJupiterRegistryServer {
 ```xml
 默认注册中心只建议在测试环境使用, 线上建议使用zookeeper实现
 
-```java
 // 设置使用zookeeper作为注册中心
 SystemPropertyUtil.setProperty("jupiter.registry.impl", "zookeeper");
-```
 
 在server和client中配置jupiter-registry-zookeeper依赖即可(jupiter-all包含jupiter-registry-zookeeper), 无需其他改动
 
