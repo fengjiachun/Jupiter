@@ -1,6 +1,10 @@
 Jupiter release notes
 ------------------------
 
+### 2016-06-28:
+
+- jupiter-all [\#19](https://github.com/fengjiachun/Jupiter/issues/19)
+
 ### 2016-06-15: version 1.2.7
 
 - 升级[Disruptor](https://github.com/LMAX-Exchange/disruptor)到v3.3.6
