@@ -109,7 +109,6 @@ public class HelloJupiterRegistryServer {
 }
 ```
 
-
 ###### - 选择2: 使用[zookeeper](https://zookeeper.apache.org/doc/trunk/zookeeperStarted.html)作为注册中心:
 
 ```xml
