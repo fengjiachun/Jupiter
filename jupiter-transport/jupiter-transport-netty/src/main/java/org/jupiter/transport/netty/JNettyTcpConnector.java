@@ -156,7 +156,6 @@ public class JNettyTcpConnector extends NettyTcpConnector {
                 };
             }
         };
-        watchdog.start();
 
         ChannelFuture future;
         try {

@@ -132,7 +132,6 @@ public final class DefaultRegistry extends NettyTcpConnector {
                         handler
                 };
             }};
-        watchdog.start();
 
         try {
             ChannelFuture future;

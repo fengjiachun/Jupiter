@@ -51,7 +51,7 @@ public abstract class ConnectionWatchdog extends ChannelInboundHandlerAdapter im
     private final SocketAddress remoteAddress;
     private final JChannelGroup group;
 
-    private volatile int state;
+    private volatile int state = ST_STARTED;
     private int attempts;
 
     public ConnectionWatchdog(Bootstrap bootstrap, Timer timer, SocketAddress remoteAddress, JChannelGroup group) {
@@ -59,8 +59,6 @@ public abstract class ConnectionWatchdog extends ChannelInboundHandlerAdapter im
         this.timer = timer;
         this.remoteAddress = remoteAddress;
         this.group = group;
-
-        start();
     }
 
     public boolean isStarted() {
