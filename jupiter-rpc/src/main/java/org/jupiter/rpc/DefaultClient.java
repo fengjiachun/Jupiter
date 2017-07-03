@@ -192,18 +192,19 @@ public class DefaultClient implements JClient {
 
             @Override
             public boolean waitForAvailable(long timeoutMillis) {
-                boolean available = connector.isDirectoryAvailable(directory);
-                if (available) {
+                if (connector.isDirectoryAvailable(directory)) {
                     return true;
                 }
+
                 long remains = TimeUnit.MILLISECONDS.toNanos(timeoutMillis);
 
+                boolean available = false;
                 final ReentrantLock _look = lock;
                 _look.lock();
                 try {
+                    signalNeeded.set(true);
                     // avoid "spurious wakeup" occurs
                     while (!(available = connector.isDirectoryAvailable(directory))) {
-                        signalNeeded.set(true);
                         if ((remains = notifyCondition.awaitNanos(remains)) <= 0) {
                             break;
                         }
@@ -214,7 +215,7 @@ public class DefaultClient implements JClient {
                     _look.unlock();
                 }
 
-                return available;
+                return available || connector.isDirectoryAvailable(directory);
             }
         };
 

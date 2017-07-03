@@ -23,7 +23,7 @@
     <artifactId>jupiter</artifactId>
     <groupId>org.jupiter-rpc</groupId>
     <packaging>pom</packaging>
-    <version>1.2.7</version>
+    <version>1.2.8</version>
 
     <name>Jupiter</name>
     <description>Jupiter is a distributed RPC framework.</description>
@@ -36,6 +36,7 @@
     </scm>
 
     <modules>
+        <module>jupiter-all</module>
         <module>jupiter-common</module>
         <module>jupiter-example</module>
         <module>jupiter-flightexec</module>
