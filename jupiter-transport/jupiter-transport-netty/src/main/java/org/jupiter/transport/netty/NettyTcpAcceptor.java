@@ -64,8 +64,20 @@ public abstract class NettyTcpAcceptor extends NettyAcceptor {
         init();
     }
 
+    public NettyTcpAcceptor(int port, int nBosses, int nWorks) {
+        super(Protocol.TCP, new InetSocketAddress(port), nBosses, nWorks);
+        isNative = false;
+        init();
+    }
+
     public NettyTcpAcceptor(SocketAddress localAddress, int nWorks) {
         super(Protocol.TCP, localAddress, nWorks);
+        isNative = false;
+        init();
+    }
+
+    public NettyTcpAcceptor(SocketAddress localAddress, int nBosses, int nWorks) {
+        super(Protocol.TCP, localAddress, nBosses, nWorks);
         isNative = false;
         init();
     }
@@ -88,8 +100,20 @@ public abstract class NettyTcpAcceptor extends NettyAcceptor {
         init();
     }
 
+    public NettyTcpAcceptor(int port, int nBosses, int nWorks, boolean isNative) {
+        super(Protocol.TCP, new InetSocketAddress(port), nBosses, nWorks);
+        this.isNative = isNative;
+        init();
+    }
+
     public NettyTcpAcceptor(SocketAddress localAddress, int nWorks, boolean isNative) {
         super(Protocol.TCP, localAddress, nWorks);
+        this.isNative = isNative;
+        init();
+    }
+
+    public NettyTcpAcceptor(SocketAddress localAddress, int nBosses, int nWorks, boolean isNative) {
+        super(Protocol.TCP, localAddress, nBosses, nWorks);
         this.isNative = isNative;
         init();
     }

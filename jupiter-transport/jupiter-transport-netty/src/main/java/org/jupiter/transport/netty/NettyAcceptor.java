@@ -54,6 +54,7 @@ public abstract class NettyAcceptor implements JAcceptor {
     private ServerBootstrap bootstrap;
     private EventLoopGroup boss;
     private EventLoopGroup worker;
+    private int nBosses;
     private int nWorkers;
 
     protected volatile ByteBufAllocator allocator;
@@ -63,15 +64,20 @@ public abstract class NettyAcceptor implements JAcceptor {
     }
 
     public NettyAcceptor(Protocol protocol, SocketAddress localAddress, int nWorkers) {
+        this(protocol, localAddress, 1, nWorkers);
+    }
+
+    public NettyAcceptor(Protocol protocol, SocketAddress localAddress, int nBosses, int nWorkers) {
         this.protocol = protocol;
         this.localAddress = localAddress;
+        this.nBosses = nBosses;
         this.nWorkers = nWorkers;
     }
 
     protected void init() {
         ThreadFactory bossFactory = bossThreadFactory("jupiter.acceptor.boss");
         ThreadFactory workerFactory = workerThreadFactory("jupiter.acceptor.worker");
-        boss = initEventLoopGroup(1, bossFactory);
+        boss = initEventLoopGroup(nBosses, bossFactory);
         worker = initEventLoopGroup(nWorkers, workerFactory);
 
         bootstrap = new ServerBootstrap().group(boss, worker);
