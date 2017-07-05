@@ -51,11 +51,12 @@ public abstract class NettyAcceptor implements JAcceptor {
 
     protected final HashedWheelTimer timer = new HashedWheelTimer(new NamedThreadFactory("acceptor.timer"));
 
+    private final int nBosses;
+    private final int nWorkers;
+
     private ServerBootstrap bootstrap;
     private EventLoopGroup boss;
     private EventLoopGroup worker;
-    private int nBosses;
-    private int nWorkers;
 
     protected volatile ByteBufAllocator allocator;
 
