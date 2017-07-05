@@ -48,10 +48,6 @@ public class JupiterSpringProviderBean implements InitializingBean, ApplicationC
 
     private Object providerImpl;                                // 服务对象
     private ProviderInterceptor[] providerInterceptors;         // 私有拦截器
-    private String interfaceClass;                              // 接口类型
-    private String group;                                       // 服务组别
-    private String providerName;                                // 服务名称
-    private String version;                                     // 服务版本号, 通常在接口不兼容时版本号才需要升级
     private int weight;                                         // 权重
     private Executor executor;                                  // 该服务私有的线程池
     private FlowController<JRequest> flowController;            // 该服务私有的流量控制器
@@ -79,22 +75,6 @@ public class JupiterSpringProviderBean implements InitializingBean, ApplicationC
             registry.provider(providerImpl, providerInterceptors);
         } else {
             registry.provider(providerImpl);
-        }
-
-        if (interfaceClass != null) {
-            registry.interfaceClass(Class.forName(interfaceClass));
-        }
-
-        if (group != null) {
-            registry.group(group);
-        }
-
-        if (providerName != null) {
-            registry.providerName(providerName);
-        }
-
-        if (version != null) {
-            registry.version(version);
         }
 
         serviceWrapper = registry
@@ -126,38 +106,6 @@ public class JupiterSpringProviderBean implements InitializingBean, ApplicationC
 
     public void setProviderInterceptors(ProviderInterceptor[] providerInterceptors) {
         this.providerInterceptors = providerInterceptors;
-    }
-
-    public String getInterfaceClass() {
-        return interfaceClass;
-    }
-
-    public void setInterfaceClass(String interfaceClass) {
-        this.interfaceClass = interfaceClass;
-    }
-
-    public String getGroup() {
-        return group;
-    }
-
-    public void setGroup(String group) {
-        this.group = group;
-    }
-
-    public String getProviderName() {
-        return providerName;
-    }
-
-    public void setProviderName(String providerName) {
-        this.providerName = providerName;
-    }
-
-    public String getVersion() {
-        return version;
-    }
-
-    public void setVersion(String version) {
-        this.version = version;
     }
 
     public int getWeight() {

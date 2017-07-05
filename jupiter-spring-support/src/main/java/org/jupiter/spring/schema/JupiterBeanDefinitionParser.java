@@ -152,6 +152,7 @@ public class JupiterBeanDefinitionParser implements BeanDefinitionParser {
                 String localName = item.getLocalName();
                 if ("property".equals(localName)) {
                     addProperty(def, (Element) item, "version", false);
+                    addProperty(def, (Element) item, "serializerType", false);
                     addProperty(def, (Element) item, "loadBalancerType", false);
                     addProperty(def, (Element) item, "waitForAvailableTimeoutMillis", false);
                     addProperty(def, (Element) item, "invokeType", false);
