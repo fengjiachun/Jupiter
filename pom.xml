@@ -68,6 +68,7 @@
         <curator.version>2.9.1</curator.version>
         <zookeeper.version>3.4.6</zookeeper.version>
         <spring-framework.version>4.3.0.RELEASE</spring-framework.version>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
 
     <dependencyManagement>
