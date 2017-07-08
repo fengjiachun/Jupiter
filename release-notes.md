@@ -1,7 +1,8 @@
 Jupiter release notes
 ------------------------
 
-### 2017-07-05:
+### 2017-07-07:
+- 升级Netty版本到4.1.13.Final
 - Bug fix: 修复spring-support中<jupiter:property serializerType="xxx" />配置serializerType无效的问题 [\#27](https://github.com/fengjiachun/Jupiter/issues/27#event-1150209875)
 
 ### 2017-06-29: version 1.2.8
