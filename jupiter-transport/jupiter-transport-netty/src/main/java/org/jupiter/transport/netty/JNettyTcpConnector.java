@@ -106,7 +106,7 @@ public class JNettyTcpConnector extends NettyTcpConnector {
     private final ConnectorHandler handler = new ConnectorHandler();
 
     public JNettyTcpConnector() {
-    	super();
+        super();
     }
 
     public JNettyTcpConnector(boolean isNative) {
