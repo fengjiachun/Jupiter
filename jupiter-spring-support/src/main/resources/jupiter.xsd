@@ -203,9 +203,14 @@
                 <xsd:choice minOccurs="0" maxOccurs="unbounded">
                     <xsd:element name="property" type="jupiterClientPropertyType"/>
                 </xsd:choice>
-                <xsd:attribute name="client" type="xsd:string" use="optional">
+                <xsd:attribute name="appName" type="xsd:string" use="optional">
                     <xsd:annotation>
-                        <xsd:documentation><![CDATA[ The network client. ]]></xsd:documentation>
+                        <xsd:documentation><![CDATA[ The client app name. ]]></xsd:documentation>
+                    </xsd:annotation>
+                </xsd:attribute>
+                <xsd:attribute name="connector" type="xsd:string" use="optional">
+                    <xsd:annotation>
+                        <xsd:documentation><![CDATA[ The network connector. ]]></xsd:documentation>
                     </xsd:annotation>
                 </xsd:attribute>
             </xsd:extension>

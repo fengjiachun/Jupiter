@@ -43,6 +43,8 @@ import static org.jupiter.common.util.Preconditions.checkNotNull;
 public class JupiterSpringClient implements InitializingBean {
 
     private JClient client;
+    private String appName;
+    private JConnector<JConnection> connector;
 
     private String registryServerAddresses;                             // 注册中心地址 [host1:port1,host2:port2....]
     private String providerServerAddresses;                             // IP直连到providers [host1:port1,host2:port2....]
@@ -55,9 +57,15 @@ public class JupiterSpringClient implements InitializingBean {
     }
 
     private void init() {
-        if (client == null) {
-            client = createDefaultClient();
+        if (Strings.isNullOrEmpty(appName)) {
+            client = new DefaultClient();
+        } else {
+            client = new DefaultClient(appName);
         }
+        if (connector == null) {
+            connector = createDefaultConnector();
+        }
+        client.withConnector(connector);
 
         // 注册中心
         if (Strings.isNotBlank(registryServerAddresses)) {
@@ -99,6 +107,22 @@ public class JupiterSpringClient implements InitializingBean {
         this.client = client;
     }
 
+    public String getAppName() {
+        return appName;
+    }
+
+    public void setAppName(String appName) {
+        this.appName = appName;
+    }
+
+    public JConnector<JConnection> getConnector() {
+        return connector;
+    }
+
+    public void setConnector(JConnector<JConnection> connector) {
+        this.connector = connector;
+    }
+
     public String getRegistryServerAddresses() {
         return registryServerAddresses;
     }
@@ -125,10 +149,6 @@ public class JupiterSpringClient implements InitializingBean {
 
     public boolean isHasRegistryServer() {
         return hasRegistryServer;
-    }
-
-    private JClient createDefaultClient() {
-        return new DefaultClient().withConnector(createDefaultConnector());
     }
 
     @SuppressWarnings("unchecked")
