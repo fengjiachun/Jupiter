@@ -188,9 +188,9 @@
                 <xsd:choice minOccurs="0" maxOccurs="unbounded">
                     <xsd:element name="property" type="jupiterServerPropertyType"/>
                 </xsd:choice>
-                <xsd:attribute name="server" type="xsd:string" use="optional">
+                <xsd:attribute name="acceptor" type="xsd:string" use="optional">
                     <xsd:annotation>
-                        <xsd:documentation><![CDATA[ The network server. ]]></xsd:documentation>
+                        <xsd:documentation><![CDATA[ The network acceptor. ]]></xsd:documentation>
                     </xsd:annotation>
                 </xsd:attribute>
             </xsd:extension>

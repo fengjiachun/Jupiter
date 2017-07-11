@@ -40,6 +40,7 @@ import static org.jupiter.common.util.Preconditions.checkNotNull;
 public class JupiterSpringServer implements InitializingBean {
 
     private JServer server;
+    private JAcceptor acceptor;
 
     private String registryServerAddresses;             // 注册中心地址 [host1:port1,host2:port2....]
     private boolean hasRegistryServer;                  // true: 需要连接注册中心; false: IP直连方式
@@ -52,9 +53,11 @@ public class JupiterSpringServer implements InitializingBean {
     }
 
     private void init() {
-        if (server == null) {
-            server = createDefaultServer();
+        server = new DefaultServer();
+        if (acceptor == null) {
+            acceptor = createDefaultAcceptor();
         }
+        server.withAcceptor(acceptor);
 
         // 注册中心
         if (Strings.isNotBlank(registryServerAddresses)) {
@@ -93,6 +96,14 @@ public class JupiterSpringServer implements InitializingBean {
         this.server = server;
     }
 
+    public JAcceptor getAcceptor() {
+        return acceptor;
+    }
+
+    public void setAcceptor(JAcceptor acceptor) {
+        this.acceptor = acceptor;
+    }
+
     public String getRegistryServerAddresses() {
         return registryServerAddresses;
     }
@@ -123,10 +134,6 @@ public class JupiterSpringServer implements InitializingBean {
 
     public void setFlowController(FlowController<JRequest> flowController) {
         this.flowController = flowController;
-    }
-
-    private JServer createDefaultServer() {
-        return new DefaultServer().withAcceptor(createDefaultAcceptor());
     }
 
     private JAcceptor createDefaultAcceptor() {
