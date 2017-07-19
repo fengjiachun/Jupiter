@@ -20,6 +20,7 @@ import org.jupiter.common.util.ExceptionUtil;
 import org.jupiter.common.util.Lists;
 import org.jupiter.common.util.Strings;
 import org.jupiter.common.util.SystemPropertyUtil;
+import org.jupiter.registry.RegistryService;
 import org.jupiter.rpc.DefaultClient;
 import org.jupiter.rpc.JClient;
 import org.jupiter.transport.JConnection;
@@ -44,6 +45,7 @@ public class JupiterSpringClient implements InitializingBean {
 
     private JClient client;
     private String appName;
+    private RegistryService.RegisterType registerType;
     private JConnector<JConnection> connector;
 
     private String registryServerAddresses;                             // 注册中心地址 [host1:port1,host2:port2....]
@@ -57,11 +59,7 @@ public class JupiterSpringClient implements InitializingBean {
     }
 
     private void init() {
-        if (Strings.isNullOrEmpty(appName)) {
-            client = new DefaultClient();
-        } else {
-            client = new DefaultClient(appName);
-        }
+        client = new DefaultClient(appName, registerType);
         if (connector == null) {
             connector = createDefaultConnector();
         }
@@ -113,6 +111,14 @@ public class JupiterSpringClient implements InitializingBean {
 
     public void setAppName(String appName) {
         this.appName = appName;
+    }
+
+    public RegistryService.RegisterType getRegisterType() {
+        return registerType;
+    }
+
+    public void setRegisterType(String registerType) {
+        this.registerType = RegistryService.RegisterType.parse(registerType);
     }
 
     public JConnector<JConnection> getConnector() {

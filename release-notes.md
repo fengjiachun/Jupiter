@@ -1,7 +1,8 @@
 Jupiter release notes
 ------------------------
 
-### 2017-07-11:
+### 2017-07-19:
+- Spring.schema支持 注册中心类型(实现)配置 [\#30](https://github.com/fengjiachun/Jupiter/issues/30)
 - 升级Netty版本到4.1.13.Final
 - Spring.schema支持 JAcceptor/JConnector配置 [\#29](https://github.com/fengjiachun/Jupiter/issues/29)
 - Bug fix: 修复spring-support中<jupiter:property serializerType="xxx" />配置serializerType无效的问题 [\#27](https://github.com/fengjiachun/Jupiter/issues/27#event-1150209875)

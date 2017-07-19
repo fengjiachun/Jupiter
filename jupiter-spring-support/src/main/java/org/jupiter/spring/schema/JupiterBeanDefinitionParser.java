@@ -71,6 +71,7 @@ public class JupiterBeanDefinitionParser implements BeanDefinitionParser {
         RootBeanDefinition def = new RootBeanDefinition();
         def.setBeanClass(beanClass);
 
+        addProperty(def, element, "registerType", false);
         addPropertyReference(def, element, "acceptor", false);
 
         NodeList childNodes = element.getChildNodes();
@@ -94,6 +95,7 @@ public class JupiterBeanDefinitionParser implements BeanDefinitionParser {
         def.setBeanClass(beanClass);
 
         addProperty(def, element, "appName", false);
+        addProperty(def, element, "registerType", false);
         addPropertyReference(def, element, "connector", false);
 
         NodeList childNodes = element.getChildNodes();

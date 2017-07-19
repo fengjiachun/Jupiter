@@ -19,6 +19,7 @@ package org.jupiter.spring.support;
 import org.jupiter.common.util.ExceptionUtil;
 import org.jupiter.common.util.Strings;
 import org.jupiter.common.util.SystemPropertyUtil;
+import org.jupiter.registry.RegistryService;
 import org.jupiter.rpc.DefaultServer;
 import org.jupiter.rpc.JRequest;
 import org.jupiter.rpc.JServer;
@@ -40,6 +41,7 @@ import static org.jupiter.common.util.Preconditions.checkNotNull;
 public class JupiterSpringServer implements InitializingBean {
 
     private JServer server;
+    private RegistryService.RegisterType registerType;
     private JAcceptor acceptor;
 
     private String registryServerAddresses;             // 注册中心地址 [host1:port1,host2:port2....]
@@ -53,7 +55,7 @@ public class JupiterSpringServer implements InitializingBean {
     }
 
     private void init() {
-        server = new DefaultServer();
+        server = new DefaultServer(registerType);
         if (acceptor == null) {
             acceptor = createDefaultAcceptor();
         }
@@ -94,6 +96,14 @@ public class JupiterSpringServer implements InitializingBean {
 
     public void setServer(JServer server) {
         this.server = server;
+    }
+
+    public RegistryService.RegisterType getRegisterType() {
+        return registerType;
+    }
+
+    public void setRegisterType(String registerType) {
+        this.registerType = RegistryService.RegisterType.parse(registerType);
     }
 
     public JAcceptor getAcceptor() {

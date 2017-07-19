@@ -67,9 +67,7 @@ public class DefaultServer implements JServer {
     // provider本地容器
     private final ServiceProviderContainer providerContainer = new DefaultServiceProviderContainer();
     // 服务发布(SPI)
-    private final RegistryService registryService = JServiceLoader
-            .load(RegistryService.class)
-            .find(SystemPropertyUtil.get("jupiter.registry.impl", "default"));
+    private final RegistryService registryService;
 
     // 全局拦截器
     private ProviderInterceptor[] globalInterceptors;
@@ -78,6 +76,15 @@ public class DefaultServer implements JServer {
 
     // IO acceptor
     private JAcceptor acceptor;
+
+    public DefaultServer() {
+        this(RegistryService.RegisterType.DEFAULT);
+    }
+
+    public DefaultServer(RegistryService.RegisterType registerType) {
+        registerType = registerType == null ? RegistryService.RegisterType.DEFAULT : registerType;
+        registryService = JServiceLoader.load(RegistryService.class).find(registerType.getValue());
+    }
 
     @Override
     public JAcceptor acceptor() {

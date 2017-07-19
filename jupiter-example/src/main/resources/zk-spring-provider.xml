@@ -23,8 +23,8 @@
        http://www.jupiter-rpc.org/jupiter
        http://www.jupiter-rpc.org/jupiter/jupiter.xsd">
 
-    <jupiter:server id="jupiterServer" registerType="default">
-        <jupiter:property registryServerAddresses="127.0.0.1:20001" />
+    <jupiter:server id="jupiterServer" registerType="zookeeper">
+        <jupiter:property registryServerAddresses="127.0.0.1:2181,127.0.0.1:2182,127.0.0.1:2183" />
         <!-- 可选配置 -->
         <!--
             String registryServerAddresses                      // 注册中心地址 [host1:port1,host2:port2....]

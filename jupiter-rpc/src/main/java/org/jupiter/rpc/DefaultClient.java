@@ -48,19 +48,27 @@ public class DefaultClient implements JClient {
     }
 
     // 服务订阅(SPI)
-    private final RegistryService registryService = JServiceLoader
-            .load(RegistryService.class)
-            .find(SystemPropertyUtil.get("jupiter.registry.impl", "default"));
+    private final RegistryService registryService;
     private final String appName;
 
     private JConnector<JConnection> connector;
 
     public DefaultClient() {
-        this(JConstants.UNKNOWN_APP_NAME);
+        this(JConstants.UNKNOWN_APP_NAME, RegistryService.RegisterType.DEFAULT);
+    }
+
+    public DefaultClient(RegistryService.RegisterType registerType) {
+        this(JConstants.UNKNOWN_APP_NAME, registerType);
     }
 
     public DefaultClient(String appName) {
-        this.appName = appName;
+        this(appName, RegistryService.RegisterType.DEFAULT);
+    }
+
+    public DefaultClient(String appName, RegistryService.RegisterType registerType) {
+        this.appName = Strings.isBlank(appName) ? JConstants.UNKNOWN_APP_NAME : appName;
+        registerType = registerType == null ? RegistryService.RegisterType.DEFAULT : registerType;
+        registryService = JServiceLoader.load(RegistryService.class).find(registerType.getValue());
     }
 
     @Override

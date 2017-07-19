@@ -57,4 +57,28 @@ public interface RegistryService extends Registry {
      * Shutdown.
      */
     void shutdownGracefully();
+
+    enum RegisterType {
+        DEFAULT("default"),
+        ZOOKEEPER("zookeeper");
+
+        private final String value;
+
+        RegisterType(String value) {
+            this.value = value;
+        }
+
+        public String getValue() {
+            return value;
+        }
+
+        public static RegisterType parse(String name) {
+            for (RegisterType s : values()) {
+                if (s.name().equalsIgnoreCase(name)) {
+                    return s;
+                }
+            }
+            return null;
+        }
+    }
 }
