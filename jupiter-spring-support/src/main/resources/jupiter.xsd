@@ -32,6 +32,21 @@
         </xsd:attribute>
     </xsd:complexType>
 
+    <xsd:simpleType name="registryTypeType">
+        <xsd:restriction base="xsd:string">
+            <xsd:enumeration value="default">
+                <xsd:annotation>
+                    <xsd:documentation><![CDATA[ Jupiter default registry service. ]]></xsd:documentation>
+                </xsd:annotation>
+            </xsd:enumeration>
+            <xsd:enumeration value="zookeeper">
+                <xsd:annotation>
+                    <xsd:documentation><![CDATA[ Zookeeper registry service. ]]></xsd:documentation>
+                </xsd:annotation>
+            </xsd:enumeration>
+        </xsd:restriction>
+    </xsd:simpleType>
+
     <xsd:complexType name="jupiterServerPropertyType">
         <xsd:attribute name="registryServerAddresses" type="xsd:string" use="optional">
             <xsd:annotation>
@@ -188,7 +203,7 @@
                 <xsd:choice minOccurs="0" maxOccurs="unbounded">
                     <xsd:element name="property" type="jupiterServerPropertyType"/>
                 </xsd:choice>
-                <xsd:attribute name="registryType" type="xsd:string" use="optional">
+                <xsd:attribute name="registryType" type="registryTypeType" use="optional">
                     <xsd:annotation>
                         <xsd:documentation><![CDATA[ The registry service implementation type. ]]></xsd:documentation>
                     </xsd:annotation>
@@ -213,7 +228,7 @@
                         <xsd:documentation><![CDATA[ The client app name. ]]></xsd:documentation>
                     </xsd:annotation>
                 </xsd:attribute>
-                <xsd:attribute name="registryType" type="xsd:string" use="optional">
+                <xsd:attribute name="registryType" type="registryTypeType" use="optional">
                     <xsd:annotation>
                         <xsd:documentation><![CDATA[ The registry service implementation type. ]]></xsd:documentation>
                     </xsd:annotation>
