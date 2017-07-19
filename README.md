@@ -48,7 +48,7 @@
 ##### Maven依赖:
 ```xml
 <properties>
-    <jupiter.version>1.2.8</jupiter.version>
+    <jupiter.version>1.2.9</jupiter.version>
 </properties>
 
 <dependency>
