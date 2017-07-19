@@ -182,7 +182,7 @@ public class HelloJupiterClient {
 ###### 1. [Server端配置](https://github.com/fengjiachun/Jupiter/blob/master/jupiter-example/src/main/resources/spring-provider.xml):
 
 ```xml
-<jupiter:server id="jupiterServer" registerType="default">
+<jupiter:server id="jupiterServer" registerType="default"> // registerType="zookeeper" 代表使用zk作为注册中心
     <jupiter:property registryServerAddresses="127.0.0.1:20001" />
 </jupiter:server>
 
@@ -197,7 +197,7 @@ public class HelloJupiterClient {
 ###### 2. [Client端配置](https://github.com/fengjiachun/Jupiter/blob/master/jupiter-example/src/main/resources/spring-consumer.xml):
 
 ```xml
-<jupiter:client id="jupiterClient" registerType="default">
+<jupiter:client id="jupiterClient" registerType="default"> // registerType="zookeeper" 代表使用zk作为注册中心
     <jupiter:property registryServerAddresses="127.0.0.1:20001" />
 </jupiter:client>
 
