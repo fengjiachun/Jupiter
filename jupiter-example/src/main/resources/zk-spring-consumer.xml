@@ -23,7 +23,7 @@
        http://www.jupiter-rpc.org/jupiter
        http://www.jupiter-rpc.org/jupiter/jupiter.xsd">
 
-    <jupiter:client id="jupiterClient" registerType="zookeeper">
+    <jupiter:client id="jupiterClient" registryType="zookeeper">
         <jupiter:property registryServerAddresses="127.0.0.1:2181,127.0.0.1:2182,127.0.0.1:2183" />
         <!-- 可选配置 -->
         <!--

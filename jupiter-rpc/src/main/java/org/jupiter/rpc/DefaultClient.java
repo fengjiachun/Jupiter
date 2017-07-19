@@ -54,21 +54,21 @@ public class DefaultClient implements JClient {
     private JConnector<JConnection> connector;
 
     public DefaultClient() {
-        this(JConstants.UNKNOWN_APP_NAME, RegistryService.RegisterType.DEFAULT);
+        this(JConstants.UNKNOWN_APP_NAME, RegistryService.RegistryType.DEFAULT);
     }
 
-    public DefaultClient(RegistryService.RegisterType registerType) {
-        this(JConstants.UNKNOWN_APP_NAME, registerType);
+    public DefaultClient(RegistryService.RegistryType registryType) {
+        this(JConstants.UNKNOWN_APP_NAME, registryType);
     }
 
     public DefaultClient(String appName) {
-        this(appName, RegistryService.RegisterType.DEFAULT);
+        this(appName, RegistryService.RegistryType.DEFAULT);
     }
 
-    public DefaultClient(String appName, RegistryService.RegisterType registerType) {
+    public DefaultClient(String appName, RegistryService.RegistryType registryType) {
         this.appName = Strings.isBlank(appName) ? JConstants.UNKNOWN_APP_NAME : appName;
-        registerType = registerType == null ? RegistryService.RegisterType.DEFAULT : registerType;
-        registryService = JServiceLoader.load(RegistryService.class).find(registerType.getValue());
+        registryType = registryType == null ? RegistryService.RegistryType.DEFAULT : registryType;
+        registryService = JServiceLoader.load(RegistryService.class).find(registryType.getValue());
     }
 
     @Override

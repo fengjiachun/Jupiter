@@ -41,7 +41,7 @@ import static org.jupiter.common.util.Preconditions.checkNotNull;
 public class JupiterSpringServer implements InitializingBean {
 
     private JServer server;
-    private RegistryService.RegisterType registerType;
+    private RegistryService.RegistryType registryType;
     private JAcceptor acceptor;
 
     private String registryServerAddresses;             // 注册中心地址 [host1:port1,host2:port2....]
@@ -55,7 +55,7 @@ public class JupiterSpringServer implements InitializingBean {
     }
 
     private void init() {
-        server = new DefaultServer(registerType);
+        server = new DefaultServer(registryType);
         if (acceptor == null) {
             acceptor = createDefaultAcceptor();
         }
@@ -98,12 +98,12 @@ public class JupiterSpringServer implements InitializingBean {
         this.server = server;
     }
 
-    public RegistryService.RegisterType getRegisterType() {
-        return registerType;
+    public RegistryService.RegistryType getRegistryType() {
+        return registryType;
     }
 
-    public void setRegisterType(String registerType) {
-        this.registerType = RegistryService.RegisterType.parse(registerType);
+    public void setRegistryType(String registryType) {
+        this.registryType = RegistryService.RegistryType.parse(registryType);
     }
 
     public JAcceptor getAcceptor() {

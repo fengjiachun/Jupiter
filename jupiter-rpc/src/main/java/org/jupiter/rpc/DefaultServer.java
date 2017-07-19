@@ -78,12 +78,12 @@ public class DefaultServer implements JServer {
     private JAcceptor acceptor;
 
     public DefaultServer() {
-        this(RegistryService.RegisterType.DEFAULT);
+        this(RegistryService.RegistryType.DEFAULT);
     }
 
-    public DefaultServer(RegistryService.RegisterType registerType) {
-        registerType = registerType == null ? RegistryService.RegisterType.DEFAULT : registerType;
-        registryService = JServiceLoader.load(RegistryService.class).find(registerType.getValue());
+    public DefaultServer(RegistryService.RegistryType registryType) {
+        registryType = registryType == null ? RegistryService.RegistryType.DEFAULT : registryType;
+        registryService = JServiceLoader.load(RegistryService.class).find(registryType.getValue());
     }
 
     @Override

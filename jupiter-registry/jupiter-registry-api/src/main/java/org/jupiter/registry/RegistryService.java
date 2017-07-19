@@ -58,13 +58,13 @@ public interface RegistryService extends Registry {
      */
     void shutdownGracefully();
 
-    enum RegisterType {
+    enum RegistryType {
         DEFAULT("default"),
         ZOOKEEPER("zookeeper");
 
         private final String value;
 
-        RegisterType(String value) {
+        RegistryType(String value) {
             this.value = value;
         }
 
@@ -72,8 +72,8 @@ public interface RegistryService extends Registry {
             return value;
         }
 
-        public static RegisterType parse(String name) {
-            for (RegisterType s : values()) {
+        public static RegistryType parse(String name) {
+            for (RegistryType s : values()) {
                 if (s.name().equalsIgnoreCase(name)) {
                     return s;
                 }

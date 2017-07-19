@@ -115,8 +115,8 @@ public class HelloJupiterRegistryServer {
 默认注册中心只建议在测试环境使用, 线上建议使用zookeeper实现
 
 // 设置使用zookeeper作为注册中心
-JServer server = new DefaultServer(RegistryService.RegisterType.ZOOKEEPER)
-JClient client = new DefaultClient(RegistryService.RegisterType.ZOOKEEPER)
+JServer server = new DefaultServer(RegistryService.RegistryType.ZOOKEEPER)
+JClient client = new DefaultClient(RegistryService.RegistryType.ZOOKEEPER)
 
 在server和client中配置jupiter-registry-zookeeper依赖(jupiter-all包含jupiter-registry-zookeeper)
 
@@ -182,7 +182,7 @@ public class HelloJupiterClient {
 ###### 1. [Server端配置](https://github.com/fengjiachun/Jupiter/blob/master/jupiter-example/src/main/resources/spring-provider.xml):
 
 ```xml
-<jupiter:server id="jupiterServer" registerType="default"> <!-- registerType="zookeeper" 代表使用zk作为注册中心 -->
+<jupiter:server id="jupiterServer" registryType="default"> <!-- registryType="zookeeper" 代表使用zk作为注册中心 -->
     <jupiter:property registryServerAddresses="127.0.0.1:20001" />
 </jupiter:server>
 
@@ -197,7 +197,7 @@ public class HelloJupiterClient {
 ###### 2. [Client端配置](https://github.com/fengjiachun/Jupiter/blob/master/jupiter-example/src/main/resources/spring-consumer.xml):
 
 ```xml
-<jupiter:client id="jupiterClient" registerType="default"> <!-- registerType="zookeeper" 代表使用zk作为注册中心 -->
+<jupiter:client id="jupiterClient" registryType="default"> <!-- registryType="zookeeper" 代表使用zk作为注册中心 -->
     <jupiter:property registryServerAddresses="127.0.0.1:20001" />
 </jupiter:client>
 
