@@ -395,7 +395,6 @@ public final class DefaultRegistryServer extends NettyTcpAcceptor implements Reg
     // 检查channel上的标记(是否订阅过指定的服务)
     private static boolean isChannelSubscribeOnServiceMeta(RegisterMeta.ServiceMeta serviceMeta, Channel channel) {
         ConcurrentSet<RegisterMeta.ServiceMeta> serviceMetaSet = channel.attr(S_SUBSCRIBE_KEY).get();
-
         return serviceMetaSet != null && serviceMetaSet.contains(serviceMeta);
     }
 
