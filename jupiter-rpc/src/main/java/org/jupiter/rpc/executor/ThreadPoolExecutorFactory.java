@@ -55,7 +55,7 @@ public class ThreadPoolExecutorFactory extends AbstractExecutorFactory {
 
     private BlockingQueue<Runnable> workQueue(Target target) {
         BlockingQueue<Runnable> workQueue = null;
-        WorkerQueueType queueType = queueType(target, WorkerQueueType.ARRAY_BLOCKING_QUEUE);
+        WorkQueueType queueType = queueType(target, WorkQueueType.ARRAY_BLOCKING_QUEUE);
         int queueCapacity = queueCapacity(target);
         switch (queueType) {
             case LINKED_BLOCKING_QUEUE:
@@ -69,14 +69,14 @@ public class ThreadPoolExecutorFactory extends AbstractExecutorFactory {
         return workQueue;
     }
 
-    private WorkerQueueType queueType(Target target, WorkerQueueType defaultType) {
-        WorkerQueueType queueType = null;
+    private WorkQueueType queueType(Target target, WorkQueueType defaultType) {
+        WorkQueueType queueType = null;
         switch (target) {
             case CONSUMER:
-                queueType = WorkerQueueType.parse(SystemPropertyUtil.get(CONSUMER_EXECUTOR_QUEUE_TYPE));
+                queueType = WorkQueueType.parse(SystemPropertyUtil.get(CONSUMER_EXECUTOR_QUEUE_TYPE));
                 break;
             case PROVIDER:
-                queueType = WorkerQueueType.parse(SystemPropertyUtil.get(PROVIDER_EXECUTOR_QUEUE_TYPE));
+                queueType = WorkQueueType.parse(SystemPropertyUtil.get(PROVIDER_EXECUTOR_QUEUE_TYPE));
                 break;
         }
 
@@ -113,12 +113,12 @@ public class ThreadPoolExecutorFactory extends AbstractExecutorFactory {
         return handler == null ? defaultHandler : handler;
     }
 
-    enum WorkerQueueType {
+    enum WorkQueueType {
         LINKED_BLOCKING_QUEUE,
         ARRAY_BLOCKING_QUEUE;
 
-       static WorkerQueueType parse(String name) {
-            for (WorkerQueueType type : values()) {
+       static WorkQueueType parse(String name) {
+            for (WorkQueueType type : values()) {
                 if (type.name().equalsIgnoreCase(name)) {
                     return type;
                 }
