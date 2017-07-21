@@ -44,8 +44,8 @@ public class ThreadPoolExecutorFactory extends AbstractExecutorFactory {
     @Override
     public Executor newExecutor(Target target, String name) {
         return new ThreadPoolExecutor(
-                coreWorks(target),
-                maxWorks(target),
+                coreWorkers(target),
+                maxWorkers(target),
                 120L,
                 TimeUnit.SECONDS,
                 workQueue(target),

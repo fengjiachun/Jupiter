@@ -35,10 +35,10 @@ public class DisruptorExecutorFactory extends AbstractExecutorFactory {
     @Override
     public Executor newExecutor(Target target, String name) {
         return new TaskDispatcher(
-                coreWorks(target),
+                coreWorkers(target),
                 name,
                 queueCapacity(target),
-                maxWorks(target),
+                maxWorkers(target),
                 waitStrategyType(target, WaitStrategyType.LITE_BLOCKING_WAIT),
                 "jupiter");
     }

@@ -107,12 +107,12 @@ public final class DefaultRegistryServer extends NettyTcpAcceptor implements Reg
         super(address);
     }
 
-    public DefaultRegistryServer(int port, int nWorks) {
-        super(port, nWorks);
+    public DefaultRegistryServer(int port, int nWorkers) {
+        super(port, nWorkers);
     }
 
-    public DefaultRegistryServer(SocketAddress address, int nWorks) {
-        super(address, nWorks);
+    public DefaultRegistryServer(SocketAddress address, int nWorkers) {
+        super(address, nWorkers);
     }
 
     @Override

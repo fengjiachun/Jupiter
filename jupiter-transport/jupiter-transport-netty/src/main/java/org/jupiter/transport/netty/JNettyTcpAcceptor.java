@@ -100,12 +100,12 @@ public class JNettyTcpAcceptor extends NettyTcpAcceptor {
         super(localAddress);
     }
 
-    public JNettyTcpAcceptor(int port, int nWorks) {
-        super(port, nWorks);
+    public JNettyTcpAcceptor(int port, int nWorkers) {
+        super(port, nWorkers);
     }
 
-    public JNettyTcpAcceptor(SocketAddress localAddress, int nWorks) {
-        super(localAddress, nWorks);
+    public JNettyTcpAcceptor(SocketAddress localAddress, int nWorkers) {
+        super(localAddress, nWorkers);
     }
 
     public JNettyTcpAcceptor(int port, boolean isNative) {
@@ -116,12 +116,12 @@ public class JNettyTcpAcceptor extends NettyTcpAcceptor {
         super(localAddress, isNative);
     }
 
-    public JNettyTcpAcceptor(int port, int nWorks, boolean isNative) {
-        super(port, nWorks, isNative);
+    public JNettyTcpAcceptor(int port, int nWorkers, boolean isNative) {
+        super(port, nWorkers, isNative);
     }
 
-    public JNettyTcpAcceptor(SocketAddress localAddress, int nWorks, boolean isNative) {
-        super(localAddress, nWorks, isNative);
+    public JNettyTcpAcceptor(SocketAddress localAddress, int nWorkers, boolean isNative) {
+        super(localAddress, nWorkers, isNative);
     }
 
     @Override
