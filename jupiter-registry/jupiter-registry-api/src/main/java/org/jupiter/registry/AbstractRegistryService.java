@@ -186,7 +186,6 @@ public abstract class AbstractRegistryService implements RegistryService {
         }
 
         RegisterValue value = registries.get(serviceMeta);
-
         if (value == null) {
             RegisterValue newValue = new RegisterValue();
             value = registries.putIfAbsent(serviceMeta, newValue);
