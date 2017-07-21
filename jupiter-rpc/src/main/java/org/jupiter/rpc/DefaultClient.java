@@ -91,7 +91,6 @@ public class DefaultClient implements JClient {
     @Override
     public Collection<RegisterMeta> lookup(Directory directory) {
         RegisterMeta.ServiceMeta serviceMeta = toServiceMeta(directory);
-
         return registryService.lookup(serviceMeta);
     }
 
@@ -272,7 +271,6 @@ public class DefaultClient implements JClient {
         serviceMeta.setGroup(checkNotNull(directory.getGroup(), "group"));
         serviceMeta.setServiceProviderName(checkNotNull(directory.getServiceProviderName(), "serviceProviderName"));
         serviceMeta.setVersion(checkNotNull(directory.getVersion(), "version"));
-
         return serviceMeta;
     }
 
