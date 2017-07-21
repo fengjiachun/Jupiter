@@ -1,6 +1,9 @@
 Jupiter release notes
 ------------------------
 
+### 2017-07-21:
+- 优化 AbstractRegistryService.notify()锁粒度
+
 ### 2017-07-19: version 1.2.9
 - Spring.schema支持 注册中心类型(实现)配置 [\#30](https://github.com/fengjiachun/Jupiter/issues/30)
 - 升级Netty版本到4.1.13.Final

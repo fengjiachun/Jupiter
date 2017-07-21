@@ -125,7 +125,7 @@ public class ZookeeperRegistryService extends AbstractRegistryService {
                                 ZookeeperRegistryService.this.notify(
                                         serviceMeta,
                                         NotifyListener.NotifyEvent.CHILD_ADDED,
-                                        sequence.getAndIncrement(),
+                                        sequence.incrementAndGet(),
                                         registerMeta);
 
                                 break;
@@ -140,7 +140,7 @@ public class ZookeeperRegistryService extends AbstractRegistryService {
                                 ZookeeperRegistryService.this.notify(
                                         serviceMeta,
                                         NotifyListener.NotifyEvent.CHILD_REMOVED,
-                                        sequence.getAndIncrement(),
+                                        sequence.incrementAndGet(),
                                         registerMeta);
 
                                 if (serviceMetaSet.isEmpty()) {
