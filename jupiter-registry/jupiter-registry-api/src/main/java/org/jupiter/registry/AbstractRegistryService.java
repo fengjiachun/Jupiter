@@ -47,6 +47,9 @@ public abstract class AbstractRegistryService implements RegistryService {
     private final LinkedBlockingQueue<RegisterMeta> queue = new LinkedBlockingQueue<>();
     private final ExecutorService executor =
             Executors.newSingleThreadExecutor(new NamedThreadFactory("registry.executor"));
+    private final ExecutorService localRegisterWatchExecutor =
+            Executors.newSingleThreadExecutor(new NamedThreadFactory("registry.RegNodeWatchExecutor"));
+
     private final AtomicBoolean shutdown = new AtomicBoolean(false);
 
     private final ConcurrentMap<RegisterMeta.ServiceMeta, RegisterValue> registries =
@@ -80,6 +83,22 @@ public abstract class AbstractRegistryService implements RegistryService {
                             }
 
                             queue.add(meta);
+                        }
+                    }
+                }
+            }
+        });
+
+        localRegisterWatchExecutor.execute(new Runnable() {
+            @Override
+            public void run() {
+                while (!shutdown.get()) {
+                    try {
+                        Thread.sleep(3000);
+                        doCheckRegisterNodeStatus();
+                    } catch (Throwable t) {
+                        if (logger.isWarnEnabled()) {
+                            logger.warn("Register check register NodeStatus fail: {}, will try again...", stackTrace(t));
                         }
                     }
                 }
@@ -144,7 +163,8 @@ public abstract class AbstractRegistryService implements RegistryService {
             executor.shutdown();
             try {
                 destroy();
-            } catch (Exception ignored) {}
+            } catch (Exception ignored) {
+            }
         }
     }
 
@@ -234,6 +254,8 @@ public abstract class AbstractRegistryService implements RegistryService {
     protected abstract void doRegister(RegisterMeta meta);
 
     protected abstract void doUnregister(RegisterMeta meta);
+
+    protected abstract void doCheckRegisterNodeStatus();
 
     private static class RegisterValue {
         private long version = Long.MIN_VALUE;
