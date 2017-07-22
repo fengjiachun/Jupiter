@@ -255,6 +255,35 @@ public class ZookeeperRegistryService extends AbstractRegistryService {
     }
 
     @Override
+    protected void doCheckRegisterNodeStatus() {
+
+        for (RegisterMeta meta : registerMetaSet()) {
+
+            String directory = String.format("/jupiter/provider/%s/%s/%s",
+                    meta.getGroup(),
+                    meta.getServiceProviderName(),
+                    meta.getVersion());
+
+            String nodePath = String.format("%s/%s:%s:%s:%s",
+                    directory,
+                    meta.getHost(),
+                    String.valueOf(meta.getPort()),
+                    String.valueOf(meta.getWeight()),
+                    String.valueOf(meta.getConnCount()));
+
+            try {
+                if (configClient.checkExists().forPath(nodePath) == null) {
+                    super.register(meta);
+                }
+            } catch (Exception e) {
+                if (logger.isWarnEnabled()) {
+                    logger.warn("CheckRegisterStatus register meta: {} path failed, {}.", meta, stackTrace(e));
+                }
+            }
+        }
+    }
+
+    @Override
     public void connectToRegistryServer(String connectString) {
         checkNotNull(connectString, "connectString");
 
