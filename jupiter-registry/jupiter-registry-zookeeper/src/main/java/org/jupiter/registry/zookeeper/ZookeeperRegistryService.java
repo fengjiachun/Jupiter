@@ -47,7 +47,7 @@ import static org.jupiter.common.util.StackTraceUtil.stackTrace;
 
 /**
  * Zookeeper registry service.
- * <p/>
+ *
  * jupiter
  * org.jupiter.registry.zookeeper
  *
