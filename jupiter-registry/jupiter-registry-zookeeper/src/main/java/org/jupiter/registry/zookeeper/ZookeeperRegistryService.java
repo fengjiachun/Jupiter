@@ -190,7 +190,7 @@ public class ZookeeperRegistryService extends AbstractRegistryService {
 
                 @Override
                 public void processResult(CuratorFramework client, CuratorEvent event) throws Exception {
-                    logger.info("Register: {}.", meta);
+                    logger.info("Register: {} - {}.", meta, event);
                 }
             }).forPath(
                     String.format("%s/%s:%s:%s:%s",
@@ -230,7 +230,7 @@ public class ZookeeperRegistryService extends AbstractRegistryService {
 
                 @Override
                 public void processResult(CuratorFramework client, CuratorEvent event) throws Exception {
-                    logger.info("Unregister: {}.", meta);
+                    logger.info("Unregister: {} - {}.", meta, event);
                 }
             }).forPath(
                     String.format("%s/%s:%s:%s:%s",
