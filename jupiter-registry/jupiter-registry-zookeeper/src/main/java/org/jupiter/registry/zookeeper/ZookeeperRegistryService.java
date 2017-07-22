@@ -161,6 +161,14 @@ public class ZookeeperRegistryService extends AbstractRegistryService {
                         logger.warn("Subscribe {} failed, {}.", directory, stackTrace(e));
                     }
                 }
+            } else {
+                try {
+                    newChildrenCache.close();
+                } catch (IOException e) {
+                    if (logger.isWarnEnabled()) {
+                        logger.warn("Close [PathChildrenCache] {} failed, {}.", directory, stackTrace(e));
+                    }
+                }
             }
         }
     }
