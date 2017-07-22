@@ -171,8 +171,6 @@ public final class DefaultRegistry extends NettyTcpConnector {
      * Sent the subscription information to registry server.
      */
     public void doSubscribe(RegisterMeta.ServiceMeta serviceMeta) {
-        registryService.subscribeSet().add(serviceMeta);
-
         Message msg = new Message(serializerType.value());
         msg.messageCode(JProtocolHeader.SUBSCRIBE_SERVICE);
         msg.data(serviceMeta);
@@ -192,8 +190,6 @@ public final class DefaultRegistry extends NettyTcpConnector {
      * Publishing service to registry server.
      */
     public void doRegister(RegisterMeta meta) {
-        registryService.registerMetaSet().add(meta);
-
         Message msg = new Message(serializerType.value());
         msg.messageCode(JProtocolHeader.PUBLISH_SERVICE);
         msg.data(meta);
@@ -213,8 +209,6 @@ public final class DefaultRegistry extends NettyTcpConnector {
      * Notify to registry server unpublish corresponding service.
      */
     public void doUnregister(final RegisterMeta meta) {
-        registryService.registerMetaSet().remove(meta);
-
         Message msg = new Message(serializerType.value());
         msg.messageCode(JProtocolHeader.PUBLISH_CANCEL_SERVICE);
         msg.data(meta);

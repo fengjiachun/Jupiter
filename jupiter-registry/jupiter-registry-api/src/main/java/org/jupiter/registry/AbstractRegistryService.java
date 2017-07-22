@@ -71,6 +71,7 @@ public abstract class AbstractRegistryService implements RegistryService {
                     RegisterMeta meta = null;
                     try {
                         meta = queue.take();
+                        registerMetaSet.add(meta);
                         doRegister(meta);
                     } catch (Throwable t) {
                         if (meta != null) {
@@ -94,6 +95,7 @@ public abstract class AbstractRegistryService implements RegistryService {
     @Override
     public void unregister(RegisterMeta meta) {
         if (!queue.remove(meta)) {
+            registerMetaSet.remove(meta);
             doUnregister(meta);
         }
     }
@@ -110,6 +112,7 @@ public abstract class AbstractRegistryService implements RegistryService {
         }
         listeners.add(listener);
 
+        subscribeSet.add(serviceMeta);
         doSubscribe(serviceMeta);
     }
 
@@ -169,11 +172,11 @@ public abstract class AbstractRegistryService implements RegistryService {
         }
     }
 
-    public ConcurrentSet<RegisterMeta.ServiceMeta> subscribeSet() {
+    protected ConcurrentSet<RegisterMeta.ServiceMeta> subscribeSet() {
         return subscribeSet;
     }
 
-    public ConcurrentSet<RegisterMeta> registerMetaSet() {
+    protected ConcurrentSet<RegisterMeta> registerMetaSet() {
         return registerMetaSet;
     }
 

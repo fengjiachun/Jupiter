@@ -122,7 +122,7 @@ public class ZookeeperRegistryService extends AbstractRegistryService {
                                 ConcurrentSet<RegisterMeta.ServiceMeta> serviceMetaSet = getServiceMeta(address);
 
                                 serviceMetaSet.add(serviceMeta);
-                                ZookeeperRegistryService.this.notify(
+                                ZookeeperRegistryService.super.notify(
                                         serviceMeta,
                                         NotifyListener.NotifyEvent.CHILD_ADDED,
                                         sequence.incrementAndGet(),
@@ -137,7 +137,7 @@ public class ZookeeperRegistryService extends AbstractRegistryService {
                                 ConcurrentSet<RegisterMeta.ServiceMeta> serviceMetaSet = getServiceMeta(address);
 
                                 serviceMetaSet.remove(serviceMeta);
-                                ZookeeperRegistryService.this.notify(
+                                ZookeeperRegistryService.super.notify(
                                         serviceMeta,
                                         NotifyListener.NotifyEvent.CHILD_REMOVED,
                                         sequence.incrementAndGet(),
@@ -146,7 +146,7 @@ public class ZookeeperRegistryService extends AbstractRegistryService {
                                 if (serviceMetaSet.isEmpty()) {
                                     logger.info("Offline notify: {}.", address);
 
-                                    ZookeeperRegistryService.this.offline(address);
+                                    ZookeeperRegistryService.super.offline(address);
                                 }
                                 break;
                             }
@@ -190,8 +190,6 @@ public class ZookeeperRegistryService extends AbstractRegistryService {
 
                 @Override
                 public void processResult(CuratorFramework client, CuratorEvent event) throws Exception {
-                    registerMetaSet().add(meta);
-
                     logger.info("Register: {}.", meta);
                 }
             }).forPath(
@@ -232,8 +230,6 @@ public class ZookeeperRegistryService extends AbstractRegistryService {
 
                 @Override
                 public void processResult(CuratorFramework client, CuratorEvent event) throws Exception {
-                    registerMetaSet().remove(meta);
-
                     logger.info("Unregister: {}.", meta);
                 }
             }).forPath(
@@ -275,7 +271,7 @@ public class ZookeeperRegistryService extends AbstractRegistryService {
 
                     // 重新发布服务
                     for (RegisterMeta meta : registerMetaSet()) {
-                        doRegister(meta);
+                        ZookeeperRegistryService.super.register(meta);
                     }
                 }
             }
