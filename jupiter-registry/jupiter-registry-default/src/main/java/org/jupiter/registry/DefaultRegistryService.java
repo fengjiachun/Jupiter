@@ -81,6 +81,11 @@ public class DefaultRegistryService extends AbstractRegistryService {
     }
 
     @Override
+    protected void doCheckRegisterNodeStatus() {
+        // the default registry service does nothing
+    }
+
+    @Override
     public void connectToRegistryServer(String connectString) {
         checkNotNull(connectString, "connectString");
 

@@ -47,7 +47,7 @@ import static org.jupiter.common.util.StackTraceUtil.stackTrace;
 
 /**
  * Zookeeper registry service.
- *
+ * <p/>
  * jupiter
  * org.jupiter.registry.zookeeper
  *
@@ -256,9 +256,7 @@ public class ZookeeperRegistryService extends AbstractRegistryService {
 
     @Override
     protected void doCheckRegisterNodeStatus() {
-
         for (RegisterMeta meta : registerMetaSet()) {
-
             String directory = String.format("/jupiter/provider/%s/%s/%s",
                     meta.getGroup(),
                     meta.getServiceProviderName(),
@@ -277,7 +275,7 @@ public class ZookeeperRegistryService extends AbstractRegistryService {
                 }
             } catch (Exception e) {
                 if (logger.isWarnEnabled()) {
-                    logger.warn("CheckRegisterStatus register meta: {} path failed, {}.", meta, stackTrace(e));
+                    logger.warn("Check register status, meta: {} path failed, {}.", meta, stackTrace(e));
                 }
             }
         }
@@ -322,7 +320,8 @@ public class ZookeeperRegistryService extends AbstractRegistryService {
         for (PathChildrenCache childrenCache : pathChildrenCaches.values()) {
             try {
                 childrenCache.close();
-            } catch (IOException ignored) {}
+            } catch (IOException ignored) {
+            }
         }
 
         configClient.close();

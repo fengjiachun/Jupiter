@@ -45,10 +45,10 @@ public abstract class AbstractRegistryService implements RegistryService {
     private static final InternalLogger logger = InternalLoggerFactory.getInstance(AbstractRegistryService.class);
 
     private final LinkedBlockingQueue<RegisterMeta> queue = new LinkedBlockingQueue<>();
-    private final ExecutorService executor =
-            Executors.newSingleThreadExecutor(new NamedThreadFactory("registry.executor"));
+    private final ExecutorService registerExecutor =
+            Executors.newSingleThreadExecutor(new NamedThreadFactory("register.executor"));
     private final ExecutorService localRegisterWatchExecutor =
-            Executors.newSingleThreadExecutor(new NamedThreadFactory("registry.RegNodeWatchExecutor"));
+            Executors.newSingleThreadExecutor(new NamedThreadFactory("local.register.watch.executor"));
 
     private final AtomicBoolean shutdown = new AtomicBoolean(false);
 
@@ -66,7 +66,7 @@ public abstract class AbstractRegistryService implements RegistryService {
     private final ConcurrentSet<RegisterMeta> registerMetaSet = new ConcurrentSet<>();
 
     public AbstractRegistryService() {
-        executor.execute(new Runnable() {
+        registerExecutor.execute(new Runnable() {
 
             @Override
             public void run() {
@@ -90,6 +90,7 @@ public abstract class AbstractRegistryService implements RegistryService {
         });
 
         localRegisterWatchExecutor.execute(new Runnable() {
+
             @Override
             public void run() {
                 while (!shutdown.get()) {
@@ -98,7 +99,7 @@ public abstract class AbstractRegistryService implements RegistryService {
                         doCheckRegisterNodeStatus();
                     } catch (Throwable t) {
                         if (logger.isWarnEnabled()) {
-                            logger.warn("Register check register NodeStatus fail: {}, will try again...", stackTrace(t));
+                            logger.warn("Check register node status fail: {}, will try again...", stackTrace(t));
                         }
                     }
                 }
@@ -160,11 +161,11 @@ public abstract class AbstractRegistryService implements RegistryService {
     @Override
     public void shutdownGracefully() {
         if (!shutdown.getAndSet(true)) {
-            executor.shutdown();
+            registerExecutor.shutdown();
+            localRegisterWatchExecutor.shutdown();
             try {
                 destroy();
-            } catch (Exception ignored) {
-            }
+            } catch (Exception ignored) {}
         }
     }
 
