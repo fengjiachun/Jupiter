@@ -181,7 +181,7 @@ public final class DefaultRegistry extends NettyTcpConnector {
             ch.writeAndFlush(msg)
                     .addListener(ChannelFutureListener.FIRE_EXCEPTION_ON_FAILURE);
 
-            MessageNonAck msgNonAck = new MessageNonAck(msg, ch);
+            MessageNonAck msgNonAck = new MessageNonAck(msg);
             messagesNonAck.put(msgNonAck.id, msgNonAck);
         }
     }
@@ -200,7 +200,7 @@ public final class DefaultRegistry extends NettyTcpConnector {
             ch.writeAndFlush(msg)
                     .addListener(ChannelFutureListener.FIRE_EXCEPTION_ON_FAILURE);
 
-            MessageNonAck msgNonAck = new MessageNonAck(msg, ch);
+            MessageNonAck msgNonAck = new MessageNonAck(msg);
             messagesNonAck.put(msgNonAck.id, msgNonAck);
         }
     }
@@ -232,7 +232,7 @@ public final class DefaultRegistry extends NettyTcpConnector {
                     }
                 });
 
-        MessageNonAck msgNonAck = new MessageNonAck(msg, channel);
+        MessageNonAck msgNonAck = new MessageNonAck(msg);
         messagesNonAck.put(msgNonAck.id, msgNonAck);
     }
 
@@ -274,13 +274,10 @@ public final class DefaultRegistry extends NettyTcpConnector {
         private final long id;
 
         private final Message msg;
-        private final Channel channel;
         private final long timestamp = SystemClock.millisClock().now();
 
-        public MessageNonAck(Message msg, Channel channel) {
+        public MessageNonAck(Message msg) {
             this.msg = msg;
-            this.channel = channel;
-
             id = msg.sequence();
         }
     }
@@ -511,7 +508,7 @@ public final class DefaultRegistry extends NettyTcpConnector {
                 ch.writeAndFlush(msg)
                         .addListener(ChannelFutureListener.FIRE_EXCEPTION_ON_FAILURE);
 
-                MessageNonAck msgNonAck = new MessageNonAck(msg, ch);
+                MessageNonAck msgNonAck = new MessageNonAck(msg);
                 messagesNonAck.put(msgNonAck.id, msgNonAck);
             }
 
@@ -529,7 +526,7 @@ public final class DefaultRegistry extends NettyTcpConnector {
                 ch.writeAndFlush(msg)
                         .addListener(ChannelFutureListener.FIRE_EXCEPTION_ON_FAILURE);
 
-                MessageNonAck msgNonAck = new MessageNonAck(msg, ch);
+                MessageNonAck msgNonAck = new MessageNonAck(msg);
                 messagesNonAck.put(msgNonAck.id, msgNonAck);
             }
         }
@@ -567,12 +564,10 @@ public final class DefaultRegistry extends NettyTcpConnector {
                                 continue;
                             }
 
-                            if (m.channel.isActive()) {
-                                MessageNonAck msgNonAck = new MessageNonAck(m.msg, m.channel);
-                                messagesNonAck.put(msgNonAck.id, msgNonAck);
-                                m.channel.writeAndFlush(m.msg)
-                                        .addListener(ChannelFutureListener.FIRE_EXCEPTION_ON_FAILURE);
-                            }
+                            MessageNonAck msgNonAck = new MessageNonAck(m.msg);
+                            messagesNonAck.put(msgNonAck.id, msgNonAck);
+                            channel.writeAndFlush(m.msg)
+                                    .addListener(ChannelFutureListener.FIRE_EXCEPTION_ON_FAILURE);
                         }
                     }
 
