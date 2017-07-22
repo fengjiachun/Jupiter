@@ -47,8 +47,8 @@ public abstract class AbstractRegistryService implements RegistryService {
     private final LinkedBlockingQueue<RegisterMeta> queue = new LinkedBlockingQueue<>();
     private final ExecutorService executor =
             Executors.newSingleThreadExecutor(new NamedThreadFactory("registry.executor"));
-    private final ExecutorService localRegisterExecutor =
-            Executors.newSingleThreadExecutor(new NamedThreadFactory("registry.executor"));
+    private final ExecutorService localRegisterWatchExecutor =
+            Executors.newSingleThreadExecutor(new NamedThreadFactory("registry.RegNodeWatchExecutor"));
 
     private final AtomicBoolean shutdown = new AtomicBoolean(false);
 
@@ -89,7 +89,7 @@ public abstract class AbstractRegistryService implements RegistryService {
             }
         });
 
-        localRegisterExecutor.execute(new Runnable() {
+        localRegisterWatchExecutor.execute(new Runnable() {
             @Override
             public void run() {
                 while (!shutdown.get()) {
@@ -104,7 +104,6 @@ public abstract class AbstractRegistryService implements RegistryService {
                 }
             }
         });
-
     }
 
     @Override
