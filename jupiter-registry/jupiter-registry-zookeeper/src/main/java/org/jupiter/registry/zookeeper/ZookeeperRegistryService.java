@@ -320,8 +320,7 @@ public class ZookeeperRegistryService extends AbstractRegistryService {
         for (PathChildrenCache childrenCache : pathChildrenCaches.values()) {
             try {
                 childrenCache.close();
-            } catch (IOException ignored) {
-            }
+            } catch (IOException ignored) {}
         }
 
         configClient.close();
