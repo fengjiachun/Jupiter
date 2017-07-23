@@ -202,7 +202,7 @@ public class ZookeeperRegistryService extends AbstractRegistryService {
                 public void processResult(CuratorFramework client, CuratorEvent event) throws Exception {
                     Code rc = Code.get(event.getResultCode());
                     if (rc == Code.OK) {
-                        registerMetaMap.put(meta, State.DONE);
+                        registerMetaMap.put(meta, RegisterState.DONE);
                     }
 
                     logger.info("Register: {} - {}.", meta, event);
@@ -263,8 +263,8 @@ public class ZookeeperRegistryService extends AbstractRegistryService {
 
     @Override
     protected void doCheckRegisterNodeStatus() {
-        for (Map.Entry<RegisterMeta, State> entry : registerMetaMap.entrySet()) {
-            if (entry.getValue() == State.DONE) {
+        for (Map.Entry<RegisterMeta, RegisterState> entry : registerMetaMap.entrySet()) {
+            if (entry.getValue() == RegisterState.DONE) {
                 continue;
             }
 

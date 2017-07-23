@@ -63,7 +63,7 @@ public abstract class AbstractRegistryService implements RegistryService {
     // Consumer已订阅的信息
     protected final ConcurrentSet<RegisterMeta.ServiceMeta> subscribeSet = new ConcurrentSet<>();
     // Provider已发布的注册信息
-    protected final ConcurrentMap<RegisterMeta, State> registerMetaMap = Maps.newConcurrentMap();
+    protected final ConcurrentMap<RegisterMeta, RegisterState> registerMetaMap = Maps.newConcurrentMap();
 
     public AbstractRegistryService() {
         registerExecutor.execute(new Runnable() {
@@ -74,7 +74,7 @@ public abstract class AbstractRegistryService implements RegistryService {
                     RegisterMeta meta = null;
                     try {
                         meta = queue.take();
-                        registerMetaMap.put(meta, State.PREPARE);
+                        registerMetaMap.put(meta, RegisterState.PREPARE);
                         doRegister(meta);
                     } catch (Throwable t) {
                         if (meta != null) {
@@ -250,14 +250,14 @@ public abstract class AbstractRegistryService implements RegistryService {
 
     protected abstract void doCheckRegisterNodeStatus();
 
-    private static class RegisterValue {
+    protected enum RegisterState {
+        PREPARE,
+        DONE
+    }
+
+    protected static class RegisterValue {
         private long version = Long.MIN_VALUE;
         private final Set<RegisterMeta> metaSet = new HashSet<>();
         private final ReentrantReadWriteLock lock = new ReentrantReadWriteLock();
-    }
-
-    protected enum State {
-        PREPARE,
-        DONE
     }
 }
