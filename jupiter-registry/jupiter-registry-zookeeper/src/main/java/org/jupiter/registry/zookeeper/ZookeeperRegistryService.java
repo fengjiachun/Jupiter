@@ -20,6 +20,7 @@ import org.apache.curator.framework.CuratorFramework;
 import org.apache.curator.framework.CuratorFrameworkFactory;
 import org.apache.curator.framework.api.BackgroundCallback;
 import org.apache.curator.framework.api.CuratorEvent;
+import org.apache.curator.framework.api.CuratorEventType;
 import org.apache.curator.framework.recipes.cache.PathChildrenCache;
 import org.apache.curator.framework.recipes.cache.PathChildrenCacheEvent;
 import org.apache.curator.framework.recipes.cache.PathChildrenCacheListener;
@@ -39,6 +40,7 @@ import org.jupiter.registry.RegisterMeta.Address;
 import java.io.IOException;
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.atomic.AtomicLong;
 
@@ -198,6 +200,10 @@ public class ZookeeperRegistryService extends AbstractRegistryService {
 
                 @Override
                 public void processResult(CuratorFramework client, CuratorEvent event) throws Exception {
+                    if (event.getType() == CuratorEventType.CREATE) {
+                        registerMetaMap.put(meta, State.DONE);
+                    }
+
                     logger.info("Register: {} - {}.", meta, event);
                 }
             }).forPath(
@@ -256,7 +262,12 @@ public class ZookeeperRegistryService extends AbstractRegistryService {
 
     @Override
     protected void doCheckRegisterNodeStatus() {
-        for (RegisterMeta meta : registerMetaSet()) {
+        for (Map.Entry<RegisterMeta, State> entry : registerMetaMap.entrySet()) {
+            if (entry.getValue() == State.DONE) {
+                continue;
+            }
+
+            RegisterMeta meta = entry.getKey();
             String directory = String.format("/jupiter/provider/%s/%s/%s",
                     meta.getGroup(),
                     meta.getServiceProviderName(),
@@ -300,12 +311,12 @@ public class ZookeeperRegistryService extends AbstractRegistryService {
                     logger.info("Zookeeper connection has been re-established, will re-subscribe and re-register.");
 
                     // 重新订阅
-                    for (RegisterMeta.ServiceMeta serviceMeta : subscribeSet()) {
+                    for (RegisterMeta.ServiceMeta serviceMeta : subscribeSet) {
                         doSubscribe(serviceMeta);
                     }
 
                     // 重新发布服务
-                    for (RegisterMeta meta : registerMetaSet()) {
+                    for (RegisterMeta meta : registerMetaMap.keySet()) {
                         ZookeeperRegistryService.super.register(meta);
                     }
                 }

@@ -61,9 +61,9 @@ public abstract class AbstractRegistryService implements RegistryService {
             Maps.newConcurrentMap();
 
     // Consumer已订阅的信息
-    private final ConcurrentSet<RegisterMeta.ServiceMeta> subscribeSet = new ConcurrentSet<>();
+    protected final ConcurrentSet<RegisterMeta.ServiceMeta> subscribeSet = new ConcurrentSet<>();
     // Provider已发布的注册信息
-    private final ConcurrentSet<RegisterMeta> registerMetaSet = new ConcurrentSet<>();
+    protected final ConcurrentMap<RegisterMeta, State> registerMetaMap = Maps.newConcurrentMap();
 
     public AbstractRegistryService() {
         registerExecutor.execute(new Runnable() {
@@ -74,7 +74,7 @@ public abstract class AbstractRegistryService implements RegistryService {
                     RegisterMeta meta = null;
                     try {
                         meta = queue.take();
-                        registerMetaSet.add(meta);
+                        registerMetaMap.put(meta, State.PREPARE);
                         doRegister(meta);
                     } catch (Throwable t) {
                         if (meta != null) {
@@ -115,7 +115,7 @@ public abstract class AbstractRegistryService implements RegistryService {
     @Override
     public void unregister(RegisterMeta meta) {
         if (!queue.remove(meta)) {
-            registerMetaSet.remove(meta);
+            registerMetaMap.remove(meta);
             doUnregister(meta);
         }
     }
@@ -193,14 +193,6 @@ public abstract class AbstractRegistryService implements RegistryService {
         }
     }
 
-    protected ConcurrentSet<RegisterMeta.ServiceMeta> subscribeSet() {
-        return subscribeSet;
-    }
-
-    protected ConcurrentSet<RegisterMeta> registerMetaSet() {
-        return registerMetaSet;
-    }
-
     // 通知新增或删除服务
     protected void notify(
             RegisterMeta.ServiceMeta serviceMeta, NotifyListener.NotifyEvent event, long version, RegisterMeta... array) {
@@ -262,5 +254,10 @@ public abstract class AbstractRegistryService implements RegistryService {
         private long version = Long.MIN_VALUE;
         private final Set<RegisterMeta> metaSet = new HashSet<>();
         private final ReentrantReadWriteLock lock = new ReentrantReadWriteLock();
+    }
+
+    protected enum State {
+        PREPARE,
+        DONE
     }
 }
