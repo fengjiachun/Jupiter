@@ -37,6 +37,6 @@ public abstract class AbstractClusterInvoker implements ClusterInvoker {
 
     @Override
     public String toString() {
-        return name();
+        return strategy().name();
     }
 }

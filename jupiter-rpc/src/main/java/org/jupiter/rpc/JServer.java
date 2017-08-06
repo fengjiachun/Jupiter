@@ -72,11 +72,6 @@ public interface JServer extends Registry {
         ServiceRegistry weight(int weight);
 
         /**
-         * 给client的建议, 通常client应参考此值来建立指定数量的连接.
-         */
-        ServiceRegistry connCount(int connCount);
-
-        /**
          * 设置服务提供者私有的线程池, 为了和其他服务提供者资源隔离.
          */
         ServiceRegistry executor(Executor executor);

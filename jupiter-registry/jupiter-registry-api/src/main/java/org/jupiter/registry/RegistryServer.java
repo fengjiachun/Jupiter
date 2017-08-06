@@ -73,12 +73,12 @@ public interface RegistryServer extends RegistryMonitor {
             return newInstance(address);
         }
 
-        public static RegistryServer createRegistryServer(int port, int nWorks) {
-            return newInstance(port, nWorks);
+        public static RegistryServer createRegistryServer(int port, int nWorkers) {
+            return newInstance(port, nWorkers);
         }
 
-        public static RegistryServer createRegistryServer(SocketAddress address, int nWorks) {
-            return newInstance(address, nWorks);
+        public static RegistryServer createRegistryServer(SocketAddress address, int nWorkers) {
+            return newInstance(address, nWorkers);
         }
 
         private static RegistryServer newInstance(Object... parameters) {

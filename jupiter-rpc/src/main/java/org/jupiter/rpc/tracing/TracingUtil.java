@@ -24,7 +24,7 @@ import org.jupiter.common.util.internal.logging.InternalLoggerFactory;
 import java.lang.management.ManagementFactory;
 import java.lang.management.RuntimeMXBean;
 import java.util.concurrent.ThreadLocalRandom;
-import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicLong;
 
 import static org.jupiter.common.util.StackTraceUtil.stackTrace;
 
@@ -34,7 +34,7 @@ import static org.jupiter.common.util.StackTraceUtil.stackTrace;
  * 一个 {@link TraceId} 包含以下内容(30位):
  * 1  ~ 8  位: 本机IP地址(16进制), 可能是网卡中第一个有效的IP地址
  * 9  ~ 21 位: 当前时间, 毫秒数
- * 22 ~ 25 位: 本地自增ID(1000 ~ 9191 循环使用)
+ * 22 ~ 25 位: 本地自增ID(1001 ~ 9191 循环使用)
  * 26      位: d (进程flag)
  * 27 ~ 30 位: 当前进程ID(16进制)
  *
@@ -58,9 +58,9 @@ public class TracingUtil {
     private static final char PID_FLAG = 'd';
     private static final String IP_16;
     private static final String PID;
-    private static final int ID_BASE = 1000;
-    private static final int ID_MASK = (1 << 13) - 1; // 8192 - 1
-    private static final AtomicInteger id = new AtomicInteger(0);
+    private static final long ID_BASE = 1000;
+    private static final long ID_MASK = (1 << 13) - 1; // 8192 - 1
+    private static final AtomicLong sequence = new AtomicLong();
 
     static {
         String _ip_16;
@@ -181,7 +181,7 @@ public class TracingUtil {
         return buf.toString();
     }
 
-    private static String getTraceId(String ip_16, long timestamp, int nextId) {
+    private static String getTraceId(String ip_16, long timestamp, long nextId) {
         StringBuilder buf = StringBuilderHelper.get()
                 .append(ip_16)
                 .append(timestamp)
@@ -191,8 +191,8 @@ public class TracingUtil {
         return buf.toString();
     }
 
-    private static int getNextId() {
-        // (1000 + 0) ~ (1000 + 8191)
-        return (id.getAndIncrement() & ID_MASK) + ID_BASE;
+    private static long getNextId() {
+        // (1000 + 1) ~ (1000 + 8191)
+        return (sequence.incrementAndGet() & ID_MASK) + ID_BASE;
     }
 }

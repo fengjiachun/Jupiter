@@ -18,11 +18,17 @@ package org.jupiter.spring.support;
 
 import org.jupiter.common.util.ExceptionUtil;
 import org.jupiter.common.util.Strings;
+import org.jupiter.common.util.SystemPropertyUtil;
+import org.jupiter.registry.RegistryService;
+import org.jupiter.rpc.DefaultServer;
 import org.jupiter.rpc.JRequest;
 import org.jupiter.rpc.JServer;
 import org.jupiter.rpc.flow.control.FlowController;
 import org.jupiter.rpc.provider.ProviderInterceptor;
+import org.jupiter.transport.JAcceptor;
 import org.springframework.beans.factory.InitializingBean;
+
+import static org.jupiter.common.util.Preconditions.checkNotNull;
 
 /**
  * 服务端 acceptor wrapper, 负责初始化并启动acceptor.
@@ -35,6 +41,8 @@ import org.springframework.beans.factory.InitializingBean;
 public class JupiterSpringServer implements InitializingBean {
 
     private JServer server;
+    private RegistryService.RegistryType registryType;
+    private JAcceptor acceptor;
 
     private String registryServerAddresses;             // 注册中心地址 [host1:port1,host2:port2....]
     private boolean hasRegistryServer;                  // true: 需要连接注册中心; false: IP直连方式
@@ -47,6 +55,12 @@ public class JupiterSpringServer implements InitializingBean {
     }
 
     private void init() {
+        server = new DefaultServer(registryType);
+        if (acceptor == null) {
+            acceptor = createDefaultAcceptor();
+        }
+        server.withAcceptor(acceptor);
+
         // 注册中心
         if (Strings.isNotBlank(registryServerAddresses)) {
             server.connectToRegistryServer(registryServerAddresses);
@@ -84,6 +98,22 @@ public class JupiterSpringServer implements InitializingBean {
         this.server = server;
     }
 
+    public RegistryService.RegistryType getRegistryType() {
+        return registryType;
+    }
+
+    public void setRegistryType(String registryType) {
+        this.registryType = RegistryService.RegistryType.parse(registryType);
+    }
+
+    public JAcceptor getAcceptor() {
+        return acceptor;
+    }
+
+    public void setAcceptor(JAcceptor acceptor) {
+        this.acceptor = acceptor;
+    }
+
     public String getRegistryServerAddresses() {
         return registryServerAddresses;
     }
@@ -114,5 +144,18 @@ public class JupiterSpringServer implements InitializingBean {
 
     public void setFlowController(FlowController<JRequest> flowController) {
         this.flowController = flowController;
+    }
+
+    private JAcceptor createDefaultAcceptor() {
+        JAcceptor defaultAcceptor = null;
+        try {
+            String className = SystemPropertyUtil
+                    .get("jupiter.io.default.acceptor", "org.jupiter.transport.netty.JNettyTcpAcceptor");
+            Class<?> clazz = Class.forName(className);
+            defaultAcceptor = (JAcceptor) clazz.newInstance();
+        } catch (Exception e) {
+            ExceptionUtil.throwException(e);
+        }
+        return checkNotNull(defaultAcceptor, "default acceptor");
     }
 }

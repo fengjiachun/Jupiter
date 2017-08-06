@@ -29,7 +29,6 @@
  */
 package org.jupiter.common.concurrent.collection;
 
-import org.jupiter.common.concurrent.atomic.AtomicUpdater;
 import org.jupiter.common.util.internal.JUnsafe;
 import sun.misc.Unsafe;
 
@@ -955,7 +954,7 @@ public class NonBlockingHashMap<TypeK, TypeV>
         // null to set (once).
         volatile Object[] _newkvs;
         private final AtomicReferenceFieldUpdater<CHM, Object[]> _newkvsUpdater =
-                AtomicUpdater.newAtomicReferenceFieldUpdater(CHM.class, Object[].class, "_newkvs");
+                AtomicReferenceFieldUpdater.newUpdater(CHM.class, Object[].class, "_newkvs");
 
         // Set the _next field if we can.
         boolean CAS_newkvs(Object[] newkvs) {
@@ -979,7 +978,7 @@ public class NonBlockingHashMap<TypeK, TypeV>
         // un-initialized array creation (especially of ref arrays!).
         volatile long _resizers; // count of threads attempting an initial resize
         private static final AtomicLongFieldUpdater<CHM> _resizerUpdater =
-                AtomicUpdater.newAtomicLongFieldUpdater(CHM.class, "_resizers");
+                AtomicLongFieldUpdater.newUpdater(CHM.class, "_resizers");
 
         // ---
         // Simple constructor
@@ -1124,14 +1123,14 @@ public class NonBlockingHashMap<TypeK, TypeV>
         // somewhere completes the count.
         volatile long _copyIdx = 0;
         static private final AtomicLongFieldUpdater<CHM> _copyIdxUpdater =
-                AtomicUpdater.newAtomicLongFieldUpdater(CHM.class, "_copyIdx");
+                AtomicLongFieldUpdater.newUpdater(CHM.class, "_copyIdx");
 
         // Work-done reporting.  Used to efficiently signal when we can move to
         // the new table.  From 0 to len(oldkvs) refers to copying from the old
         // table to the new.
         volatile long _copyDone = 0;
         static private final AtomicLongFieldUpdater<CHM> _copyDoneUpdater =
-                AtomicUpdater.newAtomicLongFieldUpdater(CHM.class, "_copyDone");
+                AtomicLongFieldUpdater.newUpdater(CHM.class, "_copyDone");
 
         // --- help_copy_impl ----------------------------------------------------
         // Help along an existing resize operation.  We hope its the top-level

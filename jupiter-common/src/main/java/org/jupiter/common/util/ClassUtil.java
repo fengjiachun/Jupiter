@@ -25,9 +25,9 @@ import org.jupiter.common.util.internal.logging.InternalLoggerFactory;
  *
  * @author jiachun.fjc
  */
-public class ClassInitializeUtil {
+public class ClassUtil {
 
-    private static final InternalLogger logger = InternalLoggerFactory.getInstance(ClassInitializeUtil.class);
+    private static final InternalLogger logger = InternalLoggerFactory.getInstance(ClassUtil.class);
 
     /**
      * 提前加载并初始化指定的类, 某些平台下某些类的静态块里面的代码执行实在是太慢了:(
@@ -35,17 +35,26 @@ public class ClassInitializeUtil {
      * @param className         类的全限定名称
      * @param tolerableMillis   超过这个时间打印警告日志
      */
-    public static void initClass(String className, long tolerableMillis) {
+    public static void classInitialize(String className, long tolerableMillis) {
         long start = System.currentTimeMillis();
         try {
             Class.forName(className);
-        } catch (ClassNotFoundException e) {
-            logger.warn("load class: {} failed.", className);
+        } catch (Throwable t) {
+            logger.warn("Failed to load class [{}] {}.", className, t);
         }
 
         long elapsed = System.currentTimeMillis() - start;
         if (elapsed > tolerableMillis) {
             logger.warn("{}.<clinit> elapsed: {} millis.", className, elapsed);
+        }
+    }
+
+    public static void classCheck(String className) {
+        try {
+            Class.forName(className);
+        } catch (Throwable t) {
+            logger.error("Failed to load class [{}] {}.", className, t);
+            ExceptionUtil.throwException(t);
         }
     }
 }

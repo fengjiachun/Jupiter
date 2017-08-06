@@ -48,7 +48,12 @@ public final class SerializerFactory {
         Serializer serializer = serializers.get(code);
 
         if (serializer == null) {
-            throw new NullPointerException("unsupported serializerImpl with code: " + code);
+            SerializerType type = SerializerType.parse(code);
+            if (type != null) {
+                throw new IllegalArgumentException("serializer implementation [" + type.name() + "] not found");
+            } else {
+                throw new IllegalArgumentException("unsupported serializer type with code: " + code);
+            }
         }
 
         return serializer;

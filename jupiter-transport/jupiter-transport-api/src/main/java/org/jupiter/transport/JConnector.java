@@ -32,7 +32,7 @@ import java.util.Collection;
 public interface JConnector<C> extends Transporter {
 
     /**
-     * Server options [parent, child].
+     * Connector options [parent, child].
      */
     JConfig config();
 

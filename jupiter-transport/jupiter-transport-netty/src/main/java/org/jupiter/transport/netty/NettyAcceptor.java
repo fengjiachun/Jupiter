@@ -51,10 +51,12 @@ public abstract class NettyAcceptor implements JAcceptor {
 
     protected final HashedWheelTimer timer = new HashedWheelTimer(new NamedThreadFactory("acceptor.timer"));
 
+    private final int nBosses;
+    private final int nWorkers;
+
     private ServerBootstrap bootstrap;
     private EventLoopGroup boss;
     private EventLoopGroup worker;
-    private int nWorkers;
 
     protected volatile ByteBufAllocator allocator;
 
@@ -63,15 +65,20 @@ public abstract class NettyAcceptor implements JAcceptor {
     }
 
     public NettyAcceptor(Protocol protocol, SocketAddress localAddress, int nWorkers) {
+        this(protocol, localAddress, 1, nWorkers);
+    }
+
+    public NettyAcceptor(Protocol protocol, SocketAddress localAddress, int nBosses, int nWorkers) {
         this.protocol = protocol;
         this.localAddress = localAddress;
+        this.nBosses = nBosses;
         this.nWorkers = nWorkers;
     }
 
     protected void init() {
-        ThreadFactory bossFactory = new DefaultThreadFactory("jupiter.acceptor.boss", Thread.MAX_PRIORITY);
-        ThreadFactory workerFactory = new DefaultThreadFactory("jupiter.acceptor.worker", Thread.MAX_PRIORITY);
-        boss = initEventLoopGroup(1, bossFactory);
+        ThreadFactory bossFactory = bossThreadFactory("jupiter.acceptor.boss");
+        ThreadFactory workerFactory = workerThreadFactory("jupiter.acceptor.worker");
+        boss = initEventLoopGroup(nBosses, bossFactory);
         worker = initEventLoopGroup(nWorkers, workerFactory);
 
         bootstrap = new ServerBootstrap().group(boss, worker);
@@ -114,6 +121,14 @@ public abstract class NettyAcceptor implements JAcceptor {
     public void shutdownGracefully() {
         boss.shutdownGracefully();
         worker.shutdownGracefully();
+    }
+
+    protected ThreadFactory bossThreadFactory(String name) {
+        return new DefaultThreadFactory(name, Thread.MAX_PRIORITY);
+    }
+
+    protected ThreadFactory workerThreadFactory(String name) {
+        return new DefaultThreadFactory(name, Thread.MAX_PRIORITY);
     }
 
     protected void setOptions() {

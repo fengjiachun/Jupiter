@@ -16,7 +16,7 @@
 
 package org.jupiter.rpc.load.balance;
 
-import org.jupiter.rpc.model.metadata.MessageWrapper;
+import org.jupiter.transport.Directory;
 import org.jupiter.transport.channel.CopyOnWriteGroupList;
 import org.jupiter.transport.channel.JChannelGroup;
 
@@ -34,7 +34,7 @@ public interface LoadBalancer {
      * Select one in elements list.
      *
      * @param groups    elements for select
-     * @param message   usually useless
+     * @param directory service directory
      */
-    JChannelGroup select(CopyOnWriteGroupList groups, MessageWrapper message);
+    JChannelGroup select(CopyOnWriteGroupList groups, Directory directory);
 }

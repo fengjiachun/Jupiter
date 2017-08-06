@@ -40,14 +40,6 @@ public final class UnsafeReferenceFieldUpdater<U, W> {
         offset = unsafe.objectFieldOffset(field);
     }
 
-    public boolean compareAndSet(U obj, W expect, W update) {
-        return unsafe.compareAndSwapObject(obj, offset, expect, update);
-    }
-
-    public boolean weakCompareAndSet(U obj, W expect, W update) {
-        return unsafe.compareAndSwapObject(obj, offset, expect, update);
-    }
-
     public void set(U obj, W newValue) {
         unsafe.putObject(obj, offset, newValue);
     }

@@ -169,14 +169,11 @@ public class MessageTask implements RejectedRunnable {
         try {
             MessageWrapper msg = _request.message();
             String methodName = msg.getMethodName();
-            final TraceId traceId = msg.getTraceId();
+            TraceId traceId = msg.getTraceId();
 
-            // current traceId
+            // bind current traceId
             if (TracingUtil.isTracingNeeded()) {
-                if (traceId != null) {
-                    traceNodeUpdater.set(traceId, traceId.getNode() + 1);
-                }
-                TracingUtil.setCurrent(traceId);
+                bindCurrentTraceId(traceId);
             }
 
             Object provider = service.getServiceProvider();
@@ -206,9 +203,9 @@ public class MessageTask implements RejectedRunnable {
                 }
 
                 // 根据JLS方法调用的静态分派规则查找最匹配的方法parameterTypes
-                Pair<Class<?>[], Class<?>[]> pair = Reflects.findMatchingParameterTypesExt(methodExtension, args);
-                Class<?>[] parameterTypes = pair.getFirst();
-                exceptionTypes = pair.getSecond();
+                Pair<Class<?>[], Class<?>[]> bestMatch = Reflects.findMatchingParameterTypesExt(methodExtension, args);
+                Class<?>[] parameterTypes = bestMatch.getFirst();
+                exceptionTypes = bestMatch.getSecond();
                 invokeResult = Reflects.fastInvoke(provider, methodName, parameterTypes, args);
             } catch (Throwable t) {
                 // handle biz exception
@@ -247,31 +244,36 @@ public class MessageTask implements RejectedRunnable {
             JResponseBytes response = new JResponseBytes(_request.invokeId());
             response.status(Status.OK.value());
             response.bytes(s_code, bytes);
-            channel.write(response, new JFutureListener<JChannel>() {
 
-                @Override
-                public void operationSuccess(JChannel channel) throws Exception {
-                    if (METRIC_NEEDED) {
-                        MetricsHolder.processingTimer.update(
-                                SystemClock.millisClock().now() - _request.timestamp(), TimeUnit.MILLISECONDS);
-                    }
-                }
-
-                @Override
-                public void operationFailure(JChannel channel, Throwable cause) throws Exception {
-                    logger.error(
-                            "Service response[traceId: {}] sent failed, elapsed: {} millis, channel: {}, cause: {}.",
-                            traceId, SystemClock.millisClock().now() - _request.timestamp(), channel, cause
-                    );
-                }
-            });
+            handleWriteResponse(response);
         } catch (Throwable t) {
             processor.handleException(channel, _request, Status.SERVER_ERROR, t);
         }
     }
 
+    private void handleWriteResponse(JResponseBytes response) {
+        channel.write(response, new JFutureListener<JChannel>() {
+
+            @Override
+            public void operationSuccess(JChannel channel) throws Exception {
+                if (METRIC_NEEDED) {
+                    MetricsHolder.processingTimer.update(
+                            SystemClock.millisClock().now() - request.timestamp(), TimeUnit.MILLISECONDS);
+                }
+            }
+
+            @Override
+            public void operationFailure(JChannel channel, Throwable cause) throws Exception {
+                logger.error(
+                        "Service response[traceId: {}] sent failed, elapsed: {} millis, channel: {}, cause: {}.",
+                        request.message().getTraceId(), SystemClock.millisClock().now() - request.timestamp(), channel, cause
+                );
+            }
+        });
+    }
+
     private void handleException(Class<?>[] exceptionTypes, Throwable failCause) {
-        if (exceptionTypes.length > 0) {
+        if (exceptionTypes != null && exceptionTypes.length > 0) {
             Class<?> failType = failCause.getClass();
             for (Class<?> eType : exceptionTypes) {
                 // 如果抛出声明异常的子类, 客户端可能会因为不存在子类类型而无法序列化, 会在客户端抛出无法反序列化异常
@@ -319,6 +321,13 @@ public class MessageTask implements RejectedRunnable {
                 logger.error("Interceptor[{}#afterInvoke]: {}.", Reflects.simpleClassName(interceptors[i]), stackTrace(t));
             }
         }
+    }
+
+    private static void bindCurrentTraceId(TraceId traceId) {
+        if (traceId != null) {
+            traceNodeUpdater.set(traceId, traceId.getNode() + 1);
+        }
+        TracingUtil.setCurrent(traceId);
     }
 
     private static String getCallInfo(ServiceMetadata metadata, String methodName) {

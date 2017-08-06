@@ -51,7 +51,7 @@ public interface ClusterInvoker {
         }
     }
 
-    String name();
+    Strategy strategy();
 
     <T> InvokeFuture<T> invoke(String methodName, Object[] args, Class<T> returnType) throws Exception;
 }

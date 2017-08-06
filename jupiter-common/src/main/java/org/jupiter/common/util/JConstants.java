@@ -81,7 +81,7 @@ public final class JConstants {
             SystemPropertyUtil.getInt("jupiter.rpc.load-balancer.max.weight", 100);
 
     /** Suggest that the count of connections **/
-    public static final int DEFAULT_CONNECTION_COUNT =
+    public static final int SUGGESTED_CONNECTION_COUNT =
             SystemPropertyUtil.getInt("jupiter.rpc.suggest.connection.count", AVAILABLE_PROCESSORS);
 
     /** Metrics csv reporter */

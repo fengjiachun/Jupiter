@@ -17,6 +17,7 @@
 package org.jupiter.rpc.load.balance;
 
 import org.jupiter.common.util.SystemClock;
+import org.jupiter.transport.Directory;
 import org.jupiter.transport.UnresolvedAddress;
 import org.jupiter.transport.channel.JChannel;
 import org.jupiter.transport.channel.JChannelGroup;
@@ -79,9 +80,7 @@ public class ChannelGroup implements JChannelGroup {
     }
 
     @Override
-    public void setCapacity(int capacity) {
-
-    }
+    public void setCapacity(int capacity) {}
 
     @Override
     public int getCapacity() {
@@ -99,14 +98,15 @@ public class ChannelGroup implements JChannelGroup {
     }
 
     @Override
-    public int getWeight() {
-        return weight;
+    public int getWeight(Directory directory) {
+        return 0;
     }
 
     @Override
-    public void setWeight(int weight) {
-        this.weight = weight;
-    }
+    public void setWeight(Directory directory, int weight) {}
+
+    @Override
+    public void removeWeight(Directory directory) {}
 
     @Override
     public int getWarmUp() {

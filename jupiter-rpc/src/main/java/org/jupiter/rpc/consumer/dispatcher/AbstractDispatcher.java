@@ -26,6 +26,7 @@ import org.jupiter.rpc.consumer.future.DefaultInvokeFuture;
 import org.jupiter.rpc.exception.JupiterRemoteException;
 import org.jupiter.rpc.load.balance.LoadBalancer;
 import org.jupiter.rpc.model.metadata.MessageWrapper;
+import org.jupiter.rpc.model.metadata.MethodSpecialConfig;
 import org.jupiter.rpc.model.metadata.ResultWrapper;
 import org.jupiter.rpc.model.metadata.ServiceMetadata;
 import org.jupiter.rpc.tracing.TraceId;
@@ -62,7 +63,7 @@ abstract class AbstractDispatcher implements Dispatcher {
     private ConsumerHook[] hooks = ConsumerHook.EMPTY_HOOKS;    // 消费者端钩子函数
     private long timeoutMillis = JConstants.DEFAULT_TIMEOUT;    // 调用超时时间设置
     // 针对指定方法单独设置的超时时间, 方法名为key, 方法参数类型不做区别对待
-    private Map<String, Long> methodsSpecialTimeoutMillis = Maps.newHashMap();
+    private Map<String, Long> methodSpecialTimeoutMapping = Maps.newHashMap();
 
     public AbstractDispatcher(ServiceMetadata metadata, SerializerType serializerType) {
         this(null, metadata, serializerType);
@@ -104,29 +105,34 @@ abstract class AbstractDispatcher implements Dispatcher {
     }
 
     @Override
-    public Dispatcher methodsSpecialTimeoutMillis(Map<String, Long> methodsSpecialTimeoutMillis) {
-        if (methodsSpecialTimeoutMillis != null && !methodsSpecialTimeoutMillis.isEmpty()) {
-            this.methodsSpecialTimeoutMillis.putAll(methodsSpecialTimeoutMillis);
+    public Dispatcher methodSpecialConfigs(List<MethodSpecialConfig> methodSpecialConfigs) {
+        if (!methodSpecialConfigs.isEmpty()) {
+            for (MethodSpecialConfig config : methodSpecialConfigs) {
+                long timeoutMillis = config.getTimeoutMillis();
+                if (timeoutMillis > 0) {
+                    methodSpecialTimeoutMapping.put(config.getMethodName(), timeoutMillis);
+                }
+            }
         }
         return this;
     }
 
-    public long methodSpecialTimeoutMillis(String methodName) {
-        Long methodSpecialTimeoutMillis = methodsSpecialTimeoutMillis.get(methodName);
-        if (methodSpecialTimeoutMillis != null && methodSpecialTimeoutMillis > 0) {
-            return methodSpecialTimeoutMillis;
+    public long getMethodSpecialTimeoutMillis(String methodName) {
+        Long methodTimeoutMillis = methodSpecialTimeoutMapping.get(methodName);
+        if (methodTimeoutMillis != null && methodTimeoutMillis > 0) {
+            return methodTimeoutMillis;
         }
         return timeoutMillis;
     }
 
-    protected JChannel select(JClient client, MessageWrapper message) {
+    protected JChannel select(JClient client) {
         // stack copy
         final ServiceMetadata _metadata = metadata;
 
         CopyOnWriteGroupList groups = client
                 .connector()
                 .directory(_metadata);
-        JChannelGroup group = loadBalancer.select(groups, message);
+        JChannelGroup group = loadBalancer.select(groups, _metadata);
 
         if (group != null) {
             if (group.isAvailable()) {
@@ -159,7 +165,7 @@ abstract class AbstractDispatcher implements Dispatcher {
     }
 
     // tracing
-    protected MessageWrapper doTracing(MessageWrapper message, String methodName, JChannel channel) {
+    protected MessageWrapper doTracing(MessageWrapper message, JChannel channel) {
         if (TracingUtil.isTracingNeeded()) {
             TraceId traceId = TracingUtil.getCurrent();
             if (traceId == TraceId.NULL_TRACE_ID) {
@@ -169,7 +175,7 @@ abstract class AbstractDispatcher implements Dispatcher {
 
             TracingRecorder recorder = TracingUtil.getRecorder();
             recorder.recording(
-                    TracingRecorder.Role.CONSUMER, traceId.asText(), metadata.directory(), methodName, channel);
+                    TracingRecorder.Role.CONSUMER, traceId.asText(), metadata.directory(), message.getMethodName(), channel);
         }
         return message;
     }

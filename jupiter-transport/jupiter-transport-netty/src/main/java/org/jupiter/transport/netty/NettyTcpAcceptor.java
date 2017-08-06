@@ -22,6 +22,7 @@ import io.netty.channel.ChannelOption;
 import io.netty.channel.EventLoopGroup;
 import io.netty.channel.WriteBufferWaterMark;
 import io.netty.channel.epoll.EpollEventLoopGroup;
+import io.netty.channel.kqueue.KQueueEventLoopGroup;
 import io.netty.channel.nio.NioEventLoopGroup;
 import org.jupiter.common.util.JConstants;
 import org.jupiter.common.util.internal.logging.InternalLogger;
@@ -42,54 +43,78 @@ public abstract class NettyTcpAcceptor extends NettyAcceptor {
 
     private static final InternalLogger logger = InternalLoggerFactory.getInstance(NettyTcpAcceptor.class);
 
-    private final boolean nativeEt; // Use native epoll ET
+    private final boolean isNative; // use native transport
     private final NettyConfig.NettyTcpConfigGroup configGroup = new NettyConfig.NettyTcpConfigGroup();
 
     public NettyTcpAcceptor(int port) {
         super(Protocol.TCP, new InetSocketAddress(port));
-        nativeEt = true;
+        isNative = false;
         init();
     }
 
     public NettyTcpAcceptor(SocketAddress localAddress) {
         super(Protocol.TCP, localAddress);
-        nativeEt = true;
+        isNative = false;
         init();
     }
 
-    public NettyTcpAcceptor(int port, int nWorks) {
-        super(Protocol.TCP, new InetSocketAddress(port), nWorks);
-        nativeEt = true;
+    public NettyTcpAcceptor(int port, int nWorkers) {
+        super(Protocol.TCP, new InetSocketAddress(port), nWorkers);
+        isNative = false;
         init();
     }
 
-    public NettyTcpAcceptor(SocketAddress localAddress, int nWorks) {
-        super(Protocol.TCP, localAddress, nWorks);
-        nativeEt = true;
+    public NettyTcpAcceptor(int port, int nBosses, int nWorkers) {
+        super(Protocol.TCP, new InetSocketAddress(port), nBosses, nWorkers);
+        isNative = false;
         init();
     }
 
-    public NettyTcpAcceptor(int port, boolean nativeEt) {
+    public NettyTcpAcceptor(SocketAddress localAddress, int nWorkers) {
+        super(Protocol.TCP, localAddress, nWorkers);
+        isNative = false;
+        init();
+    }
+
+    public NettyTcpAcceptor(SocketAddress localAddress, int nBosses, int nWorkers) {
+        super(Protocol.TCP, localAddress, nBosses, nWorkers);
+        isNative = false;
+        init();
+    }
+
+    public NettyTcpAcceptor(int port, boolean isNative) {
         super(Protocol.TCP, new InetSocketAddress(port));
-        this.nativeEt = nativeEt;
+        this.isNative = isNative;
         init();
     }
 
-    public NettyTcpAcceptor(SocketAddress localAddress, boolean nativeEt) {
+    public NettyTcpAcceptor(SocketAddress localAddress, boolean isNative) {
         super(Protocol.TCP, localAddress);
-        this.nativeEt = nativeEt;
+        this.isNative = isNative;
         init();
     }
 
-    public NettyTcpAcceptor(int port, int nWorks, boolean nativeEt) {
-        super(Protocol.TCP, new InetSocketAddress(port), nWorks);
-        this.nativeEt = nativeEt;
+    public NettyTcpAcceptor(int port, int nWorkers, boolean isNative) {
+        super(Protocol.TCP, new InetSocketAddress(port), nWorkers);
+        this.isNative = isNative;
         init();
     }
 
-    public NettyTcpAcceptor(SocketAddress localAddress, int nWorks, boolean nativeEt) {
-        super(Protocol.TCP, localAddress, nWorks);
-        this.nativeEt = nativeEt;
+    public NettyTcpAcceptor(int port, int nBosses, int nWorkers, boolean isNative) {
+        super(Protocol.TCP, new InetSocketAddress(port), nBosses, nWorkers);
+        this.isNative = isNative;
+        init();
+    }
+
+    public NettyTcpAcceptor(SocketAddress localAddress, int nWorkers, boolean isNative) {
+        super(Protocol.TCP, localAddress, nWorkers);
+        this.isNative = isNative;
+        init();
+    }
+
+    public NettyTcpAcceptor(SocketAddress localAddress, int nBosses, int nWorkers, boolean isNative) {
+        super(Protocol.TCP, localAddress, nBosses, nWorkers);
+        this.isNative = isNative;
         init();
     }
 
@@ -164,6 +189,8 @@ public abstract class NettyTcpAcceptor extends NettyAcceptor {
         EventLoopGroup boss = boss();
         if (boss instanceof EpollEventLoopGroup) {
             ((EpollEventLoopGroup) boss).setIoRatio(bossIoRatio);
+        } else if (boss instanceof KQueueEventLoopGroup) {
+            ((KQueueEventLoopGroup) boss).setIoRatio(bossIoRatio);
         } else if (boss instanceof NioEventLoopGroup) {
             ((NioEventLoopGroup) boss).setIoRatio(bossIoRatio);
         }
@@ -171,6 +198,8 @@ public abstract class NettyTcpAcceptor extends NettyAcceptor {
         EventLoopGroup worker = worker();
         if (worker instanceof EpollEventLoopGroup) {
             ((EpollEventLoopGroup) worker).setIoRatio(workerIoRatio);
+        } else if (worker instanceof KQueueEventLoopGroup) {
+            ((KQueueEventLoopGroup) worker).setIoRatio(workerIoRatio);
         } else if (worker instanceof NioEventLoopGroup) {
             ((NioEventLoopGroup) worker).setIoRatio(workerIoRatio);
         }
@@ -178,19 +207,53 @@ public abstract class NettyTcpAcceptor extends NettyAcceptor {
 
     @Override
     protected EventLoopGroup initEventLoopGroup(int nThreads, ThreadFactory tFactory) {
-        return isNativeEt() ? new EpollEventLoopGroup(nThreads, tFactory) : new NioEventLoopGroup(nThreads, tFactory);
+        TcpChannelProvider.SocketType socketType = socketType();
+        switch (socketType) {
+            case NATIVE_EPOLL:
+                return new EpollEventLoopGroup(nThreads, tFactory);
+            case NATIVE_KQUEUE:
+                return new KQueueEventLoopGroup(nThreads, tFactory);
+            case JAVA_NIO:
+                return new NioEventLoopGroup(nThreads, tFactory);
+            default:
+                throw new IllegalStateException("invalid socket type: " + socketType);
+        }
     }
 
-    /**
-     * Netty provides the native socket transport for Linux using JNI based on Epoll Edge Triggered(ET).
-     */
-    public boolean isNativeEt() {
-        return nativeEt && NativeSupport.isSupportNativeET();
+    protected void initChannelFactory() {
+        TcpChannelProvider.SocketType socketType = socketType();
+        switch (socketType) {
+            case NATIVE_EPOLL:
+                bootstrap().channelFactory(TcpChannelProvider.NATIVE_EPOLL_ACCEPTOR);
+                break;
+            case NATIVE_KQUEUE:
+                bootstrap().channelFactory(TcpChannelProvider.NATIVE_KQUEUE_ACCEPTOR);
+                break;
+            case JAVA_NIO:
+                bootstrap().channelFactory(TcpChannelProvider.JAVA_NIO_ACCEPTOR);
+                break;
+            default:
+                throw new IllegalStateException("invalid socket type: " + socketType);
+        }
+    }
+
+    private TcpChannelProvider.SocketType socketType() {
+        if (isNative && NativeSupport.isNativeEPollAvailable()) {
+            // netty provides the native socket transport for Linux using JNI.
+            return TcpChannelProvider.SocketType.NATIVE_EPOLL;
+        }
+        if (isNative && NativeSupport.isNativeKQueueAvailable()) {
+            // netty provides the native socket transport for BSD systems such as MacOS using JNI.
+            return TcpChannelProvider.SocketType.NATIVE_KQUEUE;
+        }
+        return TcpChannelProvider.SocketType.JAVA_NIO;
     }
 
     @Override
     public String toString() {
-        return "Socket address:[" + localAddress + ']' + ", nativeET: " + isNativeEt()
-                + JConstants.NEWLINE + bootstrap();
+        return "Socket address:[" + localAddress + ']'
+                + ", socket type: " + socketType()
+                + JConstants.NEWLINE
+                + bootstrap();
     }
 }

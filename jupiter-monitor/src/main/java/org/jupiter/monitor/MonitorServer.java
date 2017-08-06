@@ -18,7 +18,6 @@ package org.jupiter.monitor;
 
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.*;
-import io.netty.channel.socket.SocketChannel;
 import io.netty.handler.codec.DelimiterBasedFrameDecoder;
 import io.netty.handler.codec.Delimiters;
 import io.netty.handler.codec.string.StringDecoder;
@@ -32,7 +31,6 @@ import org.jupiter.monitor.handler.CommandHandler;
 import org.jupiter.monitor.handler.RegistryHandler;
 import org.jupiter.registry.RegistryMonitor;
 import org.jupiter.transport.netty.NettyTcpAcceptor;
-import org.jupiter.transport.netty.TcpChannelProvider;
 
 import java.net.SocketAddress;
 
@@ -89,18 +87,19 @@ public class MonitorServer extends NettyTcpAcceptor {
     public ChannelFuture bind(SocketAddress localAddress) {
         ServerBootstrap boot = bootstrap();
 
-        boot.channelFactory(TcpChannelProvider.NIO_ACCEPTOR)
-                .childHandler(new ChannelInitializer<SocketChannel>() {
+        initChannelFactory();
 
-                    @Override
-                    protected void initChannel(SocketChannel ch) throws Exception {
-                        ch.pipeline().addLast(
-                                new DelimiterBasedFrameDecoder(8192, Delimiters.lineDelimiter()),
-                                new StringDecoder(JConstants.UTF8),
-                                encoder,
-                                handler);
-                    }
-                });
+        boot.childHandler(new ChannelInitializer<Channel>() {
+
+            @Override
+            protected void initChannel(Channel ch) throws Exception {
+                ch.pipeline().addLast(
+                        new DelimiterBasedFrameDecoder(8192, Delimiters.lineDelimiter()),
+                        new StringDecoder(JConstants.UTF8),
+                        encoder,
+                        handler);
+            }
+        });
 
         setOptions();
 

@@ -105,18 +105,20 @@ public class JNettyTcpConnector extends NettyTcpConnector {
     private final ProtocolEncoder encoder = new ProtocolEncoder();
     private final ConnectorHandler handler = new ConnectorHandler();
 
-    public JNettyTcpConnector() {}
+    public JNettyTcpConnector() {
+        super();
+    }
 
-    public JNettyTcpConnector(boolean nativeEt) {
-        super(nativeEt);
+    public JNettyTcpConnector(boolean isNative) {
+        super(isNative);
     }
 
     public JNettyTcpConnector(int nWorkers) {
         super(nWorkers);
     }
 
-    public JNettyTcpConnector(int nWorkers, boolean nativeEt) {
-        super(nWorkers, nativeEt);
+    public JNettyTcpConnector(int nWorkers, boolean isNative) {
+        super(nWorkers, isNative);
     }
 
     @Override
@@ -125,11 +127,7 @@ public class JNettyTcpConnector extends NettyTcpConnector {
         config().setOption(JOption.SO_REUSEADDR, true);
         config().setOption(JOption.CONNECT_TIMEOUT_MILLIS, (int) TimeUnit.SECONDS.toMillis(3));
         // channel factory
-        if (isNativeEt()) {
-            bootstrap().channelFactory(TcpChannelProvider.NATIVE_CONNECTOR);
-        } else {
-            bootstrap().channelFactory(TcpChannelProvider.NIO_CONNECTOR);
-        }
+        initChannelFactory();
     }
 
     @Override
@@ -160,7 +158,6 @@ public class JNettyTcpConnector extends NettyTcpConnector {
                 };
             }
         };
-        watchdog.start();
 
         ChannelFuture future;
         try {

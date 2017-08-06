@@ -17,6 +17,7 @@
 package org.jupiter.rpc.load.balance;
 
 import org.jupiter.common.util.SystemClock;
+import org.jupiter.transport.Directory;
 import org.jupiter.transport.channel.JChannelGroup;
 
 /**
@@ -40,8 +41,8 @@ public abstract class AbstractLoadBalancer implements LoadBalancer {
     }
 
     // 计算权重, 包含预热逻辑
-    protected int getWeight(JChannelGroup group) {
-        int weight = group.getWeight();
+    protected int getWeight(JChannelGroup group, Directory directory) {
+        int weight = group.getWeight(directory);
         int warmUp = group.getWarmUp();
         int upTime = (int) (SystemClock.millisClock().now() - group.timestamp());
 

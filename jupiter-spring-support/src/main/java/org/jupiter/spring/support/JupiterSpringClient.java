@@ -16,14 +16,22 @@
 
 package org.jupiter.spring.support;
 
+import org.jupiter.common.util.ExceptionUtil;
 import org.jupiter.common.util.Lists;
 import org.jupiter.common.util.Strings;
+import org.jupiter.common.util.SystemPropertyUtil;
+import org.jupiter.registry.RegistryService;
+import org.jupiter.rpc.DefaultClient;
 import org.jupiter.rpc.JClient;
+import org.jupiter.transport.JConnection;
+import org.jupiter.transport.JConnector;
 import org.jupiter.transport.UnresolvedAddress;
 import org.springframework.beans.factory.InitializingBean;
 
 import java.util.Collections;
 import java.util.List;
+
+import static org.jupiter.common.util.Preconditions.checkNotNull;
 
 /**
  * jupiter client wrapper, 负责初始化并启动客户端.
@@ -36,6 +44,9 @@ import java.util.List;
 public class JupiterSpringClient implements InitializingBean {
 
     private JClient client;
+    private String appName;
+    private RegistryService.RegistryType registryType;
+    private JConnector<JConnection> connector;
 
     private String registryServerAddresses;                             // 注册中心地址 [host1:port1,host2:port2....]
     private String providerServerAddresses;                             // IP直连到providers [host1:port1,host2:port2....]
@@ -48,6 +59,12 @@ public class JupiterSpringClient implements InitializingBean {
     }
 
     private void init() {
+        client = new DefaultClient(appName, registryType);
+        if (connector == null) {
+            connector = createDefaultConnector();
+        }
+        client.withConnector(connector);
+
         // 注册中心
         if (Strings.isNotBlank(registryServerAddresses)) {
             client.connectToRegistryServer(registryServerAddresses);
@@ -88,6 +105,30 @@ public class JupiterSpringClient implements InitializingBean {
         this.client = client;
     }
 
+    public String getAppName() {
+        return appName;
+    }
+
+    public void setAppName(String appName) {
+        this.appName = appName;
+    }
+
+    public RegistryService.RegistryType getRegistryType() {
+        return registryType;
+    }
+
+    public void setRegistryType(String registryType) {
+        this.registryType = RegistryService.RegistryType.parse(registryType);
+    }
+
+    public JConnector<JConnection> getConnector() {
+        return connector;
+    }
+
+    public void setConnector(JConnector<JConnection> connector) {
+        this.connector = connector;
+    }
+
     public String getRegistryServerAddresses() {
         return registryServerAddresses;
     }
@@ -114,5 +155,19 @@ public class JupiterSpringClient implements InitializingBean {
 
     public boolean isHasRegistryServer() {
         return hasRegistryServer;
+    }
+
+    @SuppressWarnings("unchecked")
+    private JConnector<JConnection> createDefaultConnector() {
+        JConnector<JConnection> defaultConnector = null;
+        try {
+            String className = SystemPropertyUtil
+                    .get("jupiter.io.default.connector", "org.jupiter.transport.netty.JNettyTcpConnector");
+            Class<?> clazz = Class.forName(className);
+            defaultConnector = (JConnector<JConnection>) clazz.newInstance();
+        } catch (Exception e) {
+            ExceptionUtil.throwException(e);
+        }
+        return checkNotNull(defaultConnector, "default connector");
     }
 }

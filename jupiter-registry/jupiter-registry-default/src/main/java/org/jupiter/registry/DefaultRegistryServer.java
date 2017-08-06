@@ -22,7 +22,6 @@ import io.netty.channel.*;
 import io.netty.channel.group.ChannelGroup;
 import io.netty.channel.group.ChannelMatcher;
 import io.netty.channel.group.DefaultChannelGroup;
-import io.netty.channel.socket.SocketChannel;
 import io.netty.handler.codec.MessageToByteEncoder;
 import io.netty.handler.codec.ReplayingDecoder;
 import io.netty.util.Attribute;
@@ -42,7 +41,6 @@ import org.jupiter.transport.JOption;
 import org.jupiter.transport.JProtocolHeader;
 import org.jupiter.transport.exception.IoSignals;
 import org.jupiter.transport.netty.NettyTcpAcceptor;
-import org.jupiter.transport.netty.TcpChannelProvider;
 import org.jupiter.transport.netty.handler.AcknowledgeEncoder;
 import org.jupiter.transport.netty.handler.IdleStateChecker;
 import org.jupiter.transport.netty.handler.acceptor.AcceptorIdleStateTrigger;
@@ -71,7 +69,7 @@ import static org.jupiter.common.util.StackTraceUtil.stackTrace;
  *
  * @author jiachun.fjc
  */
-public class DefaultRegistryServer extends NettyTcpAcceptor implements RegistryServer {
+public final class DefaultRegistryServer extends NettyTcpAcceptor implements RegistryServer {
 
     private static final InternalLogger logger = InternalLoggerFactory.getInstance(DefaultRegistryServer.class);
 
@@ -102,19 +100,19 @@ public class DefaultRegistryServer extends NettyTcpAcceptor implements RegistryS
     }
 
     public DefaultRegistryServer(int port) {
-        super(port, false);
+        super(port);
     }
 
     public DefaultRegistryServer(SocketAddress address) {
-        super(address, false);
+        super(address);
     }
 
-    public DefaultRegistryServer(int port, int nWorks) {
-        super(port, nWorks, false);
+    public DefaultRegistryServer(int port, int nWorkers) {
+        super(port, nWorkers);
     }
 
-    public DefaultRegistryServer(SocketAddress address, int nWorks) {
-        super(address, nWorks, false);
+    public DefaultRegistryServer(SocketAddress address, int nWorkers) {
+        super(address, nWorkers);
     }
 
     @Override
@@ -135,20 +133,21 @@ public class DefaultRegistryServer extends NettyTcpAcceptor implements RegistryS
     public ChannelFuture bind(SocketAddress localAddress) {
         ServerBootstrap boot = bootstrap();
 
-        boot.channelFactory(TcpChannelProvider.NIO_ACCEPTOR)
-                .childHandler(new ChannelInitializer<SocketChannel>() {
+        initChannelFactory();
 
-                    @Override
-                    protected void initChannel(SocketChannel ch) throws Exception {
-                        ch.pipeline().addLast(
-                                new IdleStateChecker(timer, JConstants.READER_IDLE_TIME_SECONDS, 0, 0),
-                                idleStateTrigger,
-                                new MessageDecoder(),
-                                encoder,
-                                ackEncoder,
-                                handler);
-                    }
-                });
+        boot.childHandler(new ChannelInitializer<Channel>() {
+
+            @Override
+            protected void initChannel(Channel ch) throws Exception {
+                ch.pipeline().addLast(
+                        new IdleStateChecker(timer, JConstants.READER_IDLE_TIME_SECONDS, 0, 0),
+                        idleStateTrigger,
+                        new MessageDecoder(),
+                        encoder,
+                        ackEncoder,
+                        handler);
+            }
+        });
 
         setOptions();
 
@@ -396,7 +395,6 @@ public class DefaultRegistryServer extends NettyTcpAcceptor implements RegistryS
     // 检查channel上的标记(是否订阅过指定的服务)
     private static boolean isChannelSubscribeOnServiceMeta(RegisterMeta.ServiceMeta serviceMeta, Channel channel) {
         ConcurrentSet<RegisterMeta.ServiceMeta> serviceMetaSet = channel.attr(S_SUBSCRIBE_KEY).get();
-
         return serviceMetaSet != null && serviceMetaSet.contains(serviceMeta);
     }
 
@@ -538,7 +536,7 @@ public class DefaultRegistryServer extends NettyTcpAcceptor implements RegistryS
         @Override
         protected void encode(ChannelHandlerContext ctx, Message msg, ByteBuf out) throws Exception {
             byte s_code = msg.serializerCode();
-            byte sign = (byte) ((s_code << 4) + msg.messageCode());
+            byte sign = JProtocolHeader.toSign(s_code, msg.messageCode());
             Serializer serializer = SerializerFactory.getSerializer(s_code);
             byte[] bytes = serializer.writeObject(msg);
 
@@ -704,11 +702,13 @@ public class DefaultRegistryServer extends NettyTcpAcceptor implements RegistryS
                             }
                         }
                     }
-
-                    Thread.sleep(300);
                 } catch (Throwable t) {
                     logger.error("An exception was caught while scanning the timeout acknowledges {}.", stackTrace(t));
                 }
+
+                try {
+                    Thread.sleep(300);
+                } catch (InterruptedException ignored) {}
             }
         }
     }

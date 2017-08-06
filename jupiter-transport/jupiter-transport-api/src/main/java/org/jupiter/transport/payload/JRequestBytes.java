@@ -35,7 +35,7 @@ public class JRequestBytes extends BytesHolder {
     // 才有溢出的可能, 比如一个100万qps的系统把 <0 ~ Long.MAX_VALUE> 范围内的id都使用完大概需要29万年.
     //
     // 未来jupiter可能将invokeId限制在48位, 留出高地址的16位作为扩展字段.
-    private static final AtomicLong invokeIdGenerator = new AtomicLong(0);
+    private static final AtomicLong sequence = new AtomicLong();
 
     // 用于映射 <id, request, response> 三元组
     private final long invokeId;
@@ -43,7 +43,7 @@ public class JRequestBytes extends BytesHolder {
     private transient long timestamp;
 
     public JRequestBytes() {
-        this(invokeIdGenerator.getAndIncrement());
+        this(sequence.incrementAndGet());
     }
 
     public JRequestBytes(long invokeId) {

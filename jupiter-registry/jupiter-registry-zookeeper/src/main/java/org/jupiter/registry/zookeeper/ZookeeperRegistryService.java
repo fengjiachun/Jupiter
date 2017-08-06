@@ -39,9 +39,11 @@ import org.jupiter.registry.RegisterMeta.Address;
 import java.io.IOException;
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.atomic.AtomicLong;
 
+import static org.apache.zookeeper.KeeperException.Code;
 import static org.jupiter.common.util.Preconditions.checkNotNull;
 import static org.jupiter.common.util.StackTraceUtil.stackTrace;
 
@@ -122,10 +124,10 @@ public class ZookeeperRegistryService extends AbstractRegistryService {
                                 ConcurrentSet<RegisterMeta.ServiceMeta> serviceMetaSet = getServiceMeta(address);
 
                                 serviceMetaSet.add(serviceMeta);
-                                ZookeeperRegistryService.this.notify(
+                                ZookeeperRegistryService.super.notify(
                                         serviceMeta,
                                         NotifyListener.NotifyEvent.CHILD_ADDED,
-                                        sequence.getAndIncrement(),
+                                        sequence.incrementAndGet(),
                                         registerMeta);
 
                                 break;
@@ -137,16 +139,16 @@ public class ZookeeperRegistryService extends AbstractRegistryService {
                                 ConcurrentSet<RegisterMeta.ServiceMeta> serviceMetaSet = getServiceMeta(address);
 
                                 serviceMetaSet.remove(serviceMeta);
-                                ZookeeperRegistryService.this.notify(
+                                ZookeeperRegistryService.super.notify(
                                         serviceMeta,
                                         NotifyListener.NotifyEvent.CHILD_REMOVED,
-                                        sequence.getAndIncrement(),
+                                        sequence.incrementAndGet(),
                                         registerMeta);
 
                                 if (serviceMetaSet.isEmpty()) {
                                     logger.info("Offline notify: {}.", address);
 
-                                    ZookeeperRegistryService.this.offline(address);
+                                    ZookeeperRegistryService.super.offline(address);
                                 }
                                 break;
                             }
@@ -159,6 +161,14 @@ public class ZookeeperRegistryService extends AbstractRegistryService {
                 } catch (Exception e) {
                     if (logger.isWarnEnabled()) {
                         logger.warn("Subscribe {} failed, {}.", directory, stackTrace(e));
+                    }
+                }
+            } else {
+                try {
+                    newChildrenCache.close();
+                } catch (IOException e) {
+                    if (logger.isWarnEnabled()) {
+                        logger.warn("Close [PathChildrenCache] {} failed, {}.", directory, stackTrace(e));
                     }
                 }
             }
@@ -190,9 +200,13 @@ public class ZookeeperRegistryService extends AbstractRegistryService {
 
                 @Override
                 public void processResult(CuratorFramework client, CuratorEvent event) throws Exception {
-                    registerMetaSet().add(meta);
+                    if (event.getResultCode() == Code.OK.intValue()) {
+                        registerMetaMap.put(meta, RegisterState.DONE);
+                    }
 
-                    logger.info("Register: {}.", meta);
+                    if (logger.isInfoEnabled()) {
+                        logger.info("Register: {} - {}.", meta, event);
+                    }
                 }
             }).forPath(
                     String.format("%s/%s:%s:%s:%s",
@@ -232,9 +246,9 @@ public class ZookeeperRegistryService extends AbstractRegistryService {
 
                 @Override
                 public void processResult(CuratorFramework client, CuratorEvent event) throws Exception {
-                    registerMetaSet().remove(meta);
-
-                    logger.info("Unregister: {}.", meta);
+                    if (logger.isInfoEnabled()) {
+                        logger.info("Unregister: {} - {}.", meta, event);
+                    }
                 }
             }).forPath(
                     String.format("%s/%s:%s:%s:%s",
@@ -246,6 +260,38 @@ public class ZookeeperRegistryService extends AbstractRegistryService {
         } catch (Exception e) {
             if (logger.isWarnEnabled()) {
                 logger.warn("Delete register meta: {} path failed, {}.", meta, stackTrace(e));
+            }
+        }
+    }
+
+    @Override
+    protected void doCheckRegisterNodeStatus() {
+        for (Map.Entry<RegisterMeta, RegisterState> entry : registerMetaMap.entrySet()) {
+            if (entry.getValue() == RegisterState.DONE) {
+                continue;
+            }
+
+            RegisterMeta meta = entry.getKey();
+            String directory = String.format("/jupiter/provider/%s/%s/%s",
+                    meta.getGroup(),
+                    meta.getServiceProviderName(),
+                    meta.getVersion());
+
+            String nodePath = String.format("%s/%s:%s:%s:%s",
+                    directory,
+                    meta.getHost(),
+                    String.valueOf(meta.getPort()),
+                    String.valueOf(meta.getWeight()),
+                    String.valueOf(meta.getConnCount()));
+
+            try {
+                if (configClient.checkExists().forPath(nodePath) == null) {
+                    super.register(meta);
+                }
+            } catch (Exception e) {
+                if (logger.isWarnEnabled()) {
+                    logger.warn("Check register status, meta: {} path failed, {}.", meta, stackTrace(e));
+                }
             }
         }
     }
@@ -269,13 +315,13 @@ public class ZookeeperRegistryService extends AbstractRegistryService {
                     logger.info("Zookeeper connection has been re-established, will re-subscribe and re-register.");
 
                     // 重新订阅
-                    for (RegisterMeta.ServiceMeta serviceMeta : subscribeSet()) {
+                    for (RegisterMeta.ServiceMeta serviceMeta : subscribeSet) {
                         doSubscribe(serviceMeta);
                     }
 
                     // 重新发布服务
-                    for (RegisterMeta meta : registerMetaSet()) {
-                        doRegister(meta);
+                    for (RegisterMeta meta : registerMetaMap.keySet()) {
+                        ZookeeperRegistryService.super.register(meta);
                     }
                 }
             }

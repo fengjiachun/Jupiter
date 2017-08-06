@@ -19,6 +19,7 @@ package org.jupiter.example.zookeeper;
 import org.jupiter.common.util.SystemPropertyUtil;
 import org.jupiter.example.ServiceTestImpl;
 import org.jupiter.monitor.MonitorServer;
+import org.jupiter.registry.RegistryService;
 import org.jupiter.rpc.DefaultServer;
 import org.jupiter.rpc.JRequest;
 import org.jupiter.rpc.JServer;
@@ -49,10 +50,9 @@ public class JupiterServer {
         }
 
         SystemPropertyUtil.setProperty("jupiter.local.address", "127.0.0.1");
-        // 设置使用zookeeper作为注册中心
-        SystemPropertyUtil.setProperty("jupiter.registry.impl", "zookeeper");
 
-        final JServer server = new DefaultServer().withAcceptor(new JNettyTcpAcceptor(18090));
+        final JServer server = new DefaultServer(RegistryService.RegistryType.ZOOKEEPER)
+                .withAcceptor(new JNettyTcpAcceptor(18090));
         MonitorServer monitor = new MonitorServer();
         try {
             monitor.start();
@@ -60,7 +60,6 @@ public class JupiterServer {
             ServiceWrapper provider = server.serviceRegistry()
                     .provider(new ServiceTestImpl())
                     .weight(60)
-                    .connCount(1)
                     .flowController(new FlowController<JRequest>() { // provider级别限流器, 可以不设置
 
                         private AtomicLong count = new AtomicLong();

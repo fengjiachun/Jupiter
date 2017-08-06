@@ -14,30 +14,31 @@
  * limitations under the License.
  */
 
-package org.jupiter.example.udt;
+package org.jupiter.example.zookeeper.spring;
 
-import org.jupiter.example.ServiceTestImpl;
-import org.jupiter.rpc.DefaultServer;
-import org.jupiter.rpc.JServer;
-import org.jupiter.transport.netty.JNettyUdtAcceptor;
+import org.jupiter.example.ServiceTest;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.support.ClassPathXmlApplicationContext;
 
 /**
+ * 1.先启动外部的zookeeper
+ * 2.再启动 SpringServer
+ * 3.最后启动 SpringClient
+ *
  * jupiter
- * org.jupiter.example.udt
+ * org.jupiter.example.spring
  *
  * @author jiachun.fjc
  */
-public class UdtJupiterServer {
+public class SpringJupiterClient {
 
     public static void main(String[] args) {
-        JServer server = new DefaultServer().withAcceptor(new JNettyUdtAcceptor(18090));
+        ApplicationContext ctx = new ClassPathXmlApplicationContext("classpath:zk-spring-consumer.xml");
+        ServiceTest service = ctx.getBean(ServiceTest.class);
         try {
-            server.serviceRegistry()
-                    .provider(new ServiceTestImpl())
-                    .register();
-
-            server.start();
-        } catch (InterruptedException e) {
+            ServiceTest.ResultClass result1 = service.sayHello("jupiter");
+            System.out.println(result1);
+        } catch (Exception e) {
             e.printStackTrace();
         }
     }

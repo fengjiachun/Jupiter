@@ -20,14 +20,13 @@ import org.jupiter.common.concurrent.NamedThreadFactory;
 import org.jupiter.common.concurrent.collection.ConcurrentSet;
 import org.jupiter.common.util.Lists;
 import org.jupiter.common.util.Maps;
-import org.jupiter.common.util.Pair;
 import org.jupiter.common.util.internal.logging.InternalLogger;
 import org.jupiter.common.util.internal.logging.InternalLoggerFactory;
 
 import java.util.Collection;
 import java.util.Collections;
-import java.util.List;
-import java.util.Map;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.locks.Lock;
@@ -45,13 +44,16 @@ public abstract class AbstractRegistryService implements RegistryService {
 
     private static final InternalLogger logger = InternalLoggerFactory.getInstance(AbstractRegistryService.class);
 
-    private final LinkedBlockingQueue<RegisterMeta> queue = new LinkedBlockingQueue<>(1024);
-    private final ExecutorService executor =
-            Executors.newSingleThreadExecutor(new NamedThreadFactory("registry.executor"));
+    private final LinkedBlockingQueue<RegisterMeta> queue = new LinkedBlockingQueue<>();
+    private final ExecutorService registerExecutor =
+            Executors.newSingleThreadExecutor(new NamedThreadFactory("register.executor"));
+    private final ExecutorService localRegisterWatchExecutor =
+            Executors.newSingleThreadExecutor(new NamedThreadFactory("local.register.watch.executor"));
+
     private final AtomicBoolean shutdown = new AtomicBoolean(false);
 
-    private final Map<RegisterMeta.ServiceMeta, Pair<Long, List<RegisterMeta>>> registries = Maps.newHashMap();
-    private final ReentrantReadWriteLock registriesLock = new ReentrantReadWriteLock();
+    private final ConcurrentMap<RegisterMeta.ServiceMeta, RegisterValue> registries =
+            Maps.newConcurrentMap();
 
     private final ConcurrentMap<RegisterMeta.ServiceMeta, CopyOnWriteArrayList<NotifyListener>> subscribeListeners =
             Maps.newConcurrentMap();
@@ -59,12 +61,12 @@ public abstract class AbstractRegistryService implements RegistryService {
             Maps.newConcurrentMap();
 
     // Consumer已订阅的信息
-    private final ConcurrentSet<RegisterMeta.ServiceMeta> subscribeSet = new ConcurrentSet<>();
+    protected final ConcurrentSet<RegisterMeta.ServiceMeta> subscribeSet = new ConcurrentSet<>();
     // Provider已发布的注册信息
-    private final ConcurrentSet<RegisterMeta> registerMetaSet = new ConcurrentSet<>();
+    protected final ConcurrentMap<RegisterMeta, RegisterState> registerMetaMap = Maps.newConcurrentMap();
 
     public AbstractRegistryService() {
-        executor.execute(new Runnable() {
+        registerExecutor.execute(new Runnable() {
 
             @Override
             public void run() {
@@ -72,6 +74,7 @@ public abstract class AbstractRegistryService implements RegistryService {
                     RegisterMeta meta = null;
                     try {
                         meta = queue.take();
+                        registerMetaMap.put(meta, RegisterState.PREPARE);
                         doRegister(meta);
                     } catch (Throwable t) {
                         if (meta != null) {
@@ -80,6 +83,23 @@ public abstract class AbstractRegistryService implements RegistryService {
                             }
 
                             queue.add(meta);
+                        }
+                    }
+                }
+            }
+        });
+
+        localRegisterWatchExecutor.execute(new Runnable() {
+
+            @Override
+            public void run() {
+                while (!shutdown.get()) {
+                    try {
+                        Thread.sleep(3000);
+                        doCheckRegisterNodeStatus();
+                    } catch (Throwable t) {
+                        if (logger.isWarnEnabled()) {
+                            logger.warn("Check register node status fail: {}, will try again...", stackTrace(t));
                         }
                     }
                 }
@@ -94,7 +114,10 @@ public abstract class AbstractRegistryService implements RegistryService {
 
     @Override
     public void unregister(RegisterMeta meta) {
-        doUnregister(meta);
+        if (!queue.remove(meta)) {
+            registerMetaMap.remove(meta);
+            doUnregister(meta);
+        }
     }
 
     @Override
@@ -109,25 +132,25 @@ public abstract class AbstractRegistryService implements RegistryService {
         }
         listeners.add(listener);
 
+        subscribeSet.add(serviceMeta);
         doSubscribe(serviceMeta);
     }
 
     @Override
     public Collection<RegisterMeta> lookup(RegisterMeta.ServiceMeta serviceMeta) {
-        Pair<Long, List<RegisterMeta>> data;
+        RegisterValue value = registries.get(serviceMeta);
 
-        final Lock readLock = registriesLock.readLock();
+        if (value == null) {
+            return Collections.emptyList();
+        }
+
+        final Lock readLock = value.lock.readLock();
         readLock.lock();
         try {
-            data = registries.get(serviceMeta);
+            return Lists.newArrayList(value.metaSet);
         } finally {
             readLock.unlock();
         }
-
-        if (data != null) {
-            return Lists.newArrayList(data.getSecond());
-        }
-        return Collections.emptyList();
     }
 
     @Override
@@ -138,7 +161,8 @@ public abstract class AbstractRegistryService implements RegistryService {
     @Override
     public void shutdownGracefully() {
         if (!shutdown.getAndSet(true)) {
-            executor.shutdown();
+            registerExecutor.shutdown();
+            localRegisterWatchExecutor.shutdown();
             try {
                 destroy();
             } catch (Exception ignored) {}
@@ -169,14 +193,6 @@ public abstract class AbstractRegistryService implements RegistryService {
         }
     }
 
-    public ConcurrentSet<RegisterMeta.ServiceMeta> subscribeSet() {
-        return subscribeSet;
-    }
-
-    public ConcurrentSet<RegisterMeta> registerMetaSet() {
-        return registerMetaSet;
-    }
-
     // 通知新增或删除服务
     protected void notify(
             RegisterMeta.ServiceMeta serviceMeta, NotifyListener.NotifyEvent event, long version, RegisterMeta... array) {
@@ -185,36 +201,31 @@ public abstract class AbstractRegistryService implements RegistryService {
             return;
         }
 
+        RegisterValue value = registries.get(serviceMeta);
+        if (value == null) {
+            RegisterValue newValue = new RegisterValue();
+            value = registries.putIfAbsent(serviceMeta, newValue);
+            if (value == null) {
+                value = newValue;
+            }
+        }
+
         boolean notifyNeeded = false;
 
-        final Lock writeLock = registriesLock.writeLock();
+        final Lock writeLock = value.lock.writeLock();
         writeLock.lock();
         try {
-            Pair<Long, List<RegisterMeta>> data = registries.get(serviceMeta);
-            if (data == null) {
+            if (version > value.version) {
                 if (event == NotifyListener.NotifyEvent.CHILD_REMOVED) {
-                    return;
-                }
-                List<RegisterMeta> metaList = Lists.newArrayList(array);
-                data = Pair.of(version, metaList);
-                notifyNeeded = true;
-            } else {
-                long oldVersion = data.getFirst();
-                List<RegisterMeta> metaList = data.getSecond();
-                if (oldVersion < version || (version < 0 && oldVersion > 0 /* version 溢出 */)) {
-                    if (event == NotifyListener.NotifyEvent.CHILD_REMOVED) {
-                        for (RegisterMeta m : array) {
-                            metaList.remove(m);
-                        }
-                    } else if (event == NotifyListener.NotifyEvent.CHILD_ADDED) {
-                        Collections.addAll(metaList, array);
+                    for (RegisterMeta m : array) {
+                        value.metaSet.remove(m);
                     }
-                    data = Pair.of(version, metaList);
-                    notifyNeeded = true;
+                } else if (event == NotifyListener.NotifyEvent.CHILD_ADDED) {
+                    Collections.addAll(value.metaSet, array);
                 }
+                value.version = version;
+                notifyNeeded = true;
             }
-
-            registries.put(serviceMeta, data);
         } finally {
             writeLock.unlock();
         }
@@ -236,4 +247,17 @@ public abstract class AbstractRegistryService implements RegistryService {
     protected abstract void doRegister(RegisterMeta meta);
 
     protected abstract void doUnregister(RegisterMeta meta);
+
+    protected abstract void doCheckRegisterNodeStatus();
+
+    protected enum RegisterState {
+        PREPARE,
+        DONE
+    }
+
+    protected static class RegisterValue {
+        private long version = Long.MIN_VALUE;
+        private final Set<RegisterMeta> metaSet = new HashSet<>();
+        private final ReentrantReadWriteLock lock = new ReentrantReadWriteLock();
+    }
 }

@@ -19,7 +19,6 @@ package org.jupiter.registry;
 import io.netty.bootstrap.Bootstrap;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.*;
-import io.netty.channel.socket.nio.NioSocketChannel;
 import io.netty.handler.codec.MessageToByteEncoder;
 import io.netty.handler.codec.ReplayingDecoder;
 import io.netty.util.Attribute;
@@ -36,7 +35,6 @@ import org.jupiter.transport.*;
 import org.jupiter.transport.exception.ConnectFailedException;
 import org.jupiter.transport.exception.IoSignals;
 import org.jupiter.transport.netty.NettyTcpConnector;
-import org.jupiter.transport.netty.TcpChannelProvider;
 import org.jupiter.transport.netty.handler.AcknowledgeEncoder;
 import org.jupiter.transport.netty.handler.IdleStateChecker;
 import org.jupiter.transport.netty.handler.connector.ConnectionWatchdog;
@@ -60,7 +58,7 @@ import static org.jupiter.common.util.StackTraceUtil.stackTrace;
  *
  * @author jiachun.fjc
  */
-public class DefaultRegistry extends NettyTcpConnector {
+public final class DefaultRegistry extends NettyTcpConnector {
 
     private static final InternalLogger logger = InternalLoggerFactory.getInstance(DefaultRegistry.class);
 
@@ -106,7 +104,7 @@ public class DefaultRegistry extends NettyTcpConnector {
         config().setOption(JOption.SO_REUSEADDR, true);
         config().setOption(JOption.CONNECT_TIMEOUT_MILLIS, (int) TimeUnit.SECONDS.toMillis(3));
         // channel factory
-        bootstrap().channelFactory(TcpChannelProvider.NIO_CONNECTOR);
+        initChannelFactory();
     }
 
     /**
@@ -134,15 +132,14 @@ public class DefaultRegistry extends NettyTcpConnector {
                         handler
                 };
             }};
-        watchdog.start();
 
         try {
             ChannelFuture future;
             synchronized (bootstrapLock()) {
-                boot.handler(new ChannelInitializer<NioSocketChannel>() {
+                boot.handler(new ChannelInitializer<Channel>() {
 
                     @Override
-                    protected void initChannel(NioSocketChannel ch) throws Exception {
+                    protected void initChannel(Channel ch) throws Exception {
                         ch.pipeline().addLast(watchdog.handlers());
                     }
                 });
@@ -174,8 +171,6 @@ public class DefaultRegistry extends NettyTcpConnector {
      * Sent the subscription information to registry server.
      */
     public void doSubscribe(RegisterMeta.ServiceMeta serviceMeta) {
-        registryService.subscribeSet().add(serviceMeta);
-
         Message msg = new Message(serializerType.value());
         msg.messageCode(JProtocolHeader.SUBSCRIBE_SERVICE);
         msg.data(serviceMeta);
@@ -186,7 +181,7 @@ public class DefaultRegistry extends NettyTcpConnector {
             ch.writeAndFlush(msg)
                     .addListener(ChannelFutureListener.FIRE_EXCEPTION_ON_FAILURE);
 
-            MessageNonAck msgNonAck = new MessageNonAck(msg, ch);
+            MessageNonAck msgNonAck = new MessageNonAck(msg);
             messagesNonAck.put(msgNonAck.id, msgNonAck);
         }
     }
@@ -195,8 +190,6 @@ public class DefaultRegistry extends NettyTcpConnector {
      * Publishing service to registry server.
      */
     public void doRegister(RegisterMeta meta) {
-        registryService.registerMetaSet().add(meta);
-
         Message msg = new Message(serializerType.value());
         msg.messageCode(JProtocolHeader.PUBLISH_SERVICE);
         msg.data(meta);
@@ -207,7 +200,7 @@ public class DefaultRegistry extends NettyTcpConnector {
             ch.writeAndFlush(msg)
                     .addListener(ChannelFutureListener.FIRE_EXCEPTION_ON_FAILURE);
 
-            MessageNonAck msgNonAck = new MessageNonAck(msg, ch);
+            MessageNonAck msgNonAck = new MessageNonAck(msg);
             messagesNonAck.put(msgNonAck.id, msgNonAck);
         }
     }
@@ -216,8 +209,6 @@ public class DefaultRegistry extends NettyTcpConnector {
      * Notify to registry server unpublish corresponding service.
      */
     public void doUnregister(final RegisterMeta meta) {
-        registryService.registerMetaSet().remove(meta);
-
         Message msg = new Message(serializerType.value());
         msg.messageCode(JProtocolHeader.PUBLISH_CANCEL_SERVICE);
         msg.data(meta);
@@ -241,7 +232,7 @@ public class DefaultRegistry extends NettyTcpConnector {
                     }
                 });
 
-        MessageNonAck msgNonAck = new MessageNonAck(msg, channel);
+        MessageNonAck msgNonAck = new MessageNonAck(msg);
         messagesNonAck.put(msgNonAck.id, msgNonAck);
     }
 
@@ -283,13 +274,10 @@ public class DefaultRegistry extends NettyTcpConnector {
         private final long id;
 
         private final Message msg;
-        private final Channel channel;
         private final long timestamp = SystemClock.millisClock().now();
 
-        public MessageNonAck(Message msg, Channel channel) {
+        public MessageNonAck(Message msg) {
             this.msg = msg;
-            this.channel = channel;
-
             id = msg.sequence();
         }
     }
@@ -408,7 +396,7 @@ public class DefaultRegistry extends NettyTcpConnector {
         @Override
         protected void encode(ChannelHandlerContext ctx, Message msg, ByteBuf out) throws Exception {
             byte s_code = msg.serializerCode();
-            byte sign = (byte) ((s_code << 4) + msg.messageCode());
+            byte sign = JProtocolHeader.toSign(s_code, msg.messageCode());
             Serializer serializer = SerializerFactory.getSerializer(s_code);
             byte[] bytes = serializer.writeObject(msg);
 
@@ -507,7 +495,7 @@ public class DefaultRegistry extends NettyTcpConnector {
             Channel ch = (channel = ctx.channel());
 
             // 重新订阅
-            for (RegisterMeta.ServiceMeta serviceMeta : registryService.subscribeSet()) {
+            for (RegisterMeta.ServiceMeta serviceMeta : registryService.subscribeSet) {
                 // 与doSubscribe()中的write有竞争
                 if (!attachSubscribeEventOnChannel(serviceMeta, ch)) {
                     continue;
@@ -520,12 +508,12 @@ public class DefaultRegistry extends NettyTcpConnector {
                 ch.writeAndFlush(msg)
                         .addListener(ChannelFutureListener.FIRE_EXCEPTION_ON_FAILURE);
 
-                MessageNonAck msgNonAck = new MessageNonAck(msg, ch);
+                MessageNonAck msgNonAck = new MessageNonAck(msg);
                 messagesNonAck.put(msgNonAck.id, msgNonAck);
             }
 
             // 重新发布服务
-            for (RegisterMeta meta : registryService.registerMetaSet()) {
+            for (RegisterMeta meta : registryService.registerMetaMap.keySet()) {
                 // 与doRegister()中的write有竞争
                 if (!attachPublishEventOnChannel(meta, ch)) {
                     continue;
@@ -538,7 +526,7 @@ public class DefaultRegistry extends NettyTcpConnector {
                 ch.writeAndFlush(msg)
                         .addListener(ChannelFutureListener.FIRE_EXCEPTION_ON_FAILURE);
 
-                MessageNonAck msgNonAck = new MessageNonAck(msg, ch);
+                MessageNonAck msgNonAck = new MessageNonAck(msg);
                 messagesNonAck.put(msgNonAck.id, msgNonAck);
             }
         }
@@ -576,12 +564,10 @@ public class DefaultRegistry extends NettyTcpConnector {
                                 continue;
                             }
 
-                            if (m.channel.isActive()) {
-                                MessageNonAck msgNonAck = new MessageNonAck(m.msg, m.channel);
-                                messagesNonAck.put(msgNonAck.id, msgNonAck);
-                                m.channel.writeAndFlush(m.msg)
-                                        .addListener(ChannelFutureListener.FIRE_EXCEPTION_ON_FAILURE);
-                            }
+                            MessageNonAck msgNonAck = new MessageNonAck(m.msg);
+                            messagesNonAck.put(msgNonAck.id, msgNonAck);
+                            channel.writeAndFlush(m.msg)
+                                    .addListener(ChannelFutureListener.FIRE_EXCEPTION_ON_FAILURE);
                         }
                     }
 

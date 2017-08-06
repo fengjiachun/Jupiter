@@ -40,8 +40,8 @@ public class FailSafeClusterInvoker extends AbstractClusterInvoker {
     }
 
     @Override
-    public String name() {
-        return "Fail-safe";
+    public Strategy strategy() {
+        return Strategy.FAIL_SAFE;
     }
 
     @Override

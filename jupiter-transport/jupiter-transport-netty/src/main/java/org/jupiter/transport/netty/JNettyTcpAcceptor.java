@@ -17,9 +17,9 @@
 package org.jupiter.transport.netty;
 
 import io.netty.bootstrap.ServerBootstrap;
+import io.netty.channel.Channel;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelInitializer;
-import io.netty.channel.socket.SocketChannel;
 import org.jupiter.common.util.JConstants;
 import org.jupiter.transport.JConfig;
 import org.jupiter.transport.JOption;
@@ -81,10 +81,16 @@ import static org.jupiter.common.util.Preconditions.checkNotNull;
  */
 public class JNettyTcpAcceptor extends NettyTcpAcceptor {
 
+    public static final int DEFAULT_ACCEPTOR_PORT = 18090;
+
     // handlers
     private final AcceptorIdleStateTrigger idleStateTrigger = new AcceptorIdleStateTrigger();
     private final ProtocolEncoder encoder = new ProtocolEncoder();
     private final AcceptorHandler handler = new AcceptorHandler();
+
+    public JNettyTcpAcceptor() {
+        super(DEFAULT_ACCEPTOR_PORT);
+    }
 
     public JNettyTcpAcceptor(int port) {
         super(port);
@@ -94,28 +100,28 @@ public class JNettyTcpAcceptor extends NettyTcpAcceptor {
         super(localAddress);
     }
 
-    public JNettyTcpAcceptor(int port, int nWorks) {
-        super(port, nWorks);
+    public JNettyTcpAcceptor(int port, int nWorkers) {
+        super(port, nWorkers);
     }
 
-    public JNettyTcpAcceptor(SocketAddress localAddress, int nWorks) {
-        super(localAddress, nWorks);
+    public JNettyTcpAcceptor(SocketAddress localAddress, int nWorkers) {
+        super(localAddress, nWorkers);
     }
 
-    public JNettyTcpAcceptor(int port, boolean nativeEt) {
-        super(port, nativeEt);
+    public JNettyTcpAcceptor(int port, boolean isNative) {
+        super(port, isNative);
     }
 
-    public JNettyTcpAcceptor(SocketAddress localAddress, boolean nativeEt) {
-        super(localAddress, nativeEt);
+    public JNettyTcpAcceptor(SocketAddress localAddress, boolean isNative) {
+        super(localAddress, isNative);
     }
 
-    public JNettyTcpAcceptor(int port, int nWorks, boolean nativeEt) {
-        super(port, nWorks, nativeEt);
+    public JNettyTcpAcceptor(int port, int nWorkers, boolean isNative) {
+        super(port, nWorkers, isNative);
     }
 
-    public JNettyTcpAcceptor(SocketAddress localAddress, int nWorks, boolean nativeEt) {
-        super(localAddress, nWorks, nativeEt);
+    public JNettyTcpAcceptor(SocketAddress localAddress, int nWorkers, boolean isNative) {
+        super(localAddress, nWorkers, isNative);
     }
 
     @Override
@@ -136,15 +142,12 @@ public class JNettyTcpAcceptor extends NettyTcpAcceptor {
     public ChannelFuture bind(SocketAddress localAddress) {
         ServerBootstrap boot = bootstrap();
 
-        if (isNativeEt()) {
-            boot.channelFactory(TcpChannelProvider.NATIVE_ACCEPTOR);
-        } else {
-            boot.channelFactory(TcpChannelProvider.NIO_ACCEPTOR);
-        }
-        boot.childHandler(new ChannelInitializer<SocketChannel>() {
+        initChannelFactory();
+
+        boot.childHandler(new ChannelInitializer<Channel>() {
 
             @Override
-            protected void initChannel(SocketChannel ch) throws Exception {
+            protected void initChannel(Channel ch) throws Exception {
                 ch.pipeline().addLast(
                         new IdleStateChecker(timer, JConstants.READER_IDLE_TIME_SECONDS, 0, 0),
                         idleStateTrigger,

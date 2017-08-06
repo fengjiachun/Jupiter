@@ -14,12 +14,10 @@
  * limitations under the License.
  */
 
-package org.jupiter.common.concurrent.atomic;
+package org.jupiter.common.atomic;
 
 import org.jupiter.common.util.internal.JUnsafe;
 
-import java.util.concurrent.atomic.AtomicIntegerFieldUpdater;
-import java.util.concurrent.atomic.AtomicLongFieldUpdater;
 import java.util.concurrent.atomic.AtomicReferenceFieldUpdater;
 
 /**
@@ -31,34 +29,6 @@ import java.util.concurrent.atomic.AtomicReferenceFieldUpdater;
  * @author jiachun.fjc
  */
 public final class AtomicUpdater {
-
-    /**
-     * Creates and returns an updater for objects with the given field.
-     *
-     * @param tClass    the class of the objects holding the field.
-     * @param fieldName the name of the field to be updated.
-     */
-    public static <T> AtomicIntegerFieldUpdater<T> newAtomicIntegerFieldUpdater(Class<T> tClass, String fieldName) {
-        try {
-            return new UnsafeAtomicIntegerFieldUpdater<>(JUnsafe.getUnsafe(), tClass, fieldName);
-        } catch (Throwable t) {
-            return AtomicIntegerFieldUpdater.newUpdater(tClass, fieldName);
-        }
-    }
-
-    /**
-     * Creates and returns an updater for objects with the given field.
-     *
-     * @param tClass    the class of the objects holding the field.
-     * @param fieldName the name of the field to be updated.
-     */
-    public static <T> AtomicLongFieldUpdater<T> newAtomicLongFieldUpdater(Class<T> tClass, String fieldName) {
-        try {
-            return new UnsafeAtomicLongFieldUpdater<>(JUnsafe.getUnsafe(), tClass, fieldName);
-        } catch (Throwable t) {
-            return AtomicLongFieldUpdater.newUpdater(tClass, fieldName);
-        }
-    }
 
     /**
      * Creates and returns an updater for objects with the given field.

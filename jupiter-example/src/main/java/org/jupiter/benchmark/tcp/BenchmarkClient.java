@@ -77,9 +77,15 @@ public class BenchmarkClient {
         SystemPropertyUtil.setProperty("jupiter.tracing.needed", "false");
         SystemPropertyUtil.setProperty("jupiter.use.non_blocking_hash", "true");
 
-        JClient client = new DefaultClient().withConnector(new JNettyTcpConnector(processors + 1));
-        client.connector().config().setOption(JOption.WRITE_BUFFER_HIGH_WATER_MARK, 256 * 1024);
-        client.connector().config().setOption(JOption.WRITE_BUFFER_LOW_WATER_MARK, 128 * 1024);
+        JClient client = new DefaultClient().withConnector(new JNettyTcpConnector(processors + 1, true) {
+
+//            @Override
+//            protected ThreadFactory workerThreadFactory(String name) {
+//                return new AffinityNettyThreadFactory(name, AffinityStrategies.DIFFERENT_CORE);
+//            }
+        });
+        client.connector().config().setOption(JOption.WRITE_BUFFER_HIGH_WATER_MARK, 512 * 1024);
+        client.connector().config().setOption(JOption.WRITE_BUFFER_LOW_WATER_MARK, 256 * 1024);
 
         UnresolvedAddress[] addresses = new UnresolvedAddress[processors];
         for (int i = 0; i < processors; i++) {

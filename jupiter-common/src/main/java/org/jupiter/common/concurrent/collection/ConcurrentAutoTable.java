@@ -29,7 +29,6 @@
  */
 package org.jupiter.common.concurrent.collection;
 
-import org.jupiter.common.concurrent.atomic.AtomicUpdater;
 import org.jupiter.common.util.internal.JUnsafe;
 import sun.misc.Unsafe;
 
@@ -158,7 +157,7 @@ public class ConcurrentAutoTable implements Serializable {
     // The underlying array of concurrently updated long counters
     private volatile CAT _cat = new CAT(null, 16/*Start Small, Think Big!*/, 0L);
     private static AtomicReferenceFieldUpdater<ConcurrentAutoTable, CAT> _catUpdater =
-            AtomicUpdater.newAtomicReferenceFieldUpdater(ConcurrentAutoTable.class, CAT.class, "_cat");
+            AtomicReferenceFieldUpdater.newUpdater(ConcurrentAutoTable.class, CAT.class, "_cat");
 
     private boolean CAS_cat(CAT oldcat, CAT newcat) {
         return _catUpdater.compareAndSet(this, oldcat, newcat);

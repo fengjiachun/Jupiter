@@ -31,10 +31,9 @@ public interface Transporter {
     Protocol protocol();
 
     /**
-     * 传输层协议, 支持 TCP 和 UDT.
+     * 传输层协议.
      */
     enum Protocol {
-        TCP,
-        UDT
+        TCP
     }
 }

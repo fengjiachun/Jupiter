@@ -14,10 +14,23 @@
  * limitations under the License.
  */
 
+package org.jupiter.example.zookeeper.spring;
+
+import org.springframework.context.support.ClassPathXmlApplicationContext;
+
 /**
- * 传输层协议使用UDT的example
+ * 1.先启动外部的zookeeper
+ * 2.再启动 SpringServer
+ * 3.最后启动 SpringClient
  *
- * 1. 先启动UdtJupiterServer
- * 2. 再启动UdtJupiterClient
+ * jupiter
+ * org.jupiter.example.spring
+ *
+ * @author jiachun.fjc
  */
-package org.jupiter.example.udt;
+public class SpringJupiterServer {
+
+    public static void main(String[] args) {
+        new ClassPathXmlApplicationContext("classpath:zk-spring-provider.xml");
+    }
+}

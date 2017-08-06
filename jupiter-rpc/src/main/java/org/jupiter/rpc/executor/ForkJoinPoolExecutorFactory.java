@@ -42,7 +42,7 @@ public class ForkJoinPoolExecutorFactory extends AbstractExecutorFactory {
     @Override
     public Executor newExecutor(Target target, String name) {
         return new ForkJoinPool(
-                coreWorks(target),
+                coreWorkers(target),
                 new DefaultForkJoinWorkerThreadFactory(name),
                 new DefaultUncaughtExceptionHandler(), true);
     }

@@ -41,7 +41,7 @@ public interface JAcceptor extends Transporter {
     int boundPort();
 
     /**
-     * Server options [parent, child].
+     * Acceptor options [parent, child].
      */
     JConfigGroup configGroup();
 

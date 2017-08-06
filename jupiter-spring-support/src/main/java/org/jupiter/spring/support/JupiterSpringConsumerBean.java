@@ -24,6 +24,7 @@ import org.jupiter.rpc.InvokeType;
 import org.jupiter.rpc.consumer.ProxyFactory;
 import org.jupiter.rpc.consumer.cluster.ClusterInvoker;
 import org.jupiter.rpc.load.balance.LoadBalancerType;
+import org.jupiter.rpc.model.metadata.MethodSpecialConfig;
 import org.jupiter.serialization.SerializerType;
 import org.jupiter.transport.JConnector;
 import org.jupiter.transport.UnresolvedAddress;
@@ -32,7 +33,6 @@ import org.springframework.beans.factory.FactoryBean;
 import org.springframework.beans.factory.InitializingBean;
 
 import java.util.List;
-import java.util.Map;
 
 /**
  * Consumer bean, 负责构造并初始化 consumer 代理对象.
@@ -48,8 +48,6 @@ public class JupiterSpringConsumerBean<T> implements FactoryBean<T>, Initializin
 
     private Class<T> interfaceClass;                            // 服务接口类型
 
-    private String group;                                       // 服务组别
-    private String providerName;                                // 服务名称
     private String version;                                     // 服务版本号, 通常在接口不兼容时版本号才需要升级
     private SerializerType serializerType;                      // 序列化/反序列化方式
     private LoadBalancerType loadBalancerType;                  // 软负载均衡类型
@@ -60,7 +58,7 @@ public class JupiterSpringConsumerBean<T> implements FactoryBean<T>, Initializin
     private InvokeType invokeType;                              // 调用方式 [同步, 异步]
     private DispatchType dispatchType;                          // 派发方式 [单播, 广播]
     private long timeoutMillis;                                 // 调用超时时间设置
-    private Map<String, Long> methodsSpecialTimeoutMillis;      // 指定方法单独设置的超时时间, 方法名为key, 方法参数类型不做区别对待
+    private List<MethodSpecialConfig> methodSpecialConfigs;     // 指定方法的单独配置, 方法参数类型不做区别对待
     private ConsumerHook[] hooks = ConsumerHook.EMPTY_HOOKS;    // 消费者端钩子函数
     private String providerAddresses;                           // provider地址列表, 逗号分隔(IP直连)
     private ClusterInvoker.Strategy clusterStrategy;            // 集群容错策略
@@ -89,14 +87,6 @@ public class JupiterSpringConsumerBean<T> implements FactoryBean<T>, Initializin
     private void init() {
         ProxyFactory<T> factory = ProxyFactory.factory(interfaceClass)
                 .version(version);
-
-        if (group != null) {
-            factory.group(group);
-        }
-
-        if (providerName != null) {
-            factory.providerName(providerName);
-        }
 
         if (serializerType != null) {
             factory.serializerType(serializerType);
@@ -144,9 +134,9 @@ public class JupiterSpringConsumerBean<T> implements FactoryBean<T>, Initializin
             factory.timeoutMillis(timeoutMillis);
         }
 
-        if (methodsSpecialTimeoutMillis != null) {
-            for (Map.Entry<String, Long> entry : methodsSpecialTimeoutMillis.entrySet()) {
-                factory.methodSpecialTimeoutMillis(entry.getKey(), entry.getValue());
+        if (methodSpecialConfigs != null) {
+            for (MethodSpecialConfig config : methodSpecialConfigs) {
+                factory.addMethodSpecialConfig(config);
             }
         }
 
@@ -181,22 +171,6 @@ public class JupiterSpringConsumerBean<T> implements FactoryBean<T>, Initializin
 
     public void setInterfaceClass(Class<T> interfaceClass) {
         this.interfaceClass = interfaceClass;
-    }
-
-    public String getGroup() {
-        return group;
-    }
-
-    public void setGroup(String group) {
-        this.group = group;
-    }
-
-    public String getProviderName() {
-        return providerName;
-    }
-
-    public void setProviderName(String providerName) {
-        this.providerName = providerName;
     }
 
     public String getVersion() {
@@ -264,12 +238,12 @@ public class JupiterSpringConsumerBean<T> implements FactoryBean<T>, Initializin
         this.timeoutMillis = timeoutMillis;
     }
 
-    public Map<String, Long> getMethodsSpecialTimeoutMillis() {
-        return methodsSpecialTimeoutMillis;
+    public List<MethodSpecialConfig> getMethodSpecialConfigs() {
+        return methodSpecialConfigs;
     }
 
-    public void setMethodsSpecialTimeoutMillis(Map<String, Long> methodsSpecialTimeoutMillis) {
-        this.methodsSpecialTimeoutMillis = methodsSpecialTimeoutMillis;
+    public void setMethodSpecialConfigs(List<MethodSpecialConfig> methodSpecialConfigs) {
+        this.methodSpecialConfigs = methodSpecialConfigs;
     }
 
     public ConsumerHook[] getHooks() {

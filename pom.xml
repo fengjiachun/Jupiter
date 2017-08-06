@@ -23,7 +23,7 @@
     <artifactId>jupiter</artifactId>
     <groupId>org.jupiter-rpc</groupId>
     <packaging>pom</packaging>
-    <version>1.2.4-SNAPSHOT</version>
+    <version>1.2.9</version>
 
     <name>Jupiter</name>
     <description>Jupiter is a distributed RPC framework.</description>
@@ -36,6 +36,7 @@
     </scm>
 
     <modules>
+        <module>jupiter-all</module>
         <module>jupiter-common</module>
         <module>jupiter-example</module>
         <module>jupiter-flightexec</module>
@@ -48,7 +49,7 @@
     </modules>
 
     <properties>
-        <netty.version>4.1.9.Final</netty.version>
+        <netty.version>4.1.14.Final</netty.version>
         <jmh.version>1.9.3</jmh.version>
         <barchart.version>2.3.0</barchart.version>
         <hessian.version>4.0.38</hessian.version>
@@ -58,14 +59,16 @@
         <asm.version>5.2</asm.version>
         <javassist.version>3.19.0-GA</javassist.version>
         <bytebuddy.version>1.6.3</bytebuddy.version>
-        <disruptor.version>3.3.2</disruptor.version>
+        <disruptor.version>3.3.6</disruptor.version>
         <metrics.version>3.1.2</metrics.version>
+        <affinity.version>3.0.6</affinity.version>
         <slf4j.version>1.7.5</slf4j.version>
         <junit.version>4.12</junit.version>
         <hamcrest.version>1.3</hamcrest.version>
         <curator.version>2.9.1</curator.version>
         <zookeeper.version>3.4.6</zookeeper.version>
         <spring-framework.version>4.3.0.RELEASE</spring-framework.version>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
 
     <dependencyManagement>
@@ -195,17 +198,13 @@
                 <groupId>io.netty</groupId>
                 <artifactId>netty-transport-native-epoll</artifactId>
                 <version>${netty.version}</version>
+                <classifier>linux-x86_64</classifier>
             </dependency>
             <dependency>
                 <groupId>io.netty</groupId>
-                <artifactId>netty-transport-udt</artifactId>
+                <artifactId>netty-transport-native-kqueue</artifactId>
                 <version>${netty.version}</version>
-            </dependency>
-            <dependency>
-                <!-- scope: runtime -->
-                <groupId>com.barchart.udt</groupId>
-                <artifactId>barchart-udt-bundle</artifactId>
-                <version>${barchart.version}</version>
+                <classifier>osx-x86_64</classifier>
             </dependency>
             <!-- # netty dependency: end -->
 
@@ -263,6 +262,17 @@
                 <groupId>io.dropwizard.metrics</groupId>
                 <artifactId>metrics-core</artifactId>
                 <version>${metrics.version}</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>org.slf4j</groupId>
+                        <artifactId>slf4j-api</artifactId>
+                    </exclusion>
+                </exclusions>
+            </dependency>
+            <dependency>
+                <groupId>net.openhft</groupId>
+                <artifactId>affinity</artifactId>
+                <version>${affinity.version}</version>
                 <exclusions>
                     <exclusion>
                         <groupId>org.slf4j</groupId>

@@ -69,8 +69,8 @@ public class FailOverClusterInvoker extends AbstractClusterInvoker {
     }
 
     @Override
-    public String name() {
-        return "Fail-over";
+    public Strategy strategy() {
+        return Strategy.FAIL_OVER;
     }
 
     @Override
@@ -84,11 +84,11 @@ public class FailOverClusterInvoker extends AbstractClusterInvoker {
     }
 
     private <T> void invoke0(final String methodName,
-                         final Object[] args,
-                         final Class<T> returnType,
-                         final int tryCount,
-                         final FailOverInvokeFuture<T> future,
-                         Throwable lastCause) {
+                             final Object[] args,
+                             final Class<T> returnType,
+                             final int tryCount,
+                             final FailOverInvokeFuture<T> future,
+                             Throwable lastCause) {
 
         if (tryCount > 0 && isFailoverNeeded(lastCause)) {
             InvokeFuture<T> f = dispatcher.dispatch(client, methodName, args, returnType);

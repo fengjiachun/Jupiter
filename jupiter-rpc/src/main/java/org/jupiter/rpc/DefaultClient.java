@@ -44,23 +44,31 @@ public class DefaultClient implements JClient {
     static {
         // touch off TracingUtil.<clinit>
         // because getLocalAddress() and getPid() sometimes too slow
-        ClassInitializeUtil.initClass("org.jupiter.rpc.tracing.TracingUtil", 500);
+        ClassUtil.classInitialize("org.jupiter.rpc.tracing.TracingUtil", 500);
     }
 
     // 服务订阅(SPI)
-    private final RegistryService registryService = JServiceLoader
-            .load(RegistryService.class)
-            .find(SystemPropertyUtil.get("jupiter.registry.impl", "default"));
+    private final RegistryService registryService;
     private final String appName;
 
     private JConnector<JConnection> connector;
 
     public DefaultClient() {
-        this(JConstants.UNKNOWN_APP_NAME);
+        this(JConstants.UNKNOWN_APP_NAME, RegistryService.RegistryType.DEFAULT);
+    }
+
+    public DefaultClient(RegistryService.RegistryType registryType) {
+        this(JConstants.UNKNOWN_APP_NAME, registryType);
     }
 
     public DefaultClient(String appName) {
-        this.appName = appName;
+        this(appName, RegistryService.RegistryType.DEFAULT);
+    }
+
+    public DefaultClient(String appName, RegistryService.RegistryType registryType) {
+        this.appName = Strings.isBlank(appName) ? JConstants.UNKNOWN_APP_NAME : appName;
+        registryType = registryType == null ? RegistryService.RegistryType.DEFAULT : registryType;
+        registryService = JServiceLoader.load(RegistryService.class).find(registryType.getValue());
     }
 
     @Override
@@ -83,7 +91,6 @@ public class DefaultClient implements JClient {
     @Override
     public Collection<RegisterMeta> lookup(Directory directory) {
         RegisterMeta.ServiceMeta serviceMeta = toServiceMeta(directory);
-
         return registryService.lookup(serviceMeta);
     }
 
@@ -138,8 +145,10 @@ public class DefaultClient implements JClient {
                             } else {
                                 onSucceed(group, signalNeeded.getAndSet(false));
                             }
+                            group.setWeight(directory, registerMeta.getWeight()); // 设置权重
                         } else if (event == NotifyEvent.CHILD_REMOVED) {
                             connector.removeChannelGroup(directory, group);
+                            group.removeWeight(directory);
                             if (connector.directoryGroup().getRefCount(group) <= 0) {
                                 connectionManager.cancelReconnect(address); // 取消自动重连
                             }
@@ -151,7 +160,6 @@ public class DefaultClient implements JClient {
                         connCount = connCount < 1 ? 1 : connCount;
 
                         JConnection[] connections = new JConnection[connCount];
-                        group.setWeight(registerMeta.getWeight()); // 设置权重
                         group.setCapacity(connCount);
                         for (int i = 0; i < connCount; i++) {
                             JConnection connection = connector.connect(address, async);
@@ -195,17 +203,16 @@ public class DefaultClient implements JClient {
                     return true;
                 }
 
+                long remains = TimeUnit.MILLISECONDS.toNanos(timeoutMillis);
+
                 boolean available = false;
-                long start = System.nanoTime();
                 final ReentrantLock _look = lock;
                 _look.lock();
                 try {
-                    while (!connector.isDirectoryAvailable(directory)) {
-                        signalNeeded.set(true);
-                        notifyCondition.await(timeoutMillis, TimeUnit.MILLISECONDS);
-
-                        available = connector.isDirectoryAvailable(directory);
-                        if (available || (System.nanoTime() - start) > TimeUnit.MILLISECONDS.toNanos(timeoutMillis)) {
+                    signalNeeded.set(true);
+                    // avoid "spurious wakeup" occurs
+                    while (!(available = connector.isDirectoryAvailable(directory))) {
+                        if ((remains = notifyCondition.awaitNanos(remains)) <= 0) {
                             break;
                         }
                     }
@@ -215,7 +222,7 @@ public class DefaultClient implements JClient {
                     _look.unlock();
                 }
 
-                return available;
+                return available || connector.isDirectoryAvailable(directory);
             }
         };
 
@@ -226,8 +233,8 @@ public class DefaultClient implements JClient {
 
     @Override
     public boolean awaitConnections(Directory directory, long timeoutMillis) {
-        JConnector.ConnectionWatcher manager = watchConnections(directory);
-        return manager.waitForAvailable(timeoutMillis);
+        JConnector.ConnectionWatcher watcher = watchConnections(directory);
+        return watcher.waitForAvailable(timeoutMillis);
     }
 
     @Override
@@ -264,7 +271,6 @@ public class DefaultClient implements JClient {
         serviceMeta.setGroup(checkNotNull(directory.getGroup(), "group"));
         serviceMeta.setServiceProviderName(checkNotNull(directory.getServiceProviderName(), "serviceProviderName"));
         serviceMeta.setVersion(checkNotNull(directory.getVersion(), "version"));
-
         return serviceMeta;
     }
 

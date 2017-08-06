@@ -27,7 +27,7 @@ import org.jupiter.common.util.SystemPropertyUtil;
  */
 public abstract class AbstractExecutorFactory implements ExecutorFactory {
 
-    protected int coreWorks(Target target) {
+    protected int coreWorkers(Target target) {
         switch (target) {
             case CONSUMER:
                 return SystemPropertyUtil.getInt(CONSUMER_EXECUTOR_CORE_WORKERS, JConstants.AVAILABLE_PROCESSORS << 1);
@@ -38,7 +38,7 @@ public abstract class AbstractExecutorFactory implements ExecutorFactory {
         }
     }
 
-    protected int maxWorks(Target target) {
+    protected int maxWorkers(Target target) {
         switch (target) {
             case CONSUMER:
                 return SystemPropertyUtil.getInt(CONSUMER_EXECUTOR_MAX_WORKERS, JConstants.AVAILABLE_PROCESSORS << 3);

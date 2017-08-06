@@ -39,8 +39,8 @@ public class FailFastClusterInvoker extends AbstractClusterInvoker {
     }
 
     @Override
-    public String name() {
-        return "Fail-fast";
+    public Strategy strategy() {
+        return Strategy.FAIL_FAST;
     }
 
     @Override

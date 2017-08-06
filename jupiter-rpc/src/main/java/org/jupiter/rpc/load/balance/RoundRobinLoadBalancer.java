@@ -16,8 +16,7 @@
 
 package org.jupiter.rpc.load.balance;
 
-import org.jupiter.common.concurrent.atomic.AtomicUpdater;
-import org.jupiter.rpc.model.metadata.MessageWrapper;
+import org.jupiter.transport.Directory;
 import org.jupiter.transport.channel.CopyOnWriteGroupList;
 import org.jupiter.transport.channel.JChannelGroup;
 
@@ -64,7 +63,7 @@ import java.util.concurrent.atomic.AtomicIntegerFieldUpdater;
 public class RoundRobinLoadBalancer extends AbstractLoadBalancer {
 
     private static final AtomicIntegerFieldUpdater<RoundRobinLoadBalancer> indexUpdater =
-            AtomicUpdater.newAtomicIntegerFieldUpdater(RoundRobinLoadBalancer.class, "index");
+            AtomicIntegerFieldUpdater.newUpdater(RoundRobinLoadBalancer.class, "index");
 
     @SuppressWarnings("unused")
     private volatile int index = 0;
@@ -75,7 +74,7 @@ public class RoundRobinLoadBalancer extends AbstractLoadBalancer {
     }
 
     @Override
-    public JChannelGroup select(CopyOnWriteGroupList groups, @SuppressWarnings("unused") MessageWrapper unused) {
+    public JChannelGroup select(CopyOnWriteGroupList groups, Directory directory) {
         JChannelGroup[] elements = groups.snapshot();
         int length = elements.length;
 
@@ -103,7 +102,7 @@ public class RoundRobinLoadBalancer extends AbstractLoadBalancer {
         for (int i = 0; i < length; i++) {
             JChannelGroup group = elements[i];
 
-            int val = getWeight(group);
+            int val = getWeight(group, directory);
 
             weightsSnapshot.set(i, val);
             sumWeight += val;

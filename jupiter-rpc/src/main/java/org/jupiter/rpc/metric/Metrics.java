@@ -17,6 +17,7 @@
 package org.jupiter.rpc.metric;
 
 import com.codahale.metrics.*;
+import org.jupiter.common.util.ClassUtil;
 import org.jupiter.common.util.JConstants;
 
 import java.io.File;
@@ -37,6 +38,9 @@ public class Metrics {
     private static final MetricRegistry metricRegistry = new MetricRegistry();
     private static final ScheduledReporter scheduledReporter;
     static {
+        // 检查是否存在slf4j, 使用Metrics必须显式引入slf4j依赖
+        ClassUtil.classCheck("org.slf4j.Logger");
+
         if (JConstants.METRIC_CSV_REPORTER) {
             scheduledReporter = CsvReporter
                     .forRegistry(metricRegistry)
