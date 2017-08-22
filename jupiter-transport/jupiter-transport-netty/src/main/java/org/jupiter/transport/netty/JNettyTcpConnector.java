@@ -16,6 +16,10 @@
 
 package org.jupiter.transport.netty;
 
+import java.net.InetSocketAddress;
+import java.net.SocketAddress;
+import java.util.concurrent.TimeUnit;
+
 import io.netty.bootstrap.Bootstrap;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelFuture;
@@ -35,13 +39,10 @@ import org.jupiter.transport.netty.handler.connector.ConnectorHandler;
 import org.jupiter.transport.netty.handler.connector.ConnectorIdleStateTrigger;
 import org.jupiter.transport.processor.ConsumerProcessor;
 
-import java.net.InetSocketAddress;
-import java.net.SocketAddress;
-import java.util.concurrent.TimeUnit;
-
 import static org.jupiter.common.util.Preconditions.checkNotNull;
 
 /**
+ * <pre>
  * Jupiter tcp connector based on netty.
  *
  *************************************************************************
@@ -92,6 +93,7 @@ import static org.jupiter.common.util.Preconditions.checkNotNull;
  *                 │
  *            I/O Request                └ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ┘
  *
+ * </pre>
  *
  * jupiter
  * org.jupiter.transport.netty

@@ -16,11 +16,11 @@
 
 package org.jupiter.rpc.load.balance;
 
+import java.util.concurrent.atomic.AtomicIntegerFieldUpdater;
+
 import org.jupiter.transport.Directory;
 import org.jupiter.transport.channel.CopyOnWriteGroupList;
 import org.jupiter.transport.channel.JChannelGroup;
-
-import java.util.concurrent.atomic.AtomicIntegerFieldUpdater;
 
 /**
  * 加权轮询负载均衡.
@@ -30,6 +30,7 @@ import java.util.concurrent.atomic.AtomicIntegerFieldUpdater;
  *
  * 每个服务应有各自独立的实例(index不共享)
  *
+ * <pre>
  * **********************************************************************
  *
  *  index++ % sumWeight
@@ -54,6 +55,7 @@ import java.util.concurrent.atomic.AtomicIntegerFieldUpdater;
  *        └─┘  └─┘  └─┘  └─┘  └─┘  └─┘  └─┘  └─┘
  *
  * **********************************************************************
+ * </pre>
  *
  * jupiter
  * org.jupiter.rpc.load.balance

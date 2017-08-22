@@ -16,6 +16,8 @@
 
 package org.jupiter.transport.netty;
 
+import java.net.SocketAddress;
+
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelFuture;
@@ -30,11 +32,10 @@ import org.jupiter.transport.netty.handler.acceptor.AcceptorHandler;
 import org.jupiter.transport.netty.handler.acceptor.AcceptorIdleStateTrigger;
 import org.jupiter.transport.processor.ProviderProcessor;
 
-import java.net.SocketAddress;
-
 import static org.jupiter.common.util.Preconditions.checkNotNull;
 
 /**
+ * <pre>
  * Jupiter tcp acceptor based on netty.
  *
  * *********************************************************************
@@ -73,6 +74,7 @@ import static org.jupiter.common.util.Preconditions.checkNotNull;
  *
  * │                    └ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ┘                     │
  * ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─
+ * </pre>
  *
  * jupiter
  * org.jupiter.transport.netty
