@@ -35,9 +35,9 @@ import org.jupiter.transport.processor.ProviderProcessor;
 import static org.jupiter.common.util.Preconditions.checkNotNull;
 
 /**
- * <pre>
  * Jupiter tcp acceptor based on netty.
  *
+ * <pre>
  * *********************************************************************
  *            I/O Request                       I/O Response
  *                 │                                 △

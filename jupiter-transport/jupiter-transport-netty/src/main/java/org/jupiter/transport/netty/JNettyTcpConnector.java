@@ -42,9 +42,9 @@ import org.jupiter.transport.processor.ConsumerProcessor;
 import static org.jupiter.common.util.Preconditions.checkNotNull;
 
 /**
- * <pre>
  * Jupiter tcp connector based on netty.
  *
+ * <pre>
  *************************************************************************
  *                      ┌ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ┐
  *
