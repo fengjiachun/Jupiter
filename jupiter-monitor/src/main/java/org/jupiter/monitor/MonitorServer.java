@@ -16,8 +16,15 @@
 
 package org.jupiter.monitor;
 
+import java.net.SocketAddress;
+
 import io.netty.bootstrap.ServerBootstrap;
-import io.netty.channel.*;
+import io.netty.channel.Channel;
+import io.netty.channel.ChannelFuture;
+import io.netty.channel.ChannelHandler;
+import io.netty.channel.ChannelHandlerContext;
+import io.netty.channel.ChannelInboundHandlerAdapter;
+import io.netty.channel.ChannelInitializer;
 import io.netty.handler.codec.DelimiterBasedFrameDecoder;
 import io.netty.handler.codec.Delimiters;
 import io.netty.handler.codec.string.StringDecoder;
@@ -32,8 +39,6 @@ import org.jupiter.monitor.handler.RegistryHandler;
 import org.jupiter.registry.RegistryMonitor;
 import org.jupiter.transport.netty.NettyTcpAcceptor;
 
-import java.net.SocketAddress;
-
 import static org.jupiter.common.util.StackTraceUtil.stackTrace;
 
 /**
@@ -43,7 +48,7 @@ import static org.jupiter.common.util.StackTraceUtil.stackTrace;
  * ---------------------------------------------------------------------------------------------------------------------
  * help                                 // 帮助信息
  *
- * auth 123456                          // 登录(默认密码为123456,
+ * auth jupiter                         // 登录(默认密码为jupiter,
  *                                      // 可通过System.setProperty("monitor.server.password", "password")设置密码
  *
  * metrics -report                      // 输出当前节点所有指标度量信息

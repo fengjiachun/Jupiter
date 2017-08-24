@@ -71,4 +71,8 @@ public class MD5Util {
         ob[1] = hexDigits[ib & 0X0F];
         return new String(ob);
     }
+
+    public static void main(String[] args) {
+        System.out.println(getMD5("jupiter"));
+    }
 }
