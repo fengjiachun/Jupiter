@@ -35,8 +35,12 @@ import org.jupiter.common.util.Strings;
 import org.jupiter.common.util.internal.logging.InternalLogger;
 import org.jupiter.common.util.internal.logging.InternalLoggerFactory;
 import org.jupiter.monitor.handler.CommandHandler;
+import org.jupiter.monitor.handler.LsHandler;
 import org.jupiter.monitor.handler.RegistryHandler;
 import org.jupiter.registry.RegistryMonitor;
+import org.jupiter.registry.RegistryService;
+import org.jupiter.rpc.JClient;
+import org.jupiter.rpc.JServer;
 import org.jupiter.transport.netty.NettyTcpAcceptor;
 
 import static org.jupiter.common.util.StackTraceUtil.stackTrace;
@@ -52,6 +56,7 @@ import static org.jupiter.common.util.StackTraceUtil.stackTrace;
  *                                      // 可通过System.setProperty("monitor.server.password", "password")设置密码
  *
  * metrics -report                      // 输出当前节点所有指标度量信息
+ * ls                                   // 本地查询发布和订阅的服务
  *
  * registry -address -p                 // 输出所有provider地址
  * registry -address -s                 // 输出所有consumer地址
@@ -79,6 +84,8 @@ public class MonitorServer extends NettyTcpAcceptor {
     private final StringEncoder encoder = new StringEncoder(JConstants.UTF8);
 
     private volatile RegistryMonitor registryMonitor;
+    private volatile JServer jupiterServer;
+    private volatile JClient jupiterClient;
 
     public MonitorServer() {
         this(DEFAULT_PORT);
@@ -123,6 +130,14 @@ public class MonitorServer extends NettyTcpAcceptor {
         this.registryMonitor = registryMonitor;
     }
 
+    public void setJupiterServer(JServer jupiterServer) {
+        this.jupiterServer = jupiterServer;
+    }
+
+    public void setJupiterClient(JClient jupiterClient) {
+        this.jupiterClient = jupiterClient;
+    }
+
     @ChannelHandler.Sharable
     class TelnetHandler extends ChannelInboundHandlerAdapter {
 
@@ -146,6 +161,18 @@ public class MonitorServer extends NettyTcpAcceptor {
                 if (handler instanceof RegistryHandler) {
                     if (((RegistryHandler) handler).getRegistryMonitor() != registryMonitor) {
                         ((RegistryHandler) handler).setRegistryMonitor(registryMonitor);
+                    }
+                }
+                if (handler instanceof LsHandler) {
+                    RegistryService serverRegisterService = jupiterServer == null ? null
+                        : jupiterServer.registryService();
+                    if (((LsHandler)handler).getServerRegisterService() != serverRegisterService) {
+                        ((LsHandler)handler).setServerRegisterService(serverRegisterService);
+                    }
+                    RegistryService clientRegisterService = jupiterClient == null ? null
+                        : jupiterClient.registryService();
+                    if (((LsHandler)handler).getClientRegisterService() != clientRegisterService) {
+                        ((LsHandler)handler).setClientRegisterService(clientRegisterService);
                     }
                 }
                 handler.handle(ch, command, args);

@@ -16,21 +16,28 @@
 
 package org.jupiter.registry;
 
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
+import java.util.concurrent.ConcurrentMap;
+import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
+
 import org.jupiter.common.concurrent.NamedThreadFactory;
 import org.jupiter.common.concurrent.collection.ConcurrentSet;
 import org.jupiter.common.util.Lists;
 import org.jupiter.common.util.Maps;
 import org.jupiter.common.util.internal.logging.InternalLogger;
 import org.jupiter.common.util.internal.logging.InternalLoggerFactory;
-
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.Set;
-import java.util.concurrent.*;
-import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.concurrent.locks.Lock;
-import java.util.concurrent.locks.ReentrantReadWriteLock;
+import org.jupiter.registry.RegisterMeta.ServiceMeta;
 
 import static org.jupiter.common.util.StackTraceUtil.stackTrace;
 
@@ -61,9 +68,9 @@ public abstract class AbstractRegistryService implements RegistryService {
             Maps.newConcurrentMap();
 
     // Consumer已订阅的信息
-    protected final ConcurrentSet<RegisterMeta.ServiceMeta> subscribeSet = new ConcurrentSet<>();
+    private final ConcurrentSet<RegisterMeta.ServiceMeta> subscribeSet = new ConcurrentSet<>();
     // Provider已发布的注册信息
-    protected final ConcurrentMap<RegisterMeta, RegisterState> registerMetaMap = Maps.newConcurrentMap();
+    private final ConcurrentMap<RegisterMeta, RegisterState> registerMetaMap = Maps.newConcurrentMap();
 
     public AbstractRegistryService() {
         registerExecutor.execute(new Runnable() {
@@ -151,6 +158,27 @@ public abstract class AbstractRegistryService implements RegistryService {
         } finally {
             readLock.unlock();
         }
+    }
+
+    @Override
+    public Map<ServiceMeta, Integer> consumers() {
+        Map<ServiceMeta, Integer> result = Maps.newHashMap();
+        for (Map.Entry<RegisterMeta.ServiceMeta, RegisterValue> entry : registries.entrySet()) {
+            RegisterValue value = entry.getValue();
+            final Lock readLock = value.lock.readLock();
+            readLock.lock();
+            try {
+                result.put(entry.getKey(), value.metaSet.size());
+            } finally {
+                readLock.unlock();
+            }
+        }
+        return result;
+    }
+
+    @Override
+    public Map<RegisterMeta, RegisterState> providers() {
+        return new HashMap<>(registerMetaMap);
     }
 
     @Override
@@ -250,9 +278,12 @@ public abstract class AbstractRegistryService implements RegistryService {
 
     protected abstract void doCheckRegisterNodeStatus();
 
-    protected enum RegisterState {
-        PREPARE,
-        DONE
+    protected ConcurrentSet<ServiceMeta> getSubscribeSet() {
+        return subscribeSet;
+    }
+
+    protected ConcurrentMap<RegisterMeta, RegisterState> getRegisterMetaMap() {
+        return registerMetaMap;
     }
 
     protected static class RegisterValue {

@@ -17,6 +17,9 @@
 package org.jupiter.registry;
 
 import java.util.Collection;
+import java.util.Map;
+
+import org.jupiter.registry.RegisterMeta.ServiceMeta;
 
 /**
  * Registry service.
@@ -47,6 +50,16 @@ public interface RegistryService extends Registry {
      * Find a service in the local scope.
      */
     Collection<RegisterMeta> lookup(RegisterMeta.ServiceMeta serviceMeta);
+
+    /**
+     * List all consumer's info.
+     */
+    Map<ServiceMeta, Integer> consumers();
+
+    /**
+     * List all provider's info.
+     */
+    Map<RegisterMeta, RegisterState> providers();
 
     /**
      * Returns {@code true} if {@link RegistryService} is shutdown.
@@ -80,5 +93,10 @@ public interface RegistryService extends Registry {
             }
             return null;
         }
+    }
+
+    enum RegisterState {
+        PREPARE,
+        DONE
     }
 }

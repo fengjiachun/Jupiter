@@ -514,7 +514,7 @@ public final class DefaultRegistry extends NettyTcpConnector {
             Channel ch = (channel = ctx.channel());
 
             // 重新订阅
-            for (RegisterMeta.ServiceMeta serviceMeta : registryService.subscribeSet) {
+            for (RegisterMeta.ServiceMeta serviceMeta : registryService.getSubscribeSet()) {
                 // 与doSubscribe()中的write有竞争
                 if (!attachSubscribeEventOnChannel(serviceMeta, ch)) {
                     continue;
@@ -532,7 +532,7 @@ public final class DefaultRegistry extends NettyTcpConnector {
             }
 
             // 重新发布服务
-            for (RegisterMeta meta : registryService.registerMetaMap.keySet()) {
+            for (RegisterMeta meta : registryService.getRegisterMetaMap().keySet()) {
                 // 与doRegister()中的write有竞争
                 if (!attachPublishEventOnChannel(meta, ch)) {
                     continue;

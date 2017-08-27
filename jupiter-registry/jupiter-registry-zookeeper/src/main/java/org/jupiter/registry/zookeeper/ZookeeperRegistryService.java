@@ -16,6 +16,13 @@
 
 package org.jupiter.registry.zookeeper;
 
+import java.io.IOException;
+import java.util.Collection;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ConcurrentMap;
+import java.util.concurrent.atomic.AtomicLong;
+
 import org.apache.curator.framework.CuratorFramework;
 import org.apache.curator.framework.CuratorFrameworkFactory;
 import org.apache.curator.framework.api.BackgroundCallback;
@@ -28,20 +35,19 @@ import org.apache.curator.framework.state.ConnectionStateListener;
 import org.apache.curator.retry.ExponentialBackoffRetry;
 import org.apache.zookeeper.CreateMode;
 import org.jupiter.common.concurrent.collection.ConcurrentSet;
-import org.jupiter.common.util.*;
+import org.jupiter.common.util.Function;
+import org.jupiter.common.util.Lists;
+import org.jupiter.common.util.Maps;
+import org.jupiter.common.util.NetUtil;
+import org.jupiter.common.util.SpiImpl;
+import org.jupiter.common.util.Strings;
+import org.jupiter.common.util.SystemPropertyUtil;
 import org.jupiter.common.util.internal.logging.InternalLogger;
 import org.jupiter.common.util.internal.logging.InternalLoggerFactory;
 import org.jupiter.registry.AbstractRegistryService;
 import org.jupiter.registry.NotifyListener;
 import org.jupiter.registry.RegisterMeta;
 import org.jupiter.registry.RegisterMeta.Address;
-
-import java.io.IOException;
-import java.util.Collection;
-import java.util.List;
-import java.util.Map;
-import java.util.concurrent.ConcurrentMap;
-import java.util.concurrent.atomic.AtomicLong;
 
 import static org.apache.zookeeper.KeeperException.Code;
 import static org.jupiter.common.util.Preconditions.checkNotNull;
@@ -201,7 +207,7 @@ public class ZookeeperRegistryService extends AbstractRegistryService {
                 @Override
                 public void processResult(CuratorFramework client, CuratorEvent event) throws Exception {
                     if (event.getResultCode() == Code.OK.intValue()) {
-                        registerMetaMap.put(meta, RegisterState.DONE);
+                        getRegisterMetaMap().put(meta, RegisterState.DONE);
                     }
 
                     if (logger.isInfoEnabled()) {
@@ -266,7 +272,7 @@ public class ZookeeperRegistryService extends AbstractRegistryService {
 
     @Override
     protected void doCheckRegisterNodeStatus() {
-        for (Map.Entry<RegisterMeta, RegisterState> entry : registerMetaMap.entrySet()) {
+        for (Map.Entry<RegisterMeta, RegisterState> entry : getRegisterMetaMap().entrySet()) {
             if (entry.getValue() == RegisterState.DONE) {
                 continue;
             }
@@ -315,12 +321,12 @@ public class ZookeeperRegistryService extends AbstractRegistryService {
                     logger.info("Zookeeper connection has been re-established, will re-subscribe and re-register.");
 
                     // 重新订阅
-                    for (RegisterMeta.ServiceMeta serviceMeta : subscribeSet) {
+                    for (RegisterMeta.ServiceMeta serviceMeta : getSubscribeSet()) {
                         doSubscribe(serviceMeta);
                     }
 
                     // 重新发布服务
-                    for (RegisterMeta meta : registerMetaMap.keySet()) {
+                    for (RegisterMeta meta : getRegisterMetaMap().keySet()) {
                         ZookeeperRegistryService.super.register(meta);
                     }
                 }

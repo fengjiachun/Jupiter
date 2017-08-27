@@ -16,15 +16,15 @@
 
 package org.jupiter.registry;
 
+import java.util.Collection;
+import java.util.concurrent.ConcurrentMap;
+
 import org.jupiter.common.util.Maps;
 import org.jupiter.common.util.SpiImpl;
 import org.jupiter.common.util.Strings;
 import org.jupiter.common.util.internal.logging.InternalLogger;
 import org.jupiter.common.util.internal.logging.InternalLoggerFactory;
 import org.jupiter.transport.UnresolvedAddress;
-
-import java.util.Collection;
-import java.util.concurrent.ConcurrentMap;
 
 import static org.jupiter.common.util.Preconditions.checkArgument;
 import static org.jupiter.common.util.Preconditions.checkNotNull;
@@ -66,6 +66,7 @@ public class DefaultRegistryService extends AbstractRegistryService {
         for (DefaultRegistry c : allClients) {
             c.doRegister(meta);
         }
+        getRegisterMetaMap().put(meta, RegisterState.DONE);
     }
 
     @Override

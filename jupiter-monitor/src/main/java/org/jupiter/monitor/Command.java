@@ -16,10 +16,21 @@
 
 package org.jupiter.monitor;
 
-import org.jupiter.common.util.Maps;
-import org.jupiter.monitor.handler.*;
-
 import java.util.Map;
+
+import org.jupiter.common.util.Maps;
+import org.jupiter.monitor.handler.AddressHandler;
+import org.jupiter.monitor.handler.AuthHandler;
+import org.jupiter.monitor.handler.ByAddressHandler;
+import org.jupiter.monitor.handler.ByServiceHandler;
+import org.jupiter.monitor.handler.CommandHandler;
+import org.jupiter.monitor.handler.HelpHandler;
+import org.jupiter.monitor.handler.JStackHandler;
+import org.jupiter.monitor.handler.LsHandler;
+import org.jupiter.monitor.handler.MemoryUsageHandler;
+import org.jupiter.monitor.handler.MetricsHandler;
+import org.jupiter.monitor.handler.QuitHandler;
+import org.jupiter.monitor.handler.RegistryHandler;
 
 /**
  * Monitor command.
@@ -34,6 +45,7 @@ public enum Command {
     HELP("Help information", new HelpHandler()),
     STACK("Prints java stack traces of java threads for the current java process", new JStackHandler()),
     MEMORY_USAGE("Prints memory usage for the current java process", new MemoryUsageHandler()),
+    LS("List all provider and consumer info", new LsHandler()),
     METRICS("Performance metrics", new MetricsHandler(),
             ChildCommand.REPORT),
     REGISTRY("Registry info(P/S command must follow behind ADDRESS)", new RegistryHandler(),

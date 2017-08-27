@@ -16,8 +16,15 @@
 
 package org.jupiter.monitor.handler;
 
+import java.util.Map;
+
 import io.netty.channel.Channel;
+import org.jupiter.common.util.JConstants;
 import org.jupiter.monitor.Command;
+import org.jupiter.registry.RegisterMeta;
+import org.jupiter.registry.RegisterMeta.ServiceMeta;
+import org.jupiter.registry.RegistryService;
+import org.jupiter.registry.RegistryService.RegisterState;
 
 /**
  * 本地查询发布和订阅的服务信息
@@ -29,8 +36,47 @@ import org.jupiter.monitor.Command;
  */
 public class LsHandler implements CommandHandler {
 
+    private volatile RegistryService serverRegisterService;
+    private volatile RegistryService clientRegisterService;
+
+    public RegistryService getServerRegisterService() {
+        return serverRegisterService;
+    }
+
+    public void setServerRegisterService(RegistryService serverRegisterService) {
+        this.serverRegisterService = serverRegisterService;
+    }
+
+    public RegistryService getClientRegisterService() {
+        return clientRegisterService;
+    }
+
+    public void setClientRegisterService(RegistryService clientRegisterService) {
+        this.clientRegisterService = clientRegisterService;
+    }
+
     @Override
     public void handle(Channel channel, Command command, String... args) {
-        // TODO
+        if (AuthHandler.checkAuth(channel)) {
+            // provider side
+            if (serverRegisterService != null) {
+                channel.writeAndFlush("Provider side: " + JConstants.NEWLINE);
+                channel.writeAndFlush("--------------------------------------------------------------------------------" + JConstants.NEWLINE);
+                Map<RegisterMeta, RegisterState> providers = serverRegisterService.providers();
+                for (Map.Entry<RegisterMeta, RegisterState> entry : providers.entrySet()) {
+                    channel.writeAndFlush(entry.getKey() + " | " + entry.getValue().toString() + JConstants.NEWLINE);
+                }
+            }
+
+            // consumer side
+            if (clientRegisterService != null) {
+                channel.writeAndFlush("Consumer side: " + JConstants.NEWLINE);
+                channel.writeAndFlush("--------------------------------------------------------------------------------" + JConstants.NEWLINE);
+                Map<ServiceMeta, Integer> consumers = clientRegisterService.consumers();
+                for (Map.Entry<ServiceMeta, Integer> entry : consumers.entrySet()) {
+                    channel.writeAndFlush(entry.getKey() + " | address_size=" + entry.getValue() + JConstants.NEWLINE);
+                }
+            }
+        }
     }
 }

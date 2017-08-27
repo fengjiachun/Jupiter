@@ -16,6 +16,9 @@
 
 package org.jupiter.example.round;
 
+import java.util.Arrays;
+import java.util.concurrent.atomic.AtomicLong;
+
 import org.jupiter.example.ServiceTest2Impl;
 import org.jupiter.example.ServiceTestImpl;
 import org.jupiter.monitor.MonitorServer;
@@ -29,9 +32,6 @@ import org.jupiter.rpc.provider.ProviderInterceptor;
 import org.jupiter.rpc.tracing.TraceId;
 import org.jupiter.transport.netty.JNettyTcpAcceptor;
 
-import java.util.Arrays;
-import java.util.concurrent.atomic.AtomicLong;
-
 /**
  * jupiter
  * org.jupiter.example.round
@@ -43,6 +43,7 @@ public class JupiterServer {
     public static void main(String[] args) {
         final JServer server = new DefaultServer().withAcceptor(new JNettyTcpAcceptor(18090));
         final MonitorServer monitor = new MonitorServer();
+        monitor.setJupiterServer(server);
         try {
             monitor.start();
 

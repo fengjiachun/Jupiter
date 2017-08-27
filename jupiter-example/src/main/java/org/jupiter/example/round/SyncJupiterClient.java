@@ -18,6 +18,7 @@ package org.jupiter.example.round;
 
 import org.jupiter.example.ServiceTest;
 import org.jupiter.example.ServiceTest2;
+import org.jupiter.monitor.MonitorServer;
 import org.jupiter.rpc.DefaultClient;
 import org.jupiter.rpc.JClient;
 import org.jupiter.rpc.consumer.ProxyFactory;
@@ -37,6 +38,13 @@ public class SyncJupiterClient {
 
     public static void main(String[] args) {
         final JClient client = new DefaultClient().withConnector(new JNettyTcpConnector());
+        final MonitorServer monitor = new MonitorServer(19991);
+        monitor.setJupiterClient(client);
+        try {
+            monitor.start();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
         // 连接RegistryServer
         client.connectToRegistryServer("127.0.0.1:20001");
         // 自动管理可用连接
