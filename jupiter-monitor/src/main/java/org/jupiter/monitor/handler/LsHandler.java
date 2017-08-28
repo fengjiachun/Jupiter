@@ -16,8 +16,6 @@
 
 package org.jupiter.monitor.handler;
 
-import java.util.Map;
-
 import io.netty.channel.Channel;
 import org.jupiter.common.util.JConstants;
 import org.jupiter.monitor.Command;
@@ -25,6 +23,8 @@ import org.jupiter.registry.RegisterMeta;
 import org.jupiter.registry.RegisterMeta.ServiceMeta;
 import org.jupiter.registry.RegistryService;
 import org.jupiter.registry.RegistryService.RegisterState;
+
+import java.util.Map;
 
 /**
  * 本地查询发布和订阅的服务信息
@@ -61,7 +61,8 @@ public class LsHandler implements CommandHandler {
             // provider side
             if (serverRegisterService != null) {
                 channel.writeAndFlush("Provider side: " + JConstants.NEWLINE);
-                channel.writeAndFlush("--------------------------------------------------------------------------------" + JConstants.NEWLINE);
+                channel.writeAndFlush("--------------------------------------------------------------------------------"
+                        + JConstants.NEWLINE);
                 Map<RegisterMeta, RegisterState> providers = serverRegisterService.providers();
                 for (Map.Entry<RegisterMeta, RegisterState> entry : providers.entrySet()) {
                     channel.writeAndFlush(entry.getKey() + " | " + entry.getValue().toString() + JConstants.NEWLINE);
@@ -71,7 +72,8 @@ public class LsHandler implements CommandHandler {
             // consumer side
             if (clientRegisterService != null) {
                 channel.writeAndFlush("Consumer side: " + JConstants.NEWLINE);
-                channel.writeAndFlush("--------------------------------------------------------------------------------" + JConstants.NEWLINE);
+                channel.writeAndFlush("--------------------------------------------------------------------------------"
+                        + JConstants.NEWLINE);
                 Map<ServiceMeta, Integer> consumers = clientRegisterService.consumers();
                 for (Map.Entry<ServiceMeta, Integer> entry : consumers.entrySet()) {
                     channel.writeAndFlush(entry.getKey() + " | address_size=" + entry.getValue() + JConstants.NEWLINE);

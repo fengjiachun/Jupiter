@@ -16,15 +16,8 @@
 
 package org.jupiter.monitor;
 
-import java.net.SocketAddress;
-
 import io.netty.bootstrap.ServerBootstrap;
-import io.netty.channel.Channel;
-import io.netty.channel.ChannelFuture;
-import io.netty.channel.ChannelHandler;
-import io.netty.channel.ChannelHandlerContext;
-import io.netty.channel.ChannelInboundHandlerAdapter;
-import io.netty.channel.ChannelInitializer;
+import io.netty.channel.*;
 import io.netty.handler.codec.DelimiterBasedFrameDecoder;
 import io.netty.handler.codec.Delimiters;
 import io.netty.handler.codec.string.StringDecoder;
@@ -43,11 +36,14 @@ import org.jupiter.rpc.JClient;
 import org.jupiter.rpc.JServer;
 import org.jupiter.transport.netty.NettyTcpAcceptor;
 
+import java.net.SocketAddress;
+
 import static org.jupiter.common.util.StackTraceUtil.stackTrace;
 
 /**
  * 监控服务, RegistryServer与ProviderServer都应该启用
  *
+ * <pre>
  * 常用的monitor command说明:
  * ---------------------------------------------------------------------------------------------------------------------
  * help                                 // 帮助信息
@@ -67,6 +63,7 @@ import static org.jupiter.common.util.StackTraceUtil.stackTrace;
  *
  * quit                                 // 退出
  * ---------------------------------------------------------------------------------------------------------------------
+ * </pre>
  *
  * jupiter
  * org.jupiter.monitor
@@ -165,14 +162,14 @@ public class MonitorServer extends NettyTcpAcceptor {
                 }
                 if (handler instanceof LsHandler) {
                     RegistryService serverRegisterService = jupiterServer == null ? null
-                        : jupiterServer.registryService();
-                    if (((LsHandler)handler).getServerRegisterService() != serverRegisterService) {
-                        ((LsHandler)handler).setServerRegisterService(serverRegisterService);
+                            : jupiterServer.registryService();
+                    if (((LsHandler) handler).getServerRegisterService() != serverRegisterService) {
+                        ((LsHandler) handler).setServerRegisterService(serverRegisterService);
                     }
                     RegistryService clientRegisterService = jupiterClient == null ? null
-                        : jupiterClient.registryService();
-                    if (((LsHandler)handler).getClientRegisterService() != clientRegisterService) {
-                        ((LsHandler)handler).setClientRegisterService(clientRegisterService);
+                            : jupiterClient.registryService();
+                    if (((LsHandler) handler).getClientRegisterService() != clientRegisterService) {
+                        ((LsHandler) handler).setClientRegisterService(clientRegisterService);
                     }
                 }
                 handler.handle(ch, command, args);

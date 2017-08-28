@@ -16,11 +16,11 @@
 
 package org.jupiter.rpc.load.balance;
 
-import java.util.concurrent.ThreadLocalRandom;
-
 import org.jupiter.transport.Directory;
 import org.jupiter.transport.channel.CopyOnWriteGroupList;
 import org.jupiter.transport.channel.JChannelGroup;
+
+import java.util.concurrent.ThreadLocalRandom;
 
 /**
  * 加权随机负载均衡.

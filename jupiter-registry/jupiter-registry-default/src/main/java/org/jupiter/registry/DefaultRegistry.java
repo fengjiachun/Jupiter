@@ -16,44 +16,22 @@
 
 package org.jupiter.registry;
 
-import java.io.IOException;
-import java.net.InetSocketAddress;
-import java.net.SocketAddress;
-import java.util.List;
-import java.util.concurrent.ConcurrentMap;
-import java.util.concurrent.TimeUnit;
-
 import io.netty.bootstrap.Bootstrap;
 import io.netty.buffer.ByteBuf;
-import io.netty.channel.Channel;
-import io.netty.channel.ChannelFuture;
-import io.netty.channel.ChannelFutureListener;
-import io.netty.channel.ChannelHandler;
-import io.netty.channel.ChannelHandlerContext;
-import io.netty.channel.ChannelInboundHandlerAdapter;
-import io.netty.channel.ChannelInitializer;
+import io.netty.channel.*;
 import io.netty.handler.codec.MessageToByteEncoder;
 import io.netty.handler.codec.ReplayingDecoder;
 import io.netty.util.Attribute;
 import io.netty.util.AttributeKey;
 import io.netty.util.ReferenceCountUtil;
 import org.jupiter.common.concurrent.collection.ConcurrentSet;
-import org.jupiter.common.util.JConstants;
-import org.jupiter.common.util.Maps;
-import org.jupiter.common.util.Pair;
-import org.jupiter.common.util.Signal;
-import org.jupiter.common.util.SystemClock;
-import org.jupiter.common.util.SystemPropertyUtil;
+import org.jupiter.common.util.*;
 import org.jupiter.common.util.internal.logging.InternalLogger;
 import org.jupiter.common.util.internal.logging.InternalLoggerFactory;
 import org.jupiter.serialization.Serializer;
 import org.jupiter.serialization.SerializerFactory;
 import org.jupiter.serialization.SerializerType;
-import org.jupiter.transport.Acknowledge;
-import org.jupiter.transport.JConnection;
-import org.jupiter.transport.JOption;
-import org.jupiter.transport.JProtocolHeader;
-import org.jupiter.transport.UnresolvedAddress;
+import org.jupiter.transport.*;
 import org.jupiter.transport.exception.ConnectFailedException;
 import org.jupiter.transport.exception.IoSignals;
 import org.jupiter.transport.netty.NettyTcpConnector;
@@ -61,6 +39,13 @@ import org.jupiter.transport.netty.handler.AcknowledgeEncoder;
 import org.jupiter.transport.netty.handler.IdleStateChecker;
 import org.jupiter.transport.netty.handler.connector.ConnectionWatchdog;
 import org.jupiter.transport.netty.handler.connector.ConnectorIdleStateTrigger;
+
+import java.io.IOException;
+import java.net.InetSocketAddress;
+import java.net.SocketAddress;
+import java.util.List;
+import java.util.concurrent.ConcurrentMap;
+import java.util.concurrent.TimeUnit;
 
 import static org.jupiter.common.util.Preconditions.checkNotNull;
 import static org.jupiter.common.util.StackTraceUtil.stackTrace;
@@ -146,7 +131,8 @@ public final class DefaultRegistry extends NettyTcpConnector {
                         ackEncoder,
                         handler
                 };
-            }};
+            }
+        };
 
         try {
             ChannelFuture future;

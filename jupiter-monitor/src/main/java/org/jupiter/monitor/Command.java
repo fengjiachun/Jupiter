@@ -16,21 +16,10 @@
 
 package org.jupiter.monitor;
 
-import java.util.Map;
-
 import org.jupiter.common.util.Maps;
-import org.jupiter.monitor.handler.AddressHandler;
-import org.jupiter.monitor.handler.AuthHandler;
-import org.jupiter.monitor.handler.ByAddressHandler;
-import org.jupiter.monitor.handler.ByServiceHandler;
-import org.jupiter.monitor.handler.CommandHandler;
-import org.jupiter.monitor.handler.HelpHandler;
-import org.jupiter.monitor.handler.JStackHandler;
-import org.jupiter.monitor.handler.LsHandler;
-import org.jupiter.monitor.handler.MemoryUsageHandler;
-import org.jupiter.monitor.handler.MetricsHandler;
-import org.jupiter.monitor.handler.QuitHandler;
-import org.jupiter.monitor.handler.RegistryHandler;
+import org.jupiter.monitor.handler.*;
+
+import java.util.Map;
 
 /**
  * Monitor command.
@@ -96,6 +85,7 @@ public enum Command {
     }
 
     private static final Map<String, Command> commands = Maps.newHashMap();
+
     static {
         for (Command c : Command.values()) {
             commands.put(c.name().toLowerCase(), c);
