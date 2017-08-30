@@ -4,6 +4,7 @@ Jupiter release notes
 ### 2017-08-29:
 
 - 升级Netty版本到4.1.15.Final
+- Bug fix: ZookeeperRegistryService#lookup()方法中 directory 顺序错误, 修正为: group,providerName,version
 
 ### 2017-08-28: version 1.2.10
 

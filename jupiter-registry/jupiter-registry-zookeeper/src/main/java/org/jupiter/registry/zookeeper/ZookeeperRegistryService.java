@@ -78,8 +78,8 @@ public class ZookeeperRegistryService extends AbstractRegistryService {
     public Collection<RegisterMeta> lookup(RegisterMeta.ServiceMeta serviceMeta) {
         String directory = String.format("/jupiter/provider/%s/%s/%s",
                 serviceMeta.getGroup(),
-                serviceMeta.getVersion(),
-                serviceMeta.getServiceProviderName());
+                serviceMeta.getServiceProviderName(),
+                serviceMeta.getVersion());
 
         List<RegisterMeta> registerMetaList = Lists.newArrayList();
         try {
