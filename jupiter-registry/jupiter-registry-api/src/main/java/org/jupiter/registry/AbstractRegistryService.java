@@ -125,6 +125,8 @@ public abstract class AbstractRegistryService implements RegistryService {
         CopyOnWriteArrayList<NotifyListener> listeners = subscribeListeners.get(serviceMeta);
         if (listeners == null) {
             CopyOnWriteArrayList<NotifyListener> newListeners = new CopyOnWriteArrayList<>();
+            //如果这个key在Map中不存在的话，则把这个key和value放到Map中，然后返回null
+            //如果要是这个key之前在Map中存在的话，则不把这个key和value放到Map中，直接返回之前的key对应的value值
             listeners = subscribeListeners.putIfAbsent(serviceMeta, newListeners);
             if (listeners == null) {
                 listeners = newListeners;
