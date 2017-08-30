@@ -34,6 +34,7 @@ public enum Command {
     HELP("Help information", new HelpHandler()),
     STACK("Prints java stack traces of java threads for the current java process", new JStackHandler()),
     MEMORY_USAGE("Prints memory usage for the current java process", new MemoryUsageHandler()),
+    LS("List all provider and consumer info", new LsHandler()),
     METRICS("Performance metrics", new MetricsHandler(),
             ChildCommand.REPORT),
     REGISTRY("Registry info(P/S command must follow behind ADDRESS)", new RegistryHandler(),
@@ -84,6 +85,7 @@ public enum Command {
     }
 
     private static final Map<String, Command> commands = Maps.newHashMap();
+
     static {
         for (Command c : Command.values()) {
             commands.put(c.name().toLowerCase(), c);

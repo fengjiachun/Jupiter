@@ -43,6 +43,7 @@ public class JupiterServer {
     public static void main(String[] args) {
         final JServer server = new DefaultServer().withAcceptor(new JNettyTcpAcceptor(18090));
         final MonitorServer monitor = new MonitorServer();
+        monitor.setJupiterServer(server);
         try {
             monitor.start();
 

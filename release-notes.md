@@ -1,8 +1,14 @@
 Jupiter release notes
 ------------------------
 
-### 2017-08-04:
+### 2017-08-29:
 
+- 升级Netty版本到4.1.15.Final
+
+### 2017-08-28: version 1.2.10
+
+- Monitor增加ls命令(本地查询发布和订阅的服务信息)
+- 防止好不容易画的注释图被格式化毁了
 - 升级Netty版本到4.1.14.Final
 - Bug fix: zk server闪断导致服务信息丢失, 重新建立连接后无法再次发布该服务 [\#31](https://github.com/fengjiachun/Jupiter/issues/31)
 - 优化 AbstractRegistryService.notify()锁粒度

@@ -201,7 +201,7 @@ public class ZookeeperRegistryService extends AbstractRegistryService {
                 @Override
                 public void processResult(CuratorFramework client, CuratorEvent event) throws Exception {
                     if (event.getResultCode() == Code.OK.intValue()) {
-                        registerMetaMap.put(meta, RegisterState.DONE);
+                        getRegisterMetaMap().put(meta, RegisterState.DONE);
                     }
 
                     if (logger.isInfoEnabled()) {
@@ -266,7 +266,7 @@ public class ZookeeperRegistryService extends AbstractRegistryService {
 
     @Override
     protected void doCheckRegisterNodeStatus() {
-        for (Map.Entry<RegisterMeta, RegisterState> entry : registerMetaMap.entrySet()) {
+        for (Map.Entry<RegisterMeta, RegisterState> entry : getRegisterMetaMap().entrySet()) {
             if (entry.getValue() == RegisterState.DONE) {
                 continue;
             }
@@ -315,12 +315,12 @@ public class ZookeeperRegistryService extends AbstractRegistryService {
                     logger.info("Zookeeper connection has been re-established, will re-subscribe and re-register.");
 
                     // 重新订阅
-                    for (RegisterMeta.ServiceMeta serviceMeta : subscribeSet) {
+                    for (RegisterMeta.ServiceMeta serviceMeta : getSubscribeSet()) {
                         doSubscribe(serviceMeta);
                     }
 
                     // 重新发布服务
-                    for (RegisterMeta meta : registerMetaMap.keySet()) {
+                    for (RegisterMeta meta : getRegisterMetaMap().keySet()) {
                         ZookeeperRegistryService.super.register(meta);
                     }
                 }

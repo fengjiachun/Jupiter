@@ -37,6 +37,7 @@ import static org.jupiter.common.util.Preconditions.checkNotNull;
 /**
  * Jupiter tcp acceptor based on netty.
  *
+ * <pre>
  * *********************************************************************
  *            I/O Request                       I/O Response
  *                 │                                 △
@@ -73,6 +74,7 @@ import static org.jupiter.common.util.Preconditions.checkNotNull;
  *
  * │                    └ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ┘                     │
  * ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─
+ * </pre>
  *
  * jupiter
  * org.jupiter.transport.netty

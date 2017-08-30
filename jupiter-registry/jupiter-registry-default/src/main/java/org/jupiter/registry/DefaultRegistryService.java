@@ -66,6 +66,7 @@ public class DefaultRegistryService extends AbstractRegistryService {
         for (DefaultRegistry c : allClients) {
             c.doRegister(meta);
         }
+        getRegisterMetaMap().put(meta, RegisterState.DONE);
     }
 
     @Override

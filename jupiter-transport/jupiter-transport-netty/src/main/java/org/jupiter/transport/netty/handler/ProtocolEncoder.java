@@ -27,6 +27,7 @@ import org.jupiter.transport.payload.JRequestBytes;
 import org.jupiter.transport.payload.JResponseBytes;
 
 /**
+ * <pre>
  * **************************************************************************************************
  *                                          Protocol
  *  ┌ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ┐
@@ -43,6 +44,7 @@ import org.jupiter.transport.payload.JResponseBytes;
  * + 1 // 状态位, 设置请求响应状态
  * + 8 // 消息 id, long 类型, 未来jupiter可能将id限制在48位, 留出高地址的16位作为扩展字段
  * + 4 // 消息体 body 长度, int 类型
+ * </pre>
  *
  * jupiter
  * org.jupiter.transport.netty.handler

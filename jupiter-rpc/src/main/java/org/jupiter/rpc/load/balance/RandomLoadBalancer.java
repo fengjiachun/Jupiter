@@ -25,6 +25,7 @@ import java.util.concurrent.ThreadLocalRandom;
 /**
  * 加权随机负载均衡.
  *
+ * <pre>
  * *****************************************************************************
  *
  *            random value
@@ -36,6 +37,7 @@ import java.util.concurrent.ThreadLocalRandom;
  * └─────────────────┴─────────┴──────────────────────┴─────┴─────────────────┘
  *
  * *****************************************************************************
+ * </pre>
  *
  * jupiter
  * org.jupiter.rpc.load.balance

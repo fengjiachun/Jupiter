@@ -99,6 +99,11 @@ public class DefaultServer implements JServer {
     }
 
     @Override
+    public RegistryService registryService() {
+        return registryService;
+    }
+
+    @Override
     public void connectToRegistryServer(String connectString) {
         registryService.connectToRegistryServer(connectString);
     }

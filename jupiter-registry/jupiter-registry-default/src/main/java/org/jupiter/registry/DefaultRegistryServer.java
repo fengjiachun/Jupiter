@@ -16,9 +16,23 @@
 
 package org.jupiter.registry;
 
+import java.io.IOException;
+import java.net.InetSocketAddress;
+import java.net.SocketAddress;
+import java.util.List;
+import java.util.concurrent.ConcurrentMap;
+import java.util.concurrent.TimeUnit;
+
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.buffer.ByteBuf;
-import io.netty.channel.*;
+import io.netty.channel.Channel;
+import io.netty.channel.ChannelConfig;
+import io.netty.channel.ChannelFuture;
+import io.netty.channel.ChannelFutureListener;
+import io.netty.channel.ChannelHandler;
+import io.netty.channel.ChannelHandlerContext;
+import io.netty.channel.ChannelInboundHandlerAdapter;
+import io.netty.channel.ChannelInitializer;
 import io.netty.channel.group.ChannelGroup;
 import io.netty.channel.group.ChannelMatcher;
 import io.netty.channel.group.DefaultChannelGroup;
@@ -29,7 +43,16 @@ import io.netty.util.AttributeKey;
 import io.netty.util.ReferenceCountUtil;
 import io.netty.util.concurrent.GlobalEventExecutor;
 import org.jupiter.common.concurrent.collection.ConcurrentSet;
-import org.jupiter.common.util.*;
+import org.jupiter.common.util.ExceptionUtil;
+import org.jupiter.common.util.Function;
+import org.jupiter.common.util.JConstants;
+import org.jupiter.common.util.Lists;
+import org.jupiter.common.util.Maps;
+import org.jupiter.common.util.Pair;
+import org.jupiter.common.util.Signal;
+import org.jupiter.common.util.Strings;
+import org.jupiter.common.util.SystemClock;
+import org.jupiter.common.util.SystemPropertyUtil;
 import org.jupiter.common.util.internal.logging.InternalLogger;
 import org.jupiter.common.util.internal.logging.InternalLoggerFactory;
 import org.jupiter.serialization.Serializer;
@@ -44,13 +67,6 @@ import org.jupiter.transport.netty.NettyTcpAcceptor;
 import org.jupiter.transport.netty.handler.AcknowledgeEncoder;
 import org.jupiter.transport.netty.handler.IdleStateChecker;
 import org.jupiter.transport.netty.handler.acceptor.AcceptorIdleStateTrigger;
-
-import java.io.IOException;
-import java.net.InetSocketAddress;
-import java.net.SocketAddress;
-import java.util.List;
-import java.util.concurrent.ConcurrentMap;
-import java.util.concurrent.TimeUnit;
 
 import static org.jupiter.common.util.StackTraceUtil.stackTrace;
 
@@ -421,6 +437,7 @@ public final class DefaultRegistryServer extends NettyTcpAcceptor implements Reg
     }
 
     /**
+     * <pre>
      * **************************************************************************************************
      *                                          Protocol
      *  ┌ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ┐
@@ -437,6 +454,7 @@ public final class DefaultRegistryServer extends NettyTcpAcceptor implements Reg
      * + 1 // 空
      * + 8 // 消息 id, long 类型
      * + 4 // 消息体 body 长度, int 类型
+     * </pre>
      */
     static class MessageDecoder extends ReplayingDecoder<MessageDecoder.State> {
 
@@ -513,6 +531,7 @@ public final class DefaultRegistryServer extends NettyTcpAcceptor implements Reg
     }
 
     /**
+     * <pre>
      * **************************************************************************************************
      *                                          Protocol
      *  ┌ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ┐
@@ -529,6 +548,7 @@ public final class DefaultRegistryServer extends NettyTcpAcceptor implements Reg
      * + 1 // 空
      * + 8 // 消息 id, long 类型
      * + 4 // 消息体 body 长度, int 类型
+     * </pre>
      */
     @ChannelHandler.Sharable
     static class MessageEncoder extends MessageToByteEncoder<Message> {

@@ -17,6 +17,7 @@
 package org.jupiter.rpc;
 
 import org.jupiter.registry.Registry;
+import org.jupiter.registry.RegistryService;
 import org.jupiter.rpc.flow.control.FlowController;
 import org.jupiter.rpc.model.metadata.ServiceWrapper;
 import org.jupiter.rpc.provider.ProviderInterceptor;
@@ -104,6 +105,11 @@ public interface JServer extends Registry {
      * 设置网络层acceptor.
      */
     JServer withAcceptor(JAcceptor acceptor);
+
+    /**
+     * 注册服务实例
+     */
+    RegistryService registryService();
 
     /**
      * 设置全局的拦截器, 会拦截所有的服务提供者.

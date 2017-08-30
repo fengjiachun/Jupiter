@@ -89,6 +89,11 @@ public class DefaultClient implements JClient {
     }
 
     @Override
+    public RegistryService registryService() {
+        return registryService;
+    }
+
+    @Override
     public Collection<RegisterMeta> lookup(Directory directory) {
         RegisterMeta.ServiceMeta serviceMeta = toServiceMeta(directory);
         return registryService.lookup(serviceMeta);

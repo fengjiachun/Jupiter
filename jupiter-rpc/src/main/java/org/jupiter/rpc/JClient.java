@@ -16,10 +16,7 @@
 
 package org.jupiter.rpc;
 
-import org.jupiter.registry.NotifyListener;
-import org.jupiter.registry.OfflineListener;
-import org.jupiter.registry.RegisterMeta;
-import org.jupiter.registry.Registry;
+import org.jupiter.registry.*;
 import org.jupiter.transport.Directory;
 import org.jupiter.transport.JConnection;
 import org.jupiter.transport.JConnector;
@@ -51,6 +48,11 @@ public interface JClient extends Registry {
      * 设置网络层connector.
      */
     JClient withConnector(JConnector<JConnection> connector);
+
+    /**
+     * 注册服务实例
+     */
+    RegistryService registryService();
 
     /**
      * 从本地容器查找服务信息.

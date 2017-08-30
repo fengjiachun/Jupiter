@@ -131,7 +131,8 @@ public final class DefaultRegistry extends NettyTcpConnector {
                         ackEncoder,
                         handler
                 };
-            }};
+            }
+        };
 
         try {
             ChannelFuture future;
@@ -283,6 +284,7 @@ public final class DefaultRegistry extends NettyTcpConnector {
     }
 
     /**
+     * <pre>
      * **************************************************************************************************
      *                                          Protocol
      *  ┌ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ┐
@@ -299,6 +301,7 @@ public final class DefaultRegistry extends NettyTcpConnector {
      * + 1 // 空
      * + 8 // 消息 id, long 类型
      * + 4 // 消息体 body 长度, int 类型
+     * </pre>
      */
     static class MessageDecoder extends ReplayingDecoder<MessageDecoder.State> {
 
@@ -373,6 +376,7 @@ public final class DefaultRegistry extends NettyTcpConnector {
     }
 
     /**
+     * <pre>
      * **************************************************************************************************
      *                                          Protocol
      *  ┌ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ┐
@@ -389,6 +393,7 @@ public final class DefaultRegistry extends NettyTcpConnector {
      * + 1 // 空
      * + 8 // 消息 id, long 类型
      * + 4 // 消息体 body 长度, int 类型
+     * </pre>
      */
     @ChannelHandler.Sharable
     static class MessageEncoder extends MessageToByteEncoder<Message> {
@@ -495,7 +500,7 @@ public final class DefaultRegistry extends NettyTcpConnector {
             Channel ch = (channel = ctx.channel());
 
             // 重新订阅
-            for (RegisterMeta.ServiceMeta serviceMeta : registryService.subscribeSet) {
+            for (RegisterMeta.ServiceMeta serviceMeta : registryService.getSubscribeSet()) {
                 // 与doSubscribe()中的write有竞争
                 if (!attachSubscribeEventOnChannel(serviceMeta, ch)) {
                     continue;
@@ -513,7 +518,7 @@ public final class DefaultRegistry extends NettyTcpConnector {
             }
 
             // 重新发布服务
-            for (RegisterMeta meta : registryService.registerMetaMap.keySet()) {
+            for (RegisterMeta meta : registryService.getRegisterMetaMap().keySet()) {
                 // 与doRegister()中的write有竞争
                 if (!attachPublishEventOnChannel(meta, ch)) {
                     continue;

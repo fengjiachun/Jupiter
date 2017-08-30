@@ -30,6 +30,7 @@ import java.util.concurrent.atomic.AtomicIntegerFieldUpdater;
  *
  * 每个服务应有各自独立的实例(index不共享)
  *
+ * <pre>
  * **********************************************************************
  *
  *  index++ % sumWeight
@@ -54,6 +55,7 @@ import java.util.concurrent.atomic.AtomicIntegerFieldUpdater;
  *        └─┘  └─┘  └─┘  └─┘  └─┘  └─┘  └─┘  └─┘
  *
  * **********************************************************************
+ * </pre>
  *
  * jupiter
  * org.jupiter.rpc.load.balance
