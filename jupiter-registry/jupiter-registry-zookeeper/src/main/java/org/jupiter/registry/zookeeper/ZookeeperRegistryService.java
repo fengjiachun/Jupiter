@@ -78,8 +78,8 @@ public class ZookeeperRegistryService extends AbstractRegistryService {
     public Collection<RegisterMeta> lookup(RegisterMeta.ServiceMeta serviceMeta) {
         String directory = String.format("/jupiter/provider/%s/%s/%s",
                 serviceMeta.getGroup(),
-                serviceMeta.getVersion(),
-                serviceMeta.getServiceProviderName());
+                serviceMeta.getServiceProviderName(),
+                serviceMeta.getVersion());
 
         List<RegisterMeta> registerMetaList = Lists.newArrayList();
         try {
@@ -117,7 +117,7 @@ public class ZookeeperRegistryService extends AbstractRegistryService {
                         logger.info("Child event: {}", event);
 
                         switch (event.getType()) {
-                            case CHILD_ADDED: {
+                            case CHILD_ADDED: {  //创建新的节点
                                 RegisterMeta registerMeta = parseRegisterMeta(event.getData().getPath());
                                 Address address = registerMeta.getAddress();
                                 RegisterMeta.ServiceMeta serviceMeta = registerMeta.getServiceMeta();
@@ -132,7 +132,7 @@ public class ZookeeperRegistryService extends AbstractRegistryService {
 
                                 break;
                             }
-                            case CHILD_REMOVED: {
+                            case CHILD_REMOVED: { //删除节点     CHILD_UPDATE 更新节点
                                 RegisterMeta registerMeta = parseRegisterMeta(event.getData().getPath());
                                 Address address = registerMeta.getAddress();
                                 RegisterMeta.ServiceMeta serviceMeta = registerMeta.getServiceMeta();
