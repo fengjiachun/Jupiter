@@ -123,6 +123,8 @@ public abstract class AbstractRegistryService implements RegistryService {
         CopyOnWriteArrayList<NotifyListener> listeners = subscribeListeners.get(serviceMeta);
         if (listeners == null) {
             CopyOnWriteArrayList<NotifyListener> newListeners = new CopyOnWriteArrayList<>();
+            //如果这个key在Map中不存在的话，则把这个key和value放到Map中，然后返回null
+            //如果要是这个key之前在Map中存在的话，则不把这个key和value放到Map中，直接返回之前的key对应的value值
             listeners = subscribeListeners.putIfAbsent(serviceMeta, newListeners);
             if (listeners == null) {
                 listeners = newListeners;
@@ -194,6 +196,8 @@ public abstract class AbstractRegistryService implements RegistryService {
         CopyOnWriteArrayList<OfflineListener> listeners = offlineListeners.get(address);
         if (listeners == null) {
             CopyOnWriteArrayList<OfflineListener> newListeners = new CopyOnWriteArrayList<>();
+            //如果这个key在Map中不存在的话，则把这个key和value放到Map中，然后返回null
+            //如果要是这个key之前在Map中存在的话，则不把这个key和value放到Map中，直接返回之前的key对应的value值
             listeners = offlineListeners.putIfAbsent(address, newListeners);
             if (listeners == null) {
                 listeners = newListeners;
@@ -235,11 +239,11 @@ public abstract class AbstractRegistryService implements RegistryService {
         writeLock.lock();
         try {
             if (version > value.version) {
-                if (event == NotifyListener.NotifyEvent.CHILD_REMOVED) {
+                if (event == NotifyListener.NotifyEvent.CHILD_REMOVED) {  //添加节点
                     for (RegisterMeta m : array) {
                         value.metaSet.remove(m);
                     }
-                } else if (event == NotifyListener.NotifyEvent.CHILD_ADDED) {
+                } else if (event == NotifyListener.NotifyEvent.CHILD_ADDED) {  //删除节点
                     Collections.addAll(value.metaSet, array);
                 }
                 value.version = version;

@@ -117,7 +117,7 @@ public class ZookeeperRegistryService extends AbstractRegistryService {
                         logger.info("Child event: {}", event);
 
                         switch (event.getType()) {
-                            case CHILD_ADDED: {
+                            case CHILD_ADDED: {  //创建新的节点
                                 RegisterMeta registerMeta = parseRegisterMeta(event.getData().getPath());
                                 Address address = registerMeta.getAddress();
                                 RegisterMeta.ServiceMeta serviceMeta = registerMeta.getServiceMeta();
@@ -132,7 +132,7 @@ public class ZookeeperRegistryService extends AbstractRegistryService {
 
                                 break;
                             }
-                            case CHILD_REMOVED: {
+                            case CHILD_REMOVED: { //删除节点     CHILD_UPDATE 更新节点
                                 RegisterMeta registerMeta = parseRegisterMeta(event.getData().getPath());
                                 Address address = registerMeta.getAddress();
                                 RegisterMeta.ServiceMeta serviceMeta = registerMeta.getServiceMeta();
@@ -377,6 +377,8 @@ public class ZookeeperRegistryService extends AbstractRegistryService {
         ConcurrentSet<RegisterMeta.ServiceMeta> serviceMetaSet = serviceMetaMap.get(address);
         if (serviceMetaSet == null) {
             ConcurrentSet<RegisterMeta.ServiceMeta> newServiceMetaSet = new ConcurrentSet<>();
+            //如果这个key在Map中不存在的话，则把这个key和value放到Map中，然后返回null
+            //如果要是这个key之前在Map中存在的话，则不把这个key和value放到Map中，直接返回之前的key对应的value值
             serviceMetaSet = serviceMetaMap.putIfAbsent(address, newServiceMetaSet);
             if (serviceMetaSet == null) {
                 serviceMetaSet = newServiceMetaSet;
