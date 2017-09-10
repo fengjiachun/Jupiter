@@ -45,6 +45,8 @@ public abstract class AbstractRegistryService implements RegistryService {
     private final LinkedBlockingQueue<RegisterMeta> queue = new LinkedBlockingQueue<>();
     private final ExecutorService registerExecutor =
             Executors.newSingleThreadExecutor(new NamedThreadFactory("register.executor"));
+    private final ScheduledExecutorService registerScheduledExecutor =
+            Executors.newSingleThreadScheduledExecutor(new NamedThreadFactory("register.schedule.executor"));
     private final ExecutorService localRegisterWatchExecutor =
             Executors.newSingleThreadExecutor(new NamedThreadFactory("local.register.watch.executor"));
 
@@ -80,7 +82,15 @@ public abstract class AbstractRegistryService implements RegistryService {
                                 logger.warn("Register [{}] fail: {}, will try again...", meta.getServiceMeta(), stackTrace(t));
                             }
 
-                            queue.add(meta);
+                            // 间隔一段时间再重新进入队列, 让出cpu
+                            final RegisterMeta finalMeta = meta;
+                            registerScheduledExecutor.schedule(new Runnable() {
+
+                                @Override
+                                public void run() {
+                                    queue.add(finalMeta);
+                                }
+                            }, 1, TimeUnit.SECONDS);
                         }
                     }
                 }

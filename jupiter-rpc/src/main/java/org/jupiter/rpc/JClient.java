@@ -27,6 +27,8 @@ import java.util.Collection;
 /**
  * The jupiter rpc client.
  *
+ * 注意 JClient 单例即可, 不要创建多个实例.
+ *
  * jupiter
  * org.jupiter.rpc
  *

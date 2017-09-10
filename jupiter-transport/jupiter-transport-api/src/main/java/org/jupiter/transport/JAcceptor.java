@@ -23,6 +23,8 @@ import java.net.SocketAddress;
 /**
  * Server acceptor.
  *
+ * 注意 JAcceptor 单例即可, 不要创建多个实例.
+ *
  * jupiter
  * org.jupiter.transport
  *

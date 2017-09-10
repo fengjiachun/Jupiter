@@ -30,6 +30,8 @@ import java.util.concurrent.Executor;
 /**
  * The jupiter rpc server.
  *
+ * 注意 JServer 单例即可, 不要创建多个实例.
+ *
  * jupiter
  * org.jupiter.rpc
  *
