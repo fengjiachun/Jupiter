@@ -78,9 +78,7 @@ public abstract class AbstractRegistryService implements RegistryService {
                         doRegister(meta);
                     } catch (Throwable t) {
                         if (meta != null) {
-                            if (logger.isWarnEnabled()) {
-                                logger.warn("Register [{}] fail: {}, will try again...", meta.getServiceMeta(), stackTrace(t));
-                            }
+                            logger.error("Register [{}] fail: {}, will try again...", meta.getServiceMeta(), stackTrace(t));
 
                             // 间隔一段时间再重新进入队列, 让出cpu
                             final RegisterMeta finalMeta = meta;
