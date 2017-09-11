@@ -3,9 +3,9 @@ Jupiter release notes
 
 ### 2017-09-11:
 
-- 优化: 注册失败的 RegisterMeta 间隔一段时间再重新入队(AbstractRegistryService)
+- 优化: 注册失败的RegisterMeta间隔一段时间再重新入队(AbstractRegistryService)
 - 升级Netty版本到4.1.15.Final
-- Bug fix: ZookeeperRegistryService#lookup()方法中 directory 顺序错误, 修正为: group,providerName,version
+- Bug fix: ZookeeperRegistryService#lookup()方法中directory顺序错误, 修正为: group,providerName,version
 
 ### 2017-08-28: version 1.2.10
 
@@ -19,13 +19,13 @@ Jupiter release notes
 
 - Spring.schema支持 注册中心类型(实现)配置 [\#30](https://github.com/fengjiachun/Jupiter/issues/30)
 - 升级Netty版本到4.1.13.Final
-- Spring.schema支持 JAcceptor/JConnector配置 [\#29](https://github.com/fengjiachun/Jupiter/issues/29)
+- Spring.schema支持JAcceptor/JConnector配置 [\#29](https://github.com/fengjiachun/Jupiter/issues/29)
 - Bug fix: 修复spring-support中<jupiter:property serializerType="xxx" />配置serializerType无效的问题 [\#27](https://github.com/fengjiachun/Jupiter/issues/27#event-1150209875)
 
 ### 2017-06-29: version 1.2.8
 
 - 新增模块 jupiter-all [\#19](https://github.com/fengjiachun/Jupiter/issues/19)
-- Bug fix: JConnector.ConnectionWatcher#waitForAvailable() 返回值不准确
+- Bug fix: JConnector.ConnectionWatcher#waitForAvailable()返回值不准确
 
 ### 2017-06-15: version 1.2.7
 
@@ -44,12 +44,12 @@ Jupiter release notes
 - 移除org.jupiter.rpc.model.metadata.ServiceWrapper#connCount, connCount修正为JServer粒度的参数
 - 修复权重问题
 - 升级Netty版本到4.1.11.Final
-- 新增 netty-transport-native-kqueue 支持 [\#20](https://github.com/fengjiachun/Jupiter/issues/20)
+- 新增netty-transport-native-kqueue支持 [\#20](https://github.com/fengjiachun/Jupiter/issues/20)
 
 ### 2017-04-18: version 1.2.4
 
 - 升级Netty版本到4.1.9.Final
-- 默认注册中心实现 jupiter-registry-default 序列化/反序列化方式改为可配置的方式
+- 默认注册中心实现jupiter-registry-default序列化/反序列化方式改为可配置的方式
 - 不再支持udt
 - 简化spring配置 [\#14](https://github.com/fengjiachun/Jupiter/issues/14)
 
