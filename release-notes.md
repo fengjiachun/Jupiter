@@ -1,8 +1,9 @@
 Jupiter release notes
 ------------------------
 
-### 2017-08-29:
+### 2017-09-11:
 
+- 优化: 注册失败的 RegisterMeta 间隔一段时间再重新入队(AbstractRegistryService)
 - 升级Netty版本到4.1.15.Final
 - Bug fix: ZookeeperRegistryService#lookup()方法中 directory 顺序错误, 修正为: group,providerName,version
 

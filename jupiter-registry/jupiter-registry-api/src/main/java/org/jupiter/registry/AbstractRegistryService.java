@@ -80,7 +80,7 @@ public abstract class AbstractRegistryService implements RegistryService {
                         if (meta != null) {
                             logger.error("Register [{}] fail: {}, will try again...", meta.getServiceMeta(), stackTrace(t));
 
-                            // 间隔一段时间再重新进入队列, 让出cpu
+                            // 间隔一段时间再重新入队, 让出cpu
                             final RegisterMeta finalMeta = meta;
                             registerScheduledExecutor.schedule(new Runnable() {
 
