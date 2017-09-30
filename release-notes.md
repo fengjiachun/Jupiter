@@ -1,7 +1,7 @@
 Jupiter release notes
 ------------------------
 
-### 2017-09-11:
+### 2017-09-30: version 1.2.11
 
 - 优化: 注册失败的RegisterMeta间隔一段时间再重新入队(AbstractRegistryService)
 - 升级Netty版本到4.1.15.Final
