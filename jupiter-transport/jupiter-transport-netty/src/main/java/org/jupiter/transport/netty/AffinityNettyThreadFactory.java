@@ -28,6 +28,8 @@ import org.jupiter.common.util.internal.logging.InternalLoggerFactory;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import static org.jupiter.common.util.Preconditions.checkNotNull;
+
 /**
  * This is a ThreadFactory which assigns threads based the strategies provided.
  * <p>
@@ -78,6 +80,8 @@ public class AffinityNettyThreadFactory implements ThreadFactory {
 
     @Override
     public Thread newThread(Runnable r) {
+        checkNotNull(r, "runnable");
+
         String name2 = name + id.getAndIncrement();
         final Runnable r2 = new DefaultRunnableDecorator(r);
         Runnable r3 = new Runnable() {
