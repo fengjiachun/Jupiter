@@ -71,6 +71,7 @@ public class ExceptionUtil {
 
         if (rootCause != cause) {
             cause.setStackTrace(rootCause.getStackTrace());
+            assert cause_updater != null;
             cause_updater.set(cause, cause);
         }
         return cause;

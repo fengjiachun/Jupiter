@@ -73,6 +73,7 @@ public class JavaSerializer extends Serializer {
             buf.reset(); // for reuse
 
             // 防止hold过大的内存块一直不释放
+            assert bufUpdater != null;
             if (bufUpdater.get(buf).length > MAX_CACHED_BUF_SIZE) {
                 bufUpdater.set(buf, new byte[DEFAULT_BUF_SIZE]);
             }

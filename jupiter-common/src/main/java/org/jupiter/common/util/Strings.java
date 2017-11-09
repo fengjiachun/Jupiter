@@ -86,73 +86,51 @@ public final class Strings {
     }
 
     /**
-     * Splits the provided text into an array, separator specified.
-     *
-     * A null input String returns null.
-     *
-     * Strings.split(null, *)         = null
-     * Strings.split("", *)           = []
-     * Strings.split("a.b.c", '.')    = ["a", "b", "c"]
-     * Strings.split("a..b.c", '.')   = ["a", "b", "c"]
-     * Strings.split("a:b:c", '.')    = ["a:b:c"]
-     * Strings.split("a b c", ' ')    = ["a", "b", "c"]
+     * Splits the specified {@link String} with the specified delimiter.  This operation is a simplified and optimized
+     * version of {@link String#split(String)}.
      */
-    public static String[] split(String str, char separator) {
-        return split(str, separator, false);
-    }
-
-    /**
-     * Splits the provided text into an array, separator specified,
-     * if {@code} true, preserving all tokens, including empty tokens created
-     * by adjacent separators.
-     *
-     * A null input String returns null.
-     *
-     * Strings.split(null, *, true)         = null
-     * Strings.split("", *, true)           = []
-     * Strings.split("a.b.c", '.', true)    = ["a", "b", "c"]
-     * Strings.split("a..b.c", '.', true)   = ["a", "", "b", "c"]
-     * Strings.split("a:b:c", '.', true)    = ["a:b:c"]
-     * Strings.split("a b c", ' ', true)    = ["a", "b", "c"]
-     * Strings.split("a b c ", ' ', true)   = ["a", "b", "c", ""]
-     * Strings.split("a b c  ", ' ', true)  = ["a", "b", "c", "", ""]
-     * Strings.split(" a b c", ' ', true)   = ["", a", "b", "c"]
-     * Strings.split("  a b c", ' ', true)  = ["", "", a", "b", "c"]
-     * Strings.split(" a b c ", ' ', true)  = ["", a", "b", "c", ""]
-     */
-    public static String[] split(String str, char separator, boolean preserveAllTokens) {
-        if (str == null) {
+    public static String[] split(String value, char delimiter) {
+        if (value == null) {
             return null;
         }
-        int len = str.length();
-        if (len == 0) {
-            return EMPTY_STRING_ARRAY;
-        }
-        List<String> list = new ArrayList<>();
-        int i = 0, start = 0;
-        boolean match = false;
-        boolean lastMatch = false;
-        while (i < len) {
-            if (str.charAt(i) == separator) {
-                if (match || preserveAllTokens) {
-                    list.add(str.substring(start, i));
-                    match = false;
-                    lastMatch = true;
+
+        final int end = value.length();
+        final List<String> result = new ArrayList<>();
+
+        int start = 0;
+        for (int i = 0; i < end; i++) {
+            if (value.charAt(i) == delimiter) {
+                if (start == i) {
+                    result.add(EMPTY_STRING);
+                } else {
+                    result.add(value.substring(start, i));
                 }
-                start = ++i;
-                continue;
+                start = i + 1;
             }
-            lastMatch = false;
-            match = true;
-            i++;
         }
-        if (match || (preserveAllTokens && lastMatch)) {
-            list.add(str.substring(start, i));
+
+        if (start == 0) { // if no delimiter was found in the value
+            result.add(value);
+        } else {
+            if (start != end) {
+                // add the last element if it's not empty.
+                result.add(value.substring(start, end));
+            } else {
+                // truncate trailing empty elements.
+                for (int i = result.size() - 1; i >= 0; i--) {
+                    if (result.get(i).isEmpty()) {
+                        result.remove(i);
+                    } else {
+                        break;
+                    }
+                }
+            }
         }
-        return list.toArray(new String[list.size()]);
+
+        return result.toArray(new String[result.size()]);
     }
 
-    private static final String[] EMPTY_STRING_ARRAY = new String[0];
+    private static final String EMPTY_STRING = "";
 
     private Strings() {}
 }

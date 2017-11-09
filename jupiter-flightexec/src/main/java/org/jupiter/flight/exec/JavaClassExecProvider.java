@@ -29,7 +29,7 @@ import org.jupiter.rpc.ServiceProviderImpl;
  *
  * @author jiachun.fjc
  */
-@ServiceProviderImpl(version = "1.0.0")
+@ServiceProviderImpl
 public class JavaClassExecProvider implements JavaClassExec {
 
     private static String SYSTEM_STRING = System.class.getName().replace('.', '/');

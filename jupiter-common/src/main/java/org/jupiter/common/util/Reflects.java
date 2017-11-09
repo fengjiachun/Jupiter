@@ -160,7 +160,7 @@ public final class Reflects {
      * @param clazz class
      * @param name  field name
      * @return the {@code Field} object for the specified field in this class
-     * @throws NoSuchFieldException
+     * @throws NoSuchFieldException if a field with the specified name is not found.
      */
     public static Field getField(Class<?> clazz, String name) throws NoSuchFieldException {
         for (Class<?> cls = checkNotNull(clazz, "class"); cls != null; cls = cls.getSuperclass()) {
@@ -498,7 +498,7 @@ public final class Reflects {
     private static int compareParameterTypes(Class<?>[] left, Class<?>[] right, Class<?>[] actual) {
         final float leftCost = getTotalTransformationCost(actual, left);
         final float rightCost = getTotalTransformationCost(actual, right);
-        return leftCost < rightCost ? -1 : rightCost < leftCost ? 1 : 0;
+        return Float.compare(leftCost, rightCost);
     }
 
     /**

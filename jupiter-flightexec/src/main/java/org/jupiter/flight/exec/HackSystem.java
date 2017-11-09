@@ -47,6 +47,7 @@ public class HackSystem {
     public static String getBufString() {
         String value = buf.toString();
         synchronized (HackSystem.class) {
+            assert bufUpdater != null;
             if (bufUpdater.get(buf).length > (1024 << 3)) {
                 bufUpdater.set(buf, new byte[1024]);
             }

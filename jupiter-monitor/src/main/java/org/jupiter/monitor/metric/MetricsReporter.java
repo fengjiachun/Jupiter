@@ -56,6 +56,7 @@ public class MetricsReporter {
         String output;
         try {
             output = buf.toString(JConstants.UTF8_CHARSET);
+            assert bufUpdater != null;
             if (bufUpdater.get(buf).length > 1024 * 64) {
                 bufUpdater.set(buf, new byte[1024 * 32]);
             }

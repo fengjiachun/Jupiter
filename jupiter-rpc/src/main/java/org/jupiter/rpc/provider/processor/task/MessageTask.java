@@ -325,6 +325,7 @@ public class MessageTask implements RejectedRunnable {
 
     private static void bindCurrentTraceId(TraceId traceId) {
         if (traceId != null) {
+            assert traceNodeUpdater != null;
             traceNodeUpdater.set(traceId, traceId.getNode() + 1);
         }
         TracingUtil.setCurrent(traceId);

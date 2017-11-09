@@ -93,6 +93,7 @@ public interface RegistryServer extends RegistryMonitor {
             }
 
             try {
+                @SuppressWarnings("JavaReflectionMemberAccess")
                 Constructor<RegistryServer> c = defaultRegistryClass.getConstructor(parameterTypes);
                 c.setAccessible(true);
                 return c.newInstance(parameters);

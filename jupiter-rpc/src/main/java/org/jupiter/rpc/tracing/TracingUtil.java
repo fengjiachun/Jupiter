@@ -123,11 +123,11 @@ public class TracingUtil {
             strPid = strPid.substring(strPid.length() - 4, strPid.length());
             pid = Integer.parseInt(strPid);
         }
-        String str = Integer.toHexString(pid);
-        while (str.length() < 4) {
-            str = "0" + str;
+        StringBuilder buf = new StringBuilder(Integer.toHexString(pid));
+        while (buf.length() < 4) {
+            buf.insert(0, "0");
         }
-        return str;
+        return buf.toString();
     }
 
     /**
