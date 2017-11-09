@@ -37,6 +37,40 @@ import java.util.concurrent.TimeUnit;
 @OutputTimeUnit(TimeUnit.NANOSECONDS)
 public class NewInstanceBenchmark {
 
+    /**
+        jdk7u80结果:
+        ---------------------------------------------------------------------------------------
+        Benchmark                                     Mode     Cnt     Score      Error   Units
+        NewInstanceBenchmark.jdkNewInstance          thrpt      10     2.912 ±    0.051  ops/ns
+        NewInstanceBenchmark.jdkReflectNewInstance   thrpt      10     0.004 ±    0.001  ops/ns
+        NewInstanceBenchmark.objenesisNewInstance    thrpt      10     0.067 ±    0.001  ops/ns
+        NewInstanceBenchmark.jdkNewInstance           avgt      10     0.342 ±    0.004   ns/op
+        NewInstanceBenchmark.jdkReflectNewInstance    avgt      10   221.239 ±    2.308   ns/op
+        NewInstanceBenchmark.objenesisNewInstance     avgt      10    15.077 ±    0.332   ns/op
+        NewInstanceBenchmark.jdkNewInstance         sample  110386    54.979 ±    2.569   ns/op
+        NewInstanceBenchmark.jdkReflectNewInstance  sample  174726   286.592 ±    5.322   ns/op
+        NewInstanceBenchmark.objenesisNewInstance   sample  124701    76.654 ±    3.128   ns/op
+        NewInstanceBenchmark.jdkNewInstance             ss      10   600.000 ±  780.720   ns/op
+        NewInstanceBenchmark.jdkReflectNewInstance      ss      10  5600.000 ±  780.720   ns/op
+        NewInstanceBenchmark.objenesisNewInstance       ss      10  6300.000 ± 4279.147   ns/op
+
+        jdk8u152结果:
+        ---------------------------------------------------------------------------------------
+        Benchmark                                     Mode     Cnt     Score      Error   Units
+        NewInstanceBenchmark.jdkNewInstance          thrpt      10     2.860 ±    0.086  ops/ns
+        NewInstanceBenchmark.jdkReflectNewInstance   thrpt      10     0.257 ±    0.004  ops/ns
+        NewInstanceBenchmark.objenesisNewInstance    thrpt      10     0.126 ±    0.002  ops/ns
+        NewInstanceBenchmark.jdkNewInstance           avgt      10     0.346 ±    0.004   ns/op
+        NewInstanceBenchmark.jdkReflectNewInstance    avgt      10     3.894 ±    0.036   ns/op
+        NewInstanceBenchmark.objenesisNewInstance     avgt      10     7.748 ±    0.109   ns/op
+        NewInstanceBenchmark.jdkNewInstance         sample  109530    44.991 ±    1.818   ns/op
+        NewInstanceBenchmark.jdkReflectNewInstance  sample  142769    66.277 ±    1.204   ns/op
+        NewInstanceBenchmark.objenesisNewInstance   sample   98286    69.301 ±    2.145   ns/op
+        NewInstanceBenchmark.jdkNewInstance             ss      10   780.900 ±  208.992   ns/op
+        NewInstanceBenchmark.jdkReflectNewInstance      ss      10  8125.200 ± 6525.499   ns/op
+        NewInstanceBenchmark.objenesisNewInstance       ss      10  3635.500 ± 1165.929   ns/op
+     */
+
     public static void main(String[] args) throws RunnerException {
         Options opt = new OptionsBuilder()
                 .include(NewInstanceBenchmark.class.getSimpleName())
