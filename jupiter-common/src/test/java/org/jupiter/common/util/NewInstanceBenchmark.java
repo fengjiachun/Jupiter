@@ -38,7 +38,7 @@ import java.util.concurrent.TimeUnit;
 public class NewInstanceBenchmark {
 
     /**
-        jdk7u80结果:
+        jdk7u80:
         ---------------------------------------------------------------------------------------
         Benchmark                                     Mode     Cnt     Score      Error   Units
         NewInstanceBenchmark.jdkNewInstance          thrpt      10     2.912 ±    0.051  ops/ns
@@ -54,7 +54,7 @@ public class NewInstanceBenchmark {
         NewInstanceBenchmark.jdkReflectNewInstance      ss      10  5600.000 ±  780.720   ns/op
         NewInstanceBenchmark.objenesisNewInstance       ss      10  6300.000 ± 4279.147   ns/op
 
-        jdk8u152结果:
+        jdk8u152:
         ---------------------------------------------------------------------------------------
         Benchmark                                     Mode     Cnt     Score      Error   Units
         NewInstanceBenchmark.jdkNewInstance          thrpt      10     2.860 ±    0.086  ops/ns
