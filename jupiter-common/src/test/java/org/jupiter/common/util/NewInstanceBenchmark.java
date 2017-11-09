@@ -41,34 +41,34 @@ public class NewInstanceBenchmark {
         jdk7u80:
         ---------------------------------------------------------------------------------------
         Benchmark                                     Mode     Cnt     Score      Error   Units
-        NewInstanceBenchmark.jdkNewInstance          thrpt      10     2.912 ±    0.051  ops/ns
+        NewInstanceBenchmark.jdkNewInstance          thrpt      10     2.875 ±    0.082  ops/ns
         NewInstanceBenchmark.jdkReflectNewInstance   thrpt      10     0.004 ±    0.001  ops/ns
-        NewInstanceBenchmark.objenesisNewInstance    thrpt      10     0.067 ±    0.001  ops/ns
-        NewInstanceBenchmark.jdkNewInstance           avgt      10     0.342 ±    0.004   ns/op
-        NewInstanceBenchmark.jdkReflectNewInstance    avgt      10   221.239 ±    2.308   ns/op
-        NewInstanceBenchmark.objenesisNewInstance     avgt      10    15.077 ±    0.332   ns/op
-        NewInstanceBenchmark.jdkNewInstance         sample  110386    54.979 ±    2.569   ns/op
-        NewInstanceBenchmark.jdkReflectNewInstance  sample  174726   286.592 ±    5.322   ns/op
-        NewInstanceBenchmark.objenesisNewInstance   sample  124701    76.654 ±    3.128   ns/op
-        NewInstanceBenchmark.jdkNewInstance             ss      10   600.000 ±  780.720   ns/op
-        NewInstanceBenchmark.jdkReflectNewInstance      ss      10  5600.000 ±  780.720   ns/op
-        NewInstanceBenchmark.objenesisNewInstance       ss      10  6300.000 ± 4279.147   ns/op
+        NewInstanceBenchmark.objenesisNewInstance    thrpt      10     0.062 ±    0.005  ops/ns
+        NewInstanceBenchmark.jdkNewInstance           avgt      10     0.357 ±    0.008   ns/op
+        NewInstanceBenchmark.jdkReflectNewInstance    avgt      10   229.274 ±    7.063   ns/op
+        NewInstanceBenchmark.objenesisNewInstance     avgt      10    15.368 ±    0.207   ns/op
+        NewInstanceBenchmark.jdkNewInstance         sample  108700    53.412 ±    2.617   ns/op
+        NewInstanceBenchmark.jdkReflectNewInstance  sample  169431   288.834 ±    4.583   ns/op
+        NewInstanceBenchmark.objenesisNewInstance   sample  120257    76.868 ±    2.757   ns/op
+        NewInstanceBenchmark.jdkNewInstance             ss      10  1000.000 ±  712.696   ns/op
+        NewInstanceBenchmark.jdkReflectNewInstance      ss      10  7900.000 ± 4361.446   ns/op
+        NewInstanceBenchmark.objenesisNewInstance       ss      10  5600.000 ± 2276.170   ns/op
 
         jdk8u152:
         ---------------------------------------------------------------------------------------
         Benchmark                                     Mode     Cnt     Score      Error   Units
-        NewInstanceBenchmark.jdkNewInstance          thrpt      10     2.860 ±    0.086  ops/ns
-        NewInstanceBenchmark.jdkReflectNewInstance   thrpt      10     0.257 ±    0.004  ops/ns
-        NewInstanceBenchmark.objenesisNewInstance    thrpt      10     0.126 ±    0.002  ops/ns
-        NewInstanceBenchmark.jdkNewInstance           avgt      10     0.346 ±    0.004   ns/op
-        NewInstanceBenchmark.jdkReflectNewInstance    avgt      10     3.894 ±    0.036   ns/op
-        NewInstanceBenchmark.objenesisNewInstance     avgt      10     7.748 ±    0.109   ns/op
-        NewInstanceBenchmark.jdkNewInstance         sample  109530    44.991 ±    1.818   ns/op
-        NewInstanceBenchmark.jdkReflectNewInstance  sample  142769    66.277 ±    1.204   ns/op
-        NewInstanceBenchmark.objenesisNewInstance   sample   98286    69.301 ±    2.145   ns/op
-        NewInstanceBenchmark.jdkNewInstance             ss      10   780.900 ±  208.992   ns/op
-        NewInstanceBenchmark.jdkReflectNewInstance      ss      10  8125.200 ± 6525.499   ns/op
-        NewInstanceBenchmark.objenesisNewInstance       ss      10  3635.500 ± 1165.929   ns/op
+        NewInstanceBenchmark.jdkNewInstance          thrpt      10     2.875 ±    0.072  ops/ns
+        NewInstanceBenchmark.jdkReflectNewInstance   thrpt      10     0.255 ±    0.002  ops/ns
+        NewInstanceBenchmark.objenesisNewInstance    thrpt      10     0.129 ±    0.002  ops/ns
+        NewInstanceBenchmark.jdkNewInstance           avgt      10     0.347 ±    0.010   ns/op
+        NewInstanceBenchmark.jdkReflectNewInstance    avgt      10     3.961 ±    0.044   ns/op
+        NewInstanceBenchmark.objenesisNewInstance     avgt      10     7.810 ±    0.108   ns/op
+        NewInstanceBenchmark.jdkNewInstance         sample  107021    46.840 ±    1.232   ns/op
+        NewInstanceBenchmark.jdkReflectNewInstance  sample  139166    68.646 ±    1.704   ns/op
+        NewInstanceBenchmark.objenesisNewInstance   sample   97828    68.328 ±    1.503   ns/op
+        NewInstanceBenchmark.jdkNewInstance             ss      10  1003.500 ±  411.726   ns/op
+        NewInstanceBenchmark.jdkReflectNewInstance      ss      10  6472.100 ± 1331.522   ns/op
+        NewInstanceBenchmark.objenesisNewInstance       ss      10  3882.900 ±  738.171   ns/op
      */
 
     public static void main(String[] args) throws RunnerException {
@@ -87,11 +87,7 @@ public class NewInstanceBenchmark {
 
     @Benchmark
     public void jdkReflectNewInstance() {
-        try {
-            ForInstanceClass.class.newInstance();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+        Reflects.newInstance(ForInstanceClass.class, true);
     }
 
     @Benchmark
