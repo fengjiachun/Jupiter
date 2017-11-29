@@ -35,6 +35,7 @@ import org.jupiter.rpc.provider.ProviderInterceptor;
 import org.jupiter.rpc.provider.processor.AbstractProviderProcessor;
 import org.jupiter.rpc.tracing.OpenTracingFilter;
 import org.jupiter.rpc.tracing.TraceId;
+import org.jupiter.rpc.tracing.TracingUtil;
 import org.jupiter.serialization.Serializer;
 import org.jupiter.serialization.SerializerFactory;
 import org.jupiter.transport.Status;
@@ -342,19 +343,20 @@ public class MessageTask implements RejectedRunnable {
             if (interceptors == null || interceptors.length == 0) {
                 next.doFilter(request, filterCtx);
             } else {
+                TraceId traceId = TracingUtil.getCurrent();
                 Object provider = service.getServiceProvider();
 
                 MessageWrapper msg = request.message();
-                TraceId traceId = msg.getTraceId();
                 String methodName = msg.getMethodName();
                 Object[] args = msg.getArgs();
+                Object invokeResult = invokeCtx.getResult();
+                Throwable cause = invokeCtx.getCause();
 
                 handleBeforeInvoke(interceptors, traceId, provider, methodName, args);
                 try {
                     next.doFilter(request, filterCtx);
                 } finally {
-                    handleAfterInvoke(
-                            interceptors, traceId, provider, methodName, args,invokeCtx.getResult(), invokeCtx.getCause());
+                    handleAfterInvoke(interceptors, traceId, provider, methodName, args, invokeResult, cause);
                 }
             }
         }
