@@ -16,8 +16,6 @@
 
 package org.jupiter.rpc.tracing;
 
-import org.jupiter.common.util.StringBuilderHelper;
-
 import java.io.Serializable;
 
 /**
@@ -55,13 +53,7 @@ public class TraceId implements Serializable {
     }
 
     public String asText() {
-        StringBuilder buf = StringBuilderHelper.get()
-                .append("TraceId{id='")
-                .append(id)
-                .append("', node=")
-                .append(node)
-                .append('}');
-        return buf.toString();
+        return id + "_" + node;
     }
 
     @Override

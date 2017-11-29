@@ -30,7 +30,6 @@ import org.jupiter.rpc.model.metadata.MethodSpecialConfig;
 import org.jupiter.rpc.model.metadata.ResultWrapper;
 import org.jupiter.rpc.model.metadata.ServiceMetadata;
 import org.jupiter.rpc.tracing.TraceId;
-import org.jupiter.rpc.tracing.TracingRecorder;
 import org.jupiter.rpc.tracing.TracingUtil;
 import org.jupiter.serialization.Serializer;
 import org.jupiter.serialization.SerializerFactory;
@@ -165,17 +164,13 @@ abstract class AbstractDispatcher implements Dispatcher {
     }
 
     // tracing
-    protected MessageWrapper doTracing(MessageWrapper message, JChannel channel) {
+    protected MessageWrapper setTraceId(MessageWrapper message, JChannel channel) {
         if (TracingUtil.isTracingNeeded()) {
             TraceId traceId = TracingUtil.getCurrent();
             if (traceId == TraceId.NULL_TRACE_ID) {
                 traceId = TraceId.newInstance(TracingUtil.generateTraceId());
             }
             message.setTraceId(traceId);
-
-            TracingRecorder recorder = TracingUtil.getRecorder();
-            recorder.recording(
-                    TracingRecorder.Role.CONSUMER, traceId.asText(), metadata.directory(), message.getMethodName(), channel);
         }
         return message;
     }
