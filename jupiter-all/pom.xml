@@ -326,7 +326,6 @@
                     <includeDependencySources>true</includeDependencySources>
                     <dependencySourceIncludes>
                         <dependencySourceInclude>${project.groupId}:jupiter-common</dependencySourceInclude>
-                        <dependencySourceInclude>${project.groupId}:jupiter-extensions</dependencySourceInclude>
                         <dependencySourceInclude>${project.groupId}:jupiter-flightexec</dependencySourceInclude>
                         <dependencySourceInclude>${project.groupId}:jupiter-monitor</dependencySourceInclude>
                         <dependencySourceInclude>${project.groupId}:jupiter-registry</dependencySourceInclude>
