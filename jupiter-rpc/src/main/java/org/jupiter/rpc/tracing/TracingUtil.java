@@ -103,6 +103,10 @@ public class TracingUtil {
         }
     }
 
+    public static TraceId safeGetTraceId(TraceId traceId) {
+        return traceId == null ? TraceId.NULL_TRACE_ID : traceId;
+    }
+
     public static void clearCurrent() {
         traceThreadLocal.remove();
     }

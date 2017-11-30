@@ -28,7 +28,7 @@ public class OpenTracingFilter<T> implements JFilter<T> {
     @Override
     public void doFilter(JRequest request, JFilterContext<T> filterCtx, JFilterChain<T> next) throws Throwable {
         if (TracingUtil.isTracingNeeded()) {
-            bindCurrentTraceId(request.message().getTraceId());
+            setCurrentTraceId(request.message().getTraceId());
         }
 
         try {
@@ -48,6 +48,7 @@ public class OpenTracingFilter<T> implements JFilter<T> {
         MessageWrapper msg = request.message();
         TraceId traceId = TracingUtil.getCurrent();
 
+        // TODO 还没写完 :)
         Tracer.SpanBuilder spanBuilder = tracer.buildSpan(msg.getOperationName());
         Span span = spanBuilder.startManual();
         try {
@@ -58,7 +59,7 @@ public class OpenTracingFilter<T> implements JFilter<T> {
         }
     }
 
-    private static void bindCurrentTraceId(TraceId traceId) {
+    private static void setCurrentTraceId(TraceId traceId) {
         if (traceId != null) {
             assert traceNodeUpdater != null;
             traceNodeUpdater.set(traceId, traceId.getNode() + 1);
