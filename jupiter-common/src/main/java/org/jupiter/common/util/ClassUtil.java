@@ -43,9 +43,9 @@ public class ClassUtil {
             logger.warn("Failed to load class [{}] {}.", className, t);
         }
 
-        long elapsed = System.currentTimeMillis() - start;
-        if (elapsed > tolerableMillis) {
-            logger.warn("{}.<clinit> elapsed: {} millis.", className, elapsed);
+        long duration = System.currentTimeMillis() - start;
+        if (duration > tolerableMillis) {
+            logger.warn("{}.<clinit> duration: {} millis.", className, duration);
         }
     }
 

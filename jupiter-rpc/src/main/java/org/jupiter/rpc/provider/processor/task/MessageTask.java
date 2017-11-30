@@ -214,18 +214,17 @@ public class MessageTask implements RejectedRunnable {
             @Override
             public void operationSuccess(JChannel channel) throws Exception {
                 if (METRIC_NEEDED) {
-                    MetricsHolder.processingTimer.update(
-                            SystemClock.millisClock().now() - request.timestamp(), TimeUnit.MILLISECONDS);
+                    long duration = SystemClock.millisClock().now() - request.timestamp();
+                    MetricsHolder.processingTimer.update(duration, TimeUnit.MILLISECONDS);
                 }
             }
 
             @Override
             public void operationFailure(JChannel channel, Throwable cause) throws Exception {
                 TraceId traceId = TracingUtil.safeGetTraceId(request.message().getTraceId());
-                logger.error(
-                        "Service response[traceId: {}] sent failed, elapsed: {} millis, channel: {}, cause: {}.",
-                        traceId, SystemClock.millisClock().now() - request.timestamp(), channel, cause
-                );
+                long duration = SystemClock.millisClock().now() - request.timestamp();
+                logger.error("Response sent failed, trace: {}, duration: {} millis, channel: {}, cause: {}.",
+                        traceId, duration, channel, cause);
             }
         });
     }
