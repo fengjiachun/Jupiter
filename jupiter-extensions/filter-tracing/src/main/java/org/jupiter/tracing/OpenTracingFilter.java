@@ -9,7 +9,6 @@ import org.jupiter.rpc.JFilterContext;
 import org.jupiter.rpc.JRequest;
 import org.jupiter.rpc.model.metadata.MessageWrapper;
 import org.jupiter.rpc.tracing.TraceId;
-import org.jupiter.rpc.tracing.TracingUtil;
 
 /**
  *
@@ -33,7 +32,12 @@ public class OpenTracingFilter<T> implements JFilter<T> {
 
     private void processTracing(JRequest request, JFilterContext<T> filterCtx, JFilterChain<T> next) throws Throwable {
         MessageWrapper msg = request.message();
-        TraceId traceId = TracingUtil.getCurrent();
+        TraceId traceId = msg.getTraceId();
+
+        if (traceId == null) {
+            next.doFilter(request, filterCtx);
+            return;
+        }
 
         // TODO 还没写完 :)
         Tracer.SpanBuilder spanBuilder = tracer.buildSpan(msg.getOperationName());
