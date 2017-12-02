@@ -1,15 +1,15 @@
-package org.jupiter.rpc.tracing;
+package org.jupiter.tracing;
 
 import io.opentracing.Span;
 import io.opentracing.Tracer;
 import io.opentracing.noop.NoopTracer;
-import org.jupiter.common.util.internal.UnsafeIntegerFieldUpdater;
-import org.jupiter.common.util.internal.UnsafeUpdater;
 import org.jupiter.rpc.JFilter;
 import org.jupiter.rpc.JFilterChain;
 import org.jupiter.rpc.JFilterContext;
 import org.jupiter.rpc.JRequest;
 import org.jupiter.rpc.model.metadata.MessageWrapper;
+import org.jupiter.rpc.tracing.TraceId;
+import org.jupiter.rpc.tracing.TracingUtil;
 
 /**
  *
@@ -20,27 +20,14 @@ import org.jupiter.rpc.model.metadata.MessageWrapper;
  */
 public class OpenTracingFilter<T> implements JFilter<T> {
 
-    private static final UnsafeIntegerFieldUpdater<TraceId> traceNodeUpdater =
-            UnsafeUpdater.newIntegerFieldUpdater(TraceId.class, "node");
-
     private final Tracer tracer = TracerFactory.DEFAULT.getTracer();
 
     @Override
     public void doFilter(JRequest request, JFilterContext<T> filterCtx, JFilterChain<T> next) throws Throwable {
-        if (TracingUtil.isTracingNeeded()) {
-            setCurrentTraceId(request.message().getTraceId());
-        }
-
-        try {
-            if (tracer instanceof NoopTracer) {
-                next.doFilter(request, filterCtx);
-            } else {
-                processTracing(request, filterCtx, next);
-            }
-        } finally {
-            if (TracingUtil.isTracingNeeded()) {
-                TracingUtil.clearCurrent();
-            }
+        if (tracer instanceof NoopTracer) {
+            next.doFilter(request, filterCtx);
+        } else {
+            processTracing(request, filterCtx, next);
         }
     }
 
@@ -57,13 +44,5 @@ public class OpenTracingFilter<T> implements JFilter<T> {
         } finally {
             span.finish();
         }
-    }
-
-    private static void setCurrentTraceId(TraceId traceId) {
-        if (traceId != null) {
-            assert traceNodeUpdater != null;
-            traceNodeUpdater.set(traceId, traceId.getNode() + 1);
-        }
-        TracingUtil.setCurrent(traceId);
     }
 }

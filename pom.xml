@@ -39,6 +39,7 @@
         <module>jupiter-all</module>
         <module>jupiter-common</module>
         <module>jupiter-example</module>
+        <module>jupiter-extensions</module>
         <module>jupiter-flightexec</module>
         <module>jupiter-monitor</module>
         <module>jupiter-registry</module>

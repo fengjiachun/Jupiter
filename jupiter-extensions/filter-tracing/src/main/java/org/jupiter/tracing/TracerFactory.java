@@ -1,4 +1,4 @@
-package org.jupiter.rpc.tracing;
+package org.jupiter.tracing;
 
 import io.opentracing.Tracer;
 import io.opentracing.noop.NoopTracerFactory;

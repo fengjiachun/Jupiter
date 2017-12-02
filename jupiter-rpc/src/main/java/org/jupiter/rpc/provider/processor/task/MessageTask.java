@@ -21,9 +21,14 @@ import com.codahale.metrics.Meter;
 import com.codahale.metrics.Timer;
 import org.jupiter.common.concurrent.RejectedRunnable;
 import org.jupiter.common.util.*;
+import org.jupiter.common.util.internal.UnsafeIntegerFieldUpdater;
+import org.jupiter.common.util.internal.UnsafeUpdater;
 import org.jupiter.common.util.internal.logging.InternalLogger;
 import org.jupiter.common.util.internal.logging.InternalLoggerFactory;
-import org.jupiter.rpc.*;
+import org.jupiter.rpc.JFilter;
+import org.jupiter.rpc.JFilterChain;
+import org.jupiter.rpc.JFilterContext;
+import org.jupiter.rpc.JRequest;
 import org.jupiter.rpc.exception.*;
 import org.jupiter.rpc.flow.control.ControlResult;
 import org.jupiter.rpc.flow.control.FlowController;
@@ -33,7 +38,7 @@ import org.jupiter.rpc.model.metadata.ResultWrapper;
 import org.jupiter.rpc.model.metadata.ServiceWrapper;
 import org.jupiter.rpc.provider.ProviderInterceptor;
 import org.jupiter.rpc.provider.processor.AbstractProviderProcessor;
-import org.jupiter.rpc.tracing.OpenTracingFilter;
+import org.jupiter.rpc.provider.processor.ProviderProcessorChains;
 import org.jupiter.rpc.tracing.TraceId;
 import org.jupiter.rpc.tracing.TracingUtil;
 import org.jupiter.serialization.Serializer;
@@ -66,13 +71,8 @@ public class MessageTask implements RejectedRunnable {
 
     private static final Signal INVOKE_ERROR = Signal.valueOf(MessageTask.class, "INVOKE_ERROR");
 
-    private static final JFilterChain<Context> headChain;
-
-    static {
-        JFilterChain<Context> tailChain = new DefaultFilterChain<>(new InvokeFilter(), null);
-        JFilterChain<Context> interceptorsChain = new DefaultFilterChain<>(new InterceptorsFilter(), tailChain);
-        headChain = new DefaultFilterChain<>(new OpenTracingFilter<Context>(), interceptorsChain);
-    }
+    private static final UnsafeIntegerFieldUpdater<TraceId> traceNodeUpdater =
+            UnsafeUpdater.newIntegerFieldUpdater(TraceId.class, "node");
 
     private final AbstractProviderProcessor processor;
     private final JChannel channel;
@@ -172,8 +172,13 @@ public class MessageTask implements RejectedRunnable {
         final JRequest _request = request;
 
         final Context invokeCtx = new Context(service);
+
+        if (TracingUtil.isTracingNeeded()) {
+            setCurrentTraceId(_request.message().getTraceId());
+        }
+
         try {
-            headChain.doFilter(_request, new JFilterContext<Context>() {
+            ProviderProcessorChains.doFilter(_request, new JFilterContext<Context>() {
 
                 @Override
                 public Context getContext() {
@@ -204,6 +209,10 @@ public class MessageTask implements RejectedRunnable {
                 handleException(invokeCtx.getExpectCauseTypes(), invokeCtx.getCause());
             } else {
                 processor.handleException(channel, _request, Status.SERVER_ERROR, t);
+            }
+        } finally {
+            if (TracingUtil.isTracingNeeded()) {
+                TracingUtil.clearCurrent();
             }
         }
     }
@@ -314,22 +323,7 @@ public class MessageTask implements RejectedRunnable {
         }
     }
 
-    static class InvokeFilter implements JFilter<Context> {
-
-        @Override
-        public void doFilter(JRequest request,
-                             JFilterContext<Context> filterCtx,
-                             JFilterChain<Context> next) throws Throwable {
-            MessageWrapper msg = request.message();
-            Context invokeCtx = filterCtx.getContext();
-
-            Object invokeResult = MessageTask.invoke(msg, invokeCtx);
-
-            invokeCtx.setResult(invokeResult);
-        }
-    }
-
-    static class InterceptorsFilter implements JFilter<Context> {
+    public static class InterceptorsFilter implements JFilter<Context> {
 
         @Override
         public void doFilter(JRequest request,
@@ -362,7 +356,22 @@ public class MessageTask implements RejectedRunnable {
         }
     }
 
-    static class Context {
+    public static class InvokeFilter implements JFilter<Context> {
+
+        @Override
+        public void doFilter(JRequest request,
+                             JFilterContext<Context> filterCtx,
+                             JFilterChain<Context> next) throws Throwable {
+            MessageWrapper msg = request.message();
+            Context invokeCtx = filterCtx.getContext();
+
+            Object invokeResult = MessageTask.invoke(msg, invokeCtx);
+
+            invokeCtx.setResult(invokeResult);
+        }
+    }
+
+    public static class Context {
 
         private final ServiceWrapper service;
 
@@ -398,6 +407,14 @@ public class MessageTask implements RejectedRunnable {
             this.cause = cause;
             this.expectCauseTypes = expectCauseTypes;
         }
+    }
+
+    private static void setCurrentTraceId(TraceId traceId) {
+        if (traceId != null) {
+            assert traceNodeUpdater != null;
+            traceNodeUpdater.set(traceId, traceId.getNode() + 1);
+        }
+        TracingUtil.setCurrent(traceId);
     }
 
     // - Metrics -------------------------------------------------------------------------------------------------------

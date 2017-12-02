@@ -20,6 +20,16 @@ public class DefaultFilterChain<T> implements JFilterChain<T> {
     }
 
     @Override
+    public JFilter<T> getFilter() {
+        return filter;
+    }
+
+    @Override
+    public JFilterChain<T> getNext() {
+        return next;
+    }
+
+    @Override
     public void doFilter(JRequest request, JFilterContext<T> filterCtx) throws Throwable {
         filter.doFilter(request, filterCtx, next);
     }
