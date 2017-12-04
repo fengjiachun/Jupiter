@@ -9,28 +9,28 @@ import static org.jupiter.common.util.Preconditions.checkNotNull;
  *
  * @author jiachun.fjc
  */
-public class DefaultFilterChain<T> implements JFilterChain<T> {
+public class DefaultFilterChain implements JFilterChain {
 
-    private final JFilter<T> filter;
-    private final JFilterChain<T> next;
+    private final JFilter filter;
+    private final JFilterChain next;
 
-    public DefaultFilterChain(JFilter<T> filter, JFilterChain<T> next) {
+    public DefaultFilterChain(JFilter filter, JFilterChain next) {
         this.filter = checkNotNull(filter, "filter");
         this.next = next;
     }
 
     @Override
-    public JFilter<T> getFilter() {
+    public JFilter getFilter() {
         return filter;
     }
 
     @Override
-    public JFilterChain<T> getNext() {
+    public JFilterChain getNext() {
         return next;
     }
 
     @Override
-    public void doFilter(JRequest request, JFilterContext<T> filterCtx) throws Throwable {
+    public void doFilter(JRequest request, JFilterContext filterCtx) throws Throwable {
         filter.doFilter(request, filterCtx, next);
     }
 }

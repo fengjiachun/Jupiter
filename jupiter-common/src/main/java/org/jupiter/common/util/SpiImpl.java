@@ -30,4 +30,6 @@ import java.lang.annotation.*;
 public @interface SpiImpl {
 
     String name() default "";
+
+    int sequence() default 0;
 }

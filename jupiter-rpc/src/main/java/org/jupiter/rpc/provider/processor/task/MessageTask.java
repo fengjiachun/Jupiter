@@ -25,10 +25,7 @@ import org.jupiter.common.util.internal.UnsafeIntegerFieldUpdater;
 import org.jupiter.common.util.internal.UnsafeUpdater;
 import org.jupiter.common.util.internal.logging.InternalLogger;
 import org.jupiter.common.util.internal.logging.InternalLoggerFactory;
-import org.jupiter.rpc.JFilter;
-import org.jupiter.rpc.JFilterChain;
-import org.jupiter.rpc.JFilterContext;
-import org.jupiter.rpc.JRequest;
+import org.jupiter.rpc.*;
 import org.jupiter.rpc.exception.*;
 import org.jupiter.rpc.flow.control.ControlResult;
 import org.jupiter.rpc.flow.control.FlowController;
@@ -38,7 +35,6 @@ import org.jupiter.rpc.model.metadata.ResultWrapper;
 import org.jupiter.rpc.model.metadata.ServiceWrapper;
 import org.jupiter.rpc.provider.ProviderInterceptor;
 import org.jupiter.rpc.provider.processor.AbstractProviderProcessor;
-import org.jupiter.rpc.provider.processor.ProviderProcessorChains;
 import org.jupiter.rpc.tracing.TraceId;
 import org.jupiter.rpc.tracing.TracingUtil;
 import org.jupiter.serialization.Serializer;
@@ -49,6 +45,8 @@ import org.jupiter.transport.channel.JFutureListener;
 import org.jupiter.transport.payload.JRequestBytes;
 import org.jupiter.transport.payload.JResponseBytes;
 
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.util.concurrent.Executor;
 import java.util.concurrent.TimeUnit;
@@ -178,7 +176,7 @@ public class MessageTask implements RejectedRunnable {
         }
 
         try {
-            ProviderProcessorChains.doFilter(_request, new JFilterContext<Context>() {
+            ProcessorChains.doFilter(_request, new JFilterContext<Context>() {
 
                 @Override
                 public Context getContext() {
@@ -323,13 +321,19 @@ public class MessageTask implements RejectedRunnable {
         }
     }
 
-    public static class InterceptorsFilter implements JFilter<Context> {
+    private static void setCurrentTraceId(TraceId traceId) {
+        if (traceId != null) {
+            assert traceNodeUpdater != null;
+            traceNodeUpdater.set(traceId, traceId.getNode() + 1);
+        }
+        TracingUtil.setCurrent(traceId);
+    }
+
+    static class InterceptorsFilter implements JFilter {
 
         @Override
-        public void doFilter(JRequest request,
-                             JFilterContext<Context> filterCtx,
-                             JFilterChain<Context> next) throws Throwable {
-            Context invokeCtx = filterCtx.getContext();
+        public <T> void doFilter(JRequest request, JFilterContext<T> filterCtx, JFilterChain next) throws Throwable {
+            Context invokeCtx = (Context) filterCtx.getContext();
             ServiceWrapper service = invokeCtx.getService();
             // 拦截器
             ProviderInterceptor[] interceptors = service.getInterceptors();
@@ -356,14 +360,12 @@ public class MessageTask implements RejectedRunnable {
         }
     }
 
-    public static class InvokeFilter implements JFilter<Context> {
+    static class InvokeFilter implements JFilter {
 
         @Override
-        public void doFilter(JRequest request,
-                             JFilterContext<Context> filterCtx,
-                             JFilterChain<Context> next) throws Throwable {
+        public <T> void doFilter(JRequest request, JFilterContext<T> filterCtx, JFilterChain next) throws Throwable {
             MessageWrapper msg = request.message();
-            Context invokeCtx = filterCtx.getContext();
+            Context invokeCtx = (Context) filterCtx.getContext();
 
             Object invokeResult = MessageTask.invoke(msg, invokeCtx);
 
@@ -371,7 +373,7 @@ public class MessageTask implements RejectedRunnable {
         }
     }
 
-    public static class Context {
+    static class Context {
 
         private final ServiceWrapper service;
 
@@ -409,12 +411,47 @@ public class MessageTask implements RejectedRunnable {
         }
     }
 
-    private static void setCurrentTraceId(TraceId traceId) {
-        if (traceId != null) {
-            assert traceNodeUpdater != null;
-            traceNodeUpdater.set(traceId, traceId.getNode() + 1);
+    static class ProcessorChains {
+
+        private static final JFilterChain headChain;
+
+        static {
+            JFilterChain invokeChain = new DefaultFilterChain(new InvokeFilter(), null);
+            JFilterChain interceptChain = new DefaultFilterChain(new InterceptorsFilter(), invokeChain);
+            headChain = loadExtFilters(interceptChain);
         }
-        TracingUtil.setCurrent(traceId);
+
+        static <T> void doFilter(JRequest request, JFilterContext<T> filterCtx) throws Throwable {
+            headChain.doFilter(request, filterCtx);
+        }
+
+        private static JFilterChain loadExtFilters(JFilterChain chain) {
+            try {
+                List<JFilter> extFilters = Lists.newArrayList(JServiceLoader.load(JFilter.class));
+
+                Collections.sort(extFilters, new Comparator<JFilter>() {
+
+                    @Override
+                    public int compare(JFilter o1, JFilter o2) {
+                        SpiImpl o1_spi = o1.getClass().getAnnotation(SpiImpl.class);
+                        SpiImpl o2_spi = o2.getClass().getAnnotation(SpiImpl.class);
+
+                        int o1_sequence = o1_spi == null ? 0 : o1_spi.sequence();
+                        int o2_sequence = o2_spi == null ? 0 : o2_spi.sequence();
+
+                        return o1_sequence - o2_sequence;
+                    }
+                });
+
+                for (JFilter f : extFilters) {
+                    chain = new DefaultFilterChain(f, chain);
+                }
+            } catch (Throwable t) {
+                logger.warn("Failed to load extension filters: {}.", stackTrace(t));
+            }
+
+            return chain;
+        }
     }
 
     // - Metrics -------------------------------------------------------------------------------------------------------

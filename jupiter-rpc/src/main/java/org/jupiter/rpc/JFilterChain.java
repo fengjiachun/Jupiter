@@ -6,11 +6,11 @@ package org.jupiter.rpc;
  *
  * @author jiachun.fjc
  */
-public interface JFilterChain<T> {
+public interface JFilterChain {
 
-    JFilter<T> getFilter();
+    JFilter getFilter();
 
-    JFilterChain<T> getNext();
+    JFilterChain getNext();
 
-    void doFilter(JRequest request, JFilterContext<T> filterCtx) throws Throwable;
+    <T> void doFilter(JRequest request, JFilterContext<T> filterCtx) throws Throwable;
 }

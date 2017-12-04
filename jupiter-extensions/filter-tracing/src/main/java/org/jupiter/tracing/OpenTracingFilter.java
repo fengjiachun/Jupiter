@@ -3,6 +3,7 @@ package org.jupiter.tracing;
 import io.opentracing.Span;
 import io.opentracing.Tracer;
 import io.opentracing.noop.NoopTracer;
+import org.jupiter.common.util.SpiImpl;
 import org.jupiter.rpc.JFilter;
 import org.jupiter.rpc.JFilterChain;
 import org.jupiter.rpc.JFilterContext;
@@ -17,12 +18,13 @@ import org.jupiter.rpc.tracing.TraceId;
  *
  * @author jiachun.fjc
  */
-public class OpenTracingFilter<T> implements JFilter<T> {
+@SpiImpl(name = "openTracing", sequence = 10)
+public class OpenTracingFilter implements JFilter {
 
     private final Tracer tracer = TracerFactory.DEFAULT.getTracer();
 
     @Override
-    public void doFilter(JRequest request, JFilterContext<T> filterCtx, JFilterChain<T> next) throws Throwable {
+    public <T> void doFilter(JRequest request, JFilterContext<T> filterCtx, JFilterChain next) throws Throwable {
         if (tracer instanceof NoopTracer) {
             next.doFilter(request, filterCtx);
         } else {
@@ -30,7 +32,7 @@ public class OpenTracingFilter<T> implements JFilter<T> {
         }
     }
 
-    private void processTracing(JRequest request, JFilterContext<T> filterCtx, JFilterChain<T> next) throws Throwable {
+    private <T> void processTracing(JRequest request, JFilterContext<T> filterCtx, JFilterChain next) throws Throwable {
         MessageWrapper msg = request.message();
         TraceId traceId = msg.getTraceId();
 

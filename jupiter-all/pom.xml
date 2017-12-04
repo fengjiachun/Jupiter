@@ -114,6 +114,14 @@
         </dependency>
         <!-- ### serialization impl: end -->
 
+        <!-- ### extensions impl: begin -->
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>filter-tracing</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <!-- ### extensions impl: end -->
+
         <!-- ### transport impl: begin -->
         <dependency>
             <groupId>${project.groupId}</groupId>
