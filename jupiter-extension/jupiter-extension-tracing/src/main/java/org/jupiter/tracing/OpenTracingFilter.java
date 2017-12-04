@@ -31,12 +31,12 @@ public class OpenTracingFilter implements JFilter {
         }
     }
 
-    private <T> void processTracing(JRequest request, T context, JFilterChain next) throws Throwable {
+    private <T> void processTracing(JRequest request, T filterCtx, JFilterChain next) throws Throwable {
         MessageWrapper msg = request.message();
         TraceId traceId = msg.getTraceId();
 
         if (traceId == null) {
-            next.doFilter(request, context);
+            next.doFilter(request, filterCtx);
             return;
         }
 
@@ -45,7 +45,7 @@ public class OpenTracingFilter implements JFilter {
         Span span = spanBuilder.startManual();
         try {
             span.setTag("traceId", traceId.getId());
-            next.doFilter(request, context);
+            next.doFilter(request, filterCtx);
         } finally {
             span.finish();
         }
