@@ -9,10 +9,10 @@
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>jupiter-extensions</artifactId>
+    <artifactId>jupiter-extension</artifactId>
     <packaging>pom</packaging>
 
     <modules>
-        <module>filter-tracing</module>
+        <module>jupiter-extension-tracing</module>
     </modules>
 </project>
