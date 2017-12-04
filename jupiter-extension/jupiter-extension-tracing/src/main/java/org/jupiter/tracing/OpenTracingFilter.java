@@ -6,7 +6,6 @@ import io.opentracing.noop.NoopTracer;
 import org.jupiter.common.util.SpiImpl;
 import org.jupiter.rpc.JFilter;
 import org.jupiter.rpc.JFilterChain;
-import org.jupiter.rpc.JFilterContext;
 import org.jupiter.rpc.JRequest;
 import org.jupiter.rpc.model.metadata.MessageWrapper;
 import org.jupiter.rpc.tracing.TraceId;
@@ -24,7 +23,7 @@ public class OpenTracingFilter implements JFilter {
     private final Tracer tracer = TracerFactory.DEFAULT.getTracer();
 
     @Override
-    public <T> void doFilter(JRequest request, JFilterContext<T> filterCtx, JFilterChain next) throws Throwable {
+    public <T> void doFilter(JRequest request, T filterCtx, JFilterChain next) throws Throwable {
         if (tracer instanceof NoopTracer) {
             next.doFilter(request, filterCtx);
         } else {
@@ -32,12 +31,12 @@ public class OpenTracingFilter implements JFilter {
         }
     }
 
-    private <T> void processTracing(JRequest request, JFilterContext<T> filterCtx, JFilterChain next) throws Throwable {
+    private <T> void processTracing(JRequest request, T context, JFilterChain next) throws Throwable {
         MessageWrapper msg = request.message();
         TraceId traceId = msg.getTraceId();
 
         if (traceId == null) {
-            next.doFilter(request, filterCtx);
+            next.doFilter(request, context);
             return;
         }
 
@@ -46,7 +45,7 @@ public class OpenTracingFilter implements JFilter {
         Span span = spanBuilder.startManual();
         try {
             span.setTag("traceId", traceId.getId());
-            next.doFilter(request, filterCtx);
+            next.doFilter(request, context);
         } finally {
             span.finish();
         }

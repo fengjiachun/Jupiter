@@ -169,22 +169,15 @@ public class MessageTask implements RejectedRunnable {
         // stack copy
         final JRequest _request = request;
 
-        final Context invokeCtx = new Context(service);
+        Context invokeCtx = new Context(service);
 
         if (TracingUtil.isTracingNeeded()) {
             setCurrentTraceId(_request.message().getTraceId());
         }
 
         try {
-            ProcessorChains.doFilter(_request, new JFilterContext<Context>() {
-
-                @Override
-                public Context getContext() {
-                    return invokeCtx;
-                }
-            });
-
-            Object invokeResult = invokeCtx.getResult();
+            Object invokeResult = ProcessorChains.invoke(_request, invokeCtx)
+                    .getResult();
 
             ResultWrapper result = new ResultWrapper();
             result.setResult(invokeResult);
@@ -370,8 +363,8 @@ public class MessageTask implements RejectedRunnable {
     static class InterceptorsFilter implements JFilter {
 
         @Override
-        public <T> void doFilter(JRequest request, JFilterContext<T> filterCtx, JFilterChain next) throws Throwable {
-            Context invokeCtx = (Context) filterCtx.getContext();
+        public <T> void doFilter(JRequest request, T filterCtx, JFilterChain next) throws Throwable {
+            Context invokeCtx = (Context) filterCtx;
             ServiceWrapper service = invokeCtx.getService();
             // 拦截器
             ProviderInterceptor[] interceptors = service.getInterceptors();
@@ -401,9 +394,9 @@ public class MessageTask implements RejectedRunnable {
     static class InvokeFilter implements JFilter {
 
         @Override
-        public <T> void doFilter(JRequest request, JFilterContext<T> filterCtx, JFilterChain next) throws Throwable {
+        public <T> void doFilter(JRequest request, T filterCtx, JFilterChain next) throws Throwable {
             MessageWrapper msg = request.message();
-            Context invokeCtx = (Context) filterCtx.getContext();
+            Context invokeCtx = (Context) filterCtx;
 
             Object invokeResult = MessageTask.invoke(msg, invokeCtx);
 
@@ -421,8 +414,9 @@ public class MessageTask implements RejectedRunnable {
             headChain = loadExtFilters(interceptChain);
         }
 
-        static <T> void doFilter(JRequest request, JFilterContext<T> filterCtx) throws Throwable {
-            headChain.doFilter(request, filterCtx);
+        static <T> T invoke(JRequest request, T invokeCtx) throws Throwable {
+            headChain.doFilter(request, invokeCtx);
+            return invokeCtx;
         }
 
         private static JFilterChain loadExtFilters(JFilterChain chain) {

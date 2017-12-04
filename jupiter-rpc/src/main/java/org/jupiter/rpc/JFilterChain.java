@@ -1,6 +1,7 @@
 package org.jupiter.rpc;
 
 /**
+ *
  * jupiter
  * org.jupiter.rpc
  *
@@ -12,5 +13,5 @@ public interface JFilterChain {
 
     JFilterChain getNext();
 
-    <T> void doFilter(JRequest request, JFilterContext<T> filterCtx) throws Throwable;
+    <T> void doFilter(JRequest request, T filterCtx) throws Throwable;
 }

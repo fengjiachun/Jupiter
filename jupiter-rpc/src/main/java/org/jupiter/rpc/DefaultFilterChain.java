@@ -30,7 +30,7 @@ public class DefaultFilterChain implements JFilterChain {
     }
 
     @Override
-    public void doFilter(JRequest request, JFilterContext filterCtx) throws Throwable {
+    public <T> void doFilter(JRequest request, T filterCtx) throws Throwable {
         filter.doFilter(request, filterCtx, next);
     }
 }
