@@ -329,6 +329,44 @@ public class MessageTask implements RejectedRunnable {
         TracingUtil.setCurrent(traceId);
     }
 
+    public static class Context {
+
+        private final ServiceWrapper service;
+
+        private Object result;                  // 服务调用结果
+        private Throwable cause;                // 业务异常
+        private Class<?>[] expectCauseTypes;    // 预期内的异常类型
+
+        public Context(ServiceWrapper service) {
+            this.service = checkNotNull(service, "service");
+        }
+
+        public ServiceWrapper getService() {
+            return service;
+        }
+
+        public Object getResult() {
+            return result;
+        }
+
+        public void setResult(Object result) {
+            this.result = result;
+        }
+
+        public Throwable getCause() {
+            return cause;
+        }
+
+        public Class<?>[] getExpectCauseTypes() {
+            return expectCauseTypes;
+        }
+
+        public void setCauseAndExpectTypes(Throwable cause, Class<?>[] expectCauseTypes) {
+            this.cause = cause;
+            this.expectCauseTypes = expectCauseTypes;
+        }
+    }
+
     static class InterceptorsFilter implements JFilter {
 
         @Override
@@ -370,44 +408,6 @@ public class MessageTask implements RejectedRunnable {
             Object invokeResult = MessageTask.invoke(msg, invokeCtx);
 
             invokeCtx.setResult(invokeResult);
-        }
-    }
-
-    static class Context {
-
-        private final ServiceWrapper service;
-
-        private Object result;                  // 服务调用结果
-        private Throwable cause;                // 业务异常
-        private Class<?>[] expectCauseTypes;    // 预期内的异常类型
-
-        public Context(ServiceWrapper service) {
-            this.service = checkNotNull(service, "service");
-        }
-
-        public ServiceWrapper getService() {
-            return service;
-        }
-
-        public Object getResult() {
-            return result;
-        }
-
-        public void setResult(Object result) {
-            this.result = result;
-        }
-
-        public Throwable getCause() {
-            return cause;
-        }
-
-        public Class<?>[] getExpectCauseTypes() {
-            return expectCauseTypes;
-        }
-
-        public void setCauseAndExpectTypes(Throwable cause, Class<?>[] expectCauseTypes) {
-            this.cause = cause;
-            this.expectCauseTypes = expectCauseTypes;
         }
     }
 
