@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.jupiter.tracing.api;
+package org.jupiter.tracing;
 
 import io.opentracing.Tracer;
 import io.opentracing.noop.NoopTracerFactory;
@@ -28,7 +28,7 @@ import java.util.Iterator;
 /**
  *
  * jupiter
- * org.jupiter.tracing.api
+ * org.jupiter.tracing
  *
  * @author jiachun.fjc
  */

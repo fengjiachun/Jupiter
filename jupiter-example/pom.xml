@@ -39,5 +39,19 @@
             <artifactId>logback-classic</artifactId>
             <version>1.0.13</version>
         </dependency>
+
+        <!-- for test -->
+        <dependency>
+            <groupId>io.opentracing.brave</groupId>
+            <artifactId>brave-opentracing</artifactId>
+            <version>0.23.0</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>io.zipkin.brave</groupId>
+            <artifactId>brave-spancollector-http</artifactId>
+            <version>4.10.1</version>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
 </project>

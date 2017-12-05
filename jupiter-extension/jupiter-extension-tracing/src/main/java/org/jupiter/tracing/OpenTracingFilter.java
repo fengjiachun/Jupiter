@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.jupiter.tracing.api;
+package org.jupiter.tracing;
 
 import io.opentracing.Span;
 import io.opentracing.Tracer;
@@ -29,14 +29,14 @@ import org.jupiter.rpc.tracing.TraceId;
 /**
  *
  * jupiter
- * org.jupiter.tracing.api
+ * org.jupiter.tracing
  *
  * @author jiachun.fjc
  */
 @SpiImpl(name = "openTracing", sequence = 10)
 public class OpenTracingFilter implements JFilter {
 
-    private final Tracer tracer = TracerFactory.DEFAULT.getTracer();
+    private final Tracer tracer = OpenTracingContext.getTracer();
 
     @Override
     public <T> void doFilter(JRequest request, T filterCtx, JFilterChain next) throws Throwable {
