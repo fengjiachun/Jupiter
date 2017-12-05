@@ -437,6 +437,7 @@ public class MessageTask implements RejectedRunnable {
                     }
                 });
 
+                // sequence越大越靠前
                 for (JFilter f : extFilters) {
                     chain = new DefaultFilterChain(f, chain);
                 }
