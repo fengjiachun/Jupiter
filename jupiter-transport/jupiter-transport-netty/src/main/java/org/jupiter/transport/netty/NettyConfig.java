@@ -190,7 +190,7 @@ public class NettyConfig implements JConfig {
                 validate(option, value);
 
                 if (option == JOption.SO_BACKLOG) {
-                    setIoRatio((Integer) value);
+                    setBacklog((Integer) value);
                 } else if (option == JOption.SO_RCVBUF) {
                     setRcvBuf((Integer) value);
                 } else if (option == JOption.SO_REUSEADDR) {
