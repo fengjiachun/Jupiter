@@ -164,7 +164,7 @@ abstract class AbstractDispatcher implements Dispatcher {
     }
 
     // tracing
-    protected MessageWrapper setTraceId(MessageWrapper message, JChannel channel) {
+    protected MessageWrapper setTraceId(MessageWrapper message) {
         if (TracingUtil.isTracingNeeded()) {
             TraceId traceId = TracingUtil.getCurrent();
             if (traceId == TraceId.NULL_TRACE_ID) {

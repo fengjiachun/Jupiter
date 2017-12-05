@@ -24,7 +24,7 @@ import org.jupiter.rpc.ServiceProviderImpl;
  *
  * @author jiachun.fjc
  */
-@ServiceProviderImpl(version = "1.0.0")
+@ServiceProviderImpl
 public class ServiceImpl implements Service {
 
     @Override

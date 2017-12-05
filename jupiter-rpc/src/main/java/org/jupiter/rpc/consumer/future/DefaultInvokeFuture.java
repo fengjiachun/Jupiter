@@ -46,7 +46,6 @@ import static org.jupiter.common.util.StackTraceUtil.stackTrace;
  *
  * @author jiachun.fjc
  */
-@SuppressWarnings("all")
 public class DefaultInvokeFuture<V> extends AbstractInvokeFuture<V> {
 
     private static final InternalLogger logger = InternalLoggerFactory.getInstance(DefaultInvokeFuture.class);
@@ -69,7 +68,7 @@ public class DefaultInvokeFuture<V> extends AbstractInvokeFuture<V> {
     public static <T> DefaultInvokeFuture<T> with(
             long invokeId, JChannel channel, Class<T> returnType, long timeoutMillis, DispatchType dispatchType) {
 
-        return new DefaultInvokeFuture<T>(invokeId, channel, returnType, timeoutMillis, dispatchType);
+        return new DefaultInvokeFuture<>(invokeId, channel, returnType, timeoutMillis, dispatchType);
     }
 
     private DefaultInvokeFuture(
@@ -111,6 +110,7 @@ public class DefaultInvokeFuture<V> extends AbstractInvokeFuture<V> {
         }
     }
 
+    @SuppressWarnings("unchecked")
     @Override
     protected void notifyListener0(JListener<V> listener, int state, Object x) {
         try {
@@ -140,6 +140,7 @@ public class DefaultInvokeFuture<V> extends AbstractInvokeFuture<V> {
         return this;
     }
 
+    @SuppressWarnings("all")
     private void doReceived(JResponse response) {
         byte status = response.status();
 

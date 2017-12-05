@@ -36,7 +36,7 @@ public class SerializationBenchmark {
     public void javaSerialization() {
         Base base = new Base();
         byte[] bytes = JAVA_SERIALIZER.writeObject(base);
-        Base base1 = JAVA_SERIALIZER.readObject(bytes, Base.class);
+        JAVA_SERIALIZER.readObject(bytes, Base.class);
     }
 
 
@@ -44,7 +44,7 @@ public class SerializationBenchmark {
     public void kryoSerialization() {
         Base base = new Base();
         byte[] bytes = KRYO_SERIALIZER.writeObject(base);
-        Base base1 = KRYO_SERIALIZER.readObject(bytes, Base.class);
+        KRYO_SERIALIZER.readObject(bytes, Base.class);
     }
 
     static class Base implements Serializable {
