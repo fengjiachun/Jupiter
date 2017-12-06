@@ -81,6 +81,7 @@ public abstract class AbstractInvoker {
         private final ClusterInvoker invoker;
         private final Class<?> returnType;
         private final boolean sync;
+
         private Object result;
 
         Context(ClusterInvoker invoker, Class<?> returnType, boolean sync) {
