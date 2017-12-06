@@ -48,7 +48,7 @@
 ##### Maven依赖:
 ```xml
 <properties>
-    <jupiter.version>1.2.11</jupiter.version>
+    <jupiter.version>1.2.12</jupiter.version>
 </properties>
 
 <dependency>
@@ -67,10 +67,10 @@ public interface ServiceTest {
     String sayHelloString();
 }
 
-// @ServiceProvider:
-//     - 建议每个服务接口通过此注解来指定服务信息, 如不希望业务代码对jupiter依赖也可以不使用此注解而手动去设置服务信息
-//         + group: 服务组别(选填, 默认组别为'Jupiter')
-//         + name: 服务名称(选填, 默认名称为接口全限定名称)
+@ServiceProvider:
+    - 建议每个服务接口通过此注解来指定服务信息, 如不希望业务代码对jupiter依赖也可以不使用此注解而手动去设置服务信息
+        + group: 服务组别(选填, 默认组别为'Jupiter')
+        + name: 服务名称(选填, 默认名称为接口全限定名称)
 ```
 
 ###### 2. 创建服务实现:
@@ -85,9 +85,9 @@ public class ServiceTestImpl implements ServiceTest {
     }
 }
 
-// @ServiceProviderImpl:
-//     - 建议每个服务实现通过此注解来指定服务版本信息, 如不希望业务代码对jupiter依赖也可以不使用此注解而手动去设置版本信息
-//         + version: 服务版本号(选填, 默认版本号为'1.0.0')
+@ServiceProviderImpl:
+    - 建议每个服务实现通过此注解来指定服务版本信息, 如不希望业务代码对jupiter依赖也可以不使用此注解而手动去设置版本信息
+        + version: 服务版本号(选填, 默认版本号为'1.0.0')
 ```
 
 ###### 3. 启动注册中心:
@@ -112,13 +112,13 @@ public class HelloJupiterRegistryServer {
 ###### - 选择2: 使用[zookeeper](https://zookeeper.apache.org/doc/trunk/zookeeperStarted.html)作为注册中心:
 
 ```xml
-<!--默认注册中心只建议在测试环境使用, 线上建议使用zookeeper实现-->
+默认注册中心只建议在测试环境使用, 线上建议使用zookeeper实现
 
-<!--设置使用zookeeper作为注册中心-->
-<!--JServer server = new DefaultServer(RegistryService.RegistryType.ZOOKEEPER)-->
-<!--JClient client = new DefaultClient(RegistryService.RegistryType.ZOOKEEPER)-->
+// 设置使用zookeeper作为注册中心
+JServer server = new DefaultServer(RegistryService.RegistryType.ZOOKEEPER)
+JClient client = new DefaultClient(RegistryService.RegistryType.ZOOKEEPER)
 
-<!--在server和client中配置jupiter-registry-zookeeper依赖(jupiter-all包含jupiter-registry-zookeeper)-->
+在server和client中配置jupiter-registry-zookeeper依赖(jupiter-all包含jupiter-registry-zookeeper)
 
 <dependency>
     <groupId>org.jupiter-rpc</groupId>
