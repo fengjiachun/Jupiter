@@ -66,8 +66,7 @@ public abstract class AbstractInvoker {
         return request;
     }
 
-    // tracing
-    protected MessageWrapper setTraceId(MessageWrapper message) {
+    private void setTraceId(MessageWrapper message) {
         if (TracingUtil.isTracingNeeded()) {
             TraceId traceId = TracingUtil.getCurrent();
             if (traceId == TraceId.NULL_TRACE_ID) {
@@ -75,7 +74,6 @@ public abstract class AbstractInvoker {
             }
             message.setTraceId(traceId);
         }
-        return message;
     }
 
     static class Context implements JFilterContext {
