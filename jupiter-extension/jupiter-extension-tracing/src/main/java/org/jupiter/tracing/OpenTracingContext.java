@@ -18,7 +18,6 @@ package org.jupiter.tracing;
 
 import io.opentracing.Span;
 import io.opentracing.Tracer;
-import org.jupiter.common.util.internal.InternalThreadLocal;
 
 /**
  * jupiter
@@ -28,7 +27,7 @@ import org.jupiter.common.util.internal.InternalThreadLocal;
  */
 public class OpenTracingContext {
 
-    private static final InternalThreadLocal<Span> spanThreadLocal = new InternalThreadLocal<>();
+    private static final ThreadLocal<Span> spanThreadLocal = new ThreadLocal<>();
 
     // 默认通过SPI加载Tracer实现
     private static TracerFactory tracerFactory = TracerFactory.DEFAULT;
