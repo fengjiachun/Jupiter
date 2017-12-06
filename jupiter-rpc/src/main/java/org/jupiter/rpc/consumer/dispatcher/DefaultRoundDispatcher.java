@@ -51,8 +51,6 @@ public class DefaultRoundDispatcher extends AbstractDispatcher {
         // 通过软负载均衡选择一个channel
         JChannel channel = select(client, message.getMetadata());
 
-        setTraceId(message);
-
         byte s_code = _serializer.code();
         // 在业务线程中序列化, 减轻IO线程负担
         byte[] bytes = _serializer.writeObject(message);

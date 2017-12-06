@@ -25,12 +25,9 @@ import org.jupiter.rpc.*;
 import org.jupiter.rpc.consumer.future.DefaultInvokeFuture;
 import org.jupiter.rpc.exception.JupiterRemoteException;
 import org.jupiter.rpc.load.balance.LoadBalancer;
-import org.jupiter.rpc.model.metadata.MessageWrapper;
 import org.jupiter.rpc.model.metadata.MethodSpecialConfig;
 import org.jupiter.rpc.model.metadata.ResultWrapper;
 import org.jupiter.rpc.model.metadata.ServiceMetadata;
-import org.jupiter.rpc.tracing.TraceId;
-import org.jupiter.rpc.tracing.TracingUtil;
 import org.jupiter.serialization.Serializer;
 import org.jupiter.serialization.SerializerFactory;
 import org.jupiter.serialization.SerializerType;
@@ -151,18 +148,6 @@ abstract class AbstractDispatcher implements Dispatcher {
         }
 
         throw new IllegalStateException("no channel");
-    }
-
-    // tracing
-    protected MessageWrapper setTraceId(MessageWrapper message) {
-        if (TracingUtil.isTracingNeeded()) {
-            TraceId traceId = TracingUtil.getCurrent();
-            if (traceId == TraceId.NULL_TRACE_ID) {
-                traceId = TraceId.newInstance(TracingUtil.generateTraceId());
-            }
-            message.setTraceId(traceId);
-        }
-        return message;
     }
 
     protected <T> DefaultInvokeFuture<T> write(
