@@ -4,6 +4,7 @@ Jupiter release notes
 ### 2017-12-05:
 
 - OpenTracing支持 [\#33](https://github.com/fengjiachun/Jupiter/issues/33)
+- Bug fix: backlog设置无效
 - 增加jupiter-extension模块
 - JFilter扩展
 

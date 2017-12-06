@@ -45,8 +45,6 @@ import org.jupiter.transport.channel.JFutureListener;
 import org.jupiter.transport.payload.JRequestBytes;
 import org.jupiter.transport.payload.JResponseBytes;
 
-import java.util.Collections;
-import java.util.Comparator;
 import java.util.List;
 import java.util.concurrent.Executor;
 import java.util.concurrent.TimeUnit;
@@ -176,7 +174,7 @@ public class MessageTask implements RejectedRunnable {
         }
 
         try {
-            Object invokeResult = ProcessorChains.invoke(_request, invokeCtx)
+            Object invokeResult = Chains.invoke(_request, invokeCtx)
                     .getResult();
 
             ResultWrapper result = new ResultWrapper();
@@ -322,7 +320,7 @@ public class MessageTask implements RejectedRunnable {
         TracingUtil.setCurrent(traceId);
     }
 
-    public static class Context {
+    public static class Context implements JFilterContext {
 
         private final ServiceWrapper service;
 
@@ -358,12 +356,22 @@ public class MessageTask implements RejectedRunnable {
             this.cause = cause;
             this.expectCauseTypes = expectCauseTypes;
         }
+
+        @Override
+        public JFilter.Type getType() {
+            return JFilter.Type.PROVIDER;
+        }
     }
 
     static class InterceptorsFilter implements JFilter {
 
         @Override
-        public <T> void doFilter(JRequest request, T filterCtx, JFilterChain next) throws Throwable {
+        public Type getType() {
+            return Type.PROVIDER;
+        }
+
+        @Override
+        public <T extends JFilterContext> void doFilter(JRequest request, T filterCtx, JFilterChain next) throws Throwable {
             Context invokeCtx = (Context) filterCtx;
             ServiceWrapper service = invokeCtx.getService();
             // 拦截器
@@ -394,7 +402,12 @@ public class MessageTask implements RejectedRunnable {
     static class InvokeFilter implements JFilter {
 
         @Override
-        public <T> void doFilter(JRequest request, T filterCtx, JFilterChain next) throws Throwable {
+        public Type getType() {
+            return Type.PROVIDER;
+        }
+
+        @Override
+        public <T extends JFilterContext> void doFilter(JRequest request, T filterCtx, JFilterChain next) throws Throwable {
             MessageWrapper msg = request.message();
             Context invokeCtx = (Context) filterCtx;
 
@@ -404,48 +417,19 @@ public class MessageTask implements RejectedRunnable {
         }
     }
 
-    static class ProcessorChains {
+    static class Chains {
 
         private static final JFilterChain headChain;
 
         static {
             JFilterChain invokeChain = new DefaultFilterChain(new InvokeFilter(), null);
             JFilterChain interceptChain = new DefaultFilterChain(new InterceptorsFilter(), invokeChain);
-            headChain = loadExtFilters(interceptChain);
+            headChain = JFilterLoader.loadExtFilters(interceptChain, JFilter.Type.PROVIDER);
         }
 
-        static <T> T invoke(JRequest request, T invokeCtx) throws Throwable {
+        static <T extends JFilterContext> T invoke(JRequest request, T invokeCtx) throws Throwable {
             headChain.doFilter(request, invokeCtx);
             return invokeCtx;
-        }
-
-        private static JFilterChain loadExtFilters(JFilterChain chain) {
-            try {
-                List<JFilter> extFilters = Lists.newArrayList(JServiceLoader.load(JFilter.class));
-
-                Collections.sort(extFilters, new Comparator<JFilter>() {
-
-                    @Override
-                    public int compare(JFilter o1, JFilter o2) {
-                        SpiImpl o1_spi = o1.getClass().getAnnotation(SpiImpl.class);
-                        SpiImpl o2_spi = o2.getClass().getAnnotation(SpiImpl.class);
-
-                        int o1_sequence = o1_spi == null ? 0 : o1_spi.sequence();
-                        int o2_sequence = o2_spi == null ? 0 : o2_spi.sequence();
-
-                        return o1_sequence - o2_sequence;
-                    }
-                });
-
-                // sequence越大越靠前
-                for (JFilter f : extFilters) {
-                    chain = new DefaultFilterChain(f, chain);
-                }
-            } catch (Throwable t) {
-                logger.warn("Failed to load extension filters: {}.", stackTrace(t));
-            }
-
-            return chain;
         }
     }
 

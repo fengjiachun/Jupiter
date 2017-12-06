@@ -18,9 +18,9 @@ package org.jupiter.rpc.consumer.dispatcher;
 
 import org.jupiter.rpc.ConsumerHook;
 import org.jupiter.rpc.JClient;
+import org.jupiter.rpc.JRequest;
 import org.jupiter.rpc.consumer.future.InvokeFuture;
 import org.jupiter.rpc.model.metadata.MethodSpecialConfig;
-import org.jupiter.rpc.model.metadata.ServiceMetadata;
 
 import java.util.List;
 
@@ -32,9 +32,7 @@ import java.util.List;
  */
 public interface Dispatcher {
 
-    <T> InvokeFuture<T> dispatch(JClient client, String methodName, Object[] args, Class<T> returnType);
-
-    ServiceMetadata metadata();
+    <T> InvokeFuture<T> dispatch(JClient client, JRequest request, Class<T> returnType);
 
     Dispatcher hooks(List<ConsumerHook> hooks);
 

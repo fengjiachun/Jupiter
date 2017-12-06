@@ -29,5 +29,5 @@ public interface JFilterChain {
 
     JFilterChain getNext();
 
-    <T> void doFilter(JRequest request, T filterCtx) throws Throwable;
+    <T extends JFilterContext> void doFilter(JRequest request, T filterCtx) throws Throwable;
 }

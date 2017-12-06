@@ -21,12 +21,14 @@ import net.bytebuddy.implementation.bind.annotation.Origin;
 import net.bytebuddy.implementation.bind.annotation.RuntimeType;
 import org.jupiter.common.util.Reflects;
 import org.jupiter.rpc.JClient;
+import org.jupiter.rpc.JRequest;
 import org.jupiter.rpc.consumer.cluster.ClusterInvoker;
 import org.jupiter.rpc.consumer.dispatcher.Dispatcher;
 import org.jupiter.rpc.consumer.future.InvokeFuture;
 import org.jupiter.rpc.consumer.future.InvokeFutureContext;
 import org.jupiter.rpc.model.metadata.ClusterStrategyConfig;
 import org.jupiter.rpc.model.metadata.MethodSpecialConfig;
+import org.jupiter.rpc.model.metadata.ServiceMetadata;
 
 import java.lang.reflect.Method;
 import java.util.List;
@@ -42,23 +44,28 @@ import java.util.List;
  *
  * @author jiachun.fjc
  */
-public class AsyncInvoker extends ClusterStrategyBridging {
+public class AsyncInvoker extends AbstractInvoker {
 
     public AsyncInvoker(JClient client,
+                        ServiceMetadata metadata,
                         Dispatcher dispatcher,
                         ClusterStrategyConfig defaultStrategy,
                         List<MethodSpecialConfig> methodSpecialConfigs) {
-
-        super(client, dispatcher, defaultStrategy, methodSpecialConfigs);
+        super(client, metadata, dispatcher, defaultStrategy, methodSpecialConfigs);
     }
 
     @RuntimeType
     public Object invoke(@Origin Method method, @AllArguments @RuntimeType Object[] args) throws Throwable {
         String methodName = method.getName();
         Class<?> returnType = method.getReturnType();
-        ClusterInvoker invoker = getClusterInvoker(methodName);
-        InvokeFuture<?> future = invoker.invoke(methodName, args, returnType);
-        InvokeFutureContext.set(future);
+        JRequest request = createRequest(methodName, args);
+        ClusterInvoker invoker = findClusterInvoker(methodName);
+
+        Context invokeCtx = new Context(invoker, returnType, false);
+        Chains.invoke(request, invokeCtx);
+
+        InvokeFutureContext.set((InvokeFuture<?>) invokeCtx.getResult());
+
         return Reflects.getTypeDefaultValue(returnType);
     }
 }

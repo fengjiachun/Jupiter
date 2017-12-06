@@ -206,7 +206,7 @@ public class GenericProxyFactory {
         }
 
         // dispatcher
-        Dispatcher dispatcher = dispatcher(metadata, serializerType)
+        Dispatcher dispatcher = dispatcher(serializerType)
                 .hooks(hooks)
                 .timeoutMillis(timeoutMillis)
                 .methodSpecialConfigs(methodSpecialConfigs);
@@ -214,21 +214,20 @@ public class GenericProxyFactory {
         ClusterStrategyConfig strategyConfig = ClusterStrategyConfig.of(strategy, retries);
         switch (invokeType) {
             case SYNC:
-                return new SyncGenericInvoker(client, dispatcher, strategyConfig, methodSpecialConfigs);
+                return new SyncGenericInvoker(client, metadata, dispatcher, strategyConfig, methodSpecialConfigs);
             case ASYNC:
-                return new AsyncGenericInvoker(client, dispatcher, strategyConfig, methodSpecialConfigs);
+                return new AsyncGenericInvoker(client, metadata, dispatcher, strategyConfig, methodSpecialConfigs);
             default:
                 throw reject("invokeType: " + invokeType);
         }
     }
 
-    protected Dispatcher dispatcher(ServiceMetadata metadata, SerializerType serializerType) {
+    protected Dispatcher dispatcher(SerializerType serializerType) {
         switch (dispatchType) {
             case ROUND:
-                return new DefaultRoundDispatcher(
-                        LoadBalancerFactory.loadBalancer(loadBalancerType), metadata, serializerType);
+                return new DefaultRoundDispatcher(LoadBalancerFactory.loadBalancer(loadBalancerType), serializerType);
             case BROADCAST:
-                return new DefaultBroadcastDispatcher(metadata, serializerType);
+                return new DefaultBroadcastDispatcher(serializerType);
             default:
                 throw reject("dispatchType: " + dispatchType);
         }

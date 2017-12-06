@@ -16,6 +16,7 @@
 
 package org.jupiter.rpc.consumer.cluster;
 
+import org.jupiter.rpc.JRequest;
 import org.jupiter.rpc.consumer.future.InvokeFuture;
 
 /**
@@ -53,5 +54,5 @@ public interface ClusterInvoker {
 
     Strategy strategy();
 
-    <T> InvokeFuture<T> invoke(String methodName, Object[] args, Class<T> returnType) throws Exception;
+    <T> InvokeFuture<T> invoke(JRequest request, Class<T> returnType) throws Exception;
 }

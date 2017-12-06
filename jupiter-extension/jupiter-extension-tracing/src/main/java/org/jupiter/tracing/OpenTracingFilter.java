@@ -22,6 +22,7 @@ import io.opentracing.noop.NoopTracer;
 import org.jupiter.common.util.SpiImpl;
 import org.jupiter.rpc.JFilter;
 import org.jupiter.rpc.JFilterChain;
+import org.jupiter.rpc.JFilterContext;
 import org.jupiter.rpc.JRequest;
 import org.jupiter.rpc.model.metadata.MessageWrapper;
 import org.jupiter.rpc.tracing.TraceId;
@@ -36,18 +37,31 @@ import org.jupiter.rpc.tracing.TraceId;
 @SpiImpl(name = "openTracing", sequence = 10)
 public class OpenTracingFilter implements JFilter {
 
-    private final Tracer tracer = OpenTracingContext.getTracer();
+    @Override
+    public Type getType() {
+        return Type.ALL;
+    }
 
     @Override
-    public <T> void doFilter(JRequest request, T filterCtx, JFilterChain next) throws Throwable {
-        if (tracer instanceof NoopTracer) {
+    public <T extends JFilterContext> void doFilter(JRequest request, T filterCtx, JFilterChain next) throws Throwable {
+        Tracer tracer = OpenTracingContext.getTracer();
+        if (tracer == null || tracer instanceof NoopTracer) {
             next.doFilter(request, filterCtx);
+            return;
+        }
+
+        Type filterCtxType = filterCtx.getType();
+        if (filterCtxType == Type.PROVIDER) {
+            processProviderTracing(tracer, request, filterCtx, next);
+        } else if (filterCtxType == Type.CONSUMER) {
+            processConsumerTracing(tracer, request, filterCtx, next);
         } else {
-            processTracing(request, filterCtx, next);
+            throw new IllegalArgumentException("illegal filter context type: " + filterCtxType);
         }
     }
 
-    private <T> void processTracing(JRequest request, T filterCtx, JFilterChain next) throws Throwable {
+    private <T extends JFilterContext> void processProviderTracing(
+            Tracer tracer, JRequest request, T filterCtx, JFilterChain next) throws Throwable {
         MessageWrapper msg = request.message();
         TraceId traceId = msg.getTraceId();
 
@@ -65,5 +79,10 @@ public class OpenTracingFilter implements JFilter {
         } finally {
             span.finish();
         }
+    }
+
+    private <T extends JFilterContext> void processConsumerTracing(
+            Tracer tracer, JRequest request, T filterCtx, JFilterChain next) throws Throwable {
+        // TODO
     }
 }

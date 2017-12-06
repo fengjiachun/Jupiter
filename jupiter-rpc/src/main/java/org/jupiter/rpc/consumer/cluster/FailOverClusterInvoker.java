@@ -21,6 +21,7 @@ import org.jupiter.common.util.internal.logging.InternalLogger;
 import org.jupiter.common.util.internal.logging.InternalLoggerFactory;
 import org.jupiter.rpc.JClient;
 import org.jupiter.rpc.JListener;
+import org.jupiter.rpc.JRequest;
 import org.jupiter.rpc.consumer.dispatcher.DefaultRoundDispatcher;
 import org.jupiter.rpc.consumer.dispatcher.Dispatcher;
 import org.jupiter.rpc.consumer.future.FailOverInvokeFuture;
@@ -29,6 +30,7 @@ import org.jupiter.rpc.exception.JupiterBadRequestException;
 import org.jupiter.rpc.exception.JupiterBizException;
 import org.jupiter.rpc.exception.JupiterRemoteException;
 import org.jupiter.rpc.exception.JupiterSerializationException;
+import org.jupiter.rpc.model.metadata.MessageWrapper;
 
 import static org.jupiter.common.util.Preconditions.checkArgument;
 import static org.jupiter.common.util.StackTraceUtil.stackTrace;
@@ -74,24 +76,23 @@ public class FailOverClusterInvoker extends AbstractClusterInvoker {
     }
 
     @Override
-    public <T> InvokeFuture<T> invoke(String methodName, Object[] args, Class<T> returnType) throws Exception {
+    public <T> InvokeFuture<T> invoke(JRequest request, Class<T> returnType) throws Exception {
         FailOverInvokeFuture<T> future = FailOverInvokeFuture.with(returnType);
 
         int tryCount = retries + 1;
-        invoke0(methodName, args, returnType, tryCount, future, null);
+        invoke0(request, returnType, tryCount, future, null);
 
         return future;
     }
 
-    private <T> void invoke0(final String methodName,
-                             final Object[] args,
+    private <T> void invoke0(final JRequest request,
                              final Class<T> returnType,
                              final int tryCount,
                              final FailOverInvokeFuture<T> future,
                              Throwable lastCause) {
 
         if (tryCount > 0 && isFailoverNeeded(lastCause)) {
-            InvokeFuture<T> f = dispatcher.dispatch(client, methodName, args, returnType);
+            InvokeFuture<T> f = dispatcher.dispatch(client, request, returnType);
 
             f.addListener(new JListener<T>() {
 
@@ -103,14 +104,15 @@ public class FailOverClusterInvoker extends AbstractClusterInvoker {
                 @Override
                 public void failure(Throwable cause) {
                     if (logger.isWarnEnabled()) {
+                        MessageWrapper message = request.message();
                         logger.warn("[Fail-over] retry, [{}] attempts left, [method: {}], [metadata: {}], {}.",
                                 tryCount - 1,
-                                methodName,
-                                dispatcher.metadata(),
+                                message.getMethodName(),
+                                message.getMetadata(),
                                 stackTrace(cause));
                     }
 
-                    invoke0(methodName, args, returnType, tryCount - 1, future, cause);
+                    invoke0(request, returnType, tryCount - 1, future, cause);
                 }
             });
         } else {

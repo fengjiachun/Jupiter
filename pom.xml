@@ -23,7 +23,7 @@
     <artifactId>jupiter</artifactId>
     <groupId>org.jupiter-rpc</groupId>
     <packaging>pom</packaging>
-    <version>1.2.11</version>
+    <version>1.2.12</version>
 
     <name>Jupiter</name>
     <description>Jupiter is a distributed RPC framework.</description>

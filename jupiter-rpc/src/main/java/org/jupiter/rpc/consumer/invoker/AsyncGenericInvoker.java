@@ -17,12 +17,14 @@
 package org.jupiter.rpc.consumer.invoker;
 
 import org.jupiter.rpc.JClient;
+import org.jupiter.rpc.JRequest;
 import org.jupiter.rpc.consumer.cluster.ClusterInvoker;
 import org.jupiter.rpc.consumer.dispatcher.Dispatcher;
 import org.jupiter.rpc.consumer.future.InvokeFuture;
 import org.jupiter.rpc.consumer.future.InvokeFutureContext;
 import org.jupiter.rpc.model.metadata.ClusterStrategyConfig;
 import org.jupiter.rpc.model.metadata.MethodSpecialConfig;
+import org.jupiter.rpc.model.metadata.ServiceMetadata;
 
 import java.util.List;
 
@@ -36,21 +38,26 @@ import java.util.List;
  *
  * @author jiachun.fjc
  */
-public class AsyncGenericInvoker extends ClusterStrategyBridging implements GenericInvoker {
+public class AsyncGenericInvoker extends AbstractInvoker implements GenericInvoker {
 
     public AsyncGenericInvoker(JClient client,
+                               ServiceMetadata metadata,
                                Dispatcher dispatcher,
                                ClusterStrategyConfig defaultStrategy,
                                List<MethodSpecialConfig> methodSpecialConfigs) {
-
-        super(client, dispatcher, defaultStrategy, methodSpecialConfigs);
+        super(client, metadata, dispatcher, defaultStrategy, methodSpecialConfigs);
     }
 
     @Override
     public Object $invoke(String methodName, Object... args) throws Throwable {
-        ClusterInvoker invoker = getClusterInvoker(methodName);
-        InvokeFuture<?> future = invoker.invoke(methodName, args, Object.class);
-        InvokeFutureContext.set(future);
+        JRequest request = createRequest(methodName, args);
+        ClusterInvoker invoker = findClusterInvoker(methodName);
+
+        Context invokeCtx = new Context(invoker, Object.class, false);
+        Chains.invoke(request, invokeCtx);
+
+        InvokeFutureContext.set((InvokeFuture<?>) invokeCtx.getResult());
+
         return null;
     }
 }

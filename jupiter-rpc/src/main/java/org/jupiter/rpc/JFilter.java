@@ -25,5 +25,13 @@ package org.jupiter.rpc;
  */
 public interface JFilter {
 
-    <T> void doFilter(JRequest request, T filterCtx, JFilterChain next) throws Throwable;
+    Type getType();
+
+    <T extends JFilterContext> void doFilter(JRequest request, T filterCtx, JFilterChain next) throws Throwable;
+
+    enum Type {
+        CONSUMER,
+        PROVIDER,
+        ALL
+    }
 }
