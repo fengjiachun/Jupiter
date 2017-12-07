@@ -21,23 +21,23 @@ import java.util.List;
  */
 public abstract class AbstractInvoker {
 
-    private final JClient client;
+    private final String appName;
     private final ServiceMetadata metadata; // 目标服务元信息
     private final ClusterStrategyBridging clusterStrategyBridging;
 
-    public AbstractInvoker(JClient client,
+    public AbstractInvoker(String appName,
                            ServiceMetadata metadata,
                            Dispatcher dispatcher,
                            ClusterStrategyConfig defaultStrategy,
                            List<MethodSpecialConfig> methodSpecialConfigs) {
-        this.client = client;
+        this.appName = appName;
         this.metadata = metadata;
-        clusterStrategyBridging = new ClusterStrategyBridging(client, dispatcher, defaultStrategy, methodSpecialConfigs);
+        clusterStrategyBridging = new ClusterStrategyBridging(dispatcher, defaultStrategy, methodSpecialConfigs);
     }
 
     protected Object doInvoke(String methodName, Object[] args, Class<?> returnType, boolean sync) throws Throwable {
         JRequest request = createRequest(methodName, args);
-        ClusterInvoker invoker = findClusterInvoker(methodName);
+        ClusterInvoker invoker = clusterStrategyBridging.findClusterInvoker(methodName);
 
         Context invokeCtx = new Context(invoker, returnType, sync);
         Chains.invoke(request, invokeCtx);
@@ -45,13 +45,9 @@ public abstract class AbstractInvoker {
         return invokeCtx.getResult();
     }
 
-    private ClusterInvoker findClusterInvoker(String methodName) {
-        return clusterStrategyBridging.getClusterInvoker(methodName);
-    }
-
     private JRequest createRequest(String methodName, Object[] args) {
         MessageWrapper message = new MessageWrapper(metadata);
-        message.setAppName(client.appName());
+        message.setAppName(appName);
         message.setMethodName(methodName);
         // 不需要方法参数类型, 服务端会根据args具体类型按照JLS规则动态dispatch
         message.setArgs(args);

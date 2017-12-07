@@ -16,7 +16,6 @@
 
 package org.jupiter.rpc.consumer.invoker;
 
-import org.jupiter.rpc.JClient;
 import org.jupiter.rpc.consumer.dispatcher.Dispatcher;
 import org.jupiter.rpc.model.metadata.ClusterStrategyConfig;
 import org.jupiter.rpc.model.metadata.MethodSpecialConfig;
@@ -36,12 +35,12 @@ import java.util.List;
  */
 public class SyncGenericInvoker extends AbstractInvoker implements GenericInvoker {
 
-    public SyncGenericInvoker(JClient client,
+    public SyncGenericInvoker(String appName,
                               ServiceMetadata metadata,
                               Dispatcher dispatcher,
                               ClusterStrategyConfig defaultStrategy,
                               List<MethodSpecialConfig> methodSpecialConfigs) {
-        super(client, metadata, dispatcher, defaultStrategy, methodSpecialConfigs);
+        super(appName, metadata, dispatcher, defaultStrategy, methodSpecialConfigs);
     }
 
     @Override

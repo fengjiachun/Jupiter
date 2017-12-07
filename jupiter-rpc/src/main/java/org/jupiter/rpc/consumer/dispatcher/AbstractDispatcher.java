@@ -53,6 +53,7 @@ abstract class AbstractDispatcher implements Dispatcher {
 
     private static final InternalLogger logger = InternalLoggerFactory.getInstance(AbstractDispatcher.class);
 
+    private final JClient client;
     private final LoadBalancer loadBalancer;                    // 软负载均衡
     private final Serializer serializerImpl;                    // 序列化/反序列化impl
     private ConsumerHook[] hooks = ConsumerHook.EMPTY_HOOKS;    // 消费者端钩子函数
@@ -60,11 +61,12 @@ abstract class AbstractDispatcher implements Dispatcher {
     // 针对指定方法单独设置的超时时间, 方法名为key, 方法参数类型不做区别对待
     private Map<String, Long> methodSpecialTimeoutMapping = Maps.newHashMap();
 
-    public AbstractDispatcher(SerializerType serializerType) {
-        this(null, serializerType);
+    public AbstractDispatcher(JClient client, SerializerType serializerType) {
+        this(client, null, serializerType);
     }
 
-    public AbstractDispatcher(LoadBalancer loadBalancer, SerializerType serializerType) {
+    public AbstractDispatcher(JClient client, LoadBalancer loadBalancer, SerializerType serializerType) {
+        this.client = client;
         this.loadBalancer = loadBalancer;
         this.serializerImpl = SerializerFactory.getSerializer(serializerType.value());
     }
@@ -114,7 +116,7 @@ abstract class AbstractDispatcher implements Dispatcher {
         return timeoutMillis;
     }
 
-    protected JChannel select(JClient client, ServiceMetadata metadata) {
+    protected JChannel select(ServiceMetadata metadata) {
         CopyOnWriteGroupList groups = client
                 .connector()
                 .directory(metadata);
@@ -148,6 +150,12 @@ abstract class AbstractDispatcher implements Dispatcher {
         }
 
         throw new IllegalStateException("no channel");
+    }
+
+    protected JChannelGroup[] groups(ServiceMetadata metadata) {
+        return client.connector()
+                .directory(metadata)
+                .snapshot();
     }
 
     protected <T> DefaultInvokeFuture<T> write(

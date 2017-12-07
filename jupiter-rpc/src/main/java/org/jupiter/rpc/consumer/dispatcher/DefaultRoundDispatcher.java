@@ -38,18 +38,18 @@ import org.jupiter.transport.channel.JChannel;
 public class DefaultRoundDispatcher extends AbstractDispatcher {
 
     public DefaultRoundDispatcher(
-            LoadBalancer loadBalancer, SerializerType serializerType) {
-        super(loadBalancer, serializerType);
+            JClient client, LoadBalancer loadBalancer, SerializerType serializerType) {
+        super(client, loadBalancer, serializerType);
     }
 
     @Override
-    public <T> InvokeFuture<T> dispatch(JClient client, JRequest request, Class<T> returnType) {
+    public <T> InvokeFuture<T> dispatch(JRequest request, Class<T> returnType) {
         // stack copy
         final Serializer _serializer = serializer();
         final MessageWrapper message = request.message();
 
         // 通过软负载均衡选择一个channel
-        JChannel channel = select(client, message.getMetadata());
+        JChannel channel = select(message.getMetadata());
 
         byte s_code = _serializer.code();
         // 在业务线程中序列化, 减轻IO线程负担

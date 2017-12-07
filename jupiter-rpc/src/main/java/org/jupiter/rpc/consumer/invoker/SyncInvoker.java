@@ -19,7 +19,6 @@ package org.jupiter.rpc.consumer.invoker;
 import net.bytebuddy.implementation.bind.annotation.AllArguments;
 import net.bytebuddy.implementation.bind.annotation.Origin;
 import net.bytebuddy.implementation.bind.annotation.RuntimeType;
-import org.jupiter.rpc.JClient;
 import org.jupiter.rpc.consumer.dispatcher.Dispatcher;
 import org.jupiter.rpc.model.metadata.ClusterStrategyConfig;
 import org.jupiter.rpc.model.metadata.MethodSpecialConfig;
@@ -40,12 +39,12 @@ import java.util.List;
  */
 public class SyncInvoker extends AbstractInvoker {
 
-    public SyncInvoker(JClient client,
+    public SyncInvoker(String appName,
                        ServiceMetadata metadata,
                        Dispatcher dispatcher,
                        ClusterStrategyConfig defaultStrategy,
                        List<MethodSpecialConfig> methodSpecialConfigs) {
-        super(client, metadata, dispatcher, defaultStrategy, methodSpecialConfigs);
+        super(appName, metadata, dispatcher, defaultStrategy, methodSpecialConfigs);
     }
 
     @RuntimeType

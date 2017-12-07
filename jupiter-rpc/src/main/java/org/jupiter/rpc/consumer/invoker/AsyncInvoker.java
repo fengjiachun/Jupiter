@@ -20,7 +20,6 @@ import net.bytebuddy.implementation.bind.annotation.AllArguments;
 import net.bytebuddy.implementation.bind.annotation.Origin;
 import net.bytebuddy.implementation.bind.annotation.RuntimeType;
 import org.jupiter.common.util.Reflects;
-import org.jupiter.rpc.JClient;
 import org.jupiter.rpc.consumer.dispatcher.Dispatcher;
 import org.jupiter.rpc.consumer.future.InvokeFuture;
 import org.jupiter.rpc.consumer.future.InvokeFutureContext;
@@ -44,12 +43,12 @@ import java.util.List;
  */
 public class AsyncInvoker extends AbstractInvoker {
 
-    public AsyncInvoker(JClient client,
+    public AsyncInvoker(String appName,
                         ServiceMetadata metadata,
                         Dispatcher dispatcher,
                         ClusterStrategyConfig defaultStrategy,
                         List<MethodSpecialConfig> methodSpecialConfigs) {
-        super(client, metadata, dispatcher, defaultStrategy, methodSpecialConfigs);
+        super(appName, metadata, dispatcher, defaultStrategy, methodSpecialConfigs);
     }
 
     @RuntimeType

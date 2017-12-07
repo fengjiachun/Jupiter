@@ -39,21 +39,18 @@ import org.jupiter.transport.channel.JChannelGroup;
  */
 public class DefaultBroadcastDispatcher extends AbstractDispatcher {
 
-    public DefaultBroadcastDispatcher(SerializerType serializerType) {
-        super(serializerType);
+    public DefaultBroadcastDispatcher(JClient client, SerializerType serializerType) {
+        super(client, serializerType);
     }
 
     @SuppressWarnings("unchecked")
     @Override
-    public <T> InvokeFuture<T> dispatch(JClient client, JRequest request, Class<T> returnType) {
+    public <T> InvokeFuture<T> dispatch(JRequest request, Class<T> returnType) {
         // stack copy
         final Serializer _serializer = serializer();
         final MessageWrapper message = request.message();
 
-        JChannelGroup[] groups = client
-                .connector()
-                .directory(message.getMetadata())
-                .snapshot();
+        JChannelGroup[] groups = groups(message.getMetadata());
         JChannel[] channels = new JChannel[groups.length];
         for (int i = 0; i < groups.length; i++) {
             channels[i] = groups[i].next();

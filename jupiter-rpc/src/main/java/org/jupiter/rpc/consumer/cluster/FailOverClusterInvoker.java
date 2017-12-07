@@ -19,7 +19,6 @@ package org.jupiter.rpc.consumer.cluster;
 import org.jupiter.common.util.Reflects;
 import org.jupiter.common.util.internal.logging.InternalLogger;
 import org.jupiter.common.util.internal.logging.InternalLoggerFactory;
-import org.jupiter.rpc.JClient;
 import org.jupiter.rpc.JListener;
 import org.jupiter.rpc.JRequest;
 import org.jupiter.rpc.consumer.dispatcher.DefaultRoundDispatcher;
@@ -49,20 +48,20 @@ import static org.jupiter.common.util.StackTraceUtil.stackTrace;
  *
  * @author jiachun.fjc
  */
-public class FailOverClusterInvoker extends AbstractClusterInvoker {
+public class FailOverClusterInvoker implements ClusterInvoker {
 
     private static final InternalLogger logger = InternalLoggerFactory.getInstance(FailOverClusterInvoker.class);
 
+    private final Dispatcher dispatcher;
     private final int retries; // 重试次数, 不包含第一次
 
-    public FailOverClusterInvoker(JClient client, Dispatcher dispatcher, int retries) {
-        super(client, dispatcher);
-
+    public FailOverClusterInvoker(Dispatcher dispatcher, int retries) {
         checkArgument(
                 dispatcher instanceof DefaultRoundDispatcher,
                 Reflects.simpleClassName(dispatcher) + " is unsupported [FailOverClusterInvoker]"
         );
 
+        this.dispatcher = dispatcher;
         if (retries >= 0) {
             this.retries = retries;
         } else {
@@ -92,7 +91,7 @@ public class FailOverClusterInvoker extends AbstractClusterInvoker {
                              Throwable lastCause) {
 
         if (tryCount > 0 && isFailoverNeeded(lastCause)) {
-            InvokeFuture<T> f = dispatcher.dispatch(client, request, returnType);
+            InvokeFuture<T> f = dispatcher.dispatch(request, returnType);
 
             f.addListener(new JListener<T>() {
 

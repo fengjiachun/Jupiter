@@ -16,7 +16,6 @@
 
 package org.jupiter.rpc.consumer.invoker;
 
-import org.jupiter.rpc.JClient;
 import org.jupiter.rpc.consumer.dispatcher.Dispatcher;
 import org.jupiter.rpc.consumer.future.InvokeFuture;
 import org.jupiter.rpc.consumer.future.InvokeFutureContext;
@@ -38,12 +37,12 @@ import java.util.List;
  */
 public class AsyncGenericInvoker extends AbstractInvoker implements GenericInvoker {
 
-    public AsyncGenericInvoker(JClient client,
+    public AsyncGenericInvoker(String appName,
                                ServiceMetadata metadata,
                                Dispatcher dispatcher,
                                ClusterStrategyConfig defaultStrategy,
                                List<MethodSpecialConfig> methodSpecialConfigs) {
-        super(client, metadata, dispatcher, defaultStrategy, methodSpecialConfigs);
+        super(appName, metadata, dispatcher, defaultStrategy, methodSpecialConfigs);
     }
 
     @Override
