@@ -20,8 +20,6 @@ import net.bytebuddy.implementation.bind.annotation.AllArguments;
 import net.bytebuddy.implementation.bind.annotation.Origin;
 import net.bytebuddy.implementation.bind.annotation.RuntimeType;
 import org.jupiter.rpc.JClient;
-import org.jupiter.rpc.JRequest;
-import org.jupiter.rpc.consumer.cluster.ClusterInvoker;
 import org.jupiter.rpc.consumer.dispatcher.Dispatcher;
 import org.jupiter.rpc.model.metadata.ClusterStrategyConfig;
 import org.jupiter.rpc.model.metadata.MethodSpecialConfig;
@@ -52,13 +50,6 @@ public class SyncInvoker extends AbstractInvoker {
 
     @RuntimeType
     public Object invoke(@Origin Method method, @AllArguments @RuntimeType Object[] args) throws Throwable {
-        String methodName = method.getName();
-        JRequest request = createRequest(methodName, args);
-        ClusterInvoker invoker = findClusterInvoker(methodName);
-
-        Context invokeCtx = new Context(invoker, method.getReturnType(), true);
-        Chains.invoke(request, invokeCtx);
-
-        return invokeCtx.getResult();
+        return doInvoke(method.getName(), args, method.getReturnType(), true);
     }
 }

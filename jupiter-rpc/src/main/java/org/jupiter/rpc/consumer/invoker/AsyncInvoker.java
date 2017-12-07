@@ -21,8 +21,6 @@ import net.bytebuddy.implementation.bind.annotation.Origin;
 import net.bytebuddy.implementation.bind.annotation.RuntimeType;
 import org.jupiter.common.util.Reflects;
 import org.jupiter.rpc.JClient;
-import org.jupiter.rpc.JRequest;
-import org.jupiter.rpc.consumer.cluster.ClusterInvoker;
 import org.jupiter.rpc.consumer.dispatcher.Dispatcher;
 import org.jupiter.rpc.consumer.future.InvokeFuture;
 import org.jupiter.rpc.consumer.future.InvokeFutureContext;
@@ -56,15 +54,11 @@ public class AsyncInvoker extends AbstractInvoker {
 
     @RuntimeType
     public Object invoke(@Origin Method method, @AllArguments @RuntimeType Object[] args) throws Throwable {
-        String methodName = method.getName();
         Class<?> returnType = method.getReturnType();
-        JRequest request = createRequest(methodName, args);
-        ClusterInvoker invoker = findClusterInvoker(methodName);
 
-        Context invokeCtx = new Context(invoker, returnType, false);
-        Chains.invoke(request, invokeCtx);
+        Object result = doInvoke(method.getName(), args, returnType, false);
 
-        InvokeFutureContext.set((InvokeFuture<?>) invokeCtx.getResult());
+        InvokeFutureContext.set((InvokeFuture<?>) result);
 
         return Reflects.getTypeDefaultValue(returnType);
     }

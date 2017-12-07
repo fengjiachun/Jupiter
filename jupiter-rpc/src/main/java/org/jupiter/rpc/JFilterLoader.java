@@ -26,6 +26,7 @@ public class JFilterLoader {
         try {
             List<JFilter> extFilters = Lists.newArrayList(JServiceLoader.load(JFilter.class));
 
+            // sequence排序
             Collections.sort(extFilters, new Comparator<JFilter>() {
 
                 @Override
@@ -40,10 +41,9 @@ public class JFilterLoader {
                 }
             });
 
-            // sequence越大越靠前
             for (JFilter f : extFilters) {
                 JFilter.Type fType = f.getType();
-                if (fType == JFilter.Type.ALL || type.equals(fType)) {
+                if (fType == type || fType == JFilter.Type.ALL) {
                     chain = new DefaultFilterChain(f, chain);
                 }
             }

@@ -35,23 +35,21 @@ public abstract class AbstractInvoker {
         clusterStrategyBridging = new ClusterStrategyBridging(client, dispatcher, defaultStrategy, methodSpecialConfigs);
     }
 
-    protected JClient getClient() {
-        return client;
+    protected Object doInvoke(String methodName, Object[] args, Class<?> returnType, boolean sync) throws Throwable {
+        JRequest request = createRequest(methodName, args);
+        ClusterInvoker invoker = findClusterInvoker(methodName);
+
+        Context invokeCtx = new Context(invoker, returnType, sync);
+        Chains.invoke(request, invokeCtx);
+
+        return invokeCtx.getResult();
     }
 
-    protected ServiceMetadata getMetadata() {
-        return metadata;
-    }
-
-    protected ClusterStrategyBridging getClusterStrategyBridging() {
-        return clusterStrategyBridging;
-    }
-
-    protected ClusterInvoker findClusterInvoker(String methodName) {
+    private ClusterInvoker findClusterInvoker(String methodName) {
         return clusterStrategyBridging.getClusterInvoker(methodName);
     }
 
-    protected JRequest createRequest(String methodName, Object[] args) {
+    private JRequest createRequest(String methodName, Object[] args) {
         MessageWrapper message = new MessageWrapper(metadata);
         message.setAppName(client.appName());
         message.setMethodName(methodName);

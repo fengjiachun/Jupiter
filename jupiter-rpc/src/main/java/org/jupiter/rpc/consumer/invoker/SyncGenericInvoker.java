@@ -17,8 +17,6 @@
 package org.jupiter.rpc.consumer.invoker;
 
 import org.jupiter.rpc.JClient;
-import org.jupiter.rpc.JRequest;
-import org.jupiter.rpc.consumer.cluster.ClusterInvoker;
 import org.jupiter.rpc.consumer.dispatcher.Dispatcher;
 import org.jupiter.rpc.model.metadata.ClusterStrategyConfig;
 import org.jupiter.rpc.model.metadata.MethodSpecialConfig;
@@ -48,12 +46,6 @@ public class SyncGenericInvoker extends AbstractInvoker implements GenericInvoke
 
     @Override
     public Object $invoke(String methodName, Object... args) throws Throwable {
-        JRequest request = createRequest(methodName, args);
-        ClusterInvoker invoker = findClusterInvoker(methodName);
-
-        Context invokeCtx = new Context(invoker, Object.class, true);
-        Chains.invoke(request, invokeCtx);
-
-        return invokeCtx.getResult();
+        return doInvoke(methodName, args, Object.class, true);
     }
 }

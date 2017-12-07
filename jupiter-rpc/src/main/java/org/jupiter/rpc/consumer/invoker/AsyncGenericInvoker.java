@@ -17,8 +17,6 @@
 package org.jupiter.rpc.consumer.invoker;
 
 import org.jupiter.rpc.JClient;
-import org.jupiter.rpc.JRequest;
-import org.jupiter.rpc.consumer.cluster.ClusterInvoker;
 import org.jupiter.rpc.consumer.dispatcher.Dispatcher;
 import org.jupiter.rpc.consumer.future.InvokeFuture;
 import org.jupiter.rpc.consumer.future.InvokeFutureContext;
@@ -50,13 +48,9 @@ public class AsyncGenericInvoker extends AbstractInvoker implements GenericInvok
 
     @Override
     public Object $invoke(String methodName, Object... args) throws Throwable {
-        JRequest request = createRequest(methodName, args);
-        ClusterInvoker invoker = findClusterInvoker(methodName);
+        Object result = doInvoke(methodName, args, Object.class, false);
 
-        Context invokeCtx = new Context(invoker, Object.class, false);
-        Chains.invoke(request, invokeCtx);
-
-        InvokeFutureContext.set((InvokeFuture<?>) invokeCtx.getResult());
+        InvokeFutureContext.set((InvokeFuture<?>) result);
 
         return null;
     }
