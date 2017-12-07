@@ -93,7 +93,7 @@ public class BenchmarkClient {
             client.connector().connect(addresses[i]);
         }
 
-        if (SystemPropertyUtil.getBoolean("jupiter.test.async", false)) {
+        if (SystemPropertyUtil.getBoolean("jupiter.test.async", true)) {
             futureCall(client, addresses, processors);
         } else {
             syncCall(client, addresses, processors);
