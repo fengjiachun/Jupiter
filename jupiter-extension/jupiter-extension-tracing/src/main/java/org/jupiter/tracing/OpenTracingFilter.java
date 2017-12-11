@@ -29,7 +29,6 @@ import org.jupiter.rpc.JFilterChain;
 import org.jupiter.rpc.JFilterContext;
 import org.jupiter.rpc.JRequest;
 import org.jupiter.rpc.model.metadata.MessageWrapper;
-import org.jupiter.rpc.tracing.TraceId;
 
 import java.util.Iterator;
 import java.util.Map;
@@ -79,10 +78,7 @@ public class OpenTracingFilter implements JFilter {
         try {
             OpenTracingContext.setActiveSpan(span);
 
-            TraceId traceId = request.message().getTraceId();
-            if (traceId != null) {
-                span.setTag("j_traceId", traceId.getId());
-            }
+            span.setTag("jupiter_traceId", request.getTraceId().asText());
             span.setTag("requestId", request.invokeId());
 
             next.doFilter(request, filterCtx);
@@ -109,10 +105,7 @@ public class OpenTracingFilter implements JFilter {
 
         Span span = spanBuilder.startManual();
         try {
-            TraceId traceId = msg.getTraceId();
-            if (traceId != null) {
-                span.setTag("j_traceId", traceId.getId());
-            }
+            span.setTag("jupiter_traceId", request.getTraceId().asText());
             span.setTag("requestId", request.invokeId());
 
             injectContext(tracer, span, request);

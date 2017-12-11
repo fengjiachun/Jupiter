@@ -170,7 +170,7 @@ public class MessageTask implements RejectedRunnable {
         Context invokeCtx = new Context(service);
 
         if (TracingUtil.isTracingNeeded()) {
-            setCurrentTraceId(_request.message().getTraceId());
+            setCurrentTraceId(_request.getTraceId());
         }
 
         try {
@@ -219,10 +219,9 @@ public class MessageTask implements RejectedRunnable {
 
             @Override
             public void operationFailure(JChannel channel, Throwable cause) throws Exception {
-                TraceId traceId = TracingUtil.safeGetTraceId(request.message().getTraceId());
                 long duration = SystemClock.millisClock().now() - request.timestamp();
                 logger.error("Response sent failed, trace: {}, duration: {} millis, channel: {}, cause: {}.",
-                        traceId, duration, channel, cause);
+                        request.getTraceId(), duration, channel, cause);
             }
         });
     }
@@ -313,7 +312,7 @@ public class MessageTask implements RejectedRunnable {
     }
 
     private static void setCurrentTraceId(TraceId traceId) {
-        if (traceId != null) {
+        if (traceId != null && traceId != TraceId.NULL_TRACE_ID) {
             assert traceNodeUpdater != null;
             traceNodeUpdater.set(traceId, traceId.getNode() + 1);
         }
