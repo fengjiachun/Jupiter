@@ -27,7 +27,7 @@ import java.lang.annotation.*;
 @Documented
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ElementType.TYPE})
-public @interface SpiImpl {
+public @interface SpiMetadata {
 
     String name() default "";
 

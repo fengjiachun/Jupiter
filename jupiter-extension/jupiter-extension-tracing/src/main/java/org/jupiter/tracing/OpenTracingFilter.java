@@ -19,7 +19,7 @@ package org.jupiter.tracing;
 import io.opentracing.Span;
 import io.opentracing.Tracer;
 import io.opentracing.noop.NoopTracer;
-import org.jupiter.common.util.SpiImpl;
+import org.jupiter.common.util.SpiMetadata;
 import org.jupiter.rpc.JFilter;
 import org.jupiter.rpc.JFilterChain;
 import org.jupiter.rpc.JFilterContext;
@@ -34,7 +34,7 @@ import org.jupiter.rpc.tracing.TraceId;
  *
  * @author jiachun.fjc
  */
-@SpiImpl(name = "openTracing", sequence = 10)
+@SpiMetadata(name = "openTracing", sequence = 10)
 public class OpenTracingFilter implements JFilter {
 
     @Override

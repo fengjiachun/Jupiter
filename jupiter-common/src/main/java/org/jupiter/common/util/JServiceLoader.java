@@ -63,7 +63,7 @@ public final class JServiceLoader<S> implements Iterable<S> {
 
     public S find(String implName) {
         for (S s : providers.values()) {
-            SpiImpl spi = s.getClass().getAnnotation(SpiImpl.class);
+            SpiMetadata spi = s.getClass().getAnnotation(SpiMetadata.class);
             if (spi != null && spi.name().equalsIgnoreCase(implName)) {
                 return s;
             }
@@ -72,7 +72,7 @@ public final class JServiceLoader<S> implements Iterable<S> {
             Pair<String, Class<S>> e = lookupIterator.next();
             String name = e.getFirst();
             Class<S> cls = e.getSecond();
-            SpiImpl spi = cls.getAnnotation(SpiImpl.class);
+            SpiMetadata spi = cls.getAnnotation(SpiMetadata.class);
             if (spi != null && spi.name().equalsIgnoreCase(implName)) {
                 try {
                     S provider = service.cast(cls.newInstance());

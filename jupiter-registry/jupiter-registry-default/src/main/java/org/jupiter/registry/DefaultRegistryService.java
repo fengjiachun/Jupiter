@@ -17,7 +17,7 @@
 package org.jupiter.registry;
 
 import org.jupiter.common.util.Maps;
-import org.jupiter.common.util.SpiImpl;
+import org.jupiter.common.util.SpiMetadata;
 import org.jupiter.common.util.Strings;
 import org.jupiter.common.util.internal.logging.InternalLogger;
 import org.jupiter.common.util.internal.logging.InternalLoggerFactory;
@@ -37,7 +37,7 @@ import static org.jupiter.common.util.Preconditions.checkNotNull;
  *
  * @author jiachun.fjc
  */
-@SpiImpl(name = "default")
+@SpiMetadata(name = "default")
 public class DefaultRegistryService extends AbstractRegistryService {
 
     private static final InternalLogger logger = InternalLoggerFactory.getInstance(DefaultRegistryService.class);
