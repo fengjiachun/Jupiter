@@ -14,28 +14,21 @@
  * limitations under the License.
  */
 
-package org.jupiter.tracing;
+package org.jupiter.tracing.service;
 
-import brave.Tracing;
-import brave.opentracing.BraveTracer;
-import io.opentracing.Tracer;
+import org.jupiter.rpc.ServiceProviderImpl;
 
 /**
  * jupiter
- * org.jupiter.tracing
+ * org.jupiter.tracing.service
  *
  * @author jiachun.fjc
  */
-public class TestTracerFactory implements TracerFactory {
-
-    private final Tracing tracing = Tracing.newBuilder()
-            .build();
-
-    private final BraveTracer braveTracer = BraveTracer.newBuilder(tracing)
-            .build();
+@ServiceProviderImpl(version = "1.0.0.daily")
+public class TracingService2Impl implements TracingService2 {
 
     @Override
-    public Tracer getTracer() {
-        return braveTracer;
+    public String call2(String text) {
+        return "Hello call2 [" + text + "]";
     }
 }

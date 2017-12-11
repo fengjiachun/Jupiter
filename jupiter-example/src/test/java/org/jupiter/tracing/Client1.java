@@ -16,12 +16,12 @@
 
 package org.jupiter.tracing;
 
-import org.jupiter.example.ServiceTest;
 import org.jupiter.rpc.DefaultClient;
 import org.jupiter.rpc.JClient;
 import org.jupiter.rpc.consumer.ProxyFactory;
 import org.jupiter.rpc.consumer.cluster.ClusterInvoker;
 import org.jupiter.serialization.SerializerType;
+import org.jupiter.tracing.service.TracingService1;
 import org.jupiter.transport.JConnector;
 import org.jupiter.transport.exception.ConnectFailedException;
 import org.jupiter.transport.netty.JNettyTcpConnector;
@@ -32,30 +32,23 @@ import org.jupiter.transport.netty.JNettyTcpConnector;
  *
  * @author jiachun.fjc
  */
-public class SyncJupiterClient {
+public class Client1 {
 
     public static void main(String[] args) {
         OpenTracingContext.setTracerFactory(new TestTracerFactory());
 
         final JClient client = new DefaultClient().withConnector(new JNettyTcpConnector());
+
         // 连接RegistryServer
         client.connectToRegistryServer("127.0.0.1:20001");
         // 自动管理可用连接
-        JConnector.ConnectionWatcher watcher1 = client.watchConnections(ServiceTest.class, "1.0.0.daily");
+        JConnector.ConnectionWatcher watcher = client.watchConnections(TracingService1.class, "1.0.0.daily");
         // 等待连接可用
-        if (!watcher1.waitForAvailable(3000)) {
+        if (!watcher.waitForAvailable(3000)) {
             throw new ConnectFailedException();
         }
 
-        Runtime.getRuntime().addShutdownHook(new Thread() {
-
-            @Override
-            public void run() {
-                client.shutdownGracefully();
-            }
-        });
-
-        ServiceTest service = ProxyFactory.factory(ServiceTest.class)
+        TracingService1 service = ProxyFactory.factory(TracingService1.class)
                 .version("1.0.0.daily")
                 .client(client)
                 .serializerType(SerializerType.JAVA)
@@ -64,11 +57,11 @@ public class SyncJupiterClient {
                 .newProxyInstance();
 
         try {
-            System.out.println(service.sayHello("jupiter", "hello1"));
-            System.out.println(service.sayHello("jupiter", "hello2"));
-            System.out.println(service.sayHello("jupiter", "hello3"));
-            System.out.println(service.sayHello("jupiter", "hello4"));
-            System.out.println(service.sayHello("jupiter", "hello5"));
+            System.out.println(service.call1("test1"));
+            System.out.println(service.call1("test2"));
+            System.out.println(service.call1("test3"));
+            System.out.println(service.call1("test4"));
+            System.out.println(service.call1("test5"));
         } catch (Exception e) {
             e.printStackTrace();
         }
