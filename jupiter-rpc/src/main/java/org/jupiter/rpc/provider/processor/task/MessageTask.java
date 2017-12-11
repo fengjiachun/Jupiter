@@ -170,7 +170,7 @@ public class MessageTask implements RejectedRunnable {
         Context invokeCtx = new Context(service);
 
         if (TracingUtil.isTracingNeeded()) {
-            setCurrentTraceId(_request.getTraceId());
+            setCurrentTraceId(_request.message().getTraceId());
         }
 
         try {

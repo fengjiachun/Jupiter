@@ -19,7 +19,7 @@ package org.jupiter.rpc.tracing;
 import java.io.Serializable;
 
 /**
- * 链路追踪ID, 全局唯一.
+ * Jupiter框架内部链路追踪ID, 全局唯一, 如果接入了OpenTracing实现, 这个通常就没什么用了.
  *
  * jupiter
  * org.jupiter.rpc

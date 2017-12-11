@@ -17,10 +17,10 @@
 package org.jupiter.rpc;
 
 import org.jupiter.rpc.model.metadata.MessageWrapper;
-import org.jupiter.rpc.tracing.TraceId;
 import org.jupiter.rpc.tracing.TracingUtil;
 import org.jupiter.transport.payload.JRequestBytes;
 
+import java.util.Collections;
 import java.util.Map;
 
 /**
@@ -74,16 +74,23 @@ public class JRequest {
         this.message = message;
     }
 
-    public TraceId getTraceId() {
-        return TracingUtil.safeGetTraceId(message.getTraceId());
+    public String getTraceId() {
+        if (message == null) {
+            return null;
+        }
+        return TracingUtil.safeGetTraceId(message.getTraceId()).asText();
     }
 
     public Map<String, String> getAttachments() {
-        return message.getAttachments();
+        Map<String, String> attachments =
+                message != null ? message.getAttachments() : null;
+        return attachments != null ? attachments : Collections.<String, String>emptyMap();
     }
 
     public void putAttachment(String key, String value) {
-        message.putAttachment(key, value);
+        if (message != null) {
+            message.putAttachment(key, value);
+        }
     }
 
     @Override

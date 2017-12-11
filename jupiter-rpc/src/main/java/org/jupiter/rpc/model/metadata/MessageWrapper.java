@@ -21,7 +21,6 @@ import org.jupiter.rpc.tracing.TraceId;
 
 import java.io.Serializable;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.Map;
 
 /**
@@ -98,7 +97,7 @@ public class MessageWrapper implements Serializable {
     }
 
     public Map<String, String> getAttachments() {
-        return attachments != null ? attachments : Collections.<String, String>emptyMap();
+        return attachments;
     }
 
     public void putAttachment(String key, String value) {

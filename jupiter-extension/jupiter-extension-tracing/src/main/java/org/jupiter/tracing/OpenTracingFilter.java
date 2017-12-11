@@ -78,7 +78,7 @@ public class OpenTracingFilter implements JFilter {
         try {
             OpenTracingContext.setActiveSpan(span);
 
-            span.setTag("jupiter_traceId", request.getTraceId().asText());
+            span.setTag("jupiter_traceId", request.getTraceId());
             span.setTag("requestId", request.invokeId());
 
             next.doFilter(request, filterCtx);
@@ -95,9 +95,7 @@ public class OpenTracingFilter implements JFilter {
     private <T extends JFilterContext> void processConsumerTracing(
             Tracer tracer, JRequest request, T filterCtx, JFilterChain next) throws Throwable {
         MessageWrapper msg = request.message();
-        String operationName = msg.getOperationName();
-
-        Tracer.SpanBuilder spanBuilder = tracer.buildSpan(operationName);
+        Tracer.SpanBuilder spanBuilder = tracer.buildSpan(msg != null ? msg.getOperationName() : "null");
         Span activeSpan = OpenTracingContext.getActiveSpan();
         if (activeSpan != null) {
             spanBuilder.asChildOf(activeSpan);
@@ -105,7 +103,7 @@ public class OpenTracingFilter implements JFilter {
 
         Span span = spanBuilder.startManual();
         try {
-            span.setTag("jupiter_traceId", request.getTraceId().asText());
+            span.setTag("jupiter_traceId", request.getTraceId());
             span.setTag("requestId", request.invokeId());
 
             injectContext(tracer, span, request);
@@ -137,8 +135,8 @@ public class OpenTracingFilter implements JFilter {
     }
 
     private Span extractContext(Tracer tracer, JRequest request) {
-        String operationName = request.message().getOperationName();
-        Tracer.SpanBuilder spanBuilder = tracer.buildSpan(operationName);
+        MessageWrapper msg = request.message();
+        Tracer.SpanBuilder spanBuilder = tracer.buildSpan(msg != null ? msg.getOperationName() : "null");
         try {
             SpanContext spanContext = tracer.extract(
                     Format.Builtin.TEXT_MAP, new TextMapExtractAdapter(request.getAttachments()));
