@@ -98,7 +98,7 @@ public class OpenTracingFilter implements JFilter {
     private <T extends JFilterContext> void processConsumerTracing(
             Tracer tracer, JRequest request, T filterCtx, JFilterChain next) throws Throwable {
         MessageWrapper msg = request.message();
-        String operationName = operationName(msg);
+        String operationName = msg.getOperationName();
 
         Tracer.SpanBuilder spanBuilder = tracer.buildSpan(operationName);
         Span activeSpan = OpenTracingContext.getActiveSpan();
@@ -142,7 +142,7 @@ public class OpenTracingFilter implements JFilter {
     }
 
     private Span extractContext(Tracer tracer, JRequest request) {
-        String operationName = operationName(request.message());
+        String operationName = request.message().getOperationName();
         Tracer.SpanBuilder spanBuilder = tracer.buildSpan(operationName);
         try {
             SpanContext spanContext = tracer.extract(
@@ -154,9 +154,5 @@ public class OpenTracingFilter implements JFilter {
             spanBuilder.withTag("Error", "extract from request failed: " + t.getMessage());
         }
         return spanBuilder.startManual();
-    }
-
-    private static String operationName(MessageWrapper msg) {
-        return "Jupiter_" + msg.getMetadata().directory() + "." + msg.getMethodName();
     }
 }
