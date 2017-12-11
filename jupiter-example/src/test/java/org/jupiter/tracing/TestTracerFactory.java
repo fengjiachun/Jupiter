@@ -19,6 +19,8 @@ package org.jupiter.tracing;
 import brave.Tracing;
 import brave.opentracing.BraveTracer;
 import io.opentracing.Tracer;
+import zipkin2.reporter.AsyncReporter;
+import zipkin2.reporter.urlconnection.URLConnectionSender;
 
 /**
  * jupiter
@@ -29,6 +31,7 @@ import io.opentracing.Tracer;
 public class TestTracerFactory implements TracerFactory {
 
     private final Tracing tracing = Tracing.newBuilder()
+            .spanReporter(AsyncReporter.create(URLConnectionSender.create("http://127.0.0.1:9411")))
             .build();
 
     private final BraveTracer braveTracer = BraveTracer.newBuilder(tracing)
