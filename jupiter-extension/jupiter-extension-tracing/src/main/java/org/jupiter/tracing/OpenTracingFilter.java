@@ -81,8 +81,9 @@ public class OpenTracingFilter implements JFilter {
 
             TraceId traceId = request.message().getTraceId();
             if (traceId != null) {
-                span.setTag("traceId", traceId.getId());
+                span.setTag("j_traceId", traceId.getId());
             }
+            span.setTag("requestId", request.invokeId());
 
             next.doFilter(request, filterCtx);
 
@@ -110,8 +111,9 @@ public class OpenTracingFilter implements JFilter {
         try {
             TraceId traceId = msg.getTraceId();
             if (traceId != null) {
-                span.setTag("traceId", traceId.getId());
+                span.setTag("j_traceId", traceId.getId());
             }
+            span.setTag("requestId", request.invokeId());
 
             injectContext(tracer, span, request);
 

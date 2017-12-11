@@ -17,7 +17,6 @@
 package org.jupiter.tracing;
 
 import org.jupiter.example.ServiceTest;
-import org.jupiter.example.ServiceTest2;
 import org.jupiter.rpc.DefaultClient;
 import org.jupiter.rpc.JClient;
 import org.jupiter.rpc.consumer.ProxyFactory;
@@ -36,6 +35,8 @@ import org.jupiter.transport.netty.JNettyTcpConnector;
 public class SyncJupiterClient {
 
     public static void main(String[] args) {
+        OpenTracingContext.setTracerFactory(new TestTracerFactory());
+
         final JClient client = new DefaultClient().withConnector(new JNettyTcpConnector());
         // 连接RegistryServer
         client.connectToRegistryServer("127.0.0.1:20001");
@@ -54,7 +55,7 @@ public class SyncJupiterClient {
             }
         });
 
-        ServiceTest service1 = ProxyFactory.factory(ServiceTest.class)
+        ServiceTest service = ProxyFactory.factory(ServiceTest.class)
                 .version("1.0.0.daily")
                 .client(client)
                 .serializerType(SerializerType.JAVA)
@@ -63,8 +64,11 @@ public class SyncJupiterClient {
                 .newProxyInstance();
 
         try {
-            ServiceTest.ResultClass result1 = service1.sayHello("jupiter", "hello");
-            System.out.println(result1);
+            System.out.println(service.sayHello("jupiter", "hello1"));
+            System.out.println(service.sayHello("jupiter", "hello2"));
+            System.out.println(service.sayHello("jupiter", "hello3"));
+            System.out.println(service.sayHello("jupiter", "hello4"));
+            System.out.println(service.sayHello("jupiter", "hello5"));
         } catch (Exception e) {
             e.printStackTrace();
         }

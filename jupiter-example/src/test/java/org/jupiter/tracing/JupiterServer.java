@@ -16,9 +16,6 @@
 
 package org.jupiter.tracing;
 
-import brave.Tracing;
-import brave.opentracing.BraveTracer;
-import io.opentracing.Tracer;
 import org.jupiter.example.ServiceTestImpl;
 import org.jupiter.rpc.DefaultServer;
 import org.jupiter.rpc.JServer;
@@ -38,18 +35,7 @@ import java.util.Arrays;
 public class JupiterServer {
 
     public static void main(String[] args) {
-        OpenTracingContext.setTracerFactory(new TracerFactory() {
-
-            @Override
-            public Tracer getTracer() {
-                // TODO
-                Tracing tracing = Tracing.newBuilder()
-                        .build();
-
-                return BraveTracer.newBuilder(tracing)
-                        .build();
-            }
-        });
+        OpenTracingContext.setTracerFactory(new TestTracerFactory());
 
         final JServer server = new DefaultServer().withAcceptor(new JNettyTcpAcceptor(18090));
         try {
