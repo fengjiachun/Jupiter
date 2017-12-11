@@ -77,9 +77,9 @@ public class OpenTracingFilter implements JFilter {
         Span span = extractContext(tracer, request);
         try {
             OpenTracingContext.setActiveSpan(span);
-
             span.setTag("jupiter_traceId", request.getTraceId());
 
+            // next filter
             next.doFilter(request, filterCtx);
 
             span.log("request success.");
@@ -103,9 +103,9 @@ public class OpenTracingFilter implements JFilter {
         Span span = spanBuilder.startManual();
         try {
             span.setTag("jupiter_traceId", request.getTraceId());
-
             injectContext(tracer, span, request);
 
+            // next filter
             next.doFilter(request, filterCtx);
 
             span.log("request success.");
