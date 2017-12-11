@@ -16,8 +16,12 @@
 
 package org.jupiter.rpc;
 
+import org.jupiter.common.util.Maps;
 import org.jupiter.rpc.model.metadata.MessageWrapper;
 import org.jupiter.transport.payload.JRequestBytes;
+
+import java.util.Collections;
+import java.util.Map;
 
 /**
  * Consumer's request data.
@@ -33,6 +37,7 @@ public class JRequest {
 
     private final JRequestBytes requestBytes;   // 请求bytes
     private MessageWrapper message;             // 请求对象
+    private Map<String, String> attachments;
 
     public JRequest() {
         this(new JRequestBytes());
@@ -70,6 +75,17 @@ public class JRequest {
         this.message = message;
     }
 
+    public Map<String, String> getAttachments() {
+        return attachments != null ? attachments : Collections.<String, String>emptyMap();
+    }
+
+    public void putAttachment(String key, String value) {
+        if (attachments == null) {
+            attachments = Maps.newHashMap();
+        }
+        attachments.put(key, value);
+    }
+
     @Override
     public String toString() {
         return "JRequest{" +
@@ -77,6 +93,7 @@ public class JRequest {
                 ", timestamp=" + timestamp() +
                 ", serializerCode=" + serializerCode() +
                 ", message=" + message +
+                ", attachments=" + attachments +
                 '}';
     }
 }

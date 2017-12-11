@@ -93,10 +93,6 @@ public class MessageWrapper implements Serializable {
         this.traceId = traceId;
     }
 
-    public String getOperationName() {
-        return metadata.directory() + "." + methodName;
-    }
-
     @Override
     public String toString() {
         return "MessageWrapper{" +

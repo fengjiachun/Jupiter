@@ -17,8 +17,12 @@
 package org.jupiter.tracing;
 
 import io.opentracing.Span;
+import io.opentracing.SpanContext;
 import io.opentracing.Tracer;
 import io.opentracing.noop.NoopTracer;
+import io.opentracing.propagation.Format;
+import io.opentracing.propagation.TextMap;
+import io.opentracing.propagation.TextMapExtractAdapter;
 import org.jupiter.common.util.SpiMetadata;
 import org.jupiter.rpc.JFilter;
 import org.jupiter.rpc.JFilterChain;
@@ -27,7 +31,16 @@ import org.jupiter.rpc.JRequest;
 import org.jupiter.rpc.model.metadata.MessageWrapper;
 import org.jupiter.rpc.tracing.TraceId;
 
+import java.util.Iterator;
+import java.util.Map;
+
 /**
+ * This filter enables distributed tracing in Jupiter clients and servers via
+ * @see <a href="http://opentracing.io">The OpenTracing Project </a> : a set of consistent,
+ * expressive, vendor-neutral APIs for distributed tracing and context propagation.
+ *
+ * 参考了以下代码:
+ * <A>https://github.com/weibocom/motan/blob/master/motan-extension/filter-extension/filter-opentracing/src/main/java/com/weibo/api/motan/filter/opentracing/OpenTracingFilter.java</A>
  *
  * jupiter
  * org.jupiter.tracing
@@ -62,20 +75,21 @@ public class OpenTracingFilter implements JFilter {
 
     private <T extends JFilterContext> void processProviderTracing(
             Tracer tracer, JRequest request, T filterCtx, JFilterChain next) throws Throwable {
-        MessageWrapper msg = request.message();
-        TraceId traceId = msg.getTraceId();
-
-        if (traceId == null) {
-            next.doFilter(request, filterCtx);
-            return;
-        }
-
-        // TODO 还没写完 :)
-        Tracer.SpanBuilder spanBuilder = tracer.buildSpan(msg.getOperationName());
-        Span span = spanBuilder.startManual();
+        Span span = extractContext(tracer, request);
         try {
-            span.setTag("traceId", traceId.getId());
+            OpenTracingContext.setActiveSpan(span);
+
+            TraceId traceId = request.message().getTraceId();
+            if (traceId != null) {
+                span.setTag("traceId", traceId.getId());
+            }
+
             next.doFilter(request, filterCtx);
+
+            span.log("request success.");
+        } catch (Throwable t) {
+            span.log("request fail. " + t.getMessage());
+            throw t;
         } finally {
             span.finish();
         }
@@ -83,6 +97,66 @@ public class OpenTracingFilter implements JFilter {
 
     private <T extends JFilterContext> void processConsumerTracing(
             Tracer tracer, JRequest request, T filterCtx, JFilterChain next) throws Throwable {
-        // TODO
+        MessageWrapper msg = request.message();
+        String operationName = operationName(msg);
+
+        Tracer.SpanBuilder spanBuilder = tracer.buildSpan(operationName);
+        Span activeSpan = OpenTracingContext.getActiveSpan();
+        if (activeSpan != null) {
+            spanBuilder.asChildOf(activeSpan);
+        }
+
+        Span span = spanBuilder.startManual();
+        try {
+            TraceId traceId = msg.getTraceId();
+            if (traceId != null) {
+                span.setTag("traceId", traceId.getId());
+            }
+
+            injectContext(tracer, span, request);
+
+            next.doFilter(request, filterCtx);
+
+            span.log("request success.");
+        } catch (Throwable t){
+            span.log("request fail. " + t.getMessage());
+            throw t;
+        } finally {
+            span.finish();
+        }
+    }
+
+    private void injectContext(Tracer tracer, Span span, final JRequest request) {
+        tracer.inject(span.context(), Format.Builtin.TEXT_MAP, new TextMap() {
+
+            @Override
+            public Iterator<Map.Entry<String, String>> iterator() {
+                throw new UnsupportedOperationException("iterator");
+            }
+
+            @Override
+            public void put(String key, String value) {
+                request.putAttachment(key, value);
+            }
+        });
+    }
+
+    private Span extractContext(Tracer tracer, JRequest request) {
+        String operationName = operationName(request.message());
+        Tracer.SpanBuilder spanBuilder = tracer.buildSpan(operationName);
+        try {
+            SpanContext spanContext = tracer.extract(
+                    Format.Builtin.TEXT_MAP, new TextMapExtractAdapter(request.getAttachments()));
+            if (spanContext != null) {
+                spanBuilder.asChildOf(spanContext);
+            }
+        } catch (Throwable t) {
+            spanBuilder.withTag("Error", "extract from request failed: " + t.getMessage());
+        }
+        return spanBuilder.startManual();
+    }
+
+    private static String operationName(MessageWrapper msg) {
+        return "Jupiter_" + msg.getMetadata().directory() + "." + msg.getMethodName();
     }
 }

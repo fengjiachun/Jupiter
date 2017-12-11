@@ -43,11 +43,11 @@ public class OpenTracingContext {
         return tracerFactory.getTracer();
     }
 
-    public static Span getCurrentSpan() {
+    public static Span getActiveSpan() {
         return spanThreadLocal.get();
     }
 
-    public static void setCurrentSpan(Span span) {
+    public static void setActiveSpan(Span span) {
         spanThreadLocal.set(span);
     }
 }
