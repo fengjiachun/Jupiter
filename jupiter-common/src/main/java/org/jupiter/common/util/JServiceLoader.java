@@ -57,8 +57,33 @@ public final class JServiceLoader<S> implements Iterable<S> {
         return new JServiceLoader<>(service, loader);
     }
 
+    public List<S> sort() {
+        List<S> sortList = Lists.newArrayList(iterator());
+
+        if (sortList.size() <= 1) {
+            return sortList;
+        }
+
+        Collections.sort(sortList, new Comparator<S>() {
+
+            @Override
+            public int compare(S o1, S o2) {
+                SpiMetadata o1_spi = o1.getClass().getAnnotation(SpiMetadata.class);
+                SpiMetadata o2_spi = o2.getClass().getAnnotation(SpiMetadata.class);
+
+                int o1_priority = o1_spi == null ? 0 : o1_spi.priority();
+                int o2_priority = o2_spi == null ? 0 : o2_spi.priority();
+
+                // 优先级高的排前边
+                return o2_priority - o1_priority;
+            }
+        });
+
+        return sortList;
+    }
+
     public S first() {
-        return iterator().next();
+        return sort().get(0);
     }
 
     public S find(String implName) {

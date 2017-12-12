@@ -46,7 +46,7 @@ import java.util.Map;
  *
  * @author jiachun.fjc
  */
-@SpiMetadata(name = "openTracing", sequence = 10)
+@SpiMetadata(name = "openTracing", priority = 10)
 public class OpenTracingFilter implements JFilter {
 
     @Override

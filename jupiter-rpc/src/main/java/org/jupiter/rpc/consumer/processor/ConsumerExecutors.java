@@ -17,6 +17,8 @@
 package org.jupiter.rpc.consumer.processor;
 
 import org.jupiter.common.util.JServiceLoader;
+import org.jupiter.common.util.Strings;
+import org.jupiter.common.util.SystemPropertyUtil;
 import org.jupiter.rpc.executor.ExecutorFactory;
 
 import java.util.concurrent.Executor;
@@ -32,7 +34,16 @@ public class ConsumerExecutors {
     private static final Executor executor;
 
     static {
-        ExecutorFactory factory = (ExecutorFactory) JServiceLoader.load(ConsumerExecutorFactory.class).first();
+        String factoryName = SystemPropertyUtil.get("jupiter.executor.factory.consumer.factory_name");
+        ExecutorFactory factory;
+        if (Strings.isNullOrEmpty(factoryName)) {
+            factory = (ExecutorFactory) JServiceLoader.load(ConsumerExecutorFactory.class)
+                    .first();
+        } else {
+            factory = (ExecutorFactory) JServiceLoader.load(ConsumerExecutorFactory.class)
+                    .find(factoryName);
+        }
+
         executor = factory.newExecutor(ExecutorFactory.Target.CONSUMER, "jupiter-consumer-processor");
     }
 

@@ -18,6 +18,7 @@ package org.jupiter.rpc.executor;
 
 import org.jupiter.common.concurrent.disruptor.TaskDispatcher;
 import org.jupiter.common.concurrent.disruptor.WaitStrategyType;
+import org.jupiter.common.util.SpiMetadata;
 import org.jupiter.common.util.SystemPropertyUtil;
 
 import java.util.concurrent.Executor;
@@ -30,6 +31,7 @@ import java.util.concurrent.Executor;
  *
  * @author jiachun.fjc
  */
+@SpiMetadata(name = "disruptor")
 public class DisruptorExecutorFactory extends AbstractExecutorFactory {
 
     @Override

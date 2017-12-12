@@ -16,6 +16,7 @@
 
 package org.jupiter.rpc.executor;
 
+import org.jupiter.common.util.SpiMetadata;
 import org.jupiter.common.util.internal.InternalForkJoinWorkerThread;
 import org.jupiter.common.util.internal.logging.InternalLogger;
 import org.jupiter.common.util.internal.logging.InternalLoggerFactory;
@@ -35,6 +36,7 @@ import static org.jupiter.common.util.StackTraceUtil.stackTrace;
  *
  * @author jiachun.fjc
  */
+@SpiMetadata(name = "forkJoin")
 public class ForkJoinPoolExecutorFactory extends AbstractExecutorFactory {
 
     private static final InternalLogger logger = InternalLoggerFactory.getInstance(ForkJoinPoolExecutorFactory.class);

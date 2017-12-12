@@ -1,13 +1,9 @@
 package org.jupiter.rpc;
 
 import org.jupiter.common.util.JServiceLoader;
-import org.jupiter.common.util.Lists;
-import org.jupiter.common.util.SpiMetadata;
 import org.jupiter.common.util.internal.logging.InternalLogger;
 import org.jupiter.common.util.internal.logging.InternalLoggerFactory;
 
-import java.util.Collections;
-import java.util.Comparator;
 import java.util.List;
 
 import static org.jupiter.common.util.StackTraceUtil.stackTrace;
@@ -24,27 +20,14 @@ public class JFilterLoader {
 
     public static JFilterChain loadExtFilters(JFilterChain chain, JFilter.Type type) {
         try {
-            List<JFilter> extFilters = Lists.newArrayList(JServiceLoader.load(JFilter.class));
+            List<JFilter> sortedList = JServiceLoader.load(JFilter.class).sort();
 
-            // sequence排序
-            Collections.sort(extFilters, new Comparator<JFilter>() {
-
-                @Override
-                public int compare(JFilter o1, JFilter o2) {
-                    SpiMetadata o1_spi = o1.getClass().getAnnotation(SpiMetadata.class);
-                    SpiMetadata o2_spi = o2.getClass().getAnnotation(SpiMetadata.class);
-
-                    int o1_sequence = o1_spi == null ? 0 : o1_spi.sequence();
-                    int o2_sequence = o2_spi == null ? 0 : o2_spi.sequence();
-
-                    return o1_sequence - o2_sequence;
-                }
-            });
-
-            for (JFilter f : extFilters) {
-                JFilter.Type fType = f.getType();
-                if (fType == type || fType == JFilter.Type.ALL) {
-                    chain = new DefaultFilterChain(f, chain);
+            // 优先级高的在队首
+            for (int i = sortedList.size() - 1; i >= 0; i--) {
+                JFilter extFilter = sortedList.get(i);
+                JFilter.Type extType = extFilter.getType();
+                if (extType == type || extType == JFilter.Type.ALL) {
+                    chain = new DefaultFilterChain(extFilter, chain);
                 }
             }
         } catch (Throwable t) {
