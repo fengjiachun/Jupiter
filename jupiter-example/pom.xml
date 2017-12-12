@@ -42,21 +42,9 @@
 
         <!-- for test -->
         <dependency>
-            <groupId>io.opentracing.brave</groupId>
-            <artifactId>brave-opentracing</artifactId>
-            <version>0.23.0</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>io.zipkin.brave</groupId>
-            <artifactId>brave-spancollector-http</artifactId>
-            <version>4.10.1</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>io.zipkin.reporter2</groupId>
-            <artifactId>zipkin-sender-urlconnection</artifactId>
-            <version>2.1.4</version>
+            <groupId>io.opentracing</groupId>
+            <artifactId>opentracing-mock</artifactId>
+            <version>${opentracing.version}</version>
             <scope>test</scope>
         </dependency>
     </dependencies>
