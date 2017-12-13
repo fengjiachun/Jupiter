@@ -21,6 +21,11 @@ import org.jupiter.registry.RegistryServer;
 /**
  * Client1 --> Server1AndClient2 --> Server2
  *
+ * 1. 先启动 JupiterRegistryServer
+ * 2. 再启动 Server2
+ * 3. 接着启动 Server1AndClient2
+ * 4. 最后启动 Client1
+ *
  * jupiter
  * org.jupiter.tracing
  *
