@@ -24,6 +24,8 @@ import org.jupiter.tracing.service.TracingService2Impl;
 import org.jupiter.transport.netty.JNettyTcpAcceptor;
 
 /**
+ * Client1 --> Server1AndClient2 --> Server2
+ *
  * jupiter
  * org.jupiter.tracing
  *

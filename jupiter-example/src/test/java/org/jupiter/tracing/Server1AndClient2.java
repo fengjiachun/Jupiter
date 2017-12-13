@@ -30,6 +30,8 @@ import org.jupiter.transport.netty.JNettyTcpAcceptor;
 import org.jupiter.transport.netty.JNettyTcpConnector;
 
 /**
+ * Client1 --> Server1AndClient2 --> Server2
+ *
  * jupiter
  * org.jupiter.tracing
  *

@@ -14,27 +14,14 @@
  * limitations under the License.
  */
 
-package org.jupiter.tracing;
-
-import org.jupiter.registry.RegistryServer;
-
 /**
+ * OpenTracing example:
+ *
  * Client1 --> Server1AndClient2 --> Server2
  *
- * jupiter
- * org.jupiter.tracing
- *
- * @author jiachun.fjc
+ * 1. 先启动 JupiterRegistryServer
+ * 2. 再启动 Server2
+ * 3. 接着启动 Server1AndClient2
+ * 4. 最后启动 Client1
  */
-public class JupiterRegistryServer {
-
-    public static void main(String[] args) {
-        RegistryServer registryServer =
-                RegistryServer.Default.createRegistryServer(20001, 1); // 注册中心
-        try {
-            registryServer.startRegistryServer();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
-}
+package org.jupiter.tracing;
