@@ -16,8 +16,9 @@
 
 package org.jupiter.tracing;
 
+import brave.Tracing;
+import brave.opentracing.BraveTracer;
 import io.opentracing.Tracer;
-import io.opentracing.mock.MockTracer;
 
 /**
  * jupiter
@@ -27,7 +28,8 @@ import io.opentracing.mock.MockTracer;
  */
 public class TestTracerFactory implements TracerFactory {
 
-    private final Tracer tracer = new MockTracer();
+//    private final Tracer tracer = new MockTracer();
+    private final Tracer tracer = BraveTracer.create(Tracing.newBuilder().build());
 
     @Override
     public Tracer getTracer() {
