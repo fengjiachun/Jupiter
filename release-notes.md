@@ -3,6 +3,7 @@ Jupiter release notes
 
 ### 2017-12-13:
 
+- 升级Netty版本到4.1.18.Final
 - JServiceLoader优化
 
 ### 2017-12-12: version 1.2.12
