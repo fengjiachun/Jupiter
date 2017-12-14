@@ -1,6 +1,10 @@
 Jupiter release notes
 ------------------------
 
+### 2017-12-13:
+
+- JServiceLoader优化
+
 ### 2017-12-12: version 1.2.12
 
 - OpenTracing支持 [\#33](https://github.com/fengjiachun/Jupiter/issues/33)
