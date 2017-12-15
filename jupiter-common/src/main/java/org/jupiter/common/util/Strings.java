@@ -86,51 +86,70 @@ public final class Strings {
     }
 
     /**
-     * Splits the specified {@link String} with the specified delimiter.  This operation is a simplified and optimized
-     * version of {@link String#split(String)}.
+     * Splits the provided text into an array, separator specified.
+     *
+     * A null input String returns null.
+     *
+     * Strings.split(null, *)         = null
+     * Strings.split("", *)           = []
+     * Strings.split("a.b.c", '.')    = ["a", "b", "c"]
+     * Strings.split("a..b.c", '.')   = ["a", "b", "c"]
+     * Strings.split("a:b:c", '.')    = ["a:b:c"]
+     * Strings.split("a b c", ' ')    = ["a", "b", "c"]
      */
-    public static String[] split(String value, char delimiter) {
-        if (value == null) {
-            return null;
-        }
-
-        final int end = value.length();
-        final List<String> result = new ArrayList<>();
-
-        int start = 0;
-        for (int i = 0; i < end; i++) {
-            if (value.charAt(i) == delimiter) {
-                if (start == i) {
-                    result.add(EMPTY_STRING);
-                } else {
-                    result.add(value.substring(start, i));
-                }
-                start = i + 1;
-            }
-        }
-
-        if (start == 0) { // if no delimiter was found in the value
-            result.add(value);
-        } else {
-            if (start != end) {
-                // add the last element if it's not empty.
-                result.add(value.substring(start, end));
-            } else {
-                // truncate trailing empty elements.
-                for (int i = result.size() - 1; i >= 0; i--) {
-                    if (result.get(i).isEmpty()) {
-                        result.remove(i);
-                    } else {
-                        break;
-                    }
-                }
-            }
-        }
-
-        return result.toArray(new String[result.size()]);
+    public static String[] split(String str, char separator) {
+        return split(str, separator, false);
     }
 
-    private static final String EMPTY_STRING = "";
+    /**
+     * Splits the provided text into an array, separator specified,
+     * if {@code} true, preserving all tokens, including empty tokens created
+     * by adjacent separators.
+     *
+     * A null input String returns null.
+     *
+     * Strings.split(null, *, true)         = null
+     * Strings.split("", *, true)           = []
+     * Strings.split("a.b.c", '.', true)    = ["a", "b", "c"]
+     * Strings.split("a..b.c", '.', true)   = ["a", "", "b", "c"]
+     * Strings.split("a:b:c", '.', true)    = ["a:b:c"]
+     * Strings.split("a b c", ' ', true)    = ["a", "b", "c"]
+     * Strings.split("a b c ", ' ', true)   = ["a", "b", "c", ""]
+     * Strings.split("a b c  ", ' ', true)  = ["a", "b", "c", "", ""]
+     * Strings.split(" a b c", ' ', true)   = ["", a", "b", "c"]
+     * Strings.split("  a b c", ' ', true)  = ["", "", a", "b", "c"]
+     * Strings.split(" a b c ", ' ', true)  = ["", a", "b", "c", ""]
+     */
+    public static String[] split(String str, char separator, boolean preserveAllTokens) {
+        if (str == null) {
+            return null;
+        }
+        int len = str.length();
+        if (len == 0) {
+            return EMPTY_STRING_ARRAY;
+        }
+        List<String> list = new ArrayList<>();
+        int i = 0, start = 0;
+        boolean match = false;
+        while (i < len) {
+            if (str.charAt(i) == separator) {
+                if (match || preserveAllTokens) {
+                    list.add(str.substring(start, i));
+                    match = false;
+                }
+                start = ++i;
+                continue;
+            }
+            match = true;
+            i++;
+        }
+        if (match || preserveAllTokens) {
+            list.add(str.substring(start, i));
+        }
+        return list.toArray(new String[list.size()]);
+    }
+
+    private static final String[] EMPTY_STRING_ARRAY = new String[0];
 
     private Strings() {}
 }
