@@ -58,7 +58,6 @@
         <protostuff.version>1.5.2</protostuff.version>
         <objenesis.version>2.1</objenesis.version>
         <asm.version>5.2</asm.version>
-        <javassist.version>3.19.0-GA</javassist.version>
         <bytebuddy.version>1.6.3</bytebuddy.version>
         <disruptor.version>3.3.6</disruptor.version>
         <metrics.version>3.1.2</metrics.version>
@@ -244,11 +243,6 @@
                 <groupId>org.ow2.asm</groupId>
                 <artifactId>asm</artifactId>
                 <version>${asm.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.javassist</groupId>
-                <artifactId>javassist</artifactId>
-                <version>${javassist.version}</version>
             </dependency>
             <dependency>
                 <groupId>net.bytebuddy</groupId>
