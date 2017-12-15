@@ -1,7 +1,7 @@
 Jupiter release notes
 ------------------------
 
-### 2017-12-15:
+### 2017-12-16: version 1.2.13
 
 - 移除javassist依赖([netty老版本的TypeParameterMatcher用之](https://github.com/netty/netty/commit/7d08b4fc357e12ee2487e87d8fdcbeee1152e5a0))
 - 升级Netty版本到4.1.18.Final
