@@ -121,7 +121,7 @@ public final class DefaultRegistryServer extends NettyTcpAcceptor implements Reg
 
         // parent options
         JConfig parent = configGroup().parent();
-        parent.setOption(JOption.SO_BACKLOG, 1024);
+        parent.setOption(JOption.SO_BACKLOG, 32768);
         parent.setOption(JOption.SO_REUSEADDR, true);
 
         // child options
