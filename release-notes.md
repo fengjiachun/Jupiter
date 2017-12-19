@@ -1,6 +1,10 @@
 Jupiter release notes
 ------------------------
 
+### 2017-12-19: version 1.2.14
+
+- 升级Netty版本到4.1.19.Final, Netty v4.1.18.Final有[严重bug会导致core-dump](https://github.com/netty/netty/pull/7507)
+
 ### 2017-12-16: version 1.2.13
 
 - 移除javassist依赖([netty老版本的TypeParameterMatcher用之](https://github.com/netty/netty/commit/7d08b4fc357e12ee2487e87d8fdcbeee1152e5a0))
