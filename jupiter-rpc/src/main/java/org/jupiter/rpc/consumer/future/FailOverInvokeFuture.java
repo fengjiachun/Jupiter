@@ -32,7 +32,7 @@ import static org.jupiter.common.util.StackTraceUtil.stackTrace;
  *
  * @author jiachun.fjc
  */
-public class FailOverInvokeFuture<V> extends AbstractListenableFuture<V> {
+public class FailOverInvokeFuture<V> extends AbstractListenableFuture<V> implements InvokeFuture<V> {
 
     private static final InternalLogger logger = InternalLoggerFactory.getInstance(FailOverInvokeFuture.class);
 

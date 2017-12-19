@@ -27,7 +27,7 @@ import static org.jupiter.common.util.Preconditions.checkNotNull;
  * @author jiachun.fjc
  */
 @SuppressWarnings("unchecked")
-public abstract class AbstractListenableFuture<V> extends AbstractFuture<V> implements InvokeFuture<V> {
+public abstract class AbstractListenableFuture<V> extends AbstractFuture<V> implements ListenableFuture<V> {
 
     private Object listeners;
 
@@ -37,7 +37,7 @@ public abstract class AbstractListenableFuture<V> extends AbstractFuture<V> impl
     }
 
     @Override
-    public InvokeFuture<V> addListener(JListener<V> listener) {
+    public ListenableFuture<V> addListener(JListener<V> listener) {
         checkNotNull(listener, "listener");
 
         synchronized (this) {
@@ -52,7 +52,7 @@ public abstract class AbstractListenableFuture<V> extends AbstractFuture<V> impl
     }
 
     @Override
-    public InvokeFuture<V> addListeners(JListener<V>... listeners) {
+    public ListenableFuture<V> addListeners(JListener<V>... listeners) {
         checkNotNull(listeners, "listeners");
 
         synchronized (this) {
@@ -72,7 +72,7 @@ public abstract class AbstractListenableFuture<V> extends AbstractFuture<V> impl
     }
 
     @Override
-    public InvokeFuture<V> removeListener(JListener<V> listener) {
+    public ListenableFuture<V> removeListener(JListener<V> listener) {
         checkNotNull(listener, "listener");
 
         synchronized (this) {
@@ -83,7 +83,7 @@ public abstract class AbstractListenableFuture<V> extends AbstractFuture<V> impl
     }
 
     @Override
-    public InvokeFuture<V> removeListeners(JListener<V>... listeners) {
+    public ListenableFuture<V> removeListeners(JListener<V>... listeners) {
         checkNotNull(listeners, "listeners");
 
         synchronized (this) {
