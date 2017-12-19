@@ -58,7 +58,7 @@ public class DefaultInvokeFutureGroup<V> implements InvokeFutureGroup<V> {
     }
 
     @Override
-    public InvokeFuture<V> addListener(JListener<V> listener) {
+    public InvokeFutureGroup<V> addListener(JListener<V> listener) {
         for (InvokeFuture<V> f : futures) {
             f.addListener(listener);
         }
@@ -66,7 +66,7 @@ public class DefaultInvokeFutureGroup<V> implements InvokeFutureGroup<V> {
     }
 
     @Override
-    public InvokeFuture<V> addListeners(JListener<V>... listeners) {
+    public InvokeFutureGroup<V> addListeners(JListener<V>... listeners) {
         for (InvokeFuture<V> f : futures) {
             f.addListeners(listeners);
         }
@@ -74,7 +74,7 @@ public class DefaultInvokeFutureGroup<V> implements InvokeFutureGroup<V> {
     }
 
     @Override
-    public InvokeFuture<V> removeListener(JListener<V> listener) {
+    public InvokeFutureGroup<V> removeListener(JListener<V> listener) {
         for (InvokeFuture<V> f : futures) {
             f.removeListener(listener);
         }
@@ -82,7 +82,7 @@ public class DefaultInvokeFutureGroup<V> implements InvokeFutureGroup<V> {
     }
 
     @Override
-    public InvokeFuture<V> removeListeners(JListener<V>... listeners) {
+    public InvokeFutureGroup<V> removeListeners(JListener<V>... listeners) {
         for (InvokeFuture<V> f : futures) {
             f.removeListeners(listeners);
         }
