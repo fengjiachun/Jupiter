@@ -62,7 +62,7 @@ public abstract class AbstractRejectedExecutionHandler implements RejectedExecut
 
                 @Override
                 public void run() {
-                    String now = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date());
+                    String now = new SimpleDateFormat("yyyy-MM-dd_HH-mm-ss").format(new Date());
                     String name = threadPoolName + "_" + now;
                     FileOutputStream fileOutput = null;
                     try {
