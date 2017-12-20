@@ -68,7 +68,9 @@ public class NamedThreadFactory implements ThreadFactory {
         checkNotNull(r, "runnable");
 
         String name2 = name + id.getAndIncrement();
+
         Thread t = new InternalThread(group, r, name2);
+
         try {
             if (t.isDaemon() != daemon) {
                 t.setDaemon(daemon);
