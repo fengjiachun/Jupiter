@@ -1,6 +1,9 @@
 Jupiter release notes
 ------------------------
 
+### 2017-12-20:
+- [dump文件名在windows系统不能有 ":"](https://github.com/fengjiachun/Jupiter/pull/42)
+
 ### 2017-12-19: version 1.2.14
 
 - 升级Netty版本到4.1.19.Final, Netty v4.1.18.Final有[严重bug会导致core-dump](https://github.com/netty/netty/pull/7507)
