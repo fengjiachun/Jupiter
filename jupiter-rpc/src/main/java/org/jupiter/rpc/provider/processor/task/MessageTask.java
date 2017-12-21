@@ -63,7 +63,7 @@ public class MessageTask implements RejectedRunnable {
 
     private static final InternalLogger logger = InternalLoggerFactory.getInstance(MessageTask.class);
 
-    private static final boolean METRIC_NEEDED = SystemPropertyUtil.getBoolean("jupiter.metric.needed", true);
+    private static final boolean METRIC_NEEDED = SystemPropertyUtil.getBoolean("jupiter.metric.needed", false);
 
     private static final Signal INVOKE_ERROR = Signal.valueOf(MessageTask.class, "INVOKE_ERROR");
 
