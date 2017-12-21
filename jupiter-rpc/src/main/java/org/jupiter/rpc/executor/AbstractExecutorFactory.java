@@ -16,8 +16,12 @@
 
 package org.jupiter.rpc.executor;
 
+import org.jupiter.common.concurrent.AffinityNamedThreadFactory;
+import org.jupiter.common.concurrent.NamedThreadFactory;
 import org.jupiter.common.util.JConstants;
 import org.jupiter.common.util.SystemPropertyUtil;
+
+import java.util.concurrent.ThreadFactory;
 
 /**
  * jupiter
@@ -26,6 +30,15 @@ import org.jupiter.common.util.SystemPropertyUtil;
  * @author jiachun.fjc
  */
 public abstract class AbstractExecutorFactory implements ExecutorFactory {
+
+    protected ThreadFactory threadFactory(String name) {
+        boolean affinity = SystemPropertyUtil.getBoolean(EXECUTOR_AFFINITY_THREAD, false);
+        if (affinity) {
+            return new AffinityNamedThreadFactory(name);
+        } else {
+            return new NamedThreadFactory(name);
+        }
+    }
 
     protected int coreWorkers(Target target) {
         switch (target) {

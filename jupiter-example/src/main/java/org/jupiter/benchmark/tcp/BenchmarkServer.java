@@ -16,7 +16,6 @@
 
 package org.jupiter.benchmark.tcp;
 
-import net.openhft.affinity.AffinityStrategies;
 import org.jupiter.common.util.SystemPropertyUtil;
 import org.jupiter.monitor.MonitorServer;
 import org.jupiter.rpc.DefaultServer;
@@ -49,12 +48,14 @@ public class BenchmarkServer {
                 .setProperty("jupiter.metric.report.period", "1");
         SystemPropertyUtil
                 .setProperty("jupiter.executor.factory.provider.queue.capacity", "65536");
+        SystemPropertyUtil
+                .setProperty("jupiter.executor.factory.affinity.thread", "true");
 
         JServer server = new DefaultServer().withAcceptor(new JNettyTcpAcceptor(18099, true) {
 
             @Override
             protected ThreadFactory workerThreadFactory(String name) {
-                return new AffinityNettyThreadFactory(name, Thread.MAX_PRIORITY, AffinityStrategies.DIFFERENT_CORE);
+                return new AffinityNettyThreadFactory(name, Thread.MAX_PRIORITY);
             }
         });
         server.acceptor().configGroup().child().setOption(JOption.WRITE_BUFFER_HIGH_WATER_MARK, 256 * 1024);

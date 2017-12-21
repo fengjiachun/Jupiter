@@ -38,7 +38,7 @@ public class DisruptorExecutorFactory extends AbstractExecutorFactory {
     public Executor newExecutor(Target target, String name) {
         return new TaskDispatcher(
                 coreWorkers(target),
-                name,
+                threadFactory(name),
                 queueCapacity(target),
                 maxWorkers(target),
                 waitStrategyType(target, WaitStrategyType.LITE_BLOCKING_WAIT),

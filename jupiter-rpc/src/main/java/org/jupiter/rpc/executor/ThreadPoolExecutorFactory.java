@@ -16,7 +16,6 @@
 
 package org.jupiter.rpc.executor;
 
-import org.jupiter.common.concurrent.NamedThreadFactory;
 import org.jupiter.common.concurrent.RejectedTaskPolicyWithReport;
 import org.jupiter.common.util.SpiMetadata;
 import org.jupiter.common.util.Strings;
@@ -51,7 +50,7 @@ public class ThreadPoolExecutorFactory extends AbstractExecutorFactory {
                 120L,
                 TimeUnit.SECONDS,
                 workQueue(target),
-                new NamedThreadFactory(name),
+                threadFactory(name),
                 createRejectedPolicy(target, name, new RejectedTaskPolicyWithReport(name, "jupiter")));
     }
 

@@ -50,4 +50,5 @@ public interface ExecutorFactory extends ConsumerExecutorFactory, ProviderExecut
     String PROVIDER_DISRUPTOR_WAIT_STRATEGY_TYPE    = "jupiter.executor.factory.provider.disruptor.wait.strategy.type";
     String CONSUMER_THREAD_POOL_REJECTED_HANDLER    = "jupiter.executor.factory.consumer.thread.pool.rejected.handler";
     String PROVIDER_THREAD_POOL_REJECTED_HANDLER    = "jupiter.executor.factory.provider.thread.pool.rejected.handler";
+    String EXECUTOR_AFFINITY_THREAD                 = "jupiter.executor.factory.affinity.thread";
 }
