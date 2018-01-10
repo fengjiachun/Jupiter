@@ -35,7 +35,7 @@ public final class Bytes {
         for (int i = start; i < end; i++) {
             int n = bytes[i] & 0xff;
             n <<= (--length) * 8;
-            sum += n;
+            sum |= n; // @author okou
         }
         return sum;
     }
