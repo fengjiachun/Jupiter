@@ -18,6 +18,10 @@ package org.jupiter.common.util.internal;
 
 import org.jupiter.common.util.ExceptionUtil;
 
+import java.util.Collections;
+import java.util.IdentityHashMap;
+import java.util.Set;
+
 /**
  * jupiter
  * org.jupiter.common.util.internal
@@ -25,6 +29,33 @@ import org.jupiter.common.util.ExceptionUtil;
  * @author jiachun.fjc
  */
 public class InternalThreadLocal<V> {
+
+    private static final int variablesToRemoveIndex = InternalThreadLocalMap.nextVariableIndex();
+
+    /**
+     * Removes all {@link InternalThreadLocal} variables bound to the current thread.  This operation is useful when you
+     * are in a container environment, and you don't want to leave the thread local variables in the threads you do not
+     * manage.
+     */
+    @SuppressWarnings("unchecked")
+    public static void removeAll() {
+        InternalThreadLocalMap threadLocalMap = InternalThreadLocalMap.getIfSet();
+        if (threadLocalMap == null) {
+            return;
+        }
+
+        try {
+            Object v = threadLocalMap.indexedVariable(variablesToRemoveIndex);
+            if (v != null && v != InternalThreadLocalMap.UNSET) {
+                Set<InternalThreadLocal<?>> variablesToRemove = (Set<InternalThreadLocal<?>>) v;
+                for (InternalThreadLocal<?> tlv : variablesToRemove) {
+                    tlv.remove(threadLocalMap);
+                }
+            }
+        } finally {
+            InternalThreadLocalMap.remove();
+        }
+    }
 
     /**
      * Returns the number of thread local variables bound to the current thread.
@@ -40,6 +71,33 @@ public class InternalThreadLocal<V> {
 
     public static void destroy() {
         InternalThreadLocalMap.destroy();
+    }
+
+    @SuppressWarnings("unchecked")
+    private static void addToVariablesToRemove(InternalThreadLocalMap threadLocalMap, InternalThreadLocal<?> variable) {
+        Object v = threadLocalMap.indexedVariable(variablesToRemoveIndex);
+        Set<InternalThreadLocal<?>> variablesToRemove;
+        if (v == InternalThreadLocalMap.UNSET || v == null) {
+            variablesToRemove = Collections.newSetFromMap(new IdentityHashMap<InternalThreadLocal<?>, Boolean>());
+            threadLocalMap.setIndexedVariable(variablesToRemoveIndex, variablesToRemove);
+        } else {
+            variablesToRemove = (Set<InternalThreadLocal<?>>) v;
+        }
+
+        variablesToRemove.add(variable);
+    }
+
+    @SuppressWarnings("unchecked")
+    private static void removeFromVariablesToRemove(InternalThreadLocalMap threadLocalMap, InternalThreadLocal<?> variable) {
+
+        Object v = threadLocalMap.indexedVariable(variablesToRemoveIndex);
+
+        if (v == InternalThreadLocalMap.UNSET || v == null) {
+            return;
+        }
+
+        Set<InternalThreadLocal<?>> variablesToRemove = (Set<InternalThreadLocal<?>>) v;
+        variablesToRemove.remove(variable);
     }
 
     private final int index;
@@ -71,6 +129,7 @@ public class InternalThreadLocal<V> {
         }
 
         threadLocalMap.setIndexedVariable(index, v);
+        addToVariablesToRemove(threadLocalMap, this);
         return v;
     }
 
@@ -82,7 +141,9 @@ public class InternalThreadLocal<V> {
             remove();
         } else {
             InternalThreadLocalMap threadLocalMap = InternalThreadLocalMap.get();
-            threadLocalMap.setIndexedVariable(index, value);
+            if (threadLocalMap.setIndexedVariable(index, value)) {
+                addToVariablesToRemove(threadLocalMap, this);
+            }
         }
     }
 
@@ -91,12 +152,22 @@ public class InternalThreadLocal<V> {
      */
     @SuppressWarnings("unchecked")
     public final void remove() {
-        InternalThreadLocalMap threadLocalMap = InternalThreadLocalMap.getIfSet();
+        remove(InternalThreadLocalMap.getIfSet());
+    }
+
+    /**
+     * Sets the value to uninitialized for the specified thread local map;
+     * a proceeding call to get() will trigger a call to initialValue().
+     * The specified thread local map must be for the current thread.
+     */
+    @SuppressWarnings("unchecked")
+    public final void remove(InternalThreadLocalMap threadLocalMap) {
         if (threadLocalMap == null) {
             return;
         }
 
         Object v = threadLocalMap.removeIndexedVariable(index);
+        removeFromVariablesToRemove(threadLocalMap, this);
 
         if (v != InternalThreadLocalMap.UNSET) {
             try {
