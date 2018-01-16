@@ -258,6 +258,7 @@ public class DefaultClient implements JClient {
 
     @Override
     public void shutdownGracefully() {
+        registryService.shutdownGracefully();
         connector.shutdownGracefully();
     }
 

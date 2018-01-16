@@ -188,11 +188,15 @@ public abstract class AbstractRegistryService implements RegistryService {
     @Override
     public void shutdownGracefully() {
         if (!shutdown.getAndSet(true)) {
-            registerExecutor.shutdown();
-            localRegisterWatchExecutor.shutdown();
             try {
+                registerExecutor.shutdown();
+                registerScheduledExecutor.shutdown();
+                localRegisterWatchExecutor.shutdown();
+            } catch (Exception e) {
+                logger.warn("failed to shutdown: {}.", e);
+            } finally {
                 destroy();
-            } catch (Exception ignored) {}
+            }
         }
     }
 

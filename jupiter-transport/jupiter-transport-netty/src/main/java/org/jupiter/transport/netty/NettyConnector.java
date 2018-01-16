@@ -184,6 +184,7 @@ public abstract class NettyConnector implements JConnector<JConnection> {
     public void shutdownGracefully() {
         connectionManager.cancelAllReconnect();
         worker.shutdownGracefully();
+        timer.stop();
     }
 
     protected void setOptions() {
