@@ -119,8 +119,9 @@ public abstract class NettyAcceptor implements JAcceptor {
 
     @Override
     public void shutdownGracefully() {
-        boss.shutdownGracefully();
-        worker.shutdownGracefully();
+        boss.shutdownGracefully().syncUninterruptibly();
+        worker.shutdownGracefully().syncUninterruptibly();
+        timer.stop();
     }
 
     protected ThreadFactory bossThreadFactory(String name) {

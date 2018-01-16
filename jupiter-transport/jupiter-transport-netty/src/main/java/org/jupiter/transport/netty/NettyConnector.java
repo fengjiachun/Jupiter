@@ -23,7 +23,7 @@ import io.netty.buffer.UnpooledByteBufAllocator;
 import io.netty.channel.ChannelOption;
 import io.netty.channel.EventLoopGroup;
 import io.netty.util.HashedWheelTimer;
-import io.netty.util.concurrent.DefaultThreadFactory;
+import io.netty.util.concurrent.*;
 import io.netty.util.internal.PlatformDependent;
 import org.jupiter.common.concurrent.NamedThreadFactory;
 import org.jupiter.common.util.ClassUtil;
@@ -183,7 +183,7 @@ public abstract class NettyConnector implements JConnector<JConnection> {
     @Override
     public void shutdownGracefully() {
         connectionManager.cancelAllReconnect();
-        worker.shutdownGracefully();
+        worker.shutdownGracefully().syncUninterruptibly();
         timer.stop();
     }
 
