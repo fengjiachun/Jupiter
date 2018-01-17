@@ -1,6 +1,9 @@
 Jupiter release notes
 ------------------------
 
+### 2018-01-17:
+- [关闭jupiter client/server](https://github.com/fengjiachun/Jupiter/issues/43)
+
 ### 2017-12-20:
 - [dump文件名在windows系统不能有 ":"](https://github.com/fengjiachun/Jupiter/pull/42)
 
