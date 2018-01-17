@@ -34,6 +34,13 @@ public abstract class AbstractFuture<V> {
     protected static final Signal TIMEOUT = Signal.valueOf(AbstractFuture.class, "time_out");
 
     /**
+     * The number of nanoseconds for which it is faster to spin
+     * rather than to use timed park. A rough estimate suffices
+     * to improve responsiveness with very short timeouts.
+     */
+    protected static final long SPIN_FOR_TIMEOUT_THRESHOLD = 1000L;
+
+    /**
      * 内部状态转换过程:
      * NEW -> COMPLETING -> NORMAL          // 正常完成
      * NEW -> COMPLETING -> EXCEPTIONAL     // 出现异常
@@ -176,7 +183,12 @@ public abstract class AbstractFuture<V> {
                     removeWaiter(q);
                     return state;
                 }
-                LockSupport.parkNanos(this, nanos);
+                // The number of nanoseconds for which it is faster to spin
+                // rather than to use timed park. A rough estimate suffices
+                // to improve responsiveness with very short timeouts.
+                if (nanos > SPIN_FOR_TIMEOUT_THRESHOLD) {
+                    LockSupport.parkNanos(this, nanos);
+                }
             } else { // 直接阻塞当前线程
                 LockSupport.park(this);
             }

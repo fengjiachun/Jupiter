@@ -132,7 +132,7 @@ public class TaskDispatcher implements Dispatcher<Runnable>, Executor {
                 waitStrategy = new LiteTimeoutBlockingWaitStrategy(1000, TimeUnit.MILLISECONDS);
                 break;
             case PHASED_BACK_OFF_WAIT:
-                waitStrategy = PhasedBackoffWaitStrategy.withLiteLock(1, 1, TimeUnit.MILLISECONDS);
+                waitStrategy = PhasedBackoffWaitStrategy.withLiteLock(1000, 1000, TimeUnit.NANOSECONDS);
                 break;
             case SLEEPING_WAIT:
                 waitStrategy = new SleepingWaitStrategy();
