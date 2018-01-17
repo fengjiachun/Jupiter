@@ -76,6 +76,8 @@ public abstract class AbstractRegistryService implements RegistryService {
                         meta = queue.take();
                         registerMetaMap.put(meta, RegisterState.PREPARE);
                         doRegister(meta);
+                    } catch (InterruptedException e) {
+                        logger.warn("Interrupted [register.executor].");
                     } catch (Throwable t) {
                         if (meta != null) {
                             logger.error("Register [{}] fail: {}, will try again...", meta.getServiceMeta(), stackTrace(t));
@@ -189,7 +191,7 @@ public abstract class AbstractRegistryService implements RegistryService {
     public void shutdownGracefully() {
         if (!shutdown.getAndSet(true)) {
             try {
-                registerExecutor.shutdown();
+                registerExecutor.shutdownNow();
                 registerScheduledExecutor.shutdown();
                 localRegisterWatchExecutor.shutdown();
             } catch (Exception e) {
