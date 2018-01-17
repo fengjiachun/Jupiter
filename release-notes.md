@@ -2,6 +2,7 @@ Jupiter release notes
 ------------------------
 
 ### 2018-01-17:
+- [AbstractFuture#awaitDone 优化](https://github.com/fengjiachun/Jupiter/issues/44)
 - [关闭jupiter client/server](https://github.com/fengjiachun/Jupiter/issues/43)
 
 ### 2017-12-20:
