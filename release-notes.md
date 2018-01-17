@@ -2,6 +2,7 @@ Jupiter release notes
 ------------------------
 
 ### 2018-01-17: version 1.2.15
+
 - [AbstractFuture#awaitDone 优化](https://github.com/fengjiachun/Jupiter/issues/44)
 - [关闭jupiter client/server](https://github.com/fengjiachun/Jupiter/issues/43)
 - [dump文件名在windows系统不能有 ":"](https://github.com/fengjiachun/Jupiter/pull/42)
