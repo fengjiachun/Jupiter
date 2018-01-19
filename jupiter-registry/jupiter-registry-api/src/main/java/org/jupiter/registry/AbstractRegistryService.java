@@ -245,6 +245,7 @@ public abstract class AbstractRegistryService implements RegistryService {
 
         boolean notifyNeeded = false;
 
+        // segment-lock
         final Lock writeLock = value.lock.writeLock();
         writeLock.lock();
         try {
@@ -294,6 +295,6 @@ public abstract class AbstractRegistryService implements RegistryService {
     protected static class RegisterValue {
         private long version = Long.MIN_VALUE;
         private final Set<RegisterMeta> metaSet = new HashSet<>();
-        private final ReentrantReadWriteLock lock = new ReentrantReadWriteLock();
+        private final ReentrantReadWriteLock lock = new ReentrantReadWriteLock(); // segment-lock
     }
 }
