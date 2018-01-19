@@ -34,7 +34,7 @@
 
 #### 文档:
 - [Wiki](https://github.com/fengjiachun/Jupiter/wiki)
-- [热心网友写的文档](https://github.com/fengjiachun/doc/tree/master/jupiter)
+- [相关文档](https://github.com/fengjiachun/doc/tree/master/jupiter)
 
 
 
