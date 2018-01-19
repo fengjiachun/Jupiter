@@ -30,9 +30,6 @@
     ---------------------------------------------------------------------------------------
 
 
-#### 一次RPC调用(图片由 @远墨 提供):
-<img src="docs/jupiter-rpc.png" width="1000">
-
 #### 性能:
 - 小数据包请求(不带业务)在四核刀片服务器上可达到17w+的tps, 详情见 [Benchmark](https://github.com/fengjiachun/Jupiter/wiki/Benchmark)
 
@@ -40,7 +37,8 @@
 - [Wiki](https://github.com/fengjiachun/Jupiter/wiki)
 - [相关文档](https://github.com/fengjiachun/doc/tree/master/jupiter)
 
-
+#### 一次RPC调用(图由 @远墨 提供):
+<img src="docs/jupiter-rpc.png" width="1000">
 
 #### 快速入门:
 
