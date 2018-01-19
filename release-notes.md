@@ -1,6 +1,10 @@
 Jupiter release notes
 ------------------------
 
+### 2018-01-19
+
+- 感谢 @远墨 提供的图 docs/jupiter-rpc.png
+
 ### 2018-01-17: version 1.2.15
 
 - [AbstractFuture#awaitDone 优化](https://github.com/fengjiachun/Jupiter/issues/44)
