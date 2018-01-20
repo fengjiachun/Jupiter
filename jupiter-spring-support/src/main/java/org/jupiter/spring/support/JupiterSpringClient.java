@@ -83,7 +83,9 @@ public class JupiterSpringClient implements InitializingBean {
                     UnresolvedAddress address = new UnresolvedAddress(host, port);
                     providerServerUnresolvedAddresses.add(address);
 
-                    client.connector().connect(address, true); // 异步建立连接
+                    JConnector<JConnection> connector = client.connector();
+                    JConnection connection = connector.connect(address, true); // 异步建立连接
+                    connector.connectionManager().manage(connection);
                 }
             }
         }
