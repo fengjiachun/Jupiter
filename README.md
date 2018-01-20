@@ -41,9 +41,9 @@
 
 #### 一次RPC调用:
 
-<img src="docs/static_files/jupiter-rpc.png" width="1000">
+<img src="docs/static_files/jupiter-rpc.png" width="1600"/>
 
-######(感谢 @远墨 提供的图)
+<p align="right">感谢 @远墨 提供的图</p>
 
 #### 快速开始:
 
