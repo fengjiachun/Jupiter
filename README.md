@@ -37,10 +37,12 @@
 - [Wiki](https://github.com/fengjiachun/Jupiter/wiki)
 - [其他文档](https://github.com/fengjiachun/doc/tree/master/jupiter)
 
+#### RELEASE-NOTES(/docs/release-notes.md)
+
 #### 一次RPC调用(图由 @远墨 提供):
 <img src="docs/static_files/jupiter-rpc.png" width="1000">
 
-#### 快速入门:
+#### 快速开始:
 
 ##### 工程依赖:
 + JDK1.7或更高版本
