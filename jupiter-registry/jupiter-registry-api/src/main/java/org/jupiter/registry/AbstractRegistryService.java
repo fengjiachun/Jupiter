@@ -255,7 +255,9 @@ public abstract class AbstractRegistryService implements RegistryService {
         final Lock writeLock = value.lock.writeLock();
         writeLock.lock();
         try {
-            if (version > value.version) {
+            long lastVersion = value.version;
+            if (version > lastVersion
+                    || (version < 0 && lastVersion > 0 /* version overflow */)) {
                 if (event == NotifyListener.NotifyEvent.CHILD_REMOVED) {
                     for (RegisterMeta m : array) {
                         value.metaSet.remove(m);
