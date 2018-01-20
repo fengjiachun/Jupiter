@@ -190,10 +190,10 @@ public class HelloJupiterClient {
 ```
 
 #### 结合Spring使用示例:
-1. [Server端配置](https://github.com/fengjiachun/Jupiter/blob/master/jupiter-example/src/main/resources/spring-provider.xml)
+1. [Server端配置](/jupiter-example/src/main/resources/spring-provider.xml)
 
-2. [Client端配置](https://github.com/fengjiachun/Jupiter/blob/master/jupiter-example/src/main/resources/spring-consumer.xml)
+2. [Client端配置](/jupiter-example/src/main/resources/spring-consumer.xml)
 
-[Server/Client代码示例](https://github.com/fengjiachun/Jupiter/tree/master/jupiter-example/src/main/java/org/jupiter/example/spring)
+[Server/Client代码示例](/jupiter-example/src/main/java/org/jupiter/example/spring)
 
-#### [更多示例代码](https://github.com/fengjiachun/Jupiter/tree/master/jupiter-example/src/main/java/org/jupiter/example)
+#### [更多示例代码](/jupiter-example/src/main/java/org/jupiter/example)

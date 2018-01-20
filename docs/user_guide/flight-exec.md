@@ -7,4 +7,4 @@
  
 - 使用方式([参见样例代码](/jupiter-example/src/main/java/org/jupiter/example/flight/exec)):
     + 服务端注册[JavaClassExecProvider](/jupiter-flightexec/src/main/java/org/jupiter/flight/exec/JavaClassExecProvider.java)作为一个provider.
-    + 客户端使用[JavaCompiler](/jupiter-flightexec/src/main/java/org/jupiter/flight/exec/JavaCompiler.java)编译需要执行的类, 将编译返回的字节码byte数组作为consumer的参数, 最后再以RPC的方式调用[JavaClassExec#exec(byte[])](https://github.com/fengjiachun/Jupiter/blob/master/jupiter-flightexec/src/main/java/org/jupiter/flight/exec/JavaClassExecProvider.java).
+    + 客户端使用[JavaCompiler](/jupiter-flightexec/src/main/java/org/jupiter/flight/exec/JavaCompiler.java)编译需要执行的类, 将编译返回的字节码byte数组作为consumer的参数, 最后再以RPC的方式调用[JavaClassExec#exec(byte[])](/jupiter-flightexec/src/main/java/org/jupiter/flight/exec/JavaClassExecProvider.java).

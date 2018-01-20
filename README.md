@@ -178,7 +178,7 @@ public class HelloJupiterClient {
 [Server/Client代码示例](https://github.com/fengjiachun/Jupiter/tree/master/jupiter-example/src/main/java/org/jupiter/example/round)
 
 ##### 结合Spring使用示例:
-###### 1. [Server端配置](https://github.com/fengjiachun/Jupiter/blob/master/jupiter-example/src/main/resources/spring-provider.xml):
+###### 1. [Server端配置](/jupiter-example/src/main/resources/spring-provider.xml):
 
 ```xml
 <jupiter:server id="jupiterServer" registryType="default"> <!-- registryType="zookeeper" 代表使用zk作为注册中心 -->
@@ -193,7 +193,7 @@ public class HelloJupiterClient {
 </jupiter:provider>
 ```
 
-###### 2. [Client端配置](https://github.com/fengjiachun/Jupiter/blob/master/jupiter-example/src/main/resources/spring-consumer.xml):
+###### 2. [Client端配置](/jupiter-example/src/main/resources/spring-consumer.xml):
 
 ```xml
 <jupiter:client id="jupiterClient" registryType="default"> <!-- registryType="zookeeper" 代表使用zk作为注册中心 -->
