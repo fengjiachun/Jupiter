@@ -79,6 +79,16 @@ public interface JClient extends Registry {
     /**
      * 阻塞等待一直到该服务有可用连接或者超时.
      */
+    boolean awaitConnections(Class<?> interfaceClass, long timeoutMillis);
+
+    /**
+     * 阻塞等待一直到该服务有可用连接或者超时.
+     */
+    boolean awaitConnections(Class<?> interfaceClass, String version, long timeoutMillis);
+
+    /**
+     * 阻塞等待一直到该服务有可用连接或者超时.
+     */
     boolean awaitConnections(Directory directory, long timeoutMillis);
 
     /**

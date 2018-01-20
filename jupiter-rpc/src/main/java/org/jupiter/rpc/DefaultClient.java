@@ -237,6 +237,17 @@ public class DefaultClient implements JClient {
     }
 
     @Override
+    public boolean awaitConnections(Class<?> interfaceClass, long timeoutMillis) {
+        return awaitConnections(interfaceClass, JConstants.DEFAULT_VERSION, timeoutMillis);
+    }
+
+    @Override
+    public boolean awaitConnections(Class<?> interfaceClass, String version, long timeoutMillis) {
+        JConnector.ConnectionWatcher watcher = watchConnections(interfaceClass, version);
+        return watcher.waitForAvailable(timeoutMillis);
+    }
+
+    @Override
     public boolean awaitConnections(Directory directory, long timeoutMillis) {
         JConnector.ConnectionWatcher watcher = watchConnections(directory);
         return watcher.waitForAvailable(timeoutMillis);
