@@ -39,8 +39,11 @@
 - [Wiki](https://github.com/fengjiachun/Jupiter/wiki)
 - [其他文档](https://github.com/fengjiachun/doc/tree/master/jupiter)
 
-#### 一次RPC调用(图由 @远墨 提供):
+#### 一次RPC调用:
+
 <img src="docs/static_files/jupiter-rpc.png" width="1000">
+
+######(感谢 @远墨 提供的图)
 
 #### 快速开始:
 
