@@ -148,7 +148,9 @@ public abstract class NettyConnector implements JConnector<JConnection> {
         CopyOnWriteGroupList groups = directory(directory);
         boolean removed = groups.remove(group);
         if (removed) {
-            logger.warn("Removed channel group: {} in directory: {}.", group, directory.directory());
+            if (logger.isWarnEnabled()) {
+                logger.warn("Removed channel group: {} in directory: {}.", group, directory.directory());
+            }
         }
         return removed;
     }

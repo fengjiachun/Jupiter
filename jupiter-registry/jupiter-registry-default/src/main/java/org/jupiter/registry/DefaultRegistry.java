@@ -487,9 +487,7 @@ public final class DefaultRegistry extends NettyTcpConnector {
             } else if (msg instanceof Acknowledge) {
                 handleAcknowledge((Acknowledge) msg);
             } else {
-                if (logger.isWarnEnabled()) {
-                    logger.warn("Unexpected message type received: {}, channel: {}.", msg.getClass(), ch);
-                }
+                logger.warn("Unexpected message type received: {}, channel: {}.", msg.getClass(), ch);
 
                 ReferenceCountUtil.release(msg);
             }

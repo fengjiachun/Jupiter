@@ -20,6 +20,8 @@ import com.lmax.disruptor.ExceptionHandler;
 import org.jupiter.common.util.internal.logging.InternalLogger;
 import org.jupiter.common.util.internal.logging.InternalLoggerFactory;
 
+import static org.jupiter.common.util.StackTraceUtil.stackTrace;
+
 /**
  * Jupiter
  * org.jupiter.common.concurrent.disruptor
@@ -33,21 +35,21 @@ public class LoggingExceptionHandler implements ExceptionHandler<Object> {
     @Override
     public void handleEventException(Throwable ex, long sequence, Object event) {
         if (logger.isWarnEnabled()) {
-            logger.warn("Exception processing: {} {}, {}.", sequence, event, ex);
+            logger.warn("Exception processing: {} {}, {}.", sequence, event, stackTrace(ex));
         }
     }
 
     @Override
     public void handleOnStartException(Throwable ex) {
         if (logger.isWarnEnabled()) {
-            logger.warn("Exception during onStart(), {}.", ex);
+            logger.warn("Exception during onStart(), {}.", stackTrace(ex));
         }
     }
 
     @Override
     public void handleOnShutdownException(Throwable ex) {
         if (logger.isWarnEnabled()) {
-            logger.warn("Exception during onShutdown(), {}.", ex);
+            logger.warn("Exception during onShutdown(), {}.", stackTrace(ex));
         }
     }
 }

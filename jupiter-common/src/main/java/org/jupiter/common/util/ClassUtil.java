@@ -19,6 +19,8 @@ package org.jupiter.common.util;
 import org.jupiter.common.util.internal.logging.InternalLogger;
 import org.jupiter.common.util.internal.logging.InternalLoggerFactory;
 
+import static org.jupiter.common.util.StackTraceUtil.*;
+
 /**
  * jupiter
  * org.jupiter.common.util
@@ -40,7 +42,9 @@ public class ClassUtil {
         try {
             Class.forName(className);
         } catch (Throwable t) {
-            logger.warn("Failed to load class [{}] {}.", className, t);
+            if (logger.isWarnEnabled()) {
+                logger.warn("Failed to load class [{}] {}.", className, stackTrace(t));
+            }
         }
 
         long duration = System.currentTimeMillis() - start;
@@ -53,7 +57,7 @@ public class ClassUtil {
         try {
             Class.forName(className);
         } catch (Throwable t) {
-            logger.error("Failed to load class [{}] {}.", className, t);
+            logger.error("Failed to load class [{}] {}.", className, stackTrace(t));
             ExceptionUtil.throwException(t);
         }
     }

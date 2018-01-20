@@ -59,9 +59,7 @@ public class AcceptorHandler extends ChannelInboundHandlerAdapter {
                 processor.handleException(jChannel, (JRequestBytes) msg, Status.SERVER_ERROR, t);
             }
         } else {
-            if (logger.isWarnEnabled()) {
-                logger.warn("Unexpected message type received: {}, channel: {}.", msg.getClass(), ch);
-            }
+            logger.warn("Unexpected message type received: {}, channel: {}.", msg.getClass(), ch);
 
             ReferenceCountUtil.release(msg);
         }

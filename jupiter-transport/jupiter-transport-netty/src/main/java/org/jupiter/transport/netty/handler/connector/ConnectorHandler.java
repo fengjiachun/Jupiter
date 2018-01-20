@@ -53,9 +53,7 @@ public class ConnectorHandler extends ChannelInboundHandlerAdapter {
                 logger.error("An exception was caught: {}, on {} #channelRead().", stackTrace(t), ch);
             }
         } else {
-            if (logger.isWarnEnabled()) {
-                logger.warn("Unexpected message type received: {}, channel: {}.", msg.getClass(), ch);
-            }
+            logger.warn("Unexpected message type received: {}, channel: {}.", msg.getClass(), ch);
 
             ReferenceCountUtil.release(msg);
         }

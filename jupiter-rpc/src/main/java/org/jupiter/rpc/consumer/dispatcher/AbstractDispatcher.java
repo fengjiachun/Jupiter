@@ -132,7 +132,10 @@ abstract class AbstractDispatcher implements Dispatcher {
             if (deadline > 0 && SystemClock.millisClock().now() > deadline) {
                 boolean removed = groups.remove(group);
                 if (removed) {
-                    logger.warn("Removed channel group: {} in directory: {} on [select].", group, metadata.directory());
+                    if (logger.isWarnEnabled()) {
+                        logger.warn("Removed channel group: {} in directory: {} on [select].",
+                                group, metadata.directory());
+                    }
                 }
             }
         } else {

@@ -601,9 +601,7 @@ public final class DefaultRegistryServer extends NettyTcpAcceptor implements Reg
             } else if (msg instanceof Acknowledge) {
                 handleAcknowledge((Acknowledge) msg, ch);
             } else {
-                if (logger.isWarnEnabled()) {
-                    logger.warn("Unexpected message type received: {}, channel: {}.", msg.getClass(), ch);
-                }
+                logger.warn("Unexpected message type received: {}, channel: {}.", msg.getClass(), ch);
 
                 ReferenceCountUtil.release(msg);
             }
