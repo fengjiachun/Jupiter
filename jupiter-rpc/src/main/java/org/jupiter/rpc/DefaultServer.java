@@ -470,9 +470,7 @@ public class DefaultServer implements JServer {
         public void registerService(String uniqueKey, ServiceWrapper serviceWrapper) {
             serviceProviders.put(uniqueKey, serviceWrapper);
 
-            if (logger.isDebugEnabled()) {
-                logger.debug("ServiceProvider [{}, {}] is registered.", uniqueKey, serviceWrapper.getServiceProvider());
-            }
+            logger.debug("ServiceProvider [{}, {}] is registered.", uniqueKey, serviceWrapper.getServiceProvider());
         }
 
         @Override
@@ -486,9 +484,7 @@ public class DefaultServer implements JServer {
             if (provider == null) {
                 logger.warn("ServiceProvider [{}] not found.", uniqueKey);
             } else {
-                if (logger.isDebugEnabled()) {
-                    logger.debug("ServiceProvider [{}, {}] is removed.", uniqueKey, provider.getServiceProvider());
-                }
+                logger.debug("ServiceProvider [{}, {}] is removed.", uniqueKey, provider.getServiceProvider());
             }
             return provider;
         }

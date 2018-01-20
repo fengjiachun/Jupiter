@@ -452,10 +452,8 @@ public final class DefaultRegistry extends NettyTcpConnector {
                         ch.writeAndFlush(new Acknowledge(obj.sequence()))  // 回复ACK
                                 .addListener(ChannelFutureListener.FIRE_EXCEPTION_ON_FAILURE);
 
-                        if (logger.isInfoEnabled()) {
-                            logger.info("Publish from RegistryServer {}, metadata: {}, version: {}.",
-                                    data.getFirst(), metaObj, obj.version());
-                        }
+                        logger.info("Publish from RegistryServer {}, metadata: {}, version: {}.",
+                                data.getFirst(), metaObj, obj.version());
 
                         break;
                     }
@@ -468,10 +466,8 @@ public final class DefaultRegistry extends NettyTcpConnector {
                         ch.writeAndFlush(new Acknowledge(obj.sequence()))  // 回复ACK
                                 .addListener(ChannelFutureListener.FIRE_EXCEPTION_ON_FAILURE);
 
-                        if (logger.isInfoEnabled()) {
-                            logger.info("Publish cancel from RegistryServer {}, metadata: {}, version: {}.",
-                                    data.getFirst(), data.getSecond(), obj.version());
-                        }
+                        logger.info("Publish cancel from RegistryServer {}, metadata: {}, version: {}.",
+                                data.getFirst(), data.getSecond(), obj.version());
 
                         break;
                     }

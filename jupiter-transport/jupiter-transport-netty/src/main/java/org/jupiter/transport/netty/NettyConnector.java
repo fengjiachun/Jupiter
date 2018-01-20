@@ -138,7 +138,9 @@ public abstract class NettyConnector implements JConnector<JConnection> {
         CopyOnWriteGroupList groups = directory(directory);
         boolean added = groups.addIfAbsent(group);
         if (added) {
-            logger.info("Added channel group: {} to {}.", group, directory.directory());
+            if (logger.isInfoEnabled()) {
+                logger.info("Added channel group: {} to {}.", group, directory.directory());
+            }
         }
         return added;
     }
