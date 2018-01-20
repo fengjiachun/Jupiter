@@ -3,6 +3,8 @@ Jupiter release notes
 
 ### 2018-01-19
 
+- Add method JClient#awaitConnections(Class<?> interfaceClass, long timeoutMillis)
+- Add method JClient#awaitConnections(Class<?> interfaceClass, String version, long timeoutMillis)
 - 感谢 @远墨 提供的图 docs/static_files/jupiter-rpc.png
 
 ### 2018-01-17: version 1.2.15
