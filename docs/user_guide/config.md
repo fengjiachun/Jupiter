@@ -4,7 +4,7 @@
 | ----------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | jupiter.executor.factory.consumer.core.workers                    | Client-Executor核心工作线程数, 默认值为cpu cores * 2
 | jupiter.executor.factory.provider.core.workers                    | Server-Executor核心工作线程数, 默认值为cpu cores * 2
-| jupiter.executor.factory.consumer.max.workers                     | Client-Executor最大工作线程数, 默认值为512
+| jupiter.executor.factory.consumer.max.workers                     | Client-Executor最大工作线程数, 默认值为32
 | jupiter.executor.factory.provider.max.workers                     | Server-Executor最大工作线程数, 默认值为512
 | jupiter.executor.factory.consumer.queue.type                      | Client-Executor的Queue类型, 仅在使用ThreadPoolExecutorFactory时有效, 默认值为ARRAY_BLOCKING_QUEUE
 | jupiter.executor.factory.provider.queue.type                      | Server-Executor的Queue类型, 仅在使用ThreadPoolExecutorFactory时有效, 默认值为ARRAY_BLOCKING_QUEUE

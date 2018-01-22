@@ -110,7 +110,7 @@ public class AffinityNamedThreadFactory implements ThreadFactory {
             }
         } catch (Exception ignored) { /* doesn't matter even if failed to set. */ }
 
-        logger.debug("Creates new {}.", t);
+        logger.info("Creates new {}.", t);
 
         return t;
     }

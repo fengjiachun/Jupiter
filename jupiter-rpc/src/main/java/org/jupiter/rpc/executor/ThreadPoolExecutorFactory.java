@@ -37,7 +37,7 @@ import static org.jupiter.common.util.StackTraceUtil.stackTrace;
  *
  * @author jiachun.fjc
  */
-@SpiMetadata(name = "threadPool")
+@SpiMetadata(name = "threadPool", priority = 1)
 public class ThreadPoolExecutorFactory extends AbstractExecutorFactory {
 
     private static final InternalLogger logger = InternalLoggerFactory.getInstance(ThreadPoolExecutorFactory.class);

@@ -45,7 +45,7 @@ public abstract class AbstractExecutorFactory implements ExecutorFactory {
             case CONSUMER:
                 return SystemPropertyUtil.getInt(CONSUMER_EXECUTOR_CORE_WORKERS, JConstants.AVAILABLE_PROCESSORS << 1);
             case PROVIDER:
-                return SystemPropertyUtil.getInt(PROVIDER_EXECUTOR_CORE_WORKERS, JConstants.AVAILABLE_PROCESSORS << 4);
+                return SystemPropertyUtil.getInt(PROVIDER_EXECUTOR_CORE_WORKERS, JConstants.AVAILABLE_PROCESSORS << 1);
             default:
                 throw new IllegalArgumentException(String.valueOf(target));
         }
@@ -54,9 +54,9 @@ public abstract class AbstractExecutorFactory implements ExecutorFactory {
     protected int maxWorkers(Target target) {
         switch (target) {
             case CONSUMER:
-                return SystemPropertyUtil.getInt(CONSUMER_EXECUTOR_MAX_WORKERS, JConstants.AVAILABLE_PROCESSORS << 3);
+                return SystemPropertyUtil.getInt(CONSUMER_EXECUTOR_MAX_WORKERS, 32);
             case PROVIDER:
-                return SystemPropertyUtil.getInt(PROVIDER_EXECUTOR_MAX_WORKERS, JConstants.AVAILABLE_PROCESSORS << 7);
+                return SystemPropertyUtil.getInt(PROVIDER_EXECUTOR_MAX_WORKERS, 512);
             default:
                 throw new IllegalArgumentException(String.valueOf(target));
         }
