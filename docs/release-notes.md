@@ -1,7 +1,7 @@
 Jupiter release notes
 ------------------------
 
-### 2018-01-22
+### 2018-01-22: version 1.2.16
 
 - Add CloseableExecutor
 - Add method JClient#awaitConnections(Class<?> interfaceClass, long timeoutMillis)
