@@ -36,6 +36,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.Executor;
+import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 import static org.jupiter.common.util.Preconditions.checkArgument;
@@ -61,7 +62,7 @@ public class DefaultServer implements JServer {
     }
 
     // 服务延迟初始化的默认线程池
-    private final Executor defaultInitializerExecutor =
+    private final ExecutorService defaultInitializerExecutor =
             Executors.newSingleThreadExecutor(new NamedThreadFactory("initializer"));
 
     // provider本地容器
@@ -236,6 +237,7 @@ public class DefaultServer implements JServer {
 
     @Override
     public void shutdownGracefully() {
+        defaultInitializerExecutor.shutdownNow();
         registryService.shutdownGracefully();
         acceptor.shutdownGracefully();
     }
