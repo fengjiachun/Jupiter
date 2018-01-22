@@ -32,6 +32,6 @@
 | jupiter.registry.zookeeper.connectionTimeoutMs                    | ZK连接超时设置, 默认15 * 1000毫秒
 | jupiter.use.non_blocking_hash                                     | 是否使用Cliff Click的NonBlockingHashMap代替ConsurrentHashMap, 默认不使用
 | jupiter.local.address                                             | 本地IP地址, 默认值为InetAddress.getLocalHost()或者是本机网卡中第一个有效IP
-| jupiter.registry.impl                                             | (1.2.8之后的版本以后废除)注册中心选择(since 1.2.3) default / zookeeper
+| jupiter.registry.impl                                             | (1.2.8之后的版本废除)注册中心选择(since 1.2.3) default / zookeeper
 
 
