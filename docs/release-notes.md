@@ -1,6 +1,9 @@
 Jupiter release notes
 ------------------------
 
+### 2018-01-23:
+- Add CallerRunsExecutorFactory
+
 ### 2018-01-22: version 1.2.16
 
 - Add CloseableExecutor

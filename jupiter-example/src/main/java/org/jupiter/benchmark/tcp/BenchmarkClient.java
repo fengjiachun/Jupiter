@@ -80,6 +80,8 @@ public class BenchmarkClient {
         SystemPropertyUtil.setProperty("jupiter.use.non_blocking_hash", "true");
         SystemPropertyUtil
                 .setProperty("jupiter.executor.factory.affinity.thread", "false");
+        SystemPropertyUtil
+                .setProperty("jupiter.executor.factory.consumer.factory_name", "forkJoin");
 
         final JClient client = new DefaultClient().withConnector(new JNettyTcpConnector(processors + 1, true) {
 
