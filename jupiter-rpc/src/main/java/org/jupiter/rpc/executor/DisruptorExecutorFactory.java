@@ -55,7 +55,7 @@ public class DisruptorExecutorFactory extends AbstractExecutorFactory {
 
             @Override
             public void shutdown() {
-                logger.warn("DisruptorExecutorFactory#" + executor + " shutdown.");
+                logger.warn("DisruptorExecutorFactory#{} shutdown.", executor);
                 executor.shutdown();
             }
         };

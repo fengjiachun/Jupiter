@@ -62,7 +62,7 @@ public class ThreadPoolExecutorFactory extends AbstractExecutorFactory {
 
             @Override
             public void shutdown() {
-                logger.warn("ThreadPoolExecutorFactory#" + executor + " shutdown.");
+                logger.warn("ThreadPoolExecutorFactory#{} shutdown.", executor);
                 executor.shutdownNow();
             }
         };

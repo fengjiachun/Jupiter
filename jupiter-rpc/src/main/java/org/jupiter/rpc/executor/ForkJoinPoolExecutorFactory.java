@@ -56,7 +56,7 @@ public class ForkJoinPoolExecutorFactory extends AbstractExecutorFactory {
 
             @Override
             public void shutdown() {
-                logger.warn("ForkJoinPoolExecutorFactory#" + executor + " shutdown.");
+                logger.warn("ForkJoinPoolExecutorFactory#{} shutdown.", executor);
                 executor.shutdownNow();
             }
         };
