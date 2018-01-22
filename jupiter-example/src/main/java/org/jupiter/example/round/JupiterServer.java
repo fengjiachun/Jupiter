@@ -16,6 +16,7 @@
 
 package org.jupiter.example.round;
 
+import org.jupiter.common.concurrent.NamedThreadFactory;
 import org.jupiter.example.ServiceTest2Impl;
 import org.jupiter.example.ServiceTestImpl;
 import org.jupiter.monitor.MonitorServer;
@@ -30,6 +31,7 @@ import org.jupiter.rpc.tracing.TraceId;
 import org.jupiter.transport.netty.JNettyTcpAcceptor;
 
 import java.util.Arrays;
+import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicLong;
 
 /**
@@ -72,7 +74,7 @@ public class JupiterServer {
                     provider.setStrValue("provider1");
                     provider.setIntValue(111);
                 }
-            });
+            }, Executors.newSingleThreadExecutor(new NamedThreadFactory("initializer")));
             server.publish(provider2);
 
             Runtime.getRuntime().addShutdownHook(new Thread() {

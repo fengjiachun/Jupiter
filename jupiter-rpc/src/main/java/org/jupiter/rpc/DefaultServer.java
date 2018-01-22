@@ -16,7 +16,6 @@
 
 package org.jupiter.rpc;
 
-import org.jupiter.common.concurrent.NamedThreadFactory;
 import org.jupiter.common.util.*;
 import org.jupiter.common.util.internal.logging.InternalLogger;
 import org.jupiter.common.util.internal.logging.InternalLoggerFactory;
@@ -36,8 +35,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.Executor;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 
 import static org.jupiter.common.util.Preconditions.checkArgument;
 import static org.jupiter.common.util.Preconditions.checkNotNull;
@@ -60,10 +57,6 @@ public class DefaultServer implements JServer {
         // because getLocalAddress() and getPid() sometimes too slow
         ClassUtil.classInitialize("org.jupiter.rpc.tracing.TracingUtil", 500);
     }
-
-    // 服务延迟初始化的默认线程池
-    private final ExecutorService defaultInitializerExecutor =
-            Executors.newSingleThreadExecutor(new NamedThreadFactory("initializer"));
 
     // provider本地容器
     private final ServiceProviderContainer providerContainer = new DefaultServiceProviderContainer();
@@ -169,11 +162,6 @@ public class DefaultServer implements JServer {
     }
 
     @Override
-    public <T> void publishWithInitializer(ServiceWrapper serviceWrapper, ProviderInitializer<T> initializer) {
-        publishWithInitializer(serviceWrapper, initializer, null);
-    }
-
-    @Override
     public <T> void publishWithInitializer(
             final ServiceWrapper serviceWrapper, final ProviderInitializer<T> initializer, Executor executor) {
         Runnable task = new Runnable() {
@@ -189,8 +177,9 @@ public class DefaultServer implements JServer {
                 }
             }
         };
+
         if (executor == null) {
-            defaultInitializerExecutor.execute(task);
+            task.run();
         } else {
             executor.execute(task);
         }
@@ -237,7 +226,6 @@ public class DefaultServer implements JServer {
 
     @Override
     public void shutdownGracefully() {
-        defaultInitializerExecutor.shutdownNow();
         registryService.shutdownGracefully();
         acceptor.shutdownGracefully();
     }
