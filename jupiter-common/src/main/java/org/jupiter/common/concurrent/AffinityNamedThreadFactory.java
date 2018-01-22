@@ -78,33 +78,27 @@ public class AffinityNamedThreadFactory implements ThreadFactory {
     }
 
     @Override
-    public Thread newThread(final Runnable r) {
+    public Thread newThread(Runnable r) {
         checkNotNull(r, "runnable");
 
         String name2 = name + id.getAndIncrement();
-        Runnable r2 = new Runnable() {
+
+        final Runnable r2 = wrapRunnable(r);
+
+        Runnable r3 = new Runnable() {
 
             @Override
             public void run() {
-                AffinityLock al;
-                synchronized (AffinityNamedThreadFactory.this) {
-                    al = lastAffinityLock == null ? AffinityLock.acquireLock() : lastAffinityLock.acquireLock(strategies);
-                    if (al.cpuId() >= 0) {
-                        if (!al.isBound()) {
-                            al.bind();
-                        }
-                        lastAffinityLock = al;
-                    }
-                }
+                AffinityLock al = acquireLockBasedOnLast();
                 try {
-                    r.run();
+                    r2.run();
                 } finally {
                     al.release();
                 }
             }
         };
 
-        Thread t = new InternalThread(group, r2, name2);
+        Thread t = wrapThread(group, r3, name2);
 
         try {
             if (t.isDaemon() != daemon) {
@@ -119,5 +113,28 @@ public class AffinityNamedThreadFactory implements ThreadFactory {
         logger.debug("Creates new {}.", t);
 
         return t;
+    }
+
+    public ThreadGroup getThreadGroup() {
+        return group;
+    }
+
+    protected Runnable wrapRunnable(Runnable r) {
+        return r; // InternalThreadLocalRunnable.wrap(r)
+    }
+
+    protected Thread wrapThread(ThreadGroup group, Runnable r, String name) {
+        return new InternalThread(group, r, name);
+    }
+
+    private synchronized AffinityLock acquireLockBasedOnLast() {
+        AffinityLock al = lastAffinityLock == null ? AffinityLock.acquireLock() : lastAffinityLock.acquireLock(strategies);
+        if (al.cpuId() >= 0) {
+            if (!al.isBound()) {
+                al.bind();
+            }
+            lastAffinityLock = al;
+        }
+        return al;
     }
 }

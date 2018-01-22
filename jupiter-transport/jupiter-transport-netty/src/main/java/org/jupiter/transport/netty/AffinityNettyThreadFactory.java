@@ -18,21 +18,12 @@ package org.jupiter.transport.netty;
 
 import io.netty.util.concurrent.FastThreadLocal;
 import io.netty.util.concurrent.FastThreadLocalThread;
-import net.openhft.affinity.AffinityLock;
-import net.openhft.affinity.AffinityStrategies;
 import net.openhft.affinity.AffinityStrategy;
-import org.jupiter.common.util.ClassUtil;
-import org.jupiter.common.util.internal.logging.InternalLogger;
-import org.jupiter.common.util.internal.logging.InternalLoggerFactory;
-
-import java.util.concurrent.ThreadFactory;
-import java.util.concurrent.atomic.AtomicInteger;
-
-import static org.jupiter.common.util.Preconditions.checkNotNull;
+import org.jupiter.common.concurrent.AffinityNamedThreadFactory;
 
 /**
  * This is a ThreadFactory which assigns threads based the strategies provided.
- * <p>
+ *
  * If no strategies are provided AffinityStrategies.ANY is used.
  *
  * jupiter
@@ -40,22 +31,7 @@ import static org.jupiter.common.util.Preconditions.checkNotNull;
  *
  * @author jiachun.fjc
  */
-public class AffinityNettyThreadFactory implements ThreadFactory {
-
-    private static final InternalLogger logger = InternalLoggerFactory.getInstance(AffinityNettyThreadFactory.class);
-
-    static {
-        // 检查是否存在slf4j, 使用Affinity必须显式引入slf4j依赖
-        ClassUtil.classCheck("org.slf4j.Logger");
-    }
-
-    private final AtomicInteger id = new AtomicInteger();
-    private final String name;
-    private final boolean daemon;
-    private final int priority;
-    private final ThreadGroup group;
-    private final AffinityStrategy[] strategies;
-    private AffinityLock lastAffinityLock = null;
+public class AffinityNettyThreadFactory extends AffinityNamedThreadFactory {
 
     public AffinityNettyThreadFactory(String name, AffinityStrategy... strategies) {
         this(name, false, Thread.NORM_PRIORITY, strategies);
@@ -70,61 +46,17 @@ public class AffinityNettyThreadFactory implements ThreadFactory {
     }
 
     public AffinityNettyThreadFactory(String name, boolean daemon, int priority, AffinityStrategy... strategies) {
-        this.name = "affinity." + name + " #";
-        this.daemon = daemon;
-        this.priority = priority;
-        SecurityManager s = System.getSecurityManager();
-        group = (s == null) ? Thread.currentThread().getThreadGroup() : s.getThreadGroup();
-        this.strategies = strategies.length == 0 ? new AffinityStrategy[] { AffinityStrategies.ANY } : strategies;
+        super(name, daemon, priority, strategies);
     }
 
     @Override
-    public Thread newThread(Runnable r) {
-        checkNotNull(r, "runnable");
-
-        String name2 = name + id.getAndIncrement();
-        final Runnable r2 = new DefaultRunnableDecorator(r);
-        Runnable r3 = new Runnable() {
-
-            @Override
-            public void run() {
-                AffinityLock al;
-                synchronized (AffinityNettyThreadFactory.this) {
-                    al = lastAffinityLock == null ? AffinityLock.acquireLock() : lastAffinityLock.acquireLock(strategies);
-                    if (al.cpuId() >= 0) {
-                        if (!al.isBound()) {
-                            al.bind();
-                        }
-                        lastAffinityLock = al;
-                    }
-                }
-                try {
-                    r2.run();
-                } finally {
-                    al.release();
-                }
-            }
-        };
-
-        Thread t = new FastThreadLocalThread(group, r3, name2);
-
-        try {
-            if (t.isDaemon() != daemon) {
-                t.setDaemon(daemon);
-            }
-
-            if (t.getPriority() != priority) {
-                t.setPriority(priority);
-            }
-        } catch (Exception ignored) { /* doesn't matter even if failed to set. */ }
-
-        logger.debug("Creates new {}.", t);
-
-        return t;
+    protected Runnable wrapRunnable(Runnable r) {
+        return new DefaultRunnableDecorator(r);
     }
 
-    public ThreadGroup getThreadGroup() {
-        return group;
+    @Override
+    protected Thread wrapThread(ThreadGroup group, Runnable r, String name) {
+        return new FastThreadLocalThread(group, r, name);
     }
 
     private static final class DefaultRunnableDecorator implements Runnable {

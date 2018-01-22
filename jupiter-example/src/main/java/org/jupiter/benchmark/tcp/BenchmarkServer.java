@@ -49,13 +49,13 @@ public class BenchmarkServer {
         SystemPropertyUtil
                 .setProperty("jupiter.executor.factory.provider.queue.capacity", "65536");
         SystemPropertyUtil
-                .setProperty("jupiter.executor.factory.affinity.thread", "true");
+                .setProperty("jupiter.executor.factory.affinity.thread", "false");
 
-//        // 设置全局provider executor
-//        SystemPropertyUtil
-//                .setProperty("jupiter.executor.factory.provider.factory_name", "disruptor");
-//        SystemPropertyUtil
-//                .setProperty("jupiter.executor.factory.provider.disruptor.wait.strategy.type", "BUSY_SPIN_WAIT");
+        // 设置全局provider executor
+        SystemPropertyUtil
+                .setProperty("jupiter.executor.factory.provider.factory_name", "disruptor");
+        SystemPropertyUtil
+                .setProperty("jupiter.executor.factory.provider.disruptor.wait.strategy.type", "BUSY_SPIN_WAIT");
 
         JServer server = new DefaultServer().withAcceptor(new JNettyTcpAcceptor(18099, true) {
 
