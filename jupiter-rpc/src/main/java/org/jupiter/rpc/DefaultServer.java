@@ -93,7 +93,9 @@ public class DefaultServer implements JServer {
 
     @Override
     public JServer withAcceptor(JAcceptor acceptor) {
-        acceptor.withProcessor(new DefaultProviderProcessor(this));
+        if (acceptor.processor() == null) {
+            acceptor.withProcessor(new DefaultProviderProcessor(this));
+        }
         this.acceptor = acceptor;
         return this;
     }

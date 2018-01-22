@@ -83,7 +83,9 @@ public class DefaultClient implements JClient {
 
     @Override
     public JClient withConnector(JConnector<JConnection> connector) {
-        connector.withProcessor(new DefaultConsumerProcessor());
+        if (connector.processor() == null) {
+            connector.withProcessor(new DefaultConsumerProcessor());
+        }
         this.connector = connector;
         return this;
     }

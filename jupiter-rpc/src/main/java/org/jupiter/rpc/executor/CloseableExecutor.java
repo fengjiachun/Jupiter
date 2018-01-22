@@ -14,31 +14,17 @@
  * limitations under the License.
  */
 
-package org.jupiter.transport.processor;
-
-import org.jupiter.transport.payload.JRequestBytes;
-import org.jupiter.transport.Status;
-import org.jupiter.transport.channel.JChannel;
+package org.jupiter.rpc.executor;
 
 /**
- * Provider's processor.
- *
  * jupiter
- * org.jupiter.transport.processor
+ * org.jupiter.rpc.executor
  *
  * @author jiachun.fjc
  */
-public interface ProviderProcessor {
+public interface CloseableExecutor {
 
-    /**
-     * 处理正常请求
-     */
-    void handleRequest(JChannel channel, JRequestBytes request) throws Exception;
-
-    /**
-     * 处理异常
-     */
-    void handleException(JChannel channel, JRequestBytes request, Status status, Throwable cause);
+    void execute(Runnable r);
 
     void shutdown();
 }

@@ -81,7 +81,7 @@ public class BenchmarkClient {
         SystemPropertyUtil
                 .setProperty("jupiter.executor.factory.affinity.thread", "false");
 
-        JClient client = new DefaultClient().withConnector(new JNettyTcpConnector(processors + 1, true) {
+        final JClient client = new DefaultClient().withConnector(new JNettyTcpConnector(processors + 1, true) {
 
             @Override
             protected ThreadFactory workerThreadFactory(String name) {
@@ -90,6 +90,14 @@ public class BenchmarkClient {
         });
         client.connector().config().setOption(JOption.WRITE_BUFFER_HIGH_WATER_MARK, 512 * 1024);
         client.connector().config().setOption(JOption.WRITE_BUFFER_LOW_WATER_MARK, 256 * 1024);
+
+        Runtime.getRuntime().addShutdownHook(new Thread() {
+
+            @Override
+            public void run() {
+                client.shutdownGracefully();
+            }
+        });
 
         UnresolvedAddress[] addresses = new UnresolvedAddress[processors];
         for (int i = 0; i < processors; i++) {

@@ -23,7 +23,7 @@ import io.netty.buffer.UnpooledByteBufAllocator;
 import io.netty.channel.ChannelOption;
 import io.netty.channel.EventLoopGroup;
 import io.netty.util.HashedWheelTimer;
-import io.netty.util.concurrent.*;
+import io.netty.util.concurrent.DefaultThreadFactory;
 import io.netty.util.internal.PlatformDependent;
 import org.jupiter.common.concurrent.NamedThreadFactory;
 import org.jupiter.common.util.ClassUtil;
@@ -72,6 +72,8 @@ public abstract class NettyConnector implements JConnector<JConnection> {
     private EventLoopGroup worker;
     private int nWorkers;
 
+    private ConsumerProcessor processor;
+
     protected volatile ByteBufAllocator allocator;
 
     public NettyConnector(Protocol protocol) {
@@ -109,8 +111,13 @@ public abstract class NettyConnector implements JConnector<JConnection> {
     }
 
     @Override
+    public ConsumerProcessor processor() {
+        return processor;
+    }
+
+    @Override
     public void withProcessor(ConsumerProcessor processor) {
-        // the default implementation does nothing
+        setProcessor(this.processor = processor);
     }
 
     @Override
@@ -189,6 +196,9 @@ public abstract class NettyConnector implements JConnector<JConnection> {
         connectionManager.cancelAllReconnect();
         worker.shutdownGracefully().syncUninterruptibly();
         timer.stop();
+        if (processor != null) {
+            processor.shutdown();
+        }
     }
 
     protected void setOptions() {
@@ -242,6 +252,14 @@ public abstract class NettyConnector implements JConnector<JConnection> {
      */
     protected JChannelGroup channelGroup(UnresolvedAddress address) {
         return new NettyChannelGroup(address);
+    }
+
+    /**
+     * Sets consumer's processor.
+     */
+    @SuppressWarnings("unused")
+    protected void setProcessor(ConsumerProcessor processor) {
+        // the default implementation does nothing
     }
 
     /**

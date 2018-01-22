@@ -58,6 +58,8 @@ public abstract class NettyAcceptor implements JAcceptor {
     private EventLoopGroup boss;
     private EventLoopGroup worker;
 
+    private ProviderProcessor processor;
+
     protected volatile ByteBufAllocator allocator;
 
     public NettyAcceptor(Protocol protocol, SocketAddress localAddress) {
@@ -113,8 +115,13 @@ public abstract class NettyAcceptor implements JAcceptor {
     }
 
     @Override
+    public ProviderProcessor processor() {
+        return processor;
+    }
+
+    @Override
     public void withProcessor(ProviderProcessor processor) {
-        // the default implementation does nothing
+        setProcessor(this.processor = processor);
     }
 
     @Override
@@ -122,6 +129,9 @@ public abstract class NettyAcceptor implements JAcceptor {
         boss.shutdownGracefully().syncUninterruptibly();
         worker.shutdownGracefully().syncUninterruptibly();
         timer.stop();
+        if (processor != null) {
+            processor.shutdown();
+        }
     }
 
     protected ThreadFactory bossThreadFactory(String name) {
@@ -177,6 +187,14 @@ public abstract class NettyAcceptor implements JAcceptor {
      */
     protected EventLoopGroup worker() {
         return worker;
+    }
+
+    /**
+     * Sets provider's processor.
+     */
+    @SuppressWarnings("unused")
+    protected void setProcessor(ProviderProcessor processor) {
+        // the default implementation does nothing
     }
 
     /**

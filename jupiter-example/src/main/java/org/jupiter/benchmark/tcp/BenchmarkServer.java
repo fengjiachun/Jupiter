@@ -57,7 +57,7 @@ public class BenchmarkServer {
         SystemPropertyUtil
                 .setProperty("jupiter.executor.factory.provider.disruptor.wait.strategy.type", "BUSY_SPIN_WAIT");
 
-        JServer server = new DefaultServer().withAcceptor(new JNettyTcpAcceptor(18099, true) {
+        final JServer server = new DefaultServer().withAcceptor(new JNettyTcpAcceptor(18099, true) {
 
             @Override
             protected ThreadFactory workerThreadFactory(String name) {
@@ -66,9 +66,18 @@ public class BenchmarkServer {
         });
         server.acceptor().configGroup().child().setOption(JOption.WRITE_BUFFER_HIGH_WATER_MARK, 256 * 1024);
         server.acceptor().configGroup().child().setOption(JOption.WRITE_BUFFER_LOW_WATER_MARK, 128 * 1024);
-        MonitorServer monitor = new MonitorServer();
+        final MonitorServer monitor = new MonitorServer();
         try {
             monitor.start();
+
+            Runtime.getRuntime().addShutdownHook(new Thread() {
+
+                @Override
+                public void run() {
+                    monitor.shutdownGracefully();
+                    server.shutdownGracefully();
+                }
+            });
 
             server.serviceRegistry()
                     .provider(new ServiceImpl())

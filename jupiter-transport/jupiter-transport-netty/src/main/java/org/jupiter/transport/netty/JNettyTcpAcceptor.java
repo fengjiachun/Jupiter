@@ -165,7 +165,7 @@ public class JNettyTcpAcceptor extends NettyTcpAcceptor {
     }
 
     @Override
-    public void withProcessor(ProviderProcessor processor) {
+    protected void setProcessor(ProviderProcessor processor) {
         handler.processor(checkNotNull(processor, "processor"));
     }
 }

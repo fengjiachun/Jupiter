@@ -19,8 +19,6 @@ package org.jupiter.rpc.executor;
 import org.jupiter.rpc.consumer.processor.ConsumerExecutorFactory;
 import org.jupiter.rpc.provider.processor.ProviderExecutorFactory;
 
-import java.util.concurrent.Executor;
-
 /**
  * Executor factory.
  *
@@ -31,7 +29,7 @@ import java.util.concurrent.Executor;
  */
 public interface ExecutorFactory extends ConsumerExecutorFactory, ProviderExecutorFactory {
 
-    Executor newExecutor(Target target, String name);
+    CloseableExecutor newExecutor(Target target, String name);
 
     enum Target {
         CONSUMER,

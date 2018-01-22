@@ -18,11 +18,10 @@ package org.jupiter.rpc.consumer.processor;
 
 import org.jupiter.rpc.JResponse;
 import org.jupiter.rpc.consumer.processor.task.MessageTask;
+import org.jupiter.rpc.executor.CloseableExecutor;
 import org.jupiter.transport.channel.JChannel;
 import org.jupiter.transport.payload.JResponseBytes;
 import org.jupiter.transport.processor.ConsumerProcessor;
-
-import java.util.concurrent.Executor;
 
 /**
  * The default implementation of consumer's processor.
@@ -34,13 +33,13 @@ import java.util.concurrent.Executor;
  */
 public class DefaultConsumerProcessor implements ConsumerProcessor {
 
-    private final Executor executor;
+    private final CloseableExecutor executor;
 
     public DefaultConsumerProcessor() {
         this(ConsumerExecutors.executor());
     }
 
-    public DefaultConsumerProcessor(Executor executor) {
+    public DefaultConsumerProcessor(CloseableExecutor executor) {
         this.executor = executor;
     }
 
@@ -51,6 +50,13 @@ public class DefaultConsumerProcessor implements ConsumerProcessor {
             task.run();
         } else {
             executor.execute(task);
+        }
+    }
+
+    @Override
+    public void shutdown() {
+        if (executor != null) {
+            executor.shutdown();
         }
     }
 }

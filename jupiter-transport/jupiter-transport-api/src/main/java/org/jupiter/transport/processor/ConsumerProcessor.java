@@ -30,4 +30,6 @@ import org.jupiter.transport.channel.JChannel;
 public interface ConsumerProcessor {
 
     void handleResponse(JChannel channel, JResponseBytes response) throws Exception;
+
+    void shutdown();
 }
