@@ -77,7 +77,7 @@ public class TaskDispatcher implements Dispatcher<Runnable>, Executor {
     };
 
     private final Disruptor<MessageEvent<Runnable>> disruptor;
-    private final Executor reserveExecutor;
+    private final ExecutorService reserveExecutor;
 
     public TaskDispatcher(int numWorkers, ThreadFactory threadFactory) {
         this(numWorkers, threadFactory, BUFFER_SIZE, 0, WaitStrategyType.BLOCKING_WAIT, null);
@@ -201,5 +201,8 @@ public class TaskDispatcher implements Dispatcher<Runnable>, Executor {
     @Override
     public void shutdown() {
         disruptor.shutdown();
+        if (reserveExecutor != null) {
+            reserveExecutor.shutdownNow();
+        }
     }
 }
