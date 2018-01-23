@@ -67,7 +67,7 @@
         <hamcrest.version>1.3</hamcrest.version>
         <curator.version>2.9.1</curator.version>
         <zookeeper.version>3.4.6</zookeeper.version>
-        <opentracing.version>0.31.0-RC1</opentracing.version>
+        <opentracing.version>0.31.0</opentracing.version>
         <spring-framework.version>4.3.0.RELEASE</spring-framework.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
