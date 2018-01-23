@@ -20,7 +20,6 @@ import org.objenesis.Objenesis;
 import org.objenesis.ObjenesisStd;
 
 import java.lang.reflect.Field;
-import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.lang.reflect.Type;
 import java.util.List;
@@ -114,27 +113,6 @@ public final class Reflects {
             return objenesis.newInstance(clazz);
         }
         return null; // should never get here
-    }
-
-    /**
-     * Invokes the underlying method.
-     *
-     * @param obj            the object the underlying method is invoked from
-     * @param methodName     the method name this object
-     * @param parameterTypes the parameter types for the method this object
-     * @param args           the arguments used for the method call
-     * @return the result of dispatching the method represented by this object on {@code obj} with parameters
-     */
-    public static Object invoke(Object obj, String methodName, Class<?>[] parameterTypes, Object[] args) {
-        Object value = null;
-        try {
-            Method method = obj.getClass().getMethod(methodName, parameterTypes);
-            method.setAccessible(true);
-            value = method.invoke(obj, args);
-        } catch (Exception e) {
-            ExceptionUtil.throwException(e);
-        }
-        return value;
     }
 
     /**

@@ -25,6 +25,7 @@ import org.openjdk.jmh.runner.RunnerException;
 import org.openjdk.jmh.runner.options.Options;
 import org.openjdk.jmh.runner.options.OptionsBuilder;
 
+import java.lang.reflect.Method;
 import java.util.concurrent.Callable;
 import java.util.concurrent.TimeUnit;
 
@@ -62,6 +63,17 @@ public class MethodInvokeBenchmark {
     static ReflectClass1 byteBuddyProxyObj = Proxies.BYTE_BUDDY.newProxy(ReflectClass1.class, new ByteBuddyProxyHandler());
     static ReflectClass1 reflectClass1 = new ReflectClass1();
 
+    static final Method reflectMethod;
+    static {
+        Method method;
+        try {
+            method = ReflectClass1.class.getMethod("method", parameterTypes);
+        } catch (NoSuchMethodException e) {
+            method = null;
+        }
+        reflectMethod = method;
+    }
+
     @Benchmark
     public void fastInvoke() {
         Reflects.fastInvoke(reflectClass1, "method", parameterTypes, args);
@@ -69,7 +81,9 @@ public class MethodInvokeBenchmark {
 
     @Benchmark
     public void jdkReflectInvoke() {
-        Reflects.invoke(reflectClass1, "method", parameterTypes, args);
+        try {
+            reflectMethod.invoke(reflectClass1, "method", args);
+        } catch (Throwable ignored) {}
     }
 
     @Benchmark
