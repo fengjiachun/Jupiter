@@ -2,6 +2,8 @@ Jupiter release notes
 ------------------------
 
 ### 2018-01-23:
+- Update [byte-buddy](https://github.com/raphw/byte-buddy) version: 1.6.3 --> 1.7.9
+- Update [disruptor](https://github.com/LMAX-Exchange/disruptor) version: 3.3.6 --> 3.3.7
 - Add CallerRunsExecutorFactory
 
 ### 2018-01-22: version 1.2.16

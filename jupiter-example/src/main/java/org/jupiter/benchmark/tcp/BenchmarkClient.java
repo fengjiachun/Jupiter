@@ -90,16 +90,9 @@ public class BenchmarkClient {
                 return new AffinityNettyThreadFactory(name);
             }
         });
+
         client.connector().config().setOption(JOption.WRITE_BUFFER_HIGH_WATER_MARK, 512 * 1024);
         client.connector().config().setOption(JOption.WRITE_BUFFER_LOW_WATER_MARK, 256 * 1024);
-
-        Runtime.getRuntime().addShutdownHook(new Thread() {
-
-            @Override
-            public void run() {
-                client.shutdownGracefully();
-            }
-        });
 
         UnresolvedAddress[] addresses = new UnresolvedAddress[processors];
         for (int i = 0; i < processors; i++) {

@@ -70,15 +70,6 @@ public class BenchmarkServer {
         try {
             monitor.start();
 
-            Runtime.getRuntime().addShutdownHook(new Thread() {
-
-                @Override
-                public void run() {
-                    monitor.shutdownGracefully();
-                    server.shutdownGracefully();
-                }
-            });
-
             server.serviceRegistry()
                     .provider(new ServiceImpl())
                     .register();
