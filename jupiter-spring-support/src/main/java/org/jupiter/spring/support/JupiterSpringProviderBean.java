@@ -47,7 +47,7 @@ public class JupiterSpringProviderBean implements InitializingBean, ApplicationC
     private JupiterSpringServer server;
 
     private Object providerImpl;                                // 服务对象
-    private ProviderInterceptor[] providerInterceptors;         // 私有拦截器
+    private ProviderInterceptor[] interceptors;                 // 私有拦截器
     private int weight;                                         // 权重
     private Executor executor;                                  // 该服务私有的线程池
     private FlowController<JRequest> flowController;            // 该服务私有的流量控制器
@@ -71,8 +71,8 @@ public class JupiterSpringProviderBean implements InitializingBean, ApplicationC
 
         JServer.ServiceRegistry registry = server.getServer().serviceRegistry();
 
-        if (providerInterceptors != null && providerInterceptors.length > 0) {
-            registry.provider(providerImpl, providerInterceptors);
+        if (interceptors != null && interceptors.length > 0) {
+            registry.provider(providerImpl, interceptors);
         } else {
             registry.provider(providerImpl);
         }
@@ -100,12 +100,12 @@ public class JupiterSpringProviderBean implements InitializingBean, ApplicationC
         this.providerImpl = providerImpl;
     }
 
-    public ProviderInterceptor[] getProviderInterceptors() {
-        return providerInterceptors;
+    public ProviderInterceptor[] getInterceptors() {
+        return interceptors;
     }
 
-    public void setProviderInterceptors(ProviderInterceptor[] providerInterceptors) {
-        this.providerInterceptors = providerInterceptors;
+    public void setInterceptors(ProviderInterceptor[] interceptors) {
+        this.interceptors = interceptors;
     }
 
     public int getWeight() {

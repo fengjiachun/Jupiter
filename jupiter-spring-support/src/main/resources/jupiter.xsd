@@ -311,9 +311,9 @@
                 <xsd:documentation><![CDATA[ The invoke timeout millis. ]]></xsd:documentation>
             </xsd:annotation>
         </xsd:attribute>
-        <xsd:attribute name="hooks" type="xsd:string" use="optional">
+        <xsd:attribute name="consumerInterceptors" type="xsd:string" use="optional">
             <xsd:annotation>
-                <xsd:documentation><![CDATA[ The hooks. ]]></xsd:documentation>
+                <xsd:documentation><![CDATA[ The consumer interceptors. ]]></xsd:documentation>
             </xsd:annotation>
         </xsd:attribute>
         <xsd:attribute name="providerAddresses" type="xsd:string" use="optional">

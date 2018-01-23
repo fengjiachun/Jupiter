@@ -19,7 +19,6 @@ package org.jupiter.rpc.consumer;
 import org.jupiter.common.util.JConstants;
 import org.jupiter.common.util.Lists;
 import org.jupiter.common.util.Strings;
-import org.jupiter.rpc.ConsumerHook;
 import org.jupiter.rpc.DispatchType;
 import org.jupiter.rpc.InvokeType;
 import org.jupiter.rpc.JClient;
@@ -82,8 +81,8 @@ public class GenericProxyFactory {
     private long timeoutMillis;
     // 指定方法的单独配置, 方法参数类型不做区别对待
     private List<MethodSpecialConfig> methodSpecialConfigs;
-    // 消费者端钩子函数
-    private List<ConsumerHook> hooks;
+    // 消费者端拦截器
+    private List<ConsumerInterceptor> interceptors;
     // 集群容错策略
     private ClusterInvoker.Strategy strategy = ClusterInvoker.Strategy.getDefault();
     // failover重试次数
@@ -93,7 +92,7 @@ public class GenericProxyFactory {
         GenericProxyFactory factory = new GenericProxyFactory();
         // 初始化数据
         factory.addresses = Lists.newArrayList();
-        factory.hooks = Lists.newArrayList();
+        factory.interceptors = Lists.newArrayList();
         factory.methodSpecialConfigs = Lists.newArrayList();
 
         return factory;
@@ -167,8 +166,8 @@ public class GenericProxyFactory {
         return this;
     }
 
-    public GenericProxyFactory addHook(ConsumerHook... hooks) {
-        Collections.addAll(this.hooks, hooks);
+    public GenericProxyFactory addInterceptor(ConsumerInterceptor... interceptors) {
+        Collections.addAll(this.interceptors, interceptors);
         return this;
     }
 
@@ -207,7 +206,7 @@ public class GenericProxyFactory {
 
         // dispatcher
         Dispatcher dispatcher = dispatcher()
-                .hooks(hooks)
+                .interceptors(interceptors)
                 .timeoutMillis(timeoutMillis)
                 .methodSpecialConfigs(methodSpecialConfigs);
 

@@ -16,8 +16,8 @@
 
 package org.jupiter.rpc.consumer.dispatcher;
 
-import org.jupiter.rpc.ConsumerHook;
 import org.jupiter.rpc.JRequest;
+import org.jupiter.rpc.consumer.ConsumerInterceptor;
 import org.jupiter.rpc.consumer.future.InvokeFuture;
 import org.jupiter.rpc.model.metadata.MethodSpecialConfig;
 
@@ -33,7 +33,7 @@ public interface Dispatcher {
 
     <T> InvokeFuture<T> dispatch(JRequest request, Class<T> returnType);
 
-    Dispatcher hooks(List<ConsumerHook> hooks);
+    Dispatcher interceptors(List<ConsumerInterceptor> interceptors);
 
     Dispatcher timeoutMillis(long timeoutMillis);
 

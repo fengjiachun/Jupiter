@@ -22,12 +22,14 @@ import org.jupiter.common.util.SystemClock;
 import org.jupiter.common.util.internal.logging.InternalLogger;
 import org.jupiter.common.util.internal.logging.InternalLoggerFactory;
 import org.jupiter.rpc.*;
+import org.jupiter.rpc.consumer.ConsumerInterceptor;
 import org.jupiter.rpc.consumer.future.DefaultInvokeFuture;
 import org.jupiter.rpc.exception.JupiterRemoteException;
 import org.jupiter.rpc.load.balance.LoadBalancer;
 import org.jupiter.rpc.model.metadata.MethodSpecialConfig;
 import org.jupiter.rpc.model.metadata.ResultWrapper;
 import org.jupiter.rpc.model.metadata.ServiceMetadata;
+import org.jupiter.rpc.tracing.TraceId;
 import org.jupiter.serialization.Serializer;
 import org.jupiter.serialization.SerializerFactory;
 import org.jupiter.serialization.SerializerType;
@@ -56,7 +58,7 @@ abstract class AbstractDispatcher implements Dispatcher {
     private final JClient client;
     private final LoadBalancer loadBalancer;                    // 软负载均衡
     private final Serializer serializerImpl;                    // 序列化/反序列化impl
-    private ConsumerHook[] hooks = ConsumerHook.EMPTY_HOOKS;    // 消费者端钩子函数
+    private ConsumerInterceptor[] interceptors = ConsumerInterceptor.EMPTY_INTERCEPTORS;
     private long timeoutMillis = JConstants.DEFAULT_TIMEOUT;    // 调用超时时间设置
     // 针对指定方法单独设置的超时时间, 方法名为key, 方法参数类型不做区别对待
     private Map<String, Long> methodSpecialTimeoutMapping = Maps.newHashMap();
@@ -75,14 +77,14 @@ abstract class AbstractDispatcher implements Dispatcher {
         return serializerImpl;
     }
 
-    public ConsumerHook[] hooks() {
-        return hooks;
+    public ConsumerInterceptor[] interceptors() {
+        return interceptors;
     }
 
     @Override
-    public Dispatcher hooks(List<ConsumerHook> hooks) {
-        if (hooks != null && !hooks.isEmpty()) {
-            this.hooks = hooks.toArray(new ConsumerHook[hooks.size()]);
+    public Dispatcher interceptors(List<ConsumerInterceptor> interceptors) {
+        if (interceptors != null && !interceptors.isEmpty()) {
+            this.interceptors = interceptors.toArray(new ConsumerInterceptor[interceptors.size()]);
         }
         return this;
     }
@@ -161,15 +163,20 @@ abstract class AbstractDispatcher implements Dispatcher {
                 .snapshot();
     }
 
+    @SuppressWarnings("all")
     protected <T> DefaultInvokeFuture<T> write(
             JChannel channel, final JRequest request, final DefaultInvokeFuture<T> future, final DispatchType dispatchType) {
 
+        ConsumerInterceptor[] interceptors = future.interceptors();
+        TraceId traceId = future.traceId();
+        for (int i = 0; i < interceptors.length; i++) {
+            interceptors[i].beforeInvoke(traceId, request, channel);
+        }
+
         final JRequestBytes requestBytes = request.requestBytes();
-        final ConsumerHook[] hooks = future.hooks();
 
         channel.write(requestBytes, new JFutureListener<JChannel>() {
 
-            @SuppressWarnings("all")
             @Override
             public void operationSuccess(JChannel channel) throws Exception {
                 // 标记已发送
@@ -177,11 +184,6 @@ abstract class AbstractDispatcher implements Dispatcher {
 
                 if (dispatchType == DispatchType.ROUND) {
                     requestBytes.nullBytes();
-                }
-
-                // hook.before()
-                for (int i = 0; i < hooks.length; i++) {
-                    hooks[i].before(request, channel);
                 }
             }
 

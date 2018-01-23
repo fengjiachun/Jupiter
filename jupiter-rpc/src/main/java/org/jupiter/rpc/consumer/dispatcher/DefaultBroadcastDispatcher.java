@@ -16,10 +16,10 @@
 
 package org.jupiter.rpc.consumer.dispatcher;
 
-import org.jupiter.rpc.ConsumerHook;
 import org.jupiter.rpc.DispatchType;
 import org.jupiter.rpc.JClient;
 import org.jupiter.rpc.JRequest;
+import org.jupiter.rpc.consumer.ConsumerInterceptor;
 import org.jupiter.rpc.consumer.future.DefaultInvokeFuture;
 import org.jupiter.rpc.consumer.future.DefaultInvokeFutureGroup;
 import org.jupiter.rpc.consumer.future.InvokeFuture;
@@ -62,14 +62,15 @@ public class DefaultBroadcastDispatcher extends AbstractDispatcher {
         request.bytes(s_code, bytes);
 
         long invokeId = request.invokeId();
-        ConsumerHook[] hooks = hooks();
+        ConsumerInterceptor[] interceptors = interceptors();
         InvokeFuture<T>[] futures = new DefaultInvokeFuture[channels.length];
         long timeoutMillis = getMethodSpecialTimeoutMillis(message.getMethodName());
         for (int i = 0; i < channels.length; i++) {
             JChannel ch = channels[i];
             DefaultInvokeFuture<T> future = DefaultInvokeFuture
                     .with(invokeId, ch, returnType, timeoutMillis, DispatchType.BROADCAST)
-                    .hooks(hooks);
+                    .interceptors(interceptors)
+                    .traceId(message.getTraceId());
             futures[i] = write(ch, request, future, DispatchType.BROADCAST);
         }
 

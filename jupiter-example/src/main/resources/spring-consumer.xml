@@ -64,7 +64,7 @@
             DispatchType dispatchType                       // 派发方式 [单播, 广播]
             long timeoutMillis                              // 调用超时时间设置
             List<MethodSpecialConfig> methodSpecialConfigs; // 指定方法的单独配置, 方法参数类型不做区别对待
-            ConsumerHook[] hooks                            // consumer hook
+            ConsumerInterceptor[] consumerInterceptors      // 消费者端拦截器
             String providerAddresses                        // provider地址列表, 逗号分隔(IP直连)
             ClusterInvoker.Strategy clusterStrategy;        // 集群容错策略
             int failoverRetries                             // fail_over的重试次数

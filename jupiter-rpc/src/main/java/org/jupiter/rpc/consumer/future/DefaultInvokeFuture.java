@@ -21,15 +21,16 @@ import org.jupiter.common.util.Maps;
 import org.jupiter.common.util.Signal;
 import org.jupiter.common.util.internal.logging.InternalLogger;
 import org.jupiter.common.util.internal.logging.InternalLoggerFactory;
-import org.jupiter.rpc.ConsumerHook;
 import org.jupiter.rpc.DispatchType;
 import org.jupiter.rpc.JListener;
 import org.jupiter.rpc.JResponse;
+import org.jupiter.rpc.consumer.ConsumerInterceptor;
 import org.jupiter.rpc.exception.JupiterBizException;
 import org.jupiter.rpc.exception.JupiterRemoteException;
 import org.jupiter.rpc.exception.JupiterSerializationException;
 import org.jupiter.rpc.exception.JupiterTimeoutException;
 import org.jupiter.rpc.model.metadata.ResultWrapper;
+import org.jupiter.rpc.tracing.TraceId;
 import org.jupiter.transport.Status;
 import org.jupiter.transport.channel.JChannel;
 
@@ -63,7 +64,8 @@ public class DefaultInvokeFuture<V> extends AbstractListenableFuture<V> implemen
 
     private volatile boolean sent = false;
 
-    private ConsumerHook[] hooks = ConsumerHook.EMPTY_HOOKS;
+    private ConsumerInterceptor[] interceptors = ConsumerInterceptor.EMPTY_INTERCEPTORS;
+    private TraceId traceId;
 
     public static <T> DefaultInvokeFuture<T> with(
             long invokeId, JChannel channel, Class<T> returnType, long timeoutMillis, DispatchType dispatchType) {
@@ -129,14 +131,23 @@ public class DefaultInvokeFuture<V> extends AbstractListenableFuture<V> implemen
         sent = true;
     }
 
-    public ConsumerHook[] hooks() {
-        return hooks;
+    public ConsumerInterceptor[] interceptors() {
+        return interceptors;
     }
 
-    public DefaultInvokeFuture<V> hooks(ConsumerHook[] hooks) {
-        checkNotNull(hooks, "hooks");
+    public DefaultInvokeFuture<V> interceptors(ConsumerInterceptor[] interceptors) {
+        checkNotNull(interceptors, "interceptors");
 
-        this.hooks = hooks;
+        this.interceptors = interceptors;
+        return this;
+    }
+
+    public TraceId traceId() {
+        return traceId;
+    }
+
+    public DefaultInvokeFuture<V> traceId(TraceId traceId) {
+        this.traceId = traceId;
         return this;
     }
 
@@ -151,9 +162,8 @@ public class DefaultInvokeFuture<V> extends AbstractListenableFuture<V> implemen
             setException(status, response);
         }
 
-        // call hook's after method
-        for (int i = 0; i < hooks.length; i++) {
-            hooks[i].after(response, channel);
+        for (int i = 0; i < interceptors.length; i++) {
+            interceptors[i].afterInvoke(traceId, response, channel);
         }
     }
 

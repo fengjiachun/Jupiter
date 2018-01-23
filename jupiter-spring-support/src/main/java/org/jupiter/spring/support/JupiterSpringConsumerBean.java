@@ -18,9 +18,9 @@ package org.jupiter.spring.support;
 
 import org.jupiter.common.util.Lists;
 import org.jupiter.common.util.Strings;
-import org.jupiter.rpc.ConsumerHook;
 import org.jupiter.rpc.DispatchType;
 import org.jupiter.rpc.InvokeType;
+import org.jupiter.rpc.consumer.ConsumerInterceptor;
 import org.jupiter.rpc.consumer.ProxyFactory;
 import org.jupiter.rpc.consumer.cluster.ClusterInvoker;
 import org.jupiter.rpc.load.balance.LoadBalancerType;
@@ -59,7 +59,8 @@ public class JupiterSpringConsumerBean<T> implements FactoryBean<T>, Initializin
     private DispatchType dispatchType;                          // 派发方式 [单播, 广播]
     private long timeoutMillis;                                 // 调用超时时间设置
     private List<MethodSpecialConfig> methodSpecialConfigs;     // 指定方法的单独配置, 方法参数类型不做区别对待
-    private ConsumerHook[] hooks = ConsumerHook.EMPTY_HOOKS;    // 消费者端钩子函数
+    // 消费者端拦截器
+    private ConsumerInterceptor[] consumerInterceptors = ConsumerInterceptor.EMPTY_INTERCEPTORS;
     private String providerAddresses;                           // provider地址列表, 逗号分隔(IP直连)
     private ClusterInvoker.Strategy clusterStrategy;            // 集群容错策略
     private int failoverRetries;                                // failover重试次数(只对ClusterInvoker.Strategy.FAIL_OVER有效)
@@ -140,8 +141,8 @@ public class JupiterSpringConsumerBean<T> implements FactoryBean<T>, Initializin
             }
         }
 
-        if (hooks.length > 0) {
-            factory.addHook(hooks);
+        if (consumerInterceptors.length > 0) {
+            factory.addInterceptor(consumerInterceptors);
         }
 
         if (clusterStrategy != null) {
@@ -246,12 +247,12 @@ public class JupiterSpringConsumerBean<T> implements FactoryBean<T>, Initializin
         this.methodSpecialConfigs = methodSpecialConfigs;
     }
 
-    public ConsumerHook[] getHooks() {
-        return hooks;
+    public ConsumerInterceptor[] getConsumerInterceptors() {
+        return consumerInterceptors;
     }
 
-    public void setHooks(ConsumerHook[] hooks) {
-        this.hooks = hooks;
+    public void setConsumerInterceptors(ConsumerInterceptor[] consumerInterceptors) {
+        this.consumerInterceptors = consumerInterceptors;
     }
 
     public String getProviderAddresses() {

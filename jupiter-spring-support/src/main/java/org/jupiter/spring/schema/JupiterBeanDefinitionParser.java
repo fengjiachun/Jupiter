@@ -164,7 +164,7 @@ public class JupiterBeanDefinitionParser implements BeanDefinitionParser {
                     addProperty(def, (Element) item, "providerAddresses", false);
                     addProperty(def, (Element) item, "clusterStrategy", false);
                     addProperty(def, (Element) item, "failoverRetries", false);
-                    addPropertyReference(def, (Element) item, "hooks", false);
+                    addPropertyReference(def, (Element) item, "consumerInterceptors", false);
                 } else if ("methodSpecials".equals(localName)) {
                     NodeList configList = item.getChildNodes();
                     for (int j = 0; j < configList.getLength(); j++) {
