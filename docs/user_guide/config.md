@@ -23,7 +23,7 @@
 | jupiter.rpc.load-balancer.default.weight                          | Load balancer 默认权重
 | jupiter.rpc.load-balancer.max.weight                              | Load balancer 最大权重
 | jupiter.rpc.suggest.connection.count                              | Client对Server默认的建议连接数(cpu cores)
-| jupiter.metric.needed                                             | 是否启用provider的指标度量, 默认启用
+| jupiter.metric.needed                                             | 是否启用provider的指标度量, 默认不启用
 | jupiter.metric.csv.reporter                                       | 是否启用Metrics csv reporter, 默认不启用而是打印在日志里面
 | jupiter.metric.csv.reporter.directory                             | 如果启用Metrics csv, csv的文件路径
 | jupiter.metric.report.period                                      | Metrics 执行周期, 默认15分钟

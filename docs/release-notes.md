@@ -1,7 +1,9 @@
 Jupiter release notes
 ------------------------
 
-### 2018-01-23:
+### 2018-01-24:
+- Update [netty](https://github.com/netty/netty) version: 4.1.19.Final --> 4.1.20.Final
+- Update [metrics-core](https://github.com/dropwizard/metrics) version: 3.1.2 --> 4.0.2
 - Update [affinity](https://github.com/OpenHFT/Java-Thread-Affinity) version: 3.0.6 --> 3.1.7
 - Update [asm](http://asm.ow2.org) version: 5.2 --> 6.0
 - Update [byte-buddy](https://github.com/raphw/byte-buddy) version: 1.6.3 --> 1.7.9

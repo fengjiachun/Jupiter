@@ -50,7 +50,7 @@
     </modules>
 
     <properties>
-        <netty.version>4.1.19.Final</netty.version>
+        <netty.version>4.1.20.Final</netty.version>
         <jmh.version>1.9.3</jmh.version>
         <barchart.version>2.3.0</barchart.version>
         <hessian.version>4.0.38</hessian.version>
@@ -60,7 +60,7 @@
         <asm.version>6.0</asm.version>
         <bytebuddy.version>1.7.9</bytebuddy.version>
         <disruptor.version>3.3.7</disruptor.version>
-        <metrics.version>3.1.2</metrics.version>
+        <metrics.version>4.0.2</metrics.version>
         <affinity.version>3.1.7</affinity.version>
         <slf4j.version>1.7.5</slf4j.version>
         <junit.version>4.12</junit.version>
