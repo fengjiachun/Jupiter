@@ -21,7 +21,7 @@
     <parent>
         <artifactId>jupiter-serialization</artifactId>
         <groupId>org.jupiter-rpc</groupId>
-        <version>1.2.16</version>
+        <version>1.2.17.Beta</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
