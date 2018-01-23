@@ -61,7 +61,7 @@
         <bytebuddy.version>1.7.9</bytebuddy.version>
         <disruptor.version>3.3.7</disruptor.version>
         <metrics.version>3.1.2</metrics.version>
-        <affinity.version>3.0.6</affinity.version>
+        <affinity.version>3.1.7</affinity.version>
         <slf4j.version>1.7.5</slf4j.version>
         <junit.version>4.12</junit.version>
         <hamcrest.version>1.3</hamcrest.version>
