@@ -257,15 +257,15 @@ public class JupiterBeanDefinitionParser implements BeanDefinitionParser {
 
     private static void addPropertyReferenceArray(
             RootBeanDefinition definition, Element element, String elementTypeName, String propertyName, boolean required) {
-        String refs = element.getAttribute(propertyName);
-        String[] refArray = Strings.split(refs, ',');
+        String[] refArray = Strings.split(element.getAttribute(propertyName), ',');
         List<RuntimeBeanReference> refBeanList = Lists.newArrayList();
         for (String ref : refArray) {
+            ref = ref.trim();
             if (required) {
                 checkAttribute(propertyName, ref);
             }
             if (!Strings.isNullOrEmpty(ref)) {
-                refBeanList.add(new RuntimeBeanReference(ref.trim()));
+                refBeanList.add(new RuntimeBeanReference(ref));
             }
         }
 
