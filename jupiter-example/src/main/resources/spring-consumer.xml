@@ -23,14 +23,22 @@
        http://www.jupiter-rpc.org/jupiter
        http://www.jupiter-rpc.org/jupiter/jupiter.xsd">
 
+    <bean id="globalInterceptor1" class="org.jupiter.example.spring.interceptor.consumer.MyGlobalConsumerInterceptor1" />
+    <bean id="globalInterceptor2" class="org.jupiter.example.spring.interceptor.consumer.MyGlobalConsumerInterceptor2" />
+
     <jupiter:client id="jupiterClient" registryType="default">
         <jupiter:property registryServerAddresses="127.0.0.1:20001" />
+        <jupiter:property globalConsumerInterceptors="globalInterceptor1,globalInterceptor2" />
         <!-- 可选配置 -->
         <!--
-            String registryServerAddresses                  // 注册中心地址 [host1:port1,host2:port2....]
-            String providerServerAddresses                  // IP直连到providers [host1:port1,host2:port2....]
+            String registryServerAddresses                          // 注册中心地址 [host1:port1,host2:port2....]
+            String providerServerAddresses                          // IP直连到providers [host1:port1,host2:port2....]
+            ConsumerInterceptor[] globalConsumerInterceptors;       // 全局拦截器
         -->
     </jupiter:client>
+
+    <bean id="interceptor1" class="org.jupiter.example.spring.interceptor.consumer.MyConsumerInterceptor1" />
+    <bean id="interceptor2" class="org.jupiter.example.spring.interceptor.consumer.MyConsumerInterceptor2" />
 
     <!-- consumer -->
     <jupiter:consumer id="serviceTest" client="jupiterClient" interfaceClass="org.jupiter.example.ServiceTest">
@@ -55,6 +63,7 @@
             <!-- 方法的单独配置 -->
             <jupiter:methodSpecial methodName="sayHello" timeoutMillis="5000" clusterStrategy="fail_fast" />
         </jupiter:methodSpecials>
+        <jupiter:property consumerInterceptors="interceptor1,interceptor2" />
         <!-- 可选配置 -->
         <!--
             SerializerType serializerType                   // 序列化/反序列化方式

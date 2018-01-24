@@ -28,7 +28,7 @@
         <!-- 可选配置 -->
         <!--
             String registryServerAddresses                      // 注册中心地址 [host1:port1,host2:port2....]
-            ProviderInterceptor[] providerInterceptors          // 全局拦截器
+            ProviderInterceptor[] globalProviderInterceptors    // 全局拦截器
             FlowController<JRequest> flowController             // 全局流量控制
         -->
     </jupiter:server>

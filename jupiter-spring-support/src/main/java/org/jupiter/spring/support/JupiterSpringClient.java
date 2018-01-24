@@ -23,6 +23,7 @@ import org.jupiter.common.util.SystemPropertyUtil;
 import org.jupiter.registry.RegistryService;
 import org.jupiter.rpc.DefaultClient;
 import org.jupiter.rpc.JClient;
+import org.jupiter.rpc.consumer.ConsumerInterceptor;
 import org.jupiter.transport.JConnection;
 import org.jupiter.transport.JConnector;
 import org.jupiter.transport.UnresolvedAddress;
@@ -52,6 +53,7 @@ public class JupiterSpringClient implements InitializingBean {
     private String providerServerAddresses;                             // IP直连到providers [host1:port1,host2:port2....]
     private List<UnresolvedAddress> providerServerUnresolvedAddresses;  // IP直连的地址列表
     private boolean hasRegistryServer;                                  // true: 需要连接注册中心; false: IP直连方式
+    private ConsumerInterceptor[] globalConsumerInterceptors;           // 全局拦截器
 
     @Override
     public void afterPropertiesSet() throws Exception {
@@ -157,6 +159,14 @@ public class JupiterSpringClient implements InitializingBean {
 
     public boolean isHasRegistryServer() {
         return hasRegistryServer;
+    }
+
+    public ConsumerInterceptor[] getGlobalConsumerInterceptors() {
+        return globalConsumerInterceptors;
+    }
+
+    public void setGlobalConsumerInterceptors(ConsumerInterceptor[] globalConsumerInterceptors) {
+        this.globalConsumerInterceptors = globalConsumerInterceptors;
     }
 
     @SuppressWarnings("unchecked")

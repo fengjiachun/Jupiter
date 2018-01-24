@@ -59,8 +59,7 @@ public class JupiterSpringConsumerBean<T> implements FactoryBean<T>, Initializin
     private DispatchType dispatchType;                          // 派发方式 [单播, 广播]
     private long timeoutMillis;                                 // 调用超时时间设置
     private List<MethodSpecialConfig> methodSpecialConfigs;     // 指定方法的单独配置, 方法参数类型不做区别对待
-    // 消费者端拦截器
-    private ConsumerInterceptor[] consumerInterceptors = ConsumerInterceptor.EMPTY_INTERCEPTORS;
+    private ConsumerInterceptor[] consumerInterceptors;         // 消费者端拦截器
     private String providerAddresses;                           // provider地址列表, 逗号分隔(IP直连)
     private ClusterInvoker.Strategy clusterStrategy;            // 集群容错策略
     private int failoverRetries;                                // failover重试次数(只对ClusterInvoker.Strategy.FAIL_OVER有效)
@@ -141,7 +140,12 @@ public class JupiterSpringConsumerBean<T> implements FactoryBean<T>, Initializin
             }
         }
 
-        if (consumerInterceptors.length > 0) {
+        ConsumerInterceptor[] globalConsumerInterceptors = client.getGlobalConsumerInterceptors();
+        if (globalConsumerInterceptors != null && globalConsumerInterceptors.length > 0) {
+            factory.addInterceptor(globalConsumerInterceptors);
+        }
+
+        if (consumerInterceptors != null && consumerInterceptors.length > 0) {
             factory.addInterceptor(consumerInterceptors);
         }
 

@@ -18,8 +18,10 @@ package org.jupiter.spring.schema;
 
 import org.jupiter.common.util.Lists;
 import org.jupiter.common.util.Strings;
+import org.jupiter.rpc.consumer.ConsumerInterceptor;
 import org.jupiter.rpc.model.metadata.ClusterStrategyConfig;
 import org.jupiter.rpc.model.metadata.MethodSpecialConfig;
+import org.jupiter.rpc.provider.ProviderInterceptor;
 import org.jupiter.spring.support.JupiterSpringClient;
 import org.jupiter.spring.support.JupiterSpringConsumerBean;
 import org.jupiter.spring.support.JupiterSpringProviderBean;
@@ -29,6 +31,7 @@ import org.springframework.beans.factory.config.BeanDefinitionHolder;
 import org.springframework.beans.factory.config.RuntimeBeanReference;
 import org.springframework.beans.factory.support.BeanDefinitionReaderUtils;
 import org.springframework.beans.factory.support.BeanDefinitionValidationException;
+import org.springframework.beans.factory.support.ManagedArray;
 import org.springframework.beans.factory.support.RootBeanDefinition;
 import org.springframework.beans.factory.xml.BeanDefinitionParser;
 import org.springframework.beans.factory.xml.ParserContext;
@@ -81,7 +84,12 @@ public class JupiterBeanDefinitionParser implements BeanDefinitionParser {
                 String localName = item.getLocalName();
                 if ("property".equals(localName)) {
                     addProperty(def, (Element) item, "registryServerAddresses", false);
-                    addPropertyReference(def, (Element) item, "providerInterceptors", false);
+                    addPropertyReferenceArray(
+                            def,
+                            (Element) item,
+                            ProviderInterceptor.class.getName(),
+                            "globalProviderInterceptors",
+                            false);
                     addPropertyReference(def, (Element) item, "flowController", false);
                 }
             }
@@ -106,6 +114,12 @@ public class JupiterBeanDefinitionParser implements BeanDefinitionParser {
                 if ("property".equals(localName)) {
                     addProperty(def, (Element) item, "registryServerAddresses", false);
                     addProperty(def, (Element) item, "providerServerAddresses", false);
+                    addPropertyReferenceArray(
+                            def,
+                            (Element) item,
+                            ConsumerInterceptor.class.getName(),
+                            "globalConsumerInterceptors",
+                            false);
                 }
             }
         }
@@ -127,7 +141,12 @@ public class JupiterBeanDefinitionParser implements BeanDefinitionParser {
                 String localName = item.getLocalName();
                 if ("property".equals(localName)) {
                     addProperty(def, (Element) item, "weight", false);
-                    addPropertyReference(def, (Element) item, "providerInterceptors", false);
+                    addPropertyReferenceArray(
+                            def,
+                            (Element) item,
+                            ProviderInterceptor.class.getName(),
+                            "providerInterceptors",
+                            false);
                     addPropertyReference(def, (Element) item, "executor", false);
                     addPropertyReference(def, (Element) item, "flowController", false);
                     addPropertyReference(def, (Element) item, "providerInitializer", false);
@@ -164,7 +183,12 @@ public class JupiterBeanDefinitionParser implements BeanDefinitionParser {
                     addProperty(def, (Element) item, "providerAddresses", false);
                     addProperty(def, (Element) item, "clusterStrategy", false);
                     addProperty(def, (Element) item, "failoverRetries", false);
-                    addPropertyReference(def, (Element) item, "consumerInterceptors", false);
+                    addPropertyReferenceArray(
+                            def,
+                            (Element) item,
+                            ConsumerInterceptor.class.getName(),
+                            "consumerInterceptors",
+                            false);
                 } else if ("methodSpecials".equals(localName)) {
                     NodeList configList = item.getChildNodes();
                     for (int j = 0; j < configList.getLength(); j++) {
@@ -209,7 +233,8 @@ public class JupiterBeanDefinitionParser implements BeanDefinitionParser {
         return definition;
     }
 
-    private static void addProperty(RootBeanDefinition definition, Element element, String propertyName, boolean required) {
+    private static void addProperty(
+            RootBeanDefinition definition, Element element, String propertyName, boolean required) {
         String ref = element.getAttribute(propertyName);
         if (required) {
             checkAttribute(propertyName, ref);
@@ -219,13 +244,35 @@ public class JupiterBeanDefinitionParser implements BeanDefinitionParser {
         }
     }
 
-    private static void addPropertyReference(RootBeanDefinition definition, Element element, String propertyName, boolean required) {
+    private static void addPropertyReference(
+            RootBeanDefinition definition, Element element, String propertyName, boolean required) {
         String ref = element.getAttribute(propertyName);
         if (required) {
             checkAttribute(propertyName, ref);
         }
         if (!Strings.isNullOrEmpty(ref)) {
             definition.getPropertyValues().addPropertyValue(propertyName, new RuntimeBeanReference(ref));
+        }
+    }
+
+    private static void addPropertyReferenceArray(
+            RootBeanDefinition definition, Element element, String elementTypeName, String propertyName, boolean required) {
+        String refs = element.getAttribute(propertyName);
+        String[] refArray = Strings.split(refs, ',');
+        List<RuntimeBeanReference> refBeanList = Lists.newArrayList();
+        for (String ref : refArray) {
+            if (required) {
+                checkAttribute(propertyName, ref);
+            }
+            if (!Strings.isNullOrEmpty(ref)) {
+                refBeanList.add(new RuntimeBeanReference(ref.trim()));
+            }
+        }
+
+        if (!refBeanList.isEmpty()) {
+            ManagedArray managedArray = new ManagedArray(elementTypeName, refBeanList.size());
+            managedArray.addAll(refBeanList);
+            definition.getPropertyValues().addPropertyValue(propertyName, managedArray);
         }
     }
 

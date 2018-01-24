@@ -162,7 +162,7 @@ public class DefaultInvokeFuture<V> extends AbstractListenableFuture<V> implemen
             setException(status, response);
         }
 
-        for (int i = 0; i < interceptors.length; i++) {
+        for (int i = interceptors.length - 1; i >= 0; i--) {
             interceptors[i].afterInvoke(traceId, response, channel);
         }
     }

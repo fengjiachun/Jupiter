@@ -27,8 +27,9 @@
         <jupiter:property registryServerAddresses="127.0.0.1:2181,127.0.0.1:2182,127.0.0.1:2183" />
         <!-- 可选配置 -->
         <!--
-            String registryServerAddresses                  // 注册中心地址 [host1:port1,host2:port2....]
-            String providerServerAddresses                  // IP直连到providers [host1:port1,host2:port2....]
+            String registryServerAddresses                          // 注册中心地址 [host1:port1,host2:port2....]
+            String providerServerAddresses                          // IP直连到providers [host1:port1,host2:port2....]
+            ConsumerInterceptor[] globalConsumerInterceptors;       // 全局拦截器
         -->
     </jupiter:client>
 

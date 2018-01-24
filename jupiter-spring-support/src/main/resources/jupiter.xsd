@@ -53,7 +53,7 @@
                 <xsd:documentation><![CDATA[ The registry server addresses(host1:port1,host2:port2....). ]]></xsd:documentation>
             </xsd:annotation>
         </xsd:attribute>
-        <xsd:attribute name="providerInterceptors" type="xsd:string" use="optional">
+        <xsd:attribute name="globalProviderInterceptors" type="xsd:string" use="optional">
             <xsd:annotation>
                 <xsd:documentation><![CDATA[ The global provider interceptors. ]]></xsd:documentation>
             </xsd:annotation>
@@ -74,6 +74,11 @@
         <xsd:attribute name="providerServerAddresses" type="xsd:string" use="optional">
             <xsd:annotation>
                 <xsd:documentation><![CDATA[ The provider addresses(host1:port1,host2:port2....). ]]></xsd:documentation>
+            </xsd:annotation>
+        </xsd:attribute>
+        <xsd:attribute name="globalConsumerInterceptors" type="xsd:string" use="optional">
+            <xsd:annotation>
+                <xsd:documentation><![CDATA[ The global consumer interceptors. ]]></xsd:documentation>
             </xsd:annotation>
         </xsd:attribute>
     </xsd:complexType>

@@ -23,21 +23,29 @@
        http://www.jupiter-rpc.org/jupiter
        http://www.jupiter-rpc.org/jupiter/jupiter.xsd">
 
+    <bean id="globalInterceptor1" class="org.jupiter.example.spring.interceptor.provider.MyGlobalProviderInterceptor1" />
+    <bean id="globalInterceptor2" class="org.jupiter.example.spring.interceptor.provider.MyGlobalProviderInterceptor2" />
+
     <jupiter:server id="jupiterServer" registryType="default">
         <jupiter:property registryServerAddresses="127.0.0.1:20001" />
+        <jupiter:property globalProviderInterceptors="globalInterceptor1,globalInterceptor2" />
         <!-- 可选配置 -->
         <!--
             String registryServerAddresses                      // 注册中心地址 [host1:port1,host2:port2....]
-            ProviderInterceptor[] providerInterceptors          // 全局拦截器
+            ProviderInterceptor[] globalProviderInterceptors    // 全局拦截器
             FlowController<JRequest> flowController             // 全局流量控制
         -->
     </jupiter:server>
+
+    <bean id="interceptor1" class="org.jupiter.example.spring.interceptor.provider.MyProviderInterceptor1" />
+    <bean id="interceptor2" class="org.jupiter.example.spring.interceptor.provider.MyProviderInterceptor2" />
 
     <!-- provider -->
     <bean id="serviceTest" class="org.jupiter.example.ServiceTestImpl" />
 
     <jupiter:provider id="serviceTestProvider" server="jupiterServer" providerImpl="serviceTest">
         <jupiter:property weight="100"/>
+        <jupiter:property providerInterceptors="interceptor1,interceptor2" />
         <!-- 可选配置 -->
         <!--
             ProviderInterceptor[] providerInterceptors          // 私有拦截器

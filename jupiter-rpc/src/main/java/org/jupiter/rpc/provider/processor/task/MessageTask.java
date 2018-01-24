@@ -385,14 +385,13 @@ public class MessageTask implements RejectedRunnable {
                 MessageWrapper msg = request.message();
                 String methodName = msg.getMethodName();
                 Object[] args = msg.getArgs();
-                Object invokeResult = invokeCtx.getResult();
-                Throwable cause = invokeCtx.getCause();
 
                 handleBeforeInvoke(interceptors, traceId, provider, methodName, args);
                 try {
                     next.doFilter(request, filterCtx);
                 } finally {
-                    handleAfterInvoke(interceptors, traceId, provider, methodName, args, invokeResult, cause);
+                    handleAfterInvoke(
+                            interceptors, traceId, provider, methodName, args, invokeCtx.getResult(), invokeCtx.getCause());
                 }
             }
         }
