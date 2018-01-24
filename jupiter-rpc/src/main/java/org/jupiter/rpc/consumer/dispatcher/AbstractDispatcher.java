@@ -58,7 +58,7 @@ abstract class AbstractDispatcher implements Dispatcher {
     private final JClient client;
     private final LoadBalancer loadBalancer;                    // 软负载均衡
     private final Serializer serializerImpl;                    // 序列化/反序列化impl
-    private ConsumerInterceptor[] interceptors = ConsumerInterceptor.EMPTY_INTERCEPTORS;
+    private ConsumerInterceptor[] interceptors;                 // 消费者端拦截器
     private long timeoutMillis = JConstants.DEFAULT_TIMEOUT;    // 调用超时时间设置
     // 针对指定方法单独设置的超时时间, 方法名为key, 方法参数类型不做区别对待
     private Map<String, Long> methodSpecialTimeoutMapping = Maps.newHashMap();
@@ -164,13 +164,15 @@ abstract class AbstractDispatcher implements Dispatcher {
     }
 
     @SuppressWarnings("all")
-    protected <T> DefaultInvokeFuture<T> write(
+    protected static <T> DefaultInvokeFuture<T> write(
             JChannel channel, final JRequest request, final DefaultInvokeFuture<T> future, final DispatchType dispatchType) {
 
         ConsumerInterceptor[] interceptors = future.interceptors();
-        TraceId traceId = future.traceId();
-        for (int i = 0; i < interceptors.length; i++) {
-            interceptors[i].beforeInvoke(traceId, request, channel);
+        if (interceptors != null) {
+            TraceId traceId = future.traceId();
+            for (int i = 0; i < interceptors.length; i++) {
+                interceptors[i].beforeInvoke(traceId, request, channel);
+            }
         }
 
         final JRequestBytes requestBytes = request.requestBytes();
