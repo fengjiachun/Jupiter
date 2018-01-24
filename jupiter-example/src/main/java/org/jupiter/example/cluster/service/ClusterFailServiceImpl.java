@@ -29,33 +29,16 @@ public class ClusterFailServiceImpl implements ClusterService {
 
     @Override
     public String helloString() {
-        // 模拟服务超时
-        try {
-            Thread.sleep(3100);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
-        return "fail";
+        throw new RuntimeException();
     }
 
     @Override
     public int helloInt() {
-        // 模拟服务超时
-        try {
-            Thread.sleep(3100);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
-        return 0;
+        throw new RuntimeException();
     }
 
     @Override
     public void helloVoid() {
-        // 模拟服务超时
-        try {
-            Thread.sleep(3100);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
+        throw new RuntimeException();
     }
 }

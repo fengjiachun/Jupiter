@@ -25,10 +25,6 @@ import org.jupiter.rpc.consumer.dispatcher.DefaultRoundDispatcher;
 import org.jupiter.rpc.consumer.dispatcher.Dispatcher;
 import org.jupiter.rpc.consumer.future.FailOverInvokeFuture;
 import org.jupiter.rpc.consumer.future.InvokeFuture;
-import org.jupiter.rpc.exception.JupiterBadRequestException;
-import org.jupiter.rpc.exception.JupiterBizException;
-import org.jupiter.rpc.exception.JupiterRemoteException;
-import org.jupiter.rpc.exception.JupiterSerializationException;
 import org.jupiter.rpc.model.metadata.MessageWrapper;
 
 import static org.jupiter.common.util.Preconditions.checkArgument;
@@ -90,7 +86,7 @@ public class FailOverClusterInvoker implements ClusterInvoker {
                              final FailOverInvokeFuture<T> future,
                              Throwable lastCause) {
 
-        if (tryCount > 0 && isFailoverNeeded(lastCause)) {
+        if (tryCount > 0) {
             InvokeFuture<T> f = dispatcher.dispatch(request, returnType);
 
             f.addListener(new JListener<T>() {
@@ -111,20 +107,16 @@ public class FailOverClusterInvoker implements ClusterInvoker {
                                 stackTrace(cause));
                     }
 
+                    // Note: Failover uses the same invokeId for each call.
+                    //
+                    // So if the last call triggered the next call because of a timeout,
+                    // and then the previous call returned successfully before the next call returns,
+                    // will uses the previous call result
                     invoke0(request, returnType, tryCount - 1, future, cause);
                 }
             });
         } else {
             future.setFailure(lastCause);
         }
-    }
-
-    private static boolean isFailoverNeeded(Throwable cause) {
-        return cause == null
-                || cause instanceof JupiterRemoteException
-                    && !(cause instanceof JupiterBadRequestException)
-                    && !(cause instanceof JupiterBizException)
-                    && !(cause instanceof JupiterSerializationException);
-
     }
 }
