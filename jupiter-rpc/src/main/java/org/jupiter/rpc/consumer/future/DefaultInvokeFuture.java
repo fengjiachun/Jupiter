@@ -64,7 +64,7 @@ public class DefaultInvokeFuture<V> extends AbstractListenableFuture<V> implemen
 
     private volatile boolean sent = false;
 
-    private ConsumerInterceptor[] interceptors = ConsumerInterceptor.EMPTY_INTERCEPTORS;
+    private ConsumerInterceptor[] interceptors;
     private TraceId traceId;
 
     public static <T> DefaultInvokeFuture<T> with(

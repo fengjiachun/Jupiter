@@ -30,9 +30,13 @@ import org.jupiter.transport.channel.JChannel;
  */
 public interface ConsumerInterceptor {
 
-    ConsumerInterceptor[] EMPTY_INTERCEPTORS = new ConsumerInterceptor[0];
-
+    /**
+     * This code is executed before the request data sent.
+     */
     void beforeInvoke(TraceId traceId, JRequest request, JChannel channel);
 
+    /**
+     * This code is executed after the server returns the result.
+     */
     void afterInvoke(TraceId traceId, JResponse response, JChannel channel);
 }
