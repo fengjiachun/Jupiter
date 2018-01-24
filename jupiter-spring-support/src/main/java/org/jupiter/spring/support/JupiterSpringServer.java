@@ -47,7 +47,7 @@ public class JupiterSpringServer implements InitializingBean {
     private String registryServerAddresses;                     // 注册中心地址 [host1:port1,host2:port2....]
     private boolean hasRegistryServer;                          // true: 需要连接注册中心; false: IP直连方式
     private ProviderInterceptor[] globalProviderInterceptors;   // 全局拦截器
-    private FlowController<JRequest> flowController;            // 全局流量控制
+    private FlowController<JRequest> globalFlowController;      // 全局流量控制
 
     @Override
     public void afterPropertiesSet() throws Exception {
@@ -73,7 +73,7 @@ public class JupiterSpringServer implements InitializingBean {
         }
 
         // 全局限流
-        server.withGlobalFlowController(flowController);
+        server.withGlobalFlowController(globalFlowController);
 
         Runtime.getRuntime().addShutdownHook(new Thread() {
 
@@ -138,12 +138,12 @@ public class JupiterSpringServer implements InitializingBean {
         this.globalProviderInterceptors = globalProviderInterceptors;
     }
 
-    public FlowController<JRequest> getFlowController() {
-        return flowController;
+    public FlowController<JRequest> getGlobalFlowController() {
+        return globalFlowController;
     }
 
-    public void setFlowController(FlowController<JRequest> flowController) {
-        this.flowController = flowController;
+    public void setGlobalFlowController(FlowController<JRequest> globalFlowController) {
+        this.globalFlowController = globalFlowController;
     }
 
     private JAcceptor createDefaultAcceptor() {

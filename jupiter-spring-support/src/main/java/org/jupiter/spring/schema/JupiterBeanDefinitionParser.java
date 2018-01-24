@@ -90,7 +90,7 @@ public class JupiterBeanDefinitionParser implements BeanDefinitionParser {
                             ProviderInterceptor.class.getName(),
                             "globalProviderInterceptors",
                             false);
-                    addPropertyReference(def, (Element) item, "flowController", false);
+                    addPropertyReference(def, (Element) item, "globalFlowController", false);
                 }
             }
         }

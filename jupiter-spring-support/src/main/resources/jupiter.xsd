@@ -58,7 +58,7 @@
                 <xsd:documentation><![CDATA[ The global provider interceptors. ]]></xsd:documentation>
             </xsd:annotation>
         </xsd:attribute>
-        <xsd:attribute name="flowController" type="xsd:string" use="optional">
+        <xsd:attribute name="globalFlowController" type="xsd:string" use="optional">
             <xsd:annotation>
                 <xsd:documentation><![CDATA[ The global flow controller. ]]></xsd:documentation>
             </xsd:annotation>

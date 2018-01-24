@@ -26,9 +26,12 @@
     <bean id="globalInterceptor1" class="org.jupiter.example.spring.interceptor.provider.MyGlobalProviderInterceptor1" />
     <bean id="globalInterceptor2" class="org.jupiter.example.spring.interceptor.provider.MyGlobalProviderInterceptor2" />
 
+    <bean id="globalFlowController" class="org.jupiter.example.spring.flow.MyGlobalFlowController" />
+
     <jupiter:server id="jupiterServer" registryType="default">
         <jupiter:property registryServerAddresses="127.0.0.1:20001" />
         <jupiter:property globalProviderInterceptors="globalInterceptor1,globalInterceptor2" />
+        <jupiter:property globalFlowController="globalFlowController" />
         <!-- 可选配置 -->
         <!--
             String registryServerAddresses                      // 注册中心地址 [host1:port1,host2:port2....]
@@ -40,12 +43,15 @@
     <bean id="interceptor1" class="org.jupiter.example.spring.interceptor.provider.MyProviderInterceptor1" />
     <bean id="interceptor2" class="org.jupiter.example.spring.interceptor.provider.MyProviderInterceptor2" />
 
+    <bean id="flowController" class="org.jupiter.example.spring.flow.MyFlowController" />
+
     <!-- provider -->
     <bean id="serviceTest" class="org.jupiter.example.ServiceTestImpl" />
 
     <jupiter:provider id="serviceTestProvider" server="jupiterServer" providerImpl="serviceTest">
         <jupiter:property weight="100"/>
         <jupiter:property providerInterceptors="interceptor1,interceptor2" />
+        <jupiter:property flowController="flowController" />
         <!-- 可选配置 -->
         <!--
             ProviderInterceptor[] providerInterceptors          // 私有拦截器
