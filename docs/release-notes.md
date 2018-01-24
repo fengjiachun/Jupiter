@@ -3,7 +3,7 @@ Jupiter release notes
 
 ### 2018-01-24: version 1.2.17.Beta
 - Bug fix: ProviderInterceptor 参数 {Object result, Throwable failCause} 始终为null
-- Bug fix: Spring schema 数组属性注入
+- Bug fix: Spring schema 数组属性注入失败
 - Add JupiterSpringClient#ConsumerInterceptor[] consumer端全局拦截器
 - ConsumerHook --> ConsumerInterceptor
 - Update [open-tracing](https://github.com/opentracing/opentracing-java) version: 0.31.0-RC1 --> 0.31.0
