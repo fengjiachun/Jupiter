@@ -100,7 +100,7 @@ public class OpenTracingFilter implements JFilter {
             spanBuilder.asChildOf(activeSpan);
         }
 
-        Span span = spanBuilder.startManual();
+        Span span = spanBuilder.start();
         try {
             span.setTag("jupiter_traceId", request.getTraceId());
             injectContext(tracer, span, request);
@@ -144,6 +144,6 @@ public class OpenTracingFilter implements JFilter {
         } catch (Throwable t) {
             spanBuilder.withTag("Error", "extract from request failed: " + t.getMessage());
         }
-        return spanBuilder.startManual();
+        return spanBuilder.start();
     }
 }
