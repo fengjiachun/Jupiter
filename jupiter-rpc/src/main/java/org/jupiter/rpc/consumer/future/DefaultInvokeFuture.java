@@ -38,7 +38,6 @@ import java.net.SocketAddress;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.TimeUnit;
 
-import static org.jupiter.common.util.Preconditions.checkNotNull;
 import static org.jupiter.common.util.StackTraceUtil.stackTrace;
 
 /**
@@ -136,8 +135,6 @@ public class DefaultInvokeFuture<V> extends AbstractListenableFuture<V> implemen
     }
 
     public DefaultInvokeFuture<V> interceptors(ConsumerInterceptor[] interceptors) {
-        checkNotNull(interceptors, "interceptors");
-
         this.interceptors = interceptors;
         return this;
     }
