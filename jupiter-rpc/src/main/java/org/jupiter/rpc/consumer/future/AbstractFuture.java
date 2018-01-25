@@ -31,7 +31,7 @@ import java.util.concurrent.locks.LockSupport;
 public abstract class AbstractFuture<V> {
 
     @SuppressWarnings("all")
-    protected static final Signal TIMEOUT = Signal.valueOf(AbstractFuture.class, "time_out");
+    protected static final Signal TIMEOUT = Signal.valueOf(AbstractFuture.class, "TIMEOUT");
 
     /**
      * The number of nanoseconds for which it is faster to spin
