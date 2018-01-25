@@ -197,14 +197,35 @@ public class DefaultInvokeFuture<V> extends AbstractListenableFuture<V> implemen
 
     public static void received(JChannel channel, JResponse response) {
         long invokeId = response.id();
+
         DefaultInvokeFuture<?> future = roundFutures.remove(invokeId);
+
         if (future == null) {
             // 广播场景下做出了一点让步, 多查询了一次roundFutures
             future = broadcastFutures.remove(subInvokeId(channel, invokeId));
         }
+
         if (future == null) {
             logger.warn("A timeout response [{}] finally returned on {}.", response, channel);
             return;
+        }
+
+        future.doReceived(response);
+    }
+
+    public static void fakeReceived(JChannel channel, JResponse response, DispatchType dispatchType) {
+        long invokeId = response.id();
+
+        DefaultInvokeFuture<?> future = null;
+
+        if (dispatchType == DispatchType.ROUND) {
+            future = roundFutures.remove(invokeId);
+        } else if (dispatchType == DispatchType.BROADCAST) {
+            future = broadcastFutures.remove(subInvokeId(channel, invokeId));
+        }
+
+        if (future == null) {
+            return; // 正确结果在超时被处理之前返回
         }
 
         future.doReceived(response);
@@ -223,12 +244,12 @@ public class DefaultInvokeFuture<V> extends AbstractListenableFuture<V> implemen
                 try {
                     // round
                     for (DefaultInvokeFuture<?> future : roundFutures.values()) {
-                        process(future);
+                        process(future, DispatchType.ROUND);
                     }
 
                     // broadcast
                     for (DefaultInvokeFuture<?> future : broadcastFutures.values()) {
-                        process(future);
+                        process(future, DispatchType.BROADCAST);
                     }
                 } catch (Throwable t) {
                     logger.error("An exception was caught while scanning the timeout futures {}.", stackTrace(t));
@@ -240,7 +261,7 @@ public class DefaultInvokeFuture<V> extends AbstractListenableFuture<V> implemen
             }
         }
 
-        private void process(DefaultInvokeFuture<?> future) {
+        private void process(DefaultInvokeFuture<?> future, DispatchType dispatchType) {
             if (future == null || future.isDone()) {
                 return;
             }
@@ -249,7 +270,7 @@ public class DefaultInvokeFuture<V> extends AbstractListenableFuture<V> implemen
                 JResponse response = new JResponse(future.invokeId);
                 response.status(future.sent ? Status.SERVER_TIMEOUT : Status.CLIENT_TIMEOUT);
 
-                DefaultInvokeFuture.received(future.channel, response);
+                DefaultInvokeFuture.fakeReceived(future.channel, response, dispatchType);
             }
         }
     }

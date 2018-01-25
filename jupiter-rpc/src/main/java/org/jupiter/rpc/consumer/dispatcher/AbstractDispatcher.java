@@ -206,7 +206,7 @@ abstract class AbstractDispatcher implements Dispatcher {
                 response.status(Status.CLIENT_ERROR);
                 response.result(result);
 
-                DefaultInvokeFuture.received(channel, response);
+                DefaultInvokeFuture.fakeReceived(channel, response, dispatchType);
             }
         });
 
