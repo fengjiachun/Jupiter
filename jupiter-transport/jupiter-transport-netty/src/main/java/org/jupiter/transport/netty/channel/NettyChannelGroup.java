@@ -36,7 +36,7 @@ import java.util.concurrent.atomic.AtomicReferenceFieldUpdater;
 import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.ReentrantLock;
 
-import static org.jupiter.common.util.Preconditions.*;
+import static org.jupiter.common.util.Preconditions.checkNotNull;
 
 /**
  * jupiter
@@ -64,6 +64,8 @@ public class NettyChannelGroup implements JChannelGroup {
         }
     };
 
+    private final UnresolvedAddress address;
+
     private final CopyOnWriteArrayList<NettyChannel> channels = new CopyOnWriteArrayList<>();
 
     // 连接断开时自动被移除
@@ -77,12 +79,10 @@ public class NettyChannelGroup implements JChannelGroup {
 
     private final ConcurrentMap<String, Integer> weights = Maps.newConcurrentMap();
 
-    private final UnresolvedAddress address;
-
     private final ReentrantLock lock = new ReentrantLock();
     private final Condition notifyCondition = lock.newCondition();
     // attempts to elide conditional wake-ups when the lock is uncontended.
-    @SuppressWarnings({"unused", "FieldCanBeLocal"})
+    @SuppressWarnings("all")
     private volatile int signalNeeded = 0; // 0: false, 1: true
 
     @SuppressWarnings("unused")
@@ -286,10 +286,12 @@ public class NettyChannelGroup implements JChannelGroup {
         SimpleDateFormat dateFormat = dateFormatThreadLocal.get();
 
         return "NettyChannelGroup{" +
-                "channels=" + channels +
+                "address=" + address +
+                ", channels=" + channels +
+                ", weights=" + weights +
                 ", warmUp=" + warmUp +
-                ", time=" + dateFormat.format(new Date(timestamp)) +
-                ", address=" + address +
+                ", timestamp=" + dateFormat.format(new Date(timestamp)) +
+                ", deadlineMillis=" + deadlineMillis +
                 '}';
     }
 }
