@@ -50,9 +50,7 @@ public class BenchmarkServer {
 
         // 设置全局provider executor
         SystemPropertyUtil
-                .setProperty("jupiter.executor.factory.provider.factory_name", "disruptor");
-        SystemPropertyUtil
-                .setProperty("jupiter.executor.factory.provider.disruptor.wait.strategy.type", "BUSY_SPIN_WAIT");
+                .setProperty("jupiter.executor.factory.provider.factory_name", "threadPool");
 
         final JServer server = new DefaultServer().withAcceptor(new JNettyTcpAcceptor(18099, processors, true) {
 
