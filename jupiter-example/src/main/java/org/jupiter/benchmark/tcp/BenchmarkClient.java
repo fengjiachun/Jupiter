@@ -109,6 +109,7 @@ public class BenchmarkClient {
         final Service service = ProxyFactory.factory(Service.class)
                 .version("1.0.0")
                 .client(client)
+                .serializerType(SerializerType.PROTO_STUFF)
                 .loadBalancerType(LoadBalancerType.ROUND_ROBIN)
                 .addProviderAddress(addresses)
                 .newProxyInstance();
@@ -161,7 +162,7 @@ public class BenchmarkClient {
                 .version("1.0.0")
                 .client(client)
                 .invokeType(InvokeType.ASYNC)
-                .serializerType(SerializerType.KRYO)
+                .serializerType(SerializerType.PROTO_STUFF)
                 .loadBalancerType(LoadBalancerType.ROUND_ROBIN)
                 .addProviderAddress(addresses)
                 .newProxyInstance();
