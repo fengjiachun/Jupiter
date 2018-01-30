@@ -1,7 +1,8 @@
 Jupiter release notes
 ------------------------
 
-### 2018-01-24: version 1.2.17.Beta
+### 2018-01-31: version 1.2.17.Beta
+- Add [Sequence 序号生成器](/jupiter-common/src/main/java/org/jupiter/common/util/Sequence.java)
 - Bug fix: ProviderInterceptor 参数 {Object result, Throwable failCause} 始终为null
 - Bug fix: Spring schema 数组属性注入失败
 - Add JupiterSpringClient#ConsumerInterceptor[] consumer端全局拦截器
@@ -13,14 +14,14 @@ Jupiter release notes
 - Update [asm](http://asm.ow2.org) version: 5.2 --> 6.0
 - Update [byte-buddy](https://github.com/raphw/byte-buddy) version: 1.6.3 --> 1.7.9
 - Update [disruptor](https://github.com/LMAX-Exchange/disruptor) version: 3.3.6 --> 3.3.7
-- Add CallerRunsExecutorFactory
+- Add [CallerRunsExecutorFactory](/jupiter-rpc/src/main/java/org/jupiter/rpc/executor/CallerRunsExecutorFactory.java)
 
 ### 2018-01-22: version 1.2.16
 
-- Add CloseableExecutor
+- Add [CloseableExecutor](/jupiter-rpc/src/main/java/org/jupiter/rpc/executor/CloseableExecutor.java)
 - Add method JClient#awaitConnections(Class<?> interfaceClass, long timeoutMillis)
 - Add method JClient#awaitConnections(Class<?> interfaceClass, String version, long timeoutMillis)
-- 感谢 @远墨 提供的图 docs/static_files/jupiter-rpc.png
+- [感谢 @远墨 提供的图](/docs/static_files/jupiter-rpc.png)
 
 ### 2018-01-17: version 1.2.15
 
