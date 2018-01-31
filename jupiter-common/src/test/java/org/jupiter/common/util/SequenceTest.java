@@ -61,7 +61,7 @@ public class SequenceTest {
     }
 
     static AtomicLong seq1 = new AtomicLong();
-    static Sequence seq2 = new Sequence();
+    static Sequence seq2 = new Sequence(128);
 
     @Benchmark
     public static long seq1() {

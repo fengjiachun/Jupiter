@@ -49,7 +49,7 @@ class RhsPadding extends Value {
 }
 
 /**
- * 序号生成器, 每个线程预先申请一个区间, 步长(STEP)固定为128, 以此种方式尽量减少CAS操作,
+ * 序号生成器, 每个线程预先申请一个区间, 步长(step)固定, 以此种方式尽量减少CAS操作,
  * 需要注意的是, 这个序号生成器不是严格自增的, 并且也溢出也是可以接受的(接受负数).
  *
  * jupiter
@@ -59,10 +59,9 @@ class RhsPadding extends Value {
  */
 public class Sequence extends RhsPadding {
 
-    private static final AtomicLongFieldUpdater<Value> updater
-            = AtomicLongFieldUpdater.newUpdater(Value.class, "value");
+    private static final int DEFAULT_STEP = 128;
 
-    private static final int STEP = 128;
+    private static final AtomicLongFieldUpdater<Value> updater = AtomicLongFieldUpdater.newUpdater(Value.class, "value");
 
     private final InternalThreadLocal<LocalSequence> localSequence = new InternalThreadLocal<LocalSequence>() {
 
@@ -72,9 +71,18 @@ public class Sequence extends RhsPadding {
         }
     };
 
-    public Sequence() {}
+    private final int step;
 
-    public Sequence(long initialValue) {
+    public Sequence() {
+        this(DEFAULT_STEP);
+    }
+
+    public Sequence(int step) {
+        this.step = step;
+    }
+
+    public Sequence(long initialValue, int step) {
+        this.step = step;
         updater.set(this, initialValue);
     }
 
@@ -83,7 +91,7 @@ public class Sequence extends RhsPadding {
     }
 
     private long getNextBaseValue() {
-        return updater.getAndAdd(this, STEP);
+        return updater.getAndAdd(this, step);
     }
 
     private final class LocalSequence {
@@ -94,7 +102,7 @@ public class Sequence extends RhsPadding {
         public long next() {
             long realVal = ++localValue + localBase;
 
-            if (localValue == STEP) {
+            if (localValue == step) {
                 localBase = getNextBaseValue();
                 localValue = 0;
             }
