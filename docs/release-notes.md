@@ -8,7 +8,6 @@ Jupiter release notes
 - Add JupiterSpringClient#ConsumerInterceptor[] consumer端全局拦截器
 - ConsumerHook --> ConsumerInterceptor
 - Update [open-tracing](https://github.com/opentracing/opentracing-java) version: 0.31.0-RC1 --> 0.31.0
-- Update [netty](https://github.com/netty/netty) version: 4.1.19.Final --> 4.1.20.Final
 - Update [metrics-core](https://github.com/dropwizard/metrics) version: 3.1.2 --> 4.0.2
 - Update [affinity](https://github.com/OpenHFT/Java-Thread-Affinity) version: 3.0.6 --> 3.1.7
 - Update [asm](http://asm.ow2.org) version: 5.2 --> 6.0
