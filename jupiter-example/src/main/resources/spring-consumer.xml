@@ -35,6 +35,11 @@
             String providerServerAddresses                          // IP直连到providers [host1:port1,host2:port2....]
             ConsumerInterceptor[] globalConsumerInterceptors;       // 全局拦截器
         -->
+        <jupiter:netOptions>
+            <jupiter:childOption name="PREFER_DIRECT" value="true" />
+            <jupiter:childOption name="SO_SNDBUF" value="8192" />
+            <jupiter:childOption name="SO_RCVBUF" value="8192" />
+        </jupiter:netOptions>
     </jupiter:client>
 
     <bean id="interceptor1" class="org.jupiter.example.spring.interceptor.consumer.MyConsumerInterceptor1" />

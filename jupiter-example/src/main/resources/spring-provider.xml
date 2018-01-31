@@ -38,6 +38,14 @@
             ProviderInterceptor[] globalProviderInterceptors    // 全局拦截器
             FlowController<JRequest> flowController             // 全局流量控制
         -->
+        <jupiter:netOptions>
+            <jupiter:parentOption name="SO_REUSEADDR" value="true" />
+            <jupiter:parentOption name="SO_BACKLOG" value="100" />
+
+            <jupiter:childOption name="PREFER_DIRECT" value="true" />
+            <jupiter:childOption name="SO_SNDBUF" value="8192" />
+            <jupiter:childOption name="SO_RCVBUF" value="8192" />
+        </jupiter:netOptions>
     </jupiter:server>
 
     <bean id="interceptor1" class="org.jupiter.example.spring.interceptor.provider.MyProviderInterceptor1" />

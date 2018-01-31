@@ -202,11 +202,38 @@
         </xsd:choice>
     </xsd:complexType>
 
+    <xsd:complexType name="netOptionType">
+        <xsd:attribute name="name" type="xsd:string" use="required">
+            <xsd:annotation>
+                <xsd:documentation><![CDATA[ The option name. ]]></xsd:documentation>
+            </xsd:annotation>
+        </xsd:attribute>
+        <xsd:attribute name="value" type="xsd:string" use="required">
+            <xsd:annotation>
+                <xsd:documentation><![CDATA[ The option value. ]]></xsd:documentation>
+            </xsd:annotation>
+        </xsd:attribute>
+    </xsd:complexType>
+
+    <xsd:complexType name="acceptorNetOptionsType">
+        <xsd:choice minOccurs="1" maxOccurs="unbounded">
+            <xsd:element name="childOption" type="netOptionType"/>
+            <xsd:element name="parentOption" type="netOptionType"/>
+        </xsd:choice>
+    </xsd:complexType>
+
+    <xsd:complexType name="connectorNetOptionsType">
+        <xsd:choice minOccurs="1" maxOccurs="unbounded">
+            <xsd:element name="childOption" type="netOptionType"/>
+        </xsd:choice>
+    </xsd:complexType>
+
     <xsd:complexType name="jupiterServerType">
         <xsd:complexContent>
             <xsd:extension base="idType">
                 <xsd:choice minOccurs="0" maxOccurs="unbounded">
                     <xsd:element name="property" type="jupiterServerPropertyType"/>
+                    <xsd:element name="netOptions" type="acceptorNetOptionsType"/>
                 </xsd:choice>
                 <xsd:attribute name="registryType" type="registryTypeType" use="optional">
                     <xsd:annotation>
@@ -227,6 +254,7 @@
             <xsd:extension base="idType">
                 <xsd:choice minOccurs="0" maxOccurs="unbounded">
                     <xsd:element name="property" type="jupiterClientPropertyType"/>
+                    <xsd:element name="netOptions" type="connectorNetOptionsType"/>
                 </xsd:choice>
                 <xsd:attribute name="appName" type="xsd:string" use="optional">
                     <xsd:annotation>

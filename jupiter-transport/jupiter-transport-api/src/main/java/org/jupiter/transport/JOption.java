@@ -65,6 +65,7 @@ public final class JOption<T> extends AbstractConstant<JOption<T>> {
     /**
      * Returns {@code true} if a {@link JOption} exists for the given {@code name}.
      */
+    @SuppressWarnings("all")
     public static boolean exists(String name) {
         return pool.exists(name);
     }
