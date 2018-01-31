@@ -82,8 +82,8 @@ public class Sequence extends RhsPadding {
     }
 
     public Sequence(long initialValue, int step) {
-        this.step = step;
         updater.set(this, initialValue);
+        this.step = step;
     }
 
     public long next() {
