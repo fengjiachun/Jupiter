@@ -31,15 +31,25 @@ import java.util.concurrent.TimeUnit;
  * @author jiachun.fjc
  */
 @Fork(1)
-@Warmup(iterations = 5)
-@Measurement(iterations = 10)
-@BenchmarkMode(Mode.All)
+@Warmup(iterations = 3)
+@Measurement(iterations = 3)
+@BenchmarkMode({ Mode.Throughput, Mode.AverageTime, Mode.SampleTime })
 @OutputTimeUnit(TimeUnit.NANOSECONDS)
 public class SystemClockTest {
 
+    /*
+        Benchmark                 Mode     Cnt     Score       Error   Units
+        SystemClockTest.clock1   thrpt       3     0.167 ±     0.212  ops/ns
+        SystemClockTest.clock2   thrpt       3    11.499 ±     4.067  ops/ns
+        SystemClockTest.clock1    avgt       3    51.302 ±    30.563   ns/op
+        SystemClockTest.clock2    avgt       3     0.748 ±     0.232   ns/op
+        SystemClockTest.clock1  sample  373913   165.863 ±    46.948   ns/op
+        SystemClockTest.clock2  sample  434459    99.446 ±     6.615   ns/op
+     */
     public static void main(String[] args) throws RunnerException {
         Options opt = new OptionsBuilder()
                 .include(SystemClockTest.class.getSimpleName())
+                .threads(Runtime.getRuntime().availableProcessors())
                 .build();
 
         new Runner(opt).run();
