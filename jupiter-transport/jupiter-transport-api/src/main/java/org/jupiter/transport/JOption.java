@@ -192,21 +192,21 @@ public final class JOption<T> extends AbstractConstant<JOption<T>> {
     static {
         Set<JOption<?>> options = new HashSet<>();
 
-        options.add(JOption.TCP_NODELAY);
-        options.add(JOption.KEEP_ALIVE);
-        options.add(JOption.SO_REUSEADDR);
-        options.add(JOption.SO_SNDBUF);
-        options.add(JOption.SO_RCVBUF);
-        options.add(JOption.SO_LINGER);
-        options.add(JOption.SO_BACKLOG);
-        options.add(JOption.IP_TOS);
-        options.add(JOption.ALLOW_HALF_CLOSURE);
-        options.add(JOption.PREFER_DIRECT);
-        options.add(JOption.USE_POOLED_ALLOCATOR);
-        options.add(JOption.WRITE_BUFFER_HIGH_WATER_MARK);
-        options.add(JOption.WRITE_BUFFER_LOW_WATER_MARK);
-        options.add(JOption.IO_RATIO);
-        options.add(JOption.CONNECT_TIMEOUT_MILLIS);
+        options.add(TCP_NODELAY);
+        options.add(KEEP_ALIVE);
+        options.add(SO_REUSEADDR);
+        options.add(SO_SNDBUF);
+        options.add(SO_RCVBUF);
+        options.add(SO_LINGER);
+        options.add(SO_BACKLOG);
+        options.add(IP_TOS);
+        options.add(ALLOW_HALF_CLOSURE);
+        options.add(PREFER_DIRECT);
+        options.add(USE_POOLED_ALLOCATOR);
+        options.add(WRITE_BUFFER_HIGH_WATER_MARK);
+        options.add(WRITE_BUFFER_LOW_WATER_MARK);
+        options.add(IO_RATIO);
+        options.add(CONNECT_TIMEOUT_MILLIS);
 
         ALL_OPTIONS = Collections.unmodifiableSet(options);
     }
