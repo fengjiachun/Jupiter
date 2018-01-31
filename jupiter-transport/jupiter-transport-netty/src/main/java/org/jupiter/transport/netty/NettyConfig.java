@@ -236,8 +236,8 @@ public class NettyConfig implements JConfig {
             private volatile int linger = -1;
             private volatile int ipTos = -1;
             private volatile int connectTimeoutMillis = -1;
-            private volatile int writeBufferHighWaterMark = -1;
-            private volatile int writeBufferLowWaterMark = -1;
+            private volatile int writeBufferHighWaterMark = 1024 * 1024;
+            private volatile int writeBufferLowWaterMark = 1024 * 1024;
             private volatile boolean reuseAddress = true;
             private volatile boolean keepAlive = true;
             private volatile boolean tcpNoDelay = true;
