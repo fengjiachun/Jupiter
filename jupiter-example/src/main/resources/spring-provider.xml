@@ -38,13 +38,15 @@
             ProviderInterceptor[] globalProviderInterceptors    // 全局拦截器
             FlowController<JRequest> flowController             // 全局流量控制
         -->
-        <jupiter:netOptions>
-            <jupiter:parentOption name="SO_REUSEADDR" value="true" />
-            <jupiter:parentOption name="SO_BACKLOG" value="100" />
 
-            <jupiter:childOption name="PREFER_DIRECT" value="true" />
-            <jupiter:childOption name="SO_SNDBUF" value="8192" />
-            <jupiter:childOption name="SO_RCVBUF" value="8192" />
+        <!-- 网络层配置选项 -->
+        <jupiter:netOptions>
+            <jupiter:parentOption SO_REUSEADDR="true" />
+            <jupiter:parentOption SO_BACKLOG="100" />
+
+            <jupiter:childOption PREFER_DIRECT="true" />
+            <jupiter:childOption SO_RCVBUF="8192" />
+            <jupiter:childOption SO_SNDBUF="8192" />
         </jupiter:netOptions>
     </jupiter:server>
 

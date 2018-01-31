@@ -44,7 +44,7 @@ public class JupiterSpringClient implements InitializingBean {
     private RegistryService.RegistryType registryType;
     private JConnector<JConnection> connector;
 
-    private List<Pair<JOption<Object>, String>> childNetOptions;
+    private List<Pair<JOption<Object>, String>> childNetOptions;        // 网络层配置选项
     private String registryServerAddresses;                             // 注册中心地址 [host1:port1,host2:port2....]
     private String providerServerAddresses;                             // IP直连到providers [host1:port1,host2:port2....]
     private List<UnresolvedAddress> providerServerUnresolvedAddresses;  // IP直连的地址列表

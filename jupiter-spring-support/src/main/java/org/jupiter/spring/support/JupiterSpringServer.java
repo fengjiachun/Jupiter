@@ -50,12 +50,12 @@ public class JupiterSpringServer implements InitializingBean {
     private RegistryService.RegistryType registryType;
     private JAcceptor acceptor;
 
-    private List<Pair<JOption<Object>, String>> parentNetOptions;
-    private List<Pair<JOption<Object>, String>> childNetOptions;
-    private String registryServerAddresses;                     // 注册中心地址 [host1:port1,host2:port2....]
-    private boolean hasRegistryServer;                          // true: 需要连接注册中心; false: IP直连方式
-    private ProviderInterceptor[] globalProviderInterceptors;   // 全局拦截器
-    private FlowController<JRequest> globalFlowController;      // 全局流量控制
+    private List<Pair<JOption<Object>, String>> parentNetOptions;   // 网络层配置选项
+    private List<Pair<JOption<Object>, String>> childNetOptions;    // 网络层配置选项
+    private String registryServerAddresses;                         // 注册中心地址 [host1:port1,host2:port2....]
+    private boolean hasRegistryServer;                              // true: 需要连接注册中心; false: IP直连方式
+    private ProviderInterceptor[] globalProviderInterceptors;       // 全局拦截器
+    private FlowController<JRequest> globalFlowController;          // 全局流量控制
 
     @Override
     public void afterPropertiesSet() throws Exception {

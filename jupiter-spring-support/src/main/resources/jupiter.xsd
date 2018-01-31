@@ -203,14 +203,79 @@
     </xsd:complexType>
 
     <xsd:complexType name="netOptionType">
-        <xsd:attribute name="name" type="xsd:string" use="required">
+        <xsd:attribute name="TCP_NODELAY" type="xsd:string" use="optional">
             <xsd:annotation>
-                <xsd:documentation><![CDATA[ The option name. ]]></xsd:documentation>
+                <xsd:documentation><![CDATA[ JOption<Boolean> ]]></xsd:documentation>
             </xsd:annotation>
         </xsd:attribute>
-        <xsd:attribute name="value" type="xsd:string" use="required">
+        <xsd:attribute name="KEEP_ALIVE" type="xsd:string" use="optional">
             <xsd:annotation>
-                <xsd:documentation><![CDATA[ The option value. ]]></xsd:documentation>
+                <xsd:documentation><![CDATA[ JOption<Boolean> ]]></xsd:documentation>
+            </xsd:annotation>
+        </xsd:attribute>
+        <xsd:attribute name="SO_REUSEADDR" type="xsd:string" use="optional">
+            <xsd:annotation>
+                <xsd:documentation><![CDATA[ JOption<Boolean> ]]></xsd:documentation>
+            </xsd:annotation>
+        </xsd:attribute>
+        <xsd:attribute name="SO_SNDBUF" type="xsd:string" use="optional">
+            <xsd:annotation>
+                <xsd:documentation><![CDATA[ JOption<Integer> ]]></xsd:documentation>
+            </xsd:annotation>
+        </xsd:attribute>
+        <xsd:attribute name="SO_RCVBUF" type="xsd:string" use="optional">
+            <xsd:annotation>
+                <xsd:documentation><![CDATA[ JOption<Integer> ]]></xsd:documentation>
+            </xsd:annotation>
+        </xsd:attribute>
+        <xsd:attribute name="SO_LINGER" type="xsd:string" use="optional">
+            <xsd:annotation>
+                <xsd:documentation><![CDATA[ JOption<Integer> ]]></xsd:documentation>
+            </xsd:annotation>
+        </xsd:attribute>
+        <xsd:attribute name="SO_BACKLOG" type="xsd:string" use="optional">
+            <xsd:annotation>
+                <xsd:documentation><![CDATA[ JOption<Integer> ]]></xsd:documentation>
+            </xsd:annotation>
+        </xsd:attribute>
+        <xsd:attribute name="IP_TOS" type="xsd:string" use="optional">
+            <xsd:annotation>
+                <xsd:documentation><![CDATA[ JOption<Integer> ]]></xsd:documentation>
+            </xsd:annotation>
+        </xsd:attribute>
+        <xsd:attribute name="ALLOW_HALF_CLOSURE" type="xsd:string" use="optional">
+            <xsd:annotation>
+                <xsd:documentation><![CDATA[ JOption<Boolean> ]]></xsd:documentation>
+            </xsd:annotation>
+        </xsd:attribute>
+        <xsd:attribute name="PREFER_DIRECT" type="xsd:string" use="optional">
+            <xsd:annotation>
+                <xsd:documentation><![CDATA[ JOption<Boolean> ]]></xsd:documentation>
+            </xsd:annotation>
+        </xsd:attribute>
+        <xsd:attribute name="USE_POOLED_ALLOCATOR" type="xsd:string" use="optional">
+            <xsd:annotation>
+                <xsd:documentation><![CDATA[ JOption<Boolean> ]]></xsd:documentation>
+            </xsd:annotation>
+        </xsd:attribute>
+        <xsd:attribute name="WRITE_BUFFER_HIGH_WATER_MARK" type="xsd:string" use="optional">
+            <xsd:annotation>
+                <xsd:documentation><![CDATA[ JOption<Integer> ]]></xsd:documentation>
+            </xsd:annotation>
+        </xsd:attribute>
+        <xsd:attribute name="WRITE_BUFFER_LOW_WATER_MARK" type="xsd:string" use="optional">
+            <xsd:annotation>
+                <xsd:documentation><![CDATA[ JOption<Integer> ]]></xsd:documentation>
+            </xsd:annotation>
+        </xsd:attribute>
+        <xsd:attribute name="IO_RATIO" type="xsd:string" use="optional">
+            <xsd:annotation>
+                <xsd:documentation><![CDATA[ JOption<Integer> ]]></xsd:documentation>
+            </xsd:annotation>
+        </xsd:attribute>
+        <xsd:attribute name="CONNECT_TIMEOUT_MILLIS" type="xsd:string" use="optional">
+            <xsd:annotation>
+                <xsd:documentation><![CDATA[ JOption<Integer> ]]></xsd:documentation>
             </xsd:annotation>
         </xsd:attribute>
     </xsd:complexType>

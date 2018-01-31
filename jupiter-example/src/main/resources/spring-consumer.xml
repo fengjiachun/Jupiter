@@ -35,10 +35,13 @@
             String providerServerAddresses                          // IP直连到providers [host1:port1,host2:port2....]
             ConsumerInterceptor[] globalConsumerInterceptors;       // 全局拦截器
         -->
+
+        <!-- 网络层配置选项 -->
         <jupiter:netOptions>
-            <jupiter:childOption name="PREFER_DIRECT" value="true" />
-            <jupiter:childOption name="SO_SNDBUF" value="8192" />
-            <jupiter:childOption name="SO_RCVBUF" value="8192" />
+            <jupiter:childOption PREFER_DIRECT="true" />
+            <jupiter:childOption SO_RCVBUF="8192" />
+            <jupiter:childOption SO_SNDBUF="8192" />
+            <jupiter:childOption ALLOW_HALF_CLOSURE="false" />
         </jupiter:netOptions>
     </jupiter:client>
 
