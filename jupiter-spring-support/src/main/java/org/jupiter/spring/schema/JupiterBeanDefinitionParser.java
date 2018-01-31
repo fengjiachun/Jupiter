@@ -41,9 +41,7 @@ import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 /**
  * Jupiter
@@ -52,26 +50,6 @@ import java.util.Set;
  * @author jiachun.fjc
  */
 public class JupiterBeanDefinitionParser implements BeanDefinitionParser {
-
-    static final Set<JOption<?>> OPTIONS = new HashSet<>();
-
-    static {
-        OPTIONS.add(JOption.TCP_NODELAY);
-        OPTIONS.add(JOption.KEEP_ALIVE);
-        OPTIONS.add(JOption.SO_REUSEADDR);
-        OPTIONS.add(JOption.SO_SNDBUF);
-        OPTIONS.add(JOption.SO_RCVBUF);
-        OPTIONS.add(JOption.SO_LINGER);
-        OPTIONS.add(JOption.SO_BACKLOG);
-        OPTIONS.add(JOption.IP_TOS);
-        OPTIONS.add(JOption.ALLOW_HALF_CLOSURE);
-        OPTIONS.add(JOption.PREFER_DIRECT);
-        OPTIONS.add(JOption.USE_POOLED_ALLOCATOR);
-        OPTIONS.add(JOption.WRITE_BUFFER_HIGH_WATER_MARK);
-        OPTIONS.add(JOption.WRITE_BUFFER_LOW_WATER_MARK);
-        OPTIONS.add(JOption.IO_RATIO);
-        OPTIONS.add(JOption.CONNECT_TIMEOUT_MILLIS);
-    }
 
     private final Class<?> beanClass;
 
@@ -282,14 +260,14 @@ public class JupiterBeanDefinitionParser implements BeanDefinitionParser {
         String localName = configItem.getLocalName();
 
         if ("parentOption".equals(localName) && parentOptions != null) {
-            for (JOption<?> op : OPTIONS) {
+            for (JOption<?> op : JOption.ALL_OPTIONS) {
                 String value = ((Element) configItem).getAttribute(op.name());
                 if (Strings.isNotBlank(value)) {
                     parentOptions.add(Pair.of((JOption<Object>) op, value));
                 }
             }
         } else if ("childOption".equals(localName) && childOptions != null) {
-            for (JOption<?> op : OPTIONS) {
+            for (JOption<?> op : JOption.ALL_OPTIONS) {
                 String value = ((Element) configItem).getAttribute(op.name());
                 if (Strings.isNotBlank(value)) {
                     childOptions.add(Pair.of((JOption<Object>) op, value));

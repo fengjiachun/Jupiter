@@ -17,6 +17,8 @@
 package org.jupiter.spring.support;
 
 import org.jupiter.common.util.*;
+import org.jupiter.common.util.internal.logging.InternalLogger;
+import org.jupiter.common.util.internal.logging.InternalLoggerFactory;
 import org.jupiter.registry.RegistryService;
 import org.jupiter.rpc.DefaultClient;
 import org.jupiter.rpc.JClient;
@@ -38,6 +40,8 @@ import static org.jupiter.common.util.Preconditions.checkNotNull;
  * @author jiachun.fjc
  */
 public class JupiterSpringClient implements InitializingBean {
+
+    private static final InternalLogger logger = InternalLoggerFactory.getInstance(JupiterSpringClient.class);
 
     private JClient client;
     private String appName;
@@ -68,6 +72,7 @@ public class JupiterSpringClient implements InitializingBean {
             JConfig child = connector.config();
             for (Pair<JOption<Object>, String> config : childNetOptions) {
                 child.setOption(config.getFirst(), config.getSecond());
+                logger.info("Setting child net option: {}", config);
             }
         }
 

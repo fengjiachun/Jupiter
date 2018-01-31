@@ -19,6 +19,10 @@ package org.jupiter.transport;
 import org.jupiter.common.util.AbstractConstant;
 import org.jupiter.common.util.ConstantPool;
 
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.Set;
+
 /**
  * Jupiter transport option.
  *
@@ -182,6 +186,30 @@ public final class JOption<T> extends AbstractConstant<JOption<T>> {
     public static final JOption<Integer> IO_RATIO = valueOf("IO_RATIO");
 
     public static final JOption<Integer> CONNECT_TIMEOUT_MILLIS = valueOf("CONNECT_TIMEOUT_MILLIS");
+
+    public static final Set<JOption<?>> ALL_OPTIONS;
+
+    static {
+        Set<JOption<?>> options = new HashSet<>();
+
+        options.add(JOption.TCP_NODELAY);
+        options.add(JOption.KEEP_ALIVE);
+        options.add(JOption.SO_REUSEADDR);
+        options.add(JOption.SO_SNDBUF);
+        options.add(JOption.SO_RCVBUF);
+        options.add(JOption.SO_LINGER);
+        options.add(JOption.SO_BACKLOG);
+        options.add(JOption.IP_TOS);
+        options.add(JOption.ALLOW_HALF_CLOSURE);
+        options.add(JOption.PREFER_DIRECT);
+        options.add(JOption.USE_POOLED_ALLOCATOR);
+        options.add(JOption.WRITE_BUFFER_HIGH_WATER_MARK);
+        options.add(JOption.WRITE_BUFFER_LOW_WATER_MARK);
+        options.add(JOption.IO_RATIO);
+        options.add(JOption.CONNECT_TIMEOUT_MILLIS);
+
+        ALL_OPTIONS = Collections.unmodifiableSet(options);
+    }
 
     private JOption(int id, String name) {
         super(id, name);

@@ -20,6 +20,8 @@ import org.jupiter.common.util.ExceptionUtil;
 import org.jupiter.common.util.Pair;
 import org.jupiter.common.util.Strings;
 import org.jupiter.common.util.SystemPropertyUtil;
+import org.jupiter.common.util.internal.logging.InternalLogger;
+import org.jupiter.common.util.internal.logging.InternalLoggerFactory;
 import org.jupiter.registry.RegistryService;
 import org.jupiter.rpc.DefaultServer;
 import org.jupiter.rpc.JRequest;
@@ -45,6 +47,8 @@ import static org.jupiter.common.util.Preconditions.checkNotNull;
  * @author jiachun.fjc
  */
 public class JupiterSpringServer implements InitializingBean {
+
+    private static final InternalLogger logger = InternalLoggerFactory.getInstance(JupiterSpringServer.class);
 
     private JServer server;
     private RegistryService.RegistryType registryType;
@@ -75,12 +79,14 @@ public class JupiterSpringServer implements InitializingBean {
             JConfig parent = configGroup.parent();
             for (Pair<JOption<Object>, String> config : parentNetOptions) {
                 parent.setOption(config.getFirst(), config.getSecond());
+                logger.info("Setting parent net option: {}", config);
             }
         }
         if (childNetOptions != null && !childNetOptions.isEmpty()) {
             JConfig child = configGroup.child();
             for (Pair<JOption<Object>, String> config : childNetOptions) {
                 child.setOption(config.getFirst(), config.getSecond());
+                logger.info("Setting child net option: {}", config);
             }
         }
 
