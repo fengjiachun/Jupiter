@@ -33,7 +33,7 @@ import java.util.Set;
  *
  * @author jiachun.fjc
  */
-@SuppressWarnings("unchecked")
+@SuppressWarnings("all")
 public final class JOption<T> extends AbstractConstant<JOption<T>> {
 
     private static final ConstantPool<JOption<Object>> pool = new ConstantPool<JOption<Object>>() {
@@ -69,7 +69,6 @@ public final class JOption<T> extends AbstractConstant<JOption<T>> {
     /**
      * Returns {@code true} if a {@link JOption} exists for the given {@code name}.
      */
-    @SuppressWarnings("all")
     public static boolean exists(String name) {
         return pool.exists(name);
     }
