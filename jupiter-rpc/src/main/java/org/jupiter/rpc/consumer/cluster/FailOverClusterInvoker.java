@@ -23,9 +23,11 @@ import org.jupiter.rpc.JListener;
 import org.jupiter.rpc.JRequest;
 import org.jupiter.rpc.consumer.dispatcher.DefaultRoundDispatcher;
 import org.jupiter.rpc.consumer.dispatcher.Dispatcher;
+import org.jupiter.rpc.consumer.future.DefaultInvokeFuture;
 import org.jupiter.rpc.consumer.future.FailOverInvokeFuture;
 import org.jupiter.rpc.consumer.future.InvokeFuture;
 import org.jupiter.rpc.model.metadata.MessageWrapper;
+import org.jupiter.transport.channel.JChannel;
 
 import static org.jupiter.common.util.Preconditions.checkArgument;
 import static org.jupiter.common.util.StackTraceUtil.stackTrace;
@@ -87,7 +89,7 @@ public class FailOverClusterInvoker implements ClusterInvoker {
                              Throwable lastCause) {
 
         if (tryCount > 0) {
-            InvokeFuture<T> f = dispatcher.dispatch(request, returnType);
+            final InvokeFuture<T> f = dispatcher.dispatch(request, returnType);
 
             f.addListener(new JListener<T>() {
 
@@ -100,7 +102,13 @@ public class FailOverClusterInvoker implements ClusterInvoker {
                 public void failure(Throwable cause) {
                     if (logger.isWarnEnabled()) {
                         MessageWrapper message = request.message();
-                        logger.warn("[Fail-over] retry, [{}] attempts left, [method: {}], [metadata: {}], {}.",
+                        JChannel channel = null;
+                        if (f instanceof DefaultInvokeFuture) {
+                            channel = ((DefaultInvokeFuture) f).channel();
+                        }
+
+                        logger.warn("[{}]: [Fail-over] retry, [{}] attempts left, [method: {}], [metadata: {}], {}.",
+                                channel,
                                 tryCount - 1,
                                 message.getMethodName(),
                                 message.getMetadata(),

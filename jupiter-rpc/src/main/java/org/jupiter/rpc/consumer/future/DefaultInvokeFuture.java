@@ -92,6 +92,10 @@ public class DefaultInvokeFuture<V> extends AbstractListenableFuture<V> implemen
         }
     }
 
+    public JChannel channel() {
+        return channel;
+    }
+
     @Override
     public Class<V> returnType() {
         return returnType;
