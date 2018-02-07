@@ -62,7 +62,10 @@ public abstract class AbstractFuture<V> {
     }
 
     public boolean isDone() {
-        return state != NEW;
+        // state can not be COMPLETING, because of method AbstractFuture#outcome()
+        //
+        // see https://github.com/fengjiachun/Jupiter/issues/55
+        return state > COMPLETING;
     }
 
     protected int state() {
