@@ -55,7 +55,7 @@
         <barchart.version>2.3.0</barchart.version>
         <hessian.version>4.0.38</hessian.version>
         <kryo.version>2.23.0</kryo.version>
-        <protostuff.version>1.5.2</protostuff.version>
+        <protostuff.version>1.6.0</protostuff.version>
         <objenesis.version>2.1</objenesis.version>
         <asm.version>6.0</asm.version>
         <bytebuddy.version>1.7.9</bytebuddy.version>
