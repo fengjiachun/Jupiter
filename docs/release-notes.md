@@ -1,7 +1,7 @@
 Jupiter release notes
 ------------------------
 
-### 2018-01-31: version 1.2.17
+### 2018-02-07: version 1.2.17
 - Bug fix: [jupiter-all没引入opentracing](https://github.com/fengjiachun/Jupiter/issues/52)
 - 删除没必要的ProtoStuffSerializer的外层schema缓存
 - Bug fix: [AbstractFuture isDone 的问题](https://github.com/fengjiachun/Jupiter/issues/55)
