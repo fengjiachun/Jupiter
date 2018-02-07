@@ -280,6 +280,17 @@
         </dependency>
         <!-- ### spring dependency: end -->
 
+        <!-- ### open tracing: begin -->
+        <dependency>
+            <groupId>io.opentracing</groupId>
+            <artifactId>opentracing-api</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>io.opentracing</groupId>
+            <artifactId>opentracing-noop</artifactId>
+        </dependency>
+        <!-- ### open tracing: end -->
+
         <!-- ### benchmark: begin -->
         <dependency>
             <groupId>org.openjdk.jmh</groupId>
