@@ -20,7 +20,6 @@ import io.protostuff.LinkedBuffer;
 import io.protostuff.ProtostuffIOUtil;
 import io.protostuff.Schema;
 import io.protostuff.runtime.RuntimeSchema;
-import org.jupiter.common.util.Reflects;
 import org.jupiter.common.util.SystemPropertyUtil;
 import org.jupiter.common.util.internal.InternalThreadLocal;
 import org.jupiter.serialization.Serializer;
@@ -91,10 +90,11 @@ public class ProtoStuffSerializer extends Serializer {
 
     @Override
     public <T> T readObject(byte[] bytes, int offset, int length, Class<T> clazz) {
-        T msg = Reflects.newInstance(clazz, false);
         Schema<T> schema = RuntimeSchema.getSchema(clazz);
+        T msg = schema.newMessage();
 
         ProtostuffIOUtil.mergeFrom(bytes, offset, length, msg, schema);
+
         return msg;
     }
 
