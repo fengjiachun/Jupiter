@@ -17,6 +17,7 @@
 package org.jupiter.transport.netty.handler.acceptor;
 
 import io.netty.channel.*;
+import io.netty.handler.codec.DecoderException;
 import io.netty.util.ReferenceCountUtil;
 import org.jupiter.common.util.Signal;
 import org.jupiter.common.util.internal.logging.InternalLogger;
@@ -114,15 +115,19 @@ public class AcceptorHandler extends ChannelInboundHandlerAdapter {
         Channel ch = ctx.channel();
 
         if (cause instanceof Signal) {
-            logger.error("An I/O signal was caught: {}, force to close channel: {}.", ((Signal) cause).name(), ch);
+            logger.error("I/O signal was caught: {}, force to close channel: {}.", ((Signal) cause).name(), ch);
 
             ch.close();
         } else if (cause instanceof IOException) {
             logger.error("An I/O exception was caught: {}, force to close channel: {}.", stackTrace(cause), ch);
 
             ch.close();
+        } else if (cause instanceof DecoderException) {
+            logger.error("Decoder exception was caught: {}, force to close channel: {}.", stackTrace(cause), ch);
+
+            ch.close();
         } else {
-            logger.error("An unexpected exception was caught: {}, channel: {}.", stackTrace(cause), ch);
+            logger.error("Unexpected exception was caught: {}, channel: {}.", stackTrace(cause), ch);
         }
     }
 

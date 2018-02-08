@@ -19,6 +19,7 @@ package org.jupiter.registry;
 import io.netty.bootstrap.Bootstrap;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.*;
+import io.netty.handler.codec.DecoderException;
 import io.netty.handler.codec.MessageToByteEncoder;
 import io.netty.handler.codec.ReplayingDecoder;
 import io.netty.util.Attribute;
@@ -535,15 +536,19 @@ public final class DefaultRegistry extends NettyTcpConnector {
             Channel ch = ctx.channel();
 
             if (cause instanceof Signal) {
-                logger.error("An I/O signal was caught: {}, force to close channel: {}.", ((Signal) cause).name(), ch);
+                logger.error("I/O signal was caught: {}, force to close channel: {}.", ((Signal) cause).name(), ch);
 
                 ch.close();
             } else if (cause instanceof IOException) {
-                logger.error("An I/O exception was caught: {}, force to close channel: {}.", stackTrace(cause), ch);
+                logger.error("I/O exception was caught: {}, force to close channel: {}.", stackTrace(cause), ch);
+
+                ch.close();
+            } else if (cause instanceof DecoderException) {
+                logger.error("Decoder exception was caught: {}, force to close channel: {}.", stackTrace(cause), ch);
 
                 ch.close();
             } else {
-                logger.error("An unexpected exception was caught: {}, channel: {}.", stackTrace(cause), ch);
+                logger.error("Unexpected exception was caught: {}, channel: {}.", stackTrace(cause), ch);
             }
         }
     }

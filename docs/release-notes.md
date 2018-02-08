@@ -1,8 +1,7 @@
 Jupiter release notes
 ------------------------
 
-### 2018-02-07: version 1.2.17
-- Update [protostuff](https://github.com/protostuff/protostuff) version: 1.5.2 --> 1.6.0
+### 2018-01-31: version 1.2.17.Beta
 - [Spring环境中开放JOption参数配置](https://github.com/fengjiachun/Jupiter/issues/50)
 - Add [Sequence 序号生成器](/jupiter-common/src/main/java/org/jupiter/common/util/Sequence.java)
 - Bug fix: ProviderInterceptor 参数 {Object result, Throwable failCause} 始终为null

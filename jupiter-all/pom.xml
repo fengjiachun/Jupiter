@@ -20,7 +20,7 @@
     <parent>
         <groupId>org.jupiter-rpc</groupId>
         <artifactId>jupiter</artifactId>
-        <version>1.2.17.Beta</version>
+        <version>1.2.17</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
@@ -279,6 +279,17 @@
             <artifactId>spring-context</artifactId>
         </dependency>
         <!-- ### spring dependency: end -->
+
+        <!-- ### open tracing: begin -->
+        <dependency>
+            <groupId>io.opentracing</groupId>
+            <artifactId>opentracing-api</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>io.opentracing</groupId>
+            <artifactId>opentracing-noop</artifactId>
+        </dependency>
+        <!-- ### open tracing: end -->
 
         <!-- ### benchmark: begin -->
         <dependency>
