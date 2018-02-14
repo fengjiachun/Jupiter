@@ -25,7 +25,7 @@ package org.jupiter.transport;
  *       2   │   1   │    1   │     8     │      4      │
  *  ├ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ┤
  *           │       │        │           │             │
- *  │  MAGIC   Sign    Status   Invoke Id   Body Length                   Body Content              │
+ *  │  MAGIC   Sign    Status   Invoke Id    Body Size                    Body Content              │
  *           │       │        │           │             │
  *  └ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ┘
  *
@@ -44,7 +44,7 @@ package org.jupiter.transport;
 public class JProtocolHeader {
 
     /** 协议头长度 */
-    public static final int HEAD_LENGTH = 16;
+    public static final int HEADER_SIZE = 16;
     /** Magic */
     public static final short MAGIC = (short) 0xbabe;
 
@@ -72,7 +72,7 @@ public class JProtocolHeader {
     private byte serializerCode;    // sign 高地址4位
     private byte status;            // 响应状态码
     private long id;                // request.invokeId, 用于映射 <id, request, response> 三元组
-    private int bodyLength;         // 消息体长度
+    private int bodySize;           // 消息体长度
 
     public static byte toSign(byte serializerCode, byte messageCode) {
         return (byte) ((serializerCode << 4) + messageCode);
@@ -109,12 +109,12 @@ public class JProtocolHeader {
         this.id = id;
     }
 
-    public int bodyLength() {
-        return bodyLength;
+    public int bodySize() {
+        return bodySize;
     }
 
-    public void bodyLength(int bodyLength) {
-        this.bodyLength = bodyLength;
+    public void bodySize(int bodyLength) {
+        this.bodySize = bodyLength;
     }
 
     @Override
@@ -124,7 +124,7 @@ public class JProtocolHeader {
                 ", serializerCode=" + serializerCode +
                 ", status=" + status +
                 ", id=" + id +
-                ", bodyLength=" + bodyLength +
+                ", bodySize=" + bodySize +
                 '}';
     }
 }

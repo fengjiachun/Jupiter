@@ -31,6 +31,8 @@ import java.io.OutputStream;
 import java.net.SocketAddress;
 import java.nio.ByteBuffer;
 
+import static org.jupiter.transport.JProtocolHeader.HEADER_SIZE;
+
 /**
  * 对Netty {@link Channel} 的包装, 通过静态方法 {@link #attachChannel(Channel)} 获取一个实例,
  * {@link NettyChannel} 实例构造后会attach到对应 {@link Channel} 上, 不需要每次创建.
@@ -191,7 +193,10 @@ public class NettyChannel implements JChannel {
         private ByteBuffer nioByteBuffer;
 
         public NettyChannelOutput(ByteBuf byteBuf) {
-            this.byteBuf = byteBuf;
+            this.byteBuf = byteBuf
+                    .ensureWritable(HEADER_SIZE)
+                    // 预留16个字节协议头位置
+                    .writerIndex(byteBuf.writerIndex() + HEADER_SIZE);
         }
 
         @Override
@@ -205,7 +210,7 @@ public class NettyChannel implements JChannel {
         @Override
         public ByteBuffer nioByteBuffer(int minWritableBytes) {
             if (minWritableBytes < 0) {
-                minWritableBytes = byteBuf.capacity();
+                minWritableBytes = byteBuf.writableBytes();
             }
 
             if (nioByteBuffer == null) {
@@ -232,7 +237,7 @@ public class NettyChannel implements JChannel {
 
         @Override
         public Object attach() {
-            return byteBuf.writerIndex(nioByteBuffer.position());
+            return byteBuf.writerIndex(byteBuf.writerIndex() + nioByteBuffer.position());
         }
 
         @Override

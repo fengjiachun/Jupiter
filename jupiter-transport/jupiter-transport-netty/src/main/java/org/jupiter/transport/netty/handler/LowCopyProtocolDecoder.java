@@ -41,7 +41,7 @@ import java.util.List;
  *       2   │   1   │    1   │     8     │      4      │
  *  ├ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ┤
  *           │       │        │           │             │
- *  │  MAGIC   Sign    Status   Invoke Id   Body Length                   Body Content              │
+ *  │  MAGIC   Sign    Status   Invoke Id    Body Size                    Body Content              │
  *           │       │        │           │             │
  *  └ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ┘
  *
@@ -71,7 +71,7 @@ public class LowCopyProtocolDecoder extends ReplayingDecoder<LowCopyProtocolDeco
     private static final boolean USE_COMPOSITE_BUF = SystemPropertyUtil.getBoolean("jupiter.io.decoder.composite.buf", false);
 
     public LowCopyProtocolDecoder() {
-        super(State.HEADER_MAGIC);
+        super(State.MAGIC);
         if (USE_COMPOSITE_BUF) {
             setCumulator(COMPOSITE_CUMULATOR);
         }
@@ -83,27 +83,27 @@ public class LowCopyProtocolDecoder extends ReplayingDecoder<LowCopyProtocolDeco
     @Override
     protected void decode(ChannelHandlerContext ctx, ByteBuf in, List<Object> out) throws Exception {
         switch (state()) {
-            case HEADER_MAGIC:
+            case MAGIC:
                 checkMagic(in.readShort());         // MAGIC
-                checkpoint(State.HEADER_SIGN);
-            case HEADER_SIGN:
+                checkpoint(State.SIGN);
+            case SIGN:
                 header.sign(in.readByte());         // 消息标志位
-                checkpoint(State.HEADER_STATUS);
-            case HEADER_STATUS:
+                checkpoint(State.STATUS);
+            case STATUS:
                 header.status(in.readByte());       // 状态位
-                checkpoint(State.HEADER_ID);
-            case HEADER_ID:
+                checkpoint(State.ID);
+            case ID:
                 header.id(in.readLong());           // 消息id
-                checkpoint(State.HEADER_BODY_LENGTH);
-            case HEADER_BODY_LENGTH:
-                header.bodyLength(in.readInt());    // 消息体长度
+                checkpoint(State.BODY_SIZE);
+            case BODY_SIZE:
+                header.bodySize(in.readInt());      // 消息体长度
                 checkpoint(State.BODY);
             case BODY:
                 switch (header.messageCode()) {
                     case JProtocolHeader.HEARTBEAT:
                         break;
                     case JProtocolHeader.REQUEST: {
-                        int length = checkBodyLength(header.bodyLength());
+                        int length = checkBodyLength(header.bodySize());
                         ByteBuf bodyByteBuf = in.readRetainedSlice(length);
 
                         JRequestPayload request = new JRequestPayload(header.id());
@@ -115,7 +115,7 @@ public class LowCopyProtocolDecoder extends ReplayingDecoder<LowCopyProtocolDeco
                         break;
                     }
                     case JProtocolHeader.RESPONSE: {
-                        int length = checkBodyLength(header.bodyLength());
+                        int length = checkBodyLength(header.bodySize());
                         ByteBuf bodyByteBuf = in.readRetainedSlice(length);
 
                         JResponsePayload response = new JResponsePayload(header.id());
@@ -129,7 +129,7 @@ public class LowCopyProtocolDecoder extends ReplayingDecoder<LowCopyProtocolDeco
                     default:
                         throw IoSignals.ILLEGAL_SIGN;
                 }
-                checkpoint(State.HEADER_MAGIC);
+                checkpoint(State.MAGIC);
         }
     }
 
@@ -176,11 +176,11 @@ public class LowCopyProtocolDecoder extends ReplayingDecoder<LowCopyProtocolDeco
     }
 
     enum State {
-        HEADER_MAGIC,
-        HEADER_SIGN,
-        HEADER_STATUS,
-        HEADER_ID,
-        HEADER_BODY_LENGTH,
+        MAGIC,
+        SIGN,
+        STATUS,
+        ID,
+        BODY_SIZE,
         BODY
     }
 }

@@ -36,7 +36,7 @@ public final class SerializerFactory {
     private static final InternalLogger logger = InternalLoggerFactory.getInstance(SerializerFactory.class);
 
     private static final boolean SERIALIZE_LOW_COPY =
-            SystemPropertyUtil.getBoolean("jupiter.serialize.low_copy", false);
+            SystemPropertyUtil.getBoolean("jupiter.serialize.low_copy", true);
 
     private static final ByteObjectMap<Serializer> serializers = new ByteObjectHashMap<>();
 

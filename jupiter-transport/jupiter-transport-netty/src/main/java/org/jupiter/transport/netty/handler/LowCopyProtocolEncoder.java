@@ -23,10 +23,11 @@ import io.netty.channel.ChannelOutboundHandlerAdapter;
 import io.netty.channel.ChannelPromise;
 import io.netty.handler.codec.EncoderException;
 import org.jupiter.common.util.Reflects;
-import org.jupiter.transport.JProtocolHeader;
 import org.jupiter.transport.payload.JRequestPayload;
 import org.jupiter.transport.payload.JResponsePayload;
 import org.jupiter.transport.payload.PayloadHolder;
+
+import static org.jupiter.transport.JProtocolHeader.*;
 
 /**
  * <pre>
@@ -36,7 +37,7 @@ import org.jupiter.transport.payload.PayloadHolder;
  *       2   │   1   │    1   │     8     │      4      │
  *  ├ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ┤
  *           │       │        │           │             │
- *  │  MAGIC   Sign    Status   Invoke Id   Body Length                   Body Content              │
+ *  │  MAGIC   Sign    Status   Invoke Id    Body Size                    Body Content              │
  *           │       │        │           │             │
  *  └ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ┘
  *
@@ -68,48 +69,33 @@ public class LowCopyProtocolEncoder extends ChannelOutboundHandlerAdapter {
 
     @Override
     public void write(ChannelHandlerContext ctx, Object msg, ChannelPromise promise) throws Exception {
-        ByteBuf headerBuf = null;
-        ByteBuf bodyBuf = null;
+        ByteBuf buf = null;
         try {
             if (msg instanceof PayloadHolder) {
                 PayloadHolder cast = (PayloadHolder) msg;
 
-                headerBuf = allocateBuffer(ctx, preferDirect);
-                bodyBuf = encode(cast, headerBuf);
+                buf = encode(cast);
 
-                ctx.write(headerBuf);
-                ctx.write(bodyBuf, promise);
+                ctx.write(buf, promise);
 
-                headerBuf = null;
-                bodyBuf = null;
+                buf = null;
             } else {
                 ctx.write(msg, promise);
             }
         } catch (Throwable t) {
             throw new EncoderException(t);
         } finally {
-            if (headerBuf != null) {
-                headerBuf.release();
-            }
-            if (bodyBuf != null) {
-                bodyBuf.release();
+            if (buf != null) {
+                buf.release();
             }
         }
     }
 
-    protected ByteBuf allocateBuffer(ChannelHandlerContext ctx, boolean preferDirect) throws Exception {
-        if (preferDirect) {
-            return ctx.alloc().ioBuffer();
-        } else {
-            return ctx.alloc().heapBuffer();
-        }
-    }
-
-    protected ByteBuf encode(PayloadHolder msg, ByteBuf out) throws Exception {
+    protected ByteBuf encode(PayloadHolder msg) throws Exception {
         if (msg instanceof JRequestPayload) {
-            return doEncodeRequest((JRequestPayload) msg, out);
+            return doEncodeRequest((JRequestPayload) msg);
         } else if (msg instanceof JResponsePayload) {
-            return doEncodeResponse((JResponsePayload) msg, out);
+            return doEncodeResponse((JResponsePayload) msg);
         } else {
             throw new IllegalArgumentException(Reflects.simpleClassName(msg));
         }
@@ -119,34 +105,46 @@ public class LowCopyProtocolEncoder extends ChannelOutboundHandlerAdapter {
         return preferDirect;
     }
 
-    private ByteBuf doEncodeRequest(JRequestPayload request, ByteBuf out) {
-        byte sign = JProtocolHeader.toSign(request.serializerCode(), JProtocolHeader.REQUEST);
+    private ByteBuf doEncodeRequest(JRequestPayload request) {
+        byte sign = toSign(request.serializerCode(), REQUEST);
         long invokeId = request.invokeId();
-        ByteBuf bodyByteBuf = (ByteBuf) request.outputBuf().attach();
-        int length = bodyByteBuf.readableBytes();
+        ByteBuf byteBuf = (ByteBuf) request.outputBuf().attach();
+        int length = byteBuf.readableBytes();
 
-        out.writeShort(JProtocolHeader.MAGIC)
+        byteBuf.markWriterIndex();
+
+        byteBuf.writerIndex(byteBuf.writerIndex() - length);
+
+        byteBuf.writeShort(MAGIC)
                 .writeByte(sign)
                 .writeByte(0x00)
                 .writeLong(invokeId)
-                .writeInt(length);
+                .writeInt(length - HEADER_SIZE);
 
-        return bodyByteBuf;
+        byteBuf.resetWriterIndex();
+
+        return byteBuf;
     }
 
-    private ByteBuf doEncodeResponse(JResponsePayload response, ByteBuf out) {
-        byte sign = JProtocolHeader.toSign(response.serializerCode(), JProtocolHeader.RESPONSE);
+    private ByteBuf doEncodeResponse(JResponsePayload response) {
+        byte sign = toSign(response.serializerCode(), RESPONSE);
         byte status = response.status();
         long invokeId = response.id();
-        ByteBuf bodyByteBuf = (ByteBuf) response.outputBuf().attach();
-        int length = bodyByteBuf.readableBytes();
+        ByteBuf byteBuf = (ByteBuf) response.outputBuf().attach();
+        int length = byteBuf.readableBytes();
 
-        out.writeShort(JProtocolHeader.MAGIC)
+        byteBuf.markWriterIndex();
+
+        byteBuf.writerIndex(byteBuf.writerIndex() - length);
+
+        byteBuf.writeShort(MAGIC)
                 .writeByte(sign)
                 .writeByte(status)
                 .writeLong(invokeId)
-                .writeInt(length);
+                .writeInt(length - HEADER_SIZE);
 
-        return bodyByteBuf;
+        byteBuf.resetWriterIndex();
+
+        return byteBuf;
     }
 }
