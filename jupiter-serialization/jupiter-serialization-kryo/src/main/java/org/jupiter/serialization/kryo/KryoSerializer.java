@@ -89,7 +89,7 @@ public class KryoSerializer extends Serializer {
     public <T> OutputBuf writeObject(OutputBuf outputBuf, T obj) {
         kryoThreadLocal
                 .get()
-                .writeObject(new NioBufOutput(outputBuf, 256), obj);
+                .writeObject(new NioBufOutput(outputBuf, -1), obj);
         return outputBuf;
     }
 

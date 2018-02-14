@@ -204,6 +204,10 @@ public class NettyChannel implements JChannel {
 
         @Override
         public ByteBuffer nioByteBuffer(int minWritableBytes) {
+            if (minWritableBytes < 0) {
+                minWritableBytes = byteBuf.capacity();
+            }
+
             if (nioByteBuffer == null) {
                 nioByteBuffer = byteBuf
                         .ensureWritable(minWritableBytes)

@@ -30,11 +30,11 @@ public class NioBufOutput extends ByteBufferOutput {
 
     protected final OutputBuf outputBuf;
 
-    public NioBufOutput(OutputBuf outputBuf, int capacity) {
+    public NioBufOutput(OutputBuf outputBuf, int minWritableBytes) {
         this.outputBuf = outputBuf;
-        this.capacity = capacity;
         maxCapacity = Integer.MAX_VALUE;
-        niobuffer = outputBuf.nioByteBuffer(capacity);
+        niobuffer = outputBuf.nioByteBuffer(minWritableBytes);
+        capacity = niobuffer.remaining();
     }
 
     @Override

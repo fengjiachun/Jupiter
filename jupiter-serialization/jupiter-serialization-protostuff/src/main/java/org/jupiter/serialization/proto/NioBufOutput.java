@@ -45,10 +45,10 @@ public class NioBufOutput implements Output {
     private ByteBuffer nioBuffer;
     private int capacity;
 
-    public NioBufOutput(OutputBuf outputBuf, int capacity) {
+    public NioBufOutput(OutputBuf outputBuf, int minWritableBytes) {
         this.outputBuf = outputBuf;
-        this.capacity = capacity;
-        nioBuffer = outputBuf.nioByteBuffer(capacity);
+        nioBuffer = outputBuf.nioByteBuffer(minWritableBytes);
+        capacity = nioBuffer.remaining();
     }
 
     @Override
