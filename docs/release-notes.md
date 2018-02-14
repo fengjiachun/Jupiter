@@ -1,5 +1,8 @@
 Jupiter release notes
 ------------------------
+### 2018-02-14: version 1.3.0.Beta
+
+- [优化序列化/反序列化过程中的memory-copy](https://github.com/fengjiachun/Jupiter/issues/51)
 
 ### 2018-02-07: version 1.2.17
 
