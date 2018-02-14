@@ -69,7 +69,7 @@ public class SyncJupiterClient {
         ServiceTest service1 = ProxyFactory.factory(ServiceTest.class)
                 .version("1.0.0.daily")
                 .client(client)
-                .serializerType(SerializerType.JAVA)
+                .serializerType(SerializerType.PROTO_STUFF)
                 .clusterStrategy(ClusterInvoker.Strategy.FAIL_OVER)
                 .failoverRetries(5)
                 .newProxyInstance();

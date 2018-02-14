@@ -19,11 +19,14 @@ package org.jupiter.rpc.consumer.dispatcher;
 import org.jupiter.rpc.DispatchType;
 import org.jupiter.rpc.JClient;
 import org.jupiter.rpc.JRequest;
+import org.jupiter.rpc.OutputBufImpl;
 import org.jupiter.rpc.consumer.future.DefaultInvokeFuture;
 import org.jupiter.rpc.consumer.future.InvokeFuture;
 import org.jupiter.rpc.load.balance.LoadBalancer;
 import org.jupiter.rpc.model.metadata.MessageWrapper;
+import org.jupiter.serialization.OutputBuf;
 import org.jupiter.serialization.Serializer;
+import org.jupiter.serialization.SerializerFactory;
 import org.jupiter.serialization.SerializerType;
 import org.jupiter.transport.channel.JChannel;
 
@@ -53,8 +56,14 @@ public class DefaultRoundDispatcher extends AbstractDispatcher {
 
         byte s_code = _serializer.code();
         // 在业务线程中序列化, 减轻IO线程负担
-        byte[] bytes = _serializer.writeObject(message);
-        request.bytes(s_code, bytes);
+        if (SerializerFactory.isSerializeLowCopy()) {
+            OutputBuf outputBuf =
+                    _serializer.writeObject(new OutputBufImpl(channel.allocOutput()), message);
+            request.outputBuf(s_code, outputBuf);
+        } else {
+            byte[] bytes = _serializer.writeObject(message);
+            request.bytes(s_code, bytes);
+        }
 
         long timeoutMillis = getMethodSpecialTimeoutMillis(message.getMethodName());
         DefaultInvokeFuture<T> future = DefaultInvokeFuture

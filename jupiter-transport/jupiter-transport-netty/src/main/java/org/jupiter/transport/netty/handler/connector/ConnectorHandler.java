@@ -23,7 +23,7 @@ import org.jupiter.common.util.Signal;
 import org.jupiter.common.util.internal.logging.InternalLogger;
 import org.jupiter.common.util.internal.logging.InternalLoggerFactory;
 import org.jupiter.transport.netty.channel.NettyChannel;
-import org.jupiter.transport.payload.JResponseBytes;
+import org.jupiter.transport.payload.JResponsePayload;
 import org.jupiter.transport.processor.ConsumerProcessor;
 
 import java.io.IOException;
@@ -47,9 +47,9 @@ public class ConnectorHandler extends ChannelInboundHandlerAdapter {
     public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
         Channel ch = ctx.channel();
 
-        if (msg instanceof JResponseBytes) {
+        if (msg instanceof JResponsePayload) {
             try {
-                processor.handleResponse(NettyChannel.attachChannel(ch), (JResponseBytes) msg);
+                processor.handleResponse(NettyChannel.attachChannel(ch), (JResponsePayload) msg);
             } catch (Throwable t) {
                 logger.error("An exception was caught: {}, on {} #channelRead().", stackTrace(t), ch);
             }

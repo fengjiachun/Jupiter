@@ -16,14 +16,17 @@
 
 package org.jupiter.serialization.proto;
 
-import io.protostuff.LinkedBuffer;
-import io.protostuff.ProtostuffIOUtil;
-import io.protostuff.Schema;
+import io.protostuff.*;
 import io.protostuff.runtime.RuntimeSchema;
+import org.jupiter.common.util.ExceptionUtil;
 import org.jupiter.common.util.SystemPropertyUtil;
 import org.jupiter.common.util.internal.InternalThreadLocal;
+import org.jupiter.serialization.InputBuf;
+import org.jupiter.serialization.OutputBuf;
 import org.jupiter.serialization.Serializer;
 import org.jupiter.serialization.SerializerType;
+
+import java.io.IOException;
 
 /**
  * Protostuff的序列化/反序列化实现, jupiter中默认的实现.
@@ -77,6 +80,23 @@ public class ProtoStuffSerializer extends Serializer {
 
     @SuppressWarnings("unchecked")
     @Override
+    public <T> OutputBuf writeObject(OutputBuf outputBuf, T obj) {
+        Schema<T> schema = RuntimeSchema.getSchema((Class<T>) obj.getClass());
+
+        LinkedBuffer buf = bufThreadLocal.get();
+        try {
+            schema.writeTo(new NioBufOutput(outputBuf, 256), obj);
+        } catch (IOException e) {
+            ExceptionUtil.throwException(e);
+        } finally {
+            buf.clear(); // for reuse
+        }
+
+        return outputBuf;
+    }
+
+    @SuppressWarnings("unchecked")
+    @Override
     public <T> byte[] writeObject(T obj) {
         Schema<T> schema = RuntimeSchema.getSchema((Class<T>) obj.getClass());
 
@@ -86,6 +106,22 @@ public class ProtoStuffSerializer extends Serializer {
         } finally {
             buf.clear(); // for reuse
         }
+    }
+
+    @Override
+    public <T> T readObject(InputBuf inputBuf, Class<T> clazz) {
+        Schema<T> schema = RuntimeSchema.getSchema(clazz);
+        T msg = schema.newMessage();
+
+        try {
+            schema.mergeFrom(new ByteBufferInput(inputBuf.nioByteBuffer(), true), msg);
+        } catch (IOException e) {
+            ExceptionUtil.throwException(e);
+        } finally {
+            inputBuf.release();
+        }
+
+        return msg;
     }
 
     @Override

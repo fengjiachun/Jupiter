@@ -21,7 +21,10 @@ import org.jupiter.common.util.Maps;
 import org.jupiter.common.util.SystemClock;
 import org.jupiter.common.util.internal.logging.InternalLogger;
 import org.jupiter.common.util.internal.logging.InternalLoggerFactory;
-import org.jupiter.rpc.*;
+import org.jupiter.rpc.DispatchType;
+import org.jupiter.rpc.JClient;
+import org.jupiter.rpc.JRequest;
+import org.jupiter.rpc.JResponse;
 import org.jupiter.rpc.consumer.ConsumerInterceptor;
 import org.jupiter.rpc.consumer.future.DefaultInvokeFuture;
 import org.jupiter.rpc.exception.JupiterRemoteException;
@@ -38,7 +41,7 @@ import org.jupiter.transport.channel.CopyOnWriteGroupList;
 import org.jupiter.transport.channel.JChannel;
 import org.jupiter.transport.channel.JChannelGroup;
 import org.jupiter.transport.channel.JFutureListener;
-import org.jupiter.transport.payload.JRequestBytes;
+import org.jupiter.transport.payload.JRequestPayload;
 
 import java.util.List;
 import java.util.Map;
@@ -175,9 +178,9 @@ abstract class AbstractDispatcher implements Dispatcher {
             }
         }
 
-        final JRequestBytes requestBytes = request.requestBytes();
+        final JRequestPayload payload = request.payload();
 
-        channel.write(requestBytes, new JFutureListener<JChannel>() {
+        channel.write(payload, new JFutureListener<JChannel>() {
 
             @Override
             public void operationSuccess(JChannel channel) throws Exception {
@@ -185,14 +188,14 @@ abstract class AbstractDispatcher implements Dispatcher {
                 future.markSent();
 
                 if (dispatchType == DispatchType.ROUND) {
-                    requestBytes.nullBytes();
+                    payload.clear();
                 }
             }
 
             @Override
             public void operationFailure(JChannel channel, Throwable cause) throws Exception {
                 if (dispatchType == DispatchType.ROUND) {
-                    requestBytes.nullBytes();
+                    payload.clear();
                 }
 
                 if (logger.isWarnEnabled()) {
@@ -202,7 +205,7 @@ abstract class AbstractDispatcher implements Dispatcher {
                 ResultWrapper result = new ResultWrapper();
                 result.setError(new JupiterRemoteException(cause));
 
-                JResponse response = new JResponse(requestBytes.invokeId());
+                JResponse response = new JResponse(payload.invokeId());
                 response.status(Status.CLIENT_ERROR);
                 response.result(result);
 

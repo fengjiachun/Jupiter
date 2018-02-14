@@ -20,6 +20,8 @@ import org.jupiter.common.util.ExceptionUtil;
 import org.jupiter.common.util.internal.InternalThreadLocal;
 import org.jupiter.common.util.internal.UnsafeReferenceFieldUpdater;
 import org.jupiter.common.util.internal.UnsafeUpdater;
+import org.jupiter.serialization.InputBuf;
+import org.jupiter.serialization.OutputBuf;
 import org.jupiter.serialization.Serializer;
 import org.jupiter.serialization.SerializerType;
 
@@ -53,20 +55,40 @@ public class JavaSerializer extends Serializer {
     }
 
     @Override
+    public <T> OutputBuf writeObject(OutputBuf outputBuf, T obj) {
+        ObjectOutputStream objOutput = null;
+        try {
+            objOutput = new ObjectOutputStream(outputBuf.outputStream());
+            objOutput.writeObject(obj);
+            objOutput.flush();
+            return outputBuf;
+        } catch (IOException e) {
+            ExceptionUtil.throwException(e);
+        } finally {
+            if (objOutput != null) {
+                try {
+                    objOutput.close();
+                } catch (IOException ignored) {}
+            }
+        }
+        return null; // never get here
+    }
+
+    @Override
     public <T> byte[] writeObject(T obj) {
         ByteArrayOutputStream buf = bufThreadLocal.get();
-        ObjectOutputStream output = null;
+        ObjectOutputStream objOutput = null;
         try {
-            output = new ObjectOutputStream(buf);
-            output.writeObject(obj);
-            output.flush();
+            objOutput = new ObjectOutputStream(buf);
+            objOutput.writeObject(obj);
+            objOutput.flush();
             return buf.toByteArray();
         } catch (IOException e) {
             ExceptionUtil.throwException(e);
         } finally {
-            if (output != null) {
+            if (objOutput != null) {
                 try {
-                    output.close();
+                    objOutput.close();
                 } catch (IOException ignored) {}
             }
 
@@ -82,18 +104,36 @@ public class JavaSerializer extends Serializer {
     }
 
     @Override
-    public <T> T readObject(byte[] bytes, int offset, int length, Class<T> clazz) {
-        ObjectInputStream input = null;
+    public <T> T readObject(InputBuf inputBuf, Class<T> clazz) {
+        ObjectInputStream objInput = null;
         try {
-            input = new ObjectInputStream(new ByteArrayInputStream(bytes, offset, length));
-            Object obj = input.readObject();
-            return clazz.cast(obj);
+            objInput = new ObjectInputStream(inputBuf.inputStream());
+            return clazz.cast(objInput.readObject());
         } catch (Exception e) {
             ExceptionUtil.throwException(e);
         } finally {
-            if (input != null) {
+            if (objInput != null) {
                 try {
-                    input.close();
+                    objInput.close();
+                } catch (IOException ignored) {}
+            }
+            inputBuf.release();
+        }
+        return null; // never get here
+    }
+
+    @Override
+    public <T> T readObject(byte[] bytes, int offset, int length, Class<T> clazz) {
+        ObjectInputStream objInput = null;
+        try {
+            objInput = new ObjectInputStream(new ByteArrayInputStream(bytes, offset, length));
+            return clazz.cast(objInput.readObject());
+        } catch (Exception e) {
+            ExceptionUtil.throwException(e);
+        } finally {
+            if (objInput != null) {
+                try {
+                    objInput.close();
                 } catch (IOException ignored) {}
             }
         }

@@ -14,22 +14,24 @@
  * limitations under the License.
  */
 
-package org.jupiter.transport.processor;
+package org.jupiter.serialization;
 
-import org.jupiter.transport.payload.JResponsePayload;
-import org.jupiter.transport.channel.JChannel;
+import java.io.OutputStream;
+import java.nio.ByteBuffer;
 
 /**
- * Consumer's processor.
- *
  * jupiter
- * org.jupiter.transport.processor
+ * org.jupiter.serialization
  *
  * @author jiachun.fjc
  */
-public interface ConsumerProcessor {
+public interface OutputBuf {
 
-    void handleResponse(JChannel channel, JResponsePayload response) throws Exception;
+    OutputStream outputStream();
 
-    void shutdown();
+    ByteBuffer nioByteBuffer(int minWritableBytes);
+
+    Object attach();
+
+    int size();
 }

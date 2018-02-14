@@ -16,6 +16,8 @@
 
 package org.jupiter.transport.netty.channel;
 
+import io.netty.buffer.ByteBuf;
+import io.netty.buffer.ByteBufOutputStream;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelFutureListener;
@@ -25,7 +27,9 @@ import org.jupiter.transport.channel.JChannel;
 import org.jupiter.transport.channel.JFutureListener;
 import org.jupiter.transport.netty.handler.connector.ConnectionWatchdog;
 
+import java.io.OutputStream;
 import java.net.SocketAddress;
+import java.nio.ByteBuffer;
 
 /**
  * 对Netty {@link Channel} 的包装, 通过静态方法 {@link #attachChannel(Channel)} 获取一个实例,
@@ -160,6 +164,11 @@ public class NettyChannel implements JChannel {
     }
 
     @Override
+    public ChannelOutput allocOutput() {
+        return new NettyChannelOutput(channel.alloc().buffer());
+    }
+
+    @Override
     public boolean equals(Object obj) {
         return this == obj || (obj instanceof NettyChannel && channel.equals(((NettyChannel) obj).channel));
     }
@@ -172,5 +181,59 @@ public class NettyChannel implements JChannel {
     @Override
     public String toString() {
         return channel.toString();
+    }
+
+    private static class NettyChannelOutput implements ChannelOutput {
+
+        private final ByteBuf byteBuf;
+
+        private ByteBufOutputStream outputStream;
+        private ByteBuffer nioByteBuffer;
+
+        public NettyChannelOutput(ByteBuf byteBuf) {
+            this.byteBuf = byteBuf;
+        }
+
+        @Override
+        public OutputStream outputStream() {
+            if (outputStream == null) {
+                outputStream = new ByteBufOutputStream(byteBuf);
+            }
+            return outputStream;
+        }
+
+        @Override
+        public ByteBuffer nioByteBuffer(int minWritableBytes) {
+            if (nioByteBuffer == null) {
+                nioByteBuffer = byteBuf
+                        .ensureWritable(minWritableBytes)
+                        .nioBuffer(byteBuf.writerIndex(), minWritableBytes);
+            }
+
+            if (nioByteBuffer.remaining() >= minWritableBytes) {
+                return nioByteBuffer;
+            }
+
+            int position = nioByteBuffer.position();
+            int capacity = position + minWritableBytes;
+
+            nioByteBuffer = byteBuf
+                    .ensureWritable(capacity)
+                    .nioBuffer(byteBuf.writerIndex(), capacity);
+
+            nioByteBuffer.position(position);
+
+            return nioByteBuffer;
+        }
+
+        @Override
+        public Object attach() {
+            return byteBuf.writerIndex(nioByteBuffer.position());
+        }
+
+        @Override
+        public int size() {
+            return byteBuf.readableBytes();
+        }
     }
 }

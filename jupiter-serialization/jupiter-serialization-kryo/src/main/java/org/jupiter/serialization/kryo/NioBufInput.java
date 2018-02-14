@@ -14,22 +14,21 @@
  * limitations under the License.
  */
 
-package org.jupiter.transport.processor;
+package org.jupiter.serialization.kryo;
 
-import org.jupiter.transport.payload.JResponsePayload;
-import org.jupiter.transport.channel.JChannel;
+import com.esotericsoftware.kryo.io.ByteBufferInput;
+
+import java.nio.ByteBuffer;
 
 /**
- * Consumer's processor.
- *
  * jupiter
- * org.jupiter.transport.processor
+ * org.jupiter.serialization.kryo
  *
  * @author jiachun.fjc
  */
-public interface ConsumerProcessor {
+public class NioBufInput extends ByteBufferInput {
 
-    void handleResponse(JChannel channel, JResponsePayload response) throws Exception;
-
-    void shutdown();
+    public NioBufInput(ByteBuffer buffer) {
+        super(buffer, 0, buffer.capacity());
+    }
 }

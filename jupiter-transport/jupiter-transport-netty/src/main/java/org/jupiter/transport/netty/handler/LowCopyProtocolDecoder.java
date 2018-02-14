@@ -17,16 +17,20 @@
 package org.jupiter.transport.netty.handler;
 
 import io.netty.buffer.ByteBuf;
+import io.netty.buffer.ByteBufInputStream;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.ReplayingDecoder;
 import org.jupiter.common.util.Signal;
 import org.jupiter.common.util.SystemClock;
 import org.jupiter.common.util.SystemPropertyUtil;
+import org.jupiter.serialization.InputBuf;
 import org.jupiter.transport.JProtocolHeader;
 import org.jupiter.transport.exception.IoSignals;
 import org.jupiter.transport.payload.JRequestPayload;
 import org.jupiter.transport.payload.JResponsePayload;
 
+import java.io.InputStream;
+import java.nio.ByteBuffer;
 import java.util.List;
 
 /**
@@ -54,7 +58,7 @@ import java.util.List;
  *
  * @author jiachun.fjc
  */
-public class ProtocolDecoder extends ReplayingDecoder<ProtocolDecoder.State> {
+public class LowCopyProtocolDecoder extends ReplayingDecoder<LowCopyProtocolDecoder.State> {
 
     // 协议体最大限制, 默认5M
     private static final int MAX_BODY_SIZE = SystemPropertyUtil.getInt("jupiter.io.decoder.max.body.size", 1024 * 1024 * 5);
@@ -66,7 +70,7 @@ public class ProtocolDecoder extends ReplayingDecoder<ProtocolDecoder.State> {
      */
     private static final boolean USE_COMPOSITE_BUF = SystemPropertyUtil.getBoolean("jupiter.io.decoder.composite.buf", false);
 
-    public ProtocolDecoder() {
+    public LowCopyProtocolDecoder() {
         super(State.HEADER_MAGIC);
         if (USE_COMPOSITE_BUF) {
             setCumulator(COMPOSITE_CUMULATOR);
@@ -100,12 +104,11 @@ public class ProtocolDecoder extends ReplayingDecoder<ProtocolDecoder.State> {
                         break;
                     case JProtocolHeader.REQUEST: {
                         int length = checkBodyLength(header.bodyLength());
-                        byte[] bytes = new byte[length];
-                        in.readBytes(bytes);
+                        ByteBuf bodyByteBuf = in.readRetainedSlice(length);
 
                         JRequestPayload request = new JRequestPayload(header.id());
                         request.timestamp(SystemClock.millisClock().now());
-                        request.bytes(header.serializerCode(), bytes);
+                        request.inputBuf(header.serializerCode(), new DecoderBuf(bodyByteBuf));
 
                         out.add(request);
 
@@ -113,12 +116,11 @@ public class ProtocolDecoder extends ReplayingDecoder<ProtocolDecoder.State> {
                     }
                     case JProtocolHeader.RESPONSE: {
                         int length = checkBodyLength(header.bodyLength());
-                        byte[] bytes = new byte[length];
-                        in.readBytes(bytes);
+                        ByteBuf bodyByteBuf = in.readRetainedSlice(length);
 
                         JResponsePayload response = new JResponsePayload(header.id());
                         response.status(header.status());
-                        response.bytes(header.serializerCode(), bytes);
+                        response.inputBuf(header.serializerCode(), new DecoderBuf(bodyByteBuf));
 
                         out.add(response);
 
@@ -142,6 +144,35 @@ public class ProtocolDecoder extends ReplayingDecoder<ProtocolDecoder.State> {
             throw IoSignals.BODY_TOO_LARGE;
         }
         return size;
+    }
+
+    static class DecoderBuf implements InputBuf {
+
+        private final ByteBuf byteBuf;
+
+        DecoderBuf(ByteBuf byteBuf) {
+            this.byteBuf = byteBuf;
+        }
+
+        @Override
+        public InputStream inputStream() {
+            return new ByteBufInputStream(byteBuf);
+        }
+
+        @Override
+        public ByteBuffer nioByteBuffer() {
+            return byteBuf.nioBuffer();
+        }
+
+        @Override
+        public int size() {
+            return byteBuf.readableBytes();
+        }
+
+        @Override
+        public boolean release() {
+            return byteBuf.release();
+        }
     }
 
     enum State {

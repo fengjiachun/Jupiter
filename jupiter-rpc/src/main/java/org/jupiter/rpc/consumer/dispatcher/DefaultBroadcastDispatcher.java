@@ -19,12 +19,15 @@ package org.jupiter.rpc.consumer.dispatcher;
 import org.jupiter.rpc.DispatchType;
 import org.jupiter.rpc.JClient;
 import org.jupiter.rpc.JRequest;
+import org.jupiter.rpc.OutputBufImpl;
 import org.jupiter.rpc.consumer.ConsumerInterceptor;
 import org.jupiter.rpc.consumer.future.DefaultInvokeFuture;
 import org.jupiter.rpc.consumer.future.DefaultInvokeFutureGroup;
 import org.jupiter.rpc.consumer.future.InvokeFuture;
 import org.jupiter.rpc.model.metadata.MessageWrapper;
+import org.jupiter.serialization.OutputBuf;
 import org.jupiter.serialization.Serializer;
+import org.jupiter.serialization.SerializerFactory;
 import org.jupiter.serialization.SerializerType;
 import org.jupiter.transport.channel.JChannel;
 import org.jupiter.transport.channel.JChannelGroup;
@@ -58,20 +61,31 @@ public class DefaultBroadcastDispatcher extends AbstractDispatcher {
 
         byte s_code = _serializer.code();
         // 在业务线程中序列化, 减轻IO线程负担
-        byte[] bytes = _serializer.writeObject(message);
-        request.bytes(s_code, bytes);
+        boolean isSerializeLowCopy = SerializerFactory.isSerializeLowCopy();
+        if (!isSerializeLowCopy) {
+            byte[] bytes = _serializer.writeObject(message);
+            request.bytes(s_code, bytes);
+        }
 
         long invokeId = request.invokeId();
         ConsumerInterceptor[] interceptors = interceptors();
         InvokeFuture<T>[] futures = new DefaultInvokeFuture[channels.length];
         long timeoutMillis = getMethodSpecialTimeoutMillis(message.getMethodName());
         for (int i = 0; i < channels.length; i++) {
-            JChannel ch = channels[i];
+            JChannel channel = channels[i];
+
             DefaultInvokeFuture<T> future = DefaultInvokeFuture
-                    .with(invokeId, ch, returnType, timeoutMillis, DispatchType.BROADCAST)
+                    .with(invokeId, channel, returnType, timeoutMillis, DispatchType.BROADCAST)
                     .interceptors(interceptors)
                     .traceId(message.getTraceId());
-            futures[i] = write(ch, request, future, DispatchType.BROADCAST);
+
+            if (isSerializeLowCopy) {
+                OutputBuf outputBuf =
+                        _serializer.writeObject(new OutputBufImpl(channel.allocOutput()), message);
+                request.outputBuf(s_code, outputBuf);
+            }
+
+            futures[i] = write(channel, request, future, DispatchType.BROADCAST);
         }
 
         return DefaultInvokeFutureGroup.with(futures);

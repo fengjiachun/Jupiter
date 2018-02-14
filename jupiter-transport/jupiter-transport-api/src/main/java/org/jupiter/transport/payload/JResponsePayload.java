@@ -17,20 +17,20 @@
 package org.jupiter.transport.payload;
 
 /**
- * 响应的消息体bytes载体, 避免在IO线程中序列化/反序列化, jupiter-transport这一层不关注消息体的对象结构.
+ * 响应的消息体bytes/stream载体, 避免在IO线程中序列化/反序列化, jupiter-transport这一层不关注消息体的对象结构.
  *
  * jupiter
  * org.jupiter.transport.payload
  *
  * @author jiachun.fjc
  */
-public class JResponseBytes extends BytesHolder {
+public class JResponsePayload extends PayloadHolder {
 
     // 用于映射 <id, request, response> 三元组
     private final long id; // request.invokeId
     private byte status;
 
-    public JResponseBytes(long id) {
+    public JResponsePayload(long id) {
         this.id = id;
     }
 

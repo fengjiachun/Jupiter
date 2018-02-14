@@ -22,6 +22,8 @@ import org.jupiter.common.util.ExceptionUtil;
 import org.jupiter.common.util.internal.InternalThreadLocal;
 import org.jupiter.common.util.internal.UnsafeReferenceFieldUpdater;
 import org.jupiter.common.util.internal.UnsafeUpdater;
+import org.jupiter.serialization.InputBuf;
+import org.jupiter.serialization.OutputBuf;
 import org.jupiter.serialization.Serializer;
 import org.jupiter.serialization.SerializerType;
 
@@ -57,18 +59,35 @@ public class HessianSerializer extends Serializer {
     }
 
     @Override
+    public <T> OutputBuf writeObject(OutputBuf outputBuf, T obj) {
+        Hessian2Output hOutput = new Hessian2Output(outputBuf.outputStream());
+        try {
+            hOutput.writeObject(obj);
+            hOutput.flush();
+            return outputBuf;
+        } catch (IOException e) {
+            ExceptionUtil.throwException(e);
+        } finally {
+            try {
+                hOutput.close();
+            } catch (IOException ignored) {}
+        }
+        return null; // never get here
+    }
+
+    @Override
     public <T> byte[] writeObject(T obj) {
         ByteArrayOutputStream buf = bufThreadLocal.get();
-        Hessian2Output output = new Hessian2Output(buf);
+        Hessian2Output hOutput = new Hessian2Output(buf);
         try {
-            output.writeObject(obj);
-            output.flush();
+            hOutput.writeObject(obj);
+            hOutput.flush();
             return buf.toByteArray();
         } catch (IOException e) {
             ExceptionUtil.throwException(e);
         } finally {
             try {
-                output.close();
+                hOutput.close();
             } catch (IOException ignored) {}
 
             buf.reset(); // for reuse
@@ -83,16 +102,32 @@ public class HessianSerializer extends Serializer {
     }
 
     @Override
-    public <T> T readObject(byte[] bytes, int offset, int length, Class<T> clazz) {
-        Hessian2Input input = new Hessian2Input(new ByteArrayInputStream(bytes, offset, length));
+    public <T> T readObject(InputBuf inputBuf, Class<T> clazz) {
+        Hessian2Input hInput = new Hessian2Input(inputBuf.inputStream());
         try {
-            Object obj = input.readObject(clazz);
-            return clazz.cast(obj);
+            return clazz.cast(hInput.readObject(clazz));
         } catch (IOException e) {
             ExceptionUtil.throwException(e);
         } finally {
             try {
-                input.close();
+                hInput.close();
+            } catch (IOException ignored) {}
+
+            inputBuf.release();
+        }
+        return null; // never get here
+    }
+
+    @Override
+    public <T> T readObject(byte[] bytes, int offset, int length, Class<T> clazz) {
+        Hessian2Input hInput = new Hessian2Input(new ByteArrayInputStream(bytes, offset, length));
+        try {
+            return clazz.cast(hInput.readObject(clazz));
+        } catch (IOException e) {
+            ExceptionUtil.throwException(e);
+        } finally {
+            try {
+                hInput.close();
             } catch (IOException ignored) {}
         }
         return null; // never get here

@@ -19,7 +19,9 @@ package org.jupiter.transport.netty.handler;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelHandlerContext;
-import io.netty.handler.codec.MessageToByteEncoder;
+import io.netty.channel.ChannelOutboundHandlerAdapter;
+import io.netty.channel.ChannelPromise;
+import io.netty.handler.codec.EncoderException;
 import org.jupiter.common.util.Reflects;
 import org.jupiter.transport.JProtocolHeader;
 import org.jupiter.transport.payload.JRequestPayload;
@@ -52,45 +54,99 @@ import org.jupiter.transport.payload.PayloadHolder;
  * @author jiachun.fjc
  */
 @ChannelHandler.Sharable
-public class ProtocolEncoder extends MessageToByteEncoder<PayloadHolder> {
+public class LowCopyProtocolEncoder extends ChannelOutboundHandlerAdapter {
+
+    private final boolean preferDirect;
+
+    public LowCopyProtocolEncoder() {
+        this(true);
+    }
+
+    public LowCopyProtocolEncoder(boolean preferDirect) {
+        this.preferDirect = preferDirect;
+    }
 
     @Override
-    protected void encode(ChannelHandlerContext ctx, PayloadHolder msg, ByteBuf out) throws Exception {
+    public void write(ChannelHandlerContext ctx, Object msg, ChannelPromise promise) throws Exception {
+        ByteBuf headerBuf = null;
+        ByteBuf bodyBuf = null;
+        try {
+            if (msg instanceof PayloadHolder) {
+                PayloadHolder cast = (PayloadHolder) msg;
+
+                headerBuf = allocateBuffer(ctx, preferDirect);
+                bodyBuf = encode(cast, headerBuf);
+
+                ctx.write(headerBuf);
+                ctx.write(bodyBuf, promise);
+
+                headerBuf = null;
+                bodyBuf = null;
+            } else {
+                ctx.write(msg, promise);
+            }
+        } catch (Throwable t) {
+            throw new EncoderException(t);
+        } finally {
+            if (headerBuf != null) {
+                headerBuf.release();
+            }
+            if (bodyBuf != null) {
+                bodyBuf.release();
+            }
+        }
+    }
+
+    protected ByteBuf allocateBuffer(ChannelHandlerContext ctx, boolean preferDirect) throws Exception {
+        if (preferDirect) {
+            return ctx.alloc().ioBuffer();
+        } else {
+            return ctx.alloc().heapBuffer();
+        }
+    }
+
+    protected ByteBuf encode(PayloadHolder msg, ByteBuf out) throws Exception {
         if (msg instanceof JRequestPayload) {
-            doEncodeRequest((JRequestPayload) msg, out);
+            return doEncodeRequest((JRequestPayload) msg, out);
         } else if (msg instanceof JResponsePayload) {
-            doEncodeResponse((JResponsePayload) msg, out);
+            return doEncodeResponse((JResponsePayload) msg, out);
         } else {
             throw new IllegalArgumentException(Reflects.simpleClassName(msg));
         }
     }
 
-    private void doEncodeRequest(JRequestPayload request, ByteBuf out) {
+    protected boolean isPreferDirect() {
+        return preferDirect;
+    }
+
+    private ByteBuf doEncodeRequest(JRequestPayload request, ByteBuf out) {
         byte sign = JProtocolHeader.toSign(request.serializerCode(), JProtocolHeader.REQUEST);
         long invokeId = request.invokeId();
-        byte[] bytes = request.bytes();
-        int length = bytes.length;
+        ByteBuf bodyByteBuf = (ByteBuf) request.outputBuf().attach();
+        int length = bodyByteBuf.readableBytes();
 
         out.writeShort(JProtocolHeader.MAGIC)
                 .writeByte(sign)
                 .writeByte(0x00)
                 .writeLong(invokeId)
-                .writeInt(length)
-                .writeBytes(bytes);
+                .writeInt(length);
+
+        return bodyByteBuf;
     }
 
-    private void doEncodeResponse(JResponsePayload response, ByteBuf out) {
+    private ByteBuf doEncodeResponse(JResponsePayload response, ByteBuf out) {
         byte sign = JProtocolHeader.toSign(response.serializerCode(), JProtocolHeader.RESPONSE);
         byte status = response.status();
         long invokeId = response.id();
-        byte[] bytes = response.bytes();
-        int length = bytes.length;
+        ByteBuf bodyByteBuf = (ByteBuf) response.outputBuf().attach();
+        int length = bodyByteBuf.readableBytes();
 
         out.writeShort(JProtocolHeader.MAGIC)
                 .writeByte(sign)
                 .writeByte(status)
                 .writeLong(invokeId)
-                .writeInt(length)
-                .writeBytes(bytes);
+                .writeInt(length);
+
+        return bodyByteBuf;
     }
 }

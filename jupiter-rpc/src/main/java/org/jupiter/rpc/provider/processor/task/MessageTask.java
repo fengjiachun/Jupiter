@@ -16,7 +16,6 @@
 
 package org.jupiter.rpc.provider.processor.task;
 
-import com.codahale.metrics.Histogram;
 import com.codahale.metrics.Meter;
 import com.codahale.metrics.Timer;
 import org.jupiter.common.concurrent.RejectedRunnable;
@@ -37,13 +36,15 @@ import org.jupiter.rpc.provider.ProviderInterceptor;
 import org.jupiter.rpc.provider.processor.AbstractProviderProcessor;
 import org.jupiter.rpc.tracing.TraceId;
 import org.jupiter.rpc.tracing.TracingUtil;
+import org.jupiter.serialization.InputBuf;
+import org.jupiter.serialization.OutputBuf;
 import org.jupiter.serialization.Serializer;
 import org.jupiter.serialization.SerializerFactory;
 import org.jupiter.transport.Status;
 import org.jupiter.transport.channel.JChannel;
 import org.jupiter.transport.channel.JFutureListener;
-import org.jupiter.transport.payload.JRequestBytes;
-import org.jupiter.transport.payload.JResponseBytes;
+import org.jupiter.transport.payload.JRequestPayload;
+import org.jupiter.transport.payload.JResponsePayload;
 
 import java.util.List;
 import java.util.concurrent.Executor;
@@ -95,19 +96,21 @@ public class MessageTask implements RejectedRunnable {
 
         MessageWrapper msg;
         try {
-            JRequestBytes _requestBytes = _request.requestBytes();
+            JRequestPayload _requestPayload = _request.payload();
 
-            byte s_code = _requestBytes.serializerCode();
-            byte[] bytes = _requestBytes.bytes();
-            _requestBytes.nullBytes();
-
-            if (METRIC_NEEDED) {
-                MetricsHolder.requestSizeHistogram.update(bytes.length);
-            }
-
+            byte s_code = _requestPayload.serializerCode();
             Serializer serializer = SerializerFactory.getSerializer(s_code);
+
             // 在业务线程中反序列化, 减轻IO线程负担
-            msg = serializer.readObject(bytes, MessageWrapper.class);
+            if (SerializerFactory.isSerializeLowCopy()) {
+                InputBuf inputBuf = _requestPayload.inputBuf();
+                msg = serializer.readObject(inputBuf, MessageWrapper.class);
+            } else {
+                byte[] bytes = _requestPayload.bytes();
+                msg = serializer.readObject(bytes, MessageWrapper.class);
+            }
+            _requestPayload.clear();
+
             _request.message(msg);
         } catch (Throwable t) {
             rejected(Status.BAD_REQUEST, new JupiterBadRequestException(t.getMessage()));
@@ -181,17 +184,21 @@ public class MessageTask implements RejectedRunnable {
             result.setResult(invokeResult);
             byte s_code = _request.serializerCode();
             Serializer serializer = SerializerFactory.getSerializer(s_code);
-            byte[] bytes = serializer.writeObject(result);
 
-            if (METRIC_NEEDED) {
-                MetricsHolder.responseSizeHistogram.update(bytes.length);
+            JResponsePayload responsePayload = new JResponsePayload(_request.invokeId());
+
+            if (SerializerFactory.isSerializeLowCopy()) {
+                OutputBuf outputBuf =
+                        serializer.writeObject(new OutputBufImpl(channel.allocOutput()), result);
+                responsePayload.outputBuf(s_code, outputBuf);
+            } else {
+                byte[] bytes = serializer.writeObject(result);
+                responsePayload.bytes(s_code, bytes);
             }
 
-            JResponseBytes response = new JResponseBytes(_request.invokeId());
-            response.status(Status.OK.value());
-            response.bytes(s_code, bytes);
+            responsePayload.status(Status.OK.value());
 
-            handleWriteResponse(response);
+            handleWriteResponse(responsePayload);
         } catch (Throwable t) {
             if (INVOKE_ERROR == t) {
                 // handle biz exception
@@ -206,7 +213,7 @@ public class MessageTask implements RejectedRunnable {
         }
     }
 
-    private void handleWriteResponse(JResponseBytes response) {
+    private void handleWriteResponse(JResponsePayload response) {
         channel.write(response, new JFutureListener<JChannel>() {
 
             @Override
@@ -437,9 +444,5 @@ public class MessageTask implements RejectedRunnable {
         static final Timer processingTimer              = Metrics.timer("processing");
         // 请求被拒绝次数统计
         static final Meter rejectionMeter               = Metrics.meter("rejection");
-        // 请求数据大小统计(不包括Jupiter协议头的16个字节)
-        static final Histogram requestSizeHistogram     = Metrics.histogram("request.size");
-        // 响应数据大小统计(不包括Jupiter协议头的16个字节)
-        static final Histogram responseSizeHistogram    = Metrics.histogram("response.size");
     }
 }

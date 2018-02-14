@@ -46,8 +46,10 @@ public class ServiceTestImpl extends BaseService implements ServiceTest {
         result.lon = 1L;
         Integer i = getIntValue();
         result.num = (i == null ? 0 : i);
-        result.str = strValue;
         result.list = Lists.newArrayList("H", "e", "l", "l", "o");
+        for (int j = 0; j < 500; j++) {
+            result.list.add(String.valueOf(i));
+        }
         Collections.addAll(result.list, s);
         return result;
     }

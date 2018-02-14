@@ -17,11 +17,13 @@
 package org.jupiter.serialization.kryo;
 
 import com.esotericsoftware.kryo.Kryo;
-import com.esotericsoftware.kryo.io.Input;
-import com.esotericsoftware.kryo.io.Output;
+import com.esotericsoftware.kryo.io.FastInput;
+import com.esotericsoftware.kryo.io.FastOutput;
 import com.esotericsoftware.kryo.serializers.JavaSerializer;
 import org.jupiter.common.concurrent.collection.ConcurrentSet;
 import org.jupiter.common.util.internal.InternalThreadLocal;
+import org.jupiter.serialization.InputBuf;
+import org.jupiter.serialization.OutputBuf;
 import org.jupiter.serialization.Serializer;
 import org.jupiter.serialization.SerializerType;
 import org.objenesis.strategy.StdInstantiatorStrategy;
@@ -62,11 +64,11 @@ public class KryoSerializer extends Serializer {
     };
 
     // 目的是复用 Output 中的 byte[]
-    private static final InternalThreadLocal<Output> outputThreadLocal = new InternalThreadLocal<Output>() {
+    private static final InternalThreadLocal<FastOutput> outputBytesThreadLocal = new InternalThreadLocal<FastOutput>() {
 
         @Override
-        protected Output initialValue() {
-            return new Output(DEFAULT_BUF_SIZE, -1);
+        protected FastOutput initialValue() {
+            return new FastOutput(DEFAULT_BUF_SIZE, -1);
         }
     };
 
@@ -84,27 +86,47 @@ public class KryoSerializer extends Serializer {
     }
 
     @Override
+    public <T> OutputBuf writeObject(OutputBuf outputBuf, T obj) {
+        kryoThreadLocal
+                .get()
+                .writeObject(new NioBufOutput(outputBuf, 256), obj);
+        return outputBuf;
+    }
+
+    @Override
     public <T> byte[] writeObject(T obj) {
-        Output output = outputThreadLocal.get();
+        FastOutput kOutput = outputBytesThreadLocal.get();
         try {
-            Kryo kryo = kryoThreadLocal.get();
-            kryo.writeObject(output, obj);
-            return output.toBytes();
+            kryoThreadLocal
+                    .get()
+                    .writeObject(kOutput, obj);
+            return kOutput.toBytes();
         } finally {
-            output.clear();
+            kOutput.clear();
 
             // 防止hold过大的内存块一直不释放
-            if (output.getBuffer().length > MAX_CACHED_BUF_SIZE) {
-                output.setBuffer(new byte[DEFAULT_BUF_SIZE], -1);
+            if (kOutput.getBuffer().length > MAX_CACHED_BUF_SIZE) {
+                kOutput.setBuffer(new byte[DEFAULT_BUF_SIZE], -1);
             }
         }
     }
 
     @Override
+    public <T> T readObject(InputBuf inputBuf, Class<T> clazz) {
+        try {
+            return kryoThreadLocal
+                    .get()
+                    .readObject(new NioBufInput(inputBuf.nioByteBuffer()), clazz);
+        } finally {
+            inputBuf.release();
+        }
+    }
+
+    @Override
     public <T> T readObject(byte[] bytes, int offset, int length, Class<T> clazz) {
-        Input input = new Input(bytes, offset, length);
-        Kryo kryo = kryoThreadLocal.get();
-        return kryo.readObject(input, clazz);
+        return kryoThreadLocal
+                .get()
+                .readObject(new FastInput(bytes, offset, length), clazz);
     }
 
     @Override

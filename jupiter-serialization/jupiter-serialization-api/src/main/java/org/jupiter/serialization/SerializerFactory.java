@@ -17,6 +17,7 @@
 package org.jupiter.serialization;
 
 import org.jupiter.common.util.JServiceLoader;
+import org.jupiter.common.util.SystemPropertyUtil;
 import org.jupiter.common.util.collection.ByteObjectHashMap;
 import org.jupiter.common.util.collection.ByteObjectMap;
 import org.jupiter.common.util.internal.logging.InternalLogger;
@@ -34,6 +35,9 @@ public final class SerializerFactory {
 
     private static final InternalLogger logger = InternalLoggerFactory.getInstance(SerializerFactory.class);
 
+    private static final boolean SERIALIZE_LOW_COPY =
+            SystemPropertyUtil.getBoolean("jupiter.serialize.low_copy", true);
+
     private static final ByteObjectMap<Serializer> serializers = new ByteObjectHashMap<>();
 
     static {
@@ -42,6 +46,10 @@ public final class SerializerFactory {
             serializers.put(s.code(), s);
         }
         logger.info("Supported serializers: {}.", serializers);
+    }
+
+    public static boolean isSerializeLowCopy() {
+        return SERIALIZE_LOW_COPY;
     }
 
     public static Serializer getSerializer(byte code) {

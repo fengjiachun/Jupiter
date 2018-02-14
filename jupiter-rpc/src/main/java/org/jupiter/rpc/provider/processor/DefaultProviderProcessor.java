@@ -25,7 +25,7 @@ import org.jupiter.rpc.model.metadata.ServiceWrapper;
 import org.jupiter.rpc.provider.processor.task.MessageTask;
 import org.jupiter.transport.Directory;
 import org.jupiter.transport.channel.JChannel;
-import org.jupiter.transport.payload.JRequestBytes;
+import org.jupiter.transport.payload.JRequestPayload;
 
 /**
  * jupiter
@@ -48,8 +48,8 @@ public class DefaultProviderProcessor extends AbstractProviderProcessor {
     }
 
     @Override
-    public void handleRequest(JChannel channel, JRequestBytes requestBytes) throws Exception {
-        MessageTask task = new MessageTask(this, channel, new JRequest(requestBytes));
+    public void handleRequest(JChannel channel, JRequestPayload requestPayload) throws Exception {
+        MessageTask task = new MessageTask(this, channel, new JRequest(requestPayload));
         if (executor == null) {
             task.run();
         } else {

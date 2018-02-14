@@ -16,7 +16,9 @@
 
 package org.jupiter.transport.channel;
 
+import java.io.OutputStream;
 import java.net.SocketAddress;
+import java.nio.ByteBuffer;
 
 /**
  * A nexus to a network socket or a component which is capable of I/O
@@ -117,4 +119,20 @@ public interface JChannel {
      * Requests to write a message on the channel.
      */
     JChannel write(Object msg, JFutureListener<JChannel> listener);
+
+    /**
+     * Allocate a {@link OutputStream}.
+     */
+    ChannelOutput allocOutput();
+
+    interface ChannelOutput {
+
+        OutputStream outputStream();
+
+        ByteBuffer nioByteBuffer(int minWritableBytes);
+
+        Object attach();
+
+        int size();
+    }
 }
