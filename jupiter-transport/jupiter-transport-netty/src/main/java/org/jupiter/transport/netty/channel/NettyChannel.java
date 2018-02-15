@@ -23,6 +23,7 @@ import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelFutureListener;
 import io.netty.util.Attribute;
 import io.netty.util.AttributeKey;
+import org.jupiter.transport.JProtocolHeader;
 import org.jupiter.transport.channel.JChannel;
 import org.jupiter.transport.channel.JFutureListener;
 import org.jupiter.transport.netty.handler.connector.ConnectionWatchdog;
@@ -30,8 +31,6 @@ import org.jupiter.transport.netty.handler.connector.ConnectionWatchdog;
 import java.io.OutputStream;
 import java.net.SocketAddress;
 import java.nio.ByteBuffer;
-
-import static org.jupiter.transport.JProtocolHeader.HEADER_SIZE;
 
 /**
  * 对Netty {@link Channel} 的包装, 通过静态方法 {@link #attachChannel(Channel)} 获取一个实例,
@@ -188,23 +187,18 @@ public class NettyChannel implements JChannel {
     private static class NettyChannelOutput implements ChannelOutput {
 
         private final ByteBuf byteBuf;
-
-        private ByteBufOutputStream outputStream;
         private ByteBuffer nioByteBuffer;
 
         public NettyChannelOutput(ByteBuf byteBuf) {
             this.byteBuf = byteBuf
-                    .ensureWritable(HEADER_SIZE)
-                    // 预留16个字节协议头位置
-                    .writerIndex(byteBuf.writerIndex() + HEADER_SIZE);
+                    .ensureWritable(JProtocolHeader.HEADER_SIZE)
+                    // reserved 16-byte protocol header location
+                    .writerIndex(byteBuf.writerIndex() + JProtocolHeader.HEADER_SIZE);
         }
 
         @Override
         public OutputStream outputStream() {
-            if (outputStream == null) {
-                outputStream = new ByteBufOutputStream(byteBuf);
-            }
-            return outputStream;
+            return new ByteBufOutputStream(byteBuf); // should not be called more than once
         }
 
         @Override

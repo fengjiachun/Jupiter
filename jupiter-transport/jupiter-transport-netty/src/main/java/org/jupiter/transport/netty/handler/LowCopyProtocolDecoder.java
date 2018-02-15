@@ -156,12 +156,12 @@ public class LowCopyProtocolDecoder extends ReplayingDecoder<LowCopyProtocolDeco
 
         @Override
         public InputStream inputStream() {
-            return new ByteBufInputStream(byteBuf);
+            return new ByteBufInputStream(byteBuf); // should not be called more than once
         }
 
         @Override
         public ByteBuffer nioByteBuffer() {
-            return byteBuf.nioBuffer();
+            return byteBuf.nioBuffer(); // should not be called more than once
         }
 
         @Override

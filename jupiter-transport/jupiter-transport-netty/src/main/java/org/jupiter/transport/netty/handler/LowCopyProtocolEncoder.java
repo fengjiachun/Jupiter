@@ -23,11 +23,10 @@ import io.netty.channel.ChannelOutboundHandlerAdapter;
 import io.netty.channel.ChannelPromise;
 import io.netty.handler.codec.EncoderException;
 import org.jupiter.common.util.Reflects;
+import org.jupiter.transport.JProtocolHeader;
 import org.jupiter.transport.payload.JRequestPayload;
 import org.jupiter.transport.payload.JResponsePayload;
 import org.jupiter.transport.payload.PayloadHolder;
-
-import static org.jupiter.transport.JProtocolHeader.*;
 
 /**
  * <pre>
@@ -92,7 +91,7 @@ public class LowCopyProtocolEncoder extends ChannelOutboundHandlerAdapter {
     }
 
     private ByteBuf doEncodeRequest(JRequestPayload request) {
-        byte sign = toSign(request.serializerCode(), REQUEST);
+        byte sign = JProtocolHeader.toSign(request.serializerCode(), JProtocolHeader.REQUEST);
         long invokeId = request.invokeId();
         ByteBuf byteBuf = (ByteBuf) request.outputBuf().attach();
         int length = byteBuf.readableBytes();
@@ -101,11 +100,11 @@ public class LowCopyProtocolEncoder extends ChannelOutboundHandlerAdapter {
 
         byteBuf.writerIndex(byteBuf.writerIndex() - length);
 
-        byteBuf.writeShort(MAGIC)
+        byteBuf.writeShort(JProtocolHeader.MAGIC)
                 .writeByte(sign)
                 .writeByte(0x00)
                 .writeLong(invokeId)
-                .writeInt(length - HEADER_SIZE);
+                .writeInt(length - JProtocolHeader.HEADER_SIZE);
 
         byteBuf.resetWriterIndex();
 
@@ -113,7 +112,7 @@ public class LowCopyProtocolEncoder extends ChannelOutboundHandlerAdapter {
     }
 
     private ByteBuf doEncodeResponse(JResponsePayload response) {
-        byte sign = toSign(response.serializerCode(), RESPONSE);
+        byte sign = JProtocolHeader.toSign(response.serializerCode(), JProtocolHeader.RESPONSE);
         byte status = response.status();
         long invokeId = response.id();
         ByteBuf byteBuf = (ByteBuf) response.outputBuf().attach();
@@ -123,11 +122,11 @@ public class LowCopyProtocolEncoder extends ChannelOutboundHandlerAdapter {
 
         byteBuf.writerIndex(byteBuf.writerIndex() - length);
 
-        byteBuf.writeShort(MAGIC)
+        byteBuf.writeShort(JProtocolHeader.MAGIC)
                 .writeByte(sign)
                 .writeByte(status)
                 .writeLong(invokeId)
-                .writeInt(length - HEADER_SIZE);
+                .writeInt(length - JProtocolHeader.HEADER_SIZE);
 
         byteBuf.resetWriterIndex();
 
