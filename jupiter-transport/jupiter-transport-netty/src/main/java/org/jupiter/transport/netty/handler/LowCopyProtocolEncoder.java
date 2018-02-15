@@ -57,16 +57,6 @@ import static org.jupiter.transport.JProtocolHeader.*;
 @ChannelHandler.Sharable
 public class LowCopyProtocolEncoder extends ChannelOutboundHandlerAdapter {
 
-    private final boolean preferDirect;
-
-    public LowCopyProtocolEncoder() {
-        this(true);
-    }
-
-    public LowCopyProtocolEncoder(boolean preferDirect) {
-        this.preferDirect = preferDirect;
-    }
-
     @Override
     public void write(ChannelHandlerContext ctx, Object msg, ChannelPromise promise) throws Exception {
         ByteBuf buf = null;
@@ -99,10 +89,6 @@ public class LowCopyProtocolEncoder extends ChannelOutboundHandlerAdapter {
         } else {
             throw new IllegalArgumentException(Reflects.simpleClassName(msg));
         }
-    }
-
-    protected boolean isPreferDirect() {
-        return preferDirect;
     }
 
     private ByteBuf doEncodeRequest(JRequestPayload request) {
