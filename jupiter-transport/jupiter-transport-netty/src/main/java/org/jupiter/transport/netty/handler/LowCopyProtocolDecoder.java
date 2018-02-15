@@ -103,7 +103,7 @@ public class LowCopyProtocolDecoder extends ReplayingDecoder<LowCopyProtocolDeco
                     case JProtocolHeader.HEARTBEAT:
                         break;
                     case JProtocolHeader.REQUEST: {
-                        int length = checkBodyLength(header.bodySize());
+                        int length = checkBodySize(header.bodySize());
                         ByteBuf bodyByteBuf = in.readRetainedSlice(length);
 
                         JRequestPayload request = new JRequestPayload(header.id());
@@ -115,7 +115,7 @@ public class LowCopyProtocolDecoder extends ReplayingDecoder<LowCopyProtocolDeco
                         break;
                     }
                     case JProtocolHeader.RESPONSE: {
-                        int length = checkBodyLength(header.bodySize());
+                        int length = checkBodySize(header.bodySize());
                         ByteBuf bodyByteBuf = in.readRetainedSlice(length);
 
                         JResponsePayload response = new JResponsePayload(header.id());
@@ -139,7 +139,7 @@ public class LowCopyProtocolDecoder extends ReplayingDecoder<LowCopyProtocolDeco
         }
     }
 
-    private static int checkBodyLength(int size) throws Signal {
+    private static int checkBodySize(int size) throws Signal {
         if (size > MAX_BODY_SIZE) {
             throw IoSignals.BODY_TOO_LARGE;
         }

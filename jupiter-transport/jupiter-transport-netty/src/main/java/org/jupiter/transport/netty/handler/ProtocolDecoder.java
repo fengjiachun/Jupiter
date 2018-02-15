@@ -99,7 +99,7 @@ public class ProtocolDecoder extends ReplayingDecoder<ProtocolDecoder.State> {
                     case JProtocolHeader.HEARTBEAT:
                         break;
                     case JProtocolHeader.REQUEST: {
-                        int length = checkBodyLength(header.bodySize());
+                        int length = checkBodySize(header.bodySize());
                         byte[] bytes = new byte[length];
                         in.readBytes(bytes);
 
@@ -112,7 +112,7 @@ public class ProtocolDecoder extends ReplayingDecoder<ProtocolDecoder.State> {
                         break;
                     }
                     case JProtocolHeader.RESPONSE: {
-                        int length = checkBodyLength(header.bodySize());
+                        int length = checkBodySize(header.bodySize());
                         byte[] bytes = new byte[length];
                         in.readBytes(bytes);
 
@@ -137,7 +137,7 @@ public class ProtocolDecoder extends ReplayingDecoder<ProtocolDecoder.State> {
         }
     }
 
-    private static int checkBodyLength(int size) throws Signal {
+    private static int checkBodySize(int size) throws Signal {
         if (size > MAX_BODY_SIZE) {
             throw IoSignals.BODY_TOO_LARGE;
         }
