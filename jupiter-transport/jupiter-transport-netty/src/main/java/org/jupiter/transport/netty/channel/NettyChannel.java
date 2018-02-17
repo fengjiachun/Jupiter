@@ -236,7 +236,7 @@ public class NettyChannel implements JChannel {
 
         @Override
         public int size() {
-            return byteBuf.readableBytes();
+            return Math.max(byteBuf.readableBytes(), nioByteBuffer == null ? 0 : nioByteBuffer.position());
         }
     }
 }
