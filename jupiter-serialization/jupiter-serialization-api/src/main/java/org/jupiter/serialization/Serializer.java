@@ -26,7 +26,6 @@ package org.jupiter.serialization;
  *
  * @author jiachun.fjc
  */
-@SuppressWarnings("unused")
 public abstract class Serializer {
 
     /**
