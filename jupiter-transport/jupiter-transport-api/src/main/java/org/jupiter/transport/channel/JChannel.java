@@ -16,6 +16,8 @@
 
 package org.jupiter.transport.channel;
 
+import org.jupiter.common.util.SystemPropertyUtil;
+
 import java.io.OutputStream;
 import java.net.SocketAddress;
 import java.nio.ByteBuffer;
@@ -121,11 +123,13 @@ public interface JChannel {
     JChannel write(Object msg, JFutureListener<JChannel> listener);
 
     /**
-     * Allocate a {@link OutputStream}.
+     * Allocate a {@link ChannelOutput}.
      */
     ChannelOutput allocOutput();
 
     interface ChannelOutput {
+
+        int OUTPUT_BUF_INITIAL_CAPACITY = SystemPropertyUtil.getInt("jupiter.channel.output.buf.initial_capacity", 256);
 
         OutputStream outputStream();
 

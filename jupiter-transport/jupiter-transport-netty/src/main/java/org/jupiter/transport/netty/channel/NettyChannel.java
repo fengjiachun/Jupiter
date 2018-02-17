@@ -166,7 +166,7 @@ public class NettyChannel implements JChannel {
 
     @Override
     public ChannelOutput allocOutput() {
-        return new NettyChannelOutput(channel.alloc().buffer());
+        return new NettyChannelOutput(channel.alloc().buffer(ChannelOutput.OUTPUT_BUF_INITIAL_CAPACITY));
     }
 
     @Override
@@ -236,7 +236,8 @@ public class NettyChannel implements JChannel {
 
         @Override
         public int size() {
-            return Math.max(byteBuf.readableBytes(), nioByteBuffer == null ? 0 : nioByteBuffer.position());
+            int nioBufPosition = nioByteBuffer == null ? 0 : nioByteBuffer.position();
+            return Math.max(byteBuf.readableBytes(), nioBufPosition);
         }
     }
 }
