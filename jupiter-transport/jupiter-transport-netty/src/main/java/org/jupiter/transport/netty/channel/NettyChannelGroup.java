@@ -253,7 +253,7 @@ public class NettyChannelGroup implements JChannelGroup {
 
     @Override
     public boolean isWarmUpComplete() {
-        return SystemClock.millisClock().now() - timestamp - warmUp > 0;
+        return SystemClock.millisClock().now() - timestamp > warmUp;
     }
 
     @Override
