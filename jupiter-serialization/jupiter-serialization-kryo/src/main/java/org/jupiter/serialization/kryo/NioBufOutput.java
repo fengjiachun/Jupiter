@@ -56,12 +56,11 @@ public class NioBufOutput extends ByteBufferOutput {
             if (capacity == 0) {
                 capacity = 1;
             }
-            int oldCapacity = capacity;
-            capacity = Math.min(oldCapacity << 1, maxCapacity);
+            capacity = Math.min(capacity << 1, maxCapacity);
             if (capacity < 0) {
                 capacity = maxCapacity;
             }
-            niobuffer = outputBuf.nioByteBuffer(capacity - oldCapacity);
+            niobuffer = outputBuf.nioByteBuffer(capacity - position);
         }
         return true;
     }
