@@ -235,7 +235,7 @@ public class NioBufOutput implements Output {
     }
 
     private void ensureCapacity(int required) {
-        if (nioBuffer.remaining() < required) {
+        while (nioBuffer.remaining() < required) {
             capacity = Math.min(capacity << 1, Integer.MAX_VALUE);
             nioBuffer = outputBuf.nioByteBuffer(capacity - nioBuffer.position());
         }

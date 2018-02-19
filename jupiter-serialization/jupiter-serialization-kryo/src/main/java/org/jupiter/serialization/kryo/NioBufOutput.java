@@ -60,8 +60,10 @@ public class NioBufOutput extends ByteBufferOutput {
             if (capacity < 0) {
                 capacity = maxCapacity;
             }
-            niobuffer = outputBuf.nioByteBuffer(capacity - position);
         }
+
+        niobuffer = outputBuf.nioByteBuffer(capacity - position);
+
         return true;
     }
 }
