@@ -20,6 +20,7 @@ import com.esotericsoftware.kryo.Kryo;
 import com.esotericsoftware.kryo.io.ByteBufferInput;
 import com.esotericsoftware.kryo.io.FastInput;
 import com.esotericsoftware.kryo.io.FastOutput;
+import com.esotericsoftware.kryo.io.Output;
 import com.esotericsoftware.kryo.serializers.JavaSerializer;
 import org.jupiter.common.concurrent.collection.ConcurrentSet;
 import org.jupiter.common.util.internal.InternalThreadLocal;
@@ -67,10 +68,10 @@ public class KryoSerializer extends Serializer {
     };
 
     // 目的是复用 Output 中的 byte[]
-    private static final InternalThreadLocal<FastOutput> outputBytesThreadLocal = new InternalThreadLocal<FastOutput>() {
+    private static final InternalThreadLocal<Output> outputBytesThreadLocal = new InternalThreadLocal<Output>() {
 
         @Override
-        protected FastOutput initialValue() {
+        protected Output initialValue() {
             return new FastOutput(DEFAULT_BUF_SIZE, -1);
         }
     };
@@ -98,7 +99,7 @@ public class KryoSerializer extends Serializer {
 
     @Override
     public <T> byte[] writeObject(T obj) {
-        FastOutput kOutput = outputBytesThreadLocal.get();
+        Output kOutput = outputBytesThreadLocal.get();
         try {
             kryoThreadLocal
                     .get()

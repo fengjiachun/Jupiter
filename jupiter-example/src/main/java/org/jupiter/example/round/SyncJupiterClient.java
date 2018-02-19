@@ -77,6 +77,7 @@ public class SyncJupiterClient {
         ServiceTest2 service2 = ProxyFactory.factory(ServiceTest2.class)
                 .version("1.0.0.daily")
                 .client(client)
+                .serializerType(SerializerType.PROTO_STUFF)
                 .newProxyInstance();
 
         try {
