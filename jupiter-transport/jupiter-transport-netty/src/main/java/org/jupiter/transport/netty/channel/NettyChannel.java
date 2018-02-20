@@ -17,6 +17,7 @@
 package org.jupiter.transport.netty.channel;
 
 import io.netty.buffer.ByteBuf;
+import io.netty.buffer.ByteBufAllocator;
 import io.netty.buffer.ByteBufOutputStream;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelFuture;
@@ -26,6 +27,7 @@ import io.netty.util.AttributeKey;
 import org.jupiter.transport.JProtocolHeader;
 import org.jupiter.transport.channel.JChannel;
 import org.jupiter.transport.channel.JFutureListener;
+import org.jupiter.transport.netty.alloc.AdaptiveOutputBufAllocator;
 import org.jupiter.transport.netty.handler.connector.ConnectionWatchdog;
 
 import java.io.OutputStream;
@@ -62,6 +64,7 @@ public class NettyChannel implements JChannel {
     }
 
     private final Channel channel;
+    private final AdaptiveOutputBufAllocator.Handle allocHandle = AdaptiveOutputBufAllocator.DEFAULT.newHandle();
 
     private NettyChannel(Channel channel) {
         this.channel = channel;
@@ -166,7 +169,7 @@ public class NettyChannel implements JChannel {
 
     @Override
     public ChannelOutput allocOutput() {
-        return new NettyChannelOutput(channel.alloc().buffer(ChannelOutput.OUTPUT_BUF_INITIAL_CAPACITY));
+        return new NettyChannelOutput(allocHandle, channel.alloc());
     }
 
     @Override
@@ -186,12 +189,15 @@ public class NettyChannel implements JChannel {
 
     private static class NettyChannelOutput implements ChannelOutput {
 
+        private final AdaptiveOutputBufAllocator.Handle allocHandle;
         private final ByteBuf byteBuf;
         private ByteBuffer nioByteBuffer;
 
-        public NettyChannelOutput(ByteBuf byteBuf) {
-            this.byteBuf = byteBuf
-                    .ensureWritable(JProtocolHeader.HEADER_SIZE)
+        public NettyChannelOutput(AdaptiveOutputBufAllocator.Handle allocHandle, ByteBufAllocator alloc) {
+            this.allocHandle = allocHandle;
+            byteBuf = allocHandle.allocate(alloc);
+
+            byteBuf.ensureWritable(JProtocolHeader.HEADER_SIZE)
                     // reserved 16-byte protocol header location
                     .writerIndex(byteBuf.writerIndex() + JProtocolHeader.HEADER_SIZE);
         }
@@ -231,7 +237,11 @@ public class NettyChannel implements JChannel {
 
         @Override
         public Object attach() {
-            return byteBuf.writerIndex(byteBuf.writerIndex() + nioByteBuffer.position());
+            int writeBytes = byteBuf.writerIndex() + nioByteBuffer.position();
+
+            allocHandle.record(writeBytes);
+
+            return byteBuf.writerIndex(writeBytes);
         }
 
         @Override
