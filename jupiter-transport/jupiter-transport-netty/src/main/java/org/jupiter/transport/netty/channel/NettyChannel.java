@@ -237,11 +237,9 @@ public class NettyChannel implements JChannel {
 
         @Override
         public Object attach() {
-            int writeBytes = byteBuf.writerIndex() + nioByteBuffer.position();
-
-            allocHandle.record(writeBytes);
-
-            return byteBuf.writerIndex(writeBytes);
+            int actualWriteBytes = byteBuf.writerIndex() + nioByteBuffer.position();
+            allocHandle.record(actualWriteBytes);
+            return byteBuf.writerIndex(actualWriteBytes);
         }
 
         @Override
