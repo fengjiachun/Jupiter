@@ -65,6 +65,15 @@ public class ProtocolEncoder extends MessageToByteEncoder<PayloadHolder> {
         }
     }
 
+    @Override
+    protected ByteBuf allocateBuffer(ChannelHandlerContext ctx, PayloadHolder msg, boolean preferDirect) throws Exception {
+        if (preferDirect) {
+            return ctx.alloc().ioBuffer(JProtocolHeader.HEADER_SIZE + msg.size());
+        } else {
+            return ctx.alloc().heapBuffer(JProtocolHeader.HEADER_SIZE + msg.size());
+        }
+    }
+
     private void doEncodeRequest(JRequestPayload request, ByteBuf out) {
         byte sign = JProtocolHeader.toSign(request.serializerCode(), JProtocolHeader.REQUEST);
         long invokeId = request.invokeId();
