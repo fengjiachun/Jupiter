@@ -31,7 +31,7 @@ public interface OutputBuf {
 
     ByteBuffer nioByteBuffer(int minWritableBytes);
 
-    Object attach();
-
     int size();
+
+    Object attach();
 }

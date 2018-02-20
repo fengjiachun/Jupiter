@@ -47,12 +47,12 @@ public class OutputBufImpl implements OutputBuf {
     }
 
     @Override
-    public Object attach() {
-        return output.attach();
+    public int size() {
+        return output.size();
     }
 
     @Override
-    public int size() {
-        return output.size();
+    public Object attach() {
+        return output.attach();
     }
 }

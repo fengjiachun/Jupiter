@@ -131,8 +131,8 @@ public interface JChannel {
 
         ByteBuffer nioByteBuffer(int minWritableBytes);
 
-        Object attach();
-
         int size();
+
+        Object attach();
     }
 }
