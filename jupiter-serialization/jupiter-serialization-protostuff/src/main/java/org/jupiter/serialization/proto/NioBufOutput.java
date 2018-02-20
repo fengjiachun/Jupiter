@@ -180,7 +180,7 @@ public class NioBufOutput implements Output {
                 value.remaining(), repeated);
     }
 
-    private void writeVarInt32(int value) throws IOException {
+    protected void writeVarInt32(int value) throws IOException {
         byte[] buf = new byte[5];
         int locPtr = 0;
         while (true) {
@@ -197,7 +197,7 @@ public class NioBufOutput implements Output {
         }
     }
 
-    private void writeVarInt64(long value) throws IOException {
+    protected void writeVarInt64(long value) throws IOException {
         byte[] buf = new byte[10];
         int locPtr = 0;
         while (true) {
@@ -213,28 +213,28 @@ public class NioBufOutput implements Output {
         }
     }
 
-    private void writeInt32LE(final int value) throws IOException {
+    protected void writeInt32LE(final int value) throws IOException {
         ensureCapacity(4);
         IntSerializer.writeInt32LE(value, nioBuffer);
     }
 
-    private void writeInt64LE(final long value) throws IOException {
+    protected void writeInt64LE(final long value) throws IOException {
         ensureCapacity(8);
         IntSerializer.writeInt64LE(value, nioBuffer);
     }
 
-    private void writeByte(final byte value) throws IOException {
+    protected void writeByte(final byte value) throws IOException {
         ensureCapacity(1);
         nioBuffer.put(value);
     }
 
-    private void writeByteArray(final byte[] value,
+    protected void writeByteArray(final byte[] value,
                                 final int offset, final int length) throws IOException {
         ensureCapacity(length);
         nioBuffer.put(value, offset, length);
     }
 
-    private void ensureCapacity(int required) {
+    protected void ensureCapacity(int required) {
         if (nioBuffer.remaining() < required) {
             int position = nioBuffer.position();
 
