@@ -40,6 +40,7 @@ import org.jupiter.serialization.InputBuf;
 import org.jupiter.serialization.OutputBuf;
 import org.jupiter.serialization.Serializer;
 import org.jupiter.serialization.SerializerFactory;
+import org.jupiter.transport.LowCopy;
 import org.jupiter.transport.Status;
 import org.jupiter.transport.channel.JChannel;
 import org.jupiter.transport.channel.JFutureListener;
@@ -102,7 +103,7 @@ public class MessageTask implements RejectedRunnable {
             Serializer serializer = SerializerFactory.getSerializer(s_code);
 
             // 在业务线程中反序列化, 减轻IO线程负担
-            if (SerializerFactory.isSerializeLowCopy()) {
+            if (LowCopy.isDecodeLowCopy()) {
                 InputBuf inputBuf = _requestPayload.inputBuf();
                 msg = serializer.readObject(inputBuf, MessageWrapper.class);
             } else {
@@ -187,7 +188,7 @@ public class MessageTask implements RejectedRunnable {
 
             JResponsePayload responsePayload = new JResponsePayload(_request.invokeId());
 
-            if (SerializerFactory.isSerializeLowCopy()) {
+            if (LowCopy.isEncodeLowCopy()) {
                 OutputBuf outputBuf =
                         serializer.writeObject(new OutputBufImpl(channel.allocOutput()), result);
                 responsePayload.outputBuf(s_code, outputBuf);
