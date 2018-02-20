@@ -47,6 +47,7 @@ public class BenchmarkServer {
                 .setProperty("jupiter.executor.factory.provider.queue.capacity", "65536");
         SystemPropertyUtil
                 .setProperty("jupiter.executor.factory.affinity.thread", "true");
+        SystemPropertyUtil.setProperty("jupiter.serialize.low_copy", "false");
 
         // 设置全局provider executor
         SystemPropertyUtil

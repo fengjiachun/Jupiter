@@ -64,6 +64,8 @@ public class NioBufOutput extends ByteBufferOutput {
 
         niobuffer = outputBuf.nioByteBuffer(capacity - position);
 
+        capacity = niobuffer.limit();
+
         return true;
     }
 }

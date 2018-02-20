@@ -214,9 +214,7 @@ public class NettyChannel implements JChannel {
             }
 
             if (nioByteBuffer == null) {
-                nioByteBuffer = byteBuf
-                        .ensureWritable(minWritableBytes)
-                        .nioBuffer(byteBuf.writerIndex(), minWritableBytes);
+                nioByteBuffer = newNioByteBuffer(byteBuf, minWritableBytes);
             }
 
             if (nioByteBuffer.remaining() >= minWritableBytes) {
@@ -224,11 +222,8 @@ public class NettyChannel implements JChannel {
             }
 
             int position = nioByteBuffer.position();
-            int capacity = position + minWritableBytes;
 
-            nioByteBuffer = byteBuf
-                    .ensureWritable(capacity)
-                    .nioBuffer(byteBuf.writerIndex(), capacity);
+            nioByteBuffer = newNioByteBuffer(byteBuf, position + minWritableBytes);
 
             nioByteBuffer.position(position);
 
@@ -246,6 +241,12 @@ public class NettyChannel implements JChannel {
         public int size() {
             int nioBufPosition = nioByteBuffer == null ? 0 : nioByteBuffer.position();
             return Math.max(byteBuf.readableBytes(), nioBufPosition);
+        }
+
+        private static ByteBuffer newNioByteBuffer(ByteBuf byteBuf, int writableBytes) {
+            return byteBuf
+                    .ensureWritable(writableBytes)
+                    .nioBuffer(byteBuf.writerIndex(), byteBuf.writableBytes());
         }
     }
 }
