@@ -17,6 +17,7 @@
 package org.jupiter.example.round;
 
 import org.jupiter.common.concurrent.NamedThreadFactory;
+import org.jupiter.common.util.SystemPropertyUtil;
 import org.jupiter.example.ServiceTest2Impl;
 import org.jupiter.example.ServiceTestImpl;
 import org.jupiter.monitor.MonitorServer;
@@ -43,6 +44,9 @@ import java.util.concurrent.atomic.AtomicLong;
 public class JupiterServer {
 
     public static void main(String[] args) {
+        SystemPropertyUtil.setProperty("jupiter.transport.decode.low_copy", "true");
+        SystemPropertyUtil.setProperty("jupiter.transport.encode.low_copy", "true");
+
         final JServer server = new DefaultServer().withAcceptor(new JNettyTcpAcceptor(18090));
         final MonitorServer monitor = new MonitorServer();
         monitor.setJupiterServer(server);

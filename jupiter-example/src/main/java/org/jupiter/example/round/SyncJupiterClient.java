@@ -16,6 +16,7 @@
 
 package org.jupiter.example.round;
 
+import org.jupiter.common.util.SystemPropertyUtil;
 import org.jupiter.example.ServiceTest;
 import org.jupiter.example.ServiceTest2;
 import org.jupiter.monitor.MonitorServer;
@@ -37,6 +38,9 @@ import org.jupiter.transport.netty.JNettyTcpConnector;
 public class SyncJupiterClient {
 
     public static void main(String[] args) {
+        SystemPropertyUtil.setProperty("jupiter.transport.decode.low_copy", "true");
+        SystemPropertyUtil.setProperty("jupiter.transport.encode.low_copy", "true");
+
         final JClient client = new DefaultClient().withConnector(new JNettyTcpConnector());
         final MonitorServer monitor = new MonitorServer(19991);
         monitor.setJupiterClient(client);
