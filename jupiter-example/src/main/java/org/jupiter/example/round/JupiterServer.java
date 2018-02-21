@@ -44,6 +44,8 @@ import java.util.concurrent.atomic.AtomicLong;
 public class JupiterServer {
 
     public static void main(String[] args) {
+        SystemPropertyUtil.setProperty("jupiter.rpc.suggest.connection.count", "1");
+
         SystemPropertyUtil.setProperty("jupiter.transport.decode.low_copy", "true");
         SystemPropertyUtil.setProperty("jupiter.transport.encode.low_copy", "true");
 

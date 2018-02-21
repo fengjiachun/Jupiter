@@ -87,6 +87,12 @@ public class SyncJupiterClient {
         try {
             ServiceTest.ResultClass result1 = service1.sayHello("jupiter", "hello");
             System.out.println(result1);
+            result1 = service1.sayHello("jupiter", "hello");
+            System.out.println(result1);
+            result1 = service1.sayHello("jupiter", "hello");
+            System.out.println(result1);
+            result1 = service1.sayHello("jupiter", "hello");
+            System.out.println(result1);
 
             String result2 = service2.sayHelloString();
             System.out.println(result2);
