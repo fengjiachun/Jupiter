@@ -26,8 +26,10 @@ import org.jupiter.common.util.SystemPropertyUtil;
  */
 public class LowCopy {
 
+    // TODO 默认为false, 还需继续优化
     private static final boolean DECODE_LOW_COPY =
-            SystemPropertyUtil.getBoolean("jupiter.transport.decode.low_copy", true);
+            SystemPropertyUtil.getBoolean("jupiter.transport.decode.low_copy", false);
+    // TODO 默认为false, 还需继续优化
     private static final boolean ENCODE_LOW_COPY =
             SystemPropertyUtil.getBoolean("jupiter.transport.encode.low_copy", false);
 
