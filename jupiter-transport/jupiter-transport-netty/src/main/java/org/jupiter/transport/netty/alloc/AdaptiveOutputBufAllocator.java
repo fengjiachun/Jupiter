@@ -32,7 +32,7 @@ public class AdaptiveOutputBufAllocator {
 
     static final int DEFAULT_MINIMUM = 64;
     static final int DEFAULT_INITIAL = 512;
-    static final int DEFAULT_MAXIMUM = 262144;
+    static final int DEFAULT_MAXIMUM = 524288;
 
     private static final int INDEX_INCREMENT = 4;
     private static final int INDEX_DECREMENT = 1;
