@@ -24,6 +24,7 @@ import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelFutureListener;
 import io.netty.util.Attribute;
 import io.netty.util.AttributeKey;
+import org.jupiter.serialization.OutputBuf;
 import org.jupiter.transport.JProtocolHeader;
 import org.jupiter.transport.channel.JChannel;
 import org.jupiter.transport.channel.JFutureListener;
@@ -168,8 +169,8 @@ public class NettyChannel implements JChannel {
     }
 
     @Override
-    public ChannelOutput allocOutput() {
-        return new NettyChannelOutput(allocHandle, channel.alloc());
+    public OutputBuf allocOutputBuf() {
+        return new NettyOutputBuf(allocHandle, channel.alloc());
     }
 
     @Override
@@ -187,13 +188,13 @@ public class NettyChannel implements JChannel {
         return channel.toString();
     }
 
-    private static class NettyChannelOutput implements ChannelOutput {
+    private static class NettyOutputBuf implements OutputBuf {
 
         private final AdaptiveOutputBufAllocator.Handle allocHandle;
         private final ByteBuf byteBuf;
         private ByteBuffer nioByteBuffer;
 
-        public NettyChannelOutput(AdaptiveOutputBufAllocator.Handle allocHandle, ByteBufAllocator alloc) {
+        public NettyOutputBuf(AdaptiveOutputBufAllocator.Handle allocHandle, ByteBufAllocator alloc) {
             this.allocHandle = allocHandle;
             byteBuf = allocHandle.allocate(alloc);
 

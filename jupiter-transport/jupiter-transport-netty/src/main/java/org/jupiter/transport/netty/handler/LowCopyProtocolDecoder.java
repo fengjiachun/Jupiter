@@ -108,7 +108,7 @@ public class LowCopyProtocolDecoder extends ReplayingDecoder<LowCopyProtocolDeco
 
                         JRequestPayload request = new JRequestPayload(header.id());
                         request.timestamp(SystemClock.millisClock().now());
-                        request.inputBuf(header.serializerCode(), new DecoderBuf(bodyByteBuf));
+                        request.inputBuf(header.serializerCode(), new NettyInputBuf(bodyByteBuf));
 
                         out.add(request);
 
@@ -120,7 +120,7 @@ public class LowCopyProtocolDecoder extends ReplayingDecoder<LowCopyProtocolDeco
 
                         JResponsePayload response = new JResponsePayload(header.id());
                         response.status(header.status());
-                        response.inputBuf(header.serializerCode(), new DecoderBuf(bodyByteBuf));
+                        response.inputBuf(header.serializerCode(), new NettyInputBuf(bodyByteBuf));
 
                         out.add(response);
 
@@ -146,11 +146,11 @@ public class LowCopyProtocolDecoder extends ReplayingDecoder<LowCopyProtocolDeco
         return size;
     }
 
-    static class DecoderBuf implements InputBuf {
+    static class NettyInputBuf implements InputBuf {
 
         private final ByteBuf byteBuf;
 
-        DecoderBuf(ByteBuf byteBuf) {
+        NettyInputBuf(ByteBuf byteBuf) {
             this.byteBuf = byteBuf;
         }
 

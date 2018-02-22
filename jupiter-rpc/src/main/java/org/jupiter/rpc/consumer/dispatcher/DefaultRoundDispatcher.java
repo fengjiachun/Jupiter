@@ -19,7 +19,6 @@ package org.jupiter.rpc.consumer.dispatcher;
 import org.jupiter.rpc.DispatchType;
 import org.jupiter.rpc.JClient;
 import org.jupiter.rpc.JRequest;
-import org.jupiter.rpc.OutputBufImpl;
 import org.jupiter.rpc.consumer.future.DefaultInvokeFuture;
 import org.jupiter.rpc.consumer.future.InvokeFuture;
 import org.jupiter.rpc.load.balance.LoadBalancer;
@@ -58,7 +57,7 @@ public class DefaultRoundDispatcher extends AbstractDispatcher {
         // 在业务线程中序列化, 减轻IO线程负担
         if (LowCopy.isEncodeLowCopy()) {
             OutputBuf outputBuf =
-                    _serializer.writeObject(new OutputBufImpl(channel.allocOutput()), message);
+                    _serializer.writeObject(channel.allocOutputBuf(), message);
             request.outputBuf(s_code, outputBuf);
         } else {
             byte[] bytes = _serializer.writeObject(message);

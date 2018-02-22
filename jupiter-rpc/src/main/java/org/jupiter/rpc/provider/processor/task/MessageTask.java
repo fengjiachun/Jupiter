@@ -190,7 +190,7 @@ public class MessageTask implements RejectedRunnable {
 
             if (LowCopy.isEncodeLowCopy()) {
                 OutputBuf outputBuf =
-                        serializer.writeObject(new OutputBufImpl(channel.allocOutput()), result);
+                        serializer.writeObject(channel.allocOutputBuf(), result);
                 responsePayload.outputBuf(s_code, outputBuf);
             } else {
                 byte[] bytes = serializer.writeObject(result);

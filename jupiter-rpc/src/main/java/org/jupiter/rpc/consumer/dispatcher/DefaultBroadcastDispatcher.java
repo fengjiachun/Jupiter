@@ -19,7 +19,6 @@ package org.jupiter.rpc.consumer.dispatcher;
 import org.jupiter.rpc.DispatchType;
 import org.jupiter.rpc.JClient;
 import org.jupiter.rpc.JRequest;
-import org.jupiter.rpc.OutputBufImpl;
 import org.jupiter.rpc.consumer.ConsumerInterceptor;
 import org.jupiter.rpc.consumer.future.DefaultInvokeFuture;
 import org.jupiter.rpc.consumer.future.DefaultInvokeFutureGroup;
@@ -81,7 +80,7 @@ public class DefaultBroadcastDispatcher extends AbstractDispatcher {
 
             if (isEncodeLowCopy) {
                 OutputBuf outputBuf =
-                        _serializer.writeObject(new OutputBufImpl(channel.allocOutput()), message);
+                        _serializer.writeObject(channel.allocOutputBuf(), message);
                 request.outputBuf(s_code, outputBuf);
             }
 
