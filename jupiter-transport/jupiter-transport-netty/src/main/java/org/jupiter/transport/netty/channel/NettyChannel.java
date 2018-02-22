@@ -188,7 +188,7 @@ public class NettyChannel implements JChannel {
         return channel.toString();
     }
 
-    private static class NettyOutputBuf implements OutputBuf {
+    static final class NettyOutputBuf implements OutputBuf {
 
         private final AdaptiveOutputBufAllocator.Handle allocHandle;
         private final ByteBuf byteBuf;

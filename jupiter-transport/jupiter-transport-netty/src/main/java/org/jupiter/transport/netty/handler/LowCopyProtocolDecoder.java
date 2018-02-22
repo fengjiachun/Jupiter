@@ -146,7 +146,7 @@ public class LowCopyProtocolDecoder extends ReplayingDecoder<LowCopyProtocolDeco
         return size;
     }
 
-    static class NettyInputBuf implements InputBuf {
+    static final class NettyInputBuf implements InputBuf {
 
         private final ByteBuf byteBuf;
 
