@@ -21,7 +21,7 @@ import io.netty.channel.*;
 import org.jupiter.common.util.JConstants;
 import org.jupiter.transport.JConnection;
 import org.jupiter.transport.JOption;
-import org.jupiter.transport.LowCopy;
+import org.jupiter.transport.CodecConfig;
 import org.jupiter.transport.UnresolvedAddress;
 import org.jupiter.transport.channel.JChannelGroup;
 import org.jupiter.transport.exception.ConnectFailedException;
@@ -101,7 +101,7 @@ public class JNettyTcpConnector extends NettyTcpConnector {
     // handlers
     private final ConnectorIdleStateTrigger idleStateTrigger = new ConnectorIdleStateTrigger();
     private final ChannelOutboundHandler encoder =
-            LowCopy.isEncodeLowCopy() ? new LowCopyProtocolEncoder() : new ProtocolEncoder();
+            CodecConfig.isEncodeLowCopy() ? new LowCopyProtocolEncoder() : new ProtocolEncoder();
     private final ConnectorHandler handler = new ConnectorHandler();
 
     public JNettyTcpConnector() {
@@ -151,7 +151,7 @@ public class JNettyTcpConnector extends NettyTcpConnector {
                         this,
                         new IdleStateChecker(timer, 0, JConstants.WRITER_IDLE_TIME_SECONDS, 0),
                         idleStateTrigger,
-                        LowCopy.isDecodeLowCopy() ? new LowCopyProtocolDecoder() : new ProtocolDecoder(),
+                        CodecConfig.isDecodeLowCopy() ? new LowCopyProtocolDecoder() : new ProtocolDecoder(),
                         encoder,
                         handler
                 };

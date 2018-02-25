@@ -26,7 +26,7 @@ import org.jupiter.rpc.model.metadata.MessageWrapper;
 import org.jupiter.serialization.OutputBuf;
 import org.jupiter.serialization.Serializer;
 import org.jupiter.serialization.SerializerType;
-import org.jupiter.transport.LowCopy;
+import org.jupiter.transport.CodecConfig;
 import org.jupiter.transport.channel.JChannel;
 
 /**
@@ -55,7 +55,7 @@ public class DefaultRoundDispatcher extends AbstractDispatcher {
 
         byte s_code = _serializer.code();
         // 在业务线程中序列化, 减轻IO线程负担
-        if (LowCopy.isEncodeLowCopy()) {
+        if (CodecConfig.isEncodeLowCopy()) {
             OutputBuf outputBuf =
                     _serializer.writeObject(channel.allocOutputBuf(), message);
             request.outputBuf(s_code, outputBuf);

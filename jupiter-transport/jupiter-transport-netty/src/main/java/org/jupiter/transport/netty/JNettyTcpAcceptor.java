@@ -24,7 +24,7 @@ import io.netty.channel.ChannelOutboundHandler;
 import org.jupiter.common.util.JConstants;
 import org.jupiter.transport.JConfig;
 import org.jupiter.transport.JOption;
-import org.jupiter.transport.LowCopy;
+import org.jupiter.transport.CodecConfig;
 import org.jupiter.transport.netty.handler.*;
 import org.jupiter.transport.netty.handler.acceptor.AcceptorHandler;
 import org.jupiter.transport.netty.handler.acceptor.AcceptorIdleStateTrigger;
@@ -88,7 +88,7 @@ public class JNettyTcpAcceptor extends NettyTcpAcceptor {
     // handlers
     private final AcceptorIdleStateTrigger idleStateTrigger = new AcceptorIdleStateTrigger();
     private final ChannelOutboundHandler encoder =
-            LowCopy.isEncodeLowCopy() ? new LowCopyProtocolEncoder() : new ProtocolEncoder();
+            CodecConfig.isEncodeLowCopy() ? new LowCopyProtocolEncoder() : new ProtocolEncoder();
     private final AcceptorHandler handler = new AcceptorHandler();
 
     public JNettyTcpAcceptor() {
@@ -154,7 +154,7 @@ public class JNettyTcpAcceptor extends NettyTcpAcceptor {
                 ch.pipeline().addLast(
                         new IdleStateChecker(timer, JConstants.READER_IDLE_TIME_SECONDS, 0, 0),
                         idleStateTrigger,
-                        LowCopy.isDecodeLowCopy() ? new LowCopyProtocolDecoder() : new ProtocolDecoder(),
+                        CodecConfig.isDecodeLowCopy() ? new LowCopyProtocolDecoder() : new ProtocolDecoder(),
                         encoder,
                         handler);
             }

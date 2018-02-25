@@ -24,14 +24,13 @@ import org.jupiter.common.util.SystemPropertyUtil;
  *
  * @author jiachun.fjc
  */
-public class LowCopy {
+@SuppressWarnings("all")
+public final class CodecConfig {
 
-    // TODO 默认为false, 还需继续优化
     private static final boolean DECODE_LOW_COPY =
-            SystemPropertyUtil.getBoolean("jupiter.transport.decode.low_copy", false);
-    // TODO 默认为false, 还需继续优化
+            SystemPropertyUtil.getBoolean("jupiter.transport.decode.low_copy", false); // TODO 默认为false, 还需继续优化
     private static final boolean ENCODE_LOW_COPY =
-            SystemPropertyUtil.getBoolean("jupiter.transport.encode.low_copy", false);
+            SystemPropertyUtil.getBoolean("jupiter.transport.encode.low_copy", false); // TODO 默认为false, 还需继续优化
 
     public static boolean isDecodeLowCopy() {
         return DECODE_LOW_COPY;
@@ -40,4 +39,6 @@ public class LowCopy {
     public static boolean isEncodeLowCopy() {
         return ENCODE_LOW_COPY;
     }
+
+    private CodecConfig() {}
 }

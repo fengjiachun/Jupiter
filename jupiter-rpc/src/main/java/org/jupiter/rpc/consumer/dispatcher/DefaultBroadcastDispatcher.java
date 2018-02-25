@@ -27,7 +27,7 @@ import org.jupiter.rpc.model.metadata.MessageWrapper;
 import org.jupiter.serialization.OutputBuf;
 import org.jupiter.serialization.Serializer;
 import org.jupiter.serialization.SerializerType;
-import org.jupiter.transport.LowCopy;
+import org.jupiter.transport.CodecConfig;
 import org.jupiter.transport.channel.JChannel;
 import org.jupiter.transport.channel.JChannelGroup;
 
@@ -60,7 +60,7 @@ public class DefaultBroadcastDispatcher extends AbstractDispatcher {
 
         byte s_code = _serializer.code();
         // 在业务线程中序列化, 减轻IO线程负担
-        boolean isEncodeLowCopy = LowCopy.isEncodeLowCopy();
+        boolean isEncodeLowCopy = CodecConfig.isEncodeLowCopy();
         if (!isEncodeLowCopy) {
             byte[] bytes = _serializer.writeObject(message);
             request.bytes(s_code, bytes);

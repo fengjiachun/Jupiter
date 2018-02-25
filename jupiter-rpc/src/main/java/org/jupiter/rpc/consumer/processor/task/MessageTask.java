@@ -25,7 +25,7 @@ import org.jupiter.rpc.model.metadata.ResultWrapper;
 import org.jupiter.serialization.InputBuf;
 import org.jupiter.serialization.Serializer;
 import org.jupiter.serialization.SerializerFactory;
-import org.jupiter.transport.LowCopy;
+import org.jupiter.transport.CodecConfig;
 import org.jupiter.transport.Status;
 import org.jupiter.transport.channel.JChannel;
 import org.jupiter.transport.payload.JResponsePayload;
@@ -61,7 +61,7 @@ public class MessageTask implements Runnable {
         Serializer serializer = SerializerFactory.getSerializer(s_code);
         ResultWrapper wrapper;
         try {
-            if (LowCopy.isDecodeLowCopy()) {
+            if (CodecConfig.isDecodeLowCopy()) {
                 InputBuf inputBuf = _responsePayload.inputBuf();
                 wrapper = serializer.readObject(inputBuf, ResultWrapper.class);
             } else {
