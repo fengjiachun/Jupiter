@@ -28,6 +28,42 @@ import java.util.concurrent.TimeUnit;
 @OutputTimeUnit(TimeUnit.MILLISECONDS)
 public class SerializationBenchmark {
 
+    /*
+        Benchmark                                      Mode     Cnt    Score    Error   Units
+        SerializationBenchmark.hessianByteBuffer      thrpt      10   32.483 ±  0.602  ops/ms
+        SerializationBenchmark.hessianBytesArray      thrpt      10   29.710 ±  0.780  ops/ms
+        SerializationBenchmark.javaByteBuffer         thrpt      10   10.691 ±  0.309  ops/ms
+        SerializationBenchmark.javaBytesArray         thrpt      10   10.184 ±  0.111  ops/ms
+        SerializationBenchmark.kryoByteBuffer         thrpt      10   43.679 ±  1.152  ops/ms
+        SerializationBenchmark.kryoBytesArray         thrpt      10   48.685 ±  2.737  ops/ms
+        SerializationBenchmark.protoStuffByteBuffer   thrpt      10  382.429 ± 19.064  ops/ms
+        SerializationBenchmark.protoStuffBytesArray   thrpt      10  382.446 ± 16.843  ops/ms
+        SerializationBenchmark.hessianByteBuffer       avgt      10    0.031 ±  0.001   ms/op
+        SerializationBenchmark.hessianBytesArray       avgt      10    0.034 ±  0.001   ms/op
+        SerializationBenchmark.javaByteBuffer          avgt      10    0.091 ±  0.001   ms/op
+        SerializationBenchmark.javaBytesArray          avgt      10    0.098 ±  0.002   ms/op
+        SerializationBenchmark.kryoByteBuffer          avgt      10    0.023 ±  0.001   ms/op
+        SerializationBenchmark.kryoBytesArray          avgt      10    0.021 ±  0.001   ms/op
+        SerializationBenchmark.protoStuffByteBuffer    avgt      10    0.003 ±  0.001   ms/op
+        SerializationBenchmark.protoStuffBytesArray    avgt      10    0.003 ±  0.001   ms/op
+        SerializationBenchmark.hessianByteBuffer     sample  162209   ≈ 10⁻⁵             s/op
+        SerializationBenchmark.hessianBytesArray     sample  150403   ≈ 10⁻⁴             s/op
+        SerializationBenchmark.javaByteBuffer        sample  112900   ≈ 10⁻⁴             s/op
+        SerializationBenchmark.javaBytesArray        sample  101405   ≈ 10⁻⁴             s/op
+        SerializationBenchmark.kryoByteBuffer        sample  108397   ≈ 10⁻⁵             s/op
+        SerializationBenchmark.kryoBytesArray        sample  120872   ≈ 10⁻⁵             s/op
+        SerializationBenchmark.protoStuffByteBuffer  sample  118416   ≈ 10⁻⁶             s/op
+        SerializationBenchmark.protoStuffBytesArray  sample  119432   ≈ 10⁻⁶             s/op
+        SerializationBenchmark.hessianByteBuffer         ss      10    0.001 ±  0.001    s/op
+        SerializationBenchmark.hessianBytesArray         ss      10    0.001 ±  0.001    s/op
+        SerializationBenchmark.javaByteBuffer            ss      10    0.002 ±  0.001    s/op
+        SerializationBenchmark.javaBytesArray            ss      10    0.002 ±  0.001    s/op
+        SerializationBenchmark.kryoByteBuffer            ss      10    0.001 ±  0.001    s/op
+        SerializationBenchmark.kryoBytesArray            ss      10    0.001 ±  0.001    s/op
+        SerializationBenchmark.protoStuffByteBuffer      ss      10   ≈ 10⁻⁴             s/op
+        SerializationBenchmark.protoStuffBytesArray      ss      10   ≈ 10⁻⁴             s/op
+     */
+
     public static void main(String[] args) throws RunnerException {
         Options opt = new OptionsBuilder()
                 .include(SerializationBenchmark.class.getSimpleName())
