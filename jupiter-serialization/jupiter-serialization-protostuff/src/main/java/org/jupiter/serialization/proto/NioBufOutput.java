@@ -20,11 +20,11 @@ import io.protostuff.ByteString;
 import io.protostuff.IntSerializer;
 import io.protostuff.Output;
 import io.protostuff.Schema;
-import org.jupiter.common.util.ExceptionUtil;
+import org.jupiter.common.util.internal.UnsafeReferenceFieldUpdater;
+import org.jupiter.common.util.internal.UnsafeUpdater;
 import org.jupiter.serialization.OutputBuf;
 
 import java.io.IOException;
-import java.lang.reflect.Method;
 import java.nio.ByteBuffer;
 
 import static io.protostuff.ProtobufOutput.encodeZigZag32;
@@ -39,7 +39,8 @@ import static io.protostuff.WireFormat.*;
  */
 public class NioBufOutput implements Output {
 
-    private static final Method byteStringGetBytesMethod;
+    private static final UnsafeReferenceFieldUpdater<ByteString, byte[]> byteStringBytesGetter =
+            UnsafeUpdater.newReferenceFieldUpdater(ByteString.class, "bytes");
 
     private final OutputBuf outputBuf;
     private ByteBuffer nioBuffer;
@@ -148,11 +149,7 @@ public class NioBufOutput implements Output {
 
     @Override
     public void writeBytes(int fieldNumber, ByteString value, boolean repeated) throws IOException {
-        try {
-            writeByteArray(fieldNumber, (byte[]) byteStringGetBytesMethod.invoke(value), repeated);
-        } catch (Throwable t) {
-            ExceptionUtil.throwException(t);
-        }
+        writeByteArray(fieldNumber, byteStringBytesGetter.get(value), repeated);
     }
 
     @Override
@@ -248,15 +245,6 @@ public class NioBufOutput implements Output {
             nioBuffer = outputBuf.nioByteBuffer(capacity - position);
 
             capacity = nioBuffer.limit();
-        }
-    }
-
-    static {
-        try {
-            byteStringGetBytesMethod = ByteString.class.getDeclaredMethod("getBytes");
-            byteStringGetBytesMethod.setAccessible(true);
-        } catch (NoSuchMethodException e) {
-            throw new Error(e);
         }
     }
 }
