@@ -15,10 +15,12 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.Serializable;
 import java.nio.ByteBuffer;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
+@State(Scope.Benchmark)
 @Fork(1)
 @Warmup(iterations = 5)
 @Measurement(iterations = 10)
@@ -44,54 +46,62 @@ public class SerializationBenchmark {
 
     @Benchmark
     public void javaBytesArray() {
-        byte[] bytes = javaSerializer.writeObject(createUser());
-        javaSerializer.readObject(bytes, User.class);
+        byte[] bytes = javaSerializer.writeObject(createUserList());
+        ByteBuf byteBuf = allocator.buffer(bytes.length);
+        byteBuf.writeBytes(bytes);
+        javaSerializer.readObject(bytes, ArrayList.class);
     }
 
     @Benchmark
     public void javaByteBuffer() {
-        OutputBuf  outputBuf = javaSerializer.writeObject(new NettyOutputBuf(allocHandle, allocator), createUser());
+        OutputBuf outputBuf = javaSerializer.writeObject(new NettyOutputBuf(allocHandle, allocator), createUserList());
         InputBuf inputBuf = new NettyInputBuf((ByteBuf) outputBuf.attach());
-        javaSerializer.readObject(inputBuf, User.class);
+        javaSerializer.readObject(inputBuf, ArrayList.class);
     }
 
     @Benchmark
     public void hessianBytesArray() {
-        byte[] bytes = hessianSerializer.writeObject(createUser());
-        hessianSerializer.readObject(bytes, User.class);
+        byte[] bytes = hessianSerializer.writeObject(createUserList());
+        ByteBuf byteBuf = allocator.buffer(bytes.length);
+        byteBuf.writeBytes(bytes);
+        hessianSerializer.readObject(bytes, ArrayList.class);
     }
 
     @Benchmark
     public void hessianByteBuffer() {
-        OutputBuf outputBuf = hessianSerializer.writeObject(new NettyOutputBuf(allocHandle, allocator), createUser());
+        OutputBuf outputBuf = hessianSerializer.writeObject(new NettyOutputBuf(allocHandle, allocator), createUserList());
         InputBuf inputBuf = new NettyInputBuf((ByteBuf) outputBuf.attach());
-        hessianSerializer.readObject(inputBuf, User.class);
+        hessianSerializer.readObject(inputBuf, ArrayList.class);
     }
 
     @Benchmark
     public void protoStuffBytesArray() {
-        byte[] bytes = protoStuffSerializer.writeObject(createUser());
-        protoStuffSerializer.readObject(bytes, User.class);
+        byte[] bytes = protoStuffSerializer.writeObject(createUserList());
+        ByteBuf byteBuf = allocator.buffer(bytes.length);
+        byteBuf.writeBytes(bytes);
+        protoStuffSerializer.readObject(bytes, ArrayList.class);
     }
 
     @Benchmark
     public void protoStuffByteBuffer() {
-        OutputBuf outputBuf = protoStuffSerializer.writeObject(new NettyOutputBuf(allocHandle, allocator), createUser());
+        OutputBuf outputBuf = protoStuffSerializer.writeObject(new NettyOutputBuf(allocHandle, allocator), createUserList());
         InputBuf inputBuf = new NettyInputBuf((ByteBuf) outputBuf.attach());
-        protoStuffSerializer.readObject(inputBuf, User.class);
+        protoStuffSerializer.readObject(inputBuf, ArrayList.class);
     }
 
     @Benchmark
     public void kryoBytesArray() {
-        byte[] bytes = kryoSerializer.writeObject(createUser());
-        kryoSerializer.readObject(bytes, User.class);
+        byte[] bytes = kryoSerializer.writeObject(createUserList());
+        ByteBuf byteBuf = allocator.buffer(bytes.length);
+        byteBuf.writeBytes(bytes);
+        kryoSerializer.readObject(bytes, ArrayList.class);
     }
 
     @Benchmark
     public void kryoByteBuffer() {
-        OutputBuf outputBuf = kryoSerializer.writeObject(new NettyOutputBuf(allocHandle, allocator), createUser());
+        OutputBuf outputBuf = kryoSerializer.writeObject(new NettyOutputBuf(allocHandle, allocator), createUserList());
         InputBuf inputBuf = new NettyInputBuf((ByteBuf) outputBuf.attach());
-        kryoSerializer.readObject(inputBuf, User.class);
+        kryoSerializer.readObject(inputBuf, ArrayList.class);
     }
 
     static final class NettyInputBuf implements InputBuf {
@@ -189,9 +199,9 @@ public class SerializationBenchmark {
         }
     }
 
-    static User createUser() {
+    static User createUser(int id) {
         User user = new User();
-        user.setId(1);
+        user.setId(id);
         user.setName("block");
         user.setSex(0);
         user.setBirthday(new Date());
@@ -203,6 +213,14 @@ public class SerializationBenchmark {
         user.setCreateTime(new Date());
         user.setUpdateTime(new Date());
         return user;
+    }
+
+    static List<User> createUserList() {
+        List<User> userList = Lists.newArrayListWithCapacity(10);
+        for (int i = 0; i < 10; i++) {
+            userList.add(createUser(i));
+        }
+        return userList;
     }
 
     static class User implements Serializable {
