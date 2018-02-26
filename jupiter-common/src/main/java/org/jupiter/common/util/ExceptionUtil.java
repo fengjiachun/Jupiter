@@ -29,7 +29,7 @@ import sun.misc.Unsafe;
  */
 public class ExceptionUtil {
 
-    private static final UnsafeReferenceFieldUpdater<Throwable, Throwable> cause_updater =
+    private static final UnsafeReferenceFieldUpdater<Throwable, Throwable> causeUpdater =
             UnsafeUpdater.newReferenceFieldUpdater(Throwable.class, "cause");
 
     /**
@@ -71,8 +71,8 @@ public class ExceptionUtil {
 
         if (rootCause != cause) {
             cause.setStackTrace(rootCause.getStackTrace());
-            assert cause_updater != null;
-            cause_updater.set(cause, cause);
+            assert causeUpdater != null;
+            causeUpdater.set(cause, cause);
         }
         return cause;
     }

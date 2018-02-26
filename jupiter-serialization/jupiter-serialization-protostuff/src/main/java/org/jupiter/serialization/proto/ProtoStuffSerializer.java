@@ -83,13 +83,10 @@ public class ProtoStuffSerializer extends Serializer {
     public <T> OutputBuf writeObject(OutputBuf outputBuf, T obj) {
         Schema<T> schema = RuntimeSchema.getSchema((Class<T>) obj.getClass());
 
-        LinkedBuffer buf = bufThreadLocal.get();
         try {
             schema.writeTo(new NioBufOutput(outputBuf, -1), obj);
         } catch (IOException e) {
             ExceptionUtil.throwException(e);
-        } finally {
-            buf.clear(); // for reuse
         }
 
         return outputBuf;
