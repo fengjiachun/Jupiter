@@ -28,6 +28,7 @@ import org.jupiter.serialization.InputBuf;
 import org.jupiter.serialization.OutputBuf;
 import org.jupiter.serialization.Serializer;
 import org.jupiter.serialization.SerializerType;
+import org.jupiter.serialization.kryo.buffer.NioBufOutput;
 import org.objenesis.strategy.StdInstantiatorStrategy;
 
 import java.nio.ByteBuffer;

@@ -25,6 +25,7 @@ import org.jupiter.serialization.InputBuf;
 import org.jupiter.serialization.OutputBuf;
 import org.jupiter.serialization.Serializer;
 import org.jupiter.serialization.SerializerType;
+import org.jupiter.serialization.proto.buffer.NioBufOutput;
 
 import java.io.IOException;
 
