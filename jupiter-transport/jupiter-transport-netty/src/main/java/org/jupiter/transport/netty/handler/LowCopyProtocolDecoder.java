@@ -170,6 +170,11 @@ public class LowCopyProtocolDecoder extends ReplayingDecoder<LowCopyProtocolDeco
         }
 
         @Override
+        public boolean hasMemoryAddress() {
+            return byteBuf.hasMemoryAddress();
+        }
+
+        @Override
         public boolean release() {
             return byteBuf.release();
         }

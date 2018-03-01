@@ -14,26 +14,27 @@
  * limitations under the License.
  */
 
-package org.jupiter.serialization;
+package org.jupiter.serialization.kryo.buffer;
 
-import java.io.InputStream;
+import com.esotericsoftware.kryo.io.ByteBufferInput;
+import org.jupiter.serialization.InputBuf;
+
 import java.nio.ByteBuffer;
 
 /**
  * jupiter
- * org.jupiter.serialization
+ * org.jupiter.serialization.kryo.buffer
  *
  * @author jiachun.fjc
  */
-public interface InputBuf {
+public final class InputFactory {
 
-    InputStream inputStream();
+    public static ByteBufferInput getInput(InputBuf inputBuf) {
+        ByteBuffer nioBuf = inputBuf.nioByteBuffer();
+        ByteBufferInput kInput = new ByteBufferInput();
+        kInput.setBuffer(nioBuf, 0, nioBuf.capacity());
+        return kInput;
+    }
 
-    ByteBuffer nioByteBuffer();
-
-    int size();
-
-    boolean hasMemoryAddress();
-
-    boolean release();
+    private InputFactory() {}
 }

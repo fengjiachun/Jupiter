@@ -26,11 +26,11 @@ import org.jupiter.serialization.OutputBuf;
  *
  * @author jiachun.fjc
  */
-public class NioBufOutput extends ByteBufferOutput {
+class NioBufOutput extends ByteBufferOutput {
 
     protected final OutputBuf outputBuf;
 
-    public NioBufOutput(OutputBuf outputBuf, int minWritableBytes) {
+    NioBufOutput(OutputBuf outputBuf, int minWritableBytes) {
         this.outputBuf = outputBuf;
         maxCapacity = Integer.MAX_VALUE;
         niobuffer = outputBuf.nioByteBuffer(minWritableBytes);

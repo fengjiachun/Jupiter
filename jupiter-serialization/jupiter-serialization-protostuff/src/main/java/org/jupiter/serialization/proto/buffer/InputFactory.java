@@ -14,26 +14,22 @@
  * limitations under the License.
  */
 
-package org.jupiter.serialization;
+package org.jupiter.serialization.proto.buffer;
 
-import java.io.InputStream;
-import java.nio.ByteBuffer;
+import io.protostuff.ByteBufferInput;
+import org.jupiter.serialization.InputBuf;
 
 /**
  * jupiter
- * org.jupiter.serialization
+ * org.jupiter.serialization.proto.buffer
  *
  * @author jiachun.fjc
  */
-public interface InputBuf {
+public class InputFactory {
 
-    InputStream inputStream();
+    public static ByteBufferInput getInput(InputBuf inputBuf) {
+        return new ByteBufferInput(inputBuf.nioByteBuffer(), true);
+    }
 
-    ByteBuffer nioByteBuffer();
-
-    int size();
-
-    boolean hasMemoryAddress();
-
-    boolean release();
+    private InputFactory() {}
 }

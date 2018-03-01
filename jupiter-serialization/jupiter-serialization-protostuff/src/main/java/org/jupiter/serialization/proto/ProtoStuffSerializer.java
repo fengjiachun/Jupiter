@@ -16,7 +16,9 @@
 
 package org.jupiter.serialization.proto;
 
-import io.protostuff.*;
+import io.protostuff.LinkedBuffer;
+import io.protostuff.ProtostuffIOUtil;
+import io.protostuff.Schema;
 import io.protostuff.runtime.RuntimeSchema;
 import org.jupiter.common.util.ExceptionUtil;
 import org.jupiter.common.util.SystemPropertyUtil;
@@ -25,7 +27,8 @@ import org.jupiter.serialization.InputBuf;
 import org.jupiter.serialization.OutputBuf;
 import org.jupiter.serialization.Serializer;
 import org.jupiter.serialization.SerializerType;
-import org.jupiter.serialization.proto.buffer.NioBufOutput;
+import org.jupiter.serialization.proto.buffer.InputFactory;
+import org.jupiter.serialization.proto.buffer.OutputFactory;
 
 import java.io.IOException;
 
@@ -85,7 +88,7 @@ public class ProtoStuffSerializer extends Serializer {
         Schema<T> schema = RuntimeSchema.getSchema((Class<T>) obj.getClass());
 
         try {
-            schema.writeTo(new NioBufOutput(outputBuf, -1), obj);
+            schema.writeTo(OutputFactory.getOutput(outputBuf), obj);
         } catch (IOException e) {
             ExceptionUtil.throwException(e);
         }
@@ -112,7 +115,7 @@ public class ProtoStuffSerializer extends Serializer {
         T msg = schema.newMessage();
 
         try {
-            schema.mergeFrom(new ByteBufferInput(inputBuf.nioByteBuffer(), true), msg);
+            schema.mergeFrom(InputFactory.getInput(inputBuf), msg);
         } catch (IOException e) {
             ExceptionUtil.throwException(e);
         } finally {

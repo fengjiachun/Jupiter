@@ -33,5 +33,7 @@ public interface OutputBuf {
 
     int size();
 
+    boolean hasMemoryAddress();
+
     Object attach();
 }

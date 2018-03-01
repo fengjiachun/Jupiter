@@ -17,7 +17,6 @@
 package org.jupiter.serialization.kryo;
 
 import com.esotericsoftware.kryo.Kryo;
-import com.esotericsoftware.kryo.io.ByteBufferInput;
 import com.esotericsoftware.kryo.io.FastInput;
 import com.esotericsoftware.kryo.io.FastOutput;
 import com.esotericsoftware.kryo.io.Output;
@@ -28,10 +27,9 @@ import org.jupiter.serialization.InputBuf;
 import org.jupiter.serialization.OutputBuf;
 import org.jupiter.serialization.Serializer;
 import org.jupiter.serialization.SerializerType;
-import org.jupiter.serialization.kryo.buffer.NioBufOutput;
+import org.jupiter.serialization.kryo.buffer.InputFactory;
+import org.jupiter.serialization.kryo.buffer.OutputFactory;
 import org.objenesis.strategy.StdInstantiatorStrategy;
-
-import java.nio.ByteBuffer;
 
 /**
  * Kryo的序列化/反序列化实现.
@@ -94,7 +92,7 @@ public class KryoSerializer extends Serializer {
     public <T> OutputBuf writeObject(OutputBuf outputBuf, T obj) {
         kryoThreadLocal
                 .get()
-                .writeObject(new NioBufOutput(outputBuf, -1), obj);
+                .writeObject(OutputFactory.getOutput(outputBuf), obj);
         return outputBuf;
     }
 
@@ -118,13 +116,10 @@ public class KryoSerializer extends Serializer {
 
     @Override
     public <T> T readObject(InputBuf inputBuf, Class<T> clazz) {
-        ByteBuffer nioBuf = inputBuf.nioByteBuffer();
-        ByteBufferInput kInput = new ByteBufferInput();
-        kInput.setBuffer(nioBuf, 0, nioBuf.capacity());
         try {
             return kryoThreadLocal
                     .get()
-                    .readObject(kInput, clazz);
+                    .readObject(InputFactory.getInput(inputBuf), clazz);
         } finally {
             inputBuf.release();
         }

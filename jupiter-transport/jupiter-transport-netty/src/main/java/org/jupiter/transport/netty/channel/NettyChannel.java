@@ -240,6 +240,11 @@ public class NettyChannel implements JChannel {
         }
 
         @Override
+        public boolean hasMemoryAddress() {
+            return byteBuf.hasMemoryAddress();
+        }
+
+        @Override
         public Object attach() {
             int actualWriteBytes = byteBuf.writerIndex();
             if (nioByteBuffer != null) {

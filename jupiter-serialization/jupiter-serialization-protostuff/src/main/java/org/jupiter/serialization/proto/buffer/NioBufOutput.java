@@ -37,7 +37,7 @@ import static io.protostuff.WireFormat.*;
  *
  * @author jiachun.fjc
  */
-public class NioBufOutput implements Output {
+class NioBufOutput implements Output {
 
     private static final UnsafeReferenceFieldUpdater<ByteString, byte[]> byteStringBytesGetter =
             UnsafeUpdater.newReferenceFieldUpdater(ByteString.class, "bytes");
@@ -46,7 +46,7 @@ public class NioBufOutput implements Output {
     private ByteBuffer nioBuffer;
     private int capacity;
 
-    public NioBufOutput(OutputBuf outputBuf, int minWritableBytes) {
+    NioBufOutput(OutputBuf outputBuf, int minWritableBytes) {
         this.outputBuf = outputBuf;
         nioBuffer = outputBuf.nioByteBuffer(minWritableBytes);
         capacity = nioBuffer.remaining();

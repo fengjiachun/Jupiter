@@ -164,6 +164,11 @@ public class SerializationBenchmark {
         }
 
         @Override
+        public boolean hasMemoryAddress() {
+            return byteBuf.hasMemoryAddress();
+        }
+
+        @Override
         public boolean release() {
             return byteBuf.release();
         }
@@ -214,6 +219,11 @@ public class SerializationBenchmark {
                 return byteBuf.readableBytes();
             }
             return Math.max(byteBuf.readableBytes(), nioByteBuffer.position());
+        }
+
+        @Override
+        public boolean hasMemoryAddress() {
+            return byteBuf.hasMemoryAddress();
         }
 
         @Override

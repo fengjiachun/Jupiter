@@ -14,26 +14,21 @@
  * limitations under the License.
  */
 
-package org.jupiter.serialization;
+package org.jupiter.serialization.proto.buffer;
 
-import java.io.InputStream;
-import java.nio.ByteBuffer;
+import org.jupiter.serialization.OutputBuf;
 
 /**
  * jupiter
- * org.jupiter.serialization
+ * org.jupiter.serialization.proto.buffer
  *
  * @author jiachun.fjc
  */
-public interface InputBuf {
+public class UnsafeNioBufOutput extends NioBufOutput {
 
-    InputStream inputStream();
+    UnsafeNioBufOutput(OutputBuf outputBuf, int minWritableBytes) {
+        super(outputBuf, minWritableBytes);
+    }
 
-    ByteBuffer nioByteBuffer();
-
-    int size();
-
-    boolean hasMemoryAddress();
-
-    boolean release();
+    // TODO
 }
