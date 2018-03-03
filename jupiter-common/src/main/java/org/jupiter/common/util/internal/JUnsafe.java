@@ -21,6 +21,7 @@ import org.jupiter.common.util.internal.logging.InternalLoggerFactory;
 import sun.misc.Unsafe;
 
 import java.lang.reflect.Field;
+import java.lang.reflect.Method;
 import java.security.AccessController;
 import java.security.PrivilegedAction;
 
@@ -40,6 +41,8 @@ public final class JUnsafe {
 
     private static final Unsafe UNSAFE;
 
+    private static final boolean UNALIGNED;
+
     static {
         Unsafe unsafe;
         try {
@@ -55,6 +58,26 @@ public final class JUnsafe {
         }
 
         UNSAFE = unsafe;
+
+        if (UNSAFE == null) {
+            UNALIGNED = false;
+        } else {
+            boolean unaligned;
+            try {
+                Class<?> bitsClass = Class.forName("java.nio.Bits", false, getSystemClassLoader());
+                Method unalignedMethod = bitsClass.getDeclaredMethod("unaligned");
+                unalignedMethod.setAccessible(true);
+                unaligned = (boolean) unalignedMethod.invoke(null);
+            } catch (Throwable t) {
+                if (logger.isWarnEnabled()) {
+                    logger.warn("java.nio.Bits: unavailable, {}.", stackTrace(t));
+                }
+
+                unaligned = false;
+            }
+
+            UNALIGNED = unaligned;
+        }
     }
 
     /**
@@ -62,6 +85,13 @@ public final class JUnsafe {
      */
     public static Unsafe getUnsafe() {
         return UNSAFE;
+    }
+
+    /**
+     * {@code true} if and only if the platform supports unaligned access.
+     */
+    public static boolean isUnaligned() {
+        return UNALIGNED;
     }
 
     /**
@@ -80,6 +110,8 @@ public final class JUnsafe {
             });
         }
     }
+
+
 
     private JUnsafe() {}
 }

@@ -33,13 +33,13 @@ import static com.esotericsoftware.kryo.util.UnsafeUtil.*;
  */
 class UnsafeNioBufOutput extends NioBufOutput {
 
-    private final static boolean IS_LITTLE_ENDIAN = ByteOrder.nativeOrder().equals(ByteOrder.LITTLE_ENDIAN);
+    private static final boolean IS_LITTLE_ENDIAN = ByteOrder.nativeOrder().equals(ByteOrder.LITTLE_ENDIAN);
 
     /**
      * Start address of the memory buffer The memory buffer should be non-movable, which normally means that is is allocated
      * off-heap
      */
-    private long address;
+    private long memoryAddress;
 
     public UnsafeNioBufOutput(OutputBuf outputBuf, int minWritableBytes) {
         super(outputBuf, minWritableBytes);
@@ -49,7 +49,7 @@ class UnsafeNioBufOutput extends NioBufOutput {
     @Override
     final public void writeInt(int value) throws KryoException {
         require(4);
-        unsafe().putInt(address + position, value);
+        unsafe().putInt(address(position), value);
         position += 4;
         niobuffer.position(position);
     }
@@ -57,7 +57,7 @@ class UnsafeNioBufOutput extends NioBufOutput {
     @Override
     final public void writeFloat(float value) throws KryoException {
         require(4);
-        unsafe().putFloat(address + position, value);
+        unsafe().putFloat(address(position), value);
         position += 4;
         niobuffer.position(position);
     }
@@ -65,7 +65,7 @@ class UnsafeNioBufOutput extends NioBufOutput {
     @Override
     final public void writeShort(int value) throws KryoException {
         require(2);
-        unsafe().putShort(address + position, (short) value);
+        unsafe().putShort(address(position), (short) value);
         position += 2;
         niobuffer.position(position);
     }
@@ -73,7 +73,7 @@ class UnsafeNioBufOutput extends NioBufOutput {
     @Override
     final public void writeLong(long value) throws KryoException {
         require(8);
-        unsafe().putLong(address + position, value);
+        unsafe().putLong(address(position), value);
         position += 8;
         niobuffer.position(position);
     }
@@ -81,7 +81,7 @@ class UnsafeNioBufOutput extends NioBufOutput {
     @Override
     final public void writeDouble(double value) throws KryoException {
         require(8);
-        unsafe().putDouble(address + position, value);
+        unsafe().putDouble(address(position), value);
         position += 8;
         niobuffer.position(position);
     }
@@ -356,7 +356,7 @@ class UnsafeNioBufOutput extends NioBufOutput {
         int copyCount = Math.min(capacity - position, (int) count);
 
         while (true) {
-            unsafe().copyMemory(srcArray, srcArrayTypeOffset + srcOffset, null, address + position, copyCount);
+            unsafe().copyMemory(srcArray, srcArrayTypeOffset + srcOffset, null, address(position), copyCount);
             position += copyCount;
             count -= copyCount;
             if (count == 0) {
@@ -369,7 +369,11 @@ class UnsafeNioBufOutput extends NioBufOutput {
         }
     }
 
+    private long address(int position) {
+        return memoryAddress + position;
+    }
+
     private void updateBufferAddress() {
-        address = ((DirectBuffer) super.niobuffer).address();
+        memoryAddress = ((DirectBuffer) super.niobuffer).address();
     }
 }

@@ -42,9 +42,9 @@ class NioBufOutput implements Output {
     private static final UnsafeReferenceFieldUpdater<ByteString, byte[]> byteStringBytesGetter =
             UnsafeUpdater.newReferenceFieldUpdater(ByteString.class, "bytes");
 
-    private final OutputBuf outputBuf;
-    private ByteBuffer nioBuffer;
-    private int capacity;
+    protected final OutputBuf outputBuf;
+    protected ByteBuffer nioBuffer;
+    protected int capacity;
 
     NioBufOutput(OutputBuf outputBuf, int minWritableBytes) {
         this.outputBuf = outputBuf;
