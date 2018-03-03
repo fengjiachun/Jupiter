@@ -43,7 +43,7 @@ public class ServiceTestImpl extends BaseService implements ServiceTest {
     @Override
     public ResultClass sayHello(String... s) {
         ResultClass result = new ResultClass();
-        result.lon = 1L;
+        result.lon = Long.MIN_VALUE;
         Integer i = getIntValue();
         result.num = (i == null ? 0 : i);
         result.list = Lists.newArrayList("H", "e", "l", "l", "o");

@@ -183,7 +183,6 @@ class NioBufOutput implements Output {
         while (true) {
             if ((value & ~0x7F) == 0) {
                 buf[locPtr++] = (byte) value;
-                // thing;
                 ensureCapacity(locPtr);
                 nioBuffer.put(buf, 0, locPtr);
                 return;
