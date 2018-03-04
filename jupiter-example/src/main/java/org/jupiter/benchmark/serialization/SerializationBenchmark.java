@@ -3,7 +3,6 @@ package org.jupiter.benchmark.serialization;
 import io.netty.buffer.*;
 import io.netty.util.internal.PlatformDependent;
 import org.jupiter.common.util.Lists;
-import org.jupiter.common.util.SystemPropertyUtil;
 import org.jupiter.serialization.*;
 import org.jupiter.transport.netty.alloc.AdaptiveOutputBufAllocator;
 import org.openjdk.jmh.annotations.*;
@@ -30,39 +29,23 @@ import java.util.concurrent.TimeUnit;
 public class SerializationBenchmark {
 
     /*
-        Benchmark                                      Mode     Cnt    Score    Error   Units
-        SerializationBenchmark.hessianByteBuffer      thrpt      10   32.483 ±  0.602  ops/ms
-        SerializationBenchmark.hessianBytesArray      thrpt      10   29.710 ±  0.780  ops/ms
-        SerializationBenchmark.javaByteBuffer         thrpt      10   10.691 ±  0.309  ops/ms
-        SerializationBenchmark.javaBytesArray         thrpt      10   10.184 ±  0.111  ops/ms
-        SerializationBenchmark.kryoByteBuffer         thrpt      10   43.679 ±  1.152  ops/ms
-        SerializationBenchmark.kryoBytesArray         thrpt      10   48.685 ±  2.737  ops/ms
-        SerializationBenchmark.protoStuffByteBuffer   thrpt      10  382.429 ± 19.064  ops/ms
-        SerializationBenchmark.protoStuffBytesArray   thrpt      10  382.446 ± 16.843  ops/ms
-        SerializationBenchmark.hessianByteBuffer       avgt      10    0.031 ±  0.001   ms/op
-        SerializationBenchmark.hessianBytesArray       avgt      10    0.034 ±  0.001   ms/op
-        SerializationBenchmark.javaByteBuffer          avgt      10    0.091 ±  0.001   ms/op
-        SerializationBenchmark.javaBytesArray          avgt      10    0.098 ±  0.002   ms/op
-        SerializationBenchmark.kryoByteBuffer          avgt      10    0.023 ±  0.001   ms/op
-        SerializationBenchmark.kryoBytesArray          avgt      10    0.021 ±  0.001   ms/op
-        SerializationBenchmark.protoStuffByteBuffer    avgt      10    0.003 ±  0.001   ms/op
-        SerializationBenchmark.protoStuffBytesArray    avgt      10    0.003 ±  0.001   ms/op
-        SerializationBenchmark.hessianByteBuffer     sample  162209   ≈ 10⁻⁵             s/op
-        SerializationBenchmark.hessianBytesArray     sample  150403   ≈ 10⁻⁴             s/op
-        SerializationBenchmark.javaByteBuffer        sample  112900   ≈ 10⁻⁴             s/op
-        SerializationBenchmark.javaBytesArray        sample  101405   ≈ 10⁻⁴             s/op
-        SerializationBenchmark.kryoByteBuffer        sample  108397   ≈ 10⁻⁵             s/op
-        SerializationBenchmark.kryoBytesArray        sample  120872   ≈ 10⁻⁵             s/op
-        SerializationBenchmark.protoStuffByteBuffer  sample  118416   ≈ 10⁻⁶             s/op
-        SerializationBenchmark.protoStuffBytesArray  sample  119432   ≈ 10⁻⁶             s/op
-        SerializationBenchmark.hessianByteBuffer         ss      10    0.001 ±  0.001    s/op
-        SerializationBenchmark.hessianBytesArray         ss      10    0.001 ±  0.001    s/op
-        SerializationBenchmark.javaByteBuffer            ss      10    0.002 ±  0.001    s/op
-        SerializationBenchmark.javaBytesArray            ss      10    0.002 ±  0.001    s/op
-        SerializationBenchmark.kryoByteBuffer            ss      10    0.001 ±  0.001    s/op
-        SerializationBenchmark.kryoBytesArray            ss      10    0.001 ±  0.001    s/op
-        SerializationBenchmark.protoStuffByteBuffer      ss      10   ≈ 10⁻⁴             s/op
-        SerializationBenchmark.protoStuffBytesArray      ss      10   ≈ 10⁻⁴             s/op
+        Benchmark                                     Mode  Cnt    Score    Error   Units
+        SerializationBenchmark.hessianByteBuffer     thrpt   10  149.364 ±  2.298  ops/ms
+        SerializationBenchmark.hessianBytesArray     thrpt   10  137.917 ± 13.578  ops/ms
+        SerializationBenchmark.javaByteBuffer        thrpt   10   27.945 ±  0.362  ops/ms
+        SerializationBenchmark.javaBytesArray        thrpt   10   26.512 ±  1.658  ops/ms
+        SerializationBenchmark.kryoByteBuffer        thrpt   10  302.410 ± 48.261  ops/ms
+        SerializationBenchmark.kryoBytesArray        thrpt   10  467.585 ± 12.227  ops/ms
+        SerializationBenchmark.protoStuffByteBuffer  thrpt   10  363.523 ±  6.696  ops/ms
+        SerializationBenchmark.protoStuffBytesArray  thrpt   10  530.291 ±  8.960  ops/ms
+        SerializationBenchmark.hessianByteBuffer      avgt   10    0.007 ±  0.001   ms/op
+        SerializationBenchmark.hessianBytesArray      avgt   10    0.007 ±  0.001   ms/op
+        SerializationBenchmark.javaByteBuffer         avgt   10    0.037 ±  0.002   ms/op
+        SerializationBenchmark.javaBytesArray         avgt   10    0.037 ±  0.002   ms/op
+        SerializationBenchmark.kryoByteBuffer         avgt   10    0.003 ±  0.001   ms/op
+        SerializationBenchmark.kryoBytesArray         avgt   10    0.002 ±  0.001   ms/op
+        SerializationBenchmark.protoStuffByteBuffer   avgt   10    0.003 ±  0.001   ms/op
+        SerializationBenchmark.protoStuffBytesArray   avgt   10    0.002 ±  0.001   ms/op
      */
 
     public static void main(String[] args) throws RunnerException {
@@ -80,11 +63,6 @@ public class SerializationBenchmark {
 
     private static final AdaptiveOutputBufAllocator.Handle allocHandle = AdaptiveOutputBufAllocator.DEFAULT.newHandle();
     private static final ByteBufAllocator allocator = new PooledByteBufAllocator(PlatformDependent.directBufferPreferred());
-
-    static {
-        SystemPropertyUtil.setProperty("jupiter.serialization.protostuff.use_unsafe_output", "true");
-        SystemPropertyUtil.setProperty("jupiter.serialization.kryo.use_unsafe_output", "true");
-    }
 
     @Benchmark
     public void javaBytesArray() {
