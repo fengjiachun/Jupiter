@@ -103,7 +103,7 @@ public class ChannelGroup implements JChannelGroup {
     }
 
     @Override
-    public void setWeight(Directory directory, int weight) {}
+    public void putWeight(Directory directory, int weight) {}
 
     @Override
     public void removeWeight(Directory directory) {}

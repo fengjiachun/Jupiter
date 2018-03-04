@@ -54,7 +54,7 @@ public class RandomLoadBalancerTest {
             c.weight = 1;
             groupList.addIfAbsent(c);
         }
-        groupList.get(15).setWeight(directory, 30);
+        groupList.get(15).putWeight(directory, 30);
 
         LoadBalancer lb = new RandomLoadBalancer();
         len += 20;
