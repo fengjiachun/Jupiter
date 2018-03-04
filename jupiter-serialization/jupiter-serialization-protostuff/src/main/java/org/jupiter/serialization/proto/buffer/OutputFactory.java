@@ -17,7 +17,6 @@
 package org.jupiter.serialization.proto.buffer;
 
 import io.protostuff.Output;
-import org.jupiter.common.util.SystemPropertyUtil;
 import org.jupiter.serialization.OutputBuf;
 
 /**
@@ -28,15 +27,8 @@ import org.jupiter.serialization.OutputBuf;
  */
 public class OutputFactory {
 
-    private static final boolean USE_UNSAFE_OUTPUT =
-            SystemPropertyUtil.getBoolean("jupiter.serialization.protostuff.use_unsafe_output", false);
-
     public static Output getOutput(OutputBuf outputBuf) {
-        if (USE_UNSAFE_OUTPUT && outputBuf.hasMemoryAddress()) {
-            return new UnsafeNioBufOutput(outputBuf, -1);
-        } else {
-            return new NioBufOutput(outputBuf, -1);
-        }
+        return new NioBufOutput(outputBuf, -1);
     }
 
     private OutputFactory() {}
