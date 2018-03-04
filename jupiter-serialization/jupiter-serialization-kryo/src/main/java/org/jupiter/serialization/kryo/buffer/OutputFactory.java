@@ -16,6 +16,7 @@
 
 package org.jupiter.serialization.kryo.buffer;
 
+import com.esotericsoftware.kryo.io.Output;
 import org.jupiter.common.util.SystemPropertyUtil;
 import org.jupiter.serialization.OutputBuf;
 
@@ -28,9 +29,9 @@ import org.jupiter.serialization.OutputBuf;
 public final class OutputFactory {
 
     private static final boolean USE_UNSAFE_OUTPUT =
-            SystemPropertyUtil.getBoolean("jupiter.serialization.kryo.use_unsafe_output", true);
+            SystemPropertyUtil.getBoolean("jupiter.serialization.kryo.use_unsafe_output", false);
 
-    public static NioBufOutput getOutput(OutputBuf outputBuf) {
+    public static Output getOutput(OutputBuf outputBuf) {
         if (USE_UNSAFE_OUTPUT && outputBuf.hasMemoryAddress()) {
             return new UnsafeNioBufOutput(outputBuf, -1);
         } else {

@@ -30,7 +30,7 @@ import java.nio.ByteOrder;
  *
  * @author jiachun.fjc
  */
-public class UnsafeNioBufOutput extends NioBufOutput {
+class UnsafeNioBufOutput extends NioBufOutput {
 
     private static final boolean UNALIGNED = JUnsafe.isUnaligned();
     private static final boolean BIG_ENDIAN_NATIVE_ORDER = ByteOrder.nativeOrder().equals(ByteOrder.BIG_ENDIAN);
@@ -55,8 +55,7 @@ public class UnsafeNioBufOutput extends NioBufOutput {
         position = nioBuffer.position();
         if (value >>> 7 == 0) {
             ensureCapacity(1);
-            setByte(address(position), value);
-            position += 1;
+            setByte(address(position++), value);
             nioBuffer.position(position);
             return;
         }
@@ -75,8 +74,7 @@ public class UnsafeNioBufOutput extends NioBufOutput {
             int newValue = (((value & 0x7F) | 0x80) << 8) | (value >>> 7 & 0xFF | 0x80);
             setShort(address(position), newValue);
             position += 2;
-            setByte(address(position), value >>> 14);
-            position += 1;
+            setByte(address(position++), value >>> 14);
             nioBuffer.position(position);
             return;
         }
@@ -100,8 +98,7 @@ public class UnsafeNioBufOutput extends NioBufOutput {
                 | (value >>> 21 & 0xFF | 0x80);
         setInt(address(position), newValue);
         position += 4;
-        setByte(address(position), value >>> 28);
-        position += 1;
+        setByte(address(position++), value >>> 28);
         nioBuffer.position(position);
     }
 
@@ -110,8 +107,7 @@ public class UnsafeNioBufOutput extends NioBufOutput {
         position = nioBuffer.position();
         if (value >>> 7 == 0) {
             ensureCapacity(1);
-            setByte(address(position), (int) value);
-            position += 1;
+            setByte(address(position++), (int) value);
             nioBuffer.position(position);
             return;
         }
@@ -132,8 +128,7 @@ public class UnsafeNioBufOutput extends NioBufOutput {
             int newValue = (((intValue & 0x7F) | 0x80) << 8) | (intValue >>> 7 & 0xFF | 0x80);
             setShort(address(position), newValue);
             position += 2;
-            setByte(address(position), intValue >>> 14);
-            position += 1;
+            setByte(address(position++), intValue >>> 14);
             nioBuffer.position(position);
             return;
         }
@@ -160,8 +155,7 @@ public class UnsafeNioBufOutput extends NioBufOutput {
                     | (intValue >>> 21 & 0xFF | 0x80);
             setInt(address(position), newValue);
             position += 4;
-            setByte(address(position), (int) (value >>> 28));
-            position += 1;
+            setByte(address(position++), (int) (value >>> 28));
             nioBuffer.position(position);
             return;
         }
@@ -196,8 +190,7 @@ public class UnsafeNioBufOutput extends NioBufOutput {
             position += 4;
             setShort(address(position), second);
             position += 2;
-            setByte(address(position), (int) (value >>> 42));
-            position += 1;
+            setByte(address(position++), (int) (value >>> 42));
             nioBuffer.position(position);
             return;
         }
@@ -237,8 +230,7 @@ public class UnsafeNioBufOutput extends NioBufOutput {
         position += 4;
         setInt(address(position), second);
         position += 4;
-        setByte(address(position), (int) (value >>> 56));
-        position += 1;
+        setByte(address(position++), (int) (value >>> 56));
         nioBuffer.position(position);
     }
 
@@ -264,8 +256,7 @@ public class UnsafeNioBufOutput extends NioBufOutput {
     protected void writeByte(byte value) throws IOException {
         position = nioBuffer.position();
         ensureCapacity(1);
-        setByte(address(position), value);
-        position += 1;
+        setByte(address(position++), value);
         nioBuffer.position(position);
     }
 

@@ -3,6 +3,7 @@ package org.jupiter.benchmark.serialization;
 import io.netty.buffer.*;
 import io.netty.util.internal.PlatformDependent;
 import org.jupiter.common.util.Lists;
+import org.jupiter.common.util.SystemPropertyUtil;
 import org.jupiter.serialization.*;
 import org.jupiter.transport.netty.alloc.AdaptiveOutputBufAllocator;
 import org.openjdk.jmh.annotations.*;
@@ -79,6 +80,11 @@ public class SerializationBenchmark {
 
     private static final AdaptiveOutputBufAllocator.Handle allocHandle = AdaptiveOutputBufAllocator.DEFAULT.newHandle();
     private static final ByteBufAllocator allocator = new PooledByteBufAllocator(PlatformDependent.directBufferPreferred());
+
+    static {
+        SystemPropertyUtil.setProperty("jupiter.serialization.protostuff.use_unsafe_output", "true");
+        SystemPropertyUtil.setProperty("jupiter.serialization.kryo.use_unsafe_output", "true");
+    }
 
     @Benchmark
     public void javaBytesArray() {

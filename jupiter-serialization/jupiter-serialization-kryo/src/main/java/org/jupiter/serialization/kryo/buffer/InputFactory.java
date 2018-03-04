@@ -17,6 +17,7 @@
 package org.jupiter.serialization.kryo.buffer;
 
 import com.esotericsoftware.kryo.io.ByteBufferInput;
+import com.esotericsoftware.kryo.io.Input;
 import org.jupiter.serialization.InputBuf;
 
 import java.nio.ByteBuffer;
@@ -29,7 +30,7 @@ import java.nio.ByteBuffer;
  */
 public final class InputFactory {
 
-    public static ByteBufferInput getInput(InputBuf inputBuf) {
+    public static Input getInput(InputBuf inputBuf) {
         ByteBuffer nioBuf = inputBuf.nioByteBuffer();
         ByteBufferInput kInput = new ByteBufferInput();
         kInput.setBuffer(nioBuf, 0, nioBuf.capacity());

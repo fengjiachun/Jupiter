@@ -17,6 +17,7 @@
 package org.jupiter.serialization.proto.buffer;
 
 import io.protostuff.ByteBufferInput;
+import io.protostuff.Input;
 import org.jupiter.serialization.InputBuf;
 
 /**
@@ -27,7 +28,7 @@ import org.jupiter.serialization.InputBuf;
  */
 public class InputFactory {
 
-    public static ByteBufferInput getInput(InputBuf inputBuf) {
+    public static Input getInput(InputBuf inputBuf) {
         return new ByteBufferInput(inputBuf.nioByteBuffer(), true);
     }
 

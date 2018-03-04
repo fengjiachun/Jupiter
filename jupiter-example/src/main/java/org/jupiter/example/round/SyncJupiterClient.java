@@ -23,7 +23,6 @@ import org.jupiter.monitor.MonitorServer;
 import org.jupiter.rpc.DefaultClient;
 import org.jupiter.rpc.JClient;
 import org.jupiter.rpc.consumer.ProxyFactory;
-import org.jupiter.rpc.consumer.cluster.ClusterInvoker;
 import org.jupiter.serialization.SerializerType;
 import org.jupiter.transport.JConnector;
 import org.jupiter.transport.exception.ConnectFailedException;
@@ -40,6 +39,8 @@ public class SyncJupiterClient {
     public static void main(String[] args) {
         SystemPropertyUtil.setProperty("jupiter.transport.decode.low_copy", "true");
         SystemPropertyUtil.setProperty("jupiter.transport.encode.low_copy", "true");
+        SystemPropertyUtil.setProperty("jupiter.serialization.protostuff.use_unsafe_output", "true");
+        SystemPropertyUtil.setProperty("jupiter.serialization.kryo.use_unsafe_output", "true");
 
         final JClient client = new DefaultClient().withConnector(new JNettyTcpConnector());
         final MonitorServer monitor = new MonitorServer(19991);
@@ -74,7 +75,6 @@ public class SyncJupiterClient {
                 .version("1.0.0.daily")
                 .client(client)
                 .serializerType(SerializerType.PROTO_STUFF)
-                .clusterStrategy(ClusterInvoker.Strategy.FAIL_OVER)
                 .failoverRetries(5)
                 .newProxyInstance();
 

@@ -48,6 +48,8 @@ public class JupiterServer {
 
         SystemPropertyUtil.setProperty("jupiter.transport.decode.low_copy", "true");
         SystemPropertyUtil.setProperty("jupiter.transport.encode.low_copy", "true");
+        SystemPropertyUtil.setProperty("jupiter.serialization.protostuff.use_unsafe_output", "true");
+        SystemPropertyUtil.setProperty("jupiter.serialization.kryo.use_unsafe_output", "true");
 
         final JServer server = new DefaultServer().withAcceptor(new JNettyTcpAcceptor(18090));
         final MonitorServer monitor = new MonitorServer();
