@@ -18,6 +18,7 @@ package org.jupiter.serialization.kryo.buffer;
 
 import com.esotericsoftware.kryo.io.ByteBufferInput;
 import com.esotericsoftware.kryo.io.Input;
+import com.esotericsoftware.kryo.io.UnsafeMemoryInput;
 import org.jupiter.serialization.InputBuf;
 
 import java.nio.ByteBuffer;
@@ -32,9 +33,14 @@ public final class InputFactory {
 
     public static Input getInput(InputBuf inputBuf) {
         ByteBuffer nioBuf = inputBuf.nioByteBuffer();
-        ByteBufferInput kInput = new ByteBufferInput();
-        kInput.setBuffer(nioBuf, 0, nioBuf.capacity());
-        return kInput;
+        ByteBufferInput input;
+        if (inputBuf.hasMemoryAddress()) {
+            input = new UnsafeMemoryInput();
+        } else {
+            input = new ByteBufferInput();
+        }
+        input.setBuffer(nioBuf, 0, nioBuf.capacity());
+        return input;
     }
 
     private InputFactory() {}
