@@ -82,28 +82,34 @@ class UnsafeNioBufOutput extends NioBufOutput {
 
     @Override
     protected void writeInt32LE(int value) throws IOException {
-        int position = nioBuffer.position();
         ensureCapacity(4);
+        int position = nioBuffer.position();
         setIntLE(address(position), value);
-        position += 4;
-        nioBuffer.position(position);
+        nioBuffer.position(position + 4);
     }
 
     @Override
     protected void writeInt64LE(long value) throws IOException {
-        int position = nioBuffer.position();
         ensureCapacity(8);
+        int position = nioBuffer.position();
         setLongLE(address(position), value);
-        position += 8;
-        nioBuffer.position(position);
+        nioBuffer.position(position + 8);
     }
 
     @Override
     protected void writeByte(byte value) throws IOException {
-        int position = nioBuffer.position();
         ensureCapacity(1);
-        setByte(address(position++), value);
-        nioBuffer.position(position);
+        int position = nioBuffer.position();
+        setByte(address(position), value);
+        nioBuffer.position(position + 1);
+    }
+
+    @Override
+    protected void writeByteArray(byte[] value, int offset, int length) throws IOException {
+        ensureCapacity(length);
+        int position = nioBuffer.position();
+        setBytes(address(position), value, offset, length);
+        nioBuffer.position(position + length);
     }
 
     @Override

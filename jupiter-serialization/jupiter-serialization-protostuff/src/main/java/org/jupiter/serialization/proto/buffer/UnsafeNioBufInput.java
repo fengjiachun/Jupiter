@@ -311,8 +311,8 @@ class UnsafeNioBufInput implements Input {
     public boolean readBool() throws IOException {
         checkIfPackedField();
         int position = nioBuffer.position();
-        boolean result = getByte(address(position++)) != 0;
-        nioBuffer.position(position);
+        boolean result = getByte(address(position)) != 0;
+        nioBuffer.position(position + 1);
         return result;
     }
 
@@ -551,8 +551,7 @@ class UnsafeNioBufInput implements Input {
     public int readRawLittleEndian32() throws IOException {
         int position = nioBuffer.position();
         int result = getIntLE(address(position));
-        position += 4;
-        nioBuffer.position(position);
+        nioBuffer.position(position + 4);
         return result;
     }
 
@@ -562,8 +561,7 @@ class UnsafeNioBufInput implements Input {
     public long readRawLittleEndian64() throws IOException {
         int position = nioBuffer.position();
         long result = getLongLE(address(position));
-        position += 8;
-        nioBuffer.position(position);
+        nioBuffer.position(position + 8);
         return result;
     }
 
