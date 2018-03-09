@@ -28,6 +28,9 @@ import org.jupiter.serialization.OutputBuf;
 public class OutputFactory {
 
     public static Output getOutput(OutputBuf outputBuf) {
+        if (outputBuf.hasMemoryAddress()) {
+            return new UnsafeNioBufOutput(outputBuf, -1);
+        }
         return new NioBufOutput(outputBuf, -1);
     }
 

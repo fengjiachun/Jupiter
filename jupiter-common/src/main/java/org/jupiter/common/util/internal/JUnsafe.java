@@ -21,7 +21,6 @@ import org.jupiter.common.util.internal.logging.InternalLoggerFactory;
 import sun.misc.Unsafe;
 
 import java.lang.reflect.Field;
-import java.lang.reflect.Method;
 import java.security.AccessController;
 import java.security.PrivilegedAction;
 
@@ -39,59 +38,30 @@ public final class JUnsafe {
 
     private static final InternalLogger logger = InternalLoggerFactory.getInstance(JUnsafe.class);
 
-    private static final Unsafe UNSAFE;
-
-    private static final boolean UNALIGNED;
+    private static final Unsafe unsafe;
 
     static {
-        Unsafe unsafe;
+        Unsafe _unsafe;
         try {
             Field unsafeField = Unsafe.class.getDeclaredField("theUnsafe");
             unsafeField.setAccessible(true);
-            unsafe = (Unsafe) unsafeField.get(null);
+            _unsafe = (Unsafe) unsafeField.get(null);
         } catch (Throwable t) {
             if (logger.isWarnEnabled()) {
                 logger.warn("sun.misc.Unsafe.theUnsafe: unavailable, {}.", stackTrace(t));
             }
 
-            unsafe = null;
+            _unsafe = null;
         }
 
-        UNSAFE = unsafe;
-
-        if (UNSAFE == null) {
-            UNALIGNED = false;
-        } else {
-            boolean unaligned;
-            try {
-                Class<?> bitsClass = Class.forName("java.nio.Bits", false, getSystemClassLoader());
-                Method unalignedMethod = bitsClass.getDeclaredMethod("unaligned");
-                unalignedMethod.setAccessible(true);
-                unaligned = (boolean) unalignedMethod.invoke(null);
-            } catch (Throwable t) {
-                if (logger.isWarnEnabled()) {
-                    logger.warn("java.nio.Bits: unavailable, {}.", stackTrace(t));
-                }
-
-                unaligned = false;
-            }
-
-            UNALIGNED = unaligned;
-        }
+        unsafe = _unsafe;
     }
 
     /**
      * Returns the {@link sun.misc.Unsafe}'s instance.
      */
     public static Unsafe getUnsafe() {
-        return UNSAFE;
-    }
-
-    /**
-     * {@code true} if and only if the platform supports unaligned access.
-     */
-    public static boolean isUnaligned() {
-        return UNALIGNED;
+        return unsafe;
     }
 
     /**

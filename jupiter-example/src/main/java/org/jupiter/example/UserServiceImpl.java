@@ -14,26 +14,21 @@
  * limitations under the License.
  */
 
-package org.jupiter.serialization.proto.buffer;
+package org.jupiter.example;
 
-import io.protostuff.ByteBufferInput;
-import io.protostuff.Input;
-import org.jupiter.serialization.InputBuf;
+import org.jupiter.rpc.ServiceProviderImpl;
 
 /**
  * jupiter
- * org.jupiter.serialization.proto.buffer
+ * org.jupiter.example
  *
  * @author jiachun.fjc
  */
-public class InputFactory {
+@ServiceProviderImpl(version = "1.0.0.daily")
+public class UserServiceImpl implements UserService {
 
-    public static Input getInput(InputBuf inputBuf) {
-        if (inputBuf.hasMemoryAddress()) {
-            return new UnsafeNioBufInput(inputBuf.nioByteBuffer(), true);
-        }
-        return new ByteBufferInput(inputBuf.nioByteBuffer(), true);
+    @Override
+    public User createUser() {
+        return User.createUser();
     }
-
-    private InputFactory() {}
 }

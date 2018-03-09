@@ -33,7 +33,7 @@ import static com.esotericsoftware.kryo.util.UnsafeUtil.*;
  */
 class UnsafeNioBufOutput extends NioBufOutput {
 
-    private static final boolean IS_LITTLE_ENDIAN = ByteOrder.nativeOrder().equals(ByteOrder.LITTLE_ENDIAN);
+    private static final boolean IS_LITTLE_ENDIAN = ByteOrder.nativeOrder() == ByteOrder.LITTLE_ENDIAN;
 
     {
         varIntsEnabled = false;
@@ -49,6 +49,13 @@ class UnsafeNioBufOutput extends NioBufOutput {
     public UnsafeNioBufOutput(OutputBuf outputBuf, int minWritableBytes) {
         super(outputBuf, minWritableBytes);
         updateBufferAddress();
+    }
+
+    @Override
+    protected boolean require(int required) throws KryoException {
+        boolean result = super.require(required);
+        updateBufferAddress();
+        return result;
     }
 
     @Override
