@@ -113,16 +113,11 @@ class UnsafeNioBufOutput extends NioBufOutput {
     }
 
     @Override
-    protected void ensureCapacity(int required) {
-        super.ensureCapacity(required);
-        updateBufferAddress();
+    protected void updateBufferAddress() {
+        memoryAddress = ((DirectBuffer) nioBuffer).address();
     }
 
     private long address(int position) {
         return memoryAddress + position;
-    }
-
-    private void updateBufferAddress() {
-        memoryAddress = ((DirectBuffer) nioBuffer).address();
     }
 }
