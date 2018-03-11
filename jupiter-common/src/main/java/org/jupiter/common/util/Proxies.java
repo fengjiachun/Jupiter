@@ -57,7 +57,12 @@ public enum Proxies {
                     .load(interfaceType.getClassLoader(), ClassLoadingStrategy.Default.INJECTION)
                     .getLoaded();
 
-            return Reflects.newInstance(cls);
+            try {
+                return cls.newInstance();
+            } catch (Throwable t) {
+                ExceptionUtil.throwException(t);
+            }
+            return null; // never get here
         }
     });
 

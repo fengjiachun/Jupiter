@@ -187,10 +187,6 @@
         <!-- # common dependency: begin -->
         <!-- ## required dependency: begin -->
         <dependency>
-            <groupId>org.objenesis</groupId>
-            <artifactId>objenesis</artifactId>
-        </dependency>
-        <dependency>
             <groupId>org.ow2.asm</groupId>
             <artifactId>asm</artifactId>
         </dependency>

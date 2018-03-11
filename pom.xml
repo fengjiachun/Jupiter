@@ -56,7 +56,6 @@
         <hessian.version>4.0.38</hessian.version>
         <kryo.version>2.23.0</kryo.version>
         <protostuff.version>1.6.0</protostuff.version>
-        <objenesis.version>2.1</objenesis.version>
         <asm.version>6.0</asm.version>
         <bytebuddy.version>1.7.9</bytebuddy.version>
         <disruptor.version>3.3.7</disruptor.version>
@@ -234,11 +233,6 @@
 
             <!-- # common dependency: begin -->
             <!-- ## required dependency: begin -->
-            <dependency>
-                <groupId>org.objenesis</groupId>
-                <artifactId>objenesis</artifactId>
-                <version>${objenesis.version}</version>
-            </dependency>
             <dependency>
                 <groupId>org.ow2.asm</groupId>
                 <artifactId>asm</artifactId>
