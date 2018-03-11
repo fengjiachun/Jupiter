@@ -113,7 +113,25 @@ class UnsafeNioBufOutput extends NioBufOutput {
     }
 
     @Override
-    protected void updateBufferAddress() {
+    protected void ensureCapacity(int required) {
+        if (nioBuffer.remaining() < required) {
+            int position = nioBuffer.position();
+
+            while (capacity - position < required) {
+                capacity = capacity << 1;
+                if (capacity < 0) {
+                    capacity = Integer.MAX_VALUE;
+                }
+            }
+
+            nioBuffer = outputBuf.nioByteBuffer(capacity - position);
+            capacity = nioBuffer.limit();
+            // need to update the direct buffer's memory address
+            updateBufferAddress();
+        }
+    }
+
+    private void updateBufferAddress() {
         memoryAddress = ((DirectBuffer) nioBuffer).address();
     }
 

@@ -242,12 +242,7 @@ class NioBufOutput implements Output {
             }
 
             nioBuffer = outputBuf.nioByteBuffer(capacity - position);
-
             capacity = nioBuffer.limit();
-
-            updateBufferAddress();
         }
     }
-
-    protected void updateBufferAddress() {}
 }
