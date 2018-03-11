@@ -28,6 +28,7 @@ import org.jupiter.transport.channel.JChannelGroup;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
+import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.TimeUnit;
@@ -64,6 +65,8 @@ public class NettyChannelGroup implements JChannelGroup {
         }
     };
 
+    private final ConcurrentLinkedQueue<Runnable> waitAvailableListeners = new ConcurrentLinkedQueue<>();
+
     private final UnresolvedAddress address;
 
     private final CopyOnWriteArrayList<NettyChannel> channels = new CopyOnWriteArrayList<>();
@@ -84,6 +87,8 @@ public class NettyChannelGroup implements JChannelGroup {
     // attempts to elide conditional wake-ups when the lock is uncontended.
     @SuppressWarnings("all")
     private volatile int signalNeeded = 0; // 0: false, 1: true
+
+    private volatile boolean connecting = false;
 
     @SuppressWarnings("unused")
     private volatile int index = 0;
@@ -151,6 +156,8 @@ public class NettyChannelGroup implements JChannelGroup {
                     _look.unlock();
                 }
             }
+
+            notifyListeners();
         }
         return added;
     }
@@ -184,6 +191,16 @@ public class NettyChannelGroup implements JChannelGroup {
     }
 
     @Override
+    public boolean isConnecting() {
+        return connecting;
+    }
+
+    @Override
+    public void setConnecting(boolean connecting) {
+        this.connecting = connecting;
+    }
+
+    @Override
     public boolean isAvailable() {
         return !channels.isEmpty();
     }
@@ -213,6 +230,14 @@ public class NettyChannelGroup implements JChannelGroup {
         }
 
         return available;
+    }
+
+    @Override
+    public void onAvailable(Runnable listener) {
+        waitAvailableListeners.add(listener);
+        if (isAvailable()) {
+            notifyListeners();
+        }
     }
 
     @Override
@@ -293,5 +318,15 @@ public class NettyChannelGroup implements JChannelGroup {
                 ", timestamp=" + dateFormat.format(new Date(timestamp)) +
                 ", deadlineMillis=" + deadlineMillis +
                 '}';
+    }
+
+    void notifyListeners() {
+        for (;;) {
+            Runnable listener = waitAvailableListeners.poll();
+            if (listener == null) {
+                break;
+            }
+            listener.run();
+        }
     }
 }

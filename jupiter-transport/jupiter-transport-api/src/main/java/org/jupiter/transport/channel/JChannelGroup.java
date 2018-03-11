@@ -79,6 +79,16 @@ public interface JChannelGroup {
     int getCapacity();
 
     /**
+     * If connecting return true, otherwise return false.
+     */
+    boolean isConnecting();
+
+    /**
+     * Sets connecting state
+     */
+    void setConnecting(boolean connecting);
+
+    /**
      * If available return true, otherwise return false.
      */
     boolean isAvailable();
@@ -88,6 +98,11 @@ public interface JChannelGroup {
      * if available return true, otherwise return false.
      */
     boolean waitForAvailable(long timeoutMillis);
+
+    /**
+     * Be called when the {@link JChannel}s are available.
+     */
+    void onAvailable(Runnable listener);
 
     /**
      * Gets weight of service.

@@ -138,19 +138,34 @@ public class DefaultClient implements JClient {
                         UnresolvedAddress address = new UnresolvedAddress(registerMeta.getHost(), registerMeta.getPort());
                         final JChannelGroup group = connector.group(address);
                         if (event == NotifyEvent.CHILD_ADDED) {
-                            if (!group.isAvailable()) {
-                                JConnection[] connections = connectTo(address, group, registerMeta, true);
-                                for (JConnection c : connections) {
-                                    c.operationComplete(new Runnable() {
+                            if (group.isAvailable()) {
+                                onSucceed(group, signalNeeded.getAndSet(false));
+                            } else {
+                                if (group.isConnecting()) {
+                                    group.onAvailable(new Runnable() {
 
                                         @Override
                                         public void run() {
                                             onSucceed(group, signalNeeded.getAndSet(false));
                                         }
                                     });
+                                } else {
+                                    group.setConnecting(true);
+                                    try {
+                                        JConnection[] connections = connectTo(address, group, registerMeta, true);
+                                        for (JConnection c : connections) {
+                                            c.operationComplete(new Runnable() {
+
+                                                @Override
+                                                public void run() {
+                                                    onSucceed(group, signalNeeded.getAndSet(false));
+                                                }
+                                            });
+                                        }
+                                    } finally {
+                                        group.setConnecting(false);
+                                    }
                                 }
-                            } else {
-                                onSucceed(group, signalNeeded.getAndSet(false));
                             }
                             group.putWeight(directory, registerMeta.getWeight()); // 设置权重
                         } else if (event == NotifyEvent.CHILD_REMOVED) {

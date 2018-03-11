@@ -2,6 +2,7 @@ Jupiter release notes
 ------------------------
 ### 2018-03-11: version 1.2.18.Beta4
 
+- Bug fix: 修复并发建立过多连接
 - 移除[org.objenesis:objenesis]依赖
 - [优化序列化/反序列化过程中的memory-copy](https://github.com/fengjiachun/Jupiter/issues/51)
 
