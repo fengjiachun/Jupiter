@@ -55,7 +55,7 @@ public class DefaultRoundDispatcher extends AbstractDispatcher {
 
         byte s_code = _serializer.code();
         // 在业务线程中序列化, 减轻IO线程负担
-        if (CodecConfig.isEncodeLowCopy()) {
+        if (CodecConfig.isCodecLowCopy()) {
             OutputBuf outputBuf =
                     _serializer.writeObject(channel.allocOutputBuf(), message);
             request.outputBuf(s_code, outputBuf);

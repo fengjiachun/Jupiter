@@ -27,17 +27,11 @@ import org.jupiter.common.util.SystemPropertyUtil;
 @SuppressWarnings("all")
 public final class CodecConfig {
 
-    private static final boolean DECODE_LOW_COPY =
-            SystemPropertyUtil.getBoolean("jupiter.transport.decode.low_copy", false); // TODO 默认为false, 还需继续优化
-    private static final boolean ENCODE_LOW_COPY =
-            SystemPropertyUtil.getBoolean("jupiter.transport.encode.low_copy", false); // TODO 默认为false, 还需继续优化
+    private static final boolean CODEC_LOW_COPY =
+            SystemPropertyUtil.getBoolean("jupiter.transport.codec.low_copy", false);
 
-    public static boolean isDecodeLowCopy() {
-        return DECODE_LOW_COPY;
-    }
-
-    public static boolean isEncodeLowCopy() {
-        return ENCODE_LOW_COPY;
+    public static boolean isCodecLowCopy() {
+        return CODEC_LOW_COPY;
     }
 
     private CodecConfig() {}

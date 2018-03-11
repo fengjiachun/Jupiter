@@ -60,8 +60,8 @@ public class DefaultBroadcastDispatcher extends AbstractDispatcher {
 
         byte s_code = _serializer.code();
         // 在业务线程中序列化, 减轻IO线程负担
-        boolean isEncodeLowCopy = CodecConfig.isEncodeLowCopy();
-        if (!isEncodeLowCopy) {
+        boolean isLowCopy = CodecConfig.isCodecLowCopy();
+        if (!isLowCopy) {
             byte[] bytes = _serializer.writeObject(message);
             request.bytes(s_code, bytes);
         }
@@ -78,7 +78,7 @@ public class DefaultBroadcastDispatcher extends AbstractDispatcher {
                     .interceptors(interceptors)
                     .traceId(message.getTraceId());
 
-            if (isEncodeLowCopy) {
+            if (isLowCopy) {
                 OutputBuf outputBuf =
                         _serializer.writeObject(channel.allocOutputBuf(), message);
                 request.outputBuf(s_code, outputBuf);

@@ -33,8 +33,7 @@ public class JupiterServer {
 
     static {
         SystemPropertyUtil.setProperty("jupiter.rpc.suggest.connection.count", "1");
-        SystemPropertyUtil.setProperty("jupiter.transport.decode.low_copy", "true");
-        SystemPropertyUtil.setProperty("jupiter.transport.encode.low_copy", "true");
+        SystemPropertyUtil.setProperty("jupiter.transport.codec.low_copy", "true");
     }
 
     public static void main(String[] args) {

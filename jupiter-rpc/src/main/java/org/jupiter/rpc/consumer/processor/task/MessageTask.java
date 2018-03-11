@@ -61,7 +61,7 @@ public class MessageTask implements Runnable {
         Serializer serializer = SerializerFactory.getSerializer(s_code);
         ResultWrapper wrapper;
         try {
-            if (CodecConfig.isDecodeLowCopy()) {
+            if (CodecConfig.isCodecLowCopy()) {
                 InputBuf inputBuf = _responsePayload.inputBuf();
                 wrapper = serializer.readObject(inputBuf, ResultWrapper.class);
             } else {

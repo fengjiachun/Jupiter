@@ -101,7 +101,7 @@ public class JNettyTcpConnector extends NettyTcpConnector {
     // handlers
     private final ConnectorIdleStateTrigger idleStateTrigger = new ConnectorIdleStateTrigger();
     private final ChannelOutboundHandler encoder =
-            CodecConfig.isEncodeLowCopy() ? new LowCopyProtocolEncoder() : new ProtocolEncoder();
+            CodecConfig.isCodecLowCopy() ? new LowCopyProtocolEncoder() : new ProtocolEncoder();
     private final ConnectorHandler handler = new ConnectorHandler();
 
     public JNettyTcpConnector() {
@@ -151,7 +151,7 @@ public class JNettyTcpConnector extends NettyTcpConnector {
                         this,
                         new IdleStateChecker(timer, 0, JConstants.WRITER_IDLE_TIME_SECONDS, 0),
                         idleStateTrigger,
-                        CodecConfig.isDecodeLowCopy() ? new LowCopyProtocolDecoder() : new ProtocolDecoder(),
+                        CodecConfig.isCodecLowCopy() ? new LowCopyProtocolDecoder() : new ProtocolDecoder(),
                         encoder,
                         handler
                 };

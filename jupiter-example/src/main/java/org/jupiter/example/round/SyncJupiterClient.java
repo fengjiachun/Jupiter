@@ -36,8 +36,7 @@ import org.jupiter.transport.netty.JNettyTcpConnector;
 public class SyncJupiterClient {
 
     static {
-        SystemPropertyUtil.setProperty("jupiter.transport.decode.low_copy", "true");
-        SystemPropertyUtil.setProperty("jupiter.transport.encode.low_copy", "true");
+        SystemPropertyUtil.setProperty("jupiter.transport.codec.low_copy", "true");
     }
 
     public static void main(String[] args) {

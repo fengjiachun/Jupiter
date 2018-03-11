@@ -103,7 +103,7 @@ public class MessageTask implements RejectedRunnable {
             Serializer serializer = SerializerFactory.getSerializer(s_code);
 
             // 在业务线程中反序列化, 减轻IO线程负担
-            if (CodecConfig.isDecodeLowCopy()) {
+            if (CodecConfig.isCodecLowCopy()) {
                 InputBuf inputBuf = _requestPayload.inputBuf();
                 msg = serializer.readObject(inputBuf, MessageWrapper.class);
             } else {
@@ -188,7 +188,7 @@ public class MessageTask implements RejectedRunnable {
 
             JResponsePayload responsePayload = new JResponsePayload(_request.invokeId());
 
-            if (CodecConfig.isEncodeLowCopy()) {
+            if (CodecConfig.isCodecLowCopy()) {
                 OutputBuf outputBuf =
                         serializer.writeObject(channel.allocOutputBuf(), result);
                 responsePayload.outputBuf(s_code, outputBuf);

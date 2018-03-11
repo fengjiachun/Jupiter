@@ -43,11 +43,6 @@ public class ReflectsTest {
     }
 
     @Test
-    public void testNewInstance() {
-        Reflects.newInstance(ReflectClass0.class, false);
-    }
-
-    @Test
     public void testFindMatchingMethod() {
         Map<String, List<Class<?>[]>> methodsParameterTypes = Maps.newHashMap();
         for (Method method : Service.class.getMethods()) {
