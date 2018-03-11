@@ -59,7 +59,7 @@ class UnsafeNioBufInput implements Input {
     /**
      * An input for a ByteBuffer
      *
-     * @param nioBuffer         the buffer to read from, it will be sliced
+     * @param nioBuffer         the buffer to read from, it will not be sliced
      * @param protostuffMessage if we are parsing a protostuff (true) or protobuf (false) message
      */
     public UnsafeNioBufInput(ByteBuffer nioBuffer, boolean protostuffMessage) {
