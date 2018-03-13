@@ -46,7 +46,6 @@ public class SerializationBenchmark {
         SerializationBenchmark.kryoBytesArray         avgt   10    0.002 ±  0.001   ms/op
         SerializationBenchmark.protoStuffByteBuffer   avgt   10    0.002 ±  0.001   ms/op
         SerializationBenchmark.protoStuffBytesArray   avgt   10    0.002 ±  0.001   ms/op
-
      */
 
     public static void main(String[] args) throws RunnerException {

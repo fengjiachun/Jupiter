@@ -158,7 +158,7 @@ public abstract class NettyTcpAcceptor extends NettyAcceptor {
         } else {
             waterMark = new WriteBufferWaterMark(512 * 1024, 1024 * 1024);
         }
-        boot.option(ChannelOption.WRITE_BUFFER_WATER_MARK, waterMark);
+        boot.childOption(ChannelOption.WRITE_BUFFER_WATER_MARK, waterMark);
     }
 
     @Override
