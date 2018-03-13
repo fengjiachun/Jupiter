@@ -18,8 +18,8 @@ package org.jupiter.serialization.kryo.buffer;
 
 import com.esotericsoftware.kryo.KryoException;
 import com.esotericsoftware.kryo.util.Util;
+import org.jupiter.common.util.internal.UnsafeUtil;
 import org.jupiter.serialization.OutputBuf;
-import sun.nio.ch.DirectBuffer;
 
 import java.nio.ByteOrder;
 
@@ -382,6 +382,6 @@ class UnsafeNioBufOutput extends NioBufOutput {
     }
 
     private void updateBufferAddress() {
-        memoryAddress = ((DirectBuffer) super.niobuffer).address();
+        memoryAddress = UnsafeUtil.addressOffset(niobuffer);
     }
 }

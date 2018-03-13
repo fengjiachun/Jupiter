@@ -16,8 +16,7 @@
 
 package org.jupiter.common.util;
 
-import org.jupiter.common.util.internal.JUnsafe;
-import sun.misc.Unsafe;
+import org.jupiter.common.util.internal.UnsafeUtil;
 
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
@@ -61,13 +60,11 @@ class RhsTimePadding extends Time {
  */
 public class SystemClock extends RhsTimePadding {
 
-    private static final Unsafe unsafe = JUnsafe.getUnsafe();
-
     private static final long NOW_VALUE_OFFSET;
 
     static {
         try {
-            NOW_VALUE_OFFSET = unsafe.objectFieldOffset(Time.class.getDeclaredField("now"));
+            NOW_VALUE_OFFSET = UnsafeUtil.objectFieldOffset(Time.class.getDeclaredField("now"));
         } catch (Throwable t) {
             throw new RuntimeException(t);
         }
@@ -103,7 +100,7 @@ public class SystemClock extends RhsTimePadding {
             @Override
             public void run() {
                 // Update the timestamp with ordered semantics.
-                unsafe.putOrderedLong(SystemClock.this, NOW_VALUE_OFFSET, System.currentTimeMillis());
+                UnsafeUtil.getUnsafe().putOrderedLong(SystemClock.this, NOW_VALUE_OFFSET, System.currentTimeMillis());
             }
         }, precision, precision, TimeUnit.MILLISECONDS);
     }

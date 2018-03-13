@@ -29,7 +29,7 @@
  */
 package org.jupiter.common.concurrent.collection;
 
-import org.jupiter.common.util.internal.JUnsafe;
+import org.jupiter.common.util.internal.UnsafeUtil;
 import sun.misc.Unsafe;
 
 import java.io.Serializable;
@@ -54,7 +54,7 @@ public class ConcurrentAutoTable implements Serializable {
 
     private static final long serialVersionUID = -754466836461919739L;
 
-    private static Unsafe unsafe = JUnsafe.getUnsafe();
+    private static Unsafe unsafe = UnsafeUtil.getUnsafe();
 
     // --- public interface ---
 

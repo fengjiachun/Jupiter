@@ -17,7 +17,7 @@
 package org.jupiter.rpc.consumer.future;
 
 import org.jupiter.common.util.Signal;
-import org.jupiter.common.util.internal.JUnsafe;
+import org.jupiter.common.util.internal.UnsafeUtil;
 
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.LockSupport;
@@ -274,7 +274,7 @@ public abstract class AbstractFuture<V> {
     }
 
     // unsafe mechanics
-    private static final sun.misc.Unsafe UNSAFE = JUnsafe.getUnsafe();
+    private static final sun.misc.Unsafe UNSAFE = UnsafeUtil.getUnsafe();
     private static final long stateOffset;
     private static final long waitersOffset;
 

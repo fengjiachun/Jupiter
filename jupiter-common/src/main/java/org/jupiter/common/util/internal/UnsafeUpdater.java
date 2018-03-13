@@ -34,7 +34,7 @@ public class UnsafeUpdater {
      */
     public static <U> UnsafeIntegerFieldUpdater<U> newIntegerFieldUpdater(Class<? super U> tClass, String fieldName) {
         try {
-            return new UnsafeIntegerFieldUpdater<>(JUnsafe.getUnsafe(), tClass, fieldName);
+            return new UnsafeIntegerFieldUpdater<>(UnsafeUtil.getUnsafe(), tClass, fieldName);
         } catch (Throwable t) {
             ExceptionUtil.throwException(t);
         }
@@ -49,7 +49,7 @@ public class UnsafeUpdater {
      */
     public static <U> UnsafeLongFieldUpdater<U> newLongFieldUpdater(Class<? super U> tClass, String fieldName) {
         try {
-            return new UnsafeLongFieldUpdater<>(JUnsafe.getUnsafe(), tClass, fieldName);
+            return new UnsafeLongFieldUpdater<>(UnsafeUtil.getUnsafe(), tClass, fieldName);
         } catch (Throwable t) {
             ExceptionUtil.throwException(t);
         }
@@ -64,7 +64,7 @@ public class UnsafeUpdater {
      */
     public static <U, W> UnsafeReferenceFieldUpdater<U, W> newReferenceFieldUpdater(Class<? super U> tClass, String fieldName) {
         try {
-            return new UnsafeReferenceFieldUpdater<>(JUnsafe.getUnsafe(), tClass, fieldName);
+            return new UnsafeReferenceFieldUpdater<>(UnsafeUtil.getUnsafe(), tClass, fieldName);
         } catch (Throwable t) {
             ExceptionUtil.throwException(t);
         }

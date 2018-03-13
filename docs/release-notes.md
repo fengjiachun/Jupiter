@@ -2,6 +2,7 @@ Jupiter release notes
 ------------------------
 ### 2018-03-13: version 1.2.18
 
+- 优化String encode/decode[UnsafeUtf8Util](/jupiter-common/src/main/java/org/jupiter/common/util/internal/UnsafeUtf8Util.java)
 - 优化[SystemClock](/jupiter-common/src/main/java/org/jupiter/common/util/SystemClock.java)
 - Bug fix: 修复并发建立过多连接
 - 移除[org.objenesis:objenesis]依赖
