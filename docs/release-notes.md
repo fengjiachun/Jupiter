@@ -2,6 +2,7 @@ Jupiter release notes
 ------------------------
 ### 2018-03-13: version 1.2.18
 
+- 移除对netty ByteBufAllocator 的配置依赖, 应直接使用netty的配置方式
 - 优化String encode/decode[UnsafeUtf8Util](/jupiter-common/src/main/java/org/jupiter/common/util/internal/UnsafeUtf8Util.java)
 - 优化[SystemClock](/jupiter-common/src/main/java/org/jupiter/common/util/SystemClock.java)
 - Bug fix: 修复并发建立过多连接

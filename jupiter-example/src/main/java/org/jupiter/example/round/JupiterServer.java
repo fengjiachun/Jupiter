@@ -21,7 +21,6 @@ import org.jupiter.example.UserServiceImpl;
 import org.jupiter.rpc.DefaultServer;
 import org.jupiter.rpc.JServer;
 import org.jupiter.rpc.model.metadata.ServiceWrapper;
-import org.jupiter.transport.JOption;
 import org.jupiter.transport.netty.JNettyTcpAcceptor;
 
 /**
@@ -35,11 +34,12 @@ public class JupiterServer {
     static {
         SystemPropertyUtil.setProperty("jupiter.rpc.suggest.connection.count", "1");
         SystemPropertyUtil.setProperty("jupiter.transport.codec.low_copy", "true");
+        SystemPropertyUtil.setProperty("io.netty.allocator.type", "pooled");
+        SystemPropertyUtil.setProperty("io.netty.noPreferDirect", "true");
     }
 
     public static void main(String[] args) {
         JServer server = new DefaultServer().withAcceptor(new JNettyTcpAcceptor(18090));
-        server.acceptor().configGroup().child().setOption(JOption.PREFER_DIRECT, false);
         try {
             ServiceWrapper provider = server.serviceRegistry()
                     .provider(new UserServiceImpl())

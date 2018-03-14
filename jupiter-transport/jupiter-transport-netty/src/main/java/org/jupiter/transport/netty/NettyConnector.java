@@ -17,14 +17,10 @@
 package org.jupiter.transport.netty;
 
 import io.netty.bootstrap.Bootstrap;
-import io.netty.buffer.ByteBufAllocator;
-import io.netty.buffer.PooledByteBufAllocator;
-import io.netty.buffer.UnpooledByteBufAllocator;
 import io.netty.channel.ChannelOption;
 import io.netty.channel.EventLoopGroup;
 import io.netty.util.HashedWheelTimer;
 import io.netty.util.concurrent.DefaultThreadFactory;
-import io.netty.util.internal.PlatformDependent;
 import org.jupiter.common.concurrent.NamedThreadFactory;
 import org.jupiter.common.util.ClassUtil;
 import org.jupiter.common.util.JConstants;
@@ -74,8 +70,6 @@ public abstract class NettyConnector implements JConnector<JConnection> {
 
     private ConsumerProcessor processor;
 
-    protected volatile ByteBufAllocator allocator;
-
     public NettyConnector(Protocol protocol) {
         this(protocol, JConstants.AVAILABLE_PROCESSORS + 1);
     }
@@ -93,8 +87,6 @@ public abstract class NettyConnector implements JConnector<JConnection> {
 
         JConfig child = config();
         child.setOption(JOption.IO_RATIO, 100);
-        child.setOption(JOption.PREFER_DIRECT, true);
-        child.setOption(JOption.USE_POOLED_ALLOCATOR, true);
 
         doInit();
     }
@@ -206,22 +198,7 @@ public abstract class NettyConnector implements JConnector<JConnection> {
 
         setIoRatio(child.getOption(JOption.IO_RATIO));
 
-        boolean direct = child.getOption(JOption.PREFER_DIRECT);
-        if (child.getOption(JOption.USE_POOLED_ALLOCATOR)) {
-            if (direct) {
-                allocator = new PooledByteBufAllocator(PlatformDependent.directBufferPreferred());
-            } else {
-                allocator = new PooledByteBufAllocator(false);
-            }
-        } else {
-            if (direct) {
-                allocator = new UnpooledByteBufAllocator(PlatformDependent.directBufferPreferred());
-            } else {
-                allocator = new UnpooledByteBufAllocator(false);
-            }
-        }
-        bootstrap.option(ChannelOption.ALLOCATOR, allocator)
-                .option(ChannelOption.MESSAGE_SIZE_ESTIMATOR, JMessageSizeEstimator.DEFAULT);
+        bootstrap.option(ChannelOption.MESSAGE_SIZE_ESTIMATOR, JMessageSizeEstimator.DEFAULT);
     }
 
     /**
