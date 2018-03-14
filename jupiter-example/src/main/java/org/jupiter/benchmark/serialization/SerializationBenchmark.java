@@ -30,22 +30,22 @@ public class SerializationBenchmark {
 
     /*
         Benchmark                                     Mode  Cnt    Score    Error   Units
-        SerializationBenchmark.hessianByteBuffer     thrpt   10  132.212 ± 12.253  ops/ms
-        SerializationBenchmark.hessianBytesArray     thrpt   10  124.233 ± 19.428  ops/ms
-        SerializationBenchmark.javaByteBuffer        thrpt   10   23.627 ±  0.770  ops/ms
-        SerializationBenchmark.javaBytesArray        thrpt   10   23.037 ±  1.248  ops/ms
-        SerializationBenchmark.kryoByteBuffer        thrpt   10  302.812 ± 10.558  ops/ms
-        SerializationBenchmark.kryoBytesArray        thrpt   10  392.526 ± 13.031  ops/ms
-        SerializationBenchmark.protoStuffByteBuffer  thrpt   10  500.705 ± 13.427  ops/ms
-        SerializationBenchmark.protoStuffBytesArray  thrpt   10  547.047 ± 13.530  ops/ms
+        SerializationBenchmark.hessianByteBuffer     thrpt   10  153.014 ±  3.009  ops/ms
+        SerializationBenchmark.hessianBytesArray     thrpt   10  147.761 ±  2.628  ops/ms
+        SerializationBenchmark.javaByteBuffer        thrpt   10   25.970 ±  0.440  ops/ms
+        SerializationBenchmark.javaBytesArray        thrpt   10   26.309 ±  0.354  ops/ms
+        SerializationBenchmark.kryoByteBuffer        thrpt   10  322.818 ±  8.891  ops/ms
+        SerializationBenchmark.kryoBytesArray        thrpt   10  440.934 ± 10.195  ops/ms
+        SerializationBenchmark.protoStuffByteBuffer  thrpt   10  769.111 ± 17.657  ops/ms
+        SerializationBenchmark.protoStuffBytesArray  thrpt   10  687.466 ± 13.650  ops/ms
         SerializationBenchmark.hessianByteBuffer      avgt   10    0.007 ±  0.001   ms/op
         SerializationBenchmark.hessianBytesArray      avgt   10    0.007 ±  0.001   ms/op
-        SerializationBenchmark.javaByteBuffer         avgt   10    0.044 ±  0.002   ms/op
-        SerializationBenchmark.javaBytesArray         avgt   10    0.044 ±  0.002   ms/op
+        SerializationBenchmark.javaByteBuffer         avgt   10    0.038 ±  0.001   ms/op
+        SerializationBenchmark.javaBytesArray         avgt   10    0.040 ±  0.001   ms/op
         SerializationBenchmark.kryoByteBuffer         avgt   10    0.003 ±  0.001   ms/op
         SerializationBenchmark.kryoBytesArray         avgt   10    0.002 ±  0.001   ms/op
-        SerializationBenchmark.protoStuffByteBuffer   avgt   10    0.002 ±  0.001   ms/op
-        SerializationBenchmark.protoStuffBytesArray   avgt   10    0.002 ±  0.001   ms/op
+        SerializationBenchmark.protoStuffByteBuffer   avgt   10    0.001 ±  0.001   ms/op
+        SerializationBenchmark.protoStuffBytesArray   avgt   10    0.001 ±  0.001   ms/op
      */
 
     public static void main(String[] args) throws RunnerException {
@@ -254,10 +254,7 @@ public class SerializationBenchmark {
         user.setEmail("xxx@alibaba-inc.con");
         user.setMobile("18325038521");
         user.setAddress("浙江省 杭州市 文一西路969号");
-        List<Integer> permsList = Lists.newArrayList(
-                1, 12, 123,
-                Integer.MAX_VALUE, Integer.MAX_VALUE - 12, Integer.MAX_VALUE - 123,
-                Integer.MIN_VALUE, Integer.MIN_VALUE + 12, Integer.MIN_VALUE + 123);
+        List<Integer> permsList = Lists.newArrayList(1, 12, 123);
         user.setPermissions(permsList);
         user.setStatus(1);
         user.setCreateTime(new Date());
