@@ -46,7 +46,7 @@ class UnsafeNioBufOutput extends NioBufOutput {
      */
     private long memoryAddress;
 
-    public UnsafeNioBufOutput(OutputBuf outputBuf, int minWritableBytes) {
+    UnsafeNioBufOutput(OutputBuf outputBuf, int minWritableBytes) {
         super(outputBuf, minWritableBytes);
         updateBufferAddress();
     }

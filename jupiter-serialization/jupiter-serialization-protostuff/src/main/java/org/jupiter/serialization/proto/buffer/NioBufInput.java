@@ -18,9 +18,7 @@ package org.jupiter.serialization.proto.buffer;
 
 import io.protostuff.*;
 import org.jupiter.common.util.ExceptionUtil;
-import org.jupiter.common.util.internal.UnsafeDirectBufferUtil;
 import org.jupiter.common.util.internal.UnsafeUtf8Util;
-import org.jupiter.common.util.internal.UnsafeUtil;
 
 import java.io.IOException;
 import java.lang.reflect.Method;
@@ -34,7 +32,7 @@ import static io.protostuff.WireFormat.*;
  *
  * @author jiachun.fjc
  */
-class UnsafeNioBufInput implements Input {
+class NioBufInput implements Input {
 
     static final int TAG_TYPE_BITS = 3;
     static final int TAG_TYPE_MASK = (1 << TAG_TYPE_BITS) - 1;
@@ -44,12 +42,6 @@ class UnsafeNioBufInput implements Input {
     private final ByteBuffer nioBuffer;
     private int lastTag = 0;
     private int packedLimit = 0;
-
-    /**
-     * Start address of the memory buffer The memory buffer should be non-movable, which normally means that is is allocated
-     * off-heap
-     */
-    private long memoryAddress;
 
     /**
      * If true, the nested messages are group-encoded
@@ -62,23 +54,24 @@ class UnsafeNioBufInput implements Input {
      * @param nioBuffer         the buffer to read from, it will not be sliced
      * @param protostuffMessage if we are parsing a protostuff (true) or protobuf (false) message
      */
-    UnsafeNioBufInput(ByteBuffer nioBuffer, boolean protostuffMessage) {
+    public NioBufInput(ByteBuffer nioBuffer, boolean protostuffMessage) {
         this.nioBuffer = nioBuffer;
         this.decodeNestedMessageAsGroup = protostuffMessage;
-        updateBufferAddress();
     }
 
     /**
      * Returns the current offset (the position).
      */
-    public int currentOffset() {
+    public int currentOffset()
+    {
         return nioBuffer.position();
     }
 
     /**
      * Returns the current limit (the end index).
      */
-    public int currentLimit() {
+    public int currentLimit()
+    {
         return nioBuffer.limit();
     }
 
@@ -106,7 +99,7 @@ class UnsafeNioBufInput implements Input {
             return 0;
         }
 
-        final int tag = readRawVarInt32();
+        final int tag = readRawVarint32();
         if (tag >>> TAG_TYPE_BITS == 0) {
             // If we actually read zero, that's not a valid tag.
             throw invalidTag();
@@ -142,7 +135,7 @@ class UnsafeNioBufInput implements Input {
                 readRawLittleEndian64();
                 return true;
             case WIRETYPE_LENGTH_DELIMITED:
-                final int size = readRawVarInt32();
+                final int size = readRawVarint32();
                 if (size < 0) {
                     throw negativeSize();
                 }
@@ -199,7 +192,7 @@ class UnsafeNioBufInput implements Input {
         }
 
         packedLimit = 0;
-        final int tag = readRawVarInt32();
+        final int tag = readRawVarint32();
         final int fieldNumber = tag >>> TAG_TYPE_BITS;
         if (fieldNumber == 0) {
             if (decodeNestedMessageAsGroup &&
@@ -228,7 +221,7 @@ class UnsafeNioBufInput implements Input {
     private void checkIfPackedField() throws IOException {
         // Do we have the start of a packed field?
         if (packedLimit == 0 && getTagWireType(lastTag) == WIRETYPE_LENGTH_DELIMITED) {
-            final int length = readRawVarInt32();
+            final int length = readRawVarint32();
             if (length < 0) {
                 throw negativeSize();
             }
@@ -265,7 +258,7 @@ class UnsafeNioBufInput implements Input {
     @Override
     public long readUInt64() throws IOException {
         checkIfPackedField();
-        return readRawVarInt64();
+        return readRawVarint64();
     }
 
     /**
@@ -274,7 +267,7 @@ class UnsafeNioBufInput implements Input {
     @Override
     public long readInt64() throws IOException {
         checkIfPackedField();
-        return readRawVarInt64();
+        return readRawVarint64();
     }
 
     /**
@@ -283,7 +276,7 @@ class UnsafeNioBufInput implements Input {
     @Override
     public int readInt32() throws IOException {
         checkIfPackedField();
-        return readRawVarInt32();
+        return readRawVarint32();
     }
 
     /**
@@ -310,10 +303,7 @@ class UnsafeNioBufInput implements Input {
     @Override
     public boolean readBool() throws IOException {
         checkIfPackedField();
-        int position = nioBuffer.position();
-        boolean result = UnsafeDirectBufferUtil.getByte(address(position)) != 0;
-        nioBuffer.position(position + 1);
-        return result;
+        return nioBuffer.get() != 0;
     }
 
     /**
@@ -322,7 +312,7 @@ class UnsafeNioBufInput implements Input {
     @Override
     public int readUInt32() throws IOException {
         checkIfPackedField();
-        return readRawVarInt32();
+        return readRawVarint32();
     }
 
     /**
@@ -332,7 +322,7 @@ class UnsafeNioBufInput implements Input {
     @Override
     public int readEnum() throws IOException {
         checkIfPackedField();
-        return readRawVarInt32();
+        return readRawVarint32();
     }
 
     /**
@@ -359,7 +349,7 @@ class UnsafeNioBufInput implements Input {
     @Override
     public int readSInt32() throws IOException {
         checkIfPackedField();
-        final int n = readRawVarInt32();
+        final int n = readRawVarint32();
         return (n >>> 1) ^ -(n & 1);
     }
 
@@ -369,13 +359,13 @@ class UnsafeNioBufInput implements Input {
     @Override
     public long readSInt64() throws IOException {
         checkIfPackedField();
-        final long n = readRawVarInt64();
+        final long n = readRawVarint64();
         return (n >>> 1) ^ -(n & 1);
     }
 
     @Override
     public String readString() throws IOException {
-        final int length = readRawVarInt32();
+        final int length = readRawVarint32();
         if (length < 0) {
             throw negativeSize();
         }
@@ -384,8 +374,13 @@ class UnsafeNioBufInput implements Input {
             throw misreportedSize();
         }
 
-        int position = nioBuffer.position();
-        String result = UnsafeUtf8Util.decodeUtf8Direct(nioBuffer, position, length);
+        final int position = nioBuffer.position();
+        String result;
+        if (nioBuffer.hasArray()) {
+            result = UnsafeUtf8Util.decodeUtf8(nioBuffer.array(), nioBuffer.arrayOffset() + position, length);
+        } else {
+            result = UnsafeUtf8Util.decodeUtf8Direct(nioBuffer, position, length);
+        }
         nioBuffer.position(position + length);
         return result;
     }
@@ -403,7 +398,7 @@ class UnsafeNioBufInput implements Input {
 
     @Override
     public void readBytes(final ByteBuffer bb) throws IOException {
-        final int length = readRawVarInt32();
+        final int length = readRawVarint32();
         if (length < 0) {
             throw negativeSize();
         }
@@ -417,7 +412,7 @@ class UnsafeNioBufInput implements Input {
 
     @Override
     public byte[] readByteArray() throws IOException {
-        final int length = readRawVarInt32();
+        final int length = readRawVarint32();
         if (length < 0) {
             throw negativeSize();
         }
@@ -427,19 +422,16 @@ class UnsafeNioBufInput implements Input {
         }
 
         final byte[] copy = new byte[length];
-        int position = nioBuffer.position();
-        UnsafeDirectBufferUtil.getBytes(address(position), copy, 0, length);
-        nioBuffer.position(position + length);
+        nioBuffer.get(copy);
         return copy;
     }
 
     @Override
     public <T> T mergeObject(T value, final Schema<T> schema) throws IOException {
-        if (decodeNestedMessageAsGroup) {
+        if (decodeNestedMessageAsGroup)
             return mergeObjectEncodedAsGroup(value, schema);
-        }
 
-        final int length = readRawVarInt32();
+        final int length = readRawVarint32();
         if (length < 0) {
             throw negativeSize();
         }
@@ -451,6 +443,11 @@ class UnsafeNioBufInput implements Input {
         ByteBuffer dup = nioBuffer.slice();
         dup.limit(length);
 
+        // save old limit
+        // final int oldLimit = this.limit;
+
+        // this.limit = offset + length;
+
         if (value == null) {
             value = schema.newMessage();
         }
@@ -460,6 +457,10 @@ class UnsafeNioBufInput implements Input {
             throw new UninitializedMessageException(value, schema);
         }
         nestedInput.checkLastTagWas(0);
+        // checkLastTagWas(0);
+
+        // restore old limit
+        // this.limit = oldLimit;
 
         nioBuffer.position(nioBuffer.position() + length);
         return value;
@@ -481,32 +482,29 @@ class UnsafeNioBufInput implements Input {
     /**
      * Reads a var int 32 from the internal byte buffer.
      */
-    public int readRawVarInt32() throws IOException {
-        int position = nioBuffer.position();
-        byte tmp = UnsafeDirectBufferUtil.getByte(address(position++));
+    public int readRawVarint32() throws IOException {
+        byte tmp = nioBuffer.get();
         if (tmp >= 0) {
-            nioBuffer.position(position);
             return tmp;
         }
         int result = tmp & 0x7f;
-        if ((tmp = UnsafeDirectBufferUtil.getByte(address(position++))) >= 0) {
+        if ((tmp = nioBuffer.get()) >= 0) {
             result |= tmp << 7;
         } else {
             result |= (tmp & 0x7f) << 7;
-            if ((tmp = UnsafeDirectBufferUtil.getByte(address(position++))) >= 0) {
+            if ((tmp = nioBuffer.get()) >= 0) {
                 result |= tmp << 14;
             } else {
                 result |= (tmp & 0x7f) << 14;
-                if ((tmp = UnsafeDirectBufferUtil.getByte(address(position++))) >= 0) {
+                if ((tmp = nioBuffer.get()) >= 0) {
                     result |= tmp << 21;
                 } else {
                     result |= (tmp & 0x7f) << 21;
-                    result |= (tmp = UnsafeDirectBufferUtil.getByte(address(position++))) << 28;
+                    result |= (tmp = nioBuffer.get()) << 28;
                     if (tmp < 0) {
                         // Discard upper 32 bits.
                         for (int i = 0; i < 5; i++) {
-                            if (UnsafeDirectBufferUtil.getByte(address(position++)) >= 0) {
-                                nioBuffer.position(position);
+                            if (nioBuffer.get() >= 0) {
                                 return result;
                             }
                         }
@@ -515,22 +513,20 @@ class UnsafeNioBufInput implements Input {
                 }
             }
         }
-        nioBuffer.position(position);
         return result;
     }
 
     /**
      * Reads a var int 64 from the internal byte buffer.
      */
-    public long readRawVarInt64() throws IOException {
+    public long readRawVarint64() throws IOException {
         int shift = 0;
         long result = 0;
-        int position = nioBuffer.position();
         while (shift < 64) {
-            final byte b = UnsafeDirectBufferUtil.getByte(address(position++));
+            final byte b = nioBuffer.get();
             result |= (long) (b & 0x7F) << shift;
             if ((b & 0x80) == 0) {
-                nioBuffer.position(position);
+                // this.offset = offset;
                 return result;
             }
             shift += 7;
@@ -542,26 +538,36 @@ class UnsafeNioBufInput implements Input {
      * Read a 32-bit little-endian integer from the internal buffer.
      */
     public int readRawLittleEndian32() throws IOException {
-        int position = nioBuffer.position();
-        int result = UnsafeDirectBufferUtil.getIntLE(address(position));
-        nioBuffer.position(position + 4);
-        return result;
+        final byte[] bs = new byte[4];
+        nioBuffer.get(bs);
+
+        return (((int) bs[0] & 0xff)) |
+                (((int) bs[1] & 0xff) << 8) |
+                (((int) bs[2] & 0xff) << 16) |
+                (((int) bs[3] & 0xff) << 24);
     }
 
     /**
      * Read a 64-bit little-endian integer from the internal byte buffer.
      */
     public long readRawLittleEndian64() throws IOException {
-        int position = nioBuffer.position();
-        long result = UnsafeDirectBufferUtil.getLongLE(address(position));
-        nioBuffer.position(position + 8);
-        return result;
+        final byte[] bs = new byte[8];
+        nioBuffer.get(bs);
+
+        return (((long) bs[0] & 0xff)) |
+                (((long) bs[1] & 0xff) << 8) |
+                (((long) bs[2] & 0xff) << 16) |
+                (((long) bs[3] & 0xff) << 24) |
+                (((long) bs[4] & 0xff) << 32) |
+                (((long) bs[5] & 0xff) << 40) |
+                (((long) bs[6] & 0xff) << 48) |
+                (((long) bs[7] & 0xff) << 56);
     }
 
     @Override
     public void transferByteRangeTo(Output output, boolean utf8String, int fieldNumber,
                                     boolean repeated) throws IOException {
-        final int length = readRawVarInt32();
+        final int length = readRawVarint32();
         if (length < 0) {
             throw negativeSize();
         }
@@ -575,9 +581,7 @@ class UnsafeNioBufInput implements Input {
                 nioBuffer.position(nioBuffer.position() + length);
             } else {
                 byte[] bytes = new byte[length];
-                int position = nioBuffer.position();
-                UnsafeDirectBufferUtil.getBytes(address(position), bytes, 0, length);
-                nioBuffer.position(position + length);
+                nioBuffer.get(bytes);
                 output.writeByteRange(true, fieldNumber, bytes, 0, bytes.length, repeated);
             }
         } else {
@@ -601,14 +605,6 @@ class UnsafeNioBufInput implements Input {
     @Override
     public ByteBuffer readByteBuffer() throws IOException {
         return ByteBuffer.wrap(readByteArray());
-    }
-
-    private long address(int position) {
-        return memoryAddress + position;
-    }
-
-    private void updateBufferAddress() {
-        memoryAddress = UnsafeUtil.addressOffset(nioBuffer);
     }
 
     static ProtobufException misreportedSize() {

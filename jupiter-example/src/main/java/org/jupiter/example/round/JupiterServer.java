@@ -21,6 +21,7 @@ import org.jupiter.example.UserServiceImpl;
 import org.jupiter.rpc.DefaultServer;
 import org.jupiter.rpc.JServer;
 import org.jupiter.rpc.model.metadata.ServiceWrapper;
+import org.jupiter.transport.JOption;
 import org.jupiter.transport.netty.JNettyTcpAcceptor;
 
 /**
@@ -38,6 +39,7 @@ public class JupiterServer {
 
     public static void main(String[] args) {
         JServer server = new DefaultServer().withAcceptor(new JNettyTcpAcceptor(18090));
+        server.acceptor().configGroup().child().setOption(JOption.PREFER_DIRECT, false);
         try {
             ServiceWrapper provider = server.serviceRegistry()
                     .provider(new UserServiceImpl())

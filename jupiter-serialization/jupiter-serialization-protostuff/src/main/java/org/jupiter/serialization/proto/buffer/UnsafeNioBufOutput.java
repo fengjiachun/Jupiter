@@ -49,15 +49,18 @@ class UnsafeNioBufOutput extends NioBufOutput {
     public void writeString(int fieldNumber, CharSequence value, boolean repeated) throws IOException {
         writeVarInt32(makeTag(fieldNumber, WIRETYPE_LENGTH_DELIMITED));
 
-        int position = nioBuffer.position();
         // UTF-8 byte length of the string is at least its UTF-16 code unit length (value.length()),
         // and at most 3 times of it. We take advantage of this in both branches below.
         int maxLengthVarIntSize = computeVarInt32Size(value.length() * UnsafeUtf8Util.MAX_BYTES_PER_CHAR);
         int minLengthVarIntSize = computeVarInt32Size(value.length());
         if (maxLengthVarIntSize == minLengthVarIntSize) {
+            int position = nioBuffer.position();
+
+            ensureCapacity(maxLengthVarIntSize + value.length() * UnsafeUtf8Util.MAX_BYTES_PER_CHAR);
+
             // Save the current position and increment past the length field. We'll come back
             // and write the length field after the encoding is complete.
-            int stringStartPos = position + minLengthVarIntSize;
+            int stringStartPos = position + maxLengthVarIntSize;
             nioBuffer.position(stringStartPos);
 
             // Encode the string.
@@ -72,6 +75,8 @@ class UnsafeNioBufOutput extends NioBufOutput {
             // Calculate and write the encoded length.
             int length = UnsafeUtf8Util.encodedLength(value);
             writeVarInt32(length);
+
+            ensureCapacity(length);
 
             // Write the string and advance the position.
             UnsafeUtf8Util.encodeUtf8Direct(value, nioBuffer);

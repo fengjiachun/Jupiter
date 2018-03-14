@@ -22,6 +22,7 @@ import io.protostuff.Output;
 import io.protostuff.Schema;
 import org.jupiter.common.util.internal.UnsafeReferenceFieldUpdater;
 import org.jupiter.common.util.internal.UnsafeUpdater;
+import org.jupiter.common.util.internal.UnsafeUtf8Util;
 import org.jupiter.serialization.OutputBuf;
 
 import java.io.IOException;
@@ -142,9 +143,53 @@ class NioBufOutput implements Output {
 
     @Override
     public void writeString(int fieldNumber, CharSequence value, boolean repeated) throws IOException {
-        // TODO the original implementation is a lot more complex, is this compatible?
-        byte[] strBytes = value.toString().getBytes("UTF-8");
-        writeByteArray(fieldNumber, strBytes, repeated);
+        writeVarInt32(makeTag(fieldNumber, WIRETYPE_LENGTH_DELIMITED));
+
+        // UTF-8 byte length of the string is at least its UTF-16 code unit length (value.length()),
+        // and at most 3 times of it. We take advantage of this in both branches below.
+        int maxLengthVarIntSize = computeVarInt32Size(value.length() * UnsafeUtf8Util.MAX_BYTES_PER_CHAR);
+        int minLengthVarIntSize = computeVarInt32Size(value.length());
+        if (maxLengthVarIntSize == minLengthVarIntSize) {
+            int position = nioBuffer.position();
+
+            ensureCapacity(maxLengthVarIntSize + value.length() * UnsafeUtf8Util.MAX_BYTES_PER_CHAR);
+
+            // Save the current position and increment past the length field. We'll come back
+            // and write the length field after the encoding is complete.
+            int stringStartPos = position + maxLengthVarIntSize;
+            nioBuffer.position(stringStartPos);
+
+            int length;
+            // Encode the string.
+            if (nioBuffer.isDirect()) {
+                UnsafeUtf8Util.encodeUtf8Direct(value, nioBuffer);
+                // Write the length and advance the position.
+                length = nioBuffer.position() - stringStartPos;
+            } else {
+                int offset = nioBuffer.arrayOffset() + stringStartPos;
+                int outIndex = UnsafeUtf8Util.encodeUtf8(value, nioBuffer.array(), offset, nioBuffer.remaining());
+                length = outIndex - offset;
+            }
+            nioBuffer.position(position);
+            writeVarInt32(length);
+            nioBuffer.position(stringStartPos + length);
+        } else {
+            // Calculate and write the encoded length.
+            int length = UnsafeUtf8Util.encodedLength(value);
+            writeVarInt32(length);
+
+            ensureCapacity(length);
+
+            if (nioBuffer.isDirect()) {
+                // Write the string and advance the position.
+                UnsafeUtf8Util.encodeUtf8Direct(value, nioBuffer);
+            } else {
+                int pos = nioBuffer.position();
+                UnsafeUtf8Util.encodeUtf8(value, nioBuffer.array(),
+                        nioBuffer.arrayOffset() + pos, nioBuffer.remaining());
+                nioBuffer.position(pos + length);
+            }
+        }
     }
 
     @Override
@@ -244,5 +289,24 @@ class NioBufOutput implements Output {
             nioBuffer = outputBuf.nioByteBuffer(capacity - position);
             capacity = nioBuffer.limit();
         }
+    }
+
+    /**
+     * Compute the number of bytes that would be needed to encode a {@code uint32} field.
+     */
+    private static int computeVarInt32Size(final int value) {
+        if ((value & (~0 <<  7)) == 0) {
+            return 1;
+        }
+        if ((value & (~0 << 14)) == 0) {
+            return 2;
+        }
+        if ((value & (~0 << 21)) == 0) {
+            return 3;
+        }
+        if ((value & (~0 << 28)) == 0) {
+            return 4;
+        }
+        return 5;
     }
 }

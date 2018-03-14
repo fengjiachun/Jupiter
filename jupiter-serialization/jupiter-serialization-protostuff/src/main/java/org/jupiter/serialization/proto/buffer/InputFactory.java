@@ -16,7 +16,6 @@
 
 package org.jupiter.serialization.proto.buffer;
 
-import io.protostuff.ByteBufferInput;
 import io.protostuff.Input;
 import org.jupiter.serialization.InputBuf;
 
@@ -32,7 +31,7 @@ public class InputFactory {
         if (inputBuf.hasMemoryAddress()) {
             return new UnsafeNioBufInput(inputBuf.nioByteBuffer(), true);
         }
-        return new ByteBufferInput(inputBuf.nioByteBuffer(), true);
+        return new NioBufInput(inputBuf.nioByteBuffer(), true);
     }
 
     private InputFactory() {}

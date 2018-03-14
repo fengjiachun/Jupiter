@@ -24,6 +24,7 @@ import org.jupiter.rpc.JClient;
 import org.jupiter.rpc.consumer.ProxyFactory;
 import org.jupiter.serialization.SerializerType;
 import org.jupiter.transport.JConnector;
+import org.jupiter.transport.JOption;
 import org.jupiter.transport.exception.ConnectFailedException;
 import org.jupiter.transport.netty.JNettyTcpConnector;
 
@@ -41,6 +42,7 @@ public class SyncJupiterClient {
 
     public static void main(String[] args) {
         JClient client = new DefaultClient().withConnector(new JNettyTcpConnector());
+        client.connector().config().setOption(JOption.PREFER_DIRECT, false);
 
         // 连接RegistryServer
         client.connectToRegistryServer("127.0.0.1:20001");
