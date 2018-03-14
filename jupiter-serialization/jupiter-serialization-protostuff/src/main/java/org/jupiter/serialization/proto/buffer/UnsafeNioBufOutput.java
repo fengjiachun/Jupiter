@@ -83,6 +83,12 @@ class UnsafeNioBufOutput extends NioBufOutput {
         }
     }
 
+    // VarInt是一种变长的的数字编码方式, 用字节表示数字, 值越小的数字, 占用的字节越少
+    // 通过减少表示数字的字节数, 从而进行数据压缩
+    //
+    // 每个字节的最高位都是一个标志:
+    // 如果是1: 表示后续的字节也是该数字的一部分
+    // 如果是0: 表示这是最后一个字节, 剩余7位都是用来表示数字
     @Override
     protected void writeVarInt32(int value) throws IOException {
         byte[] buf = new byte[5];
@@ -90,13 +96,17 @@ class UnsafeNioBufOutput extends NioBufOutput {
         int position = nioBuffer.position();
         while (true) {
             if ((value & ~0x7F) == 0) {
+                // 3. 这是最后一次取出, 最高位是0, 构成一个字节
                 buf[locPtr++] = (byte) value;
                 ensureCapacity(locPtr);
+                // 此时的字节串就是VarInt编码后的字节
                 UnsafeDirectBufferUtil.setBytes(address(position), buf, 0, locPtr);
                 nioBuffer.position(position + locPtr);
                 return;
             } else {
+                // 1. 取出字节串末尾7位, 并将最高位设置为1(与0x80按位或), 构成一个字节
                 buf[locPtr++] = (byte) ((value & 0x7F) | 0x80);
+                // 2. 将字节串整体右移7位, 继续从字节串末尾取7位, 取完为止
                 value >>>= 7;
             }
         }
