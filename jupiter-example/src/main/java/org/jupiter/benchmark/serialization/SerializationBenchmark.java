@@ -30,22 +30,22 @@ public class SerializationBenchmark {
 
     /*
         Benchmark                                     Mode  Cnt    Score    Error   Units
-        SerializationBenchmark.hessianByteBuffer     thrpt   10  153.014 ±  3.009  ops/ms
-        SerializationBenchmark.hessianBytesArray     thrpt   10  147.761 ±  2.628  ops/ms
-        SerializationBenchmark.javaByteBuffer        thrpt   10   25.970 ±  0.440  ops/ms
-        SerializationBenchmark.javaBytesArray        thrpt   10   26.309 ±  0.354  ops/ms
-        SerializationBenchmark.kryoByteBuffer        thrpt   10  322.818 ±  8.891  ops/ms
-        SerializationBenchmark.kryoBytesArray        thrpt   10  440.934 ± 10.195  ops/ms
-        SerializationBenchmark.protoStuffByteBuffer  thrpt   10  769.111 ± 17.657  ops/ms
-        SerializationBenchmark.protoStuffBytesArray  thrpt   10  687.466 ± 13.650  ops/ms
+        SerializationBenchmark.hessianByteBuffer     thrpt   10  150.256 ±  8.589  ops/ms
+        SerializationBenchmark.hessianBytesArray     thrpt   10  152.689 ±  2.453  ops/ms
+        SerializationBenchmark.javaByteBuffer        thrpt   10   25.228 ±  1.723  ops/ms
+        SerializationBenchmark.javaBytesArray        thrpt   10   25.912 ±  1.083  ops/ms
+        SerializationBenchmark.kryoByteBuffer        thrpt   10  303.410 ± 10.243  ops/ms
+        SerializationBenchmark.kryoBytesArray        thrpt   10  443.201 ±  8.727  ops/ms
+        SerializationBenchmark.protoStuffByteBuffer  thrpt   10  799.531 ± 16.915  ops/ms
+        SerializationBenchmark.protoStuffBytesArray  thrpt   10  687.980 ± 18.072  ops/ms
         SerializationBenchmark.hessianByteBuffer      avgt   10    0.007 ±  0.001   ms/op
         SerializationBenchmark.hessianBytesArray      avgt   10    0.007 ±  0.001   ms/op
-        SerializationBenchmark.javaByteBuffer         avgt   10    0.038 ±  0.001   ms/op
-        SerializationBenchmark.javaBytesArray         avgt   10    0.040 ±  0.001   ms/op
+        SerializationBenchmark.javaByteBuffer         avgt   10    0.040 ±  0.011   ms/op
+        SerializationBenchmark.javaBytesArray         avgt   10    0.038 ±  0.001   ms/op
         SerializationBenchmark.kryoByteBuffer         avgt   10    0.003 ±  0.001   ms/op
         SerializationBenchmark.kryoBytesArray         avgt   10    0.002 ±  0.001   ms/op
         SerializationBenchmark.protoStuffByteBuffer   avgt   10    0.001 ±  0.001   ms/op
-        SerializationBenchmark.protoStuffBytesArray   avgt   10    0.001 ±  0.001   ms/op
+
      */
 
     public static void main(String[] args) throws RunnerException {
