@@ -51,12 +51,14 @@ class UnsafeNioBufOutput extends NioBufOutput {
 
         // UTF-8 byte length of the string is at least its UTF-16 code unit length (value.length()),
         // and at most 3 times of it. We take advantage of this in both branches below.
-        int maxLengthVarIntSize = computeVarInt32Size(value.length() * UnsafeUtf8Util.MAX_BYTES_PER_CHAR);
-        int minLengthVarIntSize = computeVarInt32Size(value.length());
-        if (maxLengthVarIntSize == minLengthVarIntSize) {
+        int minLength = value.length();
+        int maxLength = minLength * UnsafeUtf8Util.MAX_BYTES_PER_CHAR;
+        int minLengthVarIntSize = computeVarInt32Size(minLength);
+        int maxLengthVarIntSize = computeVarInt32Size(maxLength);
+        if (minLengthVarIntSize == maxLengthVarIntSize) {
             int position = nioBuffer.position();
 
-            ensureCapacity(maxLengthVarIntSize + value.length() * UnsafeUtf8Util.MAX_BYTES_PER_CHAR);
+            ensureCapacity(maxLengthVarIntSize + maxLength);
 
             // Save the current position and increment past the length field. We'll come back
             // and write the length field after the encoding is complete.
