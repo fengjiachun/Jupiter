@@ -67,7 +67,7 @@ public class RandomLoadBalancer implements LoadBalancer {
 
         WeightArray weightArray = (WeightArray) groups.weightArray(elements, directory);
         if (weightArray == null) {
-            weightArray = WeightUtil.computeWeightArray(groups, elements, directory, length);
+            weightArray = WeightArray.computeWeightArray(groups, elements, directory, length);
         }
 
         ThreadLocalRandom random = ThreadLocalRandom.current();
@@ -76,13 +76,9 @@ public class RandomLoadBalancer implements LoadBalancer {
             return elements[random.nextInt(length)];
         }
 
-        // 这一段算法参考当前的类注释中的那张图
-        //
-        // 如果权重不相同且总权重大于0, 则按总权重数随机
-
         int sumWeight = weightArray.get(length - 1);
         int eVal = random.nextInt(sumWeight) % sumWeight;
-        int eIndex = WeightUtil.binarySearchIndex(weightArray, length, eVal);
+        int eIndex = WeightArray.binarySearchIndex(weightArray, length, eVal);
 
         return elements[eIndex];
     }

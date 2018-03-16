@@ -85,7 +85,7 @@ public class RoundRobinLoadBalancer implements LoadBalancer {
 
         WeightArray weightArray = (WeightArray) groups.weightArray(elements, directory);
         if (weightArray == null) {
-            weightArray = WeightUtil.computeWeightArray(groups, elements, directory, length);
+            weightArray = WeightArray.computeWeightArray(groups, elements, directory, length);
         }
 
         int index = sequence.next() & Integer.MAX_VALUE;
@@ -94,14 +94,9 @@ public class RoundRobinLoadBalancer implements LoadBalancer {
             return elements[index % length];
         }
 
-        // 这一段算法参考当前的类注释中的那张图
-        //
-        // 当前实现不会先去计算最大公约数再轮询, 通常最大权重和最小权重值不会相差过于悬殊,
-        // 因此我觉得没有必要先去求最大公约数, 很可能产生没有必要的开销.
-
         int sumWeight = weightArray.get(length - 1);
         int eVal = index % sumWeight;
-        int eIndex = WeightUtil.binarySearchIndex(weightArray, length, eVal);
+        int eIndex = WeightArray.binarySearchIndex(weightArray, length, eVal);
 
         return elements[eIndex];
     }
