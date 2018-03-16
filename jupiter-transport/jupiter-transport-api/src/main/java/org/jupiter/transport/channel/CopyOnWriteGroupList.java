@@ -39,7 +39,9 @@ public class CopyOnWriteGroupList {
     private transient final ReentrantLock lock = new ReentrantLock();
 
     private final DirectoryJChannelGroup parent;
-    // 0: JChannelGroup[], 1: Map<Directory, WeightArray>
+
+    // data[0]: JChannelGroup[]
+    // data[1]: Map<Directory, WeightArray>
     private volatile transient Object[] data;
 
     public CopyOnWriteGroupList(DirectoryJChannelGroup parent) {
@@ -82,7 +84,7 @@ public class CopyOnWriteGroupList {
     }
 
     private void setArray(JChannelGroup[] a) {
-        data = new Object[] { a, null, null };
+        data = new Object[] { a, null };
     }
 
     @SuppressWarnings("unchecked")

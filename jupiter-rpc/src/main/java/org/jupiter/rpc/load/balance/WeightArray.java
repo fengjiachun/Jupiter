@@ -22,9 +22,6 @@ import org.jupiter.transport.channel.CopyOnWriteGroupList;
 import org.jupiter.transport.channel.JChannelGroup;
 
 /**
- * 通常负载均衡算法每次都要重新获取所有可用服务的权重信息(由于预热的关系权重可能一直在变化着),
- * {@link WeightArray} 存在的意义是尽量减少内存的占用(结构简单),
- * 再配合ThreadLocal使用, 有助于减少大量临时的短生命周期对象对GC的影响.
  *
  * jupiter
  * org.jupiter.rpc.load.balance
@@ -35,47 +32,23 @@ final class WeightArray {
 
     private static final int[] EMPTY_ARRAY = new int[0];
 
-    private static final ThreadLocal<WeightArray> weightsThreadLocal = new ThreadLocal<WeightArray>() {
+    private int[] array;
 
-        @Override
-        protected WeightArray initialValue() {
-            return new WeightArray();
-        }
-    };
-
-    private int[] array = new int[64];
-    private boolean allSameWeight = false;
+    WeightArray(int length) {
+        array = new int[length];
+    }
 
     int get(int index) {
         return array[index];
     }
 
-    void set(int index, int value) {
-        array[index] = value;
-    }
-
     boolean isAllSameWeight() {
-        return allSameWeight;
-    }
-
-    void setAllSameWeight(boolean allSameWeight) {
-        this.allSameWeight = allSameWeight;
-        if (allSameWeight) {
-            array = EMPTY_ARRAY;
-        }
-    }
-
-    WeightArray ensureCapacity(int capacity) {
-        if (capacity > array.length) {
-            array = new int[capacity];
-        }
-        return this;
+        return array == EMPTY_ARRAY;
     }
 
     static WeightArray computeWeightArray(
             CopyOnWriteGroupList groups, JChannelGroup[] elements, Directory directory, int length) {
-
-        WeightArray weightArray = weightsThreadLocal.get().ensureCapacity(length);
+        WeightArray weightArray = new WeightArray(length);
 
         boolean allWarmUpComplete = true;
         boolean allSameWeight = true;
@@ -85,25 +58,26 @@ final class WeightArray {
             int preVal = 0;
             int curVal = getWeight(elements[i], directory);
             if (i > 0) {
-                preVal = weightArray.get(i - 1);
+                preVal = weightArray.array[i - 1];
                 allSameWeight = allSameWeight && preVal == curVal;
             }
 
-            weightArray.set(i, preVal + curVal);
+            weightArray.array[i] = preVal + curVal;
         }
 
         if (allWarmUpComplete) {
-            if (allSameWeight) {
-                weightArray.setAllSameWeight(true);
-                groups.setWeightInfo(elements, directory, weightArray);
-            }
+            groups.setWeightInfo(elements, directory, weightArray);
+        }
+
+        if (allSameWeight) {
+            weightArray.array = EMPTY_ARRAY;
         }
 
         return weightArray;
     }
 
     // 计算权重, 包含预热逻辑
-    private static int getWeight(JChannelGroup group, Directory directory) {
+    static int getWeight(JChannelGroup group, Directory directory) {
         int weight = group.getWeight(directory);
         int warmUp = group.getWarmUp();
         int upTime = (int) (SystemClock.millisClock().now() - group.timestamp());
