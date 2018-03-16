@@ -72,7 +72,7 @@ public class RoundRobinLoadBalancer implements LoadBalancer {
 
     @Override
     public JChannelGroup select(CopyOnWriteGroupList groups, Directory directory) {
-        JChannelGroup[] elements = groups.snapshot();
+        JChannelGroup[] elements = groups.getSnapshot();
         int length = elements.length;
 
         if (length == 0) {
@@ -83,7 +83,7 @@ public class RoundRobinLoadBalancer implements LoadBalancer {
             return elements[0];
         }
 
-        WeightArray weightArray = (WeightArray) groups.weightArray(elements, directory.directory());
+        WeightArray weightArray = (WeightArray) groups.getWeightArray(elements, directory.directory());
         if (weightArray == null) {
             weightArray = WeightArray.computeWeightArray(groups, elements, directory, length);
         }

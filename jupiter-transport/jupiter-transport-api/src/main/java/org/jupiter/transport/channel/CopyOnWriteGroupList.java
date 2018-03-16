@@ -50,19 +50,19 @@ public class CopyOnWriteGroupList {
         setArray(EMPTY_ARRAY);
     }
 
-    public final JChannelGroup[] snapshot() {
+    public final JChannelGroup[] getSnapshot() {
         return getArray();
     }
 
     @SuppressWarnings("unchecked")
-    public final Object weightArray(JChannelGroup[] snapshot, String directory) {
+    public final Object getWeightArray(JChannelGroup[] snapshot, String directory) {
         Object[] array = data; // data snapshot
         return array[0] != snapshot
                 ? null
                 : (array[1] == null ? null : ((Map<String, Object>) (array[1])).get(directory));
     }
 
-    public final boolean setWeightInfo(JChannelGroup[] snapshot, String directory, Object weightArray) {
+    public final boolean setWeightArray(JChannelGroup[] snapshot, String directory, Object weightArray) {
         if (weightArray == null || snapshot != getArray()) {
             return false;
         }

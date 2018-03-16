@@ -150,7 +150,7 @@ abstract class AbstractDispatcher implements Dispatcher {
             }
         }
 
-        JChannelGroup[] snapshot = groups.snapshot();
+        JChannelGroup[] snapshot = groups.getSnapshot();
         for (JChannelGroup g : snapshot) {
             if (g.isAvailable()) {
                 return g.next();
@@ -163,7 +163,7 @@ abstract class AbstractDispatcher implements Dispatcher {
     protected JChannelGroup[] groups(ServiceMetadata metadata) {
         return client.connector()
                 .directory(metadata)
-                .snapshot();
+                .getSnapshot();
     }
 
     @SuppressWarnings("all")

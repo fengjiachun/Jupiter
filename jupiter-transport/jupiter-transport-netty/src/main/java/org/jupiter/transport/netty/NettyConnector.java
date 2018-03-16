@@ -164,7 +164,7 @@ public abstract class NettyConnector implements JConnector<JConnection> {
     @Override
     public boolean isDirectoryAvailable(Directory directory) {
         CopyOnWriteGroupList groups = directory(directory);
-        JChannelGroup[] snapshot = groups.snapshot();
+        JChannelGroup[] snapshot = groups.getSnapshot();
         for (JChannelGroup g : snapshot) {
             if (g.isAvailable()) {
                 return true;
