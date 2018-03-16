@@ -66,7 +66,7 @@ public class CopyOnWriteGroupList {
         JChannelGroup[] elements = getArray();
         if (elements == snapshot) {
             final ReentrantLock lock = this.lock;
-            boolean locked = lock.tryLock();
+            boolean locked = lock.tryLock(); // give up if there is competition
             if (locked) {
                 try {
                     setArray(elements, directory, weightArray);
