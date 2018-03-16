@@ -138,7 +138,7 @@ public abstract class NettyConnector implements JConnector<JConnection> {
         boolean added = groups.addIfAbsent(group);
         if (added) {
             if (logger.isInfoEnabled()) {
-                logger.info("Added channel group: {} to {}.", group, directory.directory());
+                logger.info("Added channel group: {} to {}.", group, directory.directoryString());
             }
         }
         return added;
@@ -150,7 +150,7 @@ public abstract class NettyConnector implements JConnector<JConnection> {
         boolean removed = groups.remove(group);
         if (removed) {
             if (logger.isWarnEnabled()) {
-                logger.warn("Removed channel group: {} in directory: {}.", group, directory.directory());
+                logger.warn("Removed channel group: {} in directory: {}.", group, directory.directoryString());
             }
         }
         return removed;

@@ -139,7 +139,7 @@ abstract class AbstractDispatcher implements Dispatcher {
                 if (removed) {
                     if (logger.isWarnEnabled()) {
                         logger.warn("Removed channel group: {} in directory: {} on [select].",
-                                group, metadata.directory());
+                                group, metadata.directoryString());
                     }
                 }
             }

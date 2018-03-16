@@ -39,7 +39,7 @@ public abstract class Directory {
     /** 服务版本号 */
     public abstract String getVersion();
 
-    public String directory() {
+    public String directoryString() {
         if (directoryCache != null) {
             return directoryCache;
         }

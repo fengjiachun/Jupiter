@@ -83,7 +83,7 @@ public class RoundRobinLoadBalancer implements LoadBalancer {
             return elements[0];
         }
 
-        WeightArray weightArray = (WeightArray) groups.getWeightArray(elements, directory.directory());
+        WeightArray weightArray = (WeightArray) groups.getWeightArray(elements, directory.directoryString());
         if (weightArray == null) {
             weightArray = WeightArray.computeWeightArray(groups, elements, directory, length);
         }

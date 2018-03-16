@@ -236,7 +236,7 @@ public class NettyChannelGroup implements JChannelGroup {
     public int getWeight(Directory directory) {
         checkNotNull(directory, "directory");
 
-        Integer weight = weights.get(directory.directory());
+        Integer weight = weights.get(directory.directoryString());
         return weight == null ? JConstants.DEFAULT_WEIGHT : weight;
     }
 
@@ -248,14 +248,14 @@ public class NettyChannelGroup implements JChannelGroup {
             // the default value does not need to be stored
             return;
         }
-        weights.put(directory.directory(), weight > JConstants.MAX_WEIGHT ? JConstants.MAX_WEIGHT : weight);
+        weights.put(directory.directoryString(), weight > JConstants.MAX_WEIGHT ? JConstants.MAX_WEIGHT : weight);
     }
 
     @Override
     public void removeWeight(Directory directory) {
         checkNotNull(directory, "directory");
 
-        weights.remove(directory.directory());
+        weights.remove(directory.directoryString());
     }
 
     @Override

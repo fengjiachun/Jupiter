@@ -126,12 +126,12 @@ public class DefaultServer implements JServer {
 
     @Override
     public ServiceWrapper lookupService(Directory directory) {
-        return providerContainer.lookupService(directory.directory());
+        return providerContainer.lookupService(directory.directoryString());
     }
 
     @Override
     public ServiceWrapper removeService(Directory directory) {
-        return providerContainer.removeService(directory.directory());
+        return providerContainer.removeService(directory.directoryString());
     }
 
     @Override
@@ -264,7 +264,7 @@ public class DefaultServer implements JServer {
         wrapper.setExecutor(executor);
         wrapper.setFlowController(flowController);
 
-        providerContainer.registerService(wrapper.getMetadata().directory(), wrapper);
+        providerContainer.registerService(wrapper.getMetadata().directoryString(), wrapper);
 
         return wrapper;
     }
