@@ -45,7 +45,7 @@ public abstract class NettyAcceptor implements JAcceptor {
     protected final Protocol protocol;
     protected final SocketAddress localAddress;
 
-    protected final HashedWheelTimer timer = new HashedWheelTimer(new NamedThreadFactory("acceptor.timer"));
+    protected final HashedWheelTimer timer = new HashedWheelTimer(new NamedThreadFactory("acceptor.timer", true));
 
     private final int nBosses;
     private final int nWorkers;
