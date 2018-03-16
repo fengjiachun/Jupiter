@@ -83,19 +83,14 @@ public class RoundRobinLoadBalancer implements LoadBalancer {
             return elements[0];
         }
 
-        WeightArray weightsSnapshot = (WeightArray) groups.weightArray(elements, directory);
-
-        if (weightsSnapshot == null) {
-            weightsSnapshot = WeightUtil.allocWeightArray(length);
-
-            if (WeightUtil.computeWeights(weightsSnapshot, length, elements, directory)) {
-                groups.setWeightInfo(elements, directory, weightsSnapshot);
-            }
+        WeightArray weightArray = (WeightArray) groups.weightArray(elements, directory);
+        if (weightArray == null) {
+            weightArray = WeightUtil.computeWeightArray(groups, elements, directory, length);
         }
 
         int index = sequence.next() & Integer.MAX_VALUE;
 
-        if (weightsSnapshot.isAllSameWeight()) {
+        if (weightArray.isAllSameWeight()) {
             return elements[index % length];
         }
 
@@ -104,9 +99,9 @@ public class RoundRobinLoadBalancer implements LoadBalancer {
         // 当前实现不会先去计算最大公约数再轮询, 通常最大权重和最小权重值不会相差过于悬殊,
         // 因此我觉得没有必要先去求最大公约数, 很可能产生没有必要的开销.
 
-        int sumWeight = weightsSnapshot.get(length - 1);
+        int sumWeight = weightArray.get(length - 1);
         int eVal = index % sumWeight;
-        int eIndex = WeightUtil.binarySearchIndex(weightsSnapshot, length, eVal);
+        int eIndex = WeightUtil.binarySearchIndex(weightArray, length, eVal);
 
         return elements[eIndex];
     }

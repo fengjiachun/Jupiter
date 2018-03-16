@@ -65,19 +65,14 @@ public class RandomLoadBalancer implements LoadBalancer {
             return elements[0];
         }
 
-        WeightArray weightsSnapshot = (WeightArray) groups.weightArray(elements, directory);
-
-        if (weightsSnapshot == null) {
-            weightsSnapshot = WeightUtil.allocWeightArray(length);
-
-            if (WeightUtil.computeWeights(weightsSnapshot, length, elements, directory)) {
-                groups.setWeightInfo(elements, directory, weightsSnapshot);
-            }
+        WeightArray weightArray = (WeightArray) groups.weightArray(elements, directory);
+        if (weightArray == null) {
+            weightArray = WeightUtil.computeWeightArray(groups, elements, directory, length);
         }
 
         ThreadLocalRandom random = ThreadLocalRandom.current();
 
-        if (weightsSnapshot.isAllSameWeight()) {
+        if (weightArray.isAllSameWeight()) {
             return elements[random.nextInt(length)];
         }
 
@@ -85,9 +80,9 @@ public class RandomLoadBalancer implements LoadBalancer {
         //
         // 如果权重不相同且总权重大于0, 则按总权重数随机
 
-        int sumWeight = weightsSnapshot.get(length - 1);
+        int sumWeight = weightArray.get(length - 1);
         int eVal = random.nextInt(sumWeight) % sumWeight;
-        int eIndex = WeightUtil.binarySearchIndex(weightsSnapshot, length, eVal);
+        int eIndex = WeightUtil.binarySearchIndex(weightArray, length, eVal);
 
         return elements[eIndex];
     }

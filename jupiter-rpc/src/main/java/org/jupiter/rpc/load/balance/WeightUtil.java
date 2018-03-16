@@ -18,6 +18,7 @@ package org.jupiter.rpc.load.balance;
 
 import org.jupiter.common.util.SystemClock;
 import org.jupiter.transport.Directory;
+import org.jupiter.transport.channel.CopyOnWriteGroupList;
 import org.jupiter.transport.channel.JChannelGroup;
 
 /**
@@ -36,27 +37,10 @@ final class WeightUtil {
         }
     };
 
-    static WeightArray allocWeightArray(int length) {
-        return weightsThreadLocal.get().refresh(length);
-    }
+    static WeightArray computeWeightArray(
+            CopyOnWriteGroupList groups, JChannelGroup[] elements, Directory directory, int length) {
 
-    // 计算权重, 包含预热逻辑
-    static int getWeight(JChannelGroup group, Directory directory) {
-        int weight = group.getWeight(directory);
-        int warmUp = group.getWarmUp();
-        int upTime = (int) (SystemClock.millisClock().now() - group.timestamp());
-
-        if (upTime > 0 && upTime < warmUp) {
-            // 对端服务预热中, 计算预热权重
-            weight = (int) (((float) upTime / warmUp) * weight);
-        }
-
-        return weight > 0 ? weight : 0;
-    }
-
-    static boolean computeWeights(
-            WeightArray weightArray, int length,
-            JChannelGroup[] elements, Directory directory) {
+        WeightArray weightArray = weightsThreadLocal.get().refresh(length);
 
         boolean allWarmUpComplete = true;
         boolean allSameWeight = true;
@@ -76,10 +60,25 @@ final class WeightUtil {
         if (allWarmUpComplete) {
             if (allSameWeight) {
                 weightArray.setAllSameWeight(true);
+                groups.setWeightInfo(elements, directory, weightArray);
             }
         }
 
-        return allWarmUpComplete;
+        return weightArray;
+    }
+
+    // 计算权重, 包含预热逻辑
+    private static int getWeight(JChannelGroup group, Directory directory) {
+        int weight = group.getWeight(directory);
+        int warmUp = group.getWarmUp();
+        int upTime = (int) (SystemClock.millisClock().now() - group.timestamp());
+
+        if (upTime > 0 && upTime < warmUp) {
+            // 对端服务预热中, 计算预热权重
+            weight = (int) (((float) upTime / warmUp) * weight);
+        }
+
+        return weight > 0 ? weight : 0;
     }
 
     static int binarySearchIndex(WeightArray weightArray, int length, int value) {
