@@ -16,9 +16,10 @@
 
 package org.jupiter.transport.channel;
 
-import org.jupiter.transport.Directory;
-
-import java.util.*;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.concurrent.locks.ReentrantLock;
 
 /**
@@ -41,7 +42,7 @@ public class CopyOnWriteGroupList {
     private final DirectoryJChannelGroup parent;
 
     // data[0]: JChannelGroup[]
-    // data[1]: Map<Directory, WeightArray>
+    // data[1]: Map<String(Directory), WeightArray>
     private volatile transient Object[] data;
 
     public CopyOnWriteGroupList(DirectoryJChannelGroup parent) {
@@ -54,28 +55,34 @@ public class CopyOnWriteGroupList {
     }
 
     @SuppressWarnings("unchecked")
-    public final Object weightArray(JChannelGroup[] snapshot, Directory directory) {
+    public final Object weightArray(JChannelGroup[] snapshot, String directory) {
         Object[] array = data; // data snapshot
         return array[0] != snapshot
                 ? null
-                : (array[1] == null ? null : ((Map<Directory, Object>) (array[1])).get(directory));
+                : (array[1] == null ? null : ((Map<String, Object>) (array[1])).get(directory));
     }
 
-    public final boolean setWeightInfo(
-            JChannelGroup[] snapshot, Directory directory, Object weightArray) {
-        JChannelGroup[] elements = getArray();
-        if (elements == snapshot) {
-            final ReentrantLock lock = this.lock;
-            boolean locked = lock.tryLock(); // give up if there is competition
-            if (locked) {
-                try {
-                    setArray(elements, directory, weightArray);
-                    return true;
-                } finally {
-                    lock.unlock();
+    public final boolean setWeightInfo(JChannelGroup[] snapshot, String directory, Object weightArray) {
+        if (weightArray == null || snapshot != getArray()) {
+            return false;
+        }
+
+        final ReentrantLock lock = this.lock;
+        boolean locked = lock.tryLock();
+        if (locked) { // give up if there is competition
+            try {
+                if (snapshot != getArray()) {
+                    return false;
                 }
+
+                setWeightArray(directory, weightArray);
+
+                return true;
+            } finally {
+                lock.unlock();
             }
         }
+
         return false;
     }
 
@@ -88,17 +95,15 @@ public class CopyOnWriteGroupList {
     }
 
     @SuppressWarnings("unchecked")
-    private void setArray(JChannelGroup[] a, Directory directory, Object weightArray) {
-        Map<Directory, Object> weightsMap = (Map<Directory, Object>) data[1];
-
-        if (weightArray != null) {
-            if (weightsMap == null) {
-                weightsMap = new HashMap<>();
-            }
-            weightsMap.put(directory, weightArray);
+    private void setWeightArray(String directory, Object weightArray) {
+        Map<String, Object> weightsMap = (Map<String, Object>) data[1];
+        if (weightsMap == null) {
+            weightsMap = new HashMap<>();
         }
 
-        data = new Object[] { a, weightsMap };
+        weightsMap.put(directory, weightArray);
+
+        data[1] = weightsMap;
     }
 
     public int size() {

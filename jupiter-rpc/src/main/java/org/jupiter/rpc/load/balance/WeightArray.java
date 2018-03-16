@@ -66,7 +66,7 @@ final class WeightArray {
         }
 
         if (allWarmUpComplete) {
-            groups.setWeightInfo(elements, directory, weightArray);
+            groups.setWeightInfo(elements, directory.directory(), weightArray);
         }
 
         if (allSameWeight) {

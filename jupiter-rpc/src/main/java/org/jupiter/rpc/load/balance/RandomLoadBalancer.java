@@ -65,7 +65,7 @@ public class RandomLoadBalancer implements LoadBalancer {
             return elements[0];
         }
 
-        WeightArray weightArray = (WeightArray) groups.weightArray(elements, directory);
+        WeightArray weightArray = (WeightArray) groups.weightArray(elements, directory.directory());
         if (weightArray == null) {
             weightArray = WeightArray.computeWeightArray(groups, elements, directory, length);
         }
