@@ -16,8 +16,9 @@
 
 package org.jupiter.transport.channel;
 
-import java.util.Arrays;
-import java.util.Collection;
+import org.jupiter.transport.Directory;
+
+import java.util.*;
 import java.util.concurrent.locks.ReentrantLock;
 
 /**
@@ -38,8 +39,8 @@ public class CopyOnWriteGroupList {
     private transient final ReentrantLock lock = new ReentrantLock();
 
     private final DirectoryJChannelGroup parent;
-    private volatile transient JChannelGroup[] array;
-    private transient boolean sameWeight; // 无volatile修饰, 通过array保证可见性
+    // 0: JChannelGroup[], 1: Map<Directory, WeightArray>
+    private volatile transient Object[] data;
 
     public CopyOnWriteGroupList(DirectoryJChannelGroup parent) {
         this.parent = parent;
@@ -50,28 +51,52 @@ public class CopyOnWriteGroupList {
         return getArray();
     }
 
-    public final boolean isSameWeight() {
-        // first read volatile
-        return getArray().length == 0 || sameWeight;
+    @SuppressWarnings("unchecked")
+    public final Object weightArray(JChannelGroup[] snapshot, Directory directory) {
+        Object[] array = data; // data snapshot
+        return array[0] != snapshot
+                ? null
+                : (array[1] == null ? null : ((Map<Directory, Object>) (array[1])).get(directory));
     }
 
-    public final void setSameWeight(boolean sameWeight) {
+    public final boolean setWeightInfo(
+            JChannelGroup[] snapshot, Directory directory, Object weightArray) {
         JChannelGroup[] elements = getArray();
-        setArray(elements, sameWeight); // ensures volatile write semantics
+        if (elements == snapshot) {
+            final ReentrantLock lock = this.lock;
+            boolean locked = lock.tryLock();
+            if (locked) {
+                try {
+                    setArray(elements, directory, weightArray);
+                    return true;
+                } finally {
+                    lock.unlock();
+                }
+            }
+        }
+        return false;
     }
 
-    final JChannelGroup[] getArray() {
-        return array;
+    private JChannelGroup[] getArray() {
+        return (JChannelGroup[]) data[0];
     }
 
-    final void setArray(JChannelGroup[] a) {
-        sameWeight = false;
-        array = a;
+    private void setArray(JChannelGroup[] a) {
+        data = new Object[] { a, null, null };
     }
 
-    final void setArray(JChannelGroup[] a, boolean sameWeight) {
-        this.sameWeight = sameWeight;
-        array = a;
+    @SuppressWarnings("unchecked")
+    private void setArray(JChannelGroup[] a, Directory directory, Object weightArray) {
+        Map<Directory, Object> weightsMap = (Map<Directory, Object>) data[1];
+
+        if (weightArray != null) {
+            if (weightsMap == null) {
+                weightsMap = new HashMap<>();
+            }
+            weightsMap.put(directory, weightArray);
+        }
+
+        data = new Object[] { a, weightsMap };
     }
 
     public int size() {

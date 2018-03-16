@@ -110,7 +110,7 @@ public class ChannelGroup implements JChannelGroup {
 
     @Override
     public int getWeight(Directory directory) {
-        return 0;
+        return weight;
     }
 
     @Override

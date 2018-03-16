@@ -51,10 +51,9 @@ public class RoundRobinLoadBalancerTest {
         for (int i = 0; i < len; i++) {
             ChannelGroup c = new ChannelGroup();
             c.index = i;
-            c.weight = 1;
+            c.weight = (i == 15 ? 6 : 1);
             groupList.addIfAbsent(c);
         }
-        groupList.get(15).putWeight(directory, 3);
 
         LoadBalancer lb = new RoundRobinLoadBalancer();
         len += 2;

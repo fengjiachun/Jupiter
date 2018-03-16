@@ -28,6 +28,9 @@ package org.jupiter.rpc.load.balance;
  */
 final class WeightArray {
 
+    private static final int[] EMPTY_ARRAY = new int[0];
+
+    private boolean allSameWeight = false;
     private int[] array = new int[64];
 
     int get(int index) {
@@ -36,6 +39,17 @@ final class WeightArray {
 
     void set(int index, int value) {
         array[index] = value;
+    }
+
+    public boolean isAllSameWeight() {
+        return allSameWeight;
+    }
+
+    void setAllSameWeight(boolean allSameWeight) {
+        this.allSameWeight = allSameWeight;
+        if (allSameWeight) {
+            array = EMPTY_ARRAY;
+        }
     }
 
     WeightArray refresh(int capacity) {

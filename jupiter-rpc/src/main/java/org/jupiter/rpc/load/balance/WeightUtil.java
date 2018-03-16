@@ -26,7 +26,7 @@ import org.jupiter.transport.channel.JChannelGroup;
  *
  * @author jiachun.fjc
  */
-public abstract class AbstractLoadBalancer implements LoadBalancer {
+final class WeightUtil {
 
     private static final ThreadLocal<WeightArray> weightsThreadLocal = new ThreadLocal<WeightArray>() {
 
@@ -36,12 +36,12 @@ public abstract class AbstractLoadBalancer implements LoadBalancer {
         }
     };
 
-    protected WeightArray weightArray(int length) {
+    static WeightArray allocWeightArray(int length) {
         return weightsThreadLocal.get().refresh(length);
     }
 
     // 计算权重, 包含预热逻辑
-    protected int getWeight(JChannelGroup group, Directory directory) {
+    static int getWeight(JChannelGroup group, Directory directory) {
         int weight = group.getWeight(directory);
         int warmUp = group.getWarmUp();
         int upTime = (int) (SystemClock.millisClock().now() - group.timestamp());
@@ -52,5 +52,53 @@ public abstract class AbstractLoadBalancer implements LoadBalancer {
         }
 
         return weight > 0 ? weight : 0;
+    }
+
+    static boolean computeWeights(
+            WeightArray weightArray, int length,
+            JChannelGroup[] elements, Directory directory) {
+
+        boolean allWarmUpComplete = true;
+        boolean allSameWeight = true;
+        for (int i = 0; i < length; i++) {
+            allWarmUpComplete = (allWarmUpComplete && elements[i].isWarmUpComplete());
+
+            int preVal = 0;
+            int curVal = getWeight(elements[i], directory);
+            if (i > 0) {
+                preVal = weightArray.get(i - 1);
+                allSameWeight = allSameWeight && preVal == curVal;
+            }
+
+            weightArray.set(i, preVal + curVal);
+        }
+
+        if (allWarmUpComplete) {
+            if (allSameWeight) {
+                weightArray.setAllSameWeight(true);
+            }
+        }
+
+        return allWarmUpComplete;
+    }
+
+    static int binarySearchIndex(WeightArray weightArray, int length, int value) {
+        int low = 0;
+        int high = length - 1;
+
+        while (low <= high) {
+            int mid = (low + high) >>> 1;
+            long midVal = weightArray.get(mid);
+
+            if (midVal < value) {
+                low = mid + 1;
+            } else if (midVal > value) {
+                high = mid - 1;
+            } else {
+                return mid;
+            }
+        }
+
+        return low;
     }
 }
