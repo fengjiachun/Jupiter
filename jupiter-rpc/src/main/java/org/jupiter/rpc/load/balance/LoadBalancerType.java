@@ -36,6 +36,6 @@ public enum LoadBalancerType {
     }
 
     public static LoadBalancerType getDefault() {
-        return RANDOM;
+        return ROUND_ROBIN;
     }
 }

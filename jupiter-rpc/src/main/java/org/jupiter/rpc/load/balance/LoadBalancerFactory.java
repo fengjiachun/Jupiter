@@ -33,8 +33,8 @@ public final class LoadBalancerFactory {
             return RoundRobinLoadBalancer.instance();
         }
 
-        // 如果不指定, 默认的负载均衡算法是加权随机
-        return RandomLoadBalancer.instance();
+        // 如果不指定, 默认的负载均衡算法是加权轮询
+        return RoundRobinLoadBalancer.instance();
     }
 
     private LoadBalancerFactory() {}

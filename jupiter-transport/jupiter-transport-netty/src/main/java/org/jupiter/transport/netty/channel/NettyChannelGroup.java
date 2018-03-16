@@ -50,12 +50,12 @@ public class NettyChannelGroup implements JChannelGroup {
     private static long LOSS_INTERVAL = SystemPropertyUtil
             .getLong("jupiter.io.channel.group.loss.interval.millis", TimeUnit.MINUTES.toMillis(5));
 
+    private static int DEFAULT_SEQUENCE_STEP = (JConstants.AVAILABLE_PROCESSORS << 3) + 1;
+
     private static final AtomicReferenceFieldUpdater<CopyOnWriteArrayList, Object[]> channelsUpdater =
             AtomicUpdater.newAtomicReferenceFieldUpdater(CopyOnWriteArrayList.class, Object[].class, "array");
     private static final AtomicIntegerFieldUpdater<NettyChannelGroup> signalNeededUpdater =
             AtomicIntegerFieldUpdater.newUpdater(NettyChannelGroup.class, "signalNeeded");
-    private static final AtomicIntegerFieldUpdater<NettyChannelGroup> indexUpdater =
-            AtomicIntegerFieldUpdater.newUpdater(NettyChannelGroup.class, "index");
 
     private static final ThreadLocal<SimpleDateFormat> dateFormatThreadLocal = new ThreadLocal<SimpleDateFormat>() {
 
@@ -80,6 +80,8 @@ public class NettyChannelGroup implements JChannelGroup {
         }
     };
 
+    private final IntSequence sequence = new IntSequence(DEFAULT_SEQUENCE_STEP);
+
     private final ConcurrentMap<String, Integer> weights = Maps.newConcurrentMap();
 
     private final ReentrantLock lock = new ReentrantLock();
@@ -90,8 +92,6 @@ public class NettyChannelGroup implements JChannelGroup {
 
     private volatile boolean connecting = false;
 
-    @SuppressWarnings("unused")
-    private volatile int index = 0;
     private volatile int capacity = Integer.MAX_VALUE;
     private volatile int warmUp = JConstants.DEFAULT_WARM_UP; // warm-up time
     private volatile long timestamp = SystemClock.millisClock().now();
@@ -122,7 +122,7 @@ public class NettyChannelGroup implements JChannelGroup {
                 return (JChannel) elements[0];
             }
 
-            int index = indexUpdater.getAndIncrement(this) & Integer.MAX_VALUE;
+            int index = sequence.next() & Integer.MAX_VALUE;
 
             return (JChannel) elements[index % length];
         }

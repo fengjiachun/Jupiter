@@ -2,6 +2,7 @@ Jupiter release notes
 ------------------------
 ### 2018-03-13: version 1.2.18
 
+- 优化[NettyChannelGroup](/jupiter-transport/jupiter-transport-netty/src/main/java/org/jupiter/transport/netty/channel/NettyChannelGroup.java)中的index
 - 移除对netty ByteBufAllocator 的配置依赖, 应直接使用netty的配置方式
 - 优化String encode/decode[UnsafeUtf8Util](/jupiter-common/src/main/java/org/jupiter/common/util/internal/UnsafeUtf8Util.java)
 - 优化[SystemClock](/jupiter-common/src/main/java/org/jupiter/common/util/SystemClock.java)
@@ -17,7 +18,7 @@ Jupiter release notes
 - Enhancement: [日志信息缺少关键的错误地址信息](https://github.com/fengjiachun/Jupiter/issues/54)
 - Update [protostuff](https://github.com/protostuff/protostuff) version: 1.5.2 --> 1.6.0
 - [Spring环境中开放JOption参数配置](https://github.com/fengjiachun/Jupiter/issues/50)
-- Add [Sequence 序号生成器](/jupiter-common/src/main/java/org/jupiter/common/util/Sequence.java)
+- Add [LongSequence 序号生成器](/jupiter-common/src/main/java/org/jupiter/common/util/LongSequence.java)
 - Bug fix: ProviderInterceptor 参数 {Object result, Throwable failCause} 始终为null
 - Bug fix: Spring schema 数组属性注入失败
 - Add JupiterSpringClient#ConsumerInterceptor[] consumer端全局拦截器

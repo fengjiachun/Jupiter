@@ -16,7 +16,7 @@
 
 package org.jupiter.transport.payload;
 
-import org.jupiter.common.util.Sequence;
+import org.jupiter.common.util.LongSequence;
 
 /**
  * 请求的消息体bytes/stream载体, 避免在IO线程中序列化/反序列化, jupiter-transport这一层不关注消息体的对象结构.
@@ -35,7 +35,7 @@ public class JRequestPayload extends PayloadHolder {
     // 才有溢出的可能, 比如一个100万qps的系统把 <0 ~ Long.MAX_VALUE> 范围内的id都使用完大概需要29万年.
     //
     // 未来jupiter可能将invokeId限制在48位, 留出高地址的16位作为扩展字段.
-    private static final Sequence sequence = new Sequence();
+    private static final LongSequence sequence = new LongSequence();
 
     // 用于映射 <id, request, response> 三元组
     private final long invokeId;
