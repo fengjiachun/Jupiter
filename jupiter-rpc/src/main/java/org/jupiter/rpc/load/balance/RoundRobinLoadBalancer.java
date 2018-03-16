@@ -16,11 +16,10 @@
 
 package org.jupiter.rpc.load.balance;
 
+import org.jupiter.common.util.IntSequence;
 import org.jupiter.transport.Directory;
 import org.jupiter.transport.channel.CopyOnWriteGroupList;
 import org.jupiter.transport.channel.JChannelGroup;
-
-import java.util.concurrent.atomic.AtomicIntegerFieldUpdater;
 
 /**
  * 加权轮询负载均衡.
@@ -64,14 +63,10 @@ import java.util.concurrent.atomic.AtomicIntegerFieldUpdater;
  */
 public class RoundRobinLoadBalancer extends AbstractLoadBalancer {
 
-    private static final AtomicIntegerFieldUpdater<RoundRobinLoadBalancer> indexUpdater =
-            AtomicIntegerFieldUpdater.newUpdater(RoundRobinLoadBalancer.class, "index");
-
-    @SuppressWarnings("unused")
-    private volatile int index = 0;
+    private final IntSequence sequence = new IntSequence();
 
     public static RoundRobinLoadBalancer instance() {
-        // round-robin是有状态(index)的, 不能是单例
+        // round-robin是有状态的, 不能是单例
         return new RoundRobinLoadBalancer();
     }
 
@@ -88,7 +83,7 @@ public class RoundRobinLoadBalancer extends AbstractLoadBalancer {
             return elements[0];
         }
 
-        int index = indexUpdater.getAndIncrement(this) & Integer.MAX_VALUE;
+        int index = sequence.next() & Integer.MAX_VALUE;
 
         if (groups.isSameWeight()) {
             // 对于大多数场景, 在预热都完成后, 很可能权重都是相同的, 那么加权轮询算法将是没有必要的开销,
