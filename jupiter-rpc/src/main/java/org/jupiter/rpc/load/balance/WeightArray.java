@@ -30,8 +30,6 @@ import org.jupiter.transport.channel.JChannelGroup;
  */
 final class WeightArray {
 
-    private static final int[] EMPTY_ARRAY = new int[0];
-
     private int[] array;
 
     WeightArray(int length) {
@@ -43,7 +41,7 @@ final class WeightArray {
     }
 
     boolean isAllSameWeight() {
-        return array == EMPTY_ARRAY;
+        return array == null;
     }
 
     static WeightArray computeWeightArray(
@@ -67,7 +65,7 @@ final class WeightArray {
 
         if (allWarmUpComplete) {
             if (allSameWeight) {
-                weightArray.array = EMPTY_ARRAY;
+                weightArray.array = null;
             }
             groups.setWeightArray(elements, directory.directoryString(), weightArray);
         }
