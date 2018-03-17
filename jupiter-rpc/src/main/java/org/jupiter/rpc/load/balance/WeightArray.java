@@ -60,6 +60,7 @@ final class WeightArray {
                 allSameWeight = allSameWeight && preVal == curVal;
             }
 
+            // [value = preVal + curVal] is for binary search
             weightArray.array[i] = preVal + curVal;
         }
 
