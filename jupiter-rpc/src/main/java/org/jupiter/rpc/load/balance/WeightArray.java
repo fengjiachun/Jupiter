@@ -66,11 +66,10 @@ final class WeightArray {
         }
 
         if (allWarmUpComplete) {
+            if (allSameWeight) {
+                weightArray.array = EMPTY_ARRAY;
+            }
             groups.setWeightArray(elements, directory.directoryString(), weightArray);
-        }
-
-        if (allSameWeight) {
-            weightArray.array = EMPTY_ARRAY;
         }
 
         return weightArray;
