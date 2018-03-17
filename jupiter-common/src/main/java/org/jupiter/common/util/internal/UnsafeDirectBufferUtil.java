@@ -23,7 +23,6 @@ import java.lang.reflect.Method;
 import java.nio.ByteOrder;
 
 import static org.jupiter.common.util.StackTraceUtil.stackTrace;
-import static org.jupiter.common.util.internal.UnsafeUtil.getSystemClassLoader;
 
 /**
  * jupiter
@@ -55,7 +54,7 @@ public final class UnsafeDirectBufferUtil {
     static {
         boolean _unaligned;
         try {
-            Class<?> bitsClass = Class.forName("java.nio.Bits", false, getSystemClassLoader());
+            Class<?> bitsClass = Class.forName("java.nio.Bits", false, UnsafeUtil.getSystemClassLoader());
             Method unalignedMethod = bitsClass.getDeclaredMethod("unaligned");
             unalignedMethod.setAccessible(true);
             _unaligned = (boolean) unalignedMethod.invoke(null);
