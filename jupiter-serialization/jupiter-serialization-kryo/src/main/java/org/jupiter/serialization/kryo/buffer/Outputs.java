@@ -16,7 +16,6 @@
 
 package org.jupiter.serialization.kryo.buffer;
 
-import com.esotericsoftware.kryo.io.FastOutput;
 import com.esotericsoftware.kryo.io.Output;
 import org.jupiter.common.util.internal.InternalThreadLocal;
 import org.jupiter.serialization.OutputBuf;
@@ -37,12 +36,14 @@ public final class Outputs {
 
         @Override
         protected Output initialValue() {
-            return new FastOutput(DEFAULT_BUF_SIZE, -1);
+            return new Output(DEFAULT_BUF_SIZE, -1);
         }
     };
 
     public static Output getOutput(OutputBuf outputBuf) {
-        return new NioBufOutput(outputBuf, -1);
+        NioBufOutput output = new NioBufOutput(outputBuf, -1);
+        output.setVarIntsEnabled(false);
+        return output;
     }
 
     public static Output getOutput() {
