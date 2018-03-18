@@ -23,7 +23,7 @@ import org.jupiter.rpc.consumer.future.DefaultInvokeFuture;
 import org.jupiter.rpc.consumer.future.InvokeFuture;
 import org.jupiter.rpc.load.balance.LoadBalancer;
 import org.jupiter.rpc.model.metadata.MessageWrapper;
-import org.jupiter.serialization.OutputBuf;
+import org.jupiter.serialization.io.OutputBuf;
 import org.jupiter.serialization.Serializer;
 import org.jupiter.serialization.SerializerType;
 import org.jupiter.transport.CodecConfig;

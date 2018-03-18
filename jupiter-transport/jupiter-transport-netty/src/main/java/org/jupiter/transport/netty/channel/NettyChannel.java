@@ -24,7 +24,7 @@ import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelFutureListener;
 import io.netty.util.Attribute;
 import io.netty.util.AttributeKey;
-import org.jupiter.serialization.OutputBuf;
+import org.jupiter.serialization.io.OutputBuf;
 import org.jupiter.transport.JProtocolHeader;
 import org.jupiter.transport.channel.JChannel;
 import org.jupiter.transport.channel.JFutureListener;

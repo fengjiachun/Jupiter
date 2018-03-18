@@ -19,7 +19,7 @@ package org.jupiter.serialization.proto.io;
 import io.protostuff.ByteArrayInput;
 import io.protostuff.Input;
 import io.protostuff.ProtobufException;
-import org.jupiter.serialization.InputBuf;
+import org.jupiter.serialization.io.InputBuf;
 
 /**
  * jupiter

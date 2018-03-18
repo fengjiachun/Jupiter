@@ -23,7 +23,7 @@ import io.netty.handler.codec.ReplayingDecoder;
 import org.jupiter.common.util.Signal;
 import org.jupiter.common.util.SystemClock;
 import org.jupiter.common.util.SystemPropertyUtil;
-import org.jupiter.serialization.InputBuf;
+import org.jupiter.serialization.io.InputBuf;
 import org.jupiter.transport.JProtocolHeader;
 import org.jupiter.transport.exception.IoSignals;
 import org.jupiter.transport.payload.JRequestPayload;

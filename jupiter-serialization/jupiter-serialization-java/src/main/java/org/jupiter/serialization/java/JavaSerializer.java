@@ -17,17 +17,18 @@
 package org.jupiter.serialization.java;
 
 import org.jupiter.common.util.ExceptionUtil;
-import org.jupiter.serialization.InputBuf;
-import org.jupiter.serialization.OutputBuf;
+import org.jupiter.serialization.io.InputBuf;
+import org.jupiter.serialization.io.OutputBuf;
 import org.jupiter.serialization.Serializer;
 import org.jupiter.serialization.SerializerType;
+import org.jupiter.serialization.io.OutputStreams;
 import org.jupiter.serialization.java.io.Inputs;
 import org.jupiter.serialization.java.io.Outputs;
 
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
-import java.io.OutputStream;
 
 /**
  * Java自身的序列化/反序列化实现.
@@ -66,13 +67,13 @@ public class JavaSerializer extends Serializer {
 
     @Override
     public <T> byte[] writeObject(T obj) {
-        OutputStream buf = Outputs.getOutputStream();
+        ByteArrayOutputStream buf = OutputStreams.getByteArrayOutputStream();
         ObjectOutputStream output = null;
         try {
             output = Outputs.getOutput(buf);
             output.writeObject(obj);
             output.flush();
-            return Outputs.toByteArray(buf);
+            return buf.toByteArray();
         } catch (IOException e) {
             ExceptionUtil.throwException(e);
         } finally {
@@ -82,7 +83,7 @@ public class JavaSerializer extends Serializer {
                 } catch (IOException ignored) {}
             }
 
-            Outputs.resetBuf(buf);
+            OutputStreams.resetBuf(buf);
         }
         return null; // never get here
     }

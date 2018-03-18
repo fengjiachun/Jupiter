@@ -22,7 +22,7 @@ import org.jupiter.rpc.JResponse;
 import org.jupiter.rpc.consumer.future.DefaultInvokeFuture;
 import org.jupiter.rpc.exception.JupiterSerializationException;
 import org.jupiter.rpc.model.metadata.ResultWrapper;
-import org.jupiter.serialization.InputBuf;
+import org.jupiter.serialization.io.InputBuf;
 import org.jupiter.serialization.Serializer;
 import org.jupiter.serialization.SerializerFactory;
 import org.jupiter.transport.CodecConfig;

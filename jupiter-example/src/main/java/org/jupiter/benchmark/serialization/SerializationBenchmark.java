@@ -4,6 +4,8 @@ import io.netty.buffer.*;
 import io.netty.util.internal.PlatformDependent;
 import org.jupiter.common.util.Lists;
 import org.jupiter.serialization.*;
+import org.jupiter.serialization.io.InputBuf;
+import org.jupiter.serialization.io.OutputBuf;
 import org.jupiter.transport.netty.alloc.AdaptiveOutputBufAllocator;
 import org.openjdk.jmh.annotations.*;
 import org.openjdk.jmh.runner.Runner;

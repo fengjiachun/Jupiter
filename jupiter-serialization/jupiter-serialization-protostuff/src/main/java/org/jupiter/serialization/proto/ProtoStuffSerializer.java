@@ -22,8 +22,13 @@ import io.protostuff.Output;
 import io.protostuff.Schema;
 import io.protostuff.runtime.RuntimeSchema;
 import org.jupiter.common.util.SystemPropertyUtil;
-import org.jupiter.serialization.*;
+import org.jupiter.serialization.SerializeException;
+import org.jupiter.serialization.Serializer;
+import org.jupiter.serialization.SerializerType;
+import org.jupiter.serialization.io.InputBuf;
+import org.jupiter.serialization.io.OutputBuf;
 import org.jupiter.serialization.proto.io.Inputs;
+import org.jupiter.serialization.proto.io.LinkedBuffers;
 import org.jupiter.serialization.proto.io.Outputs;
 
 import java.io.IOException;
@@ -89,7 +94,7 @@ public class ProtoStuffSerializer extends Serializer {
     public <T> byte[] writeObject(T obj) {
         Schema<T> schema = RuntimeSchema.getSchema((Class<T>) obj.getClass());
 
-        LinkedBuffer buf = Outputs.getLinkedBuffer();
+        LinkedBuffer buf = LinkedBuffers.getLinkedBuffer();
         Output output = Outputs.getOutput(buf);
         try {
             schema.writeTo(output, obj);
@@ -97,7 +102,7 @@ public class ProtoStuffSerializer extends Serializer {
         } catch (IOException e) {
             throw SerializeException.invalidWriting(e);
         } finally {
-            buf.clear(); // for reuse
+            LinkedBuffers.resetBuf(buf); // for reuse
         }
     }
 

@@ -16,8 +16,8 @@
 
 package org.jupiter.transport.payload;
 
-import org.jupiter.serialization.InputBuf;
-import org.jupiter.serialization.OutputBuf;
+import org.jupiter.serialization.io.InputBuf;
+import org.jupiter.serialization.io.OutputBuf;
 
 /**
  * 消息体bytes/stream载体, 避免在IO线程中序列化/反序列化, jupiter-transport这一层不关注消息体的对象结构.

@@ -17,7 +17,7 @@
 package org.jupiter.serialization.hessian.io;
 
 import com.caucho.hessian.io.Hessian2Input;
-import org.jupiter.serialization.InputBuf;
+import org.jupiter.serialization.io.InputBuf;
 
 import java.io.ByteArrayInputStream;
 

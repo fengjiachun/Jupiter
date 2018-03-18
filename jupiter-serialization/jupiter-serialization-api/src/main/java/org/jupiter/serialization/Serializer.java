@@ -16,6 +16,9 @@
 
 package org.jupiter.serialization;
 
+import org.jupiter.serialization.io.InputBuf;
+import org.jupiter.serialization.io.OutputBuf;
+
 /**
  * This interface provides an abstract view for one or more serializer impl.
  *

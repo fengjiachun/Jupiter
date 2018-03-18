@@ -17,10 +17,9 @@
 package org.jupiter.serialization.proto.io;
 
 import io.protostuff.LinkedBuffer;
-import io.protostuff.Output;
-import io.protostuff.ProtostuffOutput;
-import io.protostuff.WriteSession;
-import org.jupiter.serialization.io.OutputBuf;
+import org.jupiter.common.util.internal.InternalThreadLocal;
+
+import static org.jupiter.serialization.Serializer.DEFAULT_BUF_SIZE;
 
 /**
  * jupiter
@@ -28,25 +27,22 @@ import org.jupiter.serialization.io.OutputBuf;
  *
  * @author jiachun.fjc
  */
-public class Outputs {
+public class LinkedBuffers {
 
-    public static Output getOutput(OutputBuf outputBuf) {
-        if (outputBuf.hasMemoryAddress()) {
-            return new UnsafeNioBufOutput(outputBuf, -1);
+    // 复用 LinkedBuffer 中链表头结点 byte[]
+    private static final InternalThreadLocal<LinkedBuffer> bufThreadLocal = new InternalThreadLocal<LinkedBuffer>() {
+
+        @Override
+        protected LinkedBuffer initialValue() {
+            return LinkedBuffer.allocate(DEFAULT_BUF_SIZE);
         }
-        return new NioBufOutput(outputBuf, -1);
+    };
+
+    public static LinkedBuffer getLinkedBuffer() {
+        return bufThreadLocal.get();
     }
 
-    public static Output getOutput(LinkedBuffer buf) {
-        return new ProtostuffOutput(buf);
+    public static void resetBuf(LinkedBuffer buf) {
+        buf.clear();
     }
-
-    public static byte[] toByteArray(Output output) {
-        if (output instanceof WriteSession) {
-            return ((WriteSession) output).toByteArray();
-        }
-        throw new UnsupportedOperationException();
-    }
-
-    private Outputs() {}
 }

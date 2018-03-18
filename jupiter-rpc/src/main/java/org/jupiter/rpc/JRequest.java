@@ -18,7 +18,7 @@ package org.jupiter.rpc;
 
 import org.jupiter.rpc.model.metadata.MessageWrapper;
 import org.jupiter.rpc.tracing.TracingUtil;
-import org.jupiter.serialization.OutputBuf;
+import org.jupiter.serialization.io.OutputBuf;
 import org.jupiter.transport.payload.JRequestPayload;
 
 import java.util.Collections;

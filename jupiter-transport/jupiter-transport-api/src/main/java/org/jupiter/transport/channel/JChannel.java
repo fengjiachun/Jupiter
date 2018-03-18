@@ -16,7 +16,7 @@
 
 package org.jupiter.transport.channel;
 
-import org.jupiter.serialization.OutputBuf;
+import org.jupiter.serialization.io.OutputBuf;
 
 import java.net.SocketAddress;
 

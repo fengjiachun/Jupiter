@@ -19,7 +19,7 @@ package org.jupiter.serialization.kryo.io;
 import com.esotericsoftware.kryo.io.ByteBufferInput;
 import com.esotericsoftware.kryo.io.FastInput;
 import com.esotericsoftware.kryo.io.Input;
-import org.jupiter.serialization.InputBuf;
+import org.jupiter.serialization.io.InputBuf;
 
 import java.nio.ByteBuffer;
 

@@ -17,16 +17,9 @@
 package org.jupiter.serialization.hessian.io;
 
 import com.caucho.hessian.io.Hessian2Output;
-import org.jupiter.common.util.internal.InternalThreadLocal;
-import org.jupiter.common.util.internal.UnsafeReferenceFieldUpdater;
-import org.jupiter.common.util.internal.UnsafeUpdater;
-import org.jupiter.serialization.OutputBuf;
+import org.jupiter.serialization.io.OutputBuf;
 
-import java.io.ByteArrayOutputStream;
 import java.io.OutputStream;
-
-import static org.jupiter.serialization.Serializer.DEFAULT_BUF_SIZE;
-import static org.jupiter.serialization.Serializer.MAX_CACHED_BUF_SIZE;
 
 /**
  * jupiter
@@ -36,48 +29,12 @@ import static org.jupiter.serialization.Serializer.MAX_CACHED_BUF_SIZE;
  */
 public final class Outputs {
 
-    private static final UnsafeReferenceFieldUpdater<ByteArrayOutputStream, byte[]> bufUpdater =
-            UnsafeUpdater.newReferenceFieldUpdater(ByteArrayOutputStream.class, "buf");
-
-    // 复用 ByteArrayOutputStream 中的 byte[]
-    private static final InternalThreadLocal<ByteArrayOutputStream> bufThreadLocal = new InternalThreadLocal<ByteArrayOutputStream>() {
-
-        @Override
-        protected ByteArrayOutputStream initialValue() {
-            return new ByteArrayOutputStream(DEFAULT_BUF_SIZE);
-        }
-    };
-
     public static Hessian2Output getOutput(OutputBuf outputBuf) {
         return new Hessian2Output(outputBuf.outputStream());
     }
 
     public static Hessian2Output getOutput(OutputStream buf) {
         return new Hessian2Output(buf);
-    }
-
-    public static OutputStream getOutputStream() {
-        return bufThreadLocal.get();
-    }
-
-    public static byte[] toByteArray(OutputStream buf) {
-        if (buf instanceof ByteArrayOutputStream) {
-            return ((ByteArrayOutputStream) buf).toByteArray();
-        }
-        throw new UnsupportedOperationException();
-    }
-
-    public static void resetBuf(OutputStream buf) {
-        if (buf instanceof ByteArrayOutputStream) {
-            ByteArrayOutputStream _buf = (ByteArrayOutputStream) buf;
-            _buf.reset(); // for reuse
-
-            // 防止hold过大的内存块一直不释放
-            assert bufUpdater != null;
-            if (bufUpdater.get(_buf).length > MAX_CACHED_BUF_SIZE) {
-                bufUpdater.set(_buf, new byte[DEFAULT_BUF_SIZE]);
-            }
-        }
     }
 
     private Outputs() {}

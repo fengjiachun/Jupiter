@@ -23,7 +23,7 @@ import io.protostuff.Schema;
 import org.jupiter.common.util.internal.UnsafeReferenceFieldUpdater;
 import org.jupiter.common.util.internal.UnsafeUpdater;
 import org.jupiter.common.util.internal.UnsafeUtf8Util;
-import org.jupiter.serialization.OutputBuf;
+import org.jupiter.serialization.io.OutputBuf;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;

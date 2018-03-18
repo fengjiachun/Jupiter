@@ -19,15 +19,16 @@ package org.jupiter.serialization.hessian;
 import com.caucho.hessian.io.Hessian2Input;
 import com.caucho.hessian.io.Hessian2Output;
 import org.jupiter.common.util.ExceptionUtil;
-import org.jupiter.serialization.InputBuf;
-import org.jupiter.serialization.OutputBuf;
+import org.jupiter.serialization.io.InputBuf;
+import org.jupiter.serialization.io.OutputBuf;
 import org.jupiter.serialization.Serializer;
 import org.jupiter.serialization.SerializerType;
 import org.jupiter.serialization.hessian.io.Inputs;
 import org.jupiter.serialization.hessian.io.Outputs;
+import org.jupiter.serialization.io.OutputStreams;
 
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.io.OutputStream;
 
 /**
  * Hessian的序列化/反序列化实现
@@ -63,12 +64,12 @@ public class HessianSerializer extends Serializer {
 
     @Override
     public <T> byte[] writeObject(T obj) {
-        OutputStream buf = Outputs.getOutputStream();
+        ByteArrayOutputStream buf = OutputStreams.getByteArrayOutputStream();
         Hessian2Output output = Outputs.getOutput(buf);
         try {
             output.writeObject(obj);
             output.flush();
-            return Outputs.toByteArray(buf);
+            return buf.toByteArray();
         } catch (IOException e) {
             ExceptionUtil.throwException(e);
         } finally {
@@ -76,7 +77,7 @@ public class HessianSerializer extends Serializer {
                 output.close();
             } catch (IOException ignored) {}
 
-            Outputs.resetBuf(buf);
+            OutputStreams.resetBuf(buf);
         }
         return null; // never get here
     }

@@ -18,7 +18,7 @@ package org.jupiter.serialization.kryo.io;
 
 import com.esotericsoftware.kryo.KryoException;
 import com.esotericsoftware.kryo.io.ByteBufferOutput;
-import org.jupiter.serialization.OutputBuf;
+import org.jupiter.serialization.io.OutputBuf;
 
 /**
  * jupiter
