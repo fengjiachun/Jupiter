@@ -16,8 +16,13 @@
 
 package org.jupiter.serialization.proto.buffer;
 
+import io.protostuff.LinkedBuffer;
 import io.protostuff.Output;
+import io.protostuff.ProtostuffOutput;
+import org.jupiter.common.util.internal.InternalThreadLocal;
 import org.jupiter.serialization.OutputBuf;
+
+import static org.jupiter.serialization.Serializer.DEFAULT_BUF_SIZE;
 
 /**
  * jupiter
@@ -25,7 +30,16 @@ import org.jupiter.serialization.OutputBuf;
  *
  * @author jiachun.fjc
  */
-public class OutputFactory {
+public class Outputs {
+
+    // 复用 LinkedBuffer 中链表头结点 byte[]
+    private static final InternalThreadLocal<LinkedBuffer> bufThreadLocal = new InternalThreadLocal<LinkedBuffer>() {
+
+        @Override
+        protected LinkedBuffer initialValue() {
+            return LinkedBuffer.allocate(DEFAULT_BUF_SIZE);
+        }
+    };
 
     public static Output getOutput(OutputBuf outputBuf) {
         if (outputBuf.hasMemoryAddress()) {
@@ -34,5 +48,20 @@ public class OutputFactory {
         return new NioBufOutput(outputBuf, -1);
     }
 
-    private OutputFactory() {}
+    public static Output getOutput(LinkedBuffer buf) {
+        return new ProtostuffOutput(buf);
+    }
+
+    public static LinkedBuffer getLinkedBuffer() {
+        return bufThreadLocal.get();
+    }
+
+    public static byte[] toByteArray(Output output) {
+        if (output instanceof ProtostuffOutput) {
+            return ((ProtostuffOutput) output).toByteArray();
+        }
+        throw new UnsupportedOperationException();
+    }
+
+    private Outputs() {}
 }

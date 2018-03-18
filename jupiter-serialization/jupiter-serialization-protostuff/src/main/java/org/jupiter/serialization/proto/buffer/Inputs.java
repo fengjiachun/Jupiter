@@ -16,7 +16,9 @@
 
 package org.jupiter.serialization.proto.buffer;
 
+import io.protostuff.ByteArrayInput;
 import io.protostuff.Input;
+import io.protostuff.ProtobufException;
 import org.jupiter.serialization.InputBuf;
 
 /**
@@ -25,7 +27,7 @@ import org.jupiter.serialization.InputBuf;
  *
  * @author jiachun.fjc
  */
-public class InputFactory {
+public class Inputs {
 
     public static Input getInput(InputBuf inputBuf) {
         if (inputBuf.hasMemoryAddress()) {
@@ -34,5 +36,19 @@ public class InputFactory {
         return new NioBufInput(inputBuf.nioByteBuffer(), true);
     }
 
-    private InputFactory() {}
+    public static Input getInput(byte[] bytes, int offset, int length) {
+        return new ByteArrayInput(bytes, offset, length, true);
+    }
+
+    public static void checkLastTagWas(Input input, final int value) throws ProtobufException {
+        if (input instanceof UnsafeNioBufInput) {
+            ((UnsafeNioBufInput) input).checkLastTagWas(value);
+        } else if (input instanceof NioBufInput) {
+            ((NioBufInput) input).checkLastTagWas(value);
+        } else if (input instanceof ByteArrayInput) {
+            ((ByteArrayInput) input).checkLastTagWas(value);
+        }
+    }
+
+    private Inputs() {}
 }

@@ -17,8 +17,7 @@
 package org.jupiter.serialization.kryo;
 
 import com.esotericsoftware.kryo.Kryo;
-import com.esotericsoftware.kryo.io.FastInput;
-import com.esotericsoftware.kryo.io.FastOutput;
+import com.esotericsoftware.kryo.io.Input;
 import com.esotericsoftware.kryo.io.Output;
 import com.esotericsoftware.kryo.serializers.JavaSerializer;
 import org.jupiter.common.concurrent.collection.ConcurrentSet;
@@ -27,8 +26,8 @@ import org.jupiter.serialization.InputBuf;
 import org.jupiter.serialization.OutputBuf;
 import org.jupiter.serialization.Serializer;
 import org.jupiter.serialization.SerializerType;
-import org.jupiter.serialization.kryo.buffer.InputFactory;
-import org.jupiter.serialization.kryo.buffer.OutputFactory;
+import org.jupiter.serialization.kryo.buffer.Inputs;
+import org.jupiter.serialization.kryo.buffer.Outputs;
 import org.objenesis.strategy.StdInstantiatorStrategy;
 
 /**
@@ -66,15 +65,6 @@ public class KryoSerializer extends Serializer {
         }
     };
 
-    // 目的是复用 Output 中的 byte[]
-    private static final InternalThreadLocal<Output> outputBytesThreadLocal = new InternalThreadLocal<Output>() {
-
-        @Override
-        protected Output initialValue() {
-            return new FastOutput(DEFAULT_BUF_SIZE, -1);
-        }
-    };
-
     /**
      * Serializes {@code type}'s objects using Java's built in serialization mechanism,
      * note that this is very inefficient and should be avoided if possible.
@@ -90,36 +80,30 @@ public class KryoSerializer extends Serializer {
 
     @Override
     public <T> OutputBuf writeObject(OutputBuf outputBuf, T obj) {
-        kryoThreadLocal
-                .get()
-                .writeObject(OutputFactory.getOutput(outputBuf), obj);
+        Output output = Outputs.getOutput(outputBuf);
+        Kryo kryo = kryoThreadLocal.get();
+        kryo.writeObject(output, obj);
         return outputBuf;
     }
 
     @Override
     public <T> byte[] writeObject(T obj) {
-        Output kOutput = outputBytesThreadLocal.get();
+        Output output = Outputs.getOutput();
+        Kryo kryo = kryoThreadLocal.get();
         try {
-            kryoThreadLocal
-                    .get()
-                    .writeObject(kOutput, obj);
-            return kOutput.toBytes();
+            kryo.writeObject(output, obj);
+            return output.toBytes();
         } finally {
-            kOutput.clear();
-
-            // 防止hold过大的内存块一直不释放
-            if (kOutput.getBuffer().length > MAX_CACHED_BUF_SIZE) {
-                kOutput.setBuffer(new byte[DEFAULT_BUF_SIZE], -1);
-            }
+            Outputs.clearOutput(output);
         }
     }
 
     @Override
     public <T> T readObject(InputBuf inputBuf, Class<T> clazz) {
+        Input input = Inputs.getInput(inputBuf);
+        Kryo kryo = kryoThreadLocal.get();
         try {
-            return kryoThreadLocal
-                    .get()
-                    .readObject(InputFactory.getInput(inputBuf), clazz);
+            return kryo.readObject(input, clazz);
         } finally {
             inputBuf.release();
         }
@@ -127,9 +111,9 @@ public class KryoSerializer extends Serializer {
 
     @Override
     public <T> T readObject(byte[] bytes, int offset, int length, Class<T> clazz) {
-        return kryoThreadLocal
-                .get()
-                .readObject(new FastInput(bytes, offset, length), clazz);
+        Input input = Inputs.getInput(bytes, offset, length);
+        Kryo kryo = kryoThreadLocal.get();
+        return kryo.readObject(input, clazz);
     }
 
     @Override

@@ -16,8 +16,12 @@
 
 package org.jupiter.serialization.kryo.buffer;
 
-import com.esotericsoftware.kryo.io.Output;
-import org.jupiter.serialization.OutputBuf;
+import com.esotericsoftware.kryo.io.ByteBufferInput;
+import com.esotericsoftware.kryo.io.FastInput;
+import com.esotericsoftware.kryo.io.Input;
+import org.jupiter.serialization.InputBuf;
+
+import java.nio.ByteBuffer;
 
 /**
  * jupiter
@@ -25,11 +29,18 @@ import org.jupiter.serialization.OutputBuf;
  *
  * @author jiachun.fjc
  */
-public final class OutputFactory {
+public final class Inputs {
 
-    public static Output getOutput(OutputBuf outputBuf) {
-        return new NioBufOutput(outputBuf, -1);
+    public static Input getInput(InputBuf inputBuf) {
+        ByteBuffer nioBuf = inputBuf.nioByteBuffer();
+        ByteBufferInput input = new ByteBufferInput();
+        input.setBuffer(nioBuf, 0, nioBuf.capacity());
+        return input;
     }
 
-    private OutputFactory() {}
+    public static Input getInput(byte[] bytes, int offset, int length) {
+        return new FastInput(bytes, offset, length);
+    }
+
+    private Inputs() {}
 }
