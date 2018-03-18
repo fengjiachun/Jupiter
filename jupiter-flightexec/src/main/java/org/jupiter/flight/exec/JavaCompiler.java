@@ -16,7 +16,7 @@
 
 package org.jupiter.flight.exec;
 
-import org.jupiter.common.util.ExceptionUtil;
+import org.jupiter.common.util.ThrowUtil;
 import org.jupiter.common.util.Function;
 import org.jupiter.common.util.Lists;
 
@@ -66,7 +66,7 @@ public class JavaCompiler {
                 return classFileManager.getJavaClassObject().classBytes();
             }
         } catch (Throwable t) {
-            ExceptionUtil.throwException(t);
+            ThrowUtil.throwException(t);
         } finally {
             if (javaFileManager != null) {
                 try {

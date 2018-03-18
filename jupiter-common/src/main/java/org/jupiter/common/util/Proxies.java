@@ -60,7 +60,7 @@ public enum Proxies {
             try {
                 return cls.newInstance();
             } catch (Throwable t) {
-                ExceptionUtil.throwException(t);
+                ThrowUtil.throwException(t);
             }
             return null; // never get here
         }

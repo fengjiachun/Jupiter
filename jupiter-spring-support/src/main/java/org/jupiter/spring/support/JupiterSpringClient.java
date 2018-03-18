@@ -195,7 +195,7 @@ public class JupiterSpringClient implements InitializingBean {
             Class<?> clazz = Class.forName(className);
             defaultConnector = (JConnector<JConnection>) clazz.newInstance();
         } catch (Exception e) {
-            ExceptionUtil.throwException(e);
+            ThrowUtil.throwException(e);
         }
         return checkNotNull(defaultConnector, "default connector");
     }

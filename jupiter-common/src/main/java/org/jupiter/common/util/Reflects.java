@@ -127,7 +127,7 @@ public final class Reflects {
             Field fd = setAccessible(getField(clazz, name));
             value = fd.get(null);
         } catch (Exception e) {
-            ExceptionUtil.throwException(e);
+            ThrowUtil.throwException(e);
         }
         return value;
     }
@@ -146,7 +146,7 @@ public final class Reflects {
             Field fd = setAccessible(getField(clazz, name));
             fd.set(null, value);
         } catch (Exception e) {
-            ExceptionUtil.throwException(e);
+            ThrowUtil.throwException(e);
         }
     }
 
@@ -164,7 +164,7 @@ public final class Reflects {
             Field fd = setAccessible(getField(o.getClass(), name));
             value = fd.get(o);
         } catch (Exception e) {
-            ExceptionUtil.throwException(e);
+            ThrowUtil.throwException(e);
         }
         return value;
     }
@@ -182,7 +182,7 @@ public final class Reflects {
             Field fd = setAccessible(getField(o.getClass(), name));
             fd.set(o, value);
         } catch (Exception e) {
-            ExceptionUtil.throwException(e);
+            ThrowUtil.throwException(e);
         }
     }
 

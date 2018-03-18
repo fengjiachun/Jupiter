@@ -16,7 +16,7 @@
 
 package org.jupiter.serialization.java;
 
-import org.jupiter.common.util.ExceptionUtil;
+import org.jupiter.common.util.ThrowUtil;
 import org.jupiter.serialization.io.InputBuf;
 import org.jupiter.serialization.io.OutputBuf;
 import org.jupiter.serialization.Serializer;
@@ -54,7 +54,7 @@ public class JavaSerializer extends Serializer {
             output.flush();
             return outputBuf;
         } catch (IOException e) {
-            ExceptionUtil.throwException(e);
+            ThrowUtil.throwException(e);
         } finally {
             if (output != null) {
                 try {
@@ -75,7 +75,7 @@ public class JavaSerializer extends Serializer {
             output.flush();
             return buf.toByteArray();
         } catch (IOException e) {
-            ExceptionUtil.throwException(e);
+            ThrowUtil.throwException(e);
         } finally {
             if (output != null) {
                 try {
@@ -95,7 +95,7 @@ public class JavaSerializer extends Serializer {
             input = Inputs.getInput(inputBuf);
             return clazz.cast(input.readObject());
         } catch (Exception e) {
-            ExceptionUtil.throwException(e);
+            ThrowUtil.throwException(e);
         } finally {
             if (input != null) {
                 try {
@@ -114,7 +114,7 @@ public class JavaSerializer extends Serializer {
             input = Inputs.getInput(bytes, offset, length);
             return clazz.cast(input.readObject());
         } catch (Exception e) {
-            ExceptionUtil.throwException(e);
+            ThrowUtil.throwException(e);
         } finally {
             if (input != null) {
                 try {

@@ -16,7 +16,7 @@
 
 package org.jupiter.registry;
 
-import org.jupiter.common.util.ExceptionUtil;
+import org.jupiter.common.util.ThrowUtil;
 import org.jupiter.common.util.Lists;
 import org.jupiter.common.util.Reflects;
 import org.jupiter.common.util.SystemPropertyUtil;
@@ -98,7 +98,7 @@ public interface RegistryServer extends RegistryMonitor {
                 c.setAccessible(true);
                 return c.newInstance(parameters);
             } catch (Exception e) {
-                ExceptionUtil.throwException(e);
+                ThrowUtil.throwException(e);
             }
             return null; // should never get here
         }

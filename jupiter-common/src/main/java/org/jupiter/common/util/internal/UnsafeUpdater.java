@@ -16,7 +16,7 @@
 
 package org.jupiter.common.util.internal;
 
-import org.jupiter.common.util.ExceptionUtil;
+import org.jupiter.common.util.ThrowUtil;
 
 /**
  * jupiter
@@ -36,7 +36,7 @@ public class UnsafeUpdater {
         try {
             return new UnsafeIntegerFieldUpdater<>(UnsafeUtil.getUnsafe(), tClass, fieldName);
         } catch (Throwable t) {
-            ExceptionUtil.throwException(t);
+            ThrowUtil.throwException(t);
         }
         return null;
     }
@@ -51,7 +51,7 @@ public class UnsafeUpdater {
         try {
             return new UnsafeLongFieldUpdater<>(UnsafeUtil.getUnsafe(), tClass, fieldName);
         } catch (Throwable t) {
-            ExceptionUtil.throwException(t);
+            ThrowUtil.throwException(t);
         }
         return null;
     }
@@ -66,7 +66,7 @@ public class UnsafeUpdater {
         try {
             return new UnsafeReferenceFieldUpdater<>(UnsafeUtil.getUnsafe(), tClass, fieldName);
         } catch (Throwable t) {
-            ExceptionUtil.throwException(t);
+            ThrowUtil.throwException(t);
         }
         return null;
     }

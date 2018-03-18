@@ -27,7 +27,7 @@ import sun.misc.Unsafe;
  *
  * @author jiachun.fjc
  */
-public class ExceptionUtil {
+public class ThrowUtil {
 
     private static final UnsafeReferenceFieldUpdater<Throwable, Throwable> causeUpdater =
             UnsafeUpdater.newReferenceFieldUpdater(Throwable.class, "cause");
@@ -40,7 +40,7 @@ public class ExceptionUtil {
         if (unsafe != null) {
             unsafe.throwException(t);
         } else {
-            ExceptionUtil.<RuntimeException>throwException0(t);
+            ThrowUtil.<RuntimeException>throwException0(t);
         }
     }
 
@@ -77,5 +77,5 @@ public class ExceptionUtil {
         return cause;
     }
 
-    private ExceptionUtil() {}
+    private ThrowUtil() {}
 }

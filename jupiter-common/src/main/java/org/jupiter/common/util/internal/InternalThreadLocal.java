@@ -16,7 +16,7 @@
 
 package org.jupiter.common.util.internal;
 
-import org.jupiter.common.util.ExceptionUtil;
+import org.jupiter.common.util.ThrowUtil;
 
 import java.util.Collections;
 import java.util.IdentityHashMap;
@@ -125,7 +125,7 @@ public class InternalThreadLocal<V> {
         try {
             v = initialValue();
         } catch (Exception e) {
-            ExceptionUtil.throwException(e);
+            ThrowUtil.throwException(e);
         }
 
         threadLocalMap.setIndexedVariable(index, v);
@@ -173,7 +173,7 @@ public class InternalThreadLocal<V> {
             try {
                 onRemoval((V) v);
             } catch (Exception e) {
-                ExceptionUtil.throwException(e);
+                ThrowUtil.throwException(e);
             }
         }
     }

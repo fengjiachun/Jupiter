@@ -16,7 +16,7 @@
 
 package org.jupiter.rpc.provider.processor;
 
-import org.jupiter.common.util.ExceptionUtil;
+import org.jupiter.common.util.ThrowUtil;
 import org.jupiter.common.util.internal.logging.InternalLogger;
 import org.jupiter.common.util.internal.logging.InternalLoggerFactory;
 import org.jupiter.rpc.JRequest;
@@ -76,7 +76,7 @@ public abstract class AbstractProviderProcessor implements
 
         ResultWrapper result = new ResultWrapper();
         // 截断cause, 避免客户端无法找到cause类型而无法序列化
-        cause = ExceptionUtil.cutCause(cause);
+        cause = ThrowUtil.cutCause(cause);
         result.setError(cause);
 
         Serializer serializer = SerializerFactory.getSerializer(s_code);

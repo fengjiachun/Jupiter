@@ -215,7 +215,7 @@ public final class DefaultRegistryServer extends NettyTcpAcceptor implements Reg
         try {
             start();
         } catch (InterruptedException e) {
-            ExceptionUtil.throwException(e);
+            ThrowUtil.throwException(e);
         }
     }
 

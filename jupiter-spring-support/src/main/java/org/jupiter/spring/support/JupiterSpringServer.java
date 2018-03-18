@@ -16,7 +16,7 @@
 
 package org.jupiter.spring.support;
 
-import org.jupiter.common.util.ExceptionUtil;
+import org.jupiter.common.util.ThrowUtil;
 import org.jupiter.common.util.Pair;
 import org.jupiter.common.util.Strings;
 import org.jupiter.common.util.SystemPropertyUtil;
@@ -115,7 +115,7 @@ public class JupiterSpringServer implements InitializingBean {
         try {
             server.start(false);
         } catch (Exception e) {
-            ExceptionUtil.throwException(e);
+            ThrowUtil.throwException(e);
         }
     }
 
@@ -199,7 +199,7 @@ public class JupiterSpringServer implements InitializingBean {
             Class<?> clazz = Class.forName(className);
             defaultAcceptor = (JAcceptor) clazz.newInstance();
         } catch (Exception e) {
-            ExceptionUtil.throwException(e);
+            ThrowUtil.throwException(e);
         }
         return checkNotNull(defaultAcceptor, "default acceptor");
     }

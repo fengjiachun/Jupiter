@@ -22,7 +22,7 @@ import io.protostuff.Output;
 import io.protostuff.Schema;
 import io.protostuff.runtime.RuntimeSchema;
 import org.jupiter.common.util.SystemPropertyUtil;
-import org.jupiter.serialization.SerializeException;
+import org.jupiter.common.util.ThrowUtil;
 import org.jupiter.serialization.Serializer;
 import org.jupiter.serialization.SerializerType;
 import org.jupiter.serialization.io.InputBuf;
@@ -83,7 +83,7 @@ public class ProtoStuffSerializer extends Serializer {
         try {
             schema.writeTo(output, obj);
         } catch (IOException e) {
-            throw SerializeException.invalidWriting(e);
+            ThrowUtil.throwException(e);
         }
 
         return outputBuf;
@@ -100,10 +100,12 @@ public class ProtoStuffSerializer extends Serializer {
             schema.writeTo(output, obj);
             return Outputs.toByteArray(output);
         } catch (IOException e) {
-            throw SerializeException.invalidWriting(e);
+            ThrowUtil.throwException(e);
         } finally {
             LinkedBuffers.resetBuf(buf); // for reuse
         }
+
+        return null; // never get here
     }
 
     @Override
@@ -116,7 +118,7 @@ public class ProtoStuffSerializer extends Serializer {
             schema.mergeFrom(input, msg);
             Inputs.checkLastTagWas(input, 0);
         } catch (IOException e) {
-            throw SerializeException.invalidReading(e);
+            ThrowUtil.throwException(e);
         } finally {
             inputBuf.release();
         }
@@ -134,7 +136,7 @@ public class ProtoStuffSerializer extends Serializer {
             schema.mergeFrom(input, msg);
             Inputs.checkLastTagWas(input, 0);
         } catch (IOException e) {
-            throw SerializeException.invalidReading(e);
+            ThrowUtil.throwException(e);
         }
 
         return msg;

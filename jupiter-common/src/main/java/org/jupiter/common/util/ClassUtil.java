@@ -58,7 +58,7 @@ public class ClassUtil {
             Class.forName(className);
         } catch (Throwable t) {
             logger.error("Failed to load class [{}] {}.", className, stackTrace(t));
-            ExceptionUtil.throwException(t);
+            ThrowUtil.throwException(t);
         }
     }
 }

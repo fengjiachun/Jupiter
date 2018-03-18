@@ -239,7 +239,7 @@ public class DefaultClient implements JClient {
                         }
                     }
                 } catch (InterruptedException e) {
-                    ExceptionUtil.throwException(e);
+                    ThrowUtil.throwException(e);
                 } finally {
                     _look.unlock();
                 }

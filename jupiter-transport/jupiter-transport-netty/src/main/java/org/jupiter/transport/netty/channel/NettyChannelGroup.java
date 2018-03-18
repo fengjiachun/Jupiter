@@ -216,7 +216,7 @@ public class NettyChannelGroup implements JChannelGroup {
                 }
             }
         } catch (InterruptedException e) {
-            ExceptionUtil.throwException(e);
+            ThrowUtil.throwException(e);
         } finally {
             _look.unlock();
         }

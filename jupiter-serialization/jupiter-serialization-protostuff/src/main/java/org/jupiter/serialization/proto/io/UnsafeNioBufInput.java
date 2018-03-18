@@ -17,7 +17,7 @@
 package org.jupiter.serialization.proto.io;
 
 import io.protostuff.*;
-import org.jupiter.common.util.ExceptionUtil;
+import org.jupiter.common.util.ThrowUtil;
 import org.jupiter.common.util.internal.UnsafeDirectBufferUtil;
 import org.jupiter.common.util.internal.UnsafeUtf8Util;
 import org.jupiter.common.util.internal.UnsafeUtil;
@@ -109,7 +109,7 @@ class UnsafeNioBufInput implements Input {
         final int tag = readRawVarInt32();
         if (tag >>> TAG_TYPE_BITS == 0) {
             // If we actually read zero, that's not a valid tag.
-            throw invalidTag();
+            throw ProtocolException.invalidTag();
         }
         lastTag = tag;
         return tag;
@@ -123,7 +123,7 @@ class UnsafeNioBufInput implements Input {
      */
     public void checkLastTagWas(final int value) throws ProtobufException {
         if (lastTag != value) {
-            throw invalidEndTag();
+            throw ProtocolException.invalidEndTag();
         }
     }
 
@@ -144,7 +144,7 @@ class UnsafeNioBufInput implements Input {
             case WIRETYPE_LENGTH_DELIMITED:
                 final int size = readRawVarInt32();
                 if (size < 0) {
-                    throw negativeSize();
+                    throw ProtocolException.negativeSize();
                 }
                 nioBuffer.position(nioBuffer.position() + size);
                 // offset += size;
@@ -159,7 +159,7 @@ class UnsafeNioBufInput implements Input {
                 readRawLittleEndian32();
                 return true;
             default:
-                throw invalidWireType();
+                throw ProtocolException.invalidWireType();
         }
     }
 
@@ -191,7 +191,7 @@ class UnsafeNioBufInput implements Input {
         // are we reading packed field?
         if (isCurrentFieldPacked()) {
             if (packedLimit < nioBuffer.position()) {
-                throw misreportedSize();
+                throw ProtocolException.misreportedSize();
             }
 
             // Return field number while reading packed field
@@ -210,7 +210,7 @@ class UnsafeNioBufInput implements Input {
                 return 0;
             }
             // If we actually read zero, that's not a valid tag.
-            throw invalidTag();
+            throw ProtocolException.invalidTag();
         }
         if (decodeNestedMessageAsGroup && WIRETYPE_END_GROUP == (tag & TAG_TYPE_MASK)) {
             lastTag = 0;
@@ -230,11 +230,11 @@ class UnsafeNioBufInput implements Input {
         if (packedLimit == 0 && getTagWireType(lastTag) == WIRETYPE_LENGTH_DELIMITED) {
             final int length = readRawVarInt32();
             if (length < 0) {
-                throw negativeSize();
+                throw ProtocolException.negativeSize();
             }
 
             if (nioBuffer.position() + length > nioBuffer.limit()) {
-                throw misreportedSize();
+                throw ProtocolException.misreportedSize();
             }
 
             this.packedLimit = nioBuffer.position() + length;
@@ -377,11 +377,11 @@ class UnsafeNioBufInput implements Input {
     public String readString() throws IOException {
         final int length = readRawVarInt32();
         if (length < 0) {
-            throw negativeSize();
+            throw ProtocolException.negativeSize();
         }
 
         if (nioBuffer.remaining() < length) {
-            throw misreportedSize();
+            throw ProtocolException.misreportedSize();
         }
 
         int position = nioBuffer.position();
@@ -396,7 +396,7 @@ class UnsafeNioBufInput implements Input {
         try {
             return (ByteString) byteStringWrapMethod.invoke(null, readByteArray());
         } catch (Exception e) {
-            ExceptionUtil.throwException(e);
+            ThrowUtil.throwException(e);
         }
         return null; // never get here
     }
@@ -405,11 +405,11 @@ class UnsafeNioBufInput implements Input {
     public void readBytes(final ByteBuffer bb) throws IOException {
         final int length = readRawVarInt32();
         if (length < 0) {
-            throw negativeSize();
+            throw ProtocolException.negativeSize();
         }
 
         if (nioBuffer.remaining() < length) {
-            throw misreportedSize();
+            throw ProtocolException.misreportedSize();
         }
 
         bb.put(nioBuffer);
@@ -419,11 +419,11 @@ class UnsafeNioBufInput implements Input {
     public byte[] readByteArray() throws IOException {
         final int length = readRawVarInt32();
         if (length < 0) {
-            throw negativeSize();
+            throw ProtocolException.negativeSize();
         }
 
         if (nioBuffer.remaining() < length) {
-            throw misreportedSize();
+            throw ProtocolException.misreportedSize();
         }
 
         final byte[] copy = new byte[length];
@@ -441,11 +441,11 @@ class UnsafeNioBufInput implements Input {
 
         final int length = readRawVarInt32();
         if (length < 0) {
-            throw negativeSize();
+            throw ProtocolException.negativeSize();
         }
 
         if (nioBuffer.remaining() < length) {
-            throw misreportedSize();
+            throw ProtocolException.misreportedSize();
         }
 
         ByteBuffer dup = nioBuffer.slice();
@@ -510,7 +510,7 @@ class UnsafeNioBufInput implements Input {
                                 return result;
                             }
                         }
-                        throw malformedVarint();
+                        throw ProtocolException.malformedVarInt();
                     }
                 }
             }
@@ -535,7 +535,7 @@ class UnsafeNioBufInput implements Input {
             }
             shift += 7;
         }
-        throw malformedVarint();
+        throw ProtocolException.malformedVarInt();
     }
 
     /**
@@ -563,7 +563,7 @@ class UnsafeNioBufInput implements Input {
                                     boolean repeated) throws IOException {
         final int length = readRawVarInt32();
         if (length < 0) {
-            throw negativeSize();
+            throw ProtocolException.negativeSize();
         }
 
         if (utf8String) {
@@ -583,7 +583,7 @@ class UnsafeNioBufInput implements Input {
         } else {
             // Do the potentially vastly more efficient potential splice call.
             if (nioBuffer.remaining() < length) {
-                throw misreportedSize();
+                throw ProtocolException.misreportedSize();
             }
 
             ByteBuffer dup = nioBuffer.slice();
@@ -609,50 +609,6 @@ class UnsafeNioBufInput implements Input {
 
     private void updateBufferAddress() {
         memoryAddress = UnsafeUtil.addressOffset(nioBuffer);
-    }
-
-    static ProtobufException misreportedSize() {
-        return new ProtobufException(
-                "CodedInput encountered an embedded string or bytes " +
-                        "that misreported its size.");
-    }
-
-    static ProtobufException negativeSize() {
-        return new ProtobufException(
-                "CodedInput encountered an embedded string or message " +
-                        "which claimed to have negative size.");
-    }
-
-    static ProtobufException malformedVarint() {
-        return new ProtobufException(
-                "CodedInput encountered a malformed varint.");
-    }
-
-    static ProtobufException invalidTag() {
-        return new ProtobufException(
-                "Protocol message contained an invalid tag (zero).");
-    }
-
-    static ProtobufException invalidEndTag() {
-        return new ProtobufException(
-                "Protocol message end-group tag did not match expected tag.");
-    }
-
-    static ProtobufException invalidWireType() {
-        return new ProtobufException(
-                "Protocol message tag had invalid wire type.");
-    }
-
-    static ProtobufException recursionLimitExceeded() {
-        return new ProtobufException(
-                "Protocol message had too many levels of nesting.  May be malicious.  " +
-                        "Use CodedInput.setRecursionLimit() to increase the depth limit.");
-    }
-
-    static ProtobufException sizeLimitExceeded() {
-        return new ProtobufException(
-                "Protocol message was too large.  May be malicious.  " +
-                        "Use CodedInput.setSizeLimit() to increase the size limit.");
     }
 
     static {
