@@ -86,7 +86,8 @@ public class HessianSerializer extends Serializer {
     public <T> T readObject(InputBuf inputBuf, Class<T> clazz) {
         Hessian2Input input = Inputs.getInput(inputBuf);
         try {
-            return clazz.cast(input.readObject(clazz));
+            Object obj = input.readObject(clazz);
+            return clazz.cast(obj);
         } catch (IOException e) {
             ThrowUtil.throwException(e);
         } finally {
@@ -103,7 +104,8 @@ public class HessianSerializer extends Serializer {
     public <T> T readObject(byte[] bytes, int offset, int length, Class<T> clazz) {
         Hessian2Input input = Inputs.getInput(bytes, offset, length);
         try {
-            return clazz.cast(input.readObject(clazz));
+            Object obj = input.readObject(clazz);
+            return clazz.cast(obj);
         } catch (IOException e) {
             ThrowUtil.throwException(e);
         } finally {

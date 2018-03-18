@@ -93,7 +93,8 @@ public class JavaSerializer extends Serializer {
         ObjectInputStream input = null;
         try {
             input = Inputs.getInput(inputBuf);
-            return clazz.cast(input.readObject());
+            Object obj = input.readObject();
+            return clazz.cast(obj);
         } catch (Exception e) {
             ThrowUtil.throwException(e);
         } finally {
@@ -112,7 +113,8 @@ public class JavaSerializer extends Serializer {
         ObjectInputStream input = null;
         try {
             input = Inputs.getInput(bytes, offset, length);
-            return clazz.cast(input.readObject());
+            Object obj = input.readObject();
+            return clazz.cast(obj);
         } catch (Exception e) {
             ThrowUtil.throwException(e);
         } finally {
