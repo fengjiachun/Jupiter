@@ -67,16 +67,4 @@ public class ProtocolException extends ProtobufException {
         return new ProtocolException(
                 "Protocol message tag had invalid wire type.");
     }
-
-    static ProtocolException recursionLimitExceeded() {
-        return new ProtocolException(
-                "Protocol message had too many levels of nesting.  May be malicious.  " +
-                        "Use CodedInput.setRecursionLimit() to increase the depth limit.");
-    }
-
-    static ProtocolException sizeLimitExceeded() {
-        return new ProtocolException(
-                "Protocol message was too large.  May be malicious.  " +
-                        "Use CodedInput.setSizeLimit() to increase the size limit.");
-    }
 }
