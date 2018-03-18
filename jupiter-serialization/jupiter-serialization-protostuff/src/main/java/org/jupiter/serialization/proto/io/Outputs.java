@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.jupiter.serialization.proto.buffer;
+package org.jupiter.serialization.proto.io;
 
 import io.protostuff.LinkedBuffer;
 import io.protostuff.Output;
@@ -26,7 +26,7 @@ import static org.jupiter.serialization.Serializer.DEFAULT_BUF_SIZE;
 
 /**
  * jupiter
- * org.jupiter.serialization.proto.buffer
+ * org.jupiter.serialization.proto.io
  *
  * @author jiachun.fjc
  */

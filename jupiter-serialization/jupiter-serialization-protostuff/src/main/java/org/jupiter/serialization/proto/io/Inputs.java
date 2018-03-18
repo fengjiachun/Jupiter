@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.jupiter.serialization.proto.buffer;
+package org.jupiter.serialization.proto.io;
 
 import io.protostuff.ByteArrayInput;
 import io.protostuff.Input;
@@ -23,7 +23,7 @@ import org.jupiter.serialization.InputBuf;
 
 /**
  * jupiter
- * org.jupiter.serialization.proto.buffer
+ * org.jupiter.serialization.proto.io
  *
  * @author jiachun.fjc
  */

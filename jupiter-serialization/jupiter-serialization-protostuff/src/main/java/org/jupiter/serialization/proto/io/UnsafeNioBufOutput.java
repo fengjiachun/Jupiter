@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.jupiter.serialization.proto.buffer;
+package org.jupiter.serialization.proto.io;
 
 import org.jupiter.common.util.internal.UnsafeDirectBufferUtil;
 import org.jupiter.common.util.internal.UnsafeUtf8Util;
@@ -28,7 +28,7 @@ import static io.protostuff.WireFormat.makeTag;
 
 /**
  * jupiter
- * org.jupiter.serialization.proto.buffer
+ * org.jupiter.serialization.proto.io
  *
  * @author jiachun.fjc
  */

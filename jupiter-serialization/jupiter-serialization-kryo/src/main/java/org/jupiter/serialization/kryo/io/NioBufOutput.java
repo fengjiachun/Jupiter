@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.jupiter.serialization.kryo.buffer;
+package org.jupiter.serialization.kryo.io;
 
 import com.esotericsoftware.kryo.KryoException;
 import com.esotericsoftware.kryo.io.ByteBufferOutput;
@@ -22,7 +22,7 @@ import org.jupiter.serialization.OutputBuf;
 
 /**
  * jupiter
- * org.jupiter.serialization.kryo.buffer
+ * org.jupiter.serialization.kryo.io
  *
  * @author jiachun.fjc
  */

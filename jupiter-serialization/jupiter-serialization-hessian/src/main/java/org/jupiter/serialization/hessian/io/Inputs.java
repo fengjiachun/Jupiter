@@ -14,32 +14,27 @@
  * limitations under the License.
  */
 
-package org.jupiter.serialization.kryo.buffer;
+package org.jupiter.serialization.hessian.io;
 
-import com.esotericsoftware.kryo.io.ByteBufferInput;
-import com.esotericsoftware.kryo.io.Input;
+import com.caucho.hessian.io.Hessian2Input;
 import org.jupiter.serialization.InputBuf;
 
-import java.nio.ByteBuffer;
+import java.io.ByteArrayInputStream;
 
 /**
  * jupiter
- * org.jupiter.serialization.kryo.buffer
+ * org.jupiter.serialization.hessian.io
  *
  * @author jiachun.fjc
  */
 public final class Inputs {
 
-    public static Input getInput(InputBuf inputBuf) {
-        ByteBuffer nioBuf = inputBuf.nioByteBuffer();
-        ByteBufferInput input = new ByteBufferInput();
-        input.setVarIntsEnabled(false);
-        input.setBuffer(nioBuf, 0, nioBuf.capacity());
-        return input;
+    public static Hessian2Input getInput(InputBuf inputBuf) {
+        return new Hessian2Input(inputBuf.inputStream());
     }
 
-    public static Input getInput(byte[] bytes, int offset, int length) {
-        return new Input(bytes, offset, length);
+    public static Hessian2Input getInput(byte[] bytes, int offset, int length) {
+        return new Hessian2Input(new ByteArrayInputStream(bytes, offset, length));
     }
 
     private Inputs() {}

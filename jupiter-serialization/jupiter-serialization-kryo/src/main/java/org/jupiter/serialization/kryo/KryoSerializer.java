@@ -26,8 +26,8 @@ import org.jupiter.serialization.InputBuf;
 import org.jupiter.serialization.OutputBuf;
 import org.jupiter.serialization.Serializer;
 import org.jupiter.serialization.SerializerType;
-import org.jupiter.serialization.kryo.buffer.Inputs;
-import org.jupiter.serialization.kryo.buffer.Outputs;
+import org.jupiter.serialization.kryo.io.Inputs;
+import org.jupiter.serialization.kryo.io.Outputs;
 import org.objenesis.strategy.StdInstantiatorStrategy;
 
 /**

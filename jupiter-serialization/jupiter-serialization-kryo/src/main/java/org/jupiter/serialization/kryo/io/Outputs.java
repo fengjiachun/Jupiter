@@ -14,8 +14,9 @@
  * limitations under the License.
  */
 
-package org.jupiter.serialization.kryo.buffer;
+package org.jupiter.serialization.kryo.io;
 
+import com.esotericsoftware.kryo.io.FastOutput;
 import com.esotericsoftware.kryo.io.Output;
 import org.jupiter.common.util.internal.InternalThreadLocal;
 import org.jupiter.serialization.OutputBuf;
@@ -25,7 +26,7 @@ import static org.jupiter.serialization.Serializer.MAX_CACHED_BUF_SIZE;
 
 /**
  * jupiter
- * org.jupiter.serialization.kryo.buffer
+ * org.jupiter.serialization.kryo.io
  *
  * @author jiachun.fjc
  */
@@ -36,13 +37,13 @@ public final class Outputs {
 
         @Override
         protected Output initialValue() {
-            return new Output(DEFAULT_BUF_SIZE, -1);
+            return new FastOutput(DEFAULT_BUF_SIZE, -1);
         }
     };
 
     public static Output getOutput(OutputBuf outputBuf) {
         NioBufOutput output = new NioBufOutput(outputBuf, -1);
-        output.setVarIntsEnabled(false);
+        output.setVarIntsEnabled(false); // compatible with FastOutput
         return output;
     }
 

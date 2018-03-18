@@ -23,8 +23,8 @@ import io.protostuff.Schema;
 import io.protostuff.runtime.RuntimeSchema;
 import org.jupiter.common.util.SystemPropertyUtil;
 import org.jupiter.serialization.*;
-import org.jupiter.serialization.proto.buffer.Inputs;
-import org.jupiter.serialization.proto.buffer.Outputs;
+import org.jupiter.serialization.proto.io.Inputs;
+import org.jupiter.serialization.proto.io.Outputs;
 
 import java.io.IOException;
 

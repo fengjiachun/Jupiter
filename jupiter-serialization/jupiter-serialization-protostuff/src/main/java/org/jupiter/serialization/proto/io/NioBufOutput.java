@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.jupiter.serialization.proto.buffer;
+package org.jupiter.serialization.proto.io;
 
 import io.protostuff.ByteString;
 import io.protostuff.IntSerializer;
@@ -34,7 +34,7 @@ import static io.protostuff.WireFormat.*;
 
 /**
  * jupiter
- * org.jupiter.serialization.proto.buffer
+ * org.jupiter.serialization.proto.io
  *
  * @author jiachun.fjc
  */

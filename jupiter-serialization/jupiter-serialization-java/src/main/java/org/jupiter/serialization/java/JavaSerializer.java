@@ -17,15 +17,17 @@
 package org.jupiter.serialization.java;
 
 import org.jupiter.common.util.ExceptionUtil;
-import org.jupiter.common.util.internal.InternalThreadLocal;
-import org.jupiter.common.util.internal.UnsafeReferenceFieldUpdater;
-import org.jupiter.common.util.internal.UnsafeUpdater;
 import org.jupiter.serialization.InputBuf;
 import org.jupiter.serialization.OutputBuf;
 import org.jupiter.serialization.Serializer;
 import org.jupiter.serialization.SerializerType;
+import org.jupiter.serialization.java.io.Inputs;
+import org.jupiter.serialization.java.io.Outputs;
 
-import java.io.*;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.io.OutputStream;
 
 /**
  * Java自身的序列化/反序列化实现.
@@ -37,18 +39,6 @@ import java.io.*;
  */
 public class JavaSerializer extends Serializer {
 
-    private static final UnsafeReferenceFieldUpdater<ByteArrayOutputStream, byte[]> bufUpdater =
-            UnsafeUpdater.newReferenceFieldUpdater(ByteArrayOutputStream.class, "buf");
-
-    // 目的是复用 ByteArrayOutputStream 中的 byte[]
-    private static final InternalThreadLocal<ByteArrayOutputStream> bufThreadLocal = new InternalThreadLocal<ByteArrayOutputStream>() {
-
-        @Override
-        protected ByteArrayOutputStream initialValue() {
-            return new ByteArrayOutputStream(DEFAULT_BUF_SIZE);
-        }
-    };
-
     @Override
     public byte code() {
         return SerializerType.JAVA.value();
@@ -56,18 +46,18 @@ public class JavaSerializer extends Serializer {
 
     @Override
     public <T> OutputBuf writeObject(OutputBuf outputBuf, T obj) {
-        ObjectOutputStream objOutput = null;
+        ObjectOutputStream output = null;
         try {
-            objOutput = new ObjectOutputStream(outputBuf.outputStream());
-            objOutput.writeObject(obj);
-            objOutput.flush();
+            output = Outputs.getOutput(outputBuf);
+            output.writeObject(obj);
+            output.flush();
             return outputBuf;
         } catch (IOException e) {
             ExceptionUtil.throwException(e);
         } finally {
-            if (objOutput != null) {
+            if (output != null) {
                 try {
-                    objOutput.close();
+                    output.close();
                 } catch (IOException ignored) {}
             }
         }
@@ -76,45 +66,39 @@ public class JavaSerializer extends Serializer {
 
     @Override
     public <T> byte[] writeObject(T obj) {
-        ByteArrayOutputStream buf = bufThreadLocal.get();
-        ObjectOutputStream objOutput = null;
+        OutputStream buf = Outputs.getOutputStream();
+        ObjectOutputStream output = null;
         try {
-            objOutput = new ObjectOutputStream(buf);
-            objOutput.writeObject(obj);
-            objOutput.flush();
-            return buf.toByteArray();
+            output = Outputs.getOutput(buf);
+            output.writeObject(obj);
+            output.flush();
+            return Outputs.toByteArray(buf);
         } catch (IOException e) {
             ExceptionUtil.throwException(e);
         } finally {
-            if (objOutput != null) {
+            if (output != null) {
                 try {
-                    objOutput.close();
+                    output.close();
                 } catch (IOException ignored) {}
             }
 
-            buf.reset(); // for reuse
-
-            // 防止hold过大的内存块一直不释放
-            assert bufUpdater != null;
-            if (bufUpdater.get(buf).length > MAX_CACHED_BUF_SIZE) {
-                bufUpdater.set(buf, new byte[DEFAULT_BUF_SIZE]);
-            }
+            Outputs.resetBuf(buf);
         }
         return null; // never get here
     }
 
     @Override
     public <T> T readObject(InputBuf inputBuf, Class<T> clazz) {
-        ObjectInputStream objInput = null;
+        ObjectInputStream input = null;
         try {
-            objInput = new ObjectInputStream(inputBuf.inputStream());
-            return clazz.cast(objInput.readObject());
+            input = Inputs.getInput(inputBuf);
+            return clazz.cast(input.readObject());
         } catch (Exception e) {
             ExceptionUtil.throwException(e);
         } finally {
-            if (objInput != null) {
+            if (input != null) {
                 try {
-                    objInput.close();
+                    input.close();
                 } catch (IOException ignored) {}
             }
             inputBuf.release();
@@ -124,16 +108,16 @@ public class JavaSerializer extends Serializer {
 
     @Override
     public <T> T readObject(byte[] bytes, int offset, int length, Class<T> clazz) {
-        ObjectInputStream objInput = null;
+        ObjectInputStream input = null;
         try {
-            objInput = new ObjectInputStream(new ByteArrayInputStream(bytes, offset, length));
-            return clazz.cast(objInput.readObject());
+            input = Inputs.getInput(bytes, offset, length);
+            return clazz.cast(input.readObject());
         } catch (Exception e) {
             ExceptionUtil.throwException(e);
         } finally {
-            if (objInput != null) {
+            if (input != null) {
                 try {
-                    objInput.close();
+                    input.close();
                 } catch (IOException ignored) {}
             }
         }

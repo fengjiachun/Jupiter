@@ -19,17 +19,15 @@ package org.jupiter.serialization.hessian;
 import com.caucho.hessian.io.Hessian2Input;
 import com.caucho.hessian.io.Hessian2Output;
 import org.jupiter.common.util.ExceptionUtil;
-import org.jupiter.common.util.internal.InternalThreadLocal;
-import org.jupiter.common.util.internal.UnsafeReferenceFieldUpdater;
-import org.jupiter.common.util.internal.UnsafeUpdater;
 import org.jupiter.serialization.InputBuf;
 import org.jupiter.serialization.OutputBuf;
 import org.jupiter.serialization.Serializer;
 import org.jupiter.serialization.SerializerType;
+import org.jupiter.serialization.hessian.io.Inputs;
+import org.jupiter.serialization.hessian.io.Outputs;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.io.OutputStream;
 
 /**
  * Hessian的序列化/反序列化实现
@@ -41,18 +39,6 @@ import java.io.IOException;
  */
 public class HessianSerializer extends Serializer {
 
-    private static final UnsafeReferenceFieldUpdater<ByteArrayOutputStream, byte[]> bufUpdater =
-            UnsafeUpdater.newReferenceFieldUpdater(ByteArrayOutputStream.class, "buf");
-
-    // 目的是复用 ByteArrayOutputStream 中的 byte[]
-    private static final InternalThreadLocal<ByteArrayOutputStream> bufThreadLocal = new InternalThreadLocal<ByteArrayOutputStream>() {
-
-        @Override
-        protected ByteArrayOutputStream initialValue() {
-            return new ByteArrayOutputStream(DEFAULT_BUF_SIZE);
-        }
-    };
-
     @Override
     public byte code() {
         return SerializerType.HESSIAN.value();
@@ -60,16 +46,16 @@ public class HessianSerializer extends Serializer {
 
     @Override
     public <T> OutputBuf writeObject(OutputBuf outputBuf, T obj) {
-        Hessian2Output hOutput = new Hessian2Output(outputBuf.outputStream());
+        Hessian2Output output = Outputs.getOutput(outputBuf);
         try {
-            hOutput.writeObject(obj);
-            hOutput.flush();
+            output.writeObject(obj);
+            output.flush();
             return outputBuf;
         } catch (IOException e) {
             ExceptionUtil.throwException(e);
         } finally {
             try {
-                hOutput.close();
+                output.close();
             } catch (IOException ignored) {}
         }
         return null; // never get here
@@ -77,40 +63,34 @@ public class HessianSerializer extends Serializer {
 
     @Override
     public <T> byte[] writeObject(T obj) {
-        ByteArrayOutputStream buf = bufThreadLocal.get();
-        Hessian2Output hOutput = new Hessian2Output(buf);
+        OutputStream buf = Outputs.getOutputStream();
+        Hessian2Output output = Outputs.getOutput(buf);
         try {
-            hOutput.writeObject(obj);
-            hOutput.flush();
-            return buf.toByteArray();
+            output.writeObject(obj);
+            output.flush();
+            return Outputs.toByteArray(buf);
         } catch (IOException e) {
             ExceptionUtil.throwException(e);
         } finally {
             try {
-                hOutput.close();
+                output.close();
             } catch (IOException ignored) {}
 
-            buf.reset(); // for reuse
-
-            // 防止hold过大的内存块一直不释放
-            assert bufUpdater != null;
-            if (bufUpdater.get(buf).length > MAX_CACHED_BUF_SIZE) {
-                bufUpdater.set(buf, new byte[DEFAULT_BUF_SIZE]);
-            }
+            Outputs.resetBuf(buf);
         }
         return null; // never get here
     }
 
     @Override
     public <T> T readObject(InputBuf inputBuf, Class<T> clazz) {
-        Hessian2Input hInput = new Hessian2Input(inputBuf.inputStream());
+        Hessian2Input input = Inputs.getInput(inputBuf);
         try {
-            return clazz.cast(hInput.readObject(clazz));
+            return clazz.cast(input.readObject(clazz));
         } catch (IOException e) {
             ExceptionUtil.throwException(e);
         } finally {
             try {
-                hInput.close();
+                input.close();
             } catch (IOException ignored) {}
 
             inputBuf.release();
@@ -120,14 +100,14 @@ public class HessianSerializer extends Serializer {
 
     @Override
     public <T> T readObject(byte[] bytes, int offset, int length, Class<T> clazz) {
-        Hessian2Input hInput = new Hessian2Input(new ByteArrayInputStream(bytes, offset, length));
+        Hessian2Input input = Inputs.getInput(bytes, offset, length);
         try {
-            return clazz.cast(hInput.readObject(clazz));
+            return clazz.cast(input.readObject(clazz));
         } catch (IOException e) {
             ExceptionUtil.throwException(e);
         } finally {
             try {
-                hInput.close();
+                input.close();
             } catch (IOException ignored) {}
         }
         return null; // never get here
