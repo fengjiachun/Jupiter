@@ -32,7 +32,7 @@ import static org.jupiter.serialization.Serializer.MAX_CACHED_BUF_SIZE;
  */
 public final class Outputs {
 
-    // 目的是复用 Output 中的 byte[]
+    // 复用 Output 中的 byte[]
     private static final InternalThreadLocal<Output> outputBytesThreadLocal = new InternalThreadLocal<Output>() {
 
         @Override
