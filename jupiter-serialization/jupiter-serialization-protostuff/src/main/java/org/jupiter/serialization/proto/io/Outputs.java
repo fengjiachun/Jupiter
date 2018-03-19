@@ -20,6 +20,7 @@ import io.protostuff.LinkedBuffer;
 import io.protostuff.Output;
 import io.protostuff.ProtostuffOutput;
 import io.protostuff.WriteSession;
+import org.jupiter.common.util.Reflects;
 import org.jupiter.serialization.io.OutputBuf;
 
 /**
@@ -45,7 +46,8 @@ public class Outputs {
         if (output instanceof WriteSession) {
             return ((WriteSession) output).toByteArray();
         }
-        throw new UnsupportedOperationException();
+        throw new IllegalArgumentException(
+                "Output [" + Reflects.simpleClassName(output)+ "] must be a WriteSession's implementation");
     }
 
     private Outputs() {}
