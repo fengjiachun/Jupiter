@@ -526,7 +526,6 @@ class NioBufInput implements Input {
             final byte b = nioBuffer.get();
             result |= (long) (b & 0x7F) << shift;
             if ((b & 0x80) == 0) {
-                // this.offset = offset;
                 return result;
             }
             shift += 7;
