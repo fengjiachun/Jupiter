@@ -114,7 +114,7 @@ public class MessageTask implements RejectedRunnable {
 
             _request.message(msg);
         } catch (Throwable t) {
-            rejected(Status.BAD_REQUEST, new JupiterBadRequestException(t.getMessage()));
+            rejected(Status.BAD_REQUEST, new JupiterBadRequestException("reading request failed", t));
             return;
         }
 
