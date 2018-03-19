@@ -99,7 +99,7 @@ class NioBufInput implements Input {
             return 0;
         }
 
-        final int tag = readRawVarint32();
+        final int tag = readRawVarInt32();
         if (tag >>> TAG_TYPE_BITS == 0) {
             // If we actually read zero, that's not a valid tag.
             throw ProtocolException.invalidTag();
@@ -135,7 +135,7 @@ class NioBufInput implements Input {
                 readRawLittleEndian64();
                 return true;
             case WIRETYPE_LENGTH_DELIMITED:
-                final int size = readRawVarint32();
+                final int size = readRawVarInt32();
                 if (size < 0) {
                     throw ProtocolException.negativeSize();
                 }
@@ -192,7 +192,7 @@ class NioBufInput implements Input {
         }
 
         packedLimit = 0;
-        final int tag = readRawVarint32();
+        final int tag = readRawVarInt32();
         final int fieldNumber = tag >>> TAG_TYPE_BITS;
         if (fieldNumber == 0) {
             if (decodeNestedMessageAsGroup &&
@@ -221,7 +221,7 @@ class NioBufInput implements Input {
     private void checkIfPackedField() throws IOException {
         // Do we have the start of a packed field?
         if (packedLimit == 0 && getTagWireType(lastTag) == WIRETYPE_LENGTH_DELIMITED) {
-            final int length = readRawVarint32();
+            final int length = readRawVarInt32();
             if (length < 0) {
                 throw ProtocolException.negativeSize();
             }
@@ -258,7 +258,7 @@ class NioBufInput implements Input {
     @Override
     public long readUInt64() throws IOException {
         checkIfPackedField();
-        return readRawVarint64();
+        return readRawVarInt64();
     }
 
     /**
@@ -267,7 +267,7 @@ class NioBufInput implements Input {
     @Override
     public long readInt64() throws IOException {
         checkIfPackedField();
-        return readRawVarint64();
+        return readRawVarInt64();
     }
 
     /**
@@ -276,7 +276,7 @@ class NioBufInput implements Input {
     @Override
     public int readInt32() throws IOException {
         checkIfPackedField();
-        return readRawVarint32();
+        return readRawVarInt32();
     }
 
     /**
@@ -312,7 +312,7 @@ class NioBufInput implements Input {
     @Override
     public int readUInt32() throws IOException {
         checkIfPackedField();
-        return readRawVarint32();
+        return readRawVarInt32();
     }
 
     /**
@@ -322,7 +322,7 @@ class NioBufInput implements Input {
     @Override
     public int readEnum() throws IOException {
         checkIfPackedField();
-        return readRawVarint32();
+        return readRawVarInt32();
     }
 
     /**
@@ -349,7 +349,7 @@ class NioBufInput implements Input {
     @Override
     public int readSInt32() throws IOException {
         checkIfPackedField();
-        final int n = readRawVarint32();
+        final int n = readRawVarInt32();
         return (n >>> 1) ^ -(n & 1);
     }
 
@@ -359,13 +359,13 @@ class NioBufInput implements Input {
     @Override
     public long readSInt64() throws IOException {
         checkIfPackedField();
-        final long n = readRawVarint64();
+        final long n = readRawVarInt64();
         return (n >>> 1) ^ -(n & 1);
     }
 
     @Override
     public String readString() throws IOException {
-        final int length = readRawVarint32();
+        final int length = readRawVarInt32();
         if (length < 0) {
             throw ProtocolException.negativeSize();
         }
@@ -398,7 +398,7 @@ class NioBufInput implements Input {
 
     @Override
     public void readBytes(final ByteBuffer bb) throws IOException {
-        final int length = readRawVarint32();
+        final int length = readRawVarInt32();
         if (length < 0) {
             throw ProtocolException.negativeSize();
         }
@@ -412,7 +412,7 @@ class NioBufInput implements Input {
 
     @Override
     public byte[] readByteArray() throws IOException {
-        final int length = readRawVarint32();
+        final int length = readRawVarInt32();
         if (length < 0) {
             throw ProtocolException.negativeSize();
         }
@@ -431,7 +431,7 @@ class NioBufInput implements Input {
         if (decodeNestedMessageAsGroup)
             return mergeObjectEncodedAsGroup(value, schema);
 
-        final int length = readRawVarint32();
+        final int length = readRawVarInt32();
         if (length < 0) {
             throw ProtocolException.negativeSize();
         }
@@ -482,7 +482,7 @@ class NioBufInput implements Input {
     /**
      * Reads a var int 32 from the internal byte buffer.
      */
-    public int readRawVarint32() throws IOException {
+    public int readRawVarInt32() throws IOException {
         byte tmp = nioBuffer.get();
         if (tmp >= 0) {
             return tmp;
@@ -519,7 +519,7 @@ class NioBufInput implements Input {
     /**
      * Reads a var int 64 from the internal byte buffer.
      */
-    public long readRawVarint64() throws IOException {
+    public long readRawVarInt64() throws IOException {
         int shift = 0;
         long result = 0;
         while (shift < 64) {
@@ -566,7 +566,7 @@ class NioBufInput implements Input {
     @Override
     public void transferByteRangeTo(Output output, boolean utf8String, int fieldNumber,
                                     boolean repeated) throws IOException {
-        final int length = readRawVarint32();
+        final int length = readRawVarInt32();
         if (length < 0) {
             throw ProtocolException.negativeSize();
         }
