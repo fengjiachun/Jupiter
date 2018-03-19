@@ -53,8 +53,8 @@ class UnsafeNioBufOutput extends NioBufOutput {
         // and at most 3 times of it. We take advantage of this in both branches below.
         int minLength = value.length();
         int maxLength = minLength * UnsafeUtf8Util.MAX_BYTES_PER_CHAR;
-        int minLengthVarIntSize = computeVarInt32Size(minLength);
-        int maxLengthVarIntSize = computeVarInt32Size(maxLength);
+        int minLengthVarIntSize = computeRawVarInt32Size(minLength);
+        int maxLengthVarIntSize = computeRawVarInt32Size(maxLength);
         if (minLengthVarIntSize == maxLengthVarIntSize) {
             int position = nioBuffer.position();
 
@@ -193,19 +193,20 @@ class UnsafeNioBufOutput extends NioBufOutput {
     }
 
     /**
-     * Compute the number of bytes that would be needed to encode a {@code uint32} field.
+     * Compute the number of bytes that would be needed to encode a varInt. {@code value} is treated as unsigned, so it
+     * won't be sign-extended if negative.
      */
-    private static int computeVarInt32Size(final int value) {
-        if ((value & (~0 <<  7)) == 0) {
+    private static int computeRawVarInt32Size(final int value) {
+        if ((value & (0xffffffff << 7)) == 0) {
             return 1;
         }
-        if ((value & (~0 << 14)) == 0) {
+        if ((value & (0xffffffff << 14)) == 0) {
             return 2;
         }
-        if ((value & (~0 << 21)) == 0) {
+        if ((value & (0xffffffff << 21)) == 0) {
             return 3;
         }
-        if ((value & (~0 << 28)) == 0) {
+        if ((value & (0xffffffff << 28)) == 0) {
             return 4;
         }
         return 5;
