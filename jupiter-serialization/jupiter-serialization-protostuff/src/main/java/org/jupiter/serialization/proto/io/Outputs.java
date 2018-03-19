@@ -46,8 +46,8 @@ public class Outputs {
         if (output instanceof WriteSession) {
             return ((WriteSession) output).toByteArray();
         }
-        throw new IllegalArgumentException(
-                "Output [" + Reflects.simpleClassName(output)+ "] must be a WriteSession's implementation");
+        throw new IllegalArgumentException("Output [" + Reflects.simpleClassName(output)
+                + "] must be a WriteSession's implementation");
     }
 
     private Outputs() {}
