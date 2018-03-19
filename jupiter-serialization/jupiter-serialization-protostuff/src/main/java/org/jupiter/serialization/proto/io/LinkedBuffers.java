@@ -27,7 +27,7 @@ import static org.jupiter.serialization.Serializer.DEFAULT_BUF_SIZE;
  *
  * @author jiachun.fjc
  */
-public class LinkedBuffers {
+public final class LinkedBuffers {
 
     // 复用 LinkedBuffer 中链表头结点 byte[]
     private static final InternalThreadLocal<LinkedBuffer> bufThreadLocal = new InternalThreadLocal<LinkedBuffer>() {
@@ -45,4 +45,6 @@ public class LinkedBuffers {
     public static void resetBuf(LinkedBuffer buf) {
         buf.clear();
     }
+
+    private LinkedBuffers() {}
 }
