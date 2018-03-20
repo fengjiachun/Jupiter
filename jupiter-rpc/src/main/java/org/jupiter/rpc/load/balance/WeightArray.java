@@ -37,11 +37,26 @@ final class WeightArray {
     }
 
     int get(int index) {
+        if (index >= array.length) {
+            throw new ArrayIndexOutOfBoundsException(index);
+        }
         return array[index];
+    }
+
+    int length() {
+        return array.length;
+    }
+
+    int getSumWeight() {
+        return array[array.length - 1];
     }
 
     boolean isAllSameWeight() {
         return array == null;
+    }
+
+    private void clear() {
+        array = null;
     }
 
     static WeightArray computeWeightArray(
@@ -66,7 +81,7 @@ final class WeightArray {
 
         if (allWarmUpComplete) {
             if (allSameWeight) {
-                weightArray.array = null;
+                weightArray.clear();
             }
             groups.setWeightArray(elements, directory.directoryString(), weightArray);
         }

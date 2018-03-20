@@ -94,7 +94,10 @@ public class RoundRobinLoadBalancer implements LoadBalancer {
             return elements[index % length];
         }
 
-        int sumWeight = weightArray.get(length - 1);
+        // defensive fault tolerance
+        length = Math.min(length, weightArray.length());
+
+        int sumWeight = weightArray.getSumWeight();
         int eVal = index % sumWeight;
         int eIndex = WeightArray.binarySearchIndex(weightArray, length, eVal);
 

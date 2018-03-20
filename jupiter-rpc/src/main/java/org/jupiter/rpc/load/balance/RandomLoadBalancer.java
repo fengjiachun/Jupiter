@@ -76,7 +76,10 @@ public class RandomLoadBalancer implements LoadBalancer {
             return elements[random.nextInt(length)];
         }
 
-        int sumWeight = weightArray.get(length - 1);
+        // defensive fault tolerance
+        length = Math.min(length, weightArray.length());
+
+        int sumWeight = weightArray.getSumWeight();
         int eVal = random.nextInt(sumWeight) % sumWeight;
         int eIndex = WeightArray.binarySearchIndex(weightArray, length, eVal);
 
