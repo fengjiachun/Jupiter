@@ -2,6 +2,7 @@ Jupiter release notes
 ------------------------
 ### 2018-03-18: version 1.2.19
 
+- CopyOnWriteGroupList代码重构
 - Serialization模块重构
 - Bug fix: [WeightArray#computeWeightArray](/jupiter-rpc/src/main/java/org/jupiter/rpc/load/balance/WeightArray.java)
 

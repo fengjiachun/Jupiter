@@ -43,6 +43,13 @@ final class WeightArray {
         return array[index];
     }
 
+    void set(int index, int value) {
+        if (index >= array.length) {
+            throw new ArrayIndexOutOfBoundsException(index);
+        }
+        array[index] = value;
+    }
+
     int length() {
         return array.length;
     }
@@ -55,28 +62,27 @@ final class WeightArray {
         return array == null;
     }
 
-    private void clear() {
+    void clear() {
         array = null;
     }
 
-    static WeightArray computeWeightArray(
-            CopyOnWriteGroupList groups, JChannelGroup[] elements, Directory directory, int length) {
+    static WeightArray computeWeightArray(CopyOnWriteGroupList groups, JChannelGroup[] elements, Directory directory) {
+        int length = elements.length;
+
         WeightArray weightArray = new WeightArray(length);
 
-        boolean allWarmUpComplete = true;
+        boolean allWarmUpComplete = elements[0].isWarmUpComplete();
         boolean allSameWeight = true;
-        for (int i = 0; i < length; i++) {
+        int firstVal = getWeight(elements[0], directory);
+        weightArray.set(0, firstVal);
+        for (int i = 1; i < length; i++) {
             allWarmUpComplete = (allWarmUpComplete && elements[i].isWarmUpComplete());
-
-            int preVal = 0;
+            int preVal = weightArray.get(i - 1);
             int curVal = getWeight(elements[i], directory);
-            if (i > 0) {
-                preVal = weightArray.array[i - 1];
-                allSameWeight = allSameWeight && preVal == curVal;
-            }
+            allSameWeight = allSameWeight && firstVal == curVal;
 
             // [value = preVal + curVal] is for binary search
-            weightArray.array[i] = preVal + curVal;
+            weightArray.set(i, preVal + curVal);
         }
 
         if (allWarmUpComplete) {

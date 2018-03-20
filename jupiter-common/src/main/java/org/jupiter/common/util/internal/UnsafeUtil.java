@@ -247,6 +247,72 @@ public final class UnsafeUtil {
         memoryAccessor.putLong(address, value);
     }
 
+    public static byte getByteVolatile(byte[] target, long index) {
+        return memoryAccessor.getByteVolatile(target, BYTE_ARRAY_BASE_OFFSET + index);
+    }
+
+    public static void putByteVolatile(byte[] target, long index, byte value) {
+        memoryAccessor.putByteVolatile(target, BYTE_ARRAY_BASE_OFFSET + index, value);
+    }
+
+    public static int getIntVolatile(int[] target, long index) {
+        return memoryAccessor.getIntVolatile(target, INT_ARRAY_BASE_OFFSET + (index * INT_ARRAY_INDEX_SCALE));
+    }
+
+    public static void putIntVolatile(int[] target, long index, int value) {
+        memoryAccessor.putIntVolatile(target, INT_ARRAY_BASE_OFFSET + (index * INT_ARRAY_INDEX_SCALE), value);
+    }
+
+    public static long getLongVolatile(long[] target, long index) {
+        return memoryAccessor.getLongVolatile(
+                target, LONG_ARRAY_BASE_OFFSET + (index * LONG_ARRAY_INDEX_SCALE));
+    }
+
+    public static void putLongVolatile(long[] target, long index, long value) {
+        memoryAccessor.putLongVolatile(
+                target, LONG_ARRAY_BASE_OFFSET + (index * LONG_ARRAY_INDEX_SCALE), value);
+    }
+
+    public static boolean getBooleanVolatile(boolean[] target, long index) {
+        return memoryAccessor.getBooleanVolatile(
+                target, BOOLEAN_ARRAY_BASE_OFFSET + (index * BOOLEAN_ARRAY_INDEX_SCALE));
+    }
+
+    public static void putBooleanVolatile(boolean[] target, long index, boolean value) {
+        memoryAccessor.putBooleanVolatile(
+                target, BOOLEAN_ARRAY_BASE_OFFSET + (index * BOOLEAN_ARRAY_INDEX_SCALE), value);
+    }
+
+    public static float getFloatVolatile(float[] target, long index) {
+        return memoryAccessor.getFloatVolatile(
+                target, FLOAT_ARRAY_BASE_OFFSET + (index * FLOAT_ARRAY_INDEX_SCALE));
+    }
+
+    public static void putFloatVolatile(float[] target, long index, float value) {
+        memoryAccessor.putFloatVolatile(
+                target, FLOAT_ARRAY_BASE_OFFSET + (index * FLOAT_ARRAY_INDEX_SCALE), value);
+    }
+
+    public static double getDoubleVolatile(double[] target, long index) {
+        return memoryAccessor.getDoubleVolatile(
+                target, DOUBLE_ARRAY_BASE_OFFSET + (index * DOUBLE_ARRAY_INDEX_SCALE));
+    }
+
+    public static void putDoubleVolatile(double[] target, long index, double value) {
+        memoryAccessor.putDoubleVolatile(
+                target, DOUBLE_ARRAY_BASE_OFFSET + (index * DOUBLE_ARRAY_INDEX_SCALE), value);
+    }
+
+    public static Object getObjectVolatile(Object[] target, long index) {
+        return memoryAccessor.getObjectVolatile(
+                target, OBJECT_ARRAY_BASE_OFFSET + (index * OBJECT_ARRAY_INDEX_SCALE));
+    }
+
+    public static void putObjectVolatile(Object[] target, long index, Object value) {
+        memoryAccessor.putObjectVolatile(
+                target, OBJECT_ARRAY_BASE_OFFSET + (index * OBJECT_ARRAY_INDEX_SCALE), value);
+    }
+
     /**
      * Reports the offset of the first element in the storage allocation of a
      * given array class.
@@ -457,6 +523,70 @@ public final class UnsafeUtil {
 
         public void copyMemory(long srcAddress, long dstAddress, long bytes) {
             unsafe.copyMemory(srcAddress, dstAddress, bytes);
+        }
+
+        public byte getByteVolatile(Object target, long offset) {
+            return unsafe.getByteVolatile(target, offset);
+        }
+
+        public void putByteVolatile(Object target, long offset, byte value) {
+            unsafe.putByteVolatile(target, offset, value);
+        }
+
+        public short getShortVolatile(Object target, long offset) {
+            return unsafe.getShortVolatile(target, offset);
+        }
+
+        public void putShortVolatile(Object target, long offset, short value) {
+            unsafe.putShortVolatile(target, offset, value);
+        }
+
+        public int getIntVolatile(Object target, long offset) {
+            return unsafe.getIntVolatile(target, offset);
+        }
+
+        public void putIntVolatile(Object target, long offset, int value) {
+            unsafe.putIntVolatile(target, offset, value);
+        }
+
+        public long getLongVolatile(Object target, long offset) {
+            return unsafe.getLongVolatile(target, offset);
+        }
+
+        public void putLongVolatile(Object target, long offset, long value) {
+            unsafe.putLongVolatile(target, offset, value);
+        }
+
+        public boolean getBooleanVolatile(Object target, long offset) {
+            return unsafe.getBooleanVolatile(target, offset);
+        }
+
+        public void putBooleanVolatile(Object target, long offset, boolean value) {
+            unsafe.putBooleanVolatile(target, offset, value);
+        }
+
+        public float getFloatVolatile(Object target, long offset) {
+            return unsafe.getFloatVolatile(target, offset);
+        }
+
+        public void putFloatVolatile(Object target, long offset, float value) {
+            unsafe.putFloatVolatile(target, offset, value);
+        }
+
+        public double getDoubleVolatile(Object target, long offset) {
+            return unsafe.getDoubleVolatile(target, offset);
+        }
+
+        public void putDoubleVolatile(Object target, long offset, double value) {
+            unsafe.putDoubleVolatile(target, offset, value);
+        }
+
+        public Object getObjectVolatile(Object target, long offset) {
+            return unsafe.getObjectVolatile(target, offset);
+        }
+
+        public void putObjectVolatile(Object target, long offset, Object value) {
+            unsafe.putObjectVolatile(target, offset, value);
         }
     }
 }
