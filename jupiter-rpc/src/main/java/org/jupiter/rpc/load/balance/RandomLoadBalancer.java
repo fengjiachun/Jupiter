@@ -67,7 +67,7 @@ public class RandomLoadBalancer implements LoadBalancer {
 
         WeightArray weightArray = (WeightArray) groups.getWeightArray(elements, directory.directoryString());
         if (weightArray == null) {
-            weightArray = WeightArray.computeWeightArray(groups, elements, directory);
+            weightArray = WeightSupport.computeWeights(groups, elements, directory);
         }
 
         ThreadLocalRandom random = ThreadLocalRandom.current();
@@ -79,9 +79,9 @@ public class RandomLoadBalancer implements LoadBalancer {
         // defensive fault tolerance
         length = Math.min(length, weightArray.length());
 
-        int sumWeight = weightArray.getSumWeight();
+        int sumWeight = weightArray.get(length - 1);
         int eVal = random.nextInt(sumWeight) % sumWeight;
-        int eIndex = WeightArray.binarySearchIndex(weightArray, length, eVal);
+        int eIndex = WeightSupport.binarySearchIndex(weightArray, length, eVal);
 
         return elements[eIndex];
     }

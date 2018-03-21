@@ -16,18 +16,16 @@
 
 package org.jupiter.rpc.load.balance;
 
-import org.jupiter.common.util.IntSequence;
 import org.jupiter.transport.Directory;
 import org.jupiter.transport.channel.CopyOnWriteGroupList;
 import org.jupiter.transport.channel.JChannelGroup;
 
+import java.util.concurrent.atomic.AtomicIntegerFieldUpdater;
+
 /**
  * 加权轮询负载均衡.
  *
- * 当前实现不会先去计算最大公约数再轮询, 通常最大权重和最小权重值不会相差过于悬殊,
- * 因此我觉得没有必要先去求最大公约数, 很可能产生没有必要的开销.
- *
- * 每个服务应有各自独立的实例(sequence不共享)
+ * 每个服务应有各自独立的实例(index不共享)
  *
  * <pre>
  * **********************************************************************
@@ -63,7 +61,11 @@ import org.jupiter.transport.channel.JChannelGroup;
  */
 public class RoundRobinLoadBalancer implements LoadBalancer {
 
-    private final IntSequence sequence = new IntSequence();
+    private static final AtomicIntegerFieldUpdater<RoundRobinLoadBalancer> indexUpdater =
+            AtomicIntegerFieldUpdater.newUpdater(RoundRobinLoadBalancer.class, "index");
+
+    @SuppressWarnings("unused")
+    private volatile int index = 0;
 
     public static RoundRobinLoadBalancer instance() {
         // round-robin是有状态的, 不能是单例
@@ -85,10 +87,10 @@ public class RoundRobinLoadBalancer implements LoadBalancer {
 
         WeightArray weightArray = (WeightArray) groups.getWeightArray(elements, directory.directoryString());
         if (weightArray == null) {
-            weightArray = WeightArray.computeWeightArray(groups, elements, directory);
+            weightArray = WeightSupport.computeWeights(groups, elements, directory);
         }
 
-        int index = sequence.next() & Integer.MAX_VALUE;
+        int index = indexUpdater.getAndIncrement(this) & Integer.MAX_VALUE;
 
         if (weightArray.isAllSameWeight()) {
             return elements[index % length];
@@ -97,10 +99,31 @@ public class RoundRobinLoadBalancer implements LoadBalancer {
         // defensive fault tolerance
         length = Math.min(length, weightArray.length());
 
-        int sumWeight = weightArray.getSumWeight();
-        int eVal = index % sumWeight;
-        int eIndex = WeightArray.binarySearchIndex(weightArray, length, eVal);
+        int[] weights = new int[length];
+        weights[0] = weightArray.get(0);
+        int maxWeight = weights[0];
+        int sumWeight = weightArray.get(length - 1);
+        for (int i = 1; i < length; i++) {
+            weights[i] = weightArray.get(i) - weightArray.get(i - 1);
+            if (weights[i] > maxWeight) {
+                maxWeight = weights[i];
+            }
+        }
 
-        return elements[eIndex];
+        int eVal = index % sumWeight;
+        for (int i = 0; i < maxWeight; i++) {
+            for (int j = 0; j < length; j++) {
+                int val = weights[j];
+                if (eVal == 0 && val > 0) {
+                    return elements[j];
+                }
+                if (val > 0) {
+                    weights[j] = val - 1;
+                    --eVal;
+                }
+            }
+        }
+
+        return elements[index % length];
     }
 }
