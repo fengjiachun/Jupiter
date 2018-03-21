@@ -30,7 +30,7 @@ import java.util.concurrent.atomic.AtomicIntegerFieldUpdater;
  * <pre>
  * **********************************************************************
  *
- *  index++ % sumWeight
+ *  index++ % (sumWeight / gcd)
  *
  *                       ┌─┐
  *                       │ │
@@ -99,27 +99,34 @@ public class RoundRobinLoadBalancer implements LoadBalancer {
         // defensive fault tolerance
         length = Math.min(length, weightArray.length());
 
-        int[] weights = new int[length];
-        int maxWeight = weights[0] = weightArray.get(0);
+        int[] weightsSnapshot = new int[length];
+        int maxWeight = weightsSnapshot[0] = weightArray.get(0);
         for (int i = 1; i < length; i++) {
-            weights[i] = weightArray.get(i) - weightArray.get(i - 1);
-            if (weights[i] > maxWeight) {
-                maxWeight = weights[i];
+            weightsSnapshot[i] = weightArray.get(i) - weightArray.get(i - 1);
+            if (weightsSnapshot[i] > maxWeight) {
+                maxWeight = weightsSnapshot[i];
+            }
+        }
+
+        // the greatest common divisor
+        int gcd = weightArray.gcd();
+        if (gcd < 1) {
+            gcd = WeightSupport.n_gcd(weightArray.array(), length);
+            if (length == weightArray.length()) {
+                weightArray.gcd(gcd);
             }
         }
 
         // 这一段算法参考当前的类注释中的那张图
-        //
-        // 当前实现会先去将权重除以最大公约数
         int sumWeight = weightArray.get(length - 1);
-        int eVal = index % sumWeight;
+        int eVal = index % (sumWeight / gcd);
         for (int i = 0; i < maxWeight; i++) {
             for (int j = 0; j < length; j++) {
-                if (eVal == 0 && weights[j] > 0) {
+                if (eVal == 0 && weightsSnapshot[j] > 0) {
                     return elements[j];
                 }
-                if (weights[j] > 0) {
-                    weights[j] = weights[j] - 1;
+                if (weightsSnapshot[j] > 0) {
+                    weightsSnapshot[j] -= gcd;
                     --eVal;
                 }
             }

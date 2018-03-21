@@ -79,9 +79,6 @@ public class RandomLoadBalancer implements LoadBalancer {
         // defensive fault tolerance
         length = Math.min(length, weightArray.length());
 
-        // 这一段算法参考当前的类注释中的那张图
-        //
-        // 当前实现会先去将权重除以最大公约数
         int sumWeight = weightArray.get(length - 1);
         int eVal = random.nextInt(sumWeight) % sumWeight;
         int eIndex = WeightSupport.binarySearchIndex(weightArray, length, eVal);

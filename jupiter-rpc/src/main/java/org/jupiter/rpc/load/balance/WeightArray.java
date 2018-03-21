@@ -24,7 +24,8 @@ package org.jupiter.rpc.load.balance;
  */
 final class WeightArray {
 
-    private int[] array;
+    private final int[] array;
+    private int gcd;
 
     WeightArray(int[] array) {
         this.array = array;
@@ -44,8 +45,20 @@ final class WeightArray {
         array[index] = value;
     }
 
+    int[] array() {
+        return array;
+    }
+
     int length() {
         return array.length;
+    }
+
+    int gcd() {
+        return gcd;
+    }
+
+    void gcd(int gcd) {
+        this.gcd = gcd;
     }
 
     boolean isAllSameWeight() {

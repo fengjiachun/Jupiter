@@ -69,7 +69,6 @@ final class WeightSupport {
         }
 
         if (weights != null) {
-            weights = weightsDivisionGcd(weights, length);
             for (int i = 1; i < length; i++) {
                 // [curVal += preVal] for binary search
                 weights[i] += weights[i - 1];
@@ -99,16 +98,6 @@ final class WeightSupport {
         return weight > 0 ? weight : 0;
     }
 
-    static int[] weightsDivisionGcd(int[] weights, int n) {
-        int gcd = n_gcd(weights, n);
-        if (gcd > 1) {
-            for (int i = 0; i < n; i++) {
-                weights[i] = weights[i] / gcd;
-            }
-        }
-        return weights;
-    }
-
     static int n_gcd(int[] array, int n) {
         if (n == 1) {
             return array[0];
@@ -116,21 +105,43 @@ final class WeightSupport {
         return gcd(array[n - 1], n_gcd(array, n - 1));
     }
 
+    /**
+     * Returns the greatest common divisor of {@code a, b}. Returns {@code 0} if
+     * {@code a == 0 && b == 0}.
+     */
     static int gcd(int a, int b) {
-        if (a == 0) {
+        if (a == b) {
+            return a;
+        } else if (a == 0) {
             return b;
         } else if (b == 0) {
-            return a; // similar logic
+            return a;
         }
 
+        /*
+         * Uses the binary GCD algorithm; see http://en.wikipedia.org/wiki/Binary_GCD_algorithm.
+         * This is >40% faster than the Euclidean algorithm in benchmarks.
+         */
         int aTwos = Integer.numberOfTrailingZeros(a);
         a >>= aTwos; // divide out all 2s
         int bTwos = Integer.numberOfTrailingZeros(b);
         b >>= bTwos; // divide out all 2s
         while (a != b) { // both a, b are odd
+            // The key to the binary GCD algorithm is as follows:
+            // Both a and b are odd.  Assume a > b; then gcd(a - b, b) = gcd(a, b).
+            // But in gcd(a - b, b), a - b is even and b is odd, so we can divide out powers of two.
+
+            // We bend over backwards to avoid branching, adapting a technique from
+            // http://graphics.stanford.edu/~seander/bithacks.html#IntegerMinOrMax
+
             int delta = a - b; // can't overflow, since a and b are nonnegative
+
             int minDeltaOrZero = delta & (delta >> (Integer.SIZE - 1));
+            // equivalent to Math.min(delta, 0)
+
             a = delta - minDeltaOrZero - minDeltaOrZero; // sets a to Math.abs(a - b)
+            // a is now nonnegative and even
+
             b += minDeltaOrZero; // sets b to min(old a, b)
             a >>= Integer.numberOfTrailingZeros(a); // divide out all 2s, since 2 doesn't divide b
         }

@@ -47,19 +47,23 @@ public class RoundRobinLoadBalancerTest {
             }
         };
 
-        int len = 20;
+        int len = 100;
         for (int i = 0; i < len; i++) {
             ChannelGroup c = new ChannelGroup();
             c.index = i;
-            c.weight = (i == 15 ? 10 : 2);
+            c.weight = (i == 5 ? 10 : 2);
             groupList.addIfAbsent(c);
         }
 
         LoadBalancer lb = new RoundRobinLoadBalancer();
-        for (int i = 0; i < 200; i++) {
+        int count = 0;
+        for (int i = 0; i < 208; i++) {
             System.out.print((i + 1) + " ");
-            System.out.println(lb.select(groupList, directory));
+            ChannelGroup c = (ChannelGroup) lb.select(groupList, directory);
+            count += (c.index == 5 ? 1 : 0);
+            System.out.println(c);
         }
+        System.out.println("the max weight selected count = " + count);
     }
 }
 
