@@ -47,10 +47,6 @@ final class WeightArray {
         array[index] = value;
     }
 
-    int[] array() {
-        return array;
-    }
-
     int length() {
         return length;
     }

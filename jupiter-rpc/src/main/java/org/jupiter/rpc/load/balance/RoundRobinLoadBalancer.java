@@ -114,7 +114,7 @@ public class RoundRobinLoadBalancer implements LoadBalancer {
         // the greatest common divisor
         int gcd = weightArray.gcd();
         if (gcd < 1) {
-            gcd = WeightSupport.n_gcd(weightArray.array(), length);
+            gcd = WeightSupport.n_gcd(weights, length);
             weightArray.gcd(gcd);
         }
 
