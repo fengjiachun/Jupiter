@@ -110,6 +110,9 @@ public class RoundRobinLoadBalancer implements LoadBalancer {
             }
         }
 
+        // 这一段算法参考当前的类注释中的那张图
+        //
+        // 当前实现会先去将权重除以最大公约数
         int eVal = index % sumWeight;
         for (int i = 0; i < maxWeight; i++) {
             for (int j = 0; j < length; j++) {
