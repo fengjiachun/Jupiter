@@ -96,12 +96,12 @@ public class RoundRobinLoadBalancer implements LoadBalancer {
             return elements[rrIndex % length];
         }
 
-        int nextIndex = getNextIndex(weightArray, length, rrIndex);
+        int nextIndex = getNextServerIndex(weightArray, length, rrIndex);
 
         return elements[nextIndex];
     }
 
-    private static int getNextIndex(WeightArray weightArray, int length, final int rrIndex) {
+    private static int getNextServerIndex(WeightArray weightArray, int length, final int rrIndex) {
         int[] weights = new int[length];
         int maxWeight = weights[0] = weightArray.get(0);
         for (int i = 1; i < length; i++) {
