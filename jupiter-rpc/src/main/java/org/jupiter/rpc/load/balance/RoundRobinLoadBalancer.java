@@ -100,9 +100,7 @@ public class RoundRobinLoadBalancer implements LoadBalancer {
         length = Math.min(length, weightArray.length());
 
         int[] weights = new int[length];
-        weights[0] = weightArray.get(0);
-        int maxWeight = weights[0];
-        int sumWeight = weightArray.get(length - 1);
+        int maxWeight = weights[0] = weightArray.get(0);
         for (int i = 1; i < length; i++) {
             weights[i] = weightArray.get(i) - weightArray.get(i - 1);
             if (weights[i] > maxWeight) {
@@ -113,15 +111,15 @@ public class RoundRobinLoadBalancer implements LoadBalancer {
         // 这一段算法参考当前的类注释中的那张图
         //
         // 当前实现会先去将权重除以最大公约数
+        int sumWeight = weightArray.get(length - 1);
         int eVal = index % sumWeight;
         for (int i = 0; i < maxWeight; i++) {
             for (int j = 0; j < length; j++) {
-                int val = weights[j];
-                if (eVal == 0 && val > 0) {
+                if (eVal == 0 && weights[j] > 0) {
                     return elements[j];
                 }
-                if (val > 0) {
-                    weights[j] = val - 1;
+                if (weights[j] > 0) {
+                    weights[j] = weights[j] - 1;
                     --eVal;
                 }
             }
