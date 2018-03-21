@@ -66,7 +66,7 @@ public class RandomLoadBalancer implements LoadBalancer {
         }
 
         WeightArray weightArray = (WeightArray) groups.getWeightArray(elements, directory.directoryString());
-        if (weightArray == null) {
+        if (weightArray == null || weightArray.length() != length) {
             weightArray = WeightSupport.computeWeights(groups, elements, directory);
         }
 
@@ -76,13 +76,13 @@ public class RandomLoadBalancer implements LoadBalancer {
             return elements[random.nextInt(length)];
         }
 
-        // defensive fault tolerance
-        length = Math.min(length, weightArray.length());
+        int nextIndex = getNextIndex(weightArray, length, random);
 
+        return elements[nextIndex];
+    }
+
+    private static int getNextIndex(WeightArray weightArray, int length, ThreadLocalRandom random) {
         int sumWeight = weightArray.get(length - 1);
-        int eVal = random.nextInt(sumWeight) % sumWeight;
-        int eIndex = WeightSupport.binarySearchIndex(weightArray, length, eVal);
-
-        return elements[eIndex];
+        return WeightSupport.binarySearchIndex(weightArray, length, random.nextInt(sumWeight));
     }
 }

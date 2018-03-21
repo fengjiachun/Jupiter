@@ -86,25 +86,28 @@ public class RoundRobinLoadBalancer implements LoadBalancer {
         }
 
         WeightArray weightArray = (WeightArray) groups.getWeightArray(elements, directory.directoryString());
-        if (weightArray == null) {
+        if (weightArray == null || weightArray.length() != length) {
             weightArray = WeightSupport.computeWeights(groups, elements, directory);
         }
 
-        int index = indexUpdater.getAndIncrement(this) & Integer.MAX_VALUE;
+        int rrIndex = indexUpdater.getAndIncrement(this) & Integer.MAX_VALUE;
 
         if (weightArray.isAllSameWeight()) {
-            return elements[index % length];
+            return elements[rrIndex % length];
         }
 
-        // defensive fault tolerance
-        length = Math.min(length, weightArray.length());
+        int nextIndex = getNextIndex(weightArray, length, rrIndex);
 
-        int[] weightsSnapshot = new int[length];
-        int maxWeight = weightsSnapshot[0] = weightArray.get(0);
+        return elements[nextIndex];
+    }
+
+    private static int getNextIndex(WeightArray weightArray, int length, int rrIndex) {
+        int[] weights = new int[length];
+        int maxWeight = weights[0] = weightArray.get(0);
         for (int i = 1; i < length; i++) {
-            weightsSnapshot[i] = weightArray.get(i) - weightArray.get(i - 1);
-            if (weightsSnapshot[i] > maxWeight) {
-                maxWeight = weightsSnapshot[i];
+            weights[i] = weightArray.get(i) - weightArray.get(i - 1);
+            if (weights[i] > maxWeight) {
+                maxWeight = weights[i];
             }
         }
 
@@ -117,21 +120,21 @@ public class RoundRobinLoadBalancer implements LoadBalancer {
             }
         }
 
-        // 这一段算法参考当前的类注释中的那张图
+        // get next server index
         int sumWeight = weightArray.get(length - 1);
-        int eVal = index % (sumWeight / gcd);
+        rrIndex = rrIndex % (sumWeight / gcd);
         for (int i = 0; i < maxWeight; i++) {
             for (int j = 0; j < length; j++) {
-                if (eVal == 0 && weightsSnapshot[j] > 0) {
-                    return elements[j];
+                if (rrIndex == 0 && weights[j] > 0) {
+                    return j;
                 }
-                if (weightsSnapshot[j] > 0) {
-                    weightsSnapshot[j] -= gcd;
-                    --eVal;
+                if (weights[j] > 0) {
+                    weights[j] -= gcd;
+                    --rrIndex;
                 }
             }
         }
 
-        return elements[index % length];
+        return rrIndex % length;
     }
 }

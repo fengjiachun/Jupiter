@@ -25,10 +25,12 @@ package org.jupiter.rpc.load.balance;
 final class WeightArray {
 
     private final int[] array;
+    private final int length;
     private int gcd;
 
-    WeightArray(int[] array) {
+    WeightArray(int[] array, int length) {
         this.array = array;
+        this.length = (array == null ? length : array.length);
     }
 
     int get(int index) {
@@ -50,7 +52,7 @@ final class WeightArray {
     }
 
     int length() {
-        return array.length;
+        return length;
     }
 
     int gcd() {

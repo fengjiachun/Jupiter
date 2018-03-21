@@ -75,7 +75,7 @@ final class WeightSupport {
             }
         }
 
-        WeightArray weightArray = new WeightArray(weights);
+        WeightArray weightArray = new WeightArray(weights, length);
 
         if (allWarmUpComplete) {
             groups.setWeightArray(elements, directory.directoryString(), weightArray);
