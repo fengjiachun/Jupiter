@@ -115,9 +115,7 @@ public class RoundRobinLoadBalancer implements LoadBalancer {
         int gcd = weightArray.gcd();
         if (gcd < 1) {
             gcd = WeightSupport.n_gcd(weightArray.array(), length);
-            if (length == weightArray.length()) {
-                weightArray.gcd(gcd);
-            }
+            weightArray.gcd(gcd);
         }
 
         // get next server index
