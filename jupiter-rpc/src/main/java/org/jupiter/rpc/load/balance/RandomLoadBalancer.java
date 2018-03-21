@@ -83,6 +83,7 @@ public class RandomLoadBalancer implements LoadBalancer {
 
     private static int getNextIndex(WeightArray weightArray, int length, ThreadLocalRandom random) {
         int sumWeight = weightArray.get(length - 1);
-        return WeightSupport.binarySearchIndex(weightArray, length, random.nextInt(sumWeight));
+        int rmIndex = random.nextInt(sumWeight);
+        return WeightSupport.binarySearchIndex(weightArray, length, rmIndex);
     }
 }
