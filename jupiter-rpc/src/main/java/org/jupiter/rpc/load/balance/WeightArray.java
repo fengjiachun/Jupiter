@@ -40,13 +40,6 @@ final class WeightArray {
         return array[index];
     }
 
-    void set(int index, int value) {
-        if (index >= array.length) {
-            throw new ArrayIndexOutOfBoundsException(index);
-        }
-        array[index] = value;
-    }
-
     int length() {
         return length;
     }
