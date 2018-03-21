@@ -30,7 +30,7 @@ final class WeightArray {
 
     WeightArray(int[] array, int length) {
         this.array = array;
-        this.length = (array == null ? length : array.length);
+        this.length = (array != null ? array.length : length);
     }
 
     int get(int index) {
