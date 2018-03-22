@@ -19,6 +19,7 @@ package org.jupiter.rpc.consumer.future;
 import org.jupiter.common.util.JConstants;
 import org.jupiter.common.util.Maps;
 import org.jupiter.common.util.Signal;
+import org.jupiter.common.util.SystemPropertyUtil;
 import org.jupiter.common.util.internal.logging.InternalLogger;
 import org.jupiter.common.util.internal.logging.InternalLoggerFactory;
 import org.jupiter.rpc.DispatchType;
@@ -243,6 +244,9 @@ public class DefaultInvokeFuture<V> extends AbstractListenableFuture<V> implemen
     @SuppressWarnings("all")
     private static class TimeoutScanner implements Runnable {
 
+        private static final long TIMEOUT_SCANNER_INTERVAL_MILLIS =
+                SystemPropertyUtil.getLong("jupiter.rpc.invoke.timeout_scanner_interval_millis", 100);
+
         public void run() {
             for (;;) {
                 try {
@@ -260,7 +264,7 @@ public class DefaultInvokeFuture<V> extends AbstractListenableFuture<V> implemen
                 }
 
                 try {
-                    Thread.sleep(30);
+                    Thread.sleep(TIMEOUT_SCANNER_INTERVAL_MILLIS);
                 } catch (InterruptedException ignored) {}
             }
         }
