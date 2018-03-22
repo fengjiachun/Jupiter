@@ -480,4 +480,6 @@ public final class UnsafeUtf8Util {
     static IllegalStateException invalidUtf8() {
         return new IllegalStateException("Message had invalid UTF-8.");
     }
+
+    private UnsafeUtf8Util() {}
 }

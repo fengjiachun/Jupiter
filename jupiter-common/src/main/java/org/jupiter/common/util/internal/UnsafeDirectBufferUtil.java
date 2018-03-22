@@ -247,4 +247,6 @@ public final class UnsafeDirectBufferUtil {
             dstOffset += size;
         }
     }
+
+    private UnsafeDirectBufferUtil() {}
 }

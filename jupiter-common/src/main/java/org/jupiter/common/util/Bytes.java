@@ -97,4 +97,6 @@ public final class Bytes {
         }
         return false;
     }
+
+    private Bytes() {}
 }

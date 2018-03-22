@@ -27,7 +27,7 @@ import static org.jupiter.common.util.StackTraceUtil.*;
  *
  * @author jiachun.fjc
  */
-public class ClassUtil {
+public final class ClassUtil {
 
     private static final InternalLogger logger = InternalLoggerFactory.getInstance(ClassUtil.class);
 
@@ -61,4 +61,6 @@ public class ClassUtil {
             ThrowUtil.throwException(t);
         }
     }
+
+    private ClassUtil() {}
 }

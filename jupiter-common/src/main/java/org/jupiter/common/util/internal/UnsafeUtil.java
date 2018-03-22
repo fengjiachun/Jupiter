@@ -589,4 +589,6 @@ public final class UnsafeUtil {
             unsafe.putObjectVolatile(target, offset, value);
         }
     }
+
+    private UnsafeUtil() {}
 }
