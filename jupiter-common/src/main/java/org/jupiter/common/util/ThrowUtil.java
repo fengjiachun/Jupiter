@@ -27,7 +27,7 @@ import sun.misc.Unsafe;
  *
  * @author jiachun.fjc
  */
-public class ThrowUtil {
+public final class ThrowUtil {
 
     private static final UnsafeReferenceFieldUpdater<Throwable, Throwable> causeUpdater =
             UnsafeUpdater.newReferenceFieldUpdater(Throwable.class, "cause");
