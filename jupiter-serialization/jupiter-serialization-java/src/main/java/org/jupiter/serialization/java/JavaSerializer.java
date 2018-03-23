@@ -82,7 +82,6 @@ public class JavaSerializer extends Serializer {
                     output.close();
                 } catch (IOException ignored) {}
             }
-
             OutputStreams.resetBuf(buf);
         }
         return null; // never get here
