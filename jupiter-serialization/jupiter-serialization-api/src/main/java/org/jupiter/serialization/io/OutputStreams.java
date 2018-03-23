@@ -31,7 +31,7 @@ import static org.jupiter.serialization.Serializer.MAX_CACHED_BUF_SIZE;
  *
  * @author jiachun.fjc
  */
-public class OutputStreams {
+public final class OutputStreams {
 
     private static final UnsafeReferenceFieldUpdater<ByteArrayOutputStream, byte[]> bufUpdater =
             UnsafeUpdater.newReferenceFieldUpdater(ByteArrayOutputStream.class, "buf");
@@ -58,4 +58,6 @@ public class OutputStreams {
             bufUpdater.set(buf, new byte[DEFAULT_BUF_SIZE]);
         }
     }
+
+    private OutputStreams() {}
 }

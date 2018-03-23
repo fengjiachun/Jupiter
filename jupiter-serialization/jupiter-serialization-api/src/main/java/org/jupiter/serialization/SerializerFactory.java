@@ -58,4 +58,6 @@ public final class SerializerFactory {
 
         return serializer;
     }
+
+    private SerializerFactory() {}
 }

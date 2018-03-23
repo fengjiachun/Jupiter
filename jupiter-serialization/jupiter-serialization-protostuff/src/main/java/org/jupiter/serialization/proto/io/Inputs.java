@@ -27,7 +27,7 @@ import org.jupiter.serialization.io.InputBuf;
  *
  * @author jiachun.fjc
  */
-public class Inputs {
+public final class Inputs {
 
     public static Input getInput(InputBuf inputBuf) {
         if (inputBuf.hasMemoryAddress()) {

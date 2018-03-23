@@ -29,7 +29,7 @@ import org.jupiter.serialization.io.OutputBuf;
  *
  * @author jiachun.fjc
  */
-public class Outputs {
+public final class Outputs {
 
     public static Output getOutput(OutputBuf outputBuf) {
         if (outputBuf.hasMemoryAddress()) {
