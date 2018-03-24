@@ -80,7 +80,7 @@ public class SerializationBenchmark {
     @Benchmark
     public void javaByteBuffer() {
         OutputBuf outputBuf = javaSerializer.writeObject(new NettyOutputBuf(allocHandle, allocator), createUsers(USER_COUNT));
-        InputBuf inputBuf = new NettyInputBuf((ByteBuf) outputBuf.attach());
+        InputBuf inputBuf = new NettyInputBuf((ByteBuf) outputBuf.backingObject());
         javaSerializer.readObject(inputBuf, Users.class);
     }
 
@@ -96,7 +96,7 @@ public class SerializationBenchmark {
     @Benchmark
     public void hessianByteBuffer() {
         OutputBuf outputBuf = hessianSerializer.writeObject(new NettyOutputBuf(allocHandle, allocator), createUsers(USER_COUNT));
-        InputBuf inputBuf = new NettyInputBuf((ByteBuf) outputBuf.attach());
+        InputBuf inputBuf = new NettyInputBuf((ByteBuf) outputBuf.backingObject());
         hessianSerializer.readObject(inputBuf, Users.class);
     }
 
@@ -112,7 +112,7 @@ public class SerializationBenchmark {
     @Benchmark
     public void protoStuffByteBuffer() {
         OutputBuf outputBuf = protoStuffSerializer.writeObject(new NettyOutputBuf(allocHandle, allocator), createUsers(USER_COUNT));
-        InputBuf inputBuf = new NettyInputBuf((ByteBuf) outputBuf.attach());
+        InputBuf inputBuf = new NettyInputBuf((ByteBuf) outputBuf.backingObject());
         protoStuffSerializer.readObject(inputBuf, Users.class);
     }
 
@@ -128,7 +128,7 @@ public class SerializationBenchmark {
     @Benchmark
     public void kryoByteBuffer() {
         OutputBuf outputBuf = kryoSerializer.writeObject(new NettyOutputBuf(allocHandle, allocator), createUsers(USER_COUNT));
-        InputBuf inputBuf = new NettyInputBuf((ByteBuf) outputBuf.attach());
+        InputBuf inputBuf = new NettyInputBuf((ByteBuf) outputBuf.backingObject());
         kryoSerializer.readObject(inputBuf, Users.class);
     }
 
@@ -219,7 +219,7 @@ public class SerializationBenchmark {
         }
 
         @Override
-        public Object attach() {
+        public Object backingObject() {
             int actualWriteBytes = byteBuf.writerIndex();
             if (nioByteBuffer != null) {
                 actualWriteBytes += nioByteBuffer.position();

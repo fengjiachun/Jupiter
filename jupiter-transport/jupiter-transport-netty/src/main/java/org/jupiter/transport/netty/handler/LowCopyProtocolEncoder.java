@@ -93,7 +93,7 @@ public class LowCopyProtocolEncoder extends ChannelOutboundHandlerAdapter {
     private ByteBuf doEncodeRequest(JRequestPayload request) {
         byte sign = JProtocolHeader.toSign(request.serializerCode(), JProtocolHeader.REQUEST);
         long invokeId = request.invokeId();
-        ByteBuf byteBuf = (ByteBuf) request.outputBuf().attach();
+        ByteBuf byteBuf = (ByteBuf) request.outputBuf().backingObject();
         int length = byteBuf.readableBytes();
 
         byteBuf.markWriterIndex();
@@ -115,7 +115,7 @@ public class LowCopyProtocolEncoder extends ChannelOutboundHandlerAdapter {
         byte sign = JProtocolHeader.toSign(response.serializerCode(), JProtocolHeader.RESPONSE);
         byte status = response.status();
         long invokeId = response.id();
-        ByteBuf byteBuf = (ByteBuf) response.outputBuf().attach();
+        ByteBuf byteBuf = (ByteBuf) response.outputBuf().backingObject();
         int length = byteBuf.readableBytes();
 
         byteBuf.markWriterIndex();
