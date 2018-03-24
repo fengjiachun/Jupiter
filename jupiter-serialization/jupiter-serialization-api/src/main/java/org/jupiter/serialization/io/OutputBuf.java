@@ -28,12 +28,12 @@ import java.nio.ByteBuffer;
 public interface OutputBuf {
 
     /**
-     * Exposes this backing data as an NIO {@link OutputStream}.
+     * Exposes this backing data as an {@link OutputStream}.
      */
     OutputStream outputStream();
 
     /**
-     * Exposes this backing data as an NIO {@link ByteBuffer}.
+     * Exposes this backing data as a NIO {@link ByteBuffer}.
      */
     ByteBuffer nioByteBuffer(int minWritableBytes);
 

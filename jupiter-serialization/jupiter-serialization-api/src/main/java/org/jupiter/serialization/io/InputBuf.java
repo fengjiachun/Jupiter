@@ -28,12 +28,12 @@ import java.nio.ByteBuffer;
 public interface InputBuf {
 
     /**
-     * Exposes this backing data's readable bytes as an NIO {@link InputStream}.
+     * Exposes this backing data's readable bytes as an {@link InputStream}.
      */
     InputStream inputStream();
 
     /**
-     * Exposes this backing data's readable bytes as an NIO {@link ByteBuffer}.
+     * Exposes this backing data's readable bytes as a NIO {@link ByteBuffer}.
      */
     ByteBuffer nioByteBuffer();
 
