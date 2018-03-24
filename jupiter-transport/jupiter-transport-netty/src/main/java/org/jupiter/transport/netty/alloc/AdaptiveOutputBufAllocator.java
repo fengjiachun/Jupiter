@@ -108,9 +108,9 @@ public class AdaptiveOutputBufAllocator {
 
         private final int minIndex;
         private final int maxIndex;
-        private int index;                          // same thread read/write
-        private volatile int nextAllocateBufSize;   // different thread read/write
-        private boolean decreaseNow;                // same thread read/write
+        private int index;                          // Single IO thread read/write
+        private volatile int nextAllocateBufSize;   // Single IO thread read/write, other thread read
+        private boolean decreaseNow;                // Single IO thread read/write
 
         HandleImpl(int minIndex, int maxIndex, int initial) {
             this.minIndex = minIndex;
