@@ -55,7 +55,7 @@ public class DefaultServer implements JServer {
     static {
         // touch off TracingUtil.<clinit>
         // because getLocalAddress() and getPid() sometimes too slow
-        ClassUtil.classInitialize("org.jupiter.rpc.tracing.TracingUtil", 500);
+        ClassUtil.initializeClass("org.jupiter.rpc.tracing.TracingUtil", 500);
     }
 
     // provider本地容器

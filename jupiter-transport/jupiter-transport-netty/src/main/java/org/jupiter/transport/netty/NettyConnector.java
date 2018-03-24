@@ -54,7 +54,7 @@ public abstract class NettyConnector implements JConnector<JConnection> {
     static {
         // touch off DefaultChannelId.<clinit>
         // because getProcessId() sometimes too slow
-        ClassUtil.classInitialize("io.netty.channel.DefaultChannelId", 500);
+        ClassUtil.initializeClass("io.netty.channel.DefaultChannelId", 500);
     }
 
     protected final Protocol protocol;

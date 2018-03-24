@@ -44,7 +44,7 @@ public class DefaultClient implements JClient {
     static {
         // touch off TracingUtil.<clinit>
         // because getLocalAddress() and getPid() sometimes too slow
-        ClassUtil.classInitialize("org.jupiter.rpc.tracing.TracingUtil", 500);
+        ClassUtil.initializeClass("org.jupiter.rpc.tracing.TracingUtil", 500);
     }
 
     // 服务订阅(SPI)

@@ -37,7 +37,7 @@ public final class ClassUtil {
      * @param className         类的全限定名称
      * @param tolerableMillis   超过这个时间打印警告日志
      */
-    public static void classInitialize(String className, long tolerableMillis) {
+    public static void initializeClass(String className, long tolerableMillis) {
         long start = System.currentTimeMillis();
         try {
             Class.forName(className);
@@ -53,12 +53,11 @@ public final class ClassUtil {
         }
     }
 
-    public static void classCheck(String className) {
+    public static void checkClass(String className, String message) {
         try {
             Class.forName(className);
         } catch (Throwable t) {
-            logger.error("Failed to load class [{}] {}.", className, stackTrace(t));
-            ThrowUtil.throwException(t);
+            throw new RuntimeException(message, t);
         }
     }
 
