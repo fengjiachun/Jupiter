@@ -44,7 +44,6 @@
             <jupiter:parentOption SO_REUSEADDR="true" />
             <jupiter:parentOption SO_BACKLOG="100" />
 
-            <jupiter:childOption PREFER_DIRECT="true" />
             <jupiter:childOption SO_RCVBUF="8192" />
             <jupiter:childOption SO_SNDBUF="8192" />
         </jupiter:netOptions>

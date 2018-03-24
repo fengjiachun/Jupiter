@@ -248,16 +248,6 @@
                 <xsd:documentation><![CDATA[ JOption<Boolean> ]]></xsd:documentation>
             </xsd:annotation>
         </xsd:attribute>
-        <xsd:attribute name="PREFER_DIRECT" type="xsd:string" use="optional">
-            <xsd:annotation>
-                <xsd:documentation><![CDATA[ JOption<Boolean> ]]></xsd:documentation>
-            </xsd:annotation>
-        </xsd:attribute>
-        <xsd:attribute name="USE_POOLED_ALLOCATOR" type="xsd:string" use="optional">
-            <xsd:annotation>
-                <xsd:documentation><![CDATA[ JOption<Boolean> ]]></xsd:documentation>
-            </xsd:annotation>
-        </xsd:attribute>
         <xsd:attribute name="WRITE_BUFFER_HIGH_WATER_MARK" type="xsd:string" use="optional">
             <xsd:annotation>
                 <xsd:documentation><![CDATA[ JOption<Integer> ]]></xsd:documentation>

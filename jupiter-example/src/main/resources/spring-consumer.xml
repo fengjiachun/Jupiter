@@ -38,7 +38,6 @@
 
         <!-- 网络层配置选项 -->
         <jupiter:netOptions>
-            <jupiter:childOption PREFER_DIRECT="true" />
             <jupiter:childOption SO_RCVBUF="8192" />
             <jupiter:childOption SO_SNDBUF="8192" />
             <jupiter:childOption ALLOW_HALF_CLOSURE="false" />
