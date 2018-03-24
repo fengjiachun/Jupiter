@@ -438,7 +438,7 @@ public final class UnsafeUtf8Util {
                     // if (byte1 > (byte) 0xF4 ||
                     //   overlong? 4 most significant bits must not all be zero
                     //     byte1 == (byte) 0xF0 && byte2 < (byte) 0x90 ||
-                    //   codePoint larger than the highest code point (U+10FFFF)?
+                    //   codepoint larger than the highest code point (U+10FFFF)?
                     //     byte1 == (byte) 0xF4 && byte2 > (byte) 0x8F)
                     || (((byte1 << 28) + (byte2 - (byte) 0x90)) >> 30) != 0
                     || isNotTrailingByte(byte3)
