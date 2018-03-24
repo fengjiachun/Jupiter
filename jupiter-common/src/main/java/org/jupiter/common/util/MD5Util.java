@@ -71,4 +71,6 @@ public class MD5Util {
         ob[1] = hexDigits[ib & 0X0F];
         return new String(ob);
     }
+
+    private MD5Util() {}
 }
