@@ -71,7 +71,7 @@ public abstract class NettyConnector implements JConnector<JConnection> {
     private ConsumerProcessor processor;
 
     public NettyConnector(Protocol protocol) {
-        this(protocol, JConstants.AVAILABLE_PROCESSORS + 1);
+        this(protocol, JConstants.AVAILABLE_PROCESSORS << 1);
     }
 
     public NettyConnector(Protocol protocol, int nWorkers) {
