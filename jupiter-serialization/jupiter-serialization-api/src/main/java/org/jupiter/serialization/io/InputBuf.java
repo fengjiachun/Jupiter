@@ -28,7 +28,7 @@ import java.nio.ByteBuffer;
 public interface InputBuf {
 
     /**
-     * Creates a new stream which reads data from the backing data.
+     * Exposes this backing data's readable bytes as an NIO {@link InputStream}.
      */
     InputStream inputStream();
 

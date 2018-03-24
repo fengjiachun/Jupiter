@@ -28,7 +28,7 @@ import java.nio.ByteBuffer;
 public interface OutputBuf {
 
     /**
-     * Creates a new stream which writes data to the backing data.
+     * Exposes this backing data as an NIO {@link OutputStream}.
      */
     OutputStream outputStream();
 
