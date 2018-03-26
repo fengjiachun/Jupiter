@@ -256,6 +256,7 @@ public class SerializationBenchmark {
         user.setEmail("xxx@alibaba-inc.con");
         user.setMobile("18325038521");
         user.setAddress("浙江省 杭州市 文一西路969号");
+        // 可以加几个 Integer.MAX_VALUE, Integer.MIN_VALUE 试试
         List<Integer> permsList = Lists.newArrayList(1, 12, 123);
         user.setPermissions(permsList);
         user.setStatus(1);
