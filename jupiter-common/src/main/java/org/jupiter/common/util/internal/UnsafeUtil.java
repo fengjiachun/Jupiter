@@ -415,7 +415,8 @@ public final class UnsafeUtil {
     }
 
     public static class MemoryAccessor {
-        Unsafe unsafe;
+
+        final Unsafe unsafe;
 
         MemoryAccessor(Unsafe unsafe) {
             this.unsafe = unsafe;
