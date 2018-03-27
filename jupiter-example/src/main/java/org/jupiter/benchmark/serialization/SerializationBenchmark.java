@@ -70,64 +70,118 @@ public class SerializationBenchmark {
 
     @Benchmark
     public void javaBytesArray() {
+        // 写入
         byte[] bytes = javaSerializer.writeObject(createUsers(USER_COUNT));
         ByteBuf byteBuf = allocator.buffer(bytes.length);
         byteBuf.writeBytes(bytes);
-        byteBuf.release();
+
+        // 网络传输都是相同的条件
+
+        // 读出
+        bytes = new byte[byteBuf.readableBytes()];
+        byteBuf.readBytes(bytes);
         javaSerializer.readObject(bytes, Users.class);
+
+        // 释放
+        byteBuf.release();
     }
 
     @Benchmark
     public void javaByteBuffer() {
+        // 写入
         OutputBuf outputBuf = javaSerializer.writeObject(new NettyOutputBuf(allocHandle, allocator), createUsers(USER_COUNT));
+
+        // 网络传输都是相同的条件
+
+        // 读出
         InputBuf inputBuf = new NettyInputBuf((ByteBuf) outputBuf.backingObject());
         javaSerializer.readObject(inputBuf, Users.class);
     }
 
     @Benchmark
     public void hessianBytesArray() {
+        // 写入
         byte[] bytes = hessianSerializer.writeObject(createUsers(USER_COUNT));
         ByteBuf byteBuf = allocator.buffer(bytes.length);
         byteBuf.writeBytes(bytes);
-        byteBuf.release();
+
+        // 网络传输都是相同的条件
+
+        // 读出
+        bytes = new byte[byteBuf.readableBytes()];
+        byteBuf.readBytes(bytes);
         hessianSerializer.readObject(bytes, Users.class);
+
+        // 释放
+        byteBuf.release();
     }
 
     @Benchmark
     public void hessianByteBuffer() {
+        // 写入
         OutputBuf outputBuf = hessianSerializer.writeObject(new NettyOutputBuf(allocHandle, allocator), createUsers(USER_COUNT));
+
+        // 网络传输都是相同的条件
+
+        // 读出
         InputBuf inputBuf = new NettyInputBuf((ByteBuf) outputBuf.backingObject());
         hessianSerializer.readObject(inputBuf, Users.class);
     }
 
     @Benchmark
     public void protoStuffBytesArray() {
+        // 写入
         byte[] bytes = protoStuffSerializer.writeObject(createUsers(USER_COUNT));
         ByteBuf byteBuf = allocator.buffer(bytes.length);
         byteBuf.writeBytes(bytes);
-        byteBuf.release();
+
+        // 网络传输都是相同的条件
+
+        // 读出
+        bytes = new byte[byteBuf.readableBytes()];
+        byteBuf.readBytes(bytes);
         protoStuffSerializer.readObject(bytes, Users.class);
+
+        // 释放
+        byteBuf.release();
     }
 
     @Benchmark
     public void protoStuffByteBuffer() {
+        // 写入
         OutputBuf outputBuf = protoStuffSerializer.writeObject(new NettyOutputBuf(allocHandle, allocator), createUsers(USER_COUNT));
+
+        // 网络传输都是相同的条件
+
+        // 读出
         InputBuf inputBuf = new NettyInputBuf((ByteBuf) outputBuf.backingObject());
         protoStuffSerializer.readObject(inputBuf, Users.class);
     }
 
     @Benchmark
     public void kryoBytesArray() {
+        // 写入
         byte[] bytes = kryoSerializer.writeObject(createUsers(USER_COUNT));
         ByteBuf byteBuf = allocator.buffer(bytes.length);
         byteBuf.writeBytes(bytes);
-        byteBuf.release();
+
+        // 网络传输都是相同的条件
+
+        // 读出
+        bytes = new byte[byteBuf.readableBytes()];
+        byteBuf.readBytes(bytes);
         kryoSerializer.readObject(bytes, Users.class);
+
+        // 释放
+        byteBuf.release();
     }
 
     @Benchmark
     public void kryoByteBuffer() {
+        // 写入
         OutputBuf outputBuf = kryoSerializer.writeObject(new NettyOutputBuf(allocHandle, allocator), createUsers(USER_COUNT));
+
+        // 读出
         InputBuf inputBuf = new NettyInputBuf((ByteBuf) outputBuf.backingObject());
         kryoSerializer.readObject(inputBuf, Users.class);
     }
@@ -256,8 +310,11 @@ public class SerializationBenchmark {
         user.setEmail("xxx@alibaba-inc.con");
         user.setMobile("18325038521");
         user.setAddress("浙江省 杭州市 文一西路969号");
-        // 可以加几个 Integer.MAX_VALUE, Integer.MIN_VALUE 试试
-        List<Integer> permsList = Lists.newArrayList(1, 12, 123);
+        List<Integer> permsList = Lists.newArrayList(
+                1, 12, 123
+//                , Integer.MAX_VALUE, Integer.MAX_VALUE - 1, Integer.MAX_VALUE - 2
+//                , Integer.MIN_VALUE, Integer.MIN_VALUE + 1, Integer.MIN_VALUE + 2
+        );
         user.setPermissions(permsList);
         user.setStatus(1);
         user.setCreateTime(new Date());
