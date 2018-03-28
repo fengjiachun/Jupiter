@@ -1,5 +1,9 @@
 Jupiter release notes
 ------------------------
+### 2018-03-28: version 1.2.20
+
+- writeVarInt优化
+
 ### 2018-03-18: version 1.2.19
 
 - CopyOnWriteGroupList代码重构
