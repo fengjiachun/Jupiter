@@ -149,8 +149,8 @@ class NioBufOutput implements Output {
         // and at most 3 times of it. We take advantage of this in both branches below.
         int minLength = value.length();
         int maxLength = minLength * UnsafeUtf8Util.MAX_BYTES_PER_CHAR;
-        int minLengthVarIntSize = computeRawVarInt32Size(minLength);
-        int maxLengthVarIntSize = computeRawVarInt32Size(maxLength);
+        int minLengthVarIntSize = VarInts.computeRawVarInt32Size(minLength);
+        int maxLengthVarIntSize = VarInts.computeRawVarInt32Size(maxLength);
         if (minLengthVarIntSize == maxLengthVarIntSize) {
             int position = nioBuffer.position();
 
@@ -225,32 +225,26 @@ class NioBufOutput implements Output {
     }
 
     protected void writeVarInt32(int value) throws IOException {
-        byte[] buf = new byte[5];
-        int locPtr = 0;
+        ensureCapacity(5);
         while (true) {
             if ((value & ~0x7F) == 0) {
-                buf[locPtr++] = (byte) value;
-                ensureCapacity(locPtr);
-                nioBuffer.put(buf, 0, locPtr);
+                nioBuffer.put((byte) value);
                 return;
             } else {
-                buf[locPtr++] = (byte) ((value & 0x7F) | 0x80);
+                nioBuffer.put((byte) ((value & 0x7F) | 0x80));
                 value >>>= 7;
             }
         }
     }
 
     protected void writeVarInt64(long value) throws IOException {
-        byte[] buf = new byte[10];
-        int locPtr = 0;
+        ensureCapacity(10);
         while (true) {
             if ((value & ~0x7FL) == 0) {
-                buf[locPtr++] = (byte) value;
-                ensureCapacity(locPtr);
-                nioBuffer.put(buf, 0, locPtr);
+                nioBuffer.put((byte) value);
                 return;
             } else {
-                buf[locPtr++] = (byte) (((int) value & 0x7F) | 0x80);
+                nioBuffer.put((byte) (((int) value & 0x7F) | 0x80));
                 value >>>= 7;
             }
         }
@@ -291,25 +285,5 @@ class NioBufOutput implements Output {
             nioBuffer = outputBuf.nioByteBuffer(capacity - position);
             capacity = nioBuffer.limit();
         }
-    }
-
-    /**
-     * Compute the number of bytes that would be needed to encode a varInt. {@code value} is treated as unsigned, so it
-     * won't be sign-extended if negative.
-     */
-    private static int computeRawVarInt32Size(final int value) {
-        if ((value & (0xffffffff << 7)) == 0) {
-            return 1;
-        }
-        if ((value & (0xffffffff << 14)) == 0) {
-            return 2;
-        }
-        if ((value & (0xffffffff << 21)) == 0) {
-            return 3;
-        }
-        if ((value & (0xffffffff << 28)) == 0) {
-            return 4;
-        }
-        return 5;
     }
 }

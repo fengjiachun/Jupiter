@@ -43,7 +43,7 @@ public final class Outputs {
 
     public static Output getOutput(OutputBuf outputBuf) {
         NioBufOutput output = new NioBufOutput(outputBuf, -1);
-        output.setVarIntsEnabled(false); // compatible with FastOutput
+        output.setVarIntsEnabled(false); // Compatible with FastOutput
         return output;
     }
 

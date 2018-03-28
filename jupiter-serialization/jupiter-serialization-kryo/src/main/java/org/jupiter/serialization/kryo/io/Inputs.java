@@ -34,7 +34,7 @@ public final class Inputs {
     public static Input getInput(InputBuf inputBuf) {
         ByteBuffer nioBuf = inputBuf.nioByteBuffer();
         ByteBufferInput input = new ByteBufferInput();
-        input.setVarIntsEnabled(false); // compatible with FastInput
+        input.setVarIntsEnabled(false); // Compatible with FastInput
         input.setBuffer(nioBuf, 0, nioBuf.capacity());
         return input;
     }

@@ -53,8 +53,8 @@ class UnsafeNioBufOutput extends NioBufOutput {
         // and at most 3 times of it. We take advantage of this in both branches below.
         int minLength = value.length();
         int maxLength = minLength * UnsafeUtf8Util.MAX_BYTES_PER_CHAR;
-        int minLengthVarIntSize = computeRawVarInt32Size(minLength);
-        int maxLengthVarIntSize = computeRawVarInt32Size(maxLength);
+        int minLengthVarIntSize = VarInts.computeRawVarInt32Size(minLength);
+        int maxLengthVarIntSize = VarInts.computeRawVarInt32Size(maxLength);
         if (minLengthVarIntSize == maxLengthVarIntSize) {
             int position = nioBuffer.position();
 
@@ -109,7 +109,7 @@ class UnsafeNioBufOutput extends NioBufOutput {
             }
         }
 //
-// 以下实现同上面注释代码功能上没区别, 只是把多次setByte聚合为一次setShort/setInt
+// 以下实现同上面代码功能上没区别, 只是把多次setByte聚合为一次setShort/setInt
 //
 //        int position = nioBuffer.position();
 //        int size = computeRawVarInt32Size(value);
@@ -165,7 +165,7 @@ class UnsafeNioBufOutput extends NioBufOutput {
             }
         }
 //
-// 以下实现同上面注释代码功能上没区别, 只是把多次setByte聚合为一次setShort/setInt/setLong
+// 以下实现同上面代码功能上没区别, 只是把多次setByte聚合为一次setShort/setInt/setLong
 //
 //        int position = nioBuffer.position();
 //        int size = computeRawVarInt64Size(value);
@@ -329,58 +329,4 @@ class UnsafeNioBufOutput extends NioBufOutput {
     private long address(int position) {
         return memoryAddress + position;
     }
-
-    /**
-     * Compute the number of bytes that would be needed to encode a varInt. {@code value} is treated as unsigned, so it
-     * won't be sign-extended if negative.
-     */
-    private static int computeRawVarInt32Size(final int value) {
-        if ((value & (0xffffffff << 7)) == 0) {
-            return 1;
-        }
-        if ((value & (0xffffffff << 14)) == 0) {
-            return 2;
-        }
-        if ((value & (0xffffffff << 21)) == 0) {
-            return 3;
-        }
-        if ((value & (0xffffffff << 28)) == 0) {
-            return 4;
-        }
-        return 5;
-    }
-
-//    /**
-//     * Compute the number of bytes that would be needed to encode a varInt.
-//     */
-//    private static int computeRawVarInt64Size(final long value) {
-//        if ((value & (0xffffffffffffffffL << 7)) == 0) {
-//            return 1;
-//        }
-//        if ((value & (0xffffffffffffffffL << 14)) == 0) {
-//            return 2;
-//        }
-//        if ((value & (0xffffffffffffffffL << 21)) == 0) {
-//            return 3;
-//        }
-//        if ((value & (0xffffffffffffffffL << 28)) == 0) {
-//            return 4;
-//        }
-//        if ((value & (0xffffffffffffffffL << 35)) == 0) {
-//            return 5;
-//        }
-//        if ((value & (0xffffffffffffffffL << 42)) == 0) {
-//            return 6;
-//        }
-//        if ((value & (0xffffffffffffffffL << 49)) == 0) {
-//            return 7;
-//        }
-//        if ((value & (0xffffffffffffffffL << 56)) == 0) {
-//            return 8;
-//        }
-//        if ((value & (0xffffffffffffffffL << 63)) == 0) {
-//            return 9;
-//        }
-//        return 10;
-//    }
 }
