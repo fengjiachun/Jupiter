@@ -3,7 +3,9 @@ package org.jupiter.benchmark.serialization;
 import io.netty.buffer.*;
 import io.netty.util.internal.PlatformDependent;
 import org.jupiter.common.util.Lists;
-import org.jupiter.serialization.*;
+import org.jupiter.serialization.Serializer;
+import org.jupiter.serialization.SerializerFactory;
+import org.jupiter.serialization.SerializerType;
 import org.jupiter.serialization.io.InputBuf;
 import org.jupiter.serialization.io.OutputBuf;
 import org.jupiter.transport.netty.alloc.AdaptiveOutputBufAllocator;
@@ -19,7 +21,6 @@ import java.io.Serializable;
 import java.nio.ByteBuffer;
 import java.util.Date;
 import java.util.List;
-import java.util.concurrent.ThreadLocalRandom;
 import java.util.concurrent.TimeUnit;
 
 @State(Scope.Benchmark)
@@ -303,7 +304,7 @@ public class SerializationBenchmark {
 
     static User createUser() {
         User user = new User();
-        user.setId(ThreadLocalRandom.current().nextInt());
+        user.setId(1L);
         user.setName("block");
         user.setSex(0);
         user.setBirthday(new Date());
