@@ -35,19 +35,19 @@ import java.util.concurrent.TimeUnit;
  */
 @Fork(1)
 @Warmup(iterations = 3)
-@Measurement(iterations = 5)
+@Measurement(iterations = 10)
 @BenchmarkMode({ Mode.Throughput, Mode.AverageTime })
 @OutputTimeUnit(TimeUnit.NANOSECONDS)
 public class VarIntTest {
 
     /*
-        Benchmark                    Mode  Cnt   Score    Error   Units
-        VarIntTest.writeVarInt32_1  thrpt    5   0.145 ±  0.006  ops/ns
-        VarIntTest.writeVarInt32_2  thrpt    5   0.114 ±  0.008  ops/ns
-        VarIntTest.writeVarInt32_3  thrpt    5   0.037 ±  0.007  ops/ns
-        VarIntTest.writeVarInt32_1   avgt    5   6.102 ±  0.377   ns/op
-        VarIntTest.writeVarInt32_2   avgt    5   8.822 ±  1.549   ns/op
-        VarIntTest.writeVarInt32_3   avgt    5  28.792 ± 13.774   ns/op
+        Benchmark                    Mode  Cnt   Score   Error   Units
+        VarIntTest.writeVarInt32_1  thrpt   10   0.147 ± 0.004  ops/ns
+        VarIntTest.writeVarInt32_2  thrpt   10   0.118 ± 0.002  ops/ns
+        VarIntTest.writeVarInt32_3  thrpt   10   0.042 ± 0.001  ops/ns
+        VarIntTest.writeVarInt32_1   avgt   10   7.267 ± 0.309   ns/op
+        VarIntTest.writeVarInt32_2   avgt   10   8.682 ± 0.482   ns/op
+        VarIntTest.writeVarInt32_3   avgt   10  25.755 ± 1.206   ns/op
      */
     public static void main(String[] args) throws RunnerException {
         Options opt = new OptionsBuilder()
