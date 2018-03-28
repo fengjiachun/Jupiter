@@ -108,6 +108,9 @@ class UnsafeNioBufOutput extends NioBufOutput {
 //                value >>>= 7;
 //            }
 //        }
+//
+// 以下实现同上面注释代码功能上没区别, 只是把多次setByte聚合为一次setShort/setInt
+//
         int position = nioBuffer.position();
         int size = computeRawVarInt32Size(value);
         ensureCapacity(size);
@@ -161,6 +164,9 @@ class UnsafeNioBufOutput extends NioBufOutput {
 //                value >>>= 7;
 //            }
 //        }
+//
+// 以下实现同上面注释代码功能上没区别, 只是把多次setByte聚合为一次setShort/setInt/setLong
+//
         int position = nioBuffer.position();
         int size = computeRawVarInt64Size(value);
         ensureCapacity(size);
