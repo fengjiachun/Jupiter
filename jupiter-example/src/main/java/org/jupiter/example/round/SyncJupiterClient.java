@@ -38,7 +38,7 @@ public class SyncJupiterClient {
     static {
         SystemPropertyUtil.setProperty("jupiter.transport.codec.low_copy", "true");
         SystemPropertyUtil.setProperty("io.netty.allocator.type", "pooled");
-        SystemPropertyUtil.setProperty("io.netty.noPreferDirect", "true");
+//        SystemPropertyUtil.setProperty("io.netty.noPreferDirect", "true");
     }
 
     public static void main(String[] args) {

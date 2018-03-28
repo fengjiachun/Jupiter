@@ -32,7 +32,8 @@ public class User implements Serializable {
     private String email;
     private String mobile;
     private String address;
-    private List<Integer> permissions;
+    private List<Long> permissions;
+    private List<Integer> intList;
     private int status;
     private Date createTime;
     private Date updateTime;
@@ -93,12 +94,20 @@ public class User implements Serializable {
         this.address = address;
     }
 
-    public List<Integer> getPermissions() {
+    public List<Long> getPermissions() {
         return permissions;
     }
 
-    public void setPermissions(List<Integer> permissions) {
+    public void setPermissions(List<Long> permissions) {
         this.permissions = permissions;
+    }
+
+    public List<Integer> getIntList() {
+        return intList;
+    }
+
+    public void setIntList(List<Integer> intList) {
+        this.intList = intList;
     }
 
     public int getStatus() {
@@ -136,6 +145,7 @@ public class User implements Serializable {
                 ", mobile='" + mobile + '\'' +
                 ", address='" + address + '\'' +
                 ", permissions=" + permissions +
+                ", intList=" + intList +
                 ", status=" + status +
                 ", createTime=" + createTime +
                 ", updateTime=" + updateTime +
@@ -151,17 +161,35 @@ public class User implements Serializable {
         user.setEmail("xxx@alibaba-inc.con");
         user.setMobile("18325038521");
         user.setAddress("浙江省 杭州市 文一西路969号");
-        List<Integer> permsList = Lists.newArrayListWithCapacity(500);
-        for (int i = 0; i < 200; i++) {
-            permsList.add(i);
-        }
-        for (int i = 200; i < 350; i++) {
-            permsList.add(Integer.MAX_VALUE - i);
-        }
-        for (int i = 350; i < 500; i++) {
-            permsList.add(Integer.MIN_VALUE + i);
-        }
+        List<Long> permsList = Lists.newArrayList();
+        permsList.add(1L);
+        permsList.add(256L);
+        permsList.add(256L * 256);
+        permsList.add(256L * 256 * 256);
+        permsList.add(256L * 256 * 256 * 256);
+        permsList.add(256L * 256 * 256 * 256 * 256);
+        permsList.add(256L * 256 * 256 * 256 * 256 * 256);
+        permsList.add(256L * 256 * 256 * 256 * 256 * 256 * 128);
+        permsList.add(256L * 256 * 256 * 256 * 256 * 256 * 256);
+        permsList.add(-1L);
+        permsList.add(-256L);
         user.setPermissions(permsList);
+        List<Integer> integerList = Lists.newArrayList();
+        integerList.add(1);
+        integerList.add(2);
+        integerList.add(3);
+        integerList.add(256);
+        integerList.add(256 * 256);
+        integerList.add(256 * 256 * 256);
+        integerList.add(256 * 256 * 256 * 64);
+        integerList.add(Integer.MAX_VALUE);
+        integerList.add(Integer.MAX_VALUE - 1);
+        integerList.add(Integer.MAX_VALUE - 2);
+        integerList.add(Integer.MIN_VALUE);
+        integerList.add(Integer.MIN_VALUE + 1);
+        integerList.add(Integer.MIN_VALUE + 2);
+        integerList.add(-1);
+        user.setIntList(integerList);
         user.setStatus(1);
         user.setCreateTime(new Date());
         user.setUpdateTime(new Date());
