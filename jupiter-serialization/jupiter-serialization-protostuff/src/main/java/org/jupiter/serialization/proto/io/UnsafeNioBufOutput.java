@@ -93,182 +93,182 @@ class UnsafeNioBufOutput extends NioBufOutput {
     // 如果是0: 表示这是最后一个字节, 剩余7位都是用来表示数字
     @Override
     protected void writeVarInt32(int value) throws IOException {
-//        ensureCapacity(5);
-//        int position = nioBuffer.position();
-//        while (true) {
-//            if ((value & ~0x7F) == 0) {
-//                // 3. 这是最后一次取出, 最高位是0, 构成一个字节, 此时的字节串就是VarInt编码后的字节
-//                UnsafeDirectBufferUtil.setByte(address(position++), (byte) value);
-//                nioBuffer.position(position);
-//                return;
-//            } else {
-//                // 1. 取出字节串末尾7位, 并将最高位设置为1(与0x80按位或), 构成一个字节
-//                UnsafeDirectBufferUtil.setByte(address(position++), (byte) ((value & 0x7F) | 0x80));
-//                // 2. 将字节串整体右移7位, 继续从字节串末尾取7位, 取完为止
-//                value >>>= 7;
-//            }
-//        }
+        ensureCapacity(5);
+        int position = nioBuffer.position();
+        while (true) {
+            if ((value & ~0x7F) == 0) {
+                // 3. 这是最后一次取出, 最高位是0, 构成一个字节, 此时的字节串就是VarInt编码后的字节
+                UnsafeDirectBufferUtil.setByte(address(position++), (byte) value);
+                nioBuffer.position(position);
+                return;
+            } else {
+                // 1. 取出字节串末尾7位, 并将最高位设置为1(与0x80按位或), 构成一个字节
+                UnsafeDirectBufferUtil.setByte(address(position++), (byte) ((value & 0x7F) | 0x80));
+                // 2. 将字节串整体右移7位, 继续从字节串末尾取7位, 取完为止
+                value >>>= 7;
+            }
+        }
 //
 // 以下实现同上面注释代码功能上没区别, 只是把多次setByte聚合为一次setShort/setInt
 //
-        int position = nioBuffer.position();
-        int size = computeRawVarInt32Size(value);
-        ensureCapacity(size);
-        switch (size) {
-            case 1:
-                UnsafeDirectBufferUtil.setByte(address(position++), (byte) value);
-                break;
-            case 2:
-                UnsafeDirectBufferUtil.setShort(address(position),
-                        (((value & 0x7F) | 0x80) << 8) | (value >>> 7));
-                position += 2;
-                break;
-            case 3:
-                UnsafeDirectBufferUtil.setShort(address(position),
-                        (((value & 0x7F) | 0x80) << 8) | ((value >>> 7 & 0x7F) | 0x80));
-                position += 2;
-                UnsafeDirectBufferUtil.setByte(address(position++), (byte) (value >>> 14));
-                break;
-            case 4:
-                UnsafeDirectBufferUtil.setInt(address(position),
-                        (((value & 0x7F) | 0x80) << 24)
-                                | (((value >>> 7 & 0x7F) | 0x80) << 16)
-                                | (((value >>> 14 & 0x7F) | 0x80) << 8)
-                                | (value >>> 21));
-                position += 4;
-                break;
-            case 5:
-                UnsafeDirectBufferUtil.setInt(address(position),
-                        (((value & 0x7F) | 0x80) << 24)
-                                | (((value >>> 7 & 0x7F) | 0x80) << 16)
-                                | (((value >>> 14 & 0x7F) | 0x80) << 8)
-                                | ((value >>> 21 & 0x7F) | 0x80));
-                position += 4;
-                UnsafeDirectBufferUtil.setByte(address(position++), (byte) (value >>> 28));
-                break;
-        }
-        nioBuffer.position(position);
+//        int position = nioBuffer.position();
+//        int size = computeRawVarInt32Size(value);
+//        ensureCapacity(size);
+//        switch (size) {
+//            case 1:
+//                UnsafeDirectBufferUtil.setByte(address(position++), (byte) value);
+//                break;
+//            case 2:
+//                UnsafeDirectBufferUtil.setShort(address(position),
+//                        (((value & 0x7F) | 0x80) << 8) | (value >>> 7));
+//                position += 2;
+//                break;
+//            case 3:
+//                UnsafeDirectBufferUtil.setShort(address(position),
+//                        (((value & 0x7F) | 0x80) << 8) | ((value >>> 7 & 0x7F) | 0x80));
+//                position += 2;
+//                UnsafeDirectBufferUtil.setByte(address(position++), (byte) (value >>> 14));
+//                break;
+//            case 4:
+//                UnsafeDirectBufferUtil.setInt(address(position),
+//                        (((value & 0x7F) | 0x80) << 24)
+//                                | (((value >>> 7 & 0x7F) | 0x80) << 16)
+//                                | (((value >>> 14 & 0x7F) | 0x80) << 8)
+//                                | (value >>> 21));
+//                position += 4;
+//                break;
+//            case 5:
+//                UnsafeDirectBufferUtil.setInt(address(position),
+//                        (((value & 0x7F) | 0x80) << 24)
+//                                | (((value >>> 7 & 0x7F) | 0x80) << 16)
+//                                | (((value >>> 14 & 0x7F) | 0x80) << 8)
+//                                | ((value >>> 21 & 0x7F) | 0x80));
+//                position += 4;
+//                UnsafeDirectBufferUtil.setByte(address(position++), (byte) (value >>> 28));
+//                break;
+//        }
+//        nioBuffer.position(position);
     }
 
     @Override
     protected void writeVarInt64(long value) throws IOException {
-//        ensureCapacity(10);
-//        int position = nioBuffer.position();
-//        while (true) {
-//            if ((value & ~0x7FL) == 0) {
-//                UnsafeDirectBufferUtil.setByte(address(position++), (byte) value);
-//                nioBuffer.position(position);
-//                return;
-//            } else {
-//                UnsafeDirectBufferUtil.setByte(address(position++), (byte) (((int) value & 0x7F) | 0x80));
-//                value >>>= 7;
-//            }
-//        }
+        ensureCapacity(10);
+        int position = nioBuffer.position();
+        while (true) {
+            if ((value & ~0x7FL) == 0) {
+                UnsafeDirectBufferUtil.setByte(address(position++), (byte) value);
+                nioBuffer.position(position);
+                return;
+            } else {
+                UnsafeDirectBufferUtil.setByte(address(position++), (byte) (((int) value & 0x7F) | 0x80));
+                value >>>= 7;
+            }
+        }
 //
 // 以下实现同上面注释代码功能上没区别, 只是把多次setByte聚合为一次setShort/setInt/setLong
 //
-        int position = nioBuffer.position();
-        int size = computeRawVarInt64Size(value);
-        ensureCapacity(size);
-        switch (size) {
-            case 1:
-                UnsafeDirectBufferUtil.setByte(address(position++), (byte) value);
-                break;
-            case 2:
-                UnsafeDirectBufferUtil.setShort(address(position),
-                        ((((int) value & 0x7F) | 0x80) << 8) | (byte) (value >>> 7));
-                position += 2;
-                break;
-            case 3:
-                UnsafeDirectBufferUtil.setShort(address(position),
-                        ((((int) value & 0x7F) | 0x80) << 8) | (((int) value >>> 7 & 0x7F) | 0x80));
-                position += 2;
-                UnsafeDirectBufferUtil.setByte(address(position++), (byte) (value >>> 14));
-                break;
-            case 4:
-                UnsafeDirectBufferUtil.setInt(address(position),
-                        ((((int) value & 0x7F) | 0x80) << 24)
-                                | ((((int) value >>> 7 & 0x7F) | 0x80) << 16)
-                                | ((((int) value >>> 14 & 0x7F) | 0x80) << 8)
-                                | ((int) (value >>> 21)));
-                position += 4;
-                break;
-            case 5:
-                UnsafeDirectBufferUtil.setInt(address(position),
-                        ((((int) value & 0x7F) | 0x80) << 24)
-                                | ((((int) value >>> 7 & 0x7F) | 0x80) << 16)
-                                | ((((int) value >>> 14 & 0x7F) | 0x80) << 8)
-                                | (((int) value >>> 21 & 0x7F) | 0x80));
-                position += 4;
-                UnsafeDirectBufferUtil.setByte(address(position++), (byte) (value >>> 28));
-                break;
-            case 6:
-                UnsafeDirectBufferUtil.setInt(address(position),
-                        ((((int) value & 0x7F) | 0x80) << 24)
-                                | ((((int) value >>> 7 & 0x7F) | 0x80) << 16)
-                                | ((((int) value >>> 14 & 0x7F) | 0x80) << 8)
-                                | (((int) value >>> 21 & 0x7F) | 0x80)
-                );
-                position += 4;
-                UnsafeDirectBufferUtil.setShort(address(position),
-                        ((((int) (value >>> 28) & 0x7F) | 0x80) << 8) | (int) (value >>> 35));
-                position += 2;
-                break;
-            case 7:
-                UnsafeDirectBufferUtil.setInt(address(position),
-                        ((((int) value & 0x7F) | 0x80) << 24)
-                                | ((((int) value >>> 7 & 0x7F) | 0x80) << 16)
-                                | ((((int) value >>> 14 & 0x7F) | 0x80) << 8)
-                                | (((int) value >>> 21 & 0x7F) | 0x80)
-                );
-                position += 4;
-                UnsafeDirectBufferUtil.setShort(address(position),
-                        ((((int) (value >>> 28) & 0x7F) | 0x80) << 8) | (((int) (value >>> 35) & 0x7F) | 0x80));
-                position += 2;
-                UnsafeDirectBufferUtil.setByte(address(position++), (byte) (value >>> 42));
-                break;
-            case 8:
-                UnsafeDirectBufferUtil.setLong(address(position),
-                        (((value & 0x7F) | 0x80) << 56)
-                                | (((value >>> 7 & 0x7F) | 0x80) << 48)
-                                | (((value >>> 14 & 0x7F) | 0x80) << 40)
-                                | (((value >>> 21 & 0x7F) | 0x80) << 32)
-                                | (((value >>> 28 & 0x7F) | 0x80) << 24)
-                                | (((value >>> 35 & 0x7F) | 0x80) << 16)
-                                | (((value >>> 42 & 0x7F) | 0x80) << 8)
-                                | (value >>> 49));
-                position += 8;
-                break;
-            case 9:
-                UnsafeDirectBufferUtil.setLong(address(position),
-                        (((value & 0x7F) | 0x80) << 56)
-                                | (((value >>> 7 & 0x7F) | 0x80) << 48)
-                                | (((value >>> 14 & 0x7F) | 0x80) << 40)
-                                | (((value >>> 21 & 0x7F) | 0x80) << 32)
-                                | (((value >>> 28 & 0x7F) | 0x80) << 24)
-                                | (((value >>> 35 & 0x7F) | 0x80) << 16)
-                                | (((value >>> 42 & 0x7F) | 0x80) << 8)
-                                | ((value >>> 49 & 0x7F) | 0x80));
-                position += 8;
-                UnsafeDirectBufferUtil.setByte(address(position++), (byte) (value >>> 56));
-                break;
-            case 10:
-                UnsafeDirectBufferUtil.setLong(address(position),
-                        (((value & 0x7F) | 0x80) << 56)
-                                | (((value >>> 7 & 0x7F) | 0x80) << 48)
-                                | (((value >>> 14 & 0x7F) | 0x80) << 40)
-                                | (((value >>> 21 & 0x7F) | 0x80) << 32)
-                                | (((value >>> 28 & 0x7F) | 0x80) << 24)
-                                | (((value >>> 35 & 0x7F) | 0x80) << 16)
-                                | (((value >>> 42 & 0x7F) | 0x80) << 8)
-                                | ((value >>> 49 & 0x7F) | 0x80));
-                position += 8;
-                UnsafeDirectBufferUtil.setShort(address(position),
-                        ((((int) (value >>> 56) & 0x7F) | 0x80) << 8) | (int) (value >>> 63));
-                position += 2;
-                break;
-        }
-        nioBuffer.position(position);
+//        int position = nioBuffer.position();
+//        int size = computeRawVarInt64Size(value);
+//        ensureCapacity(size);
+//        switch (size) {
+//            case 1:
+//                UnsafeDirectBufferUtil.setByte(address(position++), (byte) value);
+//                break;
+//            case 2:
+//                UnsafeDirectBufferUtil.setShort(address(position),
+//                        ((((int) value & 0x7F) | 0x80) << 8) | (byte) (value >>> 7));
+//                position += 2;
+//                break;
+//            case 3:
+//                UnsafeDirectBufferUtil.setShort(address(position),
+//                        ((((int) value & 0x7F) | 0x80) << 8) | (((int) value >>> 7 & 0x7F) | 0x80));
+//                position += 2;
+//                UnsafeDirectBufferUtil.setByte(address(position++), (byte) (value >>> 14));
+//                break;
+//            case 4:
+//                UnsafeDirectBufferUtil.setInt(address(position),
+//                        ((((int) value & 0x7F) | 0x80) << 24)
+//                                | ((((int) value >>> 7 & 0x7F) | 0x80) << 16)
+//                                | ((((int) value >>> 14 & 0x7F) | 0x80) << 8)
+//                                | ((int) (value >>> 21)));
+//                position += 4;
+//                break;
+//            case 5:
+//                UnsafeDirectBufferUtil.setInt(address(position),
+//                        ((((int) value & 0x7F) | 0x80) << 24)
+//                                | ((((int) value >>> 7 & 0x7F) | 0x80) << 16)
+//                                | ((((int) value >>> 14 & 0x7F) | 0x80) << 8)
+//                                | (((int) value >>> 21 & 0x7F) | 0x80));
+//                position += 4;
+//                UnsafeDirectBufferUtil.setByte(address(position++), (byte) (value >>> 28));
+//                break;
+//            case 6:
+//                UnsafeDirectBufferUtil.setInt(address(position),
+//                        ((((int) value & 0x7F) | 0x80) << 24)
+//                                | ((((int) value >>> 7 & 0x7F) | 0x80) << 16)
+//                                | ((((int) value >>> 14 & 0x7F) | 0x80) << 8)
+//                                | (((int) value >>> 21 & 0x7F) | 0x80)
+//                );
+//                position += 4;
+//                UnsafeDirectBufferUtil.setShort(address(position),
+//                        ((((int) (value >>> 28) & 0x7F) | 0x80) << 8) | (int) (value >>> 35));
+//                position += 2;
+//                break;
+//            case 7:
+//                UnsafeDirectBufferUtil.setInt(address(position),
+//                        ((((int) value & 0x7F) | 0x80) << 24)
+//                                | ((((int) value >>> 7 & 0x7F) | 0x80) << 16)
+//                                | ((((int) value >>> 14 & 0x7F) | 0x80) << 8)
+//                                | (((int) value >>> 21 & 0x7F) | 0x80)
+//                );
+//                position += 4;
+//                UnsafeDirectBufferUtil.setShort(address(position),
+//                        ((((int) (value >>> 28) & 0x7F) | 0x80) << 8) | (((int) (value >>> 35) & 0x7F) | 0x80));
+//                position += 2;
+//                UnsafeDirectBufferUtil.setByte(address(position++), (byte) (value >>> 42));
+//                break;
+//            case 8:
+//                UnsafeDirectBufferUtil.setLong(address(position),
+//                        (((value & 0x7F) | 0x80) << 56)
+//                                | (((value >>> 7 & 0x7F) | 0x80) << 48)
+//                                | (((value >>> 14 & 0x7F) | 0x80) << 40)
+//                                | (((value >>> 21 & 0x7F) | 0x80) << 32)
+//                                | (((value >>> 28 & 0x7F) | 0x80) << 24)
+//                                | (((value >>> 35 & 0x7F) | 0x80) << 16)
+//                                | (((value >>> 42 & 0x7F) | 0x80) << 8)
+//                                | (value >>> 49));
+//                position += 8;
+//                break;
+//            case 9:
+//                UnsafeDirectBufferUtil.setLong(address(position),
+//                        (((value & 0x7F) | 0x80) << 56)
+//                                | (((value >>> 7 & 0x7F) | 0x80) << 48)
+//                                | (((value >>> 14 & 0x7F) | 0x80) << 40)
+//                                | (((value >>> 21 & 0x7F) | 0x80) << 32)
+//                                | (((value >>> 28 & 0x7F) | 0x80) << 24)
+//                                | (((value >>> 35 & 0x7F) | 0x80) << 16)
+//                                | (((value >>> 42 & 0x7F) | 0x80) << 8)
+//                                | ((value >>> 49 & 0x7F) | 0x80));
+//                position += 8;
+//                UnsafeDirectBufferUtil.setByte(address(position++), (byte) (value >>> 56));
+//                break;
+//            case 10:
+//                UnsafeDirectBufferUtil.setLong(address(position),
+//                        (((value & 0x7F) | 0x80) << 56)
+//                                | (((value >>> 7 & 0x7F) | 0x80) << 48)
+//                                | (((value >>> 14 & 0x7F) | 0x80) << 40)
+//                                | (((value >>> 21 & 0x7F) | 0x80) << 32)
+//                                | (((value >>> 28 & 0x7F) | 0x80) << 24)
+//                                | (((value >>> 35 & 0x7F) | 0x80) << 16)
+//                                | (((value >>> 42 & 0x7F) | 0x80) << 8)
+//                                | ((value >>> 49 & 0x7F) | 0x80));
+//                position += 8;
+//                UnsafeDirectBufferUtil.setShort(address(position),
+//                        ((((int) (value >>> 56) & 0x7F) | 0x80) << 8) | (int) (value >>> 63));
+//                position += 2;
+//                break;
+//        }
+//        nioBuffer.position(position);
     }
 
     @Override
@@ -350,37 +350,37 @@ class UnsafeNioBufOutput extends NioBufOutput {
         return 5;
     }
 
-    /**
-     * Compute the number of bytes that would be needed to encode a varInt.
-     */
-    private static int computeRawVarInt64Size(final long value) {
-        if ((value & (0xffffffffffffffffL << 7)) == 0) {
-            return 1;
-        }
-        if ((value & (0xffffffffffffffffL << 14)) == 0) {
-            return 2;
-        }
-        if ((value & (0xffffffffffffffffL << 21)) == 0) {
-            return 3;
-        }
-        if ((value & (0xffffffffffffffffL << 28)) == 0) {
-            return 4;
-        }
-        if ((value & (0xffffffffffffffffL << 35)) == 0) {
-            return 5;
-        }
-        if ((value & (0xffffffffffffffffL << 42)) == 0) {
-            return 6;
-        }
-        if ((value & (0xffffffffffffffffL << 49)) == 0) {
-            return 7;
-        }
-        if ((value & (0xffffffffffffffffL << 56)) == 0) {
-            return 8;
-        }
-        if ((value & (0xffffffffffffffffL << 63)) == 0) {
-            return 9;
-        }
-        return 10;
-    }
+//    /**
+//     * Compute the number of bytes that would be needed to encode a varInt.
+//     */
+//    private static int computeRawVarInt64Size(final long value) {
+//        if ((value & (0xffffffffffffffffL << 7)) == 0) {
+//            return 1;
+//        }
+//        if ((value & (0xffffffffffffffffL << 14)) == 0) {
+//            return 2;
+//        }
+//        if ((value & (0xffffffffffffffffL << 21)) == 0) {
+//            return 3;
+//        }
+//        if ((value & (0xffffffffffffffffL << 28)) == 0) {
+//            return 4;
+//        }
+//        if ((value & (0xffffffffffffffffL << 35)) == 0) {
+//            return 5;
+//        }
+//        if ((value & (0xffffffffffffffffL << 42)) == 0) {
+//            return 6;
+//        }
+//        if ((value & (0xffffffffffffffffL << 49)) == 0) {
+//            return 7;
+//        }
+//        if ((value & (0xffffffffffffffffL << 56)) == 0) {
+//            return 8;
+//        }
+//        if ((value & (0xffffffffffffffffL << 63)) == 0) {
+//            return 9;
+//        }
+//        return 10;
+//    }
 }
