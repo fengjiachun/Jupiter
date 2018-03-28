@@ -49,6 +49,7 @@ public final class UnsafeDirectBufferUtil {
     private static final int JNI_COPY_FROM_ARRAY_THRESHOLD = 6;
 
     private static final boolean BIG_ENDIAN_NATIVE_ORDER = ByteOrder.nativeOrder() == ByteOrder.BIG_ENDIAN;
+    // Unaligned-access capability
     private static final boolean UNALIGNED;
 
     static {
