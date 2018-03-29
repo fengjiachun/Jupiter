@@ -18,7 +18,6 @@ package org.jupiter.serialization.proto;
 
 import org.jupiter.common.util.internal.UnsafeDirectBufferUtil;
 import org.jupiter.common.util.internal.UnsafeUtil;
-import org.jupiter.serialization.proto.io.VarInts;
 import org.openjdk.jmh.annotations.*;
 import org.openjdk.jmh.runner.Runner;
 import org.openjdk.jmh.runner.RunnerException;
@@ -39,29 +38,33 @@ import java.util.concurrent.TimeUnit;
 @Measurement(iterations = 10)
 @BenchmarkMode({ Mode.Throughput, Mode.AverageTime })
 @OutputTimeUnit(TimeUnit.NANOSECONDS)
-public class VarIntTest {
+public class VarInt32Test {
 
     /*
-        Benchmark                    Mode  Cnt   Score   Error   Units
-        VarIntTest.writeVarInt32_1  thrpt   10   0.147 ± 0.004  ops/ns
-        VarIntTest.writeVarInt32_2  thrpt   10   0.118 ± 0.002  ops/ns
-        VarIntTest.writeVarInt32_3  thrpt   10   0.042 ± 0.001  ops/ns
-        VarIntTest.writeVarInt32_1   avgt   10   7.267 ± 0.309   ns/op
-        VarIntTest.writeVarInt32_2   avgt   10   8.682 ± 0.482   ns/op
-        VarIntTest.writeVarInt32_3   avgt   10  25.755 ± 1.206   ns/op
+        Benchmark                      Mode  Cnt    Score    Error   Units
+        VarInt32Test.writeVarInt32_1  thrpt   10    0.031 ±  0.001  ops/ns
+        VarInt32Test.writeVarInt32_2  thrpt   10    0.037 ±  0.001  ops/ns
+        VarInt32Test.writeVarInt32_3  thrpt   10    0.008 ±  0.001  ops/ns
+        VarInt32Test.writeVarInt32_1   avgt   10   34.061 ±  0.690   ns/op
+        VarInt32Test.writeVarInt32_2   avgt   10   26.870 ±  0.528   ns/op
+        VarInt32Test.writeVarInt32_3   avgt   10  123.260 ±  3.497   ns/op
      */
     public static void main(String[] args) throws RunnerException {
         Options opt = new OptionsBuilder()
-                .include(VarIntTest.class.getSimpleName())
+                .include(VarInt32Test.class.getSimpleName())
                 .build();
 
         new Runner(opt).run();
     }
 
-    private static final ByteBuffer byteBuffer = ByteBuffer.allocateDirect(8);
+    private static final ByteBuffer byteBuffer = ByteBuffer.allocateDirect(5);
     private static final long address = UnsafeUtil.addressOffset(byteBuffer);
 
-    private static final int[] INT_ARRAY_TO_WRITE = new int[] { 1, 256, 256 * 256 };
+    private static final int[] INT_ARRAY_TO_WRITE = new int[] {
+            1, 2, 3, 4, 5, 6, 7, 8, 9, 10,
+            256, 256 * 256, 256 * 256 * 256,
+            Integer.MAX_VALUE - 1, Integer.MAX_VALUE
+    };
 
     @Benchmark
     public void writeVarInt32_1() {
@@ -99,35 +102,28 @@ public class VarIntTest {
 
     void doWriteVarInt32_2(int value) {
         int position = byteBuffer.position();
-        int size = VarInts.computeRawVarInt32Size(value);
-        switch (size) {
-            case 1:
-                UnsafeDirectBufferUtil.setByte(address(position), (byte) value);
-                break;
-            case 2:
-                UnsafeDirectBufferUtil.setShort(address(position),
-                        (((value & 0x7F) | 0x80) << 8) | (value >>> 7));
-                break;
-            case 3:
-                UnsafeDirectBufferUtil.setShort(address(position),
-                        (((value & 0x7F) | 0x80) << 8) | ((value >>> 7 & 0x7F) | 0x80));
-                UnsafeDirectBufferUtil.setByte(address(position + 2), (byte) (value >>> 14));
-                break;
-            case 4:
-                UnsafeDirectBufferUtil.setInt(address(position),
-                        (((value & 0x7F) | 0x80) << 24)
-                                | (((value >>> 7 & 0x7F) | 0x80) << 16)
-                                | (((value >>> 14 & 0x7F) | 0x80) << 8)
-                                | (value >>> 21));
-                break;
-            case 5:
-                UnsafeDirectBufferUtil.setInt(address(position),
-                        (((value & 0x7F) | 0x80) << 24)
-                                | (((value >>> 7 & 0x7F) | 0x80) << 16)
-                                | (((value >>> 14 & 0x7F) | 0x80) << 8)
-                                | ((value >>> 21 & 0x7F) | 0x80));
-                UnsafeDirectBufferUtil.setByte(address(position + 4), (byte) (value >>> 28));
-                break;
+        if ((value & (0xffffffff << 7)) == 0) {
+            UnsafeDirectBufferUtil.setByte(address(position), (byte) value);
+        } else if ((value & (0xffffffff << 14)) == 0) {
+            UnsafeDirectBufferUtil.setShort(address(position),
+                    (((value & 0x7F) | 0x80) << 8) | (value >>> 7));
+        } else if ((value & (0xffffffff << 21)) == 0) {
+            UnsafeDirectBufferUtil.setShort(address(position),
+                    (((value & 0x7F) | 0x80) << 8) | ((value >>> 7 & 0x7F) | 0x80));
+            UnsafeDirectBufferUtil.setByte(address(position + 2), (byte) (value >>> 14));
+        } else if ((value & (0xffffffff << 28)) == 0) {
+            UnsafeDirectBufferUtil.setInt(address(position),
+                    (((value & 0x7F) | 0x80) << 24)
+                            | (((value >>> 7 & 0x7F) | 0x80) << 16)
+                            | (((value >>> 14 & 0x7F) | 0x80) << 8)
+                            | (value >>> 21));
+        } else {
+            UnsafeDirectBufferUtil.setInt(address(position),
+                    (((value & 0x7F) | 0x80) << 24)
+                            | (((value >>> 7 & 0x7F) | 0x80) << 16)
+                            | (((value >>> 14 & 0x7F) | 0x80) << 8)
+                            | ((value >>> 21 & 0x7F) | 0x80));
+            UnsafeDirectBufferUtil.setByte(address(position + 4), (byte) (value >>> 28));
         }
     }
 
