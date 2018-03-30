@@ -122,6 +122,7 @@ public abstract class AbstractRegistryService implements RegistryService {
         queue.add(meta);
     }
 
+    @SuppressWarnings("all")
     @Override
     public void unregister(RegisterMeta meta) {
         if (!queue.remove(meta)) {
@@ -284,6 +285,7 @@ public abstract class AbstractRegistryService implements RegistryService {
 
     protected abstract void doRegister(RegisterMeta meta);
 
+    @SuppressWarnings("all")
     protected abstract void doUnregister(RegisterMeta meta);
 
     protected abstract void doCheckRegisterNodeStatus();
