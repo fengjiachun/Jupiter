@@ -176,6 +176,7 @@ public interface JServer extends Registry {
     /**
      * 从注册中心把本地所有服务全部下线.
      */
+    @SuppressWarnings("all")
     void unpublishAll();
 
     /**

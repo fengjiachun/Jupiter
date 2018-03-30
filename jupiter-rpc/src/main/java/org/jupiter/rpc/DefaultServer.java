@@ -225,6 +225,7 @@ public class DefaultServer implements JServer {
         registryService.unregister(meta);
     }
 
+    @SuppressWarnings("all")
     @Override
     public void unpublishAll() {
         for (ServiceWrapper wrapper : providerContainer.getAllServices()) {
