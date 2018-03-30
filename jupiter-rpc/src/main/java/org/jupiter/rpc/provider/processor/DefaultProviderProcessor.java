@@ -17,11 +17,12 @@
 package org.jupiter.rpc.provider.processor;
 
 import org.jupiter.rpc.JRequest;
-import org.jupiter.rpc.JServer;
 import org.jupiter.rpc.executor.CloseableExecutor;
 import org.jupiter.rpc.flow.control.ControlResult;
 import org.jupiter.rpc.flow.control.FlowController;
+import org.jupiter.rpc.flow.control.FlowControllerHolder;
 import org.jupiter.rpc.model.metadata.ServiceWrapper;
+import org.jupiter.rpc.provider.LookupService;
 import org.jupiter.rpc.provider.processor.task.MessageTask;
 import org.jupiter.transport.Directory;
 import org.jupiter.transport.channel.JChannel;
@@ -35,16 +36,19 @@ import org.jupiter.transport.payload.JRequestPayload;
  */
 public class DefaultProviderProcessor extends AbstractProviderProcessor {
 
-    private final JServer server;
     private final CloseableExecutor executor;
+    private final LookupService lookupService;
+    private final FlowControllerHolder<JRequest> flowControllerHolder;
 
-    public DefaultProviderProcessor(JServer server) {
-        this(server, ProviderExecutors.executor());
+    public DefaultProviderProcessor(LookupService lookupService, FlowControllerHolder<JRequest> flowControllerHolder) {
+        this(ProviderExecutors.executor(), lookupService, flowControllerHolder);
     }
 
-    public DefaultProviderProcessor(JServer server, CloseableExecutor executor) {
-        this.server = server;
+    public DefaultProviderProcessor(
+            CloseableExecutor executor, LookupService lookupService, FlowControllerHolder<JRequest> flowControllerHolder) {
         this.executor = executor;
+        this.lookupService = lookupService;
+        this.flowControllerHolder = flowControllerHolder;
     }
 
     @Override
@@ -66,13 +70,13 @@ public class DefaultProviderProcessor extends AbstractProviderProcessor {
 
     @Override
     public ServiceWrapper lookupService(Directory directory) {
-        return server.lookupService(directory);
+        return lookupService.lookupService(directory);
     }
 
     @Override
     public ControlResult flowControl(JRequest request) {
         // 全局流量控制
-        FlowController<JRequest> controller = server.globalFlowController();
+        FlowController<JRequest> controller = flowControllerHolder.get();
         if (controller == null) {
             return ControlResult.ALLOWED;
         }
