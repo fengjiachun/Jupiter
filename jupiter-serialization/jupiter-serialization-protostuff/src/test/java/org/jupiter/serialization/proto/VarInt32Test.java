@@ -42,12 +42,12 @@ public class VarInt32Test {
 
     /*
         Benchmark                      Mode  Cnt    Score    Error   Units
-        VarInt32Test.writeVarInt32_1  thrpt   10    0.031 ±  0.001  ops/ns
-        VarInt32Test.writeVarInt32_2  thrpt   10    0.037 ±  0.001  ops/ns
-        VarInt32Test.writeVarInt32_3  thrpt   10    0.008 ±  0.001  ops/ns
-        VarInt32Test.writeVarInt32_1   avgt   10   34.061 ±  0.690   ns/op
-        VarInt32Test.writeVarInt32_2   avgt   10   26.870 ±  0.528   ns/op
-        VarInt32Test.writeVarInt32_3   avgt   10  123.260 ±  3.497   ns/op
+        VarInt32Test.writeVarInt32_1  thrpt   10    0.029 ±  0.001  ops/ns
+        VarInt32Test.writeVarInt32_2  thrpt   10    0.039 ±  0.001  ops/ns
+        VarInt32Test.writeVarInt32_3  thrpt   10    0.009 ±  0.001  ops/ns
+        VarInt32Test.writeVarInt32_1   avgt   10   33.613 ±  0.947   ns/op
+        VarInt32Test.writeVarInt32_2   avgt   10   30.271 ±  0.519   ns/op
+        VarInt32Test.writeVarInt32_3   avgt   10  117.406 ±  9.018   ns/op
      */
     public static void main(String[] args) throws RunnerException {
         Options opt = new OptionsBuilder()
@@ -102,16 +102,16 @@ public class VarInt32Test {
 
     void doWriteVarInt32_2(int value) {
         int position = byteBuffer.position();
-        if ((value & (0xffffffff << 7)) == 0) {
+        if ((value & (~0 << 7)) == 0) {
             UnsafeDirectBufferUtil.setByte(address(position), (byte) value);
-        } else if ((value & (0xffffffff << 14)) == 0) {
+        } else if ((value & (~0 << 14)) == 0) {
             UnsafeDirectBufferUtil.setShort(address(position),
                     (((value & 0x7F) | 0x80) << 8) | (value >>> 7));
-        } else if ((value & (0xffffffff << 21)) == 0) {
+        } else if ((value & (~0 << 21)) == 0) {
             UnsafeDirectBufferUtil.setShort(address(position),
                     (((value & 0x7F) | 0x80) << 8) | ((value >>> 7 & 0x7F) | 0x80));
             UnsafeDirectBufferUtil.setByte(address(position + 2), (byte) (value >>> 14));
-        } else if ((value & (0xffffffff << 28)) == 0) {
+        } else if ((value & (~0 << 28)) == 0) {
             UnsafeDirectBufferUtil.setInt(address(position),
                     (((value & 0x7F) | 0x80) << 24)
                             | (((value >>> 7 & 0x7F) | 0x80) << 16)

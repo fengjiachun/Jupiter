@@ -30,16 +30,16 @@ public final class VarInts {
      * won't be sign-extended if negative.
      */
     public static int computeRawVarInt32Size(final int value) {
-        if ((value & (0xffffffff << 7)) == 0) {
+        if ((value & (~0 << 7)) == 0) {
             return 1;
         }
-        if ((value & (0xffffffff << 14)) == 0) {
+        if ((value & (~0 << 14)) == 0) {
             return 2;
         }
-        if ((value & (0xffffffff << 21)) == 0) {
+        if ((value & (~0 << 21)) == 0) {
             return 3;
         }
-        if ((value & (0xffffffff << 28)) == 0) {
+        if ((value & (~0 << 28)) == 0) {
             return 4;
         }
         return 5;
@@ -48,35 +48,28 @@ public final class VarInts {
     /**
      * Compute the number of bytes that would be needed to encode a varInt.
      */
-    public static int computeRawVarInt64Size(final long value) {
-        if ((value & (0xffffffffffffffffL << 7)) == 0) {
+    public static int computeRawVarInt64Size(long value) {
+        // Handle two popular special cases up front ...
+        if ((value & (~0L << 7)) == 0L) {
             return 1;
         }
-        if ((value & (0xffffffffffffffffL << 14)) == 0) {
-            return 2;
+        if (value < 0L) {
+            return 10;
         }
-        if ((value & (0xffffffffffffffffL << 21)) == 0) {
-            return 3;
+        // ... leaving us with 8 remaining, which we can divide and conquer
+        int n = 2;
+        if ((value & (~0L << 35)) != 0L) {
+            n += 4;
+            value >>>= 28;
         }
-        if ((value & (0xffffffffffffffffL << 28)) == 0) {
-            return 4;
+        if ((value & (~0L << 21)) != 0L) {
+            n += 2;
+            value >>>= 14;
         }
-        if ((value & (0xffffffffffffffffL << 35)) == 0) {
-            return 5;
+        if ((value & (~0L << 14)) != 0L) {
+            n += 1;
         }
-        if ((value & (0xffffffffffffffffL << 42)) == 0) {
-            return 6;
-        }
-        if ((value & (0xffffffffffffffffL << 49)) == 0) {
-            return 7;
-        }
-        if ((value & (0xffffffffffffffffL << 56)) == 0) {
-            return 8;
-        }
-        if ((value & (0xffffffffffffffffL << 63)) == 0) {
-            return 9;
-        }
-        return 10;
+        return n;
     }
 
     private VarInts() {}
