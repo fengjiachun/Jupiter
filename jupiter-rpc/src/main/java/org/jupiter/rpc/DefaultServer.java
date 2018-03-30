@@ -210,6 +210,7 @@ public class DefaultServer implements JServer {
         }
     }
 
+    @SuppressWarnings("all")
     @Override
     public void unpublish(ServiceWrapper serviceWrapper) {
         ServiceMetadata metadata = serviceWrapper.getMetadata();

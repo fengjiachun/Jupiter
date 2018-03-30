@@ -171,6 +171,7 @@ public interface JServer extends Registry {
     /**
      * 从注册中心把指定服务下线.
      */
+    @SuppressWarnings("all")
     void unpublish(ServiceWrapper serviceWrapper);
 
     /**
