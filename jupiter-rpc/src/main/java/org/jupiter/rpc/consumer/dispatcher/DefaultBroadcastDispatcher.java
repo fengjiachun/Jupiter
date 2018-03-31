@@ -19,14 +19,13 @@ package org.jupiter.rpc.consumer.dispatcher;
 import org.jupiter.rpc.DispatchType;
 import org.jupiter.rpc.JClient;
 import org.jupiter.rpc.JRequest;
-import org.jupiter.rpc.consumer.ConsumerInterceptor;
 import org.jupiter.rpc.consumer.future.DefaultInvokeFuture;
 import org.jupiter.rpc.consumer.future.DefaultInvokeFutureGroup;
 import org.jupiter.rpc.consumer.future.InvokeFuture;
 import org.jupiter.rpc.model.metadata.MessageWrapper;
-import org.jupiter.serialization.io.OutputBuf;
 import org.jupiter.serialization.Serializer;
 import org.jupiter.serialization.SerializerType;
+import org.jupiter.serialization.io.OutputBuf;
 import org.jupiter.transport.CodecConfig;
 import org.jupiter.transport.channel.JChannel;
 import org.jupiter.transport.channel.JChannelGroup;
@@ -66,25 +65,15 @@ public class DefaultBroadcastDispatcher extends AbstractDispatcher {
             request.bytes(s_code, bytes);
         }
 
-        long invokeId = request.invokeId();
-        ConsumerInterceptor[] interceptors = interceptors();
         InvokeFuture<T>[] futures = new DefaultInvokeFuture[channels.length];
-        long timeoutMillis = getMethodSpecialTimeoutMillis(message.getMethodName());
         for (int i = 0; i < channels.length; i++) {
             JChannel channel = channels[i];
-
-            DefaultInvokeFuture<T> future = DefaultInvokeFuture
-                    .with(invokeId, channel, returnType, timeoutMillis, DispatchType.BROADCAST)
-                    .interceptors(interceptors)
-                    .traceId(message.getTraceId());
-
             if (isLowCopy) {
                 OutputBuf outputBuf =
                         _serializer.writeObject(channel.allocOutputBuf(), message);
                 request.outputBuf(s_code, outputBuf);
             }
-
-            futures[i] = write(channel, request, future, DispatchType.BROADCAST);
+            futures[i] = write(channel, request, returnType, DispatchType.BROADCAST);
         }
 
         return DefaultInvokeFutureGroup.with(futures);

@@ -68,18 +68,18 @@ public class DefaultInvokeFuture<V> extends AbstractListenableFuture<V> implemen
     private TraceId traceId;
 
     public static <T> DefaultInvokeFuture<T> with(
-            long invokeId, JChannel channel, Class<T> returnType, long timeoutMillis, DispatchType dispatchType) {
+            long invokeId, JChannel channel, long timeoutMillis, Class<T> returnType, DispatchType dispatchType) {
 
-        return new DefaultInvokeFuture<>(invokeId, channel, returnType, timeoutMillis, dispatchType);
+        return new DefaultInvokeFuture<>(invokeId, channel, timeoutMillis, returnType, dispatchType);
     }
 
     private DefaultInvokeFuture(
-            long invokeId, JChannel channel, Class<V> returnType, long timeoutMillis, DispatchType dispatchType) {
+            long invokeId, JChannel channel, long timeoutMillis, Class<V> returnType, DispatchType dispatchType) {
 
         this.invokeId = invokeId;
         this.channel = channel;
-        this.returnType = returnType;
         this.timeout = timeoutMillis > 0 ? TimeUnit.MILLISECONDS.toNanos(timeoutMillis) : DEFAULT_TIMEOUT_NANOSECONDS;
+        this.returnType = returnType;
 
         switch (dispatchType) {
             case ROUND:

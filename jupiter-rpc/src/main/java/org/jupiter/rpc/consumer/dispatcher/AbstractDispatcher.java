@@ -29,6 +29,7 @@ import org.jupiter.rpc.consumer.ConsumerInterceptor;
 import org.jupiter.rpc.consumer.future.DefaultInvokeFuture;
 import org.jupiter.rpc.exception.JupiterRemoteException;
 import org.jupiter.rpc.load.balance.LoadBalancer;
+import org.jupiter.rpc.model.metadata.MessageWrapper;
 import org.jupiter.rpc.model.metadata.MethodSpecialConfig;
 import org.jupiter.rpc.model.metadata.ResultWrapper;
 import org.jupiter.rpc.model.metadata.ServiceMetadata;
@@ -113,7 +114,7 @@ abstract class AbstractDispatcher implements Dispatcher {
         return this;
     }
 
-    public long getMethodSpecialTimeoutMillis(String methodName) {
+    protected long getMethodSpecialTimeoutMillis(String methodName) {
         Long methodTimeoutMillis = methodSpecialTimeoutMapping.get(methodName);
         if (methodTimeoutMillis != null && methodTimeoutMillis > 0) {
             return methodTimeoutMillis;
@@ -167,12 +168,19 @@ abstract class AbstractDispatcher implements Dispatcher {
     }
 
     @SuppressWarnings("all")
-    protected static <T> DefaultInvokeFuture<T> write(
-            JChannel channel, final JRequest request, final DefaultInvokeFuture<T> future, final DispatchType dispatchType) {
+    protected <T> DefaultInvokeFuture<T> write(
+            final JChannel channel, final JRequest request, final Class<T> returnType, final DispatchType dispatchType) {
+        final MessageWrapper message = request.message();
+        final long timeoutMillis = getMethodSpecialTimeoutMillis(message.getMethodName());
+        final TraceId traceId = message.getTraceId();
+
+        final DefaultInvokeFuture<T> future = DefaultInvokeFuture
+                .with(request.invokeId(), channel, timeoutMillis, returnType, dispatchType)
+                .interceptors(interceptors())
+                .traceId(traceId);
 
         ConsumerInterceptor[] interceptors = future.interceptors();
         if (interceptors != null) {
-            TraceId traceId = future.traceId();
             for (int i = 0; i < interceptors.length; i++) {
                 interceptors[i].beforeInvoke(traceId, request, channel);
             }

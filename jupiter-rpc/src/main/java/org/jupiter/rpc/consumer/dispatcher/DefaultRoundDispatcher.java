@@ -19,13 +19,12 @@ package org.jupiter.rpc.consumer.dispatcher;
 import org.jupiter.rpc.DispatchType;
 import org.jupiter.rpc.JClient;
 import org.jupiter.rpc.JRequest;
-import org.jupiter.rpc.consumer.future.DefaultInvokeFuture;
 import org.jupiter.rpc.consumer.future.InvokeFuture;
 import org.jupiter.rpc.load.balance.LoadBalancer;
 import org.jupiter.rpc.model.metadata.MessageWrapper;
-import org.jupiter.serialization.io.OutputBuf;
 import org.jupiter.serialization.Serializer;
 import org.jupiter.serialization.SerializerType;
+import org.jupiter.serialization.io.OutputBuf;
 import org.jupiter.transport.CodecConfig;
 import org.jupiter.transport.channel.JChannel;
 
@@ -64,12 +63,6 @@ public class DefaultRoundDispatcher extends AbstractDispatcher {
             request.bytes(s_code, bytes);
         }
 
-        long timeoutMillis = getMethodSpecialTimeoutMillis(message.getMethodName());
-        DefaultInvokeFuture<T> future = DefaultInvokeFuture
-                .with(request.invokeId(), channel, returnType, timeoutMillis, DispatchType.ROUND)
-                .interceptors(interceptors())
-                .traceId(message.getTraceId());
-
-        return write(channel, request, future, DispatchType.ROUND);
+        return write(channel, request, returnType, DispatchType.ROUND);
     }
 }
