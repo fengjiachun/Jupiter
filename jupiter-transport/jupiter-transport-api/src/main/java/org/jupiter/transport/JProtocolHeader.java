@@ -75,7 +75,7 @@ public class JProtocolHeader {
     private int bodySize;           // 消息体长度
 
     public static byte toSign(byte serializerCode, byte messageCode) {
-        return (byte) ((serializerCode << 4) + messageCode);
+        return (byte) ((serializerCode << 4) | (messageCode & 0x0f));
     }
 
     public void sign(byte sign) {
