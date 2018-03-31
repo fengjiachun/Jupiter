@@ -56,7 +56,7 @@ public class JConnectionManager {
     /**
      * 取消对指定地址的自动重连
      */
-    public void cancelReconnect(UnresolvedAddress address) {
+    public void cancelAutoReconnect(UnresolvedAddress address) {
         CopyOnWriteArrayList<JConnection> list = connections.remove(address);
         if (list != null) {
             for (JConnection c : list) {
@@ -69,9 +69,9 @@ public class JConnectionManager {
     /**
      * 取消对所有地址的自动重连
      */
-    public void cancelAllReconnect() {
+    public void cancelAllAutoReconnect() {
         for (UnresolvedAddress address : connections.keySet()) {
-            cancelReconnect(address);
+            cancelAutoReconnect(address);
         }
     }
 }

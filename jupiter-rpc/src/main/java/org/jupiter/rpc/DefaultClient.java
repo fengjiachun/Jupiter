@@ -26,6 +26,7 @@ import org.jupiter.transport.channel.JChannelGroup;
 import java.util.Collection;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.ReentrantLock;
 
@@ -151,34 +152,36 @@ public class DefaultClient implements JClient {
                                     });
                                 } else {
                                     group.setConnecting(true);
-                                    try {
-                                        JConnection[] connections = connectTo(address, group, registerMeta, true);
-                                        for (JConnection c : connections) {
-                                            c.operationComplete(new Runnable() {
+                                    JConnection[] connections = connectTo(address, group, registerMeta, true);
+                                    final AtomicInteger countdown = new AtomicInteger(connections.length);
+                                    for (JConnection c : connections) {
+                                        c.operationComplete(new JConnection.OperationListener() {
 
-                                                @Override
-                                                public void run() {
+                                            @Override
+                                            public void complete(boolean isSuccess) {
+                                                if (isSuccess) {
                                                     onSucceed(group, signalNeeded.getAndSet(false));
                                                 }
-                                            });
-                                        }
-                                    } finally {
-                                        group.setConnecting(false);
+                                                if (countdown.decrementAndGet() <= 0) {
+                                                    group.setConnecting(false);
+                                                }
+                                            }
+                                        });
                                     }
                                 }
                             }
-                            group.putWeight(directory, registerMeta.getWeight()); // 设置权重
+                            group.putWeight(directory, registerMeta.getWeight());
                         } else if (event == NotifyEvent.CHILD_REMOVED) {
                             connector.removeChannelGroup(directory, group);
                             group.removeWeight(directory);
                             if (connector.directoryGroup().getRefCount(group) <= 0) {
-                                connectionManager.cancelReconnect(address); // 取消自动重连
+                                connectionManager.cancelAutoReconnect(address);
                             }
                         }
                     }
 
                     private JConnection[] connectTo(final UnresolvedAddress address, final JChannelGroup group, RegisterMeta registerMeta, boolean async) {
-                        int connCount = registerMeta.getConnCount();
+                        int connCount = registerMeta.getConnCount(); // global value from single client
                         connCount = connCount < 1 ? 1 : connCount;
 
                         JConnection[] connections = new JConnection[connCount];
@@ -193,7 +196,7 @@ public class DefaultClient implements JClient {
 
                             @Override
                             public void offline() {
-                                connectionManager.cancelReconnect(address); // 取消自动重连
+                                connectionManager.cancelAutoReconnect(address);
                                 if (!group.isAvailable()) {
                                     connector.removeChannelGroup(directory, group);
                                 }

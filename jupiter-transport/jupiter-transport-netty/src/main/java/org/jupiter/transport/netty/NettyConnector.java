@@ -185,7 +185,7 @@ public abstract class NettyConnector implements JConnector<JConnection> {
 
     @Override
     public void shutdownGracefully() {
-        connectionManager.cancelAllReconnect();
+        connectionManager.cancelAllAutoReconnect();
         worker.shutdownGracefully().syncUninterruptibly();
         timer.stop();
         if (processor != null) {
