@@ -33,13 +33,13 @@ import org.jupiter.rpc.model.metadata.MessageWrapper;
 import org.jupiter.rpc.model.metadata.ResultWrapper;
 import org.jupiter.rpc.model.metadata.ServiceWrapper;
 import org.jupiter.rpc.provider.ProviderInterceptor;
-import org.jupiter.rpc.provider.processor.AbstractProviderProcessor;
+import org.jupiter.rpc.provider.processor.DefaultProviderProcessor;
 import org.jupiter.rpc.tracing.TraceId;
 import org.jupiter.rpc.tracing.TracingUtil;
-import org.jupiter.serialization.io.InputBuf;
-import org.jupiter.serialization.io.OutputBuf;
 import org.jupiter.serialization.Serializer;
 import org.jupiter.serialization.SerializerFactory;
+import org.jupiter.serialization.io.InputBuf;
+import org.jupiter.serialization.io.OutputBuf;
 import org.jupiter.transport.CodecConfig;
 import org.jupiter.transport.Status;
 import org.jupiter.transport.channel.JChannel;
@@ -72,11 +72,11 @@ public class MessageTask implements RejectedRunnable {
     private static final UnsafeIntegerFieldUpdater<TraceId> traceNodeUpdater =
             UnsafeUpdater.newIntegerFieldUpdater(TraceId.class, "node");
 
-    private final AbstractProviderProcessor processor;
+    private final DefaultProviderProcessor processor;
     private final JChannel channel;
     private final JRequest request;
 
-    public MessageTask(AbstractProviderProcessor processor, JChannel channel, JRequest request) {
+    public MessageTask(DefaultProviderProcessor processor, JChannel channel, JRequest request) {
         this.processor = processor;
         this.channel = channel;
         this.request = request;
@@ -85,7 +85,7 @@ public class MessageTask implements RejectedRunnable {
     @Override
     public void run() {
         // stack copy
-        final AbstractProviderProcessor _processor = processor;
+        final DefaultProviderProcessor _processor = processor;
         final JRequest _request = request;
 
         // 全局流量控制

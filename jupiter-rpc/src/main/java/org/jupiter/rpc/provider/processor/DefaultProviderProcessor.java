@@ -16,17 +16,29 @@
 
 package org.jupiter.rpc.provider.processor;
 
+import org.jupiter.common.util.ThrowUtil;
+import org.jupiter.common.util.internal.logging.InternalLogger;
+import org.jupiter.common.util.internal.logging.InternalLoggerFactory;
 import org.jupiter.rpc.JRequest;
 import org.jupiter.rpc.executor.CloseableExecutor;
 import org.jupiter.rpc.flow.control.ControlResult;
 import org.jupiter.rpc.flow.control.FlowController;
 import org.jupiter.rpc.flow.control.FlowControllerHolder;
+import org.jupiter.rpc.model.metadata.ResultWrapper;
 import org.jupiter.rpc.model.metadata.ServiceWrapper;
 import org.jupiter.rpc.provider.LookupService;
 import org.jupiter.rpc.provider.processor.task.MessageTask;
+import org.jupiter.serialization.Serializer;
+import org.jupiter.serialization.SerializerFactory;
 import org.jupiter.transport.Directory;
+import org.jupiter.transport.Status;
 import org.jupiter.transport.channel.JChannel;
+import org.jupiter.transport.channel.JFutureListener;
 import org.jupiter.transport.payload.JRequestPayload;
+import org.jupiter.transport.payload.JResponsePayload;
+import org.jupiter.transport.processor.ProviderProcessor;
+
+import static org.jupiter.common.util.StackTraceUtil.stackTrace;
 
 /**
  * jupiter
@@ -34,7 +46,9 @@ import org.jupiter.transport.payload.JRequestPayload;
  *
  * @author jiachun.fjc
  */
-public class DefaultProviderProcessor extends AbstractProviderProcessor {
+public class DefaultProviderProcessor implements ProviderProcessor, LookupService, FlowController<JRequest> {
+
+    private static final InternalLogger logger = InternalLoggerFactory.getInstance(DefaultProviderProcessor.class);
 
     private final CloseableExecutor executor;
     private final LookupService lookupService;
@@ -62,6 +76,15 @@ public class DefaultProviderProcessor extends AbstractProviderProcessor {
     }
 
     @Override
+    public void handleException(JChannel channel, JRequestPayload request, Status status, Throwable cause) {
+        logger.error("An exception was caught while processing request: {}, {}.",
+                channel.remoteAddress(), stackTrace(cause));
+
+        doHandleException(
+                channel, request.invokeId(), request.serializerCode(), status.value(), cause, false);
+    }
+
+    @Override
     public void shutdown() {
         if (executor != null) {
             executor.shutdown();
@@ -81,5 +104,57 @@ public class DefaultProviderProcessor extends AbstractProviderProcessor {
             return ControlResult.ALLOWED;
         }
         return controller.flowControl(request);
+    }
+
+    public void handleException(JChannel channel, JRequest request, Status status, Throwable cause) {
+        logger.error("An exception was caught while processing request: {}, {}.",
+                channel.remoteAddress(), stackTrace(cause));
+
+        doHandleException(
+                channel, request.invokeId(), request.serializerCode(), status.value(), cause, false);
+    }
+
+    public void handleRejected(JChannel channel, JRequest request, Status status, Throwable cause) {
+        if (logger.isWarnEnabled()) {
+            logger.warn("Service rejected: {}, {}.", channel.remoteAddress(), stackTrace(cause));
+        }
+
+        doHandleException(
+                channel, request.invokeId(), request.serializerCode(), status.value(), cause, true);
+    }
+
+    private void doHandleException(
+            JChannel channel, long invokeId, byte s_code, byte status, Throwable cause, boolean closeChannel) {
+
+        ResultWrapper result = new ResultWrapper();
+        // 截断cause, 避免客户端无法找到cause类型而无法序列化
+        cause = ThrowUtil.cutCause(cause);
+        result.setError(cause);
+
+        Serializer serializer = SerializerFactory.getSerializer(s_code);
+        byte[] bytes = serializer.writeObject(result);
+
+        JResponsePayload response = new JResponsePayload(invokeId);
+        response.status(status);
+        response.bytes(s_code, bytes);
+
+        if (closeChannel) {
+            channel.write(response, JChannel.CLOSE);
+        } else {
+            channel.write(response, new JFutureListener<JChannel>() {
+
+                @Override
+                public void operationSuccess(JChannel channel) throws Exception {
+                    logger.debug("Service error message sent out: {}.", channel);
+                }
+
+                @Override
+                public void operationFailure(JChannel channel, Throwable cause) throws Exception {
+                    if (logger.isWarnEnabled()) {
+                        logger.warn("Service error message sent failed: {}, {}.", channel, stackTrace(cause));
+                    }
+                }
+            });
+        }
     }
 }
