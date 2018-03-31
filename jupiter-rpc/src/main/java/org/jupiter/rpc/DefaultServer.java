@@ -21,11 +21,10 @@ import org.jupiter.common.util.internal.logging.InternalLogger;
 import org.jupiter.common.util.internal.logging.InternalLoggerFactory;
 import org.jupiter.registry.RegisterMeta;
 import org.jupiter.registry.RegistryService;
+import org.jupiter.rpc.flow.control.ControlResult;
 import org.jupiter.rpc.flow.control.FlowController;
-import org.jupiter.rpc.flow.control.FlowControllerHolder;
 import org.jupiter.rpc.model.metadata.ServiceMetadata;
 import org.jupiter.rpc.model.metadata.ServiceWrapper;
-import org.jupiter.rpc.provider.LookupService;
 import org.jupiter.rpc.provider.ProviderInterceptor;
 import org.jupiter.rpc.provider.processor.DefaultProviderProcessor;
 import org.jupiter.transport.Directory;
@@ -90,23 +89,22 @@ public class DefaultServer implements JServer {
     @Override
     public JServer withAcceptor(JAcceptor acceptor) {
         if (acceptor.processor() == null) {
-            FlowControllerHolder<JRequest> flowControllerHolder = new FlowControllerHolder<JRequest>() {
-
-                @Override
-                public FlowController<JRequest> get() {
-                    return globalFlowController;
-                }
-            };
-
-            LookupService lookupService = new LookupService() {
+            acceptor.withProcessor(new DefaultProviderProcessor() {
 
                 @Override
                 public ServiceWrapper lookupService(Directory directory) {
                     return providerContainer.lookupService(directory.directoryString());
                 }
-            };
 
-            acceptor.withProcessor(new DefaultProviderProcessor(lookupService, flowControllerHolder));
+                @Override
+                public ControlResult flowControl(JRequest request) {
+                    // 全局流量控制
+                    if (globalFlowController == null) {
+                        return ControlResult.ALLOWED;
+                    }
+                    return globalFlowController.flowControl(request);
+                }
+            });
         }
         this.acceptor = acceptor;
         return this;

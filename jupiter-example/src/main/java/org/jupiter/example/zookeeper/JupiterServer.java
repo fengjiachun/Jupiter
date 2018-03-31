@@ -67,7 +67,7 @@ public class JupiterServer {
                         @Override
                         public ControlResult flowControl(JRequest request) {
                             if (count.getAndIncrement() > 9999) {
-                                return new ControlResult(false, "fuck out!!!");
+                                return new ControlResult(false, "go go go!!!");
                             }
                             return ControlResult.ALLOWED;
                         }

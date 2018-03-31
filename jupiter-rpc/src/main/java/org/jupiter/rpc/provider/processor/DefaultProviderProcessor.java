@@ -21,16 +21,12 @@ import org.jupiter.common.util.internal.logging.InternalLogger;
 import org.jupiter.common.util.internal.logging.InternalLoggerFactory;
 import org.jupiter.rpc.JRequest;
 import org.jupiter.rpc.executor.CloseableExecutor;
-import org.jupiter.rpc.flow.control.ControlResult;
 import org.jupiter.rpc.flow.control.FlowController;
-import org.jupiter.rpc.flow.control.FlowControllerHolder;
 import org.jupiter.rpc.model.metadata.ResultWrapper;
-import org.jupiter.rpc.model.metadata.ServiceWrapper;
 import org.jupiter.rpc.provider.LookupService;
 import org.jupiter.rpc.provider.processor.task.MessageTask;
 import org.jupiter.serialization.Serializer;
 import org.jupiter.serialization.SerializerFactory;
-import org.jupiter.transport.Directory;
 import org.jupiter.transport.Status;
 import org.jupiter.transport.channel.JChannel;
 import org.jupiter.transport.channel.JFutureListener;
@@ -46,23 +42,18 @@ import static org.jupiter.common.util.StackTraceUtil.stackTrace;
  *
  * @author jiachun.fjc
  */
-public class DefaultProviderProcessor implements ProviderProcessor, LookupService, FlowController<JRequest> {
+public abstract class DefaultProviderProcessor implements ProviderProcessor, LookupService, FlowController<JRequest> {
 
     private static final InternalLogger logger = InternalLoggerFactory.getInstance(DefaultProviderProcessor.class);
 
     private final CloseableExecutor executor;
-    private final LookupService lookupService;
-    private final FlowControllerHolder<JRequest> flowControllerHolder;
 
-    public DefaultProviderProcessor(LookupService lookupService, FlowControllerHolder<JRequest> flowControllerHolder) {
-        this(ProviderExecutors.executor(), lookupService, flowControllerHolder);
+    public DefaultProviderProcessor() {
+        this(ProviderExecutors.executor());
     }
 
-    public DefaultProviderProcessor(
-            CloseableExecutor executor, LookupService lookupService, FlowControllerHolder<JRequest> flowControllerHolder) {
+    public DefaultProviderProcessor(CloseableExecutor executor) {
         this.executor = executor;
-        this.lookupService = lookupService;
-        this.flowControllerHolder = flowControllerHolder;
     }
 
     @Override
@@ -89,21 +80,6 @@ public class DefaultProviderProcessor implements ProviderProcessor, LookupServic
         if (executor != null) {
             executor.shutdown();
         }
-    }
-
-    @Override
-    public ServiceWrapper lookupService(Directory directory) {
-        return lookupService.lookupService(directory);
-    }
-
-    @Override
-    public ControlResult flowControl(JRequest request) {
-        // 全局流量控制
-        FlowController<JRequest> controller = flowControllerHolder.get();
-        if (controller == null) {
-            return ControlResult.ALLOWED;
-        }
-        return controller.flowControl(request);
     }
 
     public void handleException(JChannel channel, JRequest request, Status status, Throwable cause) {
