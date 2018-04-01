@@ -172,14 +172,13 @@ abstract class AbstractDispatcher implements Dispatcher {
             final JChannel channel, final JRequest request, final Class<T> returnType, final DispatchType dispatchType) {
         final MessageWrapper message = request.message();
         final long timeoutMillis = getMethodSpecialTimeoutMillis(message.getMethodName());
+        final ConsumerInterceptor[] interceptors = interceptors();
         final TraceId traceId = message.getTraceId();
-
         final DefaultInvokeFuture<T> future = DefaultInvokeFuture
                 .with(request.invokeId(), channel, timeoutMillis, returnType, dispatchType)
-                .interceptors(interceptors())
+                .interceptors(interceptors)
                 .traceId(traceId);
 
-        ConsumerInterceptor[] interceptors = future.interceptors();
         if (interceptors != null) {
             for (int i = 0; i < interceptors.length; i++) {
                 interceptors[i].beforeInvoke(traceId, request, channel);
