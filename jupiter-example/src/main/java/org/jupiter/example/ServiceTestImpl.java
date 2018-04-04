@@ -16,7 +16,10 @@
 
 package org.jupiter.example;
 
-import java.util.Arrays;
+import org.jupiter.common.util.Lists;
+import org.jupiter.rpc.ServiceProviderImpl;
+
+import java.util.Collections;
 
 /**
  * jupiter
@@ -24,15 +27,31 @@ import java.util.Arrays;
  *
  * @author jiachun.fjc
  */
-public class ServiceTestImpl implements ServiceTest {
+@ServiceProviderImpl(version = "1.0.0.daily")
+public class ServiceTestImpl extends BaseService implements ServiceTest {
 
+    private String strValue;
+
+    public String getStrValue() {
+        return strValue;
+    }
+
+    public void setStrValue(String strValue) {
+        this.strValue = strValue;
+    }
+
+    @SuppressWarnings("NumericOverflow")
     @Override
-    public ResultClass sayHello() {
+    public ResultClass sayHello(String... s) {
         ResultClass result = new ResultClass();
-        result.lon = 1L;
-        result.num = 2;
-        result.str = "Hello jupiter";
-        result.list = Arrays.asList("H", "e", "l", "l", "o");
+        result.lon = Long.MIN_VALUE;
+        Integer i = getIntValue();
+        result.num = (i == null ? 0 : i);
+        result.list = Lists.newArrayList("H", "e", "l", "l", "o");
+        for (int j = 0; j < 5000; j++) {
+            result.list.add(String.valueOf(Integer.MAX_VALUE - j));
+        }
+        Collections.addAll(result.list, s);
         return result;
     }
 }

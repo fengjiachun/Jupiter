@@ -20,14 +20,16 @@ import org.jupiter.common.util.Lists;
 import org.jupiter.common.util.SystemPropertyUtil;
 import org.jupiter.common.util.internal.logging.InternalLogger;
 import org.jupiter.common.util.internal.logging.InternalLoggerFactory;
-import org.jupiter.rpc.InvokeMode;
-import org.jupiter.rpc.UnresolvedAddress;
+import org.jupiter.rpc.DefaultClient;
+import org.jupiter.rpc.InvokeType;
+import org.jupiter.rpc.JClient;
 import org.jupiter.rpc.consumer.ProxyFactory;
-import org.jupiter.rpc.consumer.promise.JPromise;
-import org.jupiter.rpc.consumer.invoker.PromiseInvoker;
-import org.jupiter.transport.JOption;
+import org.jupiter.rpc.consumer.future.InvokeFuture;
+import org.jupiter.rpc.consumer.future.InvokeFutureContext;
+import org.jupiter.rpc.load.balance.LoadBalancerType;
+import org.jupiter.serialization.SerializerType;
+import org.jupiter.transport.UnresolvedAddress;
 import org.jupiter.transport.netty.JNettyTcpConnector;
-import org.jupiter.transport.netty.NettyConnector;
 
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
@@ -52,6 +54,10 @@ import java.util.concurrent.atomic.AtomicLong;
  * 2016-01-09 01:46:38.279 WARN  [main] [BenchmarkClient] - Request count: 128000000, time: 1089 second, qps: 117539
  *
  *
+ * 2017-1-21:
+ *  从我在自己笔记本上的测试结果猜测, 目前版本(1.2.0)性能应该会有一些提升, 但是一直没有合适的服务器用作测试, 不知道现在的具体性能实际到底如何.
+ *
+ *
  * 飞行记录: -XX:+UnlockCommercialFeatures -XX:+FlightRecorder
  *
  * jupiter
@@ -64,30 +70,45 @@ public class BenchmarkClient {
     private static final InternalLogger logger = InternalLoggerFactory.getInstance(BenchmarkClient.class);
 
     public static void main(String[] args) {
+//        SystemPropertyUtil.setProperty("jupiter.transport.codec.low_copy", "true");
+
         int processors = Runtime.getRuntime().availableProcessors();
         SystemPropertyUtil
-                .setProperty("jupiter.processor.executor.core.num.workers", String.valueOf(processors));
+                .setProperty("jupiter.executor.factory.consumer.core.workers", String.valueOf(processors << 1));
         SystemPropertyUtil.setProperty("jupiter.tracing.needed", "false");
+        SystemPropertyUtil.setProperty("jupiter.use.non_blocking_hash", "true");
+        SystemPropertyUtil
+                .setProperty("jupiter.executor.factory.affinity.thread", "false");
+        SystemPropertyUtil
+                .setProperty("jupiter.executor.factory.consumer.factory_name", "forkJoin");
 
-        NettyConnector connector = new JNettyTcpConnector();
-        connector.config().setOption(JOption.WRITE_BUFFER_HIGH_WATER_MARK, 256 * 1024);
-        connector.config().setOption(JOption.WRITE_BUFFER_LOW_WATER_MARK, 128 * 1024);
+        final JClient client = new DefaultClient().withConnector(new JNettyTcpConnector(processors, true) {
+
+//            @Override
+//            protected ThreadFactory workerThreadFactory(String name) {
+//                return new AffinityNettyThreadFactory(name);
+//            }
+        });
+
         UnresolvedAddress[] addresses = new UnresolvedAddress[processors];
         for (int i = 0; i < processors; i++) {
-            addresses[i] = new UnresolvedAddress("192.168.77.83", 18099);
-            connector.connect(addresses[i]);
+            addresses[i] = new UnresolvedAddress("127.0.0.1", 18099);
+            client.connector().connect(addresses[i]);
         }
 
         if (SystemPropertyUtil.getBoolean("jupiter.test.async", true)) {
-            futureCall(connector, addresses, processors);
+            futureCall(client, addresses, processors);
         } else {
-            syncCall(connector, addresses, processors);
+            syncCall(client, addresses, processors);
         }
     }
 
-    private static void syncCall(NettyConnector connector, UnresolvedAddress[] addresses, int processors) {
+    private static void syncCall(JClient client, UnresolvedAddress[] addresses, int processors) {
         final Service service = ProxyFactory.factory(Service.class)
-                .connector(connector)
+                .version("1.0.0")
+                .client(client)
+                .serializerType(SerializerType.PROTO_STUFF)
+                .loadBalancerType(LoadBalancerType.ROUND_ROBIN)
                 .addProviderAddress(addresses)
                 .newProxyInstance();
 
@@ -99,7 +120,7 @@ public class BenchmarkClient {
             }
         }
 
-        final int t = 500000;
+        final int t = 50000;
         final int step = 6;
         long start = System.currentTimeMillis();
         final CountDownLatch latch = new CountDownLatch(processors << step);
@@ -134,42 +155,45 @@ public class BenchmarkClient {
         logger.warn("Request count: " + count.get() + ", time: " + second + " second, qps: " + count.get() / second);
     }
 
-    private static void futureCall(NettyConnector connector, UnresolvedAddress[] addresses, int processors) {
+    private static void futureCall(JClient client, UnresolvedAddress[] addresses, int processors) {
         final Service service = ProxyFactory.factory(Service.class)
-                .connector(connector)
-                .invokeMode(InvokeMode.PROMISE)
+                .version("1.0.0")
+                .client(client)
+                .invokeType(InvokeType.ASYNC)
+                .serializerType(SerializerType.PROTO_STUFF)
+                .loadBalancerType(LoadBalancerType.ROUND_ROBIN)
                 .addProviderAddress(addresses)
                 .newProxyInstance();
 
         for (int i = 0; i < 10000; i++) {
             try {
                 service.hello("jupiter");
-                PromiseInvoker.currentPromise().get();
-            } catch (Exception e) {
+                InvokeFutureContext.future().getResult();
+            } catch (Throwable e) {
                 e.printStackTrace();
             }
         }
 
-        final int t = 1000000;
+        final int t = 80000;
         long start = System.currentTimeMillis();
         final CountDownLatch latch = new CountDownLatch(processors << 4);
         final AtomicLong count = new AtomicLong();
         final int futureSize = 80;
         for (int i = 0; i < (processors << 4); i++) {
             new Thread(new Runnable() {
-                List<JPromise> futures = Lists.newArrayListWithCapacity(futureSize);
-                @SuppressWarnings("ForLoopReplaceableByForEach")
+                List<InvokeFuture<?>> futures = Lists.newArrayListWithCapacity(futureSize);
+                @SuppressWarnings("all")
                 @Override
                 public void run() {
                     for (int i = 0; i < t; i++) {
                         try {
                             service.hello("jupiter");
-                            futures.add(PromiseInvoker.currentPromise());
+                            futures.add(InvokeFutureContext.future());
                             if (futures.size() == futureSize) {
                                 int fSize = futures.size();
                                 for (int j = 0; j < fSize; j++) {
                                     try {
-                                        futures.get(j).get();
+                                        futures.get(j).getResult();
                                     } catch (Throwable t) {
                                         t.printStackTrace();
                                     }
@@ -187,7 +211,7 @@ public class BenchmarkClient {
                         int fSize = futures.size();
                         for (int j = 0; j < fSize; j++) {
                             try {
-                                futures.get(j).get();
+                                futures.get(j).getResult();
                             } catch (Throwable t) {
                                 t.printStackTrace();
                             }

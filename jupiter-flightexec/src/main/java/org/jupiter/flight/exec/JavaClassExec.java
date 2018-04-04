@@ -24,7 +24,7 @@ import org.jupiter.rpc.ServiceProvider;
  *
  * @author jiachun.fjc
  */
-@ServiceProvider(group = "exec")
+@ServiceProvider(name = "javaClassExec", group = "exec")
 public interface JavaClassExec {
 
     ExecResult exec(byte[] classBytes);

@@ -18,12 +18,10 @@ package org.jupiter.rpc.executor;
 
 import org.jupiter.common.concurrent.disruptor.TaskDispatcher;
 import org.jupiter.common.concurrent.disruptor.WaitStrategyType;
+import org.jupiter.common.util.SpiMetadata;
 import org.jupiter.common.util.SystemPropertyUtil;
-
-import java.util.concurrent.Executor;
-
-import static org.jupiter.common.util.JConstants.PROCESSOR_MAX_NUM_WORKS;
-import static org.jupiter.common.util.JConstants.PROCESSOR_WORKER_QUEUE_CAPACITY;
+import org.jupiter.common.util.internal.logging.InternalLogger;
+import org.jupiter.common.util.internal.logging.InternalLoggerFactory;
 
 /**
  * Provide a disruptor implementation of executor.
@@ -33,24 +31,47 @@ import static org.jupiter.common.util.JConstants.PROCESSOR_WORKER_QUEUE_CAPACITY
  *
  * @author jiachun.fjc
  */
-public class DisruptorExecutorFactory implements ExecutorFactory {
+@SpiMetadata(name = "disruptor")
+public class DisruptorExecutorFactory extends AbstractExecutorFactory {
+
+    private static final InternalLogger logger = InternalLoggerFactory.getInstance(DisruptorExecutorFactory.class);
 
     @Override
-    public Executor newExecutor(int parallelism) {
-        String waitStrategyTypeString = SystemPropertyUtil.get("jupiter.executor.disruptor.wait.strategy.type");
-        WaitStrategyType waitStrategyType = WaitStrategyType.LITE_BLOCKING_WAIT;
-        for (WaitStrategyType strategyType : WaitStrategyType.values()) {
-            if (strategyType.name().equals(waitStrategyTypeString)) {
-                waitStrategyType = strategyType;
-                break;
+    public CloseableExecutor newExecutor(Target target, String name) {
+        final TaskDispatcher executor = new TaskDispatcher(
+                coreWorkers(target),
+                threadFactory(name),
+                queueCapacity(target),
+                maxWorkers(target),
+                waitStrategyType(target, WaitStrategyType.LITE_BLOCKING_WAIT),
+                "jupiter");
+
+        return new CloseableExecutor() {
+
+            @Override
+            public void execute(Runnable r) {
+                executor.execute(r);
             }
+
+            @Override
+            public void shutdown() {
+                logger.warn("DisruptorExecutorFactory#{} shutdown.", executor);
+                executor.shutdown();
+            }
+        };
+    }
+
+    private WaitStrategyType waitStrategyType(Target target, WaitStrategyType defaultType) {
+        WaitStrategyType strategyType = null;
+        switch (target) {
+            case CONSUMER:
+                strategyType = WaitStrategyType.parse(SystemPropertyUtil.get(CONSUMER_DISRUPTOR_WAIT_STRATEGY_TYPE));
+                break;
+            case PROVIDER:
+                strategyType = WaitStrategyType.parse(SystemPropertyUtil.get(PROVIDER_DISRUPTOR_WAIT_STRATEGY_TYPE));
+                break;
         }
 
-        return new TaskDispatcher(
-                parallelism,
-                "processor",
-                PROCESSOR_WORKER_QUEUE_CAPACITY,
-                PROCESSOR_MAX_NUM_WORKS,
-                waitStrategyType);
+        return strategyType == null ? defaultType : strategyType;
     }
 }

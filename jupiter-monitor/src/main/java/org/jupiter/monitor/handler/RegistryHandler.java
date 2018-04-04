@@ -17,10 +17,9 @@
 package org.jupiter.monitor.handler;
 
 import io.netty.channel.Channel;
+import org.jupiter.common.util.JConstants;
 import org.jupiter.monitor.Command;
 import org.jupiter.registry.RegistryMonitor;
-
-import static org.jupiter.common.util.JConstants.NEWLINE;
 
 /**
  * jupiter
@@ -45,7 +44,7 @@ public class RegistryHandler implements CommandHandler {
     public void handle(Channel channel, Command command, String... args) {
         if (AuthHandler.checkAuth(channel)) {
             if (args.length < 3) {
-                channel.writeAndFlush("Need more args!" + NEWLINE);
+                channel.writeAndFlush("Need more args!" + JConstants.NEWLINE);
                 return;
             }
 
@@ -62,7 +61,7 @@ public class RegistryHandler implements CommandHandler {
                 }
                 childHandler.handle(channel, command, args);
             } else {
-                channel.writeAndFlush("Wrong args denied!" + NEWLINE);
+                channel.writeAndFlush("Wrong args denied!" + JConstants.NEWLINE);
             }
         }
     }

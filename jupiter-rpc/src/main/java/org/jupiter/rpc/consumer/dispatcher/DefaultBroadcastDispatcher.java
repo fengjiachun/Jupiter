@@ -16,28 +16,22 @@
 
 package org.jupiter.rpc.consumer.dispatcher;
 
-import org.jupiter.common.util.Function;
-import org.jupiter.common.util.Lists;
-import org.jupiter.common.util.internal.logging.InternalLogger;
-import org.jupiter.common.util.internal.logging.InternalLoggerFactory;
-import org.jupiter.rpc.*;
-import org.jupiter.rpc.channel.JChannel;
-import org.jupiter.rpc.channel.JChannelGroup;
-import org.jupiter.rpc.channel.JFutureListener;
-import org.jupiter.rpc.consumer.promise.DefaultInvokePromise;
-import org.jupiter.rpc.consumer.promise.InvokePromise;
+import org.jupiter.rpc.DispatchType;
+import org.jupiter.rpc.JClient;
+import org.jupiter.rpc.JRequest;
+import org.jupiter.rpc.consumer.future.DefaultInvokeFuture;
+import org.jupiter.rpc.consumer.future.DefaultInvokeFutureGroup;
+import org.jupiter.rpc.consumer.future.InvokeFuture;
 import org.jupiter.rpc.model.metadata.MessageWrapper;
-import org.jupiter.rpc.model.metadata.ResultWrapper;
-import org.jupiter.rpc.model.metadata.ServiceMetadata;
-
-import java.util.List;
-
-import static org.jupiter.rpc.DispatchMode.BROADCAST;
-import static org.jupiter.rpc.Status.CLIENT_ERROR;
-import static org.jupiter.serialization.SerializerHolder.serializerImpl;
+import org.jupiter.serialization.Serializer;
+import org.jupiter.serialization.SerializerType;
+import org.jupiter.serialization.io.OutputBuf;
+import org.jupiter.transport.CodecConfig;
+import org.jupiter.transport.channel.JChannel;
+import org.jupiter.transport.channel.JChannelGroup;
 
 /**
- * 组播方式派发消息
+ * 组播方式派发消息.
  *
  * jupiter
  * org.jupiter.rpc.consumer.dispatcher
@@ -46,73 +40,42 @@ import static org.jupiter.serialization.SerializerHolder.serializerImpl;
  */
 public class DefaultBroadcastDispatcher extends AbstractDispatcher {
 
-    private static final InternalLogger logger = InternalLoggerFactory.getInstance(DefaultBroadcastDispatcher.class);
-
-    public DefaultBroadcastDispatcher(ServiceMetadata metadata) {
-        super(metadata);
+    public DefaultBroadcastDispatcher(JClient client, SerializerType serializerType) {
+        super(client, serializerType);
     }
 
+    @SuppressWarnings("unchecked")
     @Override
-    public InvokePromise dispatch(JClient client, String methodName, Object[] args) {
-        final ServiceMetadata _metadata = metadata; // stack copy
+    public <T> InvokeFuture<T> dispatch(JRequest request, Class<T> returnType) {
+        // stack copy
+        final Serializer _serializer = serializer();
+        final MessageWrapper message = request.message();
 
-        MessageWrapper message = new MessageWrapper(_metadata);
-        message.setAppName(client.appName());
-        message.setMethodName(methodName);
-        message.setArgs(args);
-
-        List<JChannelGroup> groupList = client.directory(_metadata);
-        List<JChannel> channels = Lists.transform(groupList, new Function<JChannelGroup, JChannel>() {
-
-            @Override
-            public JChannel apply(JChannelGroup input) {
-                return input.next();
-            }
-        });
-
-        final JRequest request = new JRequest();
-        request.message(message);
-        request.bytes(serializerImpl().writeObject(message));
-
-        int timeoutMillis = getMethodSpecialTimeoutMillis(methodName);
-        final ConsumerHook[] _hooks = getHooks();
-        JListener _listener = getListener();
-        for (JChannel ch : channels) {
-            final InvokePromise promise = asPromise(ch, request, timeoutMillis)
-                    .hooks(_hooks)
-                    .listener(_listener);
-
-            ch.write(request, new JFutureListener<JChannel>() {
-
-                @Override
-                public void operationSuccess(JChannel channel) throws Exception {
-                    promise.chalkUpSentTimestamp();
-
-                    if (_hooks != null) {
-                        for (ConsumerHook h : _hooks) {
-                            h.before(request, channel);
-                        }
-                    }
-                }
-
-                @Override
-                public void operationFailure(JChannel channel, Throwable cause) throws Exception {
-                    logger.warn("Writes {} fail on {}, {}.", request, channel, cause);
-
-                    ResultWrapper result = new ResultWrapper();
-                    result.setError(cause);
-
-                    JResponse response = JResponse.newInstance(request.invokeId(), CLIENT_ERROR, result);
-                    DefaultInvokePromise.received(channel, response);
-                }
-            });
+        JChannelGroup[] groups = groups(message.getMetadata());
+        JChannel[] channels = new JChannel[groups.length];
+        for (int i = 0; i < groups.length; i++) {
+            channels[i] = groups[i].next();
         }
 
-        return null;
-    }
+        byte s_code = _serializer.code();
+        // 在业务线程中序列化, 减轻IO线程负担
+        boolean isLowCopy = CodecConfig.isCodecLowCopy();
+        if (!isLowCopy) {
+            byte[] bytes = _serializer.writeObject(message);
+            request.bytes(s_code, bytes);
+        }
 
-    @Override
-    protected InvokePromise asPromise(JChannel channel, JRequest request, int timeoutMillis) {
-        return new DefaultInvokePromise(channel, request, timeoutMillis, BROADCAST);
+        InvokeFuture<T>[] futures = new DefaultInvokeFuture[channels.length];
+        for (int i = 0; i < channels.length; i++) {
+            JChannel channel = channels[i];
+            if (isLowCopy) {
+                OutputBuf outputBuf =
+                        _serializer.writeObject(channel.allocOutputBuf(), message);
+                request.outputBuf(s_code, outputBuf);
+            }
+            futures[i] = write(channel, request, returnType, DispatchType.BROADCAST);
+        }
+
+        return DefaultInvokeFutureGroup.with(futures);
     }
 }

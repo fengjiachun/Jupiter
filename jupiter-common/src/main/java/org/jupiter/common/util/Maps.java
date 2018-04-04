@@ -16,11 +16,14 @@
 
 package org.jupiter.common.util;
 
+import org.jupiter.common.concurrent.collection.NonBlockingHashMap;
+import org.jupiter.common.concurrent.collection.NonBlockingHashMapLong;
+
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
-import static org.jupiter.common.util.Preconditions.*;
+import static org.jupiter.common.util.Preconditions.checkArgument;
 
 /**
  * Static utility methods pertaining to {@link Map} instances.
@@ -31,6 +34,8 @@ import static org.jupiter.common.util.Preconditions.*;
  * @author jiachun.fjc
  */
 public final class Maps {
+
+    private static final boolean USE_NON_BLOCKING_HASH = SystemPropertyUtil.getBoolean("jupiter.use.non_blocking_hash", false);
 
     /**
      * Creates a mutable, empty {@code HashMap} instance.
@@ -79,7 +84,10 @@ public final class Maps {
     /**
      * Creates a mutable, empty {@code ConcurrentMap} instance.
      */
-    public static <K, V> ConcurrentMap<K, V> newConcurrentHashMap() {
+    public static <K, V> ConcurrentMap<K, V> newConcurrentMap() {
+        if (USE_NON_BLOCKING_HASH) {
+            return new NonBlockingHashMap<>();
+        }
         return new ConcurrentHashMap<>();
     }
 
@@ -87,8 +95,26 @@ public final class Maps {
      * Creates a {@code ConcurrentMap} instance, with a high enough "initial capacity"
      * that it should hold {@code expectedSize} elements without growth.
      */
-    public static <K, V> ConcurrentMap<K, V> newConcurrentHashMap(int initialCapacity) {
+    public static <K, V> ConcurrentMap<K, V> newConcurrentMap(int initialCapacity) {
+        if (USE_NON_BLOCKING_HASH) {
+            return new NonBlockingHashMap<>(initialCapacity);
+        }
         return new ConcurrentHashMap<>(initialCapacity);
+    }
+
+    /**
+     * Creates a mutable, empty {@code NonBlockingHashMapLong} instance.
+     */
+    public static <V> ConcurrentMap<Long, V> newConcurrentMapLong() {
+        return new NonBlockingHashMapLong<>();
+    }
+
+    /**
+     * Creates a {@code NonBlockingHashMapLong} instance, with a high enough "initial capacity"
+     * that it should hold {@code expectedSize} elements without growth.
+     */
+    public static <V> ConcurrentMap<Long, V> newConcurrentMapLong(int initialCapacity) {
+        return new NonBlockingHashMapLong<>(initialCapacity);
     }
 
     /**

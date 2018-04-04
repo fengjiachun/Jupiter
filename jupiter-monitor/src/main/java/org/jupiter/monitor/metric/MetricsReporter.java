@@ -17,15 +17,16 @@
 package org.jupiter.monitor.metric;
 
 import com.codahale.metrics.ConsoleReporter;
-import org.jupiter.common.util.Reflects;
-import org.jupiter.common.util.StackTraceUtil;
+import org.jupiter.common.util.JConstants;
+import org.jupiter.common.util.internal.UnsafeReferenceFieldUpdater;
+import org.jupiter.common.util.internal.UnsafeUpdater;
 import org.jupiter.rpc.metric.Metrics;
 
 import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
 import java.io.UnsupportedEncodingException;
 
-import static org.jupiter.common.util.JConstants.UTF8_CHARSET;
+import static org.jupiter.common.util.StackTraceUtil.stackTrace;
 
 /**
  * Indicators measure used to provide data for the monitor.
@@ -36,6 +37,9 @@ import static org.jupiter.common.util.JConstants.UTF8_CHARSET;
  * @author jiachun.fjc
  */
 public class MetricsReporter {
+
+    private static final UnsafeReferenceFieldUpdater<ByteArrayOutputStream, byte[]> bufUpdater =
+            UnsafeUpdater.newReferenceFieldUpdater(ByteArrayOutputStream.class, "buf");
 
     private static final ByteArrayOutputStream buf = new ByteArrayOutputStream();
     private static final PrintStream output = new PrintStream(buf);
@@ -51,12 +55,13 @@ public class MetricsReporter {
     private static String consoleOutput() {
         String output;
         try {
-            output = buf.toString(UTF8_CHARSET);
-            if (buf.size() > 1024 * 64) {
-                Reflects.setValue(buf, "buf", new byte[1024 * 64]);
+            output = buf.toString(JConstants.UTF8_CHARSET);
+            assert bufUpdater != null;
+            if (bufUpdater.get(buf).length > 1024 * 64) {
+                bufUpdater.set(buf, new byte[1024 * 32]);
             }
         } catch (UnsupportedEncodingException e) {
-            output = StackTraceUtil.stackTrace(e);
+            output = stackTrace(e);
         }
         return output;
     }

@@ -16,21 +16,24 @@
 
 package org.jupiter.rpc.model.metadata;
 
+import org.jupiter.common.util.JConstants;
+import org.jupiter.common.util.Pair;
 import org.jupiter.rpc.JRequest;
 import org.jupiter.rpc.flow.control.FlowController;
+import org.jupiter.rpc.provider.ProviderInterceptor;
 
 import java.io.Serializable;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Executor;
 
-import static org.jupiter.common.util.JConstants.DEFAULT_CONNECTION_COUNT;
-import static org.jupiter.common.util.JConstants.DEFAULT_WEIGHT;
-import static org.jupiter.common.util.Preconditions.checkArgument;
 import static org.jupiter.common.util.Preconditions.checkNotNull;
 
 /**
  * Wrapper provider object and service metadata.
+ *
+ * 服务元数据 & 服务对象
  *
  * jupiter
  * org.jupiter.rpc.model.metadata
@@ -41,23 +44,35 @@ public class ServiceWrapper implements Serializable {
 
     private static final long serialVersionUID = 6690575889849847348L;
 
+    // 服务元数据
     private final ServiceMetadata metadata;
+    // 服务对象
     private final Object serviceProvider;
+    // 服务拦截器
+    private final ProviderInterceptor[] interceptors;
+    // key:     method name
+    // value:   pair.first:  方法参数类型(用于根据JLS规则实现方法调用的静态分派)
+    //          pair.second: 方法显式声明抛出的异常类型
+    private final Map<String, List<Pair<Class<?>[], Class<?>[]>>> extensions;
 
-    private transient Map<String, List<Class<?>[]>> methodsParameterTypes;
+    // 权重 hashCode() 与 equals() 不把weight计算在内
+    private int weight = JConstants.DEFAULT_WEIGHT;
+    // provider私有线程池
+    private Executor executor;
+    // provider私有流量控制器
+    private FlowController<JRequest> flowController;
 
-    // 权重 hashCode()与equals()不把weight计算在内
-    private volatile int weight = DEFAULT_WEIGHT;
-    // 建议连接数 hashCode()与equals()不把connCount计算在内
-    private volatile int connCount = DEFAULT_CONNECTION_COUNT;
-    private volatile Executor executor;
-    private volatile FlowController<JRequest> flowController;
+    public ServiceWrapper(String group,
+                          String providerName,
+                          String version,
+                          Object serviceProvider,
+                          ProviderInterceptor[] interceptors,
+                          Map<String, List<Pair<Class<?>[], Class<?>[]>>> extensions) {
 
-    public ServiceWrapper(String group, String version, String name,
-                          Object serviceProvider, Map<String, List<Class<?>[]>> methodsParameterTypes) {
-        metadata = new ServiceMetadata(group, version, name);
+        metadata = new ServiceMetadata(group, providerName, version);
 
-        this.methodsParameterTypes = checkNotNull(methodsParameterTypes, "methodsParameterTypes");
+        this.interceptors = interceptors;
+        this.extensions = checkNotNull(extensions, "extensions");
         this.serviceProvider = checkNotNull(serviceProvider, "serviceProvider");
     }
 
@@ -69,22 +84,16 @@ public class ServiceWrapper implements Serializable {
         return serviceProvider;
     }
 
+    public ProviderInterceptor[] getInterceptors() {
+        return interceptors;
+    }
+
     public int getWeight() {
         return weight;
     }
 
     public void setWeight(int weight) {
-        checkArgument(weight <= 0, "weight must > 0");
         this.weight = weight;
-    }
-
-    public int getConnCount() {
-        return connCount;
-    }
-
-    public void setConnCount(int connCount) {
-        checkArgument(connCount <= 0, "connCount must > 0");
-        this.connCount = connCount;
     }
 
     public Executor getExecutor() {
@@ -103,8 +112,8 @@ public class ServiceWrapper implements Serializable {
         this.flowController = flowController;
     }
 
-    public List<Class<?>[]> getMethodParameterTypes(String methodName) {
-        return methodsParameterTypes.get(methodName);
+    public List<Pair<Class<?>[], Class<?>[]>> getMethodExtension(String methodName) {
+        return extensions.get(methodName);
     }
 
     @Override
@@ -127,6 +136,9 @@ public class ServiceWrapper implements Serializable {
         return "ServiceWrapper{" +
                 "metadata=" + metadata +
                 ", serviceProvider=" + serviceProvider +
+                ", interceptors=" + Arrays.toString(interceptors) +
+                ", extensions=" + extensions +
+                ", weight=" + weight +
                 ", executor=" + executor +
                 ", flowController=" + flowController +
                 '}';

@@ -28,9 +28,9 @@ import java.util.regex.Pattern;
  *
  * @author jiachun.fjc
  */
-public class NetUtil {
+public final class NetUtil {
 
-    private static final Pattern IP_PATTERN = Pattern.compile("\\d{1,3}(\\.\\d{1,3}){3,5}$");
+    private static final Pattern IP_PATTERN = Pattern.compile("\\d{1,3}(\\.\\d{1,3}){3}$");
     private static final String LOCAL_IP_ADDRESS;
 
     static {
@@ -84,4 +84,6 @@ public class NetUtil {
                 && !"127.0.0.1".equals(name)
                 && IP_PATTERN.matcher(name).matches());
     }
+
+    private NetUtil() {}
 }

@@ -43,11 +43,6 @@ public class ReflectsTest {
     }
 
     @Test
-    public void testNewInstance() {
-        Reflects.newInstance(ReflectClass0.class);
-    }
-
-    @Test
     public void testFindMatchingMethod() {
         Map<String, List<Class<?>[]>> methodsParameterTypes = Maps.newHashMap();
         for (Method method : Service.class.getMethods()) {
@@ -65,52 +60,52 @@ public class ReflectsTest {
         Class<?>[] parameterTypes = Reflects.findMatchingParameterTypes(list, args);
         Reflects.fastInvoke(new ServiceImpl(), "method", parameterTypes, args);
     }
-}
 
-class ReflectClass0 {
+    public static class ReflectClass0 {
 
-    public ReflectClass0() {
-        System.out.println("ReflectClass");
+        public ReflectClass0() {
+            System.out.println("ReflectClass");
+        }
+
+        public String method(String arg) {
+            return "Hello " + arg;
+        }
     }
 
-    public String method(String arg) {
-        return "Hello " + arg;
-    }
-}
+    public interface Service {
 
-interface Service {
-
-    void method(Integer i, String s);
-    void method(Integer i, CharSequence s);
-    void method(int i, String s);
-    void method(int i, CharSequence s);
-    void method(long i, CharSequence s);
-}
-
-class ServiceImpl implements Service {
-
-    @Override
-    public void method(Integer i, String s) {
-        System.out.println("Integer i, String s");
+        void method(Integer i, String s);
+        void method(Integer i, CharSequence s);
+        void method(int i, String s);
+        void method(int i, CharSequence s);
+        void method(long i, CharSequence s);
     }
 
-    @Override
-    public void method(Integer i, CharSequence s) {
-        System.out.println("Integer i, CharSequence s");
-    }
+    public static class ServiceImpl implements Service {
 
-    @Override
-    public void method(int i, String s) {
-        System.out.println("int i, String s");
-    }
+        @Override
+        public void method(Integer i, String s) {
+            System.out.println("Integer i, String s");
+        }
 
-    @Override
-    public void method(int i, CharSequence s) {
-        System.out.println("int i, CharSequence s");
-    }
+        @Override
+        public void method(Integer i, CharSequence s) {
+            System.out.println("Integer i, CharSequence s");
+        }
 
-    @Override
-    public void method(long i, CharSequence s) {
-        System.out.println("long i, CharSequence s");
+        @Override
+        public void method(int i, String s) {
+            System.out.println("int i, String s");
+        }
+
+        @Override
+        public void method(int i, CharSequence s) {
+            System.out.println("int i, CharSequence s");
+        }
+
+        @Override
+        public void method(long i, CharSequence s) {
+            System.out.println("long i, CharSequence s");
+        }
     }
 }

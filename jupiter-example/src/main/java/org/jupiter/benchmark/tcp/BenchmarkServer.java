@@ -18,9 +18,9 @@ package org.jupiter.benchmark.tcp;
 
 import org.jupiter.common.util.SystemPropertyUtil;
 import org.jupiter.monitor.MonitorServer;
-import org.jupiter.transport.JOption;
+import org.jupiter.rpc.DefaultServer;
+import org.jupiter.rpc.JServer;
 import org.jupiter.transport.netty.JNettyTcpAcceptor;
-import org.jupiter.transport.netty.NettyAcceptor;
 
 /**
  * 飞行记录: -XX:+UnlockCommercialFeatures -XX:+FlightRecorder
@@ -33,20 +33,34 @@ import org.jupiter.transport.netty.NettyAcceptor;
 public class BenchmarkServer {
 
     public static void main(String[] args) {
+//        SystemPropertyUtil.setProperty("jupiter.transport.codec.low_copy", "true");
+
         final int processors = Runtime.getRuntime().availableProcessors();
         SystemPropertyUtil
-                .setProperty("jupiter.processor.executor.core.num.workers", String.valueOf(processors));
+                .setProperty("jupiter.executor.factory.provider.core.workers", String.valueOf(processors));
+        SystemPropertyUtil
+                .setProperty("jupiter.metric.needed", "false");
         SystemPropertyUtil
                 .setProperty("jupiter.metric.csv.reporter", "false");
         SystemPropertyUtil
                 .setProperty("jupiter.metric.report.period", "1");
         SystemPropertyUtil
-                .setProperty("jupiter.processor.executor.worker.queue.capacity", "65536");
+                .setProperty("jupiter.executor.factory.provider.queue.capacity", "65536");
+        SystemPropertyUtil
+                .setProperty("jupiter.executor.factory.affinity.thread", "true");
 
-        NettyAcceptor server = new JNettyTcpAcceptor(18099);
-        server.configGroup().child().setOption(JOption.WRITE_BUFFER_HIGH_WATER_MARK, 256 * 1024);
-        server.configGroup().child().setOption(JOption.WRITE_BUFFER_LOW_WATER_MARK, 128 * 1024);
-        MonitorServer monitor = new MonitorServer();
+        // 设置全局provider executor
+        SystemPropertyUtil
+                .setProperty("jupiter.executor.factory.provider.factory_name", "threadPool");
+
+        final JServer server = new DefaultServer().withAcceptor(new JNettyTcpAcceptor(18099, processors, true) {
+
+//            @Override
+//            protected ThreadFactory workerThreadFactory(String name) {
+//                return new AffinityNettyThreadFactory(name, Thread.MAX_PRIORITY);
+//            }
+        });
+        final MonitorServer monitor = new MonitorServer();
         try {
             monitor.start();
 
@@ -54,7 +68,7 @@ public class BenchmarkServer {
                     .provider(new ServiceImpl())
                     .register();
 
-            server.start();
+            server.acceptor().start();
         } catch (InterruptedException e) {
             e.printStackTrace();
         }

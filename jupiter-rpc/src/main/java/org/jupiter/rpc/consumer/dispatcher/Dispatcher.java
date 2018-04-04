@@ -16,17 +16,14 @@
 
 package org.jupiter.rpc.consumer.dispatcher;
 
-import org.jupiter.rpc.ConsumerHook;
-import org.jupiter.rpc.JClient;
-import org.jupiter.rpc.JListener;
-import org.jupiter.rpc.consumer.promise.InvokePromise;
+import org.jupiter.rpc.JRequest;
+import org.jupiter.rpc.consumer.ConsumerInterceptor;
+import org.jupiter.rpc.consumer.future.InvokeFuture;
+import org.jupiter.rpc.model.metadata.MethodSpecialConfig;
 
 import java.util.List;
-import java.util.Map;
 
 /**
- * Dispatcher for consumer.
- *
  * jupiter
  * org.jupiter.rpc.consumer.dispatcher
  *
@@ -34,21 +31,11 @@ import java.util.Map;
  */
 public interface Dispatcher {
 
-    InvokePromise dispatch(JClient client, String methodName, Object[] args);
+    <T> InvokeFuture<T> dispatch(JRequest request, Class<T> returnType);
 
-    ConsumerHook[] getHooks();
+    Dispatcher interceptors(List<ConsumerInterceptor> interceptors);
 
-    void setHooks(List<ConsumerHook> hooks);
+    Dispatcher timeoutMillis(long timeoutMillis);
 
-    JListener getListener();
-
-    void setListener(JListener listener);
-
-    int getTimeoutMillis();
-
-    void setTimeoutMillis(int timeoutMillis);
-
-    int getMethodSpecialTimeoutMillis(String methodName);
-
-    void setMethodsSpecialTimeoutMillis(Map<String, Integer> methodsSpecialTimeoutMillis);
+    Dispatcher methodSpecialConfigs(List<MethodSpecialConfig> methodSpecialConfigs);
 }

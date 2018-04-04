@@ -16,7 +16,7 @@
 
 package org.jupiter.common.util;
 
-import org.jupiter.common.util.internal.JUnsafe;
+import org.jupiter.common.util.internal.UnsafeUtil;
 import org.openjdk.jmh.annotations.*;
 import org.openjdk.jmh.runner.Runner;
 import org.openjdk.jmh.runner.RunnerException;
@@ -51,7 +51,7 @@ public class GetFieldValueBenchmark {
     @Benchmark
     public void reflectionGet() {
         Object[] array = (Object[]) Reflects.getValue(FIELD_TEST, "array");
-        if (array[0] != 1) {
+        if ((int) array[0] != 1) {
             System.out.println(1);
         }
     }
@@ -59,15 +59,15 @@ public class GetFieldValueBenchmark {
     @Benchmark
     public void unsafeGet() {
         // RandomLoadBalancer中有类似代码
-        Object[] array = (Object[]) JUnsafe.getUnsafe().getObjectVolatile(FIELD_TEST, FieldTest.OFFSET);
-        if (array[0] != 1) {
+        Object[] array = (Object[]) UnsafeUtil.getUnsafe().getObjectVolatile(FIELD_TEST, FieldTest.OFFSET);
+        if ((int) array[0] != 1) {
             System.out.println(1);
         }
     }
 
     @Benchmark
     public void normalGet() {
-        if (FIELD_TEST.array[0] != 1) {
+        if ((int) FIELD_TEST.array[0] != 1) {
             System.out.println(1);
         }
     }
@@ -78,7 +78,7 @@ class FieldTest {
     static {
         long offsetTmp;
         try {
-            offsetTmp = JUnsafe.getUnsafe().objectFieldOffset(Reflects.getField(FieldTest.class, "array"));
+            offsetTmp = UnsafeUtil.getUnsafe().objectFieldOffset(Reflects.getField(FieldTest.class, "array"));
         } catch (NoSuchFieldException e) {
             offsetTmp = 0;
         }

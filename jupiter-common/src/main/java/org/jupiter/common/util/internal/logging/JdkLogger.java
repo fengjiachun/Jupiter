@@ -78,7 +78,7 @@ class JdkLogger extends AbstractInternalLogger {
     /**
      * Log a message at level FINEST according to the specified format and
      * argument.
-     * <p/>
+     *
      * <p>
      * This form avoids superfluous object creation when the logger is disabled
      * for level FINEST.
@@ -98,7 +98,7 @@ class JdkLogger extends AbstractInternalLogger {
     /**
      * Log a message at level FINEST according to the specified format and
      * arguments.
-     * <p/>
+     *
      * <p>
      * This form avoids superfluous object creation when the logger is disabled
      * for the FINEST level.
@@ -119,7 +119,7 @@ class JdkLogger extends AbstractInternalLogger {
     /**
      * Log a message at level FINEST according to the specified format and
      * arguments.
-     * <p/>
+     *
      * <p>
      * This form avoids superfluous object creation when the logger is disabled
      * for the FINEST level.
@@ -173,7 +173,7 @@ class JdkLogger extends AbstractInternalLogger {
 
     /**
      * Log a message at level FINE according to the specified format and argument.
-     * <p/>
+     *
      * <p>
      * This form avoids superfluous object creation when the logger is disabled
      * for level FINE.
@@ -193,7 +193,7 @@ class JdkLogger extends AbstractInternalLogger {
     /**
      * Log a message at level FINE according to the specified format and
      * arguments.
-     * <p/>
+     *
      * <p>
      * This form avoids superfluous object creation when the logger is disabled
      * for the FINE level.
@@ -214,7 +214,7 @@ class JdkLogger extends AbstractInternalLogger {
     /**
      * Log a message at level FINE according to the specified format and
      * arguments.
-     * <p/>
+     *
      * <p>
      * This form avoids superfluous object creation when the logger is disabled
      * for the FINE level.
@@ -268,7 +268,7 @@ class JdkLogger extends AbstractInternalLogger {
 
     /**
      * Log a message at level INFO according to the specified format and argument.
-     * <p/>
+     *
      * <p>
      * This form avoids superfluous object creation when the logger is disabled
      * for the INFO level.
@@ -288,7 +288,7 @@ class JdkLogger extends AbstractInternalLogger {
     /**
      * Log a message at the INFO level according to the specified format and
      * arguments.
-     * <p/>
+     *
      * <p>
      * This form avoids superfluous object creation when the logger is disabled
      * for the INFO level.
@@ -309,7 +309,7 @@ class JdkLogger extends AbstractInternalLogger {
     /**
      * Log a message at level INFO according to the specified format and
      * arguments.
-     * <p/>
+     *
      * <p>
      * This form avoids superfluous object creation when the logger is disabled
      * for the INFO level.
@@ -366,7 +366,7 @@ class JdkLogger extends AbstractInternalLogger {
     /**
      * Log a message at the WARNING level according to the specified format and
      * argument.
-     * <p/>
+     *
      * <p>
      * This form avoids superfluous object creation when the logger is disabled
      * for the WARNING level.
@@ -386,7 +386,7 @@ class JdkLogger extends AbstractInternalLogger {
     /**
      * Log a message at the WARNING level according to the specified format and
      * arguments.
-     * <p/>
+     *
      * <p>
      * This form avoids superfluous object creation when the logger is disabled
      * for the WARNING level.
@@ -407,7 +407,7 @@ class JdkLogger extends AbstractInternalLogger {
     /**
      * Log a message at level WARNING according to the specified format and
      * arguments.
-     * <p/>
+     *
      * <p>
      * This form avoids superfluous object creation when the logger is disabled
      * for the WARNING level.
@@ -463,7 +463,7 @@ class JdkLogger extends AbstractInternalLogger {
     /**
      * Log a message at the SEVERE level according to the specified format and
      * argument.
-     * <p/>
+     *
      * <p>
      * This form avoids superfluous object creation when the logger is disabled
      * for the SEVERE level.
@@ -483,7 +483,7 @@ class JdkLogger extends AbstractInternalLogger {
     /**
      * Log a message at the SEVERE level according to the specified format and
      * arguments.
-     * <p/>
+     *
      * <p>
      * This form avoids superfluous object creation when the logger is disabled
      * for the SEVERE level.
@@ -504,7 +504,7 @@ class JdkLogger extends AbstractInternalLogger {
     /**
      * Log a message at level SEVERE according to the specified format and
      * arguments.
-     * <p/>
+     *
      * <p>
      * This form avoids superfluous object creation when the logger is disabled
      * for the SEVERE level.

@@ -17,6 +17,8 @@
 package org.jupiter.flight.exec;
 
 /**
+ * 你需要实现这个接口, 来把你新写的"内容"注入到开启flight.exec的服务端.
+ *
  * jupiter
  * org.jupiter.flight.exec
  *

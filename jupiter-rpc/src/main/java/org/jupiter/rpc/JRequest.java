@@ -17,36 +17,58 @@
 package org.jupiter.rpc;
 
 import org.jupiter.rpc.model.metadata.MessageWrapper;
+import org.jupiter.rpc.tracing.TracingUtil;
+import org.jupiter.serialization.io.OutputBuf;
+import org.jupiter.transport.payload.JRequestPayload;
 
-import java.util.concurrent.atomic.AtomicLong;
+import java.util.Collections;
+import java.util.Map;
 
 /**
  * Consumer's request data.
+ *
+ * 请求信息载体.
  *
  * jupiter
  * org.jupiter.rpc
  *
  * @author jiachun.fjc
  */
-public class JRequest extends BytesHolder {
+public class JRequest {
 
-    private static final AtomicLong invokeIdGenerator = new AtomicLong(0);
-
-    private final long invokeId;
-    private MessageWrapper message; // 请求数据
-
-    private transient long timestamp;
+    private final JRequestPayload payload;   // 请求bytes/stream
+    private MessageWrapper message;          // 请求对象
 
     public JRequest() {
-        this(invokeIdGenerator.getAndIncrement());
+        this(new JRequestPayload());
     }
 
-    public JRequest(long invokeId) {
-        this.invokeId = invokeId;
+    public JRequest(JRequestPayload payload) {
+        this.payload = payload;
+    }
+
+    public JRequestPayload payload() {
+        return payload;
     }
 
     public long invokeId() {
-        return invokeId;
+        return payload.invokeId();
+    }
+
+    public long timestamp() {
+        return payload.timestamp();
+    }
+
+    public byte serializerCode() {
+        return payload.serializerCode();
+    }
+
+    public void bytes(byte serializerCode, byte[] bytes) {
+        payload.bytes(serializerCode, bytes);
+    }
+
+    public void outputBuf(byte serializerCode, OutputBuf outputBuf) {
+        payload.outputBuf(serializerCode, outputBuf);
     }
 
     public MessageWrapper message() {
@@ -57,18 +79,31 @@ public class JRequest extends BytesHolder {
         this.message = message;
     }
 
-    public long timestamp() {
-        return timestamp;
+    public String getTraceId() {
+        if (message == null) {
+            return null;
+        }
+        return TracingUtil.safeGetTraceId(message.getTraceId()).asText();
     }
 
-    public void timestamp(long timestamp) {
-        this.timestamp = timestamp;
+    public Map<String, String> getAttachments() {
+        Map<String, String> attachments =
+                message != null ? message.getAttachments() : null;
+        return attachments != null ? attachments : Collections.<String, String>emptyMap();
+    }
+
+    public void putAttachment(String key, String value) {
+        if (message != null) {
+            message.putAttachment(key, value);
+        }
     }
 
     @Override
     public String toString() {
         return "JRequest{" +
-                "invokeId=" + invokeId +
+                "invokeId=" + invokeId() +
+                ", timestamp=" + timestamp() +
+                ", serializerCode=" + serializerCode() +
                 ", message=" + message +
                 '}';
     }

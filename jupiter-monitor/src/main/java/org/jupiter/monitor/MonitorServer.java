@@ -18,46 +18,52 @@ package org.jupiter.monitor;
 
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.*;
-import io.netty.channel.socket.SocketChannel;
-import io.netty.channel.socket.nio.NioServerSocketChannel;
+import io.netty.handler.codec.DelimiterBasedFrameDecoder;
+import io.netty.handler.codec.Delimiters;
 import io.netty.handler.codec.string.StringDecoder;
 import io.netty.handler.codec.string.StringEncoder;
 import io.netty.util.ReferenceCountUtil;
+import org.jupiter.common.util.JConstants;
 import org.jupiter.common.util.Strings;
 import org.jupiter.common.util.internal.logging.InternalLogger;
 import org.jupiter.common.util.internal.logging.InternalLoggerFactory;
 import org.jupiter.monitor.handler.CommandHandler;
+import org.jupiter.monitor.handler.LsHandler;
 import org.jupiter.monitor.handler.RegistryHandler;
 import org.jupiter.registry.RegistryMonitor;
+import org.jupiter.registry.RegistryService;
+import org.jupiter.rpc.JClient;
+import org.jupiter.rpc.JServer;
 import org.jupiter.transport.netty.NettyTcpAcceptor;
 
 import java.net.SocketAddress;
 
-import static org.jupiter.common.util.JConstants.NEWLINE;
-import static org.jupiter.common.util.JConstants.UTF8;
 import static org.jupiter.common.util.StackTraceUtil.stackTrace;
 
 /**
- * 监控服务, ConfigServer与ProviderServer都应该启用
+ * 监控服务, RegistryServer与ProviderServer都应该启用
  *
+ * <pre>
  * 常用的monitor command说明:
  * ---------------------------------------------------------------------------------------------------------------------
  * help                                 // 帮助信息
  *
- * auth 123456                          // 登录(默认密码为123456,
+ * auth jupiter                         // 登录(默认密码为jupiter,
  *                                      // 可通过System.setProperty("monitor.server.password", "password")设置密码
  *
  * metrics -report                      // 输出当前节点所有指标度量信息
+ * ls                                   // 本地查询发布和订阅的服务
  *
  * registry -address -p                 // 输出所有provider地址
  * registry -address -s                 // 输出所有consumer地址
- * registry -by_service                 // 根据服务(group version providerServiceName)查找所有提供当前服务的机器地址列表
+ * registry -by_service                 // 根据服务(group providerServiceName version)查找所有提供当前服务的机器地址列表
  * registry -by_address                 // 根据地址(host port)查找该地址对用provider提供的所有服务
  *
  * metrics/registry ... -grep xxx       // 过滤metrics/registry的输出内容
  *
  * quit                                 // 退出
  * ---------------------------------------------------------------------------------------------------------------------
+ * </pre>
  *
  * jupiter
  * org.jupiter.monitor
@@ -72,9 +78,11 @@ public class MonitorServer extends NettyTcpAcceptor {
 
     // handlers
     private final TelnetHandler handler = new TelnetHandler();
-    private final StringEncoder encoder = new StringEncoder(UTF8);
+    private final StringEncoder encoder = new StringEncoder(JConstants.UTF8);
 
     private volatile RegistryMonitor registryMonitor;
+    private volatile JServer jupiterServer;
+    private volatile JClient jupiterClient;
 
     public MonitorServer() {
         this(DEFAULT_PORT);
@@ -88,17 +96,19 @@ public class MonitorServer extends NettyTcpAcceptor {
     public ChannelFuture bind(SocketAddress localAddress) {
         ServerBootstrap boot = bootstrap();
 
-        boot.channel(NioServerSocketChannel.class)
-                .childHandler(new ChannelInitializer<SocketChannel>() {
+        initChannelFactory();
 
-                    @Override
-                    protected void initChannel(SocketChannel ch) throws Exception {
-                        ch.pipeline().addLast(
-                                new StringDecoder(UTF8),
-                                encoder,
-                                handler);
-                    }
-                });
+        boot.childHandler(new ChannelInitializer<Channel>() {
+
+            @Override
+            protected void initChannel(Channel ch) throws Exception {
+                ch.pipeline().addLast(
+                        new DelimiterBasedFrameDecoder(8192, Delimiters.lineDelimiter()),
+                        new StringDecoder(JConstants.UTF8),
+                        encoder,
+                        handler);
+            }
+        });
 
         setOptions();
 
@@ -117,11 +127,21 @@ public class MonitorServer extends NettyTcpAcceptor {
         this.registryMonitor = registryMonitor;
     }
 
+    public void setJupiterServer(JServer jupiterServer) {
+        this.jupiterServer = jupiterServer;
+    }
+
+    public void setJupiterClient(JClient jupiterClient) {
+        this.jupiterClient = jupiterClient;
+    }
+
     @ChannelHandler.Sharable
     class TelnetHandler extends ChannelInboundHandlerAdapter {
 
         @Override
         public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
+            Channel ch = ctx.channel();
+
             if (msg instanceof String) {
                 String[] args = Strings.split(((String) msg).replace("\r\n", ""), ' ');
                 if (args == null || args.length == 0) {
@@ -130,7 +150,7 @@ public class MonitorServer extends NettyTcpAcceptor {
 
                 Command command = Command.parse(args[0]);
                 if (command == null) {
-                    ctx.writeAndFlush("invalid command!" + NEWLINE);
+                    ch.writeAndFlush("invalid command!" + JConstants.NEWLINE);
                     return;
                 }
 
@@ -140,17 +160,37 @@ public class MonitorServer extends NettyTcpAcceptor {
                         ((RegistryHandler) handler).setRegistryMonitor(registryMonitor);
                     }
                 }
-                handler.handle(ctx.channel(), command, args);
+                if (handler instanceof LsHandler) {
+                    RegistryService serverRegisterService = jupiterServer == null ? null
+                            : jupiterServer.registryService();
+                    if (((LsHandler) handler).getServerRegisterService() != serverRegisterService) {
+                        ((LsHandler) handler).setServerRegisterService(serverRegisterService);
+                    }
+                    RegistryService clientRegisterService = jupiterClient == null ? null
+                            : jupiterClient.registryService();
+                    if (((LsHandler) handler).getClientRegisterService() != clientRegisterService) {
+                        ((LsHandler) handler).setClientRegisterService(clientRegisterService);
+                    }
+                }
+                handler.handle(ch, command, args);
             } else {
-                logger.warn("Unexpected msg type received:{}.", msg.getClass());
+                logger.warn("Unexpected message type received: {}, channel: {}.", msg.getClass(), ch);
 
                 ReferenceCountUtil.release(msg);
             }
         }
 
         @Override
+        public void channelActive(ChannelHandlerContext ctx) throws Exception {
+            ctx.writeAndFlush(JConstants.NEWLINE + "Welcome to jupiter monitor! Please auth with password." + JConstants.NEWLINE);
+            Command command = Command.parse("help");
+            CommandHandler handler = command.handler();
+            handler.handle(ctx.channel(), command);
+        }
+
+        @Override
         public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
-            logger.error("An exception has been caught {}, on {}.", stackTrace(cause), ctx.channel());
+            logger.error("An exception was caught: {}, channel {}.", stackTrace(cause), ctx.channel());
 
             ctx.close();
         }

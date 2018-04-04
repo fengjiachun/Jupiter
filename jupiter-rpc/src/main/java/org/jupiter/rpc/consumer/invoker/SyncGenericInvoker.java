@@ -16,29 +16,35 @@
 
 package org.jupiter.rpc.consumer.invoker;
 
-import org.jupiter.rpc.JClient;
 import org.jupiter.rpc.consumer.dispatcher.Dispatcher;
-import org.jupiter.rpc.consumer.promise.InvokePromise;
+import org.jupiter.rpc.model.metadata.ClusterStrategyConfig;
+import org.jupiter.rpc.model.metadata.MethodSpecialConfig;
+import org.jupiter.rpc.model.metadata.ServiceMetadata;
+
+import java.util.List;
 
 /**
+ * 同步泛化调用.
+ *
  * jupiter
  * org.jupiter.rpc.consumer.invoker
  *
+ * @see GenericInvoker
+ *
  * @author jiachun.fjc
  */
-public class SyncGenericInvoker implements GenericInvoker {
+public class SyncGenericInvoker extends AbstractInvoker implements GenericInvoker {
 
-    private final JClient client;
-    private final Dispatcher dispatcher;
-
-    public SyncGenericInvoker(JClient client, Dispatcher dispatcher) {
-        this.client = client;
-        this.dispatcher = dispatcher;
+    public SyncGenericInvoker(String appName,
+                              ServiceMetadata metadata,
+                              Dispatcher dispatcher,
+                              ClusterStrategyConfig defaultStrategy,
+                              List<MethodSpecialConfig> methodSpecialConfigs) {
+        super(appName, metadata, dispatcher, defaultStrategy, methodSpecialConfigs);
     }
 
     @Override
     public Object $invoke(String methodName, Object... args) throws Throwable {
-        InvokePromise promise = dispatcher.dispatch(client, methodName, args);
-        return promise.getResult();
+        return doInvoke(methodName, args, Object.class, true);
     }
 }

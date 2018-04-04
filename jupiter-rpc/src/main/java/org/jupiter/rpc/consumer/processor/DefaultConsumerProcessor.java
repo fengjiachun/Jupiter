@@ -16,15 +16,12 @@
 
 package org.jupiter.rpc.consumer.processor;
 
-import org.jupiter.common.util.JServiceLoader;
 import org.jupiter.rpc.JResponse;
-import org.jupiter.rpc.channel.JChannel;
 import org.jupiter.rpc.consumer.processor.task.MessageTask;
-import org.jupiter.rpc.executor.ExecutorFactory;
-
-import java.util.concurrent.Executor;
-
-import static org.jupiter.common.util.JConstants.PROCESSOR_CORE_NUM_WORKERS;
+import org.jupiter.rpc.executor.CloseableExecutor;
+import org.jupiter.transport.channel.JChannel;
+import org.jupiter.transport.payload.JResponsePayload;
+import org.jupiter.transport.processor.ConsumerProcessor;
 
 /**
  * The default implementation of consumer's processor.
@@ -36,20 +33,30 @@ import static org.jupiter.common.util.JConstants.PROCESSOR_CORE_NUM_WORKERS;
  */
 public class DefaultConsumerProcessor implements ConsumerProcessor {
 
-    private final Executor executor;
+    private final CloseableExecutor executor;
 
     public DefaultConsumerProcessor() {
-        ExecutorFactory factory = (ExecutorFactory) JServiceLoader.load(ConsumerExecutorFactory.class);
-        executor = factory.newExecutor(PROCESSOR_CORE_NUM_WORKERS);
+        this(ConsumerExecutors.executor());
+    }
+
+    public DefaultConsumerProcessor(CloseableExecutor executor) {
+        this.executor = executor;
     }
 
     @Override
-    public void handleResponse(JChannel channel, JResponse response) throws Exception {
-        MessageTask task = new MessageTask(channel, response);
+    public void handleResponse(JChannel channel, JResponsePayload responsePayload) throws Exception {
+        MessageTask task = new MessageTask(channel, new JResponse(responsePayload));
         if (executor == null) {
             task.run();
         } else {
             executor.execute(task);
+        }
+    }
+
+    @Override
+    public void shutdown() {
+        if (executor != null) {
+            executor.shutdown();
         }
     }
 }

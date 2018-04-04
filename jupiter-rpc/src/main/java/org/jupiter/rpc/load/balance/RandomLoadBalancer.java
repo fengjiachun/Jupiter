@@ -16,58 +16,74 @@
 
 package org.jupiter.rpc.load.balance;
 
+import org.jupiter.transport.Directory;
+import org.jupiter.transport.channel.CopyOnWriteGroupList;
+import org.jupiter.transport.channel.JChannelGroup;
+
 import java.util.concurrent.ThreadLocalRandom;
 
 /**
- * Random load balancer with weight.
+ * 加权随机负载均衡.
+ *
+ * <pre>
+ * *****************************************************************************
+ *
+ *            random value
+ * ─────────────────────────────────▶
+ *                                  │
+ *                                  ▼
+ * ┌─────────────────┬─────────┬──────────────────────┬─────┬─────────────────┐
+ * │element_0        │element_1│element_2             │...  │element_n        │
+ * └─────────────────┴─────────┴──────────────────────┴─────┴─────────────────┘
+ *
+ * *****************************************************************************
+ * </pre>
  *
  * jupiter
  * org.jupiter.rpc.load.balance
  *
  * @author jiachun.fjc
  */
-public abstract class RandomLoadBalancer<T> implements LoadBalancer<T> {
+public class RandomLoadBalancer implements LoadBalancer {
 
-    @SuppressWarnings("unchecked")
+    private static final RandomLoadBalancer instance = new RandomLoadBalancer();
+
+    public static RandomLoadBalancer instance() {
+        return instance;
+    }
+
     @Override
-    public T select(Object[] elements) {
+    public JChannelGroup select(CopyOnWriteGroupList groups, Directory directory) {
+        JChannelGroup[] elements = groups.getSnapshot();
         int length = elements.length;
+
         if (length == 0) {
-            throw new IllegalArgumentException("empty elements for select");
+            return null;
         }
+
         if (length == 1) {
-            return (T) elements[0];
+            return elements[0];
         }
 
-        int totalWeight = 0;
-        int[] weightSnapshots = new int[length];
-        for (int i = 0; i < length; i++) {
-            totalWeight += (weightSnapshots[i] = getWeight((T) elements[i]));
-        }
-
-        boolean allSameWeight = true;
-        for (int i = 1; i < length; i++) {
-            if (weightSnapshots[0] != weightSnapshots[i]) {
-                allSameWeight = false;
-                break;
-            }
+        WeightArray weightArray = (WeightArray) groups.getWeightArray(elements, directory.directoryString());
+        if (weightArray == null || weightArray.length() != length) {
+            weightArray = WeightSupport.computeWeights(groups, elements, directory);
         }
 
         ThreadLocalRandom random = ThreadLocalRandom.current();
-        // 如果权重不相同且总权重大于0, 则按总权重数随机
-        if (!allSameWeight && totalWeight > 0) {
-            int offset = random.nextInt(totalWeight);
-            // 确定随机值落在哪个片
-            for (int i = 0; i < length; i++) {
-                offset -= weightSnapshots[i];
-                if (offset < 0) {
-                    return (T) elements[i];
-                }
-            }
+
+        if (weightArray.isAllSameWeight()) {
+            return elements[random.nextInt(length)];
         }
 
-        return (T) elements[random.nextInt(length)];
+        int nextIndex = getNextServerIndex(weightArray, length, random);
+
+        return elements[nextIndex];
     }
 
-    protected abstract int getWeight(T t);
+    private static int getNextServerIndex(WeightArray weightArray, int length, ThreadLocalRandom random) {
+        int sumWeight = weightArray.get(length - 1);
+        int val = random.nextInt(sumWeight + 1);
+        return WeightSupport.binarySearchIndex(weightArray, length, val);
+    }
 }

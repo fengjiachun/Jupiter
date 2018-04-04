@@ -16,13 +16,16 @@
 
 package org.jupiter.rpc.executor;
 
+import org.jupiter.common.util.SpiMetadata;
+import org.jupiter.common.util.internal.InternalForkJoinWorkerThread;
 import org.jupiter.common.util.internal.logging.InternalLogger;
 import org.jupiter.common.util.internal.logging.InternalLoggerFactory;
 
-import java.util.concurrent.Executor;
 import java.util.concurrent.ForkJoinPool;
 import java.util.concurrent.ForkJoinWorkerThread;
 import java.util.concurrent.atomic.AtomicInteger;
+
+import static org.jupiter.common.util.StackTraceUtil.stackTrace;
 
 /**
  * Provide a {@link ForkJoinPool} implementation of executor.
@@ -32,16 +35,31 @@ import java.util.concurrent.atomic.AtomicInteger;
  *
  * @author jiachun.fjc
  */
-public class ForkJoinPoolExecutorFactory implements ExecutorFactory {
+@SpiMetadata(name = "forkJoin")
+public class ForkJoinPoolExecutorFactory extends AbstractExecutorFactory {
 
     private static final InternalLogger logger = InternalLoggerFactory.getInstance(ForkJoinPoolExecutorFactory.class);
 
     @Override
-    public Executor newExecutor(int parallelism) {
-        return new ForkJoinPool(
-                parallelism,
-                new DefaultForkJoinWorkerThreadFactory("fjp.processor"),
+    public CloseableExecutor newExecutor(Target target, String name) {
+        final ForkJoinPool executor = new ForkJoinPool(
+                coreWorkers(target),
+                new DefaultForkJoinWorkerThreadFactory(name),
                 new DefaultUncaughtExceptionHandler(), true);
+
+        return new CloseableExecutor() {
+
+            @Override
+            public void execute(Runnable r) {
+                executor.execute(r);
+            }
+
+            @Override
+            public void shutdown() {
+                logger.warn("ForkJoinPoolExecutorFactory#{} shutdown.", executor);
+                executor.shutdownNow();
+            }
+        };
     }
 
     private static final class DefaultForkJoinWorkerThreadFactory implements ForkJoinPool.ForkJoinWorkerThreadFactory {
@@ -56,16 +74,9 @@ public class ForkJoinPoolExecutorFactory implements ExecutorFactory {
         @Override
         public ForkJoinWorkerThread newThread(ForkJoinPool pool) {
             // Note: The ForkJoinPool will create these threads as daemon threads.
-            ForkJoinWorkerThread thread = new DefaultForkJoinWorkerThread(pool);
+            ForkJoinWorkerThread thread = new InternalForkJoinWorkerThread(pool);
             thread.setName(namePrefix + '-' + idx.getAndIncrement());
             return thread;
-        }
-    }
-
-    private static final class DefaultForkJoinWorkerThread extends ForkJoinWorkerThread {
-
-        public DefaultForkJoinWorkerThread(ForkJoinPool pool) {
-            super(pool);
         }
     }
 
@@ -73,7 +84,7 @@ public class ForkJoinPoolExecutorFactory implements ExecutorFactory {
 
         @Override
         public void uncaughtException(Thread t, Throwable e) {
-            logger.error("Uncaught exception in thread: {}", t.getName(), e);
+            logger.error("Uncaught exception in thread[{}], {}.", t.getName(), stackTrace(e));
         }
     }
 }

@@ -16,13 +16,17 @@
 
 package org.jupiter.rpc.model.metadata;
 
+import org.jupiter.common.util.Maps;
 import org.jupiter.rpc.tracing.TraceId;
 
 import java.io.Serializable;
 import java.util.Arrays;
+import java.util.Map;
 
 /**
  * Request data wrapper.
+ *
+ * 请求消息包装.
  *
  * jupiter
  * org.jupiter.rpc.model.metadata
@@ -33,16 +37,12 @@ public class MessageWrapper implements Serializable {
 
     private static final long serialVersionUID = 1009813828866652852L;
 
-    // 应用名称
-    private String appName;
-    // metadata
-    private final ServiceMetadata metadata;
-    // 方法名称
-    private String methodName;
-    // 方法参数
-    private Object[] args;
-    // TraceId
-    private TraceId traceId;
+    private String appName;                 // 应用名称
+    private final ServiceMetadata metadata; // 目标服务元数据
+    private String methodName;              // 目标方法名称
+    private Object[] args;                  // 目标方法参数
+    private TraceId traceId;                // 链路追踪ID(全局唯一)
+    private Map<String, String> attachments;
 
     public MessageWrapper(ServiceMetadata metadata) {
         this.metadata = metadata;
@@ -64,12 +64,12 @@ public class MessageWrapper implements Serializable {
         return metadata.getGroup();
     }
 
-    public String getVersion() {
-        return metadata.getVersion();
-    }
-
     public String getServiceProviderName() {
         return metadata.getServiceProviderName();
+    }
+
+    public String getVersion() {
+        return metadata.getVersion();
     }
 
     public String getMethodName() {
@@ -96,6 +96,21 @@ public class MessageWrapper implements Serializable {
         this.traceId = traceId;
     }
 
+    public Map<String, String> getAttachments() {
+        return attachments;
+    }
+
+    public void putAttachment(String key, String value) {
+        if (attachments == null) {
+            attachments = Maps.newHashMap();
+        }
+        attachments.put(key, value);
+    }
+
+    public String getOperationName() {
+        return metadata.directoryString() + "." + methodName;
+    }
+
     @Override
     public String toString() {
         return "MessageWrapper{" +
@@ -103,7 +118,8 @@ public class MessageWrapper implements Serializable {
                 ", metadata=" + metadata +
                 ", methodName='" + methodName + '\'' +
                 ", args=" + Arrays.toString(args) +
-                ", traceId='" + traceId + '\'' +
+                ", traceId=" + traceId +
+                ", attachments=" + attachments +
                 '}';
     }
 }

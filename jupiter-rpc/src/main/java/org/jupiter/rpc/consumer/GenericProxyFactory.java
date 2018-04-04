@@ -16,27 +16,35 @@
 
 package org.jupiter.rpc.consumer;
 
+import org.jupiter.common.util.JConstants;
 import org.jupiter.common.util.Lists;
-import org.jupiter.common.util.Maps;
-import org.jupiter.rpc.*;
+import org.jupiter.common.util.Strings;
+import org.jupiter.rpc.DispatchType;
+import org.jupiter.rpc.InvokeType;
+import org.jupiter.rpc.JClient;
+import org.jupiter.rpc.consumer.cluster.ClusterInvoker;
 import org.jupiter.rpc.consumer.dispatcher.DefaultBroadcastDispatcher;
 import org.jupiter.rpc.consumer.dispatcher.DefaultRoundDispatcher;
 import org.jupiter.rpc.consumer.dispatcher.Dispatcher;
-import org.jupiter.rpc.consumer.invoker.CallbackGenericInvoker;
-import org.jupiter.rpc.consumer.invoker.PromiseGenericInvoker;
+import org.jupiter.rpc.consumer.invoker.AsyncGenericInvoker;
 import org.jupiter.rpc.consumer.invoker.GenericInvoker;
 import org.jupiter.rpc.consumer.invoker.SyncGenericInvoker;
+import org.jupiter.rpc.load.balance.LoadBalancerFactory;
+import org.jupiter.rpc.load.balance.LoadBalancerType;
+import org.jupiter.rpc.model.metadata.ClusterStrategyConfig;
+import org.jupiter.rpc.model.metadata.MethodSpecialConfig;
 import org.jupiter.rpc.model.metadata.ServiceMetadata;
+import org.jupiter.serialization.SerializerType;
+import org.jupiter.transport.Directory;
+import org.jupiter.transport.JConnection;
+import org.jupiter.transport.JConnector;
+import org.jupiter.transport.UnresolvedAddress;
 
 import java.util.Collections;
 import java.util.List;
-import java.util.Map;
 
+import static org.jupiter.common.util.Preconditions.checkArgument;
 import static org.jupiter.common.util.Preconditions.checkNotNull;
-import static org.jupiter.rpc.DispatchMode.BROADCAST;
-import static org.jupiter.rpc.DispatchMode.ROUND;
-import static org.jupiter.rpc.InvokeMode.CALLBACK;
-import static org.jupiter.rpc.InvokeMode.SYNC;
 
 /**
  * 泛化ProxyFactory
@@ -50,188 +58,182 @@ import static org.jupiter.rpc.InvokeMode.SYNC;
  */
 public class GenericProxyFactory {
 
+    // 服务组别
     private String group;
-    private String version;
+    // 服务名称
     private String providerName;
+    // 服务版本号, 通常在接口不兼容时版本号才需要升级
+    private String version;
 
+    // jupiter client
     private JClient client;
+    // 序列化/反序列化方式
+    private SerializerType serializerType = SerializerType.getDefault();
+    // 软负载均衡类型
+    private LoadBalancerType loadBalancerType = LoadBalancerType.getDefault();
+    // provider地址
     private List<UnresolvedAddress> addresses;
-    private InvokeMode invokeMode = SYNC;
-    private DispatchMode dispatchMode = ROUND;
-    private int timeoutMillis;
-    private Map<String, Integer> methodsSpecialTimeoutMillis;
-    private JListener listener;
-    private List<ConsumerHook> hooks;
+    // 调用方式 [同步, 异步]
+    private InvokeType invokeType = InvokeType.getDefault();
+    // 派发方式 [单播, 广播]
+    private DispatchType dispatchType = DispatchType.getDefault();
+    // 调用超时时间设置
+    private long timeoutMillis;
+    // 指定方法的单独配置, 方法参数类型不做区别对待
+    private List<MethodSpecialConfig> methodSpecialConfigs;
+    // 消费者端拦截器
+    private List<ConsumerInterceptor> interceptors;
+    // 集群容错策略
+    private ClusterInvoker.Strategy strategy = ClusterInvoker.Strategy.getDefault();
+    // failover重试次数
+    private int retries = 2;
 
     public static GenericProxyFactory factory() {
         GenericProxyFactory factory = new GenericProxyFactory();
         // 初始化数据
         factory.addresses = Lists.newArrayList();
-        factory.hooks = Lists.newArrayList();
-        factory.methodsSpecialTimeoutMillis = Maps.newTreeMap();
+        factory.interceptors = Lists.newArrayList();
+        factory.methodSpecialConfigs = Lists.newArrayList();
 
         return factory;
     }
 
     private GenericProxyFactory() {}
 
-    /**
-     * Sets the connector.
-     */
-    public GenericProxyFactory connector(JClient client) {
-        this.client = client;
-        return this;
-    }
-
-    /**
-     * Sets the group.
-     */
     public GenericProxyFactory group(String group) {
         this.group = group;
         return this;
     }
 
-    /**
-     * Sets the version.
-     */
-    public GenericProxyFactory version(String version) {
-        this.version = version;
-        return this;
-    }
-
-    /**
-     * Sets the service provider name.
-     */
     public GenericProxyFactory providerName(String providerName) {
         this.providerName = providerName;
         return this;
     }
 
-    /**
-     * Sets the group, version and service provider name.
-     */
-    public GenericProxyFactory directory(Directory directory) {
-        return group(directory.getGroup())
-                .version(directory.getVersion())
-                .providerName(directory.getServiceProviderName());
+    public GenericProxyFactory version(String version) {
+        this.version = version;
+        return this;
     }
 
-    /**
-     * Adds provider's addresses.
-     */
+    public GenericProxyFactory directory(Directory directory) {
+        return group(directory.getGroup())
+                .providerName(directory.getServiceProviderName())
+                .version(directory.getVersion());
+    }
+
+    public GenericProxyFactory client(JClient client) {
+        this.client = client;
+        return this;
+    }
+
+    public GenericProxyFactory serializerType(SerializerType serializerType) {
+        this.serializerType = serializerType;
+        return this;
+    }
+
+    public GenericProxyFactory loadBalancerType(LoadBalancerType loadBalancerType) {
+        this.loadBalancerType = loadBalancerType;
+        return this;
+    }
+
     public GenericProxyFactory addProviderAddress(UnresolvedAddress... addresses) {
         Collections.addAll(this.addresses, addresses);
         return this;
     }
 
-    /**
-     * Adds provider's addresses.
-     */
     public GenericProxyFactory addProviderAddress(List<UnresolvedAddress> addresses) {
         this.addresses.addAll(addresses);
         return this;
     }
 
-    /**
-     * Synchronous blocking, asynchronous with future or asynchronous with callback,
-     * the default is synchronous.
-     */
-    public GenericProxyFactory invokeMode(InvokeMode invokeMode) {
-        this.invokeMode = checkNotNull(invokeMode);
+    public GenericProxyFactory invokeType(InvokeType invokeType) {
+        this.invokeType = checkNotNull(invokeType);
         return this;
     }
 
-    /**
-     * Sets the mode of dispatch, the default is {@link DispatchMode#ROUND}
-     */
-    public GenericProxyFactory dispatchMode(DispatchMode dispatchMode) {
-        this.dispatchMode = checkNotNull(dispatchMode);
+    public GenericProxyFactory dispatchType(DispatchType dispatchType) {
+        this.dispatchType = checkNotNull(dispatchType);
         return this;
     }
 
-    /**
-     * Timeout milliseconds.
-     */
-    public GenericProxyFactory timeoutMillis(int timeoutMillis) {
+    public GenericProxyFactory timeoutMillis(long timeoutMillis) {
         this.timeoutMillis = timeoutMillis;
         return this;
     }
 
-    /**
-     * Method special timeout milliseconds.
-     */
-    public GenericProxyFactory methodSpecialTimeoutMillis(String methodName, int timeoutMillis) {
-        methodsSpecialTimeoutMillis.put(methodName, timeoutMillis);
+    public GenericProxyFactory addMethodSpecialConfig(MethodSpecialConfig... methodSpecialConfigs) {
+        Collections.addAll(this.methodSpecialConfigs, methodSpecialConfigs);
         return this;
     }
 
-    /**
-     * Asynchronous callback listener.
-     */
-    public GenericProxyFactory listener(JListener listener) {
-        if (invokeMode != CALLBACK) {
-            throw new UnsupportedOperationException("InvokeMode should first be set to CALLBACK");
-        }
-        this.listener = listener;
+    public GenericProxyFactory addInterceptor(ConsumerInterceptor... interceptors) {
+        Collections.addAll(this.interceptors, interceptors);
         return this;
     }
 
-    /**
-     * Adds hooks.
-     */
-    public GenericProxyFactory addHook(ConsumerHook... hooks) {
-        Collections.addAll(this.hooks, hooks);
+    public GenericProxyFactory clusterStrategy(ClusterInvoker.Strategy strategy) {
+        this.strategy = strategy;
+        return this;
+    }
+
+    public GenericProxyFactory failoverRetries(int retries) {
+        this.retries = retries;
         return this;
     }
 
     public GenericInvoker newProxyInstance() {
         // check arguments
-        checkNotNull(client, "connector");
-        checkNotNull(group, "group");
-        checkNotNull(version, "version");
-        checkNotNull(providerName, "providerName");
-        if (dispatchMode == BROADCAST && invokeMode != CALLBACK) {
-            throw new UnsupportedOperationException("illegal mode, BROADCAST only support CALLBACK");
+        checkArgument(Strings.isNotBlank(group), "group");
+        checkArgument(Strings.isNotBlank(providerName), "providerName");
+        checkNotNull(client, "client");
+        checkNotNull(serializerType, "serializerType");
+
+        if (dispatchType == DispatchType.BROADCAST && invokeType == InvokeType.SYNC) {
+            throw reject("broadcast & sync unsupported");
         }
 
         // metadata
-        ServiceMetadata metadata = new ServiceMetadata(group, version, providerName);
+        ServiceMetadata metadata = new ServiceMetadata(
+                group,
+                providerName,
+                Strings.isNotBlank(version) ? version : JConstants.DEFAULT_VERSION
+        );
 
+        JConnector<JConnection> connector = client.connector();
         for (UnresolvedAddress address : addresses) {
-            client.addChannelGroup(metadata, client.group(address));
+            connector.addChannelGroup(metadata, connector.group(address));
         }
 
         // dispatcher
-        Dispatcher dispatcher = asDispatcher(metadata);
-        if (timeoutMillis > 0) {
-            dispatcher.setTimeoutMillis(timeoutMillis);
-        }
-        if (!methodsSpecialTimeoutMillis.isEmpty()) {
-            dispatcher.setMethodsSpecialTimeoutMillis(methodsSpecialTimeoutMillis);
-        }
-        dispatcher.setHooks(hooks);
+        Dispatcher dispatcher = dispatcher()
+                .interceptors(interceptors)
+                .timeoutMillis(timeoutMillis)
+                .methodSpecialConfigs(methodSpecialConfigs);
 
-        switch (invokeMode) {
+        ClusterStrategyConfig strategyConfig = ClusterStrategyConfig.of(strategy, retries);
+        switch (invokeType) {
             case SYNC:
-                return new SyncGenericInvoker(client, dispatcher);
-            case PROMISE:
-                return new PromiseGenericInvoker(client, dispatcher);
-            case CALLBACK:
-                dispatcher.setListener(checkNotNull(listener, "listener"));
-                return new CallbackGenericInvoker(client, dispatcher);
+                return new SyncGenericInvoker(client.appName(), metadata, dispatcher, strategyConfig, methodSpecialConfigs);
+            case ASYNC:
+                return new AsyncGenericInvoker(client.appName(), metadata, dispatcher, strategyConfig, methodSpecialConfigs);
             default:
-                throw new IllegalStateException("InvokeMode: " + invokeMode);
+                throw reject("invokeType: " + invokeType);
         }
     }
 
-    protected Dispatcher asDispatcher(ServiceMetadata metadata) {
-        switch (dispatchMode) {
+    protected Dispatcher dispatcher() {
+        switch (dispatchType) {
             case ROUND:
-                return new DefaultRoundDispatcher(metadata);
+                return new DefaultRoundDispatcher(
+                        client, LoadBalancerFactory.loadBalancer(loadBalancerType), serializerType);
             case BROADCAST:
-                return new DefaultBroadcastDispatcher(metadata);
+                return new DefaultBroadcastDispatcher(client, serializerType);
             default:
-                throw new IllegalStateException("DispatchMode: " + dispatchMode);
+                throw reject("dispatchType: " + dispatchType);
         }
+    }
+
+    private static UnsupportedOperationException reject(String message) {
+        return new UnsupportedOperationException(message);
     }
 }

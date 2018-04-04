@@ -20,8 +20,8 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <parent>
         <artifactId>jupiter</artifactId>
-        <groupId>org.jupiter</groupId>
-        <version>1.0.0</version>
+        <groupId>org.jupiter-rpc</groupId>
+        <version>1.2.20</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
@@ -30,12 +30,8 @@
 
     <dependencies>
         <dependency>
-            <groupId>org.objenesis</groupId>
-            <artifactId>objenesis</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>cglib</groupId>
-            <artifactId>cglib</artifactId>
+            <groupId>org.ow2.asm</groupId>
+            <artifactId>asm</artifactId>
         </dependency>
         <dependency>
             <groupId>net.bytebuddy</groupId>
@@ -44,6 +40,10 @@
         <dependency>
             <groupId>com.lmax</groupId>
             <artifactId>disruptor</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>net.openhft</groupId>
+            <artifactId>affinity</artifactId>
         </dependency>
         <dependency>
             <groupId>org.slf4j</groupId>

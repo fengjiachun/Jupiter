@@ -16,16 +16,19 @@
 
 package org.jupiter.benchmark.tcp;
 
+import org.jupiter.rpc.ServiceProviderImpl;
+
 /**
  * jupiter
  * org.jupiter.benchmark.tcp
  *
  * @author jiachun.fjc
  */
+@ServiceProviderImpl
 public class ServiceImpl implements Service {
 
     @Override
     public String hello(String arg) {
-        return "Hello " + arg;
+        return arg;
     }
 }

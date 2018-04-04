@@ -16,17 +16,16 @@
 
 package org.jupiter.flight.exec;
 
-import org.jupiter.common.util.Reflects;
+import org.jupiter.common.util.internal.UnsafeReferenceFieldUpdater;
+import org.jupiter.common.util.internal.UnsafeUpdater;
 
-import java.io.ByteArrayOutputStream;
-import java.io.Console;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.PrintStream;
+import java.io.*;
 import java.nio.channels.Channel;
 import java.util.Properties;
 
 /**
+ * Hack {@link java.lang.System}.
+ *
  * jupiter
  * org.jupiter.flight.exec
  *
@@ -35,6 +34,9 @@ import java.util.Properties;
 public class HackSystem {
 
     public final static InputStream in = System.in;
+
+    private static final UnsafeReferenceFieldUpdater<ByteArrayOutputStream, byte[]> bufUpdater =
+            UnsafeUpdater.newReferenceFieldUpdater(ByteArrayOutputStream.class, "buf");
 
     private static ByteArrayOutputStream buf = new ByteArrayOutputStream(1024);
 
@@ -45,8 +47,9 @@ public class HackSystem {
     public static String getBufString() {
         String value = buf.toString();
         synchronized (HackSystem.class) {
-            if (buf.size() > 1024 * 8) {
-                Reflects.setValue(buf, "buf", new byte[1024]);
+            assert bufUpdater != null;
+            if (bufUpdater.get(buf).length > (1024 << 3)) {
+                bufUpdater.set(buf, new byte[1024]);
             }
         }
         return value;

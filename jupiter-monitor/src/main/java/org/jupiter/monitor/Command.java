@@ -21,8 +21,6 @@ import org.jupiter.monitor.handler.*;
 
 import java.util.Map;
 
-import static org.jupiter.monitor.Command.ChildCommand.*;
-
 /**
  * Monitor command.
  *
@@ -34,8 +32,18 @@ import static org.jupiter.monitor.Command.ChildCommand.*;
 public enum Command {
     AUTH("Login with password", new AuthHandler()),
     HELP("Help information", new HelpHandler()),
-    METRICS("Performance metrics", new MetricsHandler(), REPORT),
-    REGISTRY("Registry info(P/S command must follow behind ADDRESS)", new RegistryHandler(), ADDRESS, P, S, BY_SERVICE, BY_ADDRESS, GREP),
+    STACK("Prints java stack traces of java threads for the current java process", new JStackHandler()),
+    MEMORY_USAGE("Prints memory usage for the current java process", new MemoryUsageHandler()),
+    LS("List all provider and consumer info", new LsHandler()),
+    METRICS("Performance metrics", new MetricsHandler(),
+            ChildCommand.REPORT),
+    REGISTRY("Registry info(P/S command must follow behind ADDRESS)", new RegistryHandler(),
+            ChildCommand.ADDRESS,
+            ChildCommand.P,
+            ChildCommand.S,
+            ChildCommand.BY_SERVICE,
+            ChildCommand.BY_ADDRESS,
+            ChildCommand.GREP),
     QUIT("Quit monitor", new QuitHandler());
 
     private final String description;
@@ -77,6 +85,7 @@ public enum Command {
     }
 
     private static final Map<String, Command> commands = Maps.newHashMap();
+
     static {
         for (Command c : Command.values()) {
             commands.put(c.name().toLowerCase(), c);

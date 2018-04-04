@@ -16,15 +16,11 @@
 
 package org.jupiter.common.util;
 
-import net.sf.cglib.reflect.FastClass;
-import org.jupiter.common.util.internal.JUnsafe;
-import org.objenesis.Objenesis;
-import org.objenesis.ObjenesisStd;
-
-import java.lang.reflect.*;
+import java.lang.reflect.Field;
+import java.lang.reflect.Modifier;
+import java.lang.reflect.Type;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.ConcurrentMap;
 
 import static org.jupiter.common.util.Preconditions.checkNotNull;
 
@@ -37,9 +33,6 @@ import static org.jupiter.common.util.Preconditions.checkNotNull;
  * @author jiachun.fjc
  */
 public final class Reflects {
-
-    private static final Objenesis objenesis = new ObjenesisStd(true);
-    private static final ConcurrentMap<Class<?>, FastClass> fastClassCache = Maps.newConcurrentHashMap();
 
     /**
      * Maps primitive {@link Class}es to their corresponding wrapper {@link Class}.
@@ -87,38 +80,7 @@ public final class Reflects {
     };
 
     /**
-     * Creates a new object without any constructor being called.
-     *
-     * @param clazz ths class to instantiate
-     * @return new instance of clazz
-     */
-    public static <T> T newInstance(Class<T> clazz) {
-        return objenesis.newInstance(clazz);
-    }
-
-    /**
-     * Invokes the underlying method.
-     *
-     * @param obj            the object the underlying method is invoked from
-     * @param methodName     the method name this object
-     * @param parameterTypes the parameter types for the method this object
-     * @param args           the arguments used for the method call
-     * @return the result of dispatching the method represented by this object on {@code obj} with parameters
-     */
-    public static Object invoke(Object obj, String methodName, Class<?>[] parameterTypes, Object[] args) {
-        Object value = null;
-        try {
-            Method method = obj.getClass().getMethod(methodName, parameterTypes);
-            method.setAccessible(true);
-            value = method.invoke(obj, args);
-        } catch (Exception e) {
-            JUnsafe.throwException(e);
-        }
-        return value;
-    }
-
-    /**
-     * Invokes the underlying method, fast invoke using cglib's FastClass.
+     * Invokes the underlying method, fast invoke using ASM.
      *
      * @param obj            the object the underlying method is invoked from
      * @param methodName     the method name this object
@@ -127,23 +89,8 @@ public final class Reflects {
      * @return the result of dispatching the method represented by this object on {@code obj} with parameters
      */
     public static Object fastInvoke(Object obj, String methodName, Class<?>[] parameterTypes, Object[] args) {
-        Class<?> clazz = obj.getClass();
-        FastClass fastClass = fastClassCache.get(clazz);
-        if (fastClass == null) {
-            FastClass newFastClass = FastClass.create(clazz);
-            fastClass = fastClassCache.putIfAbsent(clazz, newFastClass);
-            if (fastClass == null) {
-                fastClass = newFastClass;
-            }
-        }
-
-        Object value = null;
-        try {
-            value = fastClass.invoke(methodName, parameterTypes, obj, args);
-        } catch (InvocationTargetException e) {
-            JUnsafe.throwException(e);
-        }
-        return value;
+        FastMethodAccessor accessor = FastMethodAccessor.get(obj.getClass());
+        return accessor.invoke(obj, methodName, parameterTypes, args);
     }
 
     /**
@@ -155,16 +102,13 @@ public final class Reflects {
      * @param clazz class
      * @param name  field name
      * @return the {@code Field} object for the specified field in this class
-     * @throws NoSuchFieldException
+     * @throws NoSuchFieldException if a field with the specified name is not found.
      */
     public static Field getField(Class<?> clazz, String name) throws NoSuchFieldException {
-        Class<?> cls = checkNotNull(clazz, "class");
-        while (cls != null) {
+        for (Class<?> cls = checkNotNull(clazz, "class"); cls != null; cls = cls.getSuperclass()) {
             try {
                 return cls.getDeclaredField(name);
             } catch (Throwable ignored) {}
-
-            cls = cls.getSuperclass();
         }
         throw new NoSuchFieldException(clazz.getName() + "#" + name);
     }
@@ -183,7 +127,7 @@ public final class Reflects {
             Field fd = setAccessible(getField(clazz, name));
             value = fd.get(null);
         } catch (Exception e) {
-            JUnsafe.throwException(e);
+            ThrowUtil.throwException(e);
         }
         return value;
     }
@@ -202,7 +146,7 @@ public final class Reflects {
             Field fd = setAccessible(getField(clazz, name));
             fd.set(null, value);
         } catch (Exception e) {
-            JUnsafe.throwException(e);
+            ThrowUtil.throwException(e);
         }
     }
 
@@ -220,7 +164,7 @@ public final class Reflects {
             Field fd = setAccessible(getField(o.getClass(), name));
             value = fd.get(o);
         } catch (Exception e) {
-            JUnsafe.throwException(e);
+            ThrowUtil.throwException(e);
         }
         return value;
     }
@@ -238,7 +182,7 @@ public final class Reflects {
             Field fd = setAccessible(getField(o.getClass(), name));
             fd.set(o, value);
         } catch (Exception e) {
-            JUnsafe.throwException(e);
+            ThrowUtil.throwException(e);
         }
     }
 
@@ -322,6 +266,39 @@ public final class Reflects {
                 if (bestMatch == null
                         || compareParameterTypes(pTypes, bestMatch, parameterTypes) < 0) {
                     bestMatch = pTypes;
+                }
+            }
+        }
+
+        return bestMatch;
+    }
+
+    /**
+     * Find an array of parameter {@link Type}s that matches the given compatible parameters.
+     */
+    public static <Ext> Pair<Class<?>[], Ext> findMatchingParameterTypesExt(List<Pair<Class<?>[], Ext>> pairs, Object[] args) {
+        if (pairs.size() == 1) {
+            return pairs.get(0);
+        }
+
+        // 获取参数类型
+        Class<?>[] parameterTypes;
+        if (args == null || args.length == 0) {
+            parameterTypes = new Class[0];
+        } else {
+            parameterTypes = new Class[args.length];
+            for (int i = 0; i < args.length; i++) {
+                parameterTypes[i] = args[i].getClass();
+            }
+        }
+
+        Pair<Class<?>[], Ext> bestMatch = null;
+        for (Pair<Class<?>[], Ext> pair : pairs) {
+            Class<?>[] pTypes = pair.getFirst();
+            if (isAssignable(parameterTypes, pTypes, true)) {
+                if (bestMatch == null
+                        || compareParameterTypes(pTypes, bestMatch.getFirst(), parameterTypes) < 0) {
+                    bestMatch = pair;
                 }
             }
         }
@@ -463,7 +440,7 @@ public final class Reflects {
     private static int compareParameterTypes(Class<?>[] left, Class<?>[] right, Class<?>[] actual) {
         final float leftCost = getTotalTransformationCost(actual, left);
         final float rightCost = getTotalTransformationCost(actual, right);
-        return leftCost < rightCost ? -1 : rightCost < leftCost ? 1 : 0;
+        return Float.compare(leftCost, rightCost);
     }
 
     /**

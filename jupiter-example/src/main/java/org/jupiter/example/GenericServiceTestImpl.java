@@ -16,12 +16,15 @@
 
 package org.jupiter.example;
 
+import org.jupiter.rpc.ServiceProviderImpl;
+
 /**
  * jupiter
  * org.jupiter.example
  *
  * @author jiachun.fjc
  */
+@ServiceProviderImpl(version = "1.0.0.daily")
 public class GenericServiceTestImpl implements GenericServiceTest {
 
     @Override

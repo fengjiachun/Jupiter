@@ -19,33 +19,36 @@ package org.jupiter.rpc.consumer.invoker;
 import net.bytebuddy.implementation.bind.annotation.AllArguments;
 import net.bytebuddy.implementation.bind.annotation.Origin;
 import net.bytebuddy.implementation.bind.annotation.RuntimeType;
-import org.jupiter.rpc.JClient;
 import org.jupiter.rpc.consumer.dispatcher.Dispatcher;
-import org.jupiter.rpc.consumer.promise.InvokePromise;
+import org.jupiter.rpc.model.metadata.ClusterStrategyConfig;
+import org.jupiter.rpc.model.metadata.MethodSpecialConfig;
+import org.jupiter.rpc.model.metadata.ServiceMetadata;
 
 import java.lang.reflect.Method;
+import java.util.List;
 
 /**
  * Synchronous call.
+ *
+ * 同步调用.
  *
  * jupiter
  * org.jupiter.rpc.consumer.invoker
  *
  * @author jiachun.fjc
  */
-public class SyncInvoker {
+public class SyncInvoker extends AbstractInvoker {
 
-    private final JClient client;
-    private final Dispatcher dispatcher;
-
-    public SyncInvoker(JClient client, Dispatcher dispatcher) {
-        this.client = client;
-        this.dispatcher = dispatcher;
+    public SyncInvoker(String appName,
+                       ServiceMetadata metadata,
+                       Dispatcher dispatcher,
+                       ClusterStrategyConfig defaultStrategy,
+                       List<MethodSpecialConfig> methodSpecialConfigs) {
+        super(appName, metadata, dispatcher, defaultStrategy, methodSpecialConfigs);
     }
 
     @RuntimeType
     public Object invoke(@Origin Method method, @AllArguments @RuntimeType Object[] args) throws Throwable {
-        InvokePromise promise = dispatcher.dispatch(client, method.getName(), args);
-        return promise.getResult();
+        return doInvoke(method.getName(), args, method.getReturnType(), true);
     }
 }

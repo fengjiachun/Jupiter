@@ -16,59 +16,23 @@
 
 package org.jupiter.common.util;
 
-import org.jupiter.common.util.internal.UnsafeReferenceFieldUpdater;
-import org.jupiter.common.util.internal.UnsafeUpdater;
+import org.jupiter.common.util.internal.*;
 
 /**
- * 基于 {@link ThreadLocal} 的 {@link StringBuilder} 重复利用
+ * 基于 {@link org.jupiter.common.util.internal.InternalThreadLocal} 的 {@link StringBuilder} 重复利用.
  *
- * 注意不要在相同的线程中嵌套使用
+ * 注意: 不要在相同的线程中嵌套使用, 太大的StringBuilder也请不要使用这个类, 会导致hold超大块内存一直不释放.
  *
  * jupiter
  * org.jupiter.common.util
  *
  * @author jiachun.fjc
  */
-public class StringBuilderHelper {
-
-    private static final UnsafeReferenceFieldUpdater<StringBuilder, char[]> stringBuilderValueUpdater =
-            UnsafeUpdater.newReferenceFieldUpdater(StringBuilder.class.getSuperclass(), "value");
-
-    private static final int DISCARD_LIMIT = 1024 << 3; // 8k
-
-    private static final ThreadLocal<StringBuilderHolder>
-            threadLocalStringBuilderHolder = new ThreadLocal<StringBuilderHolder>() {
-
-        @Override
-        protected StringBuilderHolder initialValue() {
-            return new StringBuilderHolder();
-        }
-    };
+public final class StringBuilderHelper {
 
     public static StringBuilder get() {
-        StringBuilderHolder holder = threadLocalStringBuilderHolder.get();
-        return holder.getStringBuilder();
+        return InternalThreadLocalMap.get().stringBuilder();
     }
 
-    public static void truncate() {
-        StringBuilderHolder holder = threadLocalStringBuilderHolder.get();
-        holder.truncate();
-    }
-
-    private static class StringBuilderHolder {
-
-        private final StringBuilder buf = new StringBuilder();
-
-        private StringBuilder getStringBuilder() {
-            truncate();
-            return buf;
-        }
-
-        private void truncate() {
-            if (buf.capacity() > DISCARD_LIMIT) {
-                stringBuilderValueUpdater.set(buf, new char[1024]);
-            }
-            buf.setLength(0);
-        }
-    }
+    private StringBuilderHelper() {}
 }

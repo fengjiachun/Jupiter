@@ -1,0 +1,474 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  ~ Copyright (c) 2015 The Jupiter Project
+  ~
+  ~ Licensed under the Apache License, version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at:
+  ~
+  ~   http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<xsd:schema xmlns="http://www.jupiter-rpc.org/jupiter"
+            xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+            xmlns:tool="http://www.springframework.org/schema/tool"
+            targetNamespace="http://www.jupiter-rpc.org/jupiter"
+            elementFormDefault="qualified">
+
+    <xsd:import namespace="http://www.springframework.org/schema/beans" />
+    <xsd:import namespace="http://www.springframework.org/schema/tool"/>
+
+    <xsd:complexType name="idType">
+        <xsd:attribute name="id" type="xsd:ID" use="required">
+            <xsd:annotation>
+                <xsd:documentation><![CDATA[ Bean unique ID. ]]></xsd:documentation>
+            </xsd:annotation>
+        </xsd:attribute>
+    </xsd:complexType>
+
+    <xsd:simpleType name="registryTypeType">
+        <xsd:restriction base="xsd:string">
+            <xsd:enumeration value="default">
+                <xsd:annotation>
+                    <xsd:documentation><![CDATA[ Jupiter default registry service. ]]></xsd:documentation>
+                </xsd:annotation>
+            </xsd:enumeration>
+            <xsd:enumeration value="zookeeper">
+                <xsd:annotation>
+                    <xsd:documentation><![CDATA[ Zookeeper registry service. ]]></xsd:documentation>
+                </xsd:annotation>
+            </xsd:enumeration>
+        </xsd:restriction>
+    </xsd:simpleType>
+
+    <xsd:complexType name="jupiterServerPropertyType">
+        <xsd:attribute name="registryServerAddresses" type="xsd:string" use="optional">
+            <xsd:annotation>
+                <xsd:documentation><![CDATA[ The registry server addresses(host1:port1,host2:port2....). ]]></xsd:documentation>
+            </xsd:annotation>
+        </xsd:attribute>
+        <xsd:attribute name="globalProviderInterceptors" type="xsd:string" use="optional">
+            <xsd:annotation>
+                <xsd:documentation><![CDATA[ The global provider interceptors. ]]></xsd:documentation>
+            </xsd:annotation>
+        </xsd:attribute>
+        <xsd:attribute name="globalFlowController" type="xsd:string" use="optional">
+            <xsd:annotation>
+                <xsd:documentation><![CDATA[ The global flow controller. ]]></xsd:documentation>
+            </xsd:annotation>
+        </xsd:attribute>
+    </xsd:complexType>
+
+    <xsd:complexType name="jupiterClientPropertyType">
+        <xsd:attribute name="registryServerAddresses" type="xsd:string" use="optional">
+            <xsd:annotation>
+                <xsd:documentation><![CDATA[ The registry server addresses(host1:port1,host2:port2....). ]]></xsd:documentation>
+            </xsd:annotation>
+        </xsd:attribute>
+        <xsd:attribute name="providerServerAddresses" type="xsd:string" use="optional">
+            <xsd:annotation>
+                <xsd:documentation><![CDATA[ The provider addresses(host1:port1,host2:port2....). ]]></xsd:documentation>
+            </xsd:annotation>
+        </xsd:attribute>
+        <xsd:attribute name="globalConsumerInterceptors" type="xsd:string" use="optional">
+            <xsd:annotation>
+                <xsd:documentation><![CDATA[ The global consumer interceptors. ]]></xsd:documentation>
+            </xsd:annotation>
+        </xsd:attribute>
+    </xsd:complexType>
+
+    <xsd:simpleType name="serializerTypeType">
+        <xsd:restriction base="xsd:string">
+            <xsd:enumeration value="proto_stuff">
+                <xsd:annotation>
+                    <xsd:documentation><![CDATA[ Protostuff. ]]></xsd:documentation>
+                </xsd:annotation>
+            </xsd:enumeration>
+            <xsd:enumeration value="hessian">
+                <xsd:annotation>
+                    <xsd:documentation><![CDATA[ Hessian. ]]></xsd:documentation>
+                </xsd:annotation>
+            </xsd:enumeration>
+            <xsd:enumeration value="kryo">
+                <xsd:annotation>
+                    <xsd:documentation><![CDATA[ Kryo. ]]></xsd:documentation>
+                </xsd:annotation>
+            </xsd:enumeration>
+            <xsd:enumeration value="java">
+                <xsd:annotation>
+                    <xsd:documentation><![CDATA[ Java. ]]></xsd:documentation>
+                </xsd:annotation>
+            </xsd:enumeration>
+        </xsd:restriction>
+    </xsd:simpleType>
+
+    <xsd:simpleType name="loadBalancerTypeType">
+        <xsd:restriction base="xsd:string">
+            <xsd:enumeration value="round_robin">
+                <xsd:annotation>
+                    <xsd:documentation><![CDATA[ Round robin. ]]></xsd:documentation>
+                </xsd:annotation>
+            </xsd:enumeration>
+            <xsd:enumeration value="random">
+                <xsd:annotation>
+                    <xsd:documentation><![CDATA[ Random. ]]></xsd:documentation>
+                </xsd:annotation>
+            </xsd:enumeration>
+        </xsd:restriction>
+    </xsd:simpleType>
+
+    <xsd:simpleType name="dispatchTypeType">
+        <xsd:restriction base="xsd:string">
+            <xsd:enumeration value="round">
+                <xsd:annotation>
+                    <xsd:documentation><![CDATA[ Round. ]]></xsd:documentation>
+                </xsd:annotation>
+            </xsd:enumeration>
+            <xsd:enumeration value="broadcast">
+                <xsd:annotation>
+                    <xsd:documentation><![CDATA[ Broadcast. ]]></xsd:documentation>
+                </xsd:annotation>
+            </xsd:enumeration>
+        </xsd:restriction>
+    </xsd:simpleType>
+
+    <xsd:simpleType name="invokeTypeType">
+        <xsd:restriction base="xsd:string">
+            <xsd:enumeration value="sync">
+                <xsd:annotation>
+                    <xsd:documentation><![CDATA[ Sync. ]]></xsd:documentation>
+                </xsd:annotation>
+            </xsd:enumeration>
+            <xsd:enumeration value="async">
+                <xsd:annotation>
+                    <xsd:documentation><![CDATA[ Async. ]]></xsd:documentation>
+                </xsd:annotation>
+            </xsd:enumeration>
+        </xsd:restriction>
+    </xsd:simpleType>
+
+    <xsd:simpleType name="clusterStrategyType">
+        <xsd:restriction base="xsd:string">
+            <xsd:enumeration value="fail_fast">
+                <xsd:annotation>
+                    <xsd:documentation><![CDATA[ Fail fast. ]]></xsd:documentation>
+                </xsd:annotation>
+            </xsd:enumeration>
+            <xsd:enumeration value="fail_over">
+                <xsd:annotation>
+                    <xsd:documentation><![CDATA[ Fail over. ]]></xsd:documentation>
+                </xsd:annotation>
+            </xsd:enumeration>
+            <xsd:enumeration value="fail_safe">
+                <xsd:annotation>
+                    <xsd:documentation><![CDATA[ Fail safe. ]]></xsd:documentation>
+                </xsd:annotation>
+            </xsd:enumeration>
+        </xsd:restriction>
+    </xsd:simpleType>
+
+    <xsd:complexType name="methodSpecialConfigType">
+        <xsd:attribute name="methodName" type="xsd:string" use="required">
+            <xsd:annotation>
+                <xsd:documentation><![CDATA[ The method name. ]]></xsd:documentation>
+            </xsd:annotation>
+        </xsd:attribute>
+        <xsd:attribute name="timeoutMillis" type="xsd:long" use="optional">
+            <xsd:annotation>
+                <xsd:documentation><![CDATA[ The method special timeout millis. ]]></xsd:documentation>
+            </xsd:annotation>
+        </xsd:attribute>
+        <xsd:attribute name="clusterStrategy" type="clusterStrategyType" use="optional">
+            <xsd:annotation>
+                <xsd:documentation><![CDATA[ The method special cluster strategy. ]]></xsd:documentation>
+            </xsd:annotation>
+        </xsd:attribute>
+        <xsd:attribute name="failoverRetries" type="xsd:integer" use="optional">
+            <xsd:annotation>
+                <xsd:documentation><![CDATA[ The method special failover retries. ]]></xsd:documentation>
+            </xsd:annotation>
+        </xsd:attribute>
+    </xsd:complexType>
+
+    <xsd:complexType name="methodSpecialConfigsType">
+        <xsd:choice minOccurs="1" maxOccurs="unbounded">
+            <xsd:element name="methodSpecial" type="methodSpecialConfigType"/>
+        </xsd:choice>
+    </xsd:complexType>
+
+    <xsd:complexType name="netOptionType">
+        <xsd:attribute name="TCP_NODELAY" type="xsd:string" use="optional">
+            <xsd:annotation>
+                <xsd:documentation><![CDATA[ JOption<Boolean> ]]></xsd:documentation>
+            </xsd:annotation>
+        </xsd:attribute>
+        <xsd:attribute name="KEEP_ALIVE" type="xsd:string" use="optional">
+            <xsd:annotation>
+                <xsd:documentation><![CDATA[ JOption<Boolean> ]]></xsd:documentation>
+            </xsd:annotation>
+        </xsd:attribute>
+        <xsd:attribute name="SO_REUSEADDR" type="xsd:string" use="optional">
+            <xsd:annotation>
+                <xsd:documentation><![CDATA[ JOption<Boolean> ]]></xsd:documentation>
+            </xsd:annotation>
+        </xsd:attribute>
+        <xsd:attribute name="SO_SNDBUF" type="xsd:string" use="optional">
+            <xsd:annotation>
+                <xsd:documentation><![CDATA[ JOption<Integer> ]]></xsd:documentation>
+            </xsd:annotation>
+        </xsd:attribute>
+        <xsd:attribute name="SO_RCVBUF" type="xsd:string" use="optional">
+            <xsd:annotation>
+                <xsd:documentation><![CDATA[ JOption<Integer> ]]></xsd:documentation>
+            </xsd:annotation>
+        </xsd:attribute>
+        <xsd:attribute name="SO_LINGER" type="xsd:string" use="optional">
+            <xsd:annotation>
+                <xsd:documentation><![CDATA[ JOption<Integer> ]]></xsd:documentation>
+            </xsd:annotation>
+        </xsd:attribute>
+        <xsd:attribute name="SO_BACKLOG" type="xsd:string" use="optional">
+            <xsd:annotation>
+                <xsd:documentation><![CDATA[ JOption<Integer> ]]></xsd:documentation>
+            </xsd:annotation>
+        </xsd:attribute>
+        <xsd:attribute name="IP_TOS" type="xsd:string" use="optional">
+            <xsd:annotation>
+                <xsd:documentation><![CDATA[ JOption<Integer> ]]></xsd:documentation>
+            </xsd:annotation>
+        </xsd:attribute>
+        <xsd:attribute name="ALLOW_HALF_CLOSURE" type="xsd:string" use="optional">
+            <xsd:annotation>
+                <xsd:documentation><![CDATA[ JOption<Boolean> ]]></xsd:documentation>
+            </xsd:annotation>
+        </xsd:attribute>
+        <xsd:attribute name="WRITE_BUFFER_HIGH_WATER_MARK" type="xsd:string" use="optional">
+            <xsd:annotation>
+                <xsd:documentation><![CDATA[ JOption<Integer> ]]></xsd:documentation>
+            </xsd:annotation>
+        </xsd:attribute>
+        <xsd:attribute name="WRITE_BUFFER_LOW_WATER_MARK" type="xsd:string" use="optional">
+            <xsd:annotation>
+                <xsd:documentation><![CDATA[ JOption<Integer> ]]></xsd:documentation>
+            </xsd:annotation>
+        </xsd:attribute>
+        <xsd:attribute name="IO_RATIO" type="xsd:string" use="optional">
+            <xsd:annotation>
+                <xsd:documentation><![CDATA[ JOption<Integer> ]]></xsd:documentation>
+            </xsd:annotation>
+        </xsd:attribute>
+        <xsd:attribute name="CONNECT_TIMEOUT_MILLIS" type="xsd:string" use="optional">
+            <xsd:annotation>
+                <xsd:documentation><![CDATA[ JOption<Integer> ]]></xsd:documentation>
+            </xsd:annotation>
+        </xsd:attribute>
+    </xsd:complexType>
+
+    <xsd:complexType name="acceptorNetOptionsType">
+        <xsd:choice minOccurs="1" maxOccurs="unbounded">
+            <xsd:element name="childOption" type="netOptionType"/>
+            <xsd:element name="parentOption" type="netOptionType"/>
+        </xsd:choice>
+    </xsd:complexType>
+
+    <xsd:complexType name="connectorNetOptionsType">
+        <xsd:choice minOccurs="1" maxOccurs="unbounded">
+            <xsd:element name="childOption" type="netOptionType"/>
+        </xsd:choice>
+    </xsd:complexType>
+
+    <xsd:complexType name="jupiterServerType">
+        <xsd:complexContent>
+            <xsd:extension base="idType">
+                <xsd:choice minOccurs="0" maxOccurs="unbounded">
+                    <xsd:element name="property" type="jupiterServerPropertyType"/>
+                    <xsd:element name="netOptions" type="acceptorNetOptionsType"/>
+                </xsd:choice>
+                <xsd:attribute name="registryType" type="registryTypeType" use="optional">
+                    <xsd:annotation>
+                        <xsd:documentation><![CDATA[ The registry service implementation type. ]]></xsd:documentation>
+                    </xsd:annotation>
+                </xsd:attribute>
+                <xsd:attribute name="acceptor" type="xsd:string" use="optional">
+                    <xsd:annotation>
+                        <xsd:documentation><![CDATA[ The network acceptor. ]]></xsd:documentation>
+                    </xsd:annotation>
+                </xsd:attribute>
+            </xsd:extension>
+        </xsd:complexContent>
+    </xsd:complexType>
+
+    <xsd:complexType name="jupiterClientType">
+        <xsd:complexContent>
+            <xsd:extension base="idType">
+                <xsd:choice minOccurs="0" maxOccurs="unbounded">
+                    <xsd:element name="property" type="jupiterClientPropertyType"/>
+                    <xsd:element name="netOptions" type="connectorNetOptionsType"/>
+                </xsd:choice>
+                <xsd:attribute name="appName" type="xsd:string" use="optional">
+                    <xsd:annotation>
+                        <xsd:documentation><![CDATA[ The client app name. ]]></xsd:documentation>
+                    </xsd:annotation>
+                </xsd:attribute>
+                <xsd:attribute name="registryType" type="registryTypeType" use="optional">
+                    <xsd:annotation>
+                        <xsd:documentation><![CDATA[ The registry service implementation type. ]]></xsd:documentation>
+                    </xsd:annotation>
+                </xsd:attribute>
+                <xsd:attribute name="connector" type="xsd:string" use="optional">
+                    <xsd:annotation>
+                        <xsd:documentation><![CDATA[ The network connector. ]]></xsd:documentation>
+                    </xsd:annotation>
+                </xsd:attribute>
+            </xsd:extension>
+        </xsd:complexContent>
+    </xsd:complexType>
+
+    <xsd:complexType name="providerPropertyType">
+        <xsd:attribute name="providerInterceptors" type="xsd:string" use="optional">
+            <xsd:annotation>
+                <xsd:documentation><![CDATA[ The provider interceptors. ]]></xsd:documentation>
+            </xsd:annotation>
+        </xsd:attribute>
+        <xsd:attribute name="weight" type="xsd:integer" use="optional">
+            <xsd:annotation>
+                <xsd:documentation><![CDATA[ The weight. ]]></xsd:documentation>
+            </xsd:annotation>
+        </xsd:attribute>
+        <xsd:attribute name="executor" type="xsd:string" use="optional">
+            <xsd:annotation>
+                <xsd:documentation><![CDATA[ The executor. ]]></xsd:documentation>
+            </xsd:annotation>
+        </xsd:attribute>
+        <xsd:attribute name="flowController" type="xsd:string" use="optional">
+            <xsd:annotation>
+                <xsd:documentation><![CDATA[ The flow controller. ]]></xsd:documentation>
+            </xsd:annotation>
+        </xsd:attribute>
+        <xsd:attribute name="providerInitializer" type="xsd:string" use="optional">
+            <xsd:annotation>
+                <xsd:documentation><![CDATA[ The provider initializer. ]]></xsd:documentation>
+            </xsd:annotation>
+        </xsd:attribute>
+        <xsd:attribute name="providerInitializerExecutor" type="xsd:string" use="optional">
+            <xsd:annotation>
+                <xsd:documentation><![CDATA[ The provider initializer executor. ]]></xsd:documentation>
+            </xsd:annotation>
+        </xsd:attribute>
+    </xsd:complexType>
+
+    <xsd:complexType name="consumerPropertyType">
+        <xsd:attribute name="version" type="xsd:string" use="optional">
+            <xsd:annotation>
+                <xsd:documentation><![CDATA[ The provider version. ]]></xsd:documentation>
+            </xsd:annotation>
+        </xsd:attribute>
+        <xsd:attribute name="serializerType" type="serializerTypeType" use="optional">
+            <xsd:annotation>
+                <xsd:documentation><![CDATA[ The serializer type. ]]></xsd:documentation>
+            </xsd:annotation>
+        </xsd:attribute>
+        <xsd:attribute name="loadBalancerType" type="loadBalancerTypeType" use="optional">
+            <xsd:annotation>
+                <xsd:documentation><![CDATA[ The load balancer type. ]]></xsd:documentation>
+            </xsd:annotation>
+        </xsd:attribute>
+        <xsd:attribute name="waitForAvailableTimeoutMillis" type="xsd:long" use="optional">
+            <xsd:annotation>
+                <xsd:documentation><![CDATA[ The wait for service available timeout millis. ]]></xsd:documentation>
+            </xsd:annotation>
+        </xsd:attribute>
+        <xsd:attribute name="invokeType" type="invokeTypeType" use="optional">
+            <xsd:annotation>
+                <xsd:documentation><![CDATA[ The invoke type. ]]></xsd:documentation>
+            </xsd:annotation>
+        </xsd:attribute>
+        <xsd:attribute name="dispatchType" type="dispatchTypeType" use="optional">
+            <xsd:annotation>
+                <xsd:documentation><![CDATA[ The dispatch type. ]]></xsd:documentation>
+            </xsd:annotation>
+        </xsd:attribute>
+        <xsd:attribute name="timeoutMillis" type="xsd:long" use="optional">
+            <xsd:annotation>
+                <xsd:documentation><![CDATA[ The invoke timeout millis. ]]></xsd:documentation>
+            </xsd:annotation>
+        </xsd:attribute>
+        <xsd:attribute name="consumerInterceptors" type="xsd:string" use="optional">
+            <xsd:annotation>
+                <xsd:documentation><![CDATA[ The consumer interceptors. ]]></xsd:documentation>
+            </xsd:annotation>
+        </xsd:attribute>
+        <xsd:attribute name="providerAddresses" type="xsd:string" use="optional">
+            <xsd:annotation>
+                <xsd:documentation><![CDATA[ The providerAddresses. ]]></xsd:documentation>
+            </xsd:annotation>
+        </xsd:attribute>
+        <xsd:attribute name="clusterStrategy" type="clusterStrategyType" use="optional">
+            <xsd:annotation>
+                <xsd:documentation><![CDATA[ The cluster strategy type. ]]></xsd:documentation>
+            </xsd:annotation>
+        </xsd:attribute>
+        <xsd:attribute name="failoverRetries" type="xsd:integer" use="optional">
+            <xsd:annotation>
+                <xsd:documentation><![CDATA[ The failover retries. ]]></xsd:documentation>
+            </xsd:annotation>
+        </xsd:attribute>
+    </xsd:complexType>
+
+    <xsd:complexType name="providerType">
+        <xsd:complexContent>
+            <xsd:extension base="idType">
+                <xsd:choice minOccurs="0" maxOccurs="unbounded">
+                    <xsd:element name="property" type="providerPropertyType"/>
+                </xsd:choice>
+                <xsd:attribute name="server" type="xsd:string" use="required">
+                    <xsd:annotation>
+                        <xsd:documentation><![CDATA[ The jupiter server. ]]></xsd:documentation>
+                    </xsd:annotation>
+                </xsd:attribute>
+                <xsd:attribute name="providerImpl" type="xsd:string" use="required">
+                    <xsd:annotation>
+                        <xsd:documentation><![CDATA[ The provider impl. ]]></xsd:documentation>
+                    </xsd:annotation>
+                </xsd:attribute>
+            </xsd:extension>
+        </xsd:complexContent>
+    </xsd:complexType>
+
+    <xsd:complexType name="consumerType">
+        <xsd:complexContent>
+            <xsd:extension base="idType">
+                <xsd:choice minOccurs="0" maxOccurs="unbounded">
+                    <xsd:element name="property" type="consumerPropertyType"/>
+                    <xsd:element name="methodSpecials" type="methodSpecialConfigsType"/>
+                </xsd:choice>
+                <xsd:attribute name="client" type="xsd:string" use="required">
+                    <xsd:annotation>
+                        <xsd:documentation><![CDATA[ The jupiter client. ]]></xsd:documentation>
+                    </xsd:annotation>
+                </xsd:attribute>
+                <xsd:attribute name="interfaceClass" type="xsd:string" use="required">
+                    <xsd:annotation>
+                        <xsd:documentation><![CDATA[ The interface class. ]]></xsd:documentation>
+                        <xsd:appinfo>
+                            <tool:annotation>
+                                <tool:expected-type type="java.lang.Class"/>
+                            </tool:annotation>
+                        </xsd:appinfo>
+                    </xsd:annotation>
+                </xsd:attribute>
+            </xsd:extension>
+        </xsd:complexContent>
+    </xsd:complexType>
+
+    <xsd:element name="server" type="jupiterServerType"/>
+    <xsd:element name="client" type="jupiterClientType"/>
+    <xsd:element name="provider" type="providerType"/>
+    <xsd:element name="consumer" type="consumerType"/>
+</xsd:schema>

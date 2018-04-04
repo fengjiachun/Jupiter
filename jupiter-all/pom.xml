@@ -1,0 +1,353 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  ~ Copyright (c) 2015 The Jupiter Project
+  ~
+  ~ Licensed under the Apache License, version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at:
+  ~
+  ~   http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <parent>
+        <groupId>org.jupiter-rpc</groupId>
+        <artifactId>jupiter</artifactId>
+        <version>1.2.20</version>
+    </parent>
+    <modelVersion>4.0.0</modelVersion>
+
+    <artifactId>jupiter-all</artifactId>
+    <packaging>jar</packaging>
+    <name>jupiter/All-in-One</name>
+
+    <dependencies>
+        <!-- # jupiter module dependency: begin -->
+        <!-- ## required dependency: begin -->
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>jupiter-common</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>jupiter-rpc</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+
+        <!-- ### api: begin -->
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>jupiter-registry-api</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>jupiter-serialization-api</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>jupiter-transport-api</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <!-- ### api: end -->
+        <!-- ## required dependency: end -->
+
+        <!-- ## optional dependency: begin -->
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>jupiter-flightexec</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>jupiter-monitor</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>jupiter-spring-support</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+
+        <!-- ### registry impl: begin -->
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>jupiter-registry-default</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>jupiter-registry-zookeeper</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <!-- ### registry impl: end -->
+
+        <!-- ### serialization impl: begin -->
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>jupiter-serialization-hessian</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>jupiter-serialization-java</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>jupiter-serialization-kryo</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>jupiter-serialization-protostuff</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <!-- ### serialization impl: end -->
+
+        <!-- ### tracer: begin -->
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>jupiter-extension-tracing</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <!-- ### tracer: end -->
+
+        <!-- ### transport impl: begin -->
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>jupiter-transport-netty</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <!-- ### transport impl: end -->
+        <!-- ## optional dependency: end -->
+        <!-- # jupiter module dependency: end -->
+
+        <!-- # netty dependency: begin -->
+        <dependency>
+            <groupId>io.netty</groupId>
+            <artifactId>netty-common</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>io.netty</groupId>
+            <artifactId>netty-buffer</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>io.netty</groupId>
+            <artifactId>netty-codec</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>io.netty</groupId>
+            <artifactId>netty-handler</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>io.netty</groupId>
+            <artifactId>netty-transport</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>io.netty</groupId>
+            <artifactId>netty-transport-native-epoll</artifactId>
+            <classifier>linux-x86_64</classifier>
+        </dependency>
+        <dependency>
+            <groupId>io.netty</groupId>
+            <artifactId>netty-transport-native-kqueue</artifactId>
+            <classifier>osx-x86_64</classifier>
+        </dependency>
+        <!-- # netty dependency: end -->
+
+        <!-- # serialization dependency: begin -->
+        <dependency>
+            <groupId>com.caucho</groupId>
+            <artifactId>hessian</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.esotericsoftware.kryo</groupId>
+            <artifactId>kryo</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>io.protostuff</groupId>
+            <artifactId>protostuff-core</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>io.protostuff</groupId>
+            <artifactId>protostuff-runtime</artifactId>
+        </dependency>
+        <!-- # serialization dependency: end -->
+
+        <!-- # common dependency: begin -->
+        <!-- ## required dependency: begin -->
+        <dependency>
+            <groupId>org.ow2.asm</groupId>
+            <artifactId>asm</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>net.bytebuddy</groupId>
+            <artifactId>byte-buddy</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.lmax</groupId>
+            <artifactId>disruptor</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>io.dropwizard.metrics</groupId>
+            <artifactId>metrics-core</artifactId>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.slf4j</groupId>
+                    <artifactId>slf4j-api</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+        <dependency>
+            <groupId>net.openhft</groupId>
+            <artifactId>affinity</artifactId>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.slf4j</groupId>
+                    <artifactId>slf4j-api</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+        <!-- ## required dependency: end -->
+
+        <!-- ## optional dependency: begin -->
+        <dependency>
+            <!-- scope: provided -->
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-api</artifactId>
+        </dependency>
+        <!-- ### zookeeper dependency: begin 只有在依赖 [jupiter-registry-zookeeper] 时才会需要它 -->
+        <dependency>
+            <groupId>org.apache.zookeeper</groupId>
+            <artifactId>zookeeper</artifactId>
+            <exclusions>
+                <exclusion>
+                    <groupId>io.netty</groupId>
+                    <artifactId>netty</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.slf4j</groupId>
+                    <artifactId>slf4j-api</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>log4j</groupId>
+                    <artifactId>log4j</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.slf4j</groupId>
+                    <artifactId>slf4j-log4j12</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>jline</groupId>
+                    <artifactId>jline</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.curator</groupId>
+            <artifactId>curator-framework</artifactId>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.slf4j</groupId>
+                    <artifactId>slf4j-api</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.curator</groupId>
+            <artifactId>curator-recipes</artifactId>
+        </dependency>
+        <!-- ### zookeeper dependency: end -->
+
+        <!-- ### spring dependency: begin 只有在依赖 [jupiter-spring-support] 时才会需要它 -->
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-context</artifactId>
+        </dependency>
+        <!-- ### spring dependency: end -->
+
+        <!-- ### open tracing: begin -->
+        <dependency>
+            <groupId>io.opentracing</groupId>
+            <artifactId>opentracing-api</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>io.opentracing</groupId>
+            <artifactId>opentracing-noop</artifactId>
+        </dependency>
+        <!-- ### open tracing: end -->
+
+        <!-- ### benchmark: begin -->
+        <dependency>
+            <groupId>org.openjdk.jmh</groupId>
+            <artifactId>jmh-core</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.openjdk.jmh</groupId>
+            <artifactId>jmh-generator-annprocess</artifactId>
+        </dependency>
+        <!-- ### benchmark dependency: end -->
+        <!-- ## optional dependency: end -->
+        <!-- # common dependency: end -->
+    </dependencies>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-shade-plugin</artifactId>
+                <version>2.4.3</version>
+                <executions>
+                    <execution>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>shade</goal>
+                        </goals>
+                        <configuration>
+                            <shadeTestJar>true</shadeTestJar>
+                            <createSourcesJar>true</createSourcesJar>
+                            <transformers>
+                                <transformer implementation="org.apache.maven.plugins.shade.resource.ServicesResourceTransformer" />
+                            </transformers>
+                            <artifactSet>
+                                <includes>
+                                    <include>${project.groupId}:*:*</include>
+                                </includes>
+                            </artifactSet>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            <!-- The shadowed source files of this module need to be included explicitly to create a javadoc artifact.-->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-javadoc-plugin</artifactId>
+                <version>2.9.1</version>
+                <configuration>
+                    <includeDependencySources>true</includeDependencySources>
+                    <dependencySourceIncludes>
+                        <dependencySourceInclude>${project.groupId}:jupiter-common</dependencySourceInclude>
+                        <dependencySourceInclude>${project.groupId}:jupiter-extension</dependencySourceInclude>
+                        <dependencySourceInclude>${project.groupId}:jupiter-flightexec</dependencySourceInclude>
+                        <dependencySourceInclude>${project.groupId}:jupiter-monitor</dependencySourceInclude>
+                        <dependencySourceInclude>${project.groupId}:jupiter-registry</dependencySourceInclude>
+                        <dependencySourceInclude>${project.groupId}:jupiter-rpc</dependencySourceInclude>
+                        <dependencySourceInclude>${project.groupId}:jupiter-serialization</dependencySourceInclude>
+                        <dependencySourceInclude>${project.groupId}:jupiter-spring-support</dependencySourceInclude>
+                        <dependencySourceInclude>${project.groupId}:jupiter-transport</dependencySourceInclude>
+                    </dependencySourceIncludes>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+</project>

@@ -24,7 +24,7 @@ import org.jupiter.rpc.ServiceProvider;
  *
  * @author jiachun.fjc
  */
-@ServiceProvider(value = "GenericServiceTest", group = "test", version = "1.0.0.daily")
+@ServiceProvider(name = "GenericServiceTest", group = "test")
 public interface GenericServiceTest {
 
     String sayHello(String name);

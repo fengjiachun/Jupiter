@@ -16,57 +16,27 @@
 
 package org.jupiter.rpc;
 
-import java.net.SocketAddress;
 import java.util.EventListener;
 
 /**
- * RPC callback, a service object all methods share a {@link JListener},
- * as the difference between a parameter request.
- *
- * Note:
- * If {@link JListener#complete(JRequest, JResult)} thrown a {@link Exception} during execution,
- * will trigger {@link JListener#failure(JRequest, Throwable)}
+ * Callback is often triggered by the core thread (may be an IO thread).
+ * Be careful, do not to have time-consuming operations within
+ * {@link #complete(Object)} and {@link #failure(Throwable)}.
  *
  * jupiter
  * org.jupiter.rpc
  *
  * @author jiachun.fjc
  */
-public interface JListener extends EventListener {
+public interface JListener<V> extends EventListener {
 
     /**
      * Returns result when the call succeeds.
      */
-    void complete(JRequest request, JResult result) throws Exception;
+    void complete(V result);
 
     /**
      * Returns an exception message when call fails.
      */
-    void failure(JRequest request, Throwable cause);
-
-    class JResult {
-        private final SocketAddress remoteAddress;
-        private final Object value;
-
-        public JResult(SocketAddress remoteAddress, Object value) {
-            this.remoteAddress = remoteAddress;
-            this.value = value;
-        }
-
-        public SocketAddress remoteAddress() {
-            return remoteAddress;
-        }
-
-        public Object value() {
-            return value;
-        }
-
-        @Override
-        public String toString() {
-            return "JResult{" +
-                    "remoteAddress=" + remoteAddress +
-                    ", value=" + value +
-                    '}';
-        }
-    }
+    void failure(Throwable cause);
 }

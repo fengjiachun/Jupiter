@@ -131,22 +131,19 @@ public final class Strings {
         List<String> list = new ArrayList<>();
         int i = 0, start = 0;
         boolean match = false;
-        boolean lastMatch = false;
         while (i < len) {
             if (str.charAt(i) == separator) {
                 if (match || preserveAllTokens) {
                     list.add(str.substring(start, i));
                     match = false;
-                    lastMatch = true;
                 }
                 start = ++i;
                 continue;
             }
-            lastMatch = false;
             match = true;
             i++;
         }
-        if (match || (preserveAllTokens && lastMatch)) {
+        if (match || preserveAllTokens) {
             list.add(str.substring(start, i));
         }
         return list.toArray(new String[list.size()]);

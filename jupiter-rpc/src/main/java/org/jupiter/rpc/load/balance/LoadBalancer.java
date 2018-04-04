@@ -16,6 +16,10 @@
 
 package org.jupiter.rpc.load.balance;
 
+import org.jupiter.transport.Directory;
+import org.jupiter.transport.channel.CopyOnWriteGroupList;
+import org.jupiter.transport.channel.JChannelGroup;
+
 /**
  * Load balancer.
  *
@@ -24,10 +28,13 @@ package org.jupiter.rpc.load.balance;
  *
  * @author jiachun.fjc
  */
-public interface LoadBalancer<T> {
+public interface LoadBalancer {
 
     /**
-     * Select one in elements array.
+     * Select one in elements list.
+     *
+     * @param groups    elements for select
+     * @param directory service directory
      */
-    T select(Object[] elements);
+    JChannelGroup select(CopyOnWriteGroupList groups, Directory directory);
 }

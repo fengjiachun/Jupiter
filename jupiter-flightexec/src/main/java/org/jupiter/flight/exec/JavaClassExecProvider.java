@@ -16,14 +16,20 @@
 
 package org.jupiter.flight.exec;
 
-import org.jupiter.common.util.internal.JUnsafe;
+import org.jupiter.common.util.ThrowUtil;
+import org.jupiter.rpc.ServiceProviderImpl;
 
 /**
+ * 把它作为一个服务提供者, 它会修改常量池中 {@link java.lang.System} 类的指向,
+ * 可以将 System.out 重定向到你的客户端, 你可以在客户端代码中直接使用 System.out.println() 输入你想要的信息,
+ * 最终 System.out.println() 的输出会完整的返回到客户端.
+ *
  * jupiter
  * org.jupiter.flight.exec
  *
  * @author jiachun.fjc
  */
+@ServiceProviderImpl
 public class JavaClassExecProvider implements JavaClassExec {
 
     private static String SYSTEM_STRING = System.class.getName().replace('.', '/');
@@ -44,7 +50,7 @@ public class JavaClassExecProvider implements JavaClassExec {
 
             executor = (UserExecInterface) clazz.newInstance();
         } catch (Throwable t) {
-            JUnsafe.throwException(t);
+            ThrowUtil.throwException(t);
         }
 
         synchronized (HackSystem.class) {

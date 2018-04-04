@@ -18,22 +18,21 @@ package org.jupiter.common.concurrent.disruptor;
 
 import com.lmax.disruptor.*;
 import com.lmax.disruptor.dsl.Disruptor;
+import com.lmax.disruptor.dsl.ProducerType;
 import org.jupiter.common.concurrent.NamedThreadFactory;
 import org.jupiter.common.concurrent.RejectedTaskPolicyWithReport;
 import org.jupiter.common.util.Pow2;
 
 import java.util.concurrent.*;
 
-import static com.lmax.disruptor.dsl.ProducerType.MULTI;
-import static java.util.concurrent.TimeUnit.MILLISECONDS;
-import static java.util.concurrent.TimeUnit.SECONDS;
-import static org.jupiter.common.concurrent.disruptor.WaitStrategyType.BLOCKING_WAIT;
 import static org.jupiter.common.util.Preconditions.checkArgument;
 
 /**
  * 可选择的等待策略, 越往下越极端:
  *
  * The default wait strategy used by the Disruptor is the BlockingWaitStrategy.
+ *
+ * BlockingWaitStrategy:
  * Internally the BlockingWaitStrategy uses a typical lock and condition variable to handle thread wake-up.
  * The BlockingWaitStrategy is the slowest of the available wait strategies,
  * but is the most conservative with the respect to CPU usage and will give the most consistent behaviour across
@@ -78,27 +77,42 @@ public class TaskDispatcher implements Dispatcher<Runnable>, Executor {
     };
 
     private final Disruptor<MessageEvent<Runnable>> disruptor;
-    private final Executor reserveExecutor;
+    private final ExecutorService reserveExecutor;
 
-    public TaskDispatcher(int numWorkers) {
-        this(numWorkers, "task.dispatcher", BUFFER_SIZE, 0, BLOCKING_WAIT);
+    public TaskDispatcher(int numWorkers, ThreadFactory threadFactory) {
+        this(numWorkers, threadFactory, BUFFER_SIZE, 0, WaitStrategyType.BLOCKING_WAIT, null);
     }
 
-    public TaskDispatcher(int numWorkers, String threadFactoryName, int bufSize, int numReserveWorkers, WaitStrategyType waitStrategyType) {
+    public TaskDispatcher(int numWorkers,
+                          ThreadFactory threadFactory,
+                          int bufSize,
+                          int numReserveWorkers,
+                          WaitStrategyType waitStrategyType,
+                          String dumpPrefixName) {
+
         checkArgument(bufSize > 0, "bufSize must be larger than 0");
         if (!Pow2.isPowerOfTwo(bufSize)) {
             bufSize = Pow2.roundToPowerOfTwo(bufSize);
         }
 
         if (numReserveWorkers > 0) {
+            String name = "reserve.processor";
+
+            RejectedExecutionHandler handler;
+            if (dumpPrefixName == null) {
+                handler = new RejectedTaskPolicyWithReport(name);
+            } else {
+                handler = new RejectedTaskPolicyWithReport(name, dumpPrefixName);
+            }
+
             reserveExecutor = new ThreadPoolExecutor(
                     0,
                     numReserveWorkers,
                     60L,
-                    SECONDS,
+                    TimeUnit.SECONDS,
                     new SynchronousQueue<Runnable>(),
-                    new NamedThreadFactory("reserve.processor"),
-                    new RejectedTaskPolicyWithReport("reserve.processor"));
+                    new NamedThreadFactory(name),
+                    handler);
         } else {
             reserveExecutor = null;
         }
@@ -111,8 +125,14 @@ public class TaskDispatcher implements Dispatcher<Runnable>, Executor {
             case LITE_BLOCKING_WAIT:
                 waitStrategy = new LiteBlockingWaitStrategy();
                 break;
+            case TIMEOUT_BLOCKING_WAIT:
+                waitStrategy = new TimeoutBlockingWaitStrategy(1000, TimeUnit.MILLISECONDS);
+                break;
+            case LITE_TIMEOUT_BLOCKING_WAIT:
+                waitStrategy = new LiteTimeoutBlockingWaitStrategy(1000, TimeUnit.MILLISECONDS);
+                break;
             case PHASED_BACK_OFF_WAIT:
-                waitStrategy = PhasedBackoffWaitStrategy.withLock(1, 1, MILLISECONDS);
+                waitStrategy = PhasedBackoffWaitStrategy.withLiteLock(1000, 1000, TimeUnit.NANOSECONDS);
                 break;
             case SLEEPING_WAIT:
                 waitStrategy = new SleepingWaitStrategy();
@@ -127,18 +147,16 @@ public class TaskDispatcher implements Dispatcher<Runnable>, Executor {
                 throw new UnsupportedOperationException(waitStrategyType.toString());
         }
 
-        ThreadFactory tFactory = new NamedThreadFactory(threadFactoryName);
+        if (threadFactory == null) {
+            threadFactory = new NamedThreadFactory("disruptor.processor");
+        }
+        Disruptor<MessageEvent<Runnable>> dr =
+                new Disruptor<>(eventFactory, bufSize, threadFactory, ProducerType.MULTI, waitStrategy);
+        dr.setDefaultExceptionHandler(new LoggingExceptionHandler());
         numWorkers = Math.min(Math.abs(numWorkers), MAX_NUM_WORKERS);
-        Disruptor<MessageEvent<Runnable>> dr;
         if (numWorkers == 1) {
-            dr = new Disruptor<>(
-                    eventFactory, bufSize, Executors.newSingleThreadExecutor(tFactory), MULTI, waitStrategy);
-            dr.handleExceptionsWith(new IgnoreExceptionHandler()); // ignore exception
             dr.handleEventsWith(new TaskHandler());
         } else {
-            dr = new Disruptor<>(
-                    eventFactory, bufSize, Executors.newCachedThreadPool(tFactory), MULTI, waitStrategy);
-            dr.handleExceptionsWith(new IgnoreExceptionHandler()); // ignore exception
             TaskHandler[] handlers = new TaskHandler[numWorkers];
             for (int i = 0; i < numWorkers; i++) {
                 handlers[i] = new TaskHandler();
@@ -163,6 +181,7 @@ public class TaskDispatcher implements Dispatcher<Runnable>, Executor {
             }
             return true;
         } catch (InsufficientCapacityException e) {
+            // 这个异常是Disruptor当做全局goto使用的, 是单例的并且没有堆栈信息, 不必担心抛出异常的性能问题
             return false;
         }
     }
@@ -182,5 +201,8 @@ public class TaskDispatcher implements Dispatcher<Runnable>, Executor {
     @Override
     public void shutdown() {
         disruptor.shutdown();
+        if (reserveExecutor != null) {
+            reserveExecutor.shutdownNow();
+        }
     }
 }

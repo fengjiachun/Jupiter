@@ -16,9 +16,9 @@
 
 package org.jupiter.flight.exec;
 
+import org.jupiter.common.util.ThrowUtil;
 import org.jupiter.common.util.Function;
 import org.jupiter.common.util.Lists;
-import org.jupiter.common.util.internal.JUnsafe;
 
 import javax.tools.*;
 import java.io.ByteArrayOutputStream;
@@ -29,6 +29,8 @@ import java.util.List;
 
 /**
  * Java compiler, base on javac.
+ *
+ * 基于javac的编译工具.
  *
  * jupiter
  * org.jupiter.flight.exec
@@ -64,7 +66,7 @@ public class JavaCompiler {
                 return classFileManager.getJavaClassObject().classBytes();
             }
         } catch (Throwable t) {
-            JUnsafe.throwException(t);
+            ThrowUtil.throwException(t);
         } finally {
             if (javaFileManager != null) {
                 try {

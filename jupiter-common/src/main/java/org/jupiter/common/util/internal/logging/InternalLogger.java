@@ -65,7 +65,7 @@ public interface InternalLogger {
     /**
      * Log a message at the TRACE level according to the specified format
      * and argument.
-     * <p/>
+     *
      * <p>This form avoids superfluous object creation when the logger
      * is disabled for the TRACE level. </p>
      *
@@ -77,7 +77,7 @@ public interface InternalLogger {
     /**
      * Log a message at the TRACE level according to the specified format
      * and arguments.
-     * <p/>
+     *
      * <p>This form avoids superfluous object creation when the logger
      * is disabled for the TRACE level. </p>
      *
@@ -90,7 +90,7 @@ public interface InternalLogger {
     /**
      * Log a message at the TRACE level according to the specified format
      * and arguments.
-     * <p/>
+     *
      * <p>This form avoids superfluous string concatenation when the logger
      * is disabled for the TRACE level. However, this variant incurs the hidden
      * (and relatively small) cost of creating an {@code Object[]} before invoking the method,
@@ -136,7 +136,7 @@ public interface InternalLogger {
     /**
      * Log a message at the DEBUG level according to the specified format
      * and argument.
-     * <p/>
+     *
      * <p>This form avoids superfluous object creation when the logger
      * is disabled for the DEBUG level. </p>
      *
@@ -148,7 +148,7 @@ public interface InternalLogger {
     /**
      * Log a message at the DEBUG level according to the specified format
      * and arguments.
-     * <p/>
+     *
      * <p>This form avoids superfluous object creation when the logger
      * is disabled for the DEBUG level. </p>
      *
@@ -161,7 +161,7 @@ public interface InternalLogger {
     /**
      * Log a message at the DEBUG level according to the specified format
      * and arguments.
-     * <p/>
+     *
      * <p>This form avoids superfluous string concatenation when the logger
      * is disabled for the DEBUG level. However, this variant incurs the hidden
      * (and relatively small) cost of creating an {@code Object[]} before invoking the method,
@@ -208,7 +208,7 @@ public interface InternalLogger {
     /**
      * Log a message at the INFO level according to the specified format
      * and argument.
-     * <p/>
+     *
      * <p>This form avoids superfluous object creation when the logger
      * is disabled for the INFO level. </p>
      *
@@ -220,7 +220,7 @@ public interface InternalLogger {
     /**
      * Log a message at the INFO level according to the specified format
      * and arguments.
-     * <p/>
+     *
      * <p>This form avoids superfluous object creation when the logger
      * is disabled for the INFO level. </p>
      *
@@ -233,7 +233,7 @@ public interface InternalLogger {
     /**
      * Log a message at the INFO level according to the specified format
      * and arguments.
-     * <p/>
+     *
      * <p>This form avoids superfluous string concatenation when the logger
      * is disabled for the INFO level. However, this variant incurs the hidden
      * (and relatively small) cost of creating an {@code Object[]} before invoking the method,
@@ -280,7 +280,7 @@ public interface InternalLogger {
     /**
      * Log a message at the WARN level according to the specified format
      * and argument.
-     * <p/>
+     *
      * <p>This form avoids superfluous object creation when the logger
      * is disabled for the WARN level. </p>
      *
@@ -292,7 +292,7 @@ public interface InternalLogger {
     /**
      * Log a message at the WARN level according to the specified format
      * and arguments.
-     * <p/>
+     *
      * <p>This form avoids superfluous string concatenation when the logger
      * is disabled for the WARN level. However, this variant incurs the hidden
      * (and relatively small) cost of creating an {@code Object[]} before invoking the method,
@@ -308,7 +308,7 @@ public interface InternalLogger {
     /**
      * Log a message at the WARN level according to the specified format
      * and arguments.
-     * <p/>
+     *
      * <p>This form avoids superfluous object creation when the logger
      * is disabled for the WARN level. </p>
      *
@@ -352,7 +352,7 @@ public interface InternalLogger {
     /**
      * Log a message at the ERROR level according to the specified format
      * and argument.
-     * <p/>
+     *
      * <p>This form avoids superfluous object creation when the logger
      * is disabled for the ERROR level. </p>
      *
@@ -364,7 +364,7 @@ public interface InternalLogger {
     /**
      * Log a message at the ERROR level according to the specified format
      * and arguments.
-     * <p/>
+     *
      * <p>This form avoids superfluous object creation when the logger
      * is disabled for the ERROR level. </p>
      *
@@ -377,7 +377,7 @@ public interface InternalLogger {
     /**
      * Log a message at the ERROR level according to the specified format
      * and arguments.
-     * <p/>
+     *
      * <p>This form avoids superfluous string concatenation when the logger
      * is disabled for the ERROR level. However, this variant incurs the hidden
      * (and relatively small) cost of creating an {@code Object[]} before invoking the method,
@@ -424,7 +424,7 @@ public interface InternalLogger {
     /**
      * Log a message at the specified {@code level} according to the specified format
      * and argument.
-     * <p/>
+     *
      * <p>This form avoids superfluous object creation when the logger
      * is disabled for the specified {@code level}. </p>
      *
@@ -436,7 +436,7 @@ public interface InternalLogger {
     /**
      * Log a message at the specified {@code level} according to the specified format
      * and arguments.
-     * <p/>
+     *
      * <p>This form avoids superfluous object creation when the logger
      * is disabled for the specified {@code level}. </p>
      *
@@ -449,7 +449,7 @@ public interface InternalLogger {
     /**
      * Log a message at the specified {@code level} according to the specified format
      * and arguments.
-     * <p/>
+     *
      * <p>This form avoids superfluous string concatenation when the logger
      * is disabled for the specified {@code level}. However, this variant incurs the hidden
      * (and relatively small) cost of creating an {@code Object[]} before invoking the method,

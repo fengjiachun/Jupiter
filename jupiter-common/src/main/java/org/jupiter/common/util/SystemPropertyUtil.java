@@ -21,9 +21,9 @@ import org.jupiter.common.util.internal.logging.InternalLoggerFactory;
 
 import java.security.AccessController;
 import java.security.PrivilegedAction;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import java.util.regex.Pattern;
+
+import static org.jupiter.common.util.StackTraceUtil.*;
 
 /**
  * A collection of utility methods to retrieve and parse the values of the Java system properties.
@@ -33,17 +33,9 @@ import java.util.regex.Pattern;
  *
  * @author jiachun.fjc
  */
-public class SystemPropertyUtil {
+public final class SystemPropertyUtil {
 
-    private static boolean initializedLogger;
-    private static final InternalLogger logger;
-    private static boolean loggedException;
-
-    static {
-        initializedLogger = false;
-        logger = InternalLoggerFactory.getInstance(SystemPropertyUtil.class);
-        initializedLogger = true;
-    }
+    private static final InternalLogger logger = InternalLoggerFactory.getInstance(SystemPropertyUtil.class);
 
     /**
      * Returns {@code true} if and only if the system property with the specified {@code key}
@@ -94,9 +86,8 @@ public class SystemPropertyUtil {
                 });
             }
         } catch (Exception e) {
-            if (!loggedException) {
-                log("Unable to retrieve a system property '" + key + "'; default values will be used.", e);
-                loggedException = true;
+            if (logger.isWarnEnabled()) {
+                logger.warn("Unable to retrieve a system property '{}'; default values will be used, {}.", key, stackTrace(e));
             }
         }
 
@@ -135,8 +126,7 @@ public class SystemPropertyUtil {
             return false;
         }
 
-        log("Unable to parse the boolean system property '" + key + "':" + value + " - " +
-                "using the default value: " + def);
+        logger.warn("Unable to parse the boolean system property '{}':{} - using the default value: {}.", key, value, def);
 
         return def;
     }
@@ -165,8 +155,7 @@ public class SystemPropertyUtil {
             } catch (Exception ignored) {}
         }
 
-        log("Unable to parse the integer system property '" + key + "':" + value + " - " +
-                "using the default value: " + def);
+        logger.warn("Unable to parse the integer system property '{}':{} - using the default value: {}.", key, value, def);
 
         return def;
     }
@@ -193,8 +182,7 @@ public class SystemPropertyUtil {
             } catch (Exception ignored) {}
         }
 
-        log("Unable to parse the long integer system property '" + key + "':" + value + " - " +
-                "using the default value: " + def);
+        logger.warn("Unable to parse the long integer system property '{}':{} - using the default value: {}.", key, value, def);
 
         return def;
     }
@@ -204,24 +192,6 @@ public class SystemPropertyUtil {
      */
     public static Object setProperty(String key, String value) {
         return System.getProperties().setProperty(key, value);
-    }
-
-    private static void log(String msg) {
-        if (initializedLogger) {
-            logger.warn(msg);
-        } else {
-            // Use JDK logging if logger was not initialized yet.
-            Logger.getLogger(SystemPropertyUtil.class.getName()).log(Level.WARNING, msg);
-        }
-    }
-
-    private static void log(String msg, Exception e) {
-        if (initializedLogger) {
-            logger.warn(msg, e);
-        } else {
-            // Use JDK logging if logger was not initialized yet.
-            Logger.getLogger(SystemPropertyUtil.class.getName()).log(Level.WARNING, msg, e);
-        }
     }
 
     private SystemPropertyUtil() {}

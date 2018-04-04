@@ -16,11 +16,11 @@
 
 package org.jupiter.rpc.tracing;
 
-import org.jupiter.common.util.StringBuilderHelper;
-
 import java.io.Serializable;
 
 /**
+ * Jupiter框架内部链路追踪ID, 全局唯一, 如果接入了OpenTracing实现, 这个通常就没什么用了.
+ *
  * jupiter
  * org.jupiter.rpc
  *
@@ -30,8 +30,10 @@ public class TraceId implements Serializable {
 
     private static final long serialVersionUID = 2901824755629719770L;
 
-    private final String id;
-    private int node;
+    public static final TraceId NULL_TRACE_ID = newInstance("null");
+
+    private final String id;    // 全局唯一的ID
+    private int node;           // 每经过一个节点, node的值会 +1
 
     public static TraceId newInstance(String id) {
         return new TraceId(id);
@@ -51,13 +53,7 @@ public class TraceId implements Serializable {
     }
 
     public String asText() {
-        StringBuilder buf = StringBuilderHelper.get()
-                .append("TraceId{id='")
-                .append(id)
-                .append("', node=")
-                .append(node)
-                .append('}');
-        return buf.toString();
+        return id + "_" + node;
     }
 
     @Override
@@ -68,7 +64,6 @@ public class TraceId implements Serializable {
         TraceId traceId = (TraceId) o;
 
         return node == traceId.node && id.equals(traceId.id);
-
     }
 
     @Override

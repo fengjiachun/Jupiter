@@ -25,6 +25,7 @@ import org.openjdk.jmh.runner.RunnerException;
 import org.openjdk.jmh.runner.options.Options;
 import org.openjdk.jmh.runner.options.OptionsBuilder;
 
+import java.lang.reflect.Method;
 import java.util.concurrent.Callable;
 import java.util.concurrent.TimeUnit;
 
@@ -53,23 +54,36 @@ public class MethodInvokeBenchmark {
     static final Object[] args = new Object[] { "Jupiter" };
     static class ByteBuddyProxyHandler {
 
-        @SuppressWarnings("UnusedParameters")
+        @SuppressWarnings("unused")
         @RuntimeType
-        public Object invoke(@SuperCall Callable<?> superMethod, @AllArguments @RuntimeType Object[] args) throws Throwable {
+        public Object invoke(@SuperCall Callable<Object> superMethod, @AllArguments @RuntimeType Object[] args) throws Throwable {
             return superMethod.call();
         }
     }
-    static ReflectClass1 byteBuddyProxyObj = ProxyGenerator.BYTE_BUDDY.newProxy(ReflectClass1.class, new ByteBuddyProxyHandler());
+    static ReflectClass1 byteBuddyProxyObj = Proxies.BYTE_BUDDY.newProxy(ReflectClass1.class, new ByteBuddyProxyHandler());
     static ReflectClass1 reflectClass1 = new ReflectClass1();
 
+    static final Method reflectMethod;
+    static {
+        Method method;
+        try {
+            method = ReflectClass1.class.getMethod("method", parameterTypes);
+        } catch (NoSuchMethodException e) {
+            method = null;
+        }
+        reflectMethod = method;
+    }
+
     @Benchmark
-    public void cglibFastInvoke() {
+    public void fastInvoke() {
         Reflects.fastInvoke(reflectClass1, "method", parameterTypes, args);
     }
 
     @Benchmark
     public void jdkReflectInvoke() {
-        Reflects.invoke(reflectClass1, "method", parameterTypes, args);
+        try {
+            reflectMethod.invoke(reflectClass1, "method", args);
+        } catch (Throwable ignored) {}
     }
 
     @Benchmark
@@ -81,10 +95,10 @@ public class MethodInvokeBenchmark {
     public void buddyInvoke() {
         byteBuddyProxyObj.method("Jupiter");
     }
-}
 
-class ReflectClass1 {
-    public String method(String arg) {
-        return arg;
+    public static class ReflectClass1 {
+        public String method(String arg) {
+            return arg;
+        }
     }
 }

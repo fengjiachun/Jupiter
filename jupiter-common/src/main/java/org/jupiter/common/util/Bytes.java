@@ -16,6 +16,8 @@
 
 package org.jupiter.common.util;
 
+import static org.jupiter.common.util.Preconditions.*;
+
 /**
  * Static utility methods pertaining to {@code byte} primitives.
  *
@@ -30,12 +32,13 @@ public final class Bytes {
      * Returns a int by decoding the specified sub array of bytes.
      */
     public static int bytes2Int(byte[] bytes, int start, int length) {
+        checkArgument(length > 0 && length <= 4, "invalid length: " + length); // @author jeremy
         int sum = 0;
         int end = start + length;
         for (int i = start; i < end; i++) {
             int n = bytes[i] & 0xff;
             n <<= (--length) * 8;
-            sum += n;
+            sum |= n; // @author okou
         }
         return sum;
     }
@@ -45,6 +48,7 @@ public final class Bytes {
      * into a new byte array.
      */
     public static byte[] int2Bytes(int value, int length) {
+        checkArgument(length > 0 && length <= 4, "invalid length: " + length); // @author jeremy
         byte[] bytes = new byte[length];
         for (int i = 0; i < length; i++) {
             bytes[length - i - 1] = (byte) ((value >> 8 * i) & 0xff);
@@ -93,4 +97,6 @@ public final class Bytes {
         }
         return false;
     }
+
+    private Bytes() {}
 }

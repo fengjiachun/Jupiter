@@ -16,12 +16,12 @@
 
 package org.jupiter.rpc.model.metadata;
 
-import org.jupiter.common.util.StackTraceUtil;
-
 import java.io.Serializable;
 
 /**
  * Response data wrapper.
+ *
+ * 响应消息包装.
  *
  * jupiter
  * org.jupiter.rpc.model.metadata
@@ -32,8 +32,7 @@ public class ResultWrapper implements Serializable {
 
     private static final long serialVersionUID = -1126932930252953428L;
 
-    private Object result;
-    private String error;
+    private Object result; // 响应结果对象, 也可能是异常对象, 由响应状态决定
 
     public Object getResult() {
         return result;
@@ -43,23 +42,14 @@ public class ResultWrapper implements Serializable {
         this.result = result;
     }
 
-    public String getError() {
-        return error;
-    }
-
-    public void setError(String error) {
-        this.error = error;
-    }
-
-    public void setError(Throwable t) {
-        this.error = StackTraceUtil.stackTrace(t);
+    public void setError(Throwable cause) {
+        result = cause;
     }
 
     @Override
     public String toString() {
         return "ResultWrapper{" +
                 "result=" + result +
-                ", error=" + error +
                 '}';
     }
 }

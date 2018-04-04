@@ -17,13 +17,12 @@
 package org.jupiter.monitor.handler;
 
 import io.netty.channel.Channel;
+import io.netty.channel.ChannelFutureListener;
 import io.netty.util.AttributeKey;
+import org.jupiter.common.util.JConstants;
 import org.jupiter.common.util.MD5Util;
 import org.jupiter.common.util.SystemPropertyUtil;
 import org.jupiter.monitor.Command;
-
-import static io.netty.channel.ChannelFutureListener.CLOSE;
-import static org.jupiter.common.util.JConstants.NEWLINE;
 
 /**
  * jupiter
@@ -35,12 +34,12 @@ public class AuthHandler implements CommandHandler {
 
     private static final AttributeKey<Object> AUTH_KEY = AttributeKey.valueOf("auth");
     private static final Object AUTH_OBJECT = new Object();
-    private static final String DEFAULT_PASSWORD = "e10adc3949ba59abbe56e057f20f883e"; // 123456
+    private static final String DEFAULT_PASSWORD = MD5Util.getMD5("jupiter");
 
     @Override
     public void handle(Channel channel, Command command, String... args) {
         if (args.length < 2) {
-            channel.writeAndFlush("Need password!" + NEWLINE);
+            channel.writeAndFlush("Need password!" + JConstants.NEWLINE);
             return;
         }
 
@@ -51,17 +50,19 @@ public class AuthHandler implements CommandHandler {
 
         if (password.equals(MD5Util.getMD5(args[1]))) {
             channel.attr(AUTH_KEY).setIfAbsent(AUTH_OBJECT);
-            channel.writeAndFlush("OK" + NEWLINE);
+            channel.writeAndFlush("OK" + JConstants.NEWLINE);
         } else {
-            channel.writeAndFlush("Permission denied!" + NEWLINE).addListener(CLOSE);
+            channel.writeAndFlush("Permission denied!" + JConstants.NEWLINE)
+                    .addListener(ChannelFutureListener.CLOSE);
         }
     }
 
     public static boolean checkAuth(Channel channel) {
-        if (channel.attr(AUTH_KEY).get() == null) {
-            channel.writeAndFlush("Permission denied" + NEWLINE).addListener(CLOSE);
-            return false;
+        if (channel.attr(AUTH_KEY).get() == AUTH_OBJECT) {
+            return true;
         }
-        return true;
+        channel.writeAndFlush("Permission denied" + JConstants.NEWLINE)
+                .addListener(ChannelFutureListener.CLOSE);
+        return false;
     }
 }

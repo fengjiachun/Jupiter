@@ -18,6 +18,8 @@ package org.jupiter.common.concurrent.disruptor;
 
 /**
  * The default wait strategy used by the Disruptor is the BlockingWaitStrategy.
+ *
+ * BlockingWaitStrategy:
  * Internally the BlockingWaitStrategy uses a typical lock and condition variable to handle thread wake-up.
  * The BlockingWaitStrategy is the slowest of the available wait strategies,
  * but is the most conservative with the respect to CPU usage and will give the most consistent behaviour across
@@ -54,8 +56,19 @@ package org.jupiter.common.concurrent.disruptor;
 public enum WaitStrategyType {
     BLOCKING_WAIT,
     LITE_BLOCKING_WAIT,
+    TIMEOUT_BLOCKING_WAIT,
+    LITE_TIMEOUT_BLOCKING_WAIT,
     PHASED_BACK_OFF_WAIT,
     SLEEPING_WAIT,
     YIELDING_WAIT,
-    BUSY_SPIN_WAIT
+    BUSY_SPIN_WAIT;
+
+    public static WaitStrategyType parse(String name) {
+        for (WaitStrategyType strategy : values()) {
+            if (strategy.name().equalsIgnoreCase(name)) {
+                return strategy;
+            }
+        }
+        return null;
+    }
 }

@@ -16,17 +16,19 @@
 
 package org.jupiter.rpc;
 
-import org.jupiter.registry.NotifyListener;
-import org.jupiter.registry.OfflineListener;
-import org.jupiter.registry.RegisterMeta;
-import org.jupiter.registry.Registry;
-import org.jupiter.rpc.channel.JChannel;
-import org.jupiter.rpc.channel.JChannelGroup;
+import org.jupiter.registry.*;
+import org.jupiter.transport.Directory;
+import org.jupiter.transport.JConnection;
+import org.jupiter.transport.JConnector;
+import org.jupiter.transport.UnresolvedAddress;
 
 import java.util.Collection;
-import java.util.concurrent.CopyOnWriteArrayList;
 
 /**
+ * The jupiter rpc client.
+ *
+ * 注意 JClient 单例即可, 不要创建多个实例.
+ *
  * jupiter
  * org.jupiter.rpc
  *
@@ -35,58 +37,72 @@ import java.util.concurrent.CopyOnWriteArrayList;
 public interface JClient extends Registry {
 
     /**
-     * Everyone should got a app name.
+     * 每一个应用都建议设置一个appName.
      */
     String appName();
 
     /**
-     * Returns or new a {@link JChannelGroup}.
+     * 网络层connector.
      */
-    JChannelGroup group(UnresolvedAddress address);
+    JConnector<JConnection> connector();
 
     /**
-     * Returns all {@link JChannelGroup}s.
+     * 设置网络层connector.
      */
-    Collection<JChannelGroup> groups();
+    JClient withConnector(JConnector<JConnection> connector);
 
     /**
-     * Adds a {@link JChannelGroup} by {@link Directory}.
+     * 注册服务实例
      */
-    boolean addChannelGroup(Directory directory, JChannelGroup group);
+    RegistryService registryService();
 
     /**
-     * Removes a {@link JChannelGroup} by {@link Directory}.
-     */
-    boolean removeChannelGroup(Directory directory, JChannelGroup group);
-
-    /**
-     * Returns list of {@link JChannelGroup}s by the same {@link Directory}.
-     */
-    CopyOnWriteArrayList<JChannelGroup> directory(Directory directory);
-
-    /**
-     * Returns {@code true} if has available {@link JChannelGroup}s
-     * on this {@link Directory}.
-     */
-    boolean isDirectoryAvailable(Directory directory);
-
-    /**
-     * Selects a {@link JChannel} from the load balancer.
-     */
-    JChannel select(Directory directory);
-
-    /**
-     * Find a service in the local scope.
+     * 从本地容器查找服务信息.
      */
     Collection<RegisterMeta> lookup(Directory directory);
 
     /**
-     * Subscribe a service from config server.
+     * 设置对指定服务由jupiter自动管理连接.
+     */
+    JConnector.ConnectionWatcher watchConnections(Class<?> interfaceClass);
+
+    /**
+     * 设置对指定服务由jupiter自动管理连接.
+     */
+    JConnector.ConnectionWatcher watchConnections(Class<?> interfaceClass, String version);
+
+    /**
+     * 设置对指定服务由jupiter自动管理连接.
+     */
+    JConnector.ConnectionWatcher watchConnections(Directory directory);
+
+    /**
+     * 阻塞等待一直到该服务有可用连接或者超时.
+     */
+    boolean awaitConnections(Class<?> interfaceClass, long timeoutMillis);
+
+    /**
+     * 阻塞等待一直到该服务有可用连接或者超时.
+     */
+    boolean awaitConnections(Class<?> interfaceClass, String version, long timeoutMillis);
+
+    /**
+     * 阻塞等待一直到该服务有可用连接或者超时.
+     */
+    boolean awaitConnections(Directory directory, long timeoutMillis);
+
+    /**
+     * 从注册中心订阅一个服务.
      */
     void subscribe(Directory directory, NotifyListener listener);
 
     /**
-     * Provider offline notification.
+     * 服务下线通知.
      */
     void offlineListening(UnresolvedAddress address, OfflineListener listener);
+
+    /**
+     * 优雅关闭jupiter client.
+     */
+    void shutdownGracefully();
 }
