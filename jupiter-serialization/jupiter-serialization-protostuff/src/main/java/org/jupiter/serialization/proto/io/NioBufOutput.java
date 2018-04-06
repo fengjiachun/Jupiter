@@ -44,11 +44,13 @@ class NioBufOutput implements Output {
             UnsafeUpdater.newReferenceFieldUpdater(ByteString.class, "bytes");
 
     protected final OutputBuf outputBuf;
+    protected final int maxCapacity;
     protected ByteBuffer nioBuffer;
     protected int capacity;
 
-    NioBufOutput(OutputBuf outputBuf, int minWritableBytes) {
+    NioBufOutput(OutputBuf outputBuf, int minWritableBytes, int maxCapacity) {
         this.outputBuf = outputBuf;
+        this.maxCapacity = maxCapacity;
         nioBuffer = outputBuf.nioByteBuffer(minWritableBytes);
         capacity = nioBuffer.remaining();
     }
@@ -271,14 +273,18 @@ class NioBufOutput implements Output {
         nioBuffer.put(value, offset, length);
     }
 
-    protected void ensureCapacity(int required) {
+    protected void ensureCapacity(int required) throws ProtocolException {
         if (nioBuffer.remaining() < required) {
             int position = nioBuffer.position();
 
             while (capacity - position < required) {
-                capacity = capacity << 1;
+                if (capacity == maxCapacity) {
+                    throw new ProtocolException(
+                            "Buffer overflow. Available: " + (capacity - position) + ", required: " + required);
+                }
+                capacity = Math.min(capacity << 1, maxCapacity);
                 if (capacity < 0) {
-                    capacity = Integer.MAX_VALUE;
+                    capacity = maxCapacity;
                 }
             }
 

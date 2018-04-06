@@ -33,9 +33,9 @@ public final class Outputs {
 
     public static Output getOutput(OutputBuf outputBuf) {
         if (outputBuf.hasMemoryAddress()) {
-            return new UnsafeNioBufOutput(outputBuf, -1);
+            return new UnsafeNioBufOutput(outputBuf, -1, Integer.MAX_VALUE);
         }
-        return new NioBufOutput(outputBuf, -1);
+        return new NioBufOutput(outputBuf, -1, Integer.MAX_VALUE);
     }
 
     public static Output getOutput(LinkedBuffer buf) {

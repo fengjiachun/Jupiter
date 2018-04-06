@@ -40,8 +40,8 @@ class UnsafeNioBufOutput extends NioBufOutput {
      */
     private long memoryAddress;
 
-    UnsafeNioBufOutput(OutputBuf outputBuf, int minWritableBytes) {
-        super(outputBuf, minWritableBytes);
+    UnsafeNioBufOutput(OutputBuf outputBuf, int minWritableBytes, int maxCapacity) {
+        super(outputBuf, minWritableBytes, maxCapacity);
         updateBufferAddress();
     }
 
@@ -303,14 +303,18 @@ class UnsafeNioBufOutput extends NioBufOutput {
     }
 
     @Override
-    protected void ensureCapacity(int required) {
+    protected void ensureCapacity(int required) throws ProtocolException {
         if (nioBuffer.remaining() < required) {
             int position = nioBuffer.position();
 
             while (capacity - position < required) {
-                capacity = capacity << 1;
+                if (capacity == maxCapacity) {
+                    throw new ProtocolException(
+                            "Buffer overflow. Available: " + (capacity - position) + ", required: " + required);
+                }
+                capacity = Math.min(capacity << 1, maxCapacity);
                 if (capacity < 0) {
-                    capacity = Integer.MAX_VALUE;
+                    capacity = maxCapacity;
                 }
             }
 

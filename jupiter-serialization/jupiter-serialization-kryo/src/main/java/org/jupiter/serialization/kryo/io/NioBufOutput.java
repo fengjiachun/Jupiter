@@ -30,9 +30,9 @@ class NioBufOutput extends ByteBufferOutput {
 
     protected final OutputBuf outputBuf;
 
-    NioBufOutput(OutputBuf outputBuf, int minWritableBytes) {
+    NioBufOutput(OutputBuf outputBuf, int minWritableBytes, int maxCapacity) {
         this.outputBuf = outputBuf;
-        maxCapacity = Integer.MAX_VALUE;
+        this.maxCapacity = maxCapacity;
         niobuffer = outputBuf.nioByteBuffer(minWritableBytes);
         capacity = niobuffer.remaining();
     }
@@ -63,9 +63,7 @@ class NioBufOutput extends ByteBufferOutput {
         }
 
         niobuffer = outputBuf.nioByteBuffer(capacity - position);
-
         capacity = niobuffer.limit();
-
         return true;
     }
 }

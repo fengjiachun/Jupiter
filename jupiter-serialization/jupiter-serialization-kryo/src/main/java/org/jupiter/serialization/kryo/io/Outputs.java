@@ -42,7 +42,7 @@ public final class Outputs {
     };
 
     public static Output getOutput(OutputBuf outputBuf) {
-        NioBufOutput output = new NioBufOutput(outputBuf, -1);
+        NioBufOutput output = new NioBufOutput(outputBuf, -1, Integer.MAX_VALUE);
         output.setVarIntsEnabled(false); // Compatible with FastOutput
         return output;
     }
