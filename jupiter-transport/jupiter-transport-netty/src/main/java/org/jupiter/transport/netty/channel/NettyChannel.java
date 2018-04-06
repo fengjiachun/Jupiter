@@ -243,14 +243,14 @@ public class NettyChannel implements JChannel {
 
         @Override
         public Object backingObject() {
-            int actualWriteBytes = byteBuf.writerIndex();
+            int actualWroteBytes = byteBuf.writerIndex();
             if (nioByteBuffer != null) {
-                actualWriteBytes += nioByteBuffer.position();
+                actualWroteBytes += nioByteBuffer.position();
             }
 
-            allocHandle.record(actualWriteBytes);
+            allocHandle.record(actualWroteBytes);
 
-            return byteBuf.writerIndex(actualWriteBytes);
+            return byteBuf.writerIndex(actualWroteBytes);
         }
 
         private static ByteBuffer newNioByteBuffer(ByteBuf byteBuf, int writableBytes) {
