@@ -223,11 +223,8 @@ public class NettyChannel implements JChannel {
             }
 
             int position = nioByteBuffer.position();
-
             nioByteBuffer = newNioByteBuffer(byteBuf, position + minWritableBytes);
-
             nioByteBuffer.position(position);
-
             return nioByteBuffer;
         }
 
