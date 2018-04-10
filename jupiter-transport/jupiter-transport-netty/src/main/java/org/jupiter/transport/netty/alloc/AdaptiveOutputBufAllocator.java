@@ -154,8 +154,8 @@ public class AdaptiveOutputBufAllocator {
 
     /**
      * Creates a new predictor with the default parameters.  With the default
-     * parameters, the expected buffer size starts from {@code 1024}, does not
-     * go down below {@code 64}, and does not go up above {@code 65536}.
+     * parameters, the expected buffer size starts from {@code 512}, does not
+     * go down below {@code 64}, and does not go up above {@code 524288}.
      */
     private AdaptiveOutputBufAllocator() {
         this(DEFAULT_MINIMUM, DEFAULT_INITIAL, DEFAULT_MAXIMUM);
