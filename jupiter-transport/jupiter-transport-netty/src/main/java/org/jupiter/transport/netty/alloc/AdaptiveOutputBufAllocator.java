@@ -96,12 +96,12 @@ public class AdaptiveOutputBufAllocator {
         int guess();
 
         /**
-         * Records the the actual number of write bytes in the previous write operation so that the allocator allocates
+         * Records the the actual number of wrote bytes in the previous write operation so that the allocator allocates
          * the buffer with potentially more correct capacity.
          *
-         * @param actualWriteBytes the actual number of write bytes in the previous allocate operation
+         * @param actualWroteBytes the actual number of wrote bytes in the previous allocate operation
          */
-        void record(int actualWriteBytes);
+        void record(int actualWroteBytes);
     }
 
     private static final class HandleImpl implements Handle {
@@ -131,8 +131,8 @@ public class AdaptiveOutputBufAllocator {
         }
 
         @Override
-        public void record(int actualWriteBytes) {
-            if (actualWriteBytes <= SIZE_TABLE[Math.max(0, index - INDEX_DECREMENT - 1)]) {
+        public void record(int actualWroteBytes) {
+            if (actualWroteBytes <= SIZE_TABLE[Math.max(0, index - INDEX_DECREMENT - 1)]) {
                 if (decreaseNow) {
                     index = Math.max(index - INDEX_DECREMENT, minIndex);
                     nextAllocateBufSize = SIZE_TABLE[index];
@@ -140,7 +140,7 @@ public class AdaptiveOutputBufAllocator {
                 } else {
                     decreaseNow = true;
                 }
-            } else if (actualWriteBytes >= nextAllocateBufSize) {
+            } else if (actualWroteBytes >= nextAllocateBufSize) {
                 index = Math.min(index + INDEX_INCREMENT, maxIndex);
                 nextAllocateBufSize = SIZE_TABLE[index];
                 decreaseNow = false;
