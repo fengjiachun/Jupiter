@@ -302,7 +302,7 @@ public class perf_hash_test extends Thread {
         }
 
         if (sz != HM.size()) {
-            throw new Error("size does not match table contents sz=" + sz + " size()=" + HM.size());
+            throw new Error("Size does not match table contents sz=" + sz + " size()=" + HM.size());
         }
 
         // Launch threads

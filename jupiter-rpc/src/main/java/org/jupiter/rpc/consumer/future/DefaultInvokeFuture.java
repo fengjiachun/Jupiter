@@ -89,7 +89,7 @@ public class DefaultInvokeFuture<V> extends AbstractListenableFuture<V> implemen
                 broadcastFutures.put(subInvokeId(channel, invokeId), this);
                 break;
             default:
-                throw new IllegalArgumentException("unsupported " + dispatchType);
+                throw new IllegalArgumentException("Unsupported " + dispatchType);
         }
     }
 

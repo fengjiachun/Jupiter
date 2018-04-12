@@ -69,7 +69,7 @@ public final class SystemPropertyUtil {
             throw new NullPointerException("key");
         }
         if (key.isEmpty()) {
-            throw new IllegalArgumentException("key must not be empty.");
+            throw new IllegalArgumentException("Key must not be empty.");
         }
 
         String value = null;

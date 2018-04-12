@@ -53,7 +53,7 @@ class FormattingTuple {
 
     static Object[] trimmedCopy(Object[] argArray) {
         if (argArray == null || argArray.length == 0) {
-            throw new IllegalStateException("empty or null argument array");
+            throw new IllegalStateException("Empty or null argument array");
         }
         final int trimmedLen = argArray.length - 1;
         Object[] trimmed = new Object[trimmedLen];

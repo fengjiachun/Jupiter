@@ -177,7 +177,7 @@ public class JNettyTcpConnector extends NettyTcpConnector {
                 future.sync();
             }
         } catch (Throwable t) {
-            throw new ConnectFailedException("connects to [" + address + "] fails", t);
+            throw new ConnectFailedException("Connects to [" + address + "] fails", t);
         }
 
         return new JNettyConnection(address, future) {

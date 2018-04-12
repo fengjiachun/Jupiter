@@ -83,13 +83,13 @@ public interface RegistryServer extends RegistryMonitor {
 
         private static RegistryServer newInstance(Object... parameters) {
             if (defaultRegistryClass == null || allConstructorsParameterTypes == null) {
-                throw new UnsupportedOperationException("unsupported default registry");
+                throw new UnsupportedOperationException("Unsupported default registry");
             }
 
             // 根据JLS方法调用的静态分派规则查找最匹配的方法parameterTypes
             Class<?>[] parameterTypes = Reflects.findMatchingParameterTypes(allConstructorsParameterTypes, parameters);
             if (parameterTypes == null) {
-                throw new IllegalArgumentException("parameter types");
+                throw new IllegalArgumentException("Parameter types");
             }
 
             try {

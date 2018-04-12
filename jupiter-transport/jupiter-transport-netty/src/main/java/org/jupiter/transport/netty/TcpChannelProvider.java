@@ -63,7 +63,7 @@ public final class TcpChannelProvider<T extends Channel> implements ChannelFacto
                     case NATIVE_KQUEUE:
                         return (T) new KQueueServerSocketChannel();
                     default:
-                        throw new IllegalStateException("invalid socket type: " + socketType);
+                        throw new IllegalStateException("Invalid socket type: " + socketType);
                 }
             case CONNECTOR:
                 switch (socketType) {
@@ -74,10 +74,10 @@ public final class TcpChannelProvider<T extends Channel> implements ChannelFacto
                     case NATIVE_KQUEUE:
                         return (T) new KQueueSocketChannel();
                     default:
-                        throw new IllegalStateException("invalid socket type: " + socketType);
+                        throw new IllegalStateException("Invalid socket type: " + socketType);
                 }
             default:
-                throw new IllegalStateException("invalid channel type: " + channelType);
+                throw new IllegalStateException("Invalid channel type: " + channelType);
         }
     }
 

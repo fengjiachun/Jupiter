@@ -116,7 +116,7 @@ public final class InternalThreadLocalMap extends RhsPadding {
         int index = nextIndex.getAndIncrement();
         if (index < 0) {
             nextIndex.decrementAndGet();
-            throw new IllegalStateException("too many thread-local indexed variables");
+            throw new IllegalStateException("Too many thread-local indexed variables");
         }
         return index;
     }

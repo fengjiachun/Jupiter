@@ -36,7 +36,7 @@ final class UnsafeAtomicReferenceFieldUpdater<U, W> extends AtomicReferenceField
     UnsafeAtomicReferenceFieldUpdater(Unsafe unsafe, Class<U> tClass, String fieldName) throws NoSuchFieldException {
         Field field = tClass.getDeclaredField(fieldName);
         if (!Modifier.isVolatile(field.getModifiers())) {
-            throw new IllegalArgumentException("must be volatile");
+            throw new IllegalArgumentException("Field [" + fieldName + "] must be volatile");
         }
         if (unsafe == null) {
             throw new NullPointerException("unsafe");

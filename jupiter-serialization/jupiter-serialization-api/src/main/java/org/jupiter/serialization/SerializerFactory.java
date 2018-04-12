@@ -50,9 +50,9 @@ public final class SerializerFactory {
         if (serializer == null) {
             SerializerType type = SerializerType.parse(code);
             if (type != null) {
-                throw new IllegalArgumentException("serializer implementation [" + type.name() + "] not found");
+                throw new IllegalArgumentException("Serializer implementation [" + type.name() + "] not found");
             } else {
-                throw new IllegalArgumentException("unsupported serializer type with code: " + code);
+                throw new IllegalArgumentException("Unsupported serializer type with code: " + code);
             }
         }
 

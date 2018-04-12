@@ -147,7 +147,7 @@ abstract class AbstractDispatcher implements Dispatcher {
         } else {
             // for 3 seconds, expired not wait
             if (!client.awaitConnections(metadata, 3000)) {
-                throw new IllegalStateException("no connections");
+                throw new IllegalStateException("No connections");
             }
         }
 
@@ -158,7 +158,7 @@ abstract class AbstractDispatcher implements Dispatcher {
             }
         }
 
-        throw new IllegalStateException("no channel");
+        throw new IllegalStateException("No channel");
     }
 
     protected JChannelGroup[] groups(ServiceMetadata metadata) {

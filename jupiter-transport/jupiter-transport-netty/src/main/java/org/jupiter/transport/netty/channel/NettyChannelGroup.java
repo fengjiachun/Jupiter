@@ -108,7 +108,7 @@ public class NettyChannelGroup implements JChannelGroup {
                 if (waitForAvailable(1000)) { // wait a moment
                     continue;
                 }
-                throw new IllegalStateException("no channel");
+                throw new IllegalStateException("No channel");
             }
             if (length == 1) {
                 return (JChannel) elements[0];

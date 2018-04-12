@@ -137,7 +137,7 @@ public abstract class NettyTcpConnector extends NettyConnector {
             case JAVA_NIO:
                 return new NioEventLoopGroup(nThreads, tFactory);
             default:
-                throw new IllegalStateException("invalid socket type: " + socketType);
+                throw new IllegalStateException("Invalid socket type: " + socketType);
         }
     }
 
@@ -154,7 +154,7 @@ public abstract class NettyTcpConnector extends NettyConnector {
                 bootstrap().channelFactory(TcpChannelProvider.JAVA_NIO_CONNECTOR);
                 break;
             default:
-                throw new IllegalStateException("invalid socket type: " + socketType);
+                throw new IllegalStateException("Invalid socket type: " + socketType);
         }
     }
 
