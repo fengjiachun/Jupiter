@@ -47,6 +47,7 @@ import static org.jupiter.common.util.StackTraceUtil.stackTrace;
  * @author jiachun.fjc
  */
 public class FailOverClusterInvoker implements ClusterInvoker {
+    // 不要在意FailOver的'O'为什么是大写, 因为要和FailFast, FailSafe等单词看着风格一样我心里才舒服
 
     private static final InternalLogger logger = InternalLoggerFactory.getInstance(FailOverClusterInvoker.class);
 
