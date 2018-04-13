@@ -1,5 +1,9 @@
 Jupiter release notes
 ------------------------
+### 20180-4-13: version 1.2.21
+
+- 个别代码重新整理
+
 ### 2018-03-28: version 1.2.20
 
 - writeVarInt优化
