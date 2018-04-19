@@ -32,7 +32,7 @@ import java.util.Map;
  *
  * @author jiachun.fjc
  */
-public class JvmTools {
+public final class JvmTools {
 
     /**
      * Returns java stack traces of java threads for the current java process.
@@ -107,4 +107,6 @@ public class JvmTools {
         static final HotSpotDiagnosticMXBean hotSpotDiagnosticMxBean =
                 ManagementFactory.getPlatformMXBean(HotSpotDiagnosticMXBean.class);
     }
+
+    private JvmTools() {}
 }

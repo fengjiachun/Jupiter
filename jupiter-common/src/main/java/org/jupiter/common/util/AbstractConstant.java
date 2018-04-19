@@ -103,6 +103,6 @@ public abstract class AbstractConstant<T extends AbstractConstant<T>> implements
             return 1;
         }
 
-        throw new Error("failed to compare two different constants");
+        throw new Error("Failed to compare two different constants");
     }
 }

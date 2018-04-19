@@ -16,18 +16,22 @@
 
 package org.jupiter.serialization.proto;
 
+import io.protostuff.Input;
 import io.protostuff.LinkedBuffer;
-import io.protostuff.ProtostuffIOUtil;
+import io.protostuff.Output;
 import io.protostuff.Schema;
 import io.protostuff.runtime.RuntimeSchema;
-import org.jupiter.common.util.Maps;
-import org.jupiter.common.util.Reflects;
 import org.jupiter.common.util.SystemPropertyUtil;
-import org.jupiter.common.util.internal.InternalThreadLocal;
+import org.jupiter.common.util.ThrowUtil;
 import org.jupiter.serialization.Serializer;
 import org.jupiter.serialization.SerializerType;
+import org.jupiter.serialization.io.InputBuf;
+import org.jupiter.serialization.io.OutputBuf;
+import org.jupiter.serialization.proto.io.Inputs;
+import org.jupiter.serialization.proto.io.LinkedBuffers;
+import org.jupiter.serialization.proto.io.Outputs;
 
-import java.util.concurrent.ConcurrentMap;
+import java.io.IOException;
 
 /**
  * Protostuff的序列化/反序列化实现, jupiter中默认的实现.
@@ -65,17 +69,6 @@ public class ProtoStuffSerializer extends Serializer {
                 .setProperty("protostuff.runtime.allow_null_array_element", allow_null_array_element);
     }
 
-    private static final ConcurrentMap<Class<?>, Schema<?>> schemaCache = Maps.newConcurrentMap();
-
-    // 目的是复用 LinkedBuffer 中链表头结点 byte[]
-    private static final InternalThreadLocal<LinkedBuffer> bufThreadLocal = new InternalThreadLocal<LinkedBuffer>() {
-
-        @Override
-        protected LinkedBuffer initialValue() {
-            return LinkedBuffer.allocate(DEFAULT_BUF_SIZE);
-        }
-    };
-
     @Override
     public byte code() {
         return SerializerType.PROTO_STUFF.value();
@@ -83,37 +76,70 @@ public class ProtoStuffSerializer extends Serializer {
 
     @SuppressWarnings("unchecked")
     @Override
-    public <T> byte[] writeObject(T obj) {
-        Schema<T> schema = getSchema((Class<T>) obj.getClass());
+    public <T> OutputBuf writeObject(OutputBuf outputBuf, T obj) {
+        Schema<T> schema = RuntimeSchema.getSchema((Class<T>) obj.getClass());
 
-        LinkedBuffer buf = bufThreadLocal.get();
+        Output output = Outputs.getOutput(outputBuf);
         try {
-            return ProtostuffIOUtil.toByteArray(obj, schema, buf);
-        } finally {
-            buf.clear(); // for reuse
+            schema.writeTo(output, obj);
+        } catch (IOException e) {
+            ThrowUtil.throwException(e);
         }
+
+        return outputBuf;
+    }
+
+    @SuppressWarnings("unchecked")
+    @Override
+    public <T> byte[] writeObject(T obj) {
+        Schema<T> schema = RuntimeSchema.getSchema((Class<T>) obj.getClass());
+
+        LinkedBuffer buf = LinkedBuffers.getLinkedBuffer();
+        Output output = Outputs.getOutput(buf);
+        try {
+            schema.writeTo(output, obj);
+            return Outputs.toByteArray(output);
+        } catch (IOException e) {
+            ThrowUtil.throwException(e);
+        } finally {
+            LinkedBuffers.resetBuf(buf); // for reuse
+        }
+
+        return null; // never get here
+    }
+
+    @Override
+    public <T> T readObject(InputBuf inputBuf, Class<T> clazz) {
+        Schema<T> schema = RuntimeSchema.getSchema(clazz);
+        T msg = schema.newMessage();
+
+        Input input = Inputs.getInput(inputBuf);
+        try {
+            schema.mergeFrom(input, msg);
+            Inputs.checkLastTagWas(input, 0);
+        } catch (IOException e) {
+            ThrowUtil.throwException(e);
+        } finally {
+            inputBuf.release();
+        }
+
+        return msg;
     }
 
     @Override
     public <T> T readObject(byte[] bytes, int offset, int length, Class<T> clazz) {
-        T msg = Reflects.newInstance(clazz, false);
-        Schema<T> schema = getSchema(clazz);
+        Schema<T> schema = RuntimeSchema.getSchema(clazz);
+        T msg = schema.newMessage();
 
-        ProtostuffIOUtil.mergeFrom(bytes, offset, length, msg, schema);
-        return msg;
-    }
-
-    @SuppressWarnings("unchecked")
-    private <T> Schema<T> getSchema(Class<T> clazz) {
-        Schema<T> schema = (Schema<T>) schemaCache.get(clazz);
-        if (schema == null) {
-            Schema<T> newSchema = RuntimeSchema.createFrom(clazz);
-            schema = (Schema<T>) schemaCache.putIfAbsent(clazz, newSchema);
-            if (schema == null) {
-                schema = newSchema;
-            }
+        Input input = Inputs.getInput(bytes, offset, length);
+        try {
+            schema.mergeFrom(input, msg);
+            Inputs.checkLastTagWas(input, 0);
+        } catch (IOException e) {
+            ThrowUtil.throwException(e);
         }
-        return schema;
+
+        return msg;
     }
 
     @Override

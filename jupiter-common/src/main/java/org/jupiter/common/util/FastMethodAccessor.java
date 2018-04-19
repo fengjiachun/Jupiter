@@ -54,7 +54,7 @@ public abstract class FastMethodAccessor {
      *              return 直接调用 this.methodNames[1] 对应的方法;
      *          case ...
      *      }
-     *      throw new IllegalArgumentException("method not found: " + methodIndex);
+     *      throw new IllegalArgumentException("Method not found: " + methodIndex);
      *  }
      *
      */
@@ -71,7 +71,7 @@ public abstract class FastMethodAccessor {
             }
         }
         throw new IllegalArgumentException(
-                "unable to find non-private method: " + methodName + " " + Arrays.toString(parameterTypes));
+                "Unable to find non-private method: " + methodName + " " + Arrays.toString(parameterTypes));
     }
 
     public static FastMethodAccessor get(Class<?> type) {
@@ -271,12 +271,12 @@ public abstract class FastMethodAccessor {
                 mv.visitFrame(Opcodes.F_SAME, 0, null, 0, null);
             }
 
-            // throw exception (method not found)
+            // throw exception (Method not found)
             mv.visitTypeInsn(NEW, "java/lang/IllegalArgumentException");
             mv.visitInsn(DUP);
             mv.visitTypeInsn(NEW, "java/lang/StringBuilder");
             mv.visitInsn(DUP);
-            mv.visitLdcInsn("method not found: ");
+            mv.visitLdcInsn("Method not found: ");
             mv.visitMethodInsn(INVOKESPECIAL, "java/lang/StringBuilder", "<init>", "(Ljava/lang/String;)V", false);
             mv.visitVarInsn(ILOAD, 2);
             mv.visitMethodInsn(INVOKEVIRTUAL, "java/lang/StringBuilder", "append", "(I)Ljava/lang/StringBuilder;", false);

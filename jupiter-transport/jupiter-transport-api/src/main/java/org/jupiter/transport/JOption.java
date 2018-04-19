@@ -19,6 +19,10 @@ package org.jupiter.transport;
 import org.jupiter.common.util.AbstractConstant;
 import org.jupiter.common.util.ConstantPool;
 
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.Set;
+
 /**
  * Jupiter transport option.
  *
@@ -29,7 +33,7 @@ import org.jupiter.common.util.ConstantPool;
  *
  * @author jiachun.fjc
  */
-@SuppressWarnings("unchecked")
+@SuppressWarnings("all")
 public final class JOption<T> extends AbstractConstant<JOption<T>> {
 
     private static final ConstantPool<JOption<Object>> pool = new ConstantPool<JOption<Object>>() {
@@ -154,16 +158,6 @@ public final class JOption<T> extends AbstractConstant<JOption<T>> {
     public static final JOption<Boolean> ALLOW_HALF_CLOSURE = valueOf("ALLOW_HALF_CLOSURE");
 
     /**
-     * 是否使用 direct buffer.
-     */
-    public static final JOption<Boolean> PREFER_DIRECT = valueOf("PREFER_DIRECT");
-
-    /**
-     * Netty的选项, 是否启用pooled buf allocator.
-     */
-    public static final JOption<Boolean> USE_POOLED_ALLOCATOR = valueOf("USE_POOLED_ALLOCATOR");
-
-    /**
      * Netty的选项, write高水位线.
      */
     public static final JOption<Integer> WRITE_BUFFER_HIGH_WATER_MARK = valueOf("WRITE_BUFFER_HIGH_WATER_MARK");
@@ -181,6 +175,28 @@ public final class JOption<T> extends AbstractConstant<JOption<T>> {
     public static final JOption<Integer> IO_RATIO = valueOf("IO_RATIO");
 
     public static final JOption<Integer> CONNECT_TIMEOUT_MILLIS = valueOf("CONNECT_TIMEOUT_MILLIS");
+
+    public static final Set<JOption<?>> ALL_OPTIONS;
+
+    static {
+        Set<JOption<?>> options = new HashSet<>();
+
+        options.add(TCP_NODELAY);
+        options.add(KEEP_ALIVE);
+        options.add(SO_REUSEADDR);
+        options.add(SO_SNDBUF);
+        options.add(SO_RCVBUF);
+        options.add(SO_LINGER);
+        options.add(SO_BACKLOG);
+        options.add(IP_TOS);
+        options.add(ALLOW_HALF_CLOSURE);
+        options.add(WRITE_BUFFER_HIGH_WATER_MARK);
+        options.add(WRITE_BUFFER_LOW_WATER_MARK);
+        options.add(IO_RATIO);
+        options.add(CONNECT_TIMEOUT_MILLIS);
+
+        ALL_OPTIONS = Collections.unmodifiableSet(options);
+    }
 
     private JOption(int id, String name) {
         super(id, name);

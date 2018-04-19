@@ -18,7 +18,8 @@ package org.jupiter.rpc;
 
 import org.jupiter.rpc.model.metadata.MessageWrapper;
 import org.jupiter.rpc.tracing.TracingUtil;
-import org.jupiter.transport.payload.JRequestBytes;
+import org.jupiter.serialization.io.OutputBuf;
+import org.jupiter.transport.payload.JRequestPayload;
 
 import java.util.Collections;
 import java.util.Map;
@@ -35,35 +36,39 @@ import java.util.Map;
  */
 public class JRequest {
 
-    private final JRequestBytes requestBytes;   // 请求bytes
-    private MessageWrapper message;             // 请求对象
+    private final JRequestPayload payload;   // 请求bytes/stream
+    private MessageWrapper message;          // 请求对象
 
     public JRequest() {
-        this(new JRequestBytes());
+        this(new JRequestPayload());
     }
 
-    public JRequest(JRequestBytes requestBytes) {
-        this.requestBytes = requestBytes;
+    public JRequest(JRequestPayload payload) {
+        this.payload = payload;
     }
 
-    public JRequestBytes requestBytes() {
-        return requestBytes;
+    public JRequestPayload payload() {
+        return payload;
     }
 
     public long invokeId() {
-        return requestBytes.invokeId();
+        return payload.invokeId();
     }
 
     public long timestamp() {
-        return requestBytes.timestamp();
+        return payload.timestamp();
     }
 
     public byte serializerCode() {
-        return requestBytes.serializerCode();
+        return payload.serializerCode();
     }
 
     public void bytes(byte serializerCode, byte[] bytes) {
-        requestBytes.bytes(serializerCode, bytes);
+        payload.bytes(serializerCode, bytes);
+    }
+
+    public void outputBuf(byte serializerCode, OutputBuf outputBuf) {
+        payload.outputBuf(serializerCode, outputBuf);
     }
 
     public MessageWrapper message() {

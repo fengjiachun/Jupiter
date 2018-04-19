@@ -18,7 +18,7 @@ package org.jupiter.rpc;
 
 import org.jupiter.rpc.model.metadata.ResultWrapper;
 import org.jupiter.transport.Status;
-import org.jupiter.transport.payload.JResponseBytes;
+import org.jupiter.transport.payload.JResponsePayload;
 
 /**
  * Provider's response data.
@@ -32,43 +32,39 @@ import org.jupiter.transport.payload.JResponseBytes;
  */
 public class JResponse {
 
-    private final JResponseBytes responseBytes; // 响应bytes
+    private final JResponsePayload payload;     // 响应bytes/stream
     private ResultWrapper result;               // 响应对象
 
     public JResponse(long id) {
-        responseBytes = new JResponseBytes(id);
+        payload = new JResponsePayload(id);
     }
 
-    public JResponse(JResponseBytes responseBytes) {
-        this.responseBytes = responseBytes;
+    public JResponse(JResponsePayload payload) {
+        this.payload = payload;
     }
 
-    public JResponseBytes responseBytes() {
-        return responseBytes;
+    public JResponsePayload payload() {
+        return payload;
     }
 
     public long id() {
-        return responseBytes.id();
+        return payload.id();
     }
 
     public byte status() {
-        return responseBytes.status();
+        return payload.status();
     }
 
     public void status(byte status) {
-        responseBytes.status(status);
+        payload.status(status);
     }
 
     public void status(Status status) {
-        responseBytes.status(status.value());
+        payload.status(status.value());
     }
 
     public byte serializerCode() {
-        return responseBytes.serializerCode();
-    }
-
-    public void bytes(byte serializerCode, byte[] bytes) {
-        responseBytes.bytes(serializerCode, bytes);
+        return payload.serializerCode();
     }
 
     public ResultWrapper result() {

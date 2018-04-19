@@ -42,10 +42,7 @@ public class NettyConfig implements JConfig {
 
     @Override
     public List<JOption<?>> getOptions() {
-        return getOptions(null,
-                JOption.IO_RATIO,
-                JOption.PREFER_DIRECT,
-                JOption.USE_POOLED_ALLOCATOR);
+        return getOptions(null, JOption.IO_RATIO);
     }
 
     protected List<JOption<?>> getOptions(List<JOption<?>> result, JOption<?>... options) {
@@ -64,12 +61,6 @@ public class NettyConfig implements JConfig {
         if (option == JOption.IO_RATIO) {
             return (T) Integer.valueOf(getIoRatio());
         }
-        if (option == JOption.PREFER_DIRECT) {
-            return (T) Boolean.valueOf(isPreferDirect());
-        }
-        if (option == JOption.USE_POOLED_ALLOCATOR) {
-            return (T) Boolean.valueOf(isUsePooledAllocator());
-        }
         return null;
     }
 
@@ -78,11 +69,7 @@ public class NettyConfig implements JConfig {
         validate(option, value);
 
         if (option == JOption.IO_RATIO) {
-            setIoRatio((Integer) value);
-        } else if (option == JOption.PREFER_DIRECT) {
-            setPreferDirect((Boolean) value);
-        } else if (option == JOption.USE_POOLED_ALLOCATOR) {
-            setUsePooledAllocator((Boolean) value);
+            setIoRatio(castToInteger(value));
         } else {
             return false;
         }
@@ -122,6 +109,30 @@ public class NettyConfig implements JConfig {
     protected <T> void validate(JOption<T> option, T value) {
         checkNotNull(option, "option");
         checkNotNull(value, "value");
+    }
+
+    private static Integer castToInteger(Object value) {
+        if (value instanceof Integer) {
+            return (Integer) value;
+        }
+
+        if (value instanceof String) {
+            return Integer.valueOf((String) value);
+        }
+
+        throw new IllegalArgumentException(value.getClass().toString());
+    }
+
+    private static Boolean castToBoolean(Object value) {
+        if (value instanceof Boolean) {
+            return (Boolean) value;
+        }
+
+        if (value instanceof String) {
+            return Boolean.valueOf((String) value);
+        }
+
+        throw new IllegalArgumentException(value.getClass().toString());
     }
 
     /**
@@ -190,11 +201,11 @@ public class NettyConfig implements JConfig {
                 validate(option, value);
 
                 if (option == JOption.SO_BACKLOG) {
-                    setBacklog((Integer) value);
+                    setBacklog(castToInteger(value));
                 } else if (option == JOption.SO_RCVBUF) {
-                    setRcvBuf((Integer) value);
+                    setRcvBuf(castToInteger(value));
                 } else if (option == JOption.SO_REUSEADDR) {
-                    setReuseAddress((Boolean) value);
+                    setReuseAddress(castToBoolean(value));
                 } else {
                     return super.setOption(option, value);
                 }
@@ -314,27 +325,27 @@ public class NettyConfig implements JConfig {
                 validate(option, value);
 
                 if (option == JOption.SO_RCVBUF) {
-                    setRcvBuf((Integer) value);
+                    setRcvBuf(castToInteger(value));
                 } else if (option == JOption.SO_SNDBUF) {
-                    setSndBuf((Integer) value);
+                    setSndBuf(castToInteger(value));
                 } else if (option == JOption.SO_LINGER) {
-                    setLinger((Integer) value);
+                    setLinger(castToInteger(value));
                 } else if (option == JOption.IP_TOS) {
-                    setIpTos((Integer) value);
+                    setIpTos(castToInteger(value));
                 } else if (option == JOption.CONNECT_TIMEOUT_MILLIS) {
-                    setConnectTimeoutMillis((Integer) value);
+                    setConnectTimeoutMillis(castToInteger(value));
                 } else if (option == JOption.WRITE_BUFFER_HIGH_WATER_MARK) {
-                    setWriteBufferHighWaterMark((Integer) value);
+                    setWriteBufferHighWaterMark(castToInteger(value));
                 } else if (option == JOption.WRITE_BUFFER_LOW_WATER_MARK) {
-                    setWriteBufferLowWaterMark((Integer) value);
+                    setWriteBufferLowWaterMark(castToInteger(value));
                 } else if (option == JOption.SO_REUSEADDR) {
-                    setReuseAddress((Boolean) value);
+                    setReuseAddress(castToBoolean(value));
                 } else if (option == JOption.KEEP_ALIVE) {
-                    setKeepAlive((Boolean) value);
+                    setKeepAlive(castToBoolean(value));
                 } else if (option == JOption.TCP_NODELAY) {
-                    setTcpNoDelay((Boolean) value);
+                    setTcpNoDelay(castToBoolean(value));
                 } else if (option == JOption.ALLOW_HALF_CLOSURE) {
-                    setAllowHalfClosure((Boolean) value);
+                    setAllowHalfClosure(castToBoolean(value));
                 } else {
                     return super.setOption(option, value);
                 }

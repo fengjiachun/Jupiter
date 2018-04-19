@@ -28,14 +28,11 @@ import org.jupiter.rpc.consumer.future.InvokeFuture;
 import org.jupiter.rpc.consumer.future.InvokeFutureContext;
 import org.jupiter.rpc.load.balance.LoadBalancerType;
 import org.jupiter.serialization.SerializerType;
-import org.jupiter.transport.JOption;
 import org.jupiter.transport.UnresolvedAddress;
-import org.jupiter.transport.netty.AffinityNettyThreadFactory;
 import org.jupiter.transport.netty.JNettyTcpConnector;
 
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.atomic.AtomicLong;
 
 /**
@@ -73,23 +70,25 @@ public class BenchmarkClient {
     private static final InternalLogger logger = InternalLoggerFactory.getInstance(BenchmarkClient.class);
 
     public static void main(String[] args) {
+//        SystemPropertyUtil.setProperty("jupiter.transport.codec.low_copy", "true");
+
         int processors = Runtime.getRuntime().availableProcessors();
         SystemPropertyUtil
-                .setProperty("jupiter.executor.factory.consumer.core.workers", String.valueOf(processors));
+                .setProperty("jupiter.executor.factory.consumer.core.workers", String.valueOf(processors << 1));
         SystemPropertyUtil.setProperty("jupiter.tracing.needed", "false");
         SystemPropertyUtil.setProperty("jupiter.use.non_blocking_hash", "true");
         SystemPropertyUtil
-                .setProperty("jupiter.executor.factory.affinity.thread", "true");
+                .setProperty("jupiter.executor.factory.affinity.thread", "false");
+        SystemPropertyUtil
+                .setProperty("jupiter.executor.factory.consumer.factory_name", "forkJoin");
 
-        JClient client = new DefaultClient().withConnector(new JNettyTcpConnector(processors + 1, true) {
+        final JClient client = new DefaultClient().withConnector(new JNettyTcpConnector(processors, true) {
 
-            @Override
-            protected ThreadFactory workerThreadFactory(String name) {
-                return new AffinityNettyThreadFactory(name);
-            }
+//            @Override
+//            protected ThreadFactory workerThreadFactory(String name) {
+//                return new AffinityNettyThreadFactory(name);
+//            }
         });
-        client.connector().config().setOption(JOption.WRITE_BUFFER_HIGH_WATER_MARK, 512 * 1024);
-        client.connector().config().setOption(JOption.WRITE_BUFFER_LOW_WATER_MARK, 256 * 1024);
 
         UnresolvedAddress[] addresses = new UnresolvedAddress[processors];
         for (int i = 0; i < processors; i++) {
@@ -108,6 +107,7 @@ public class BenchmarkClient {
         final Service service = ProxyFactory.factory(Service.class)
                 .version("1.0.0")
                 .client(client)
+                .serializerType(SerializerType.PROTO_STUFF)
                 .loadBalancerType(LoadBalancerType.ROUND_ROBIN)
                 .addProviderAddress(addresses)
                 .newProxyInstance();
@@ -160,7 +160,7 @@ public class BenchmarkClient {
                 .version("1.0.0")
                 .client(client)
                 .invokeType(InvokeType.ASYNC)
-                .serializerType(SerializerType.KRYO)
+                .serializerType(SerializerType.PROTO_STUFF)
                 .loadBalancerType(LoadBalancerType.ROUND_ROBIN)
                 .addProviderAddress(addresses)
                 .newProxyInstance();

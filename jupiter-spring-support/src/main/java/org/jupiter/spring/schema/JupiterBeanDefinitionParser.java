@@ -17,18 +17,23 @@
 package org.jupiter.spring.schema;
 
 import org.jupiter.common.util.Lists;
+import org.jupiter.common.util.Pair;
 import org.jupiter.common.util.Strings;
+import org.jupiter.rpc.consumer.ConsumerInterceptor;
 import org.jupiter.rpc.model.metadata.ClusterStrategyConfig;
 import org.jupiter.rpc.model.metadata.MethodSpecialConfig;
+import org.jupiter.rpc.provider.ProviderInterceptor;
 import org.jupiter.spring.support.JupiterSpringClient;
 import org.jupiter.spring.support.JupiterSpringConsumerBean;
 import org.jupiter.spring.support.JupiterSpringProviderBean;
 import org.jupiter.spring.support.JupiterSpringServer;
+import org.jupiter.transport.JOption;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.beans.factory.config.BeanDefinitionHolder;
 import org.springframework.beans.factory.config.RuntimeBeanReference;
 import org.springframework.beans.factory.support.BeanDefinitionReaderUtils;
 import org.springframework.beans.factory.support.BeanDefinitionValidationException;
+import org.springframework.beans.factory.support.ManagedArray;
 import org.springframework.beans.factory.support.RootBeanDefinition;
 import org.springframework.beans.factory.xml.BeanDefinitionParser;
 import org.springframework.beans.factory.xml.ParserContext;
@@ -74,6 +79,9 @@ public class JupiterBeanDefinitionParser implements BeanDefinitionParser {
         addProperty(def, element, "registryType", false);
         addPropertyReference(def, element, "acceptor", false);
 
+        List<Pair<JOption<Object>, String>> parentOptions = Lists.newArrayList();
+        List<Pair<JOption<Object>, String>> childOptions = Lists.newArrayList();
+
         NodeList childNodes = element.getChildNodes();
         for (int i = 0; i < childNodes.getLength(); i++) {
             Node item = childNodes.item(i);
@@ -81,10 +89,31 @@ public class JupiterBeanDefinitionParser implements BeanDefinitionParser {
                 String localName = item.getLocalName();
                 if ("property".equals(localName)) {
                     addProperty(def, (Element) item, "registryServerAddresses", false);
-                    addPropertyReference(def, (Element) item, "providerInterceptors", false);
-                    addPropertyReference(def, (Element) item, "flowController", false);
+                    addPropertyReferenceArray(
+                            def,
+                            (Element) item,
+                            ProviderInterceptor.class.getName(),
+                            "globalProviderInterceptors",
+                            false);
+                    addPropertyReference(def, (Element) item, "globalFlowController", false);
+                } else if ("netOptions".equals(localName)) {
+                    NodeList configList = item.getChildNodes();
+                    for (int j = 0; j < configList.getLength(); j++) {
+                        Node configItem = configList.item(j);
+                        if (configItem instanceof Element) {
+                            parseNetOption(configItem, parentOptions, childOptions);
+                        }
+                    }
                 }
             }
+        }
+
+        if (!parentOptions.isEmpty()) {
+            def.getPropertyValues().addPropertyValue("parentNetOptions", parentOptions);
+        }
+
+        if (!childOptions.isEmpty()) {
+            def.getPropertyValues().addPropertyValue("childNetOptions", childOptions);
         }
 
         return registerBean(def, element, parserContext);
@@ -98,6 +127,8 @@ public class JupiterBeanDefinitionParser implements BeanDefinitionParser {
         addProperty(def, element, "registryType", false);
         addPropertyReference(def, element, "connector", false);
 
+        List<Pair<JOption<Object>, String>> childOptions = Lists.newArrayList();
+
         NodeList childNodes = element.getChildNodes();
         for (int i = 0; i < childNodes.getLength(); i++) {
             Node item = childNodes.item(i);
@@ -106,8 +137,26 @@ public class JupiterBeanDefinitionParser implements BeanDefinitionParser {
                 if ("property".equals(localName)) {
                     addProperty(def, (Element) item, "registryServerAddresses", false);
                     addProperty(def, (Element) item, "providerServerAddresses", false);
+                    addPropertyReferenceArray(
+                            def,
+                            (Element) item,
+                            ConsumerInterceptor.class.getName(),
+                            "globalConsumerInterceptors",
+                            false);
+                } else if ("netOptions".equals(localName)) {
+                    NodeList configList = item.getChildNodes();
+                    for (int j = 0; j < configList.getLength(); j++) {
+                        Node configItem = configList.item(j);
+                        if (configItem instanceof Element) {
+                            parseNetOption(configItem, null, childOptions);
+                        }
+                    }
                 }
             }
+        }
+
+        if (!childOptions.isEmpty()) {
+            def.getPropertyValues().addPropertyValue("childNetOptions", childOptions);
         }
 
         return registerBean(def, element, parserContext);
@@ -127,7 +176,12 @@ public class JupiterBeanDefinitionParser implements BeanDefinitionParser {
                 String localName = item.getLocalName();
                 if ("property".equals(localName)) {
                     addProperty(def, (Element) item, "weight", false);
-                    addPropertyReference(def, (Element) item, "providerInterceptors", false);
+                    addPropertyReferenceArray(
+                            def,
+                            (Element) item,
+                            ProviderInterceptor.class.getName(),
+                            "providerInterceptors",
+                            false);
                     addPropertyReference(def, (Element) item, "executor", false);
                     addPropertyReference(def, (Element) item, "flowController", false);
                     addPropertyReference(def, (Element) item, "providerInitializer", false);
@@ -164,7 +218,12 @@ public class JupiterBeanDefinitionParser implements BeanDefinitionParser {
                     addProperty(def, (Element) item, "providerAddresses", false);
                     addProperty(def, (Element) item, "clusterStrategy", false);
                     addProperty(def, (Element) item, "failoverRetries", false);
-                    addPropertyReference(def, (Element) item, "hooks", false);
+                    addPropertyReferenceArray(
+                            def,
+                            (Element) item,
+                            ConsumerInterceptor.class.getName(),
+                            "consumerInterceptors",
+                            false);
                 } else if ("methodSpecials".equals(localName)) {
                     NodeList configList = item.getChildNodes();
                     for (int j = 0; j < configList.getLength(); j++) {
@@ -194,6 +253,29 @@ public class JupiterBeanDefinitionParser implements BeanDefinitionParser {
         return registerBean(def, element, parserContext);
     }
 
+    @SuppressWarnings("unchecked")
+    private void parseNetOption(
+            Node configItem, List<Pair<JOption<Object>, String>> parentOptions, List<Pair<JOption<Object>, String>> childOptions) {
+
+        String localName = configItem.getLocalName();
+
+        if ("parentOption".equals(localName) && parentOptions != null) {
+            for (JOption<?> op : JOption.ALL_OPTIONS) {
+                String value = ((Element) configItem).getAttribute(op.name());
+                if (Strings.isNotBlank(value)) {
+                    parentOptions.add(Pair.of((JOption<Object>) op, value));
+                }
+            }
+        } else if ("childOption".equals(localName) && childOptions != null) {
+            for (JOption<?> op : JOption.ALL_OPTIONS) {
+                String value = ((Element) configItem).getAttribute(op.name());
+                if (Strings.isNotBlank(value)) {
+                    childOptions.add(Pair.of((JOption<Object>) op, value));
+                }
+            }
+        }
+    }
+
     private BeanDefinition registerBean(RootBeanDefinition definition, Element element, ParserContext parserContext) {
         String id = element.getAttribute("id");
         if (Strings.isNullOrEmpty(id)) {
@@ -209,7 +291,8 @@ public class JupiterBeanDefinitionParser implements BeanDefinitionParser {
         return definition;
     }
 
-    private static void addProperty(RootBeanDefinition definition, Element element, String propertyName, boolean required) {
+    private static void addProperty(
+            RootBeanDefinition definition, Element element, String propertyName, boolean required) {
         String ref = element.getAttribute(propertyName);
         if (required) {
             checkAttribute(propertyName, ref);
@@ -219,7 +302,8 @@ public class JupiterBeanDefinitionParser implements BeanDefinitionParser {
         }
     }
 
-    private static void addPropertyReference(RootBeanDefinition definition, Element element, String propertyName, boolean required) {
+    private static void addPropertyReference(
+            RootBeanDefinition definition, Element element, String propertyName, boolean required) {
         String ref = element.getAttribute(propertyName);
         if (required) {
             checkAttribute(propertyName, ref);
@@ -229,9 +313,30 @@ public class JupiterBeanDefinitionParser implements BeanDefinitionParser {
         }
     }
 
+    private static void addPropertyReferenceArray(
+            RootBeanDefinition definition, Element element, String elementTypeName, String propertyName, boolean required) {
+        String[] refArray = Strings.split(element.getAttribute(propertyName), ',');
+        List<RuntimeBeanReference> refBeanList = Lists.newArrayListWithCapacity(refArray.length);
+        for (String ref : refArray) {
+            ref = ref.trim();
+            if (required) {
+                checkAttribute(propertyName, ref);
+            }
+            if (!Strings.isNullOrEmpty(ref)) {
+                refBeanList.add(new RuntimeBeanReference(ref));
+            }
+        }
+
+        if (!refBeanList.isEmpty()) {
+            ManagedArray managedArray = new ManagedArray(elementTypeName, refBeanList.size());
+            managedArray.addAll(refBeanList);
+            definition.getPropertyValues().addPropertyValue(propertyName, managedArray);
+        }
+    }
+
     private static String checkAttribute(String attributeName, String attribute) {
         if (Strings.isNullOrEmpty(attribute)) {
-            throw new BeanDefinitionValidationException("attribute [" + attributeName + "] is required.");
+            throw new BeanDefinitionValidationException("Attribute [" + attributeName + "] is required.");
         }
         return attribute;
     }

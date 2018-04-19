@@ -159,11 +159,6 @@ public interface JServer extends Registry {
     void publish(ServiceWrapper... serviceWrappers);
 
     /**
-     * 服务提供者初始化完成后再发布服务到注册中心(延迟发布服务).
-     */
-    <T> void publishWithInitializer(ServiceWrapper serviceWrapper, ProviderInitializer<T> initializer);
-
-    /**
      * 服务提供者初始化完成后再发布服务到注册中心(延迟发布服务), 并设置服务私有的线程池来执行初始化操作.
      */
     <T> void publishWithInitializer(ServiceWrapper serviceWrapper, ProviderInitializer<T> initializer, Executor executor);
@@ -176,11 +171,13 @@ public interface JServer extends Registry {
     /**
      * 从注册中心把指定服务下线.
      */
+    @SuppressWarnings("all")
     void unpublish(ServiceWrapper serviceWrapper);
 
     /**
      * 从注册中心把本地所有服务全部下线.
      */
+    @SuppressWarnings("all")
     void unpublishAll();
 
     /**

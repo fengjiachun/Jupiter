@@ -79,6 +79,16 @@ public interface JChannelGroup {
     int getCapacity();
 
     /**
+     * If connecting return true, otherwise return false.
+     */
+    boolean isConnecting();
+
+    /**
+     * Sets connecting state
+     */
+    void setConnecting(boolean connecting);
+
+    /**
      * If available return true, otherwise return false.
      */
     boolean isAvailable();
@@ -90,14 +100,19 @@ public interface JChannelGroup {
     boolean waitForAvailable(long timeoutMillis);
 
     /**
-     * Weight of service.
+     * Be called when the {@link JChannel}s are available.
+     */
+    void onAvailable(Runnable listener);
+
+    /**
+     * Gets weight of service.
      */
     int getWeight(Directory directory);
 
     /**
-     * Sets the weight of service.
+     * Puts the weight of service.
      */
-    void setWeight(Directory directory, int weight);
+    void putWeight(Directory directory, int weight);
 
     /**
      * Removes the weight of service.

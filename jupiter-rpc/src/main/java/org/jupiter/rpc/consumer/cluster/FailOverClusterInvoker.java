@@ -23,13 +23,11 @@ import org.jupiter.rpc.JListener;
 import org.jupiter.rpc.JRequest;
 import org.jupiter.rpc.consumer.dispatcher.DefaultRoundDispatcher;
 import org.jupiter.rpc.consumer.dispatcher.Dispatcher;
+import org.jupiter.rpc.consumer.future.DefaultInvokeFuture;
 import org.jupiter.rpc.consumer.future.FailOverInvokeFuture;
 import org.jupiter.rpc.consumer.future.InvokeFuture;
-import org.jupiter.rpc.exception.JupiterBadRequestException;
-import org.jupiter.rpc.exception.JupiterBizException;
-import org.jupiter.rpc.exception.JupiterRemoteException;
-import org.jupiter.rpc.exception.JupiterSerializationException;
 import org.jupiter.rpc.model.metadata.MessageWrapper;
+import org.jupiter.transport.channel.JChannel;
 
 import static org.jupiter.common.util.Preconditions.checkArgument;
 import static org.jupiter.common.util.StackTraceUtil.stackTrace;
@@ -49,6 +47,7 @@ import static org.jupiter.common.util.StackTraceUtil.stackTrace;
  * @author jiachun.fjc
  */
 public class FailOverClusterInvoker implements ClusterInvoker {
+    // 不要在意FailOver的'O'为什么是大写, 因为要和FailFast, FailSafe等单词看着风格一样我心里才舒服
 
     private static final InternalLogger logger = InternalLoggerFactory.getInstance(FailOverClusterInvoker.class);
 
@@ -87,44 +86,44 @@ public class FailOverClusterInvoker implements ClusterInvoker {
     private <T> void invoke0(final JRequest request,
                              final Class<T> returnType,
                              final int tryCount,
-                             final FailOverInvokeFuture<T> future,
+                             final FailOverInvokeFuture<T> failOverFuture,
                              Throwable lastCause) {
 
-        if (tryCount > 0 && isFailoverNeeded(lastCause)) {
-            InvokeFuture<T> f = dispatcher.dispatch(request, returnType);
+        if (tryCount > 0) {
+            final InvokeFuture<T> future = dispatcher.dispatch(request, returnType);
 
-            f.addListener(new JListener<T>() {
+            future.addListener(new JListener<T>() {
 
                 @Override
                 public void complete(T result) {
-                    future.setSuccess(result);
+                    failOverFuture.setSuccess(result);
                 }
 
                 @Override
                 public void failure(Throwable cause) {
                     if (logger.isWarnEnabled()) {
                         MessageWrapper message = request.message();
-                        logger.warn("[Fail-over] retry, [{}] attempts left, [method: {}], [metadata: {}], {}.",
+                        JChannel channel =
+                                future instanceof DefaultInvokeFuture ? ((DefaultInvokeFuture) future).channel() : null;
+
+                        logger.warn("[{}]: [Fail-over] retry, [{}] attempts left, [method: {}], [metadata: {}], {}.",
+                                channel,
                                 tryCount - 1,
                                 message.getMethodName(),
                                 message.getMetadata(),
                                 stackTrace(cause));
                     }
 
-                    invoke0(request, returnType, tryCount - 1, future, cause);
+                    // Note: Failover uses the same invokeId for each call.
+                    //
+                    // So if the last call triggered the next call because of a timeout,
+                    // and then the previous call returned successfully before the next call returns,
+                    // will uses the previous call result
+                    invoke0(request, returnType, tryCount - 1, failOverFuture, cause);
                 }
             });
         } else {
-            future.setFailure(lastCause);
+            failOverFuture.setFailure(lastCause);
         }
-    }
-
-    private static boolean isFailoverNeeded(Throwable cause) {
-        return cause == null
-                || cause instanceof JupiterRemoteException
-                    && !(cause instanceof JupiterBadRequestException)
-                    && !(cause instanceof JupiterBizException)
-                    && !(cause instanceof JupiterSerializationException);
-
     }
 }

@@ -19,17 +19,19 @@ package org.jupiter.rpc.consumer.future;
 import org.jupiter.common.util.JConstants;
 import org.jupiter.common.util.Maps;
 import org.jupiter.common.util.Signal;
+import org.jupiter.common.util.SystemPropertyUtil;
 import org.jupiter.common.util.internal.logging.InternalLogger;
 import org.jupiter.common.util.internal.logging.InternalLoggerFactory;
-import org.jupiter.rpc.ConsumerHook;
 import org.jupiter.rpc.DispatchType;
 import org.jupiter.rpc.JListener;
 import org.jupiter.rpc.JResponse;
+import org.jupiter.rpc.consumer.ConsumerInterceptor;
 import org.jupiter.rpc.exception.JupiterBizException;
 import org.jupiter.rpc.exception.JupiterRemoteException;
 import org.jupiter.rpc.exception.JupiterSerializationException;
 import org.jupiter.rpc.exception.JupiterTimeoutException;
 import org.jupiter.rpc.model.metadata.ResultWrapper;
+import org.jupiter.rpc.tracing.TraceId;
 import org.jupiter.transport.Status;
 import org.jupiter.transport.channel.JChannel;
 
@@ -37,7 +39,6 @@ import java.net.SocketAddress;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.TimeUnit;
 
-import static org.jupiter.common.util.Preconditions.checkNotNull;
 import static org.jupiter.common.util.StackTraceUtil.stackTrace;
 
 /**
@@ -63,21 +64,22 @@ public class DefaultInvokeFuture<V> extends AbstractListenableFuture<V> implemen
 
     private volatile boolean sent = false;
 
-    private ConsumerHook[] hooks = ConsumerHook.EMPTY_HOOKS;
+    private ConsumerInterceptor[] interceptors;
+    private TraceId traceId;
 
     public static <T> DefaultInvokeFuture<T> with(
-            long invokeId, JChannel channel, Class<T> returnType, long timeoutMillis, DispatchType dispatchType) {
+            long invokeId, JChannel channel, long timeoutMillis, Class<T> returnType, DispatchType dispatchType) {
 
-        return new DefaultInvokeFuture<>(invokeId, channel, returnType, timeoutMillis, dispatchType);
+        return new DefaultInvokeFuture<>(invokeId, channel, timeoutMillis, returnType, dispatchType);
     }
 
     private DefaultInvokeFuture(
-            long invokeId, JChannel channel, Class<V> returnType, long timeoutMillis, DispatchType dispatchType) {
+            long invokeId, JChannel channel, long timeoutMillis, Class<V> returnType, DispatchType dispatchType) {
 
         this.invokeId = invokeId;
         this.channel = channel;
-        this.returnType = returnType;
         this.timeout = timeoutMillis > 0 ? TimeUnit.MILLISECONDS.toNanos(timeoutMillis) : DEFAULT_TIMEOUT_NANOSECONDS;
+        this.returnType = returnType;
 
         switch (dispatchType) {
             case ROUND:
@@ -87,8 +89,12 @@ public class DefaultInvokeFuture<V> extends AbstractListenableFuture<V> implemen
                 broadcastFutures.put(subInvokeId(channel, invokeId), this);
                 break;
             default:
-                throw new IllegalArgumentException("unsupported " + dispatchType);
+                throw new IllegalArgumentException("Unsupported " + dispatchType);
         }
+    }
+
+    public JChannel channel() {
+        return channel;
     }
 
     @Override
@@ -129,14 +135,21 @@ public class DefaultInvokeFuture<V> extends AbstractListenableFuture<V> implemen
         sent = true;
     }
 
-    public ConsumerHook[] hooks() {
-        return hooks;
+    public ConsumerInterceptor[] interceptors() {
+        return interceptors;
     }
 
-    public DefaultInvokeFuture<V> hooks(ConsumerHook[] hooks) {
-        checkNotNull(hooks, "hooks");
+    public DefaultInvokeFuture<V> interceptors(ConsumerInterceptor[] interceptors) {
+        this.interceptors = interceptors;
+        return this;
+    }
 
-        this.hooks = hooks;
+    public TraceId traceId() {
+        return traceId;
+    }
+
+    public DefaultInvokeFuture<V> traceId(TraceId traceId) {
+        this.traceId = traceId;
         return this;
     }
 
@@ -151,9 +164,11 @@ public class DefaultInvokeFuture<V> extends AbstractListenableFuture<V> implemen
             setException(status, response);
         }
 
-        // call hook's after method
-        for (int i = 0; i < hooks.length; i++) {
-            hooks[i].after(response, channel);
+        ConsumerInterceptor[] interceptors = this.interceptors; // snapshot
+        if (interceptors != null) {
+            for (int i = interceptors.length - 1; i >= 0; i--) {
+                interceptors[i].afterInvoke(traceId, response, channel);
+            }
         }
     }
 
@@ -187,14 +202,35 @@ public class DefaultInvokeFuture<V> extends AbstractListenableFuture<V> implemen
 
     public static void received(JChannel channel, JResponse response) {
         long invokeId = response.id();
+
         DefaultInvokeFuture<?> future = roundFutures.remove(invokeId);
+
         if (future == null) {
             // 广播场景下做出了一点让步, 多查询了一次roundFutures
             future = broadcastFutures.remove(subInvokeId(channel, invokeId));
         }
+
         if (future == null) {
             logger.warn("A timeout response [{}] finally returned on {}.", response, channel);
             return;
+        }
+
+        future.doReceived(response);
+    }
+
+    public static void fakeReceived(JChannel channel, JResponse response, DispatchType dispatchType) {
+        long invokeId = response.id();
+
+        DefaultInvokeFuture<?> future = null;
+
+        if (dispatchType == DispatchType.ROUND) {
+            future = roundFutures.remove(invokeId);
+        } else if (dispatchType == DispatchType.BROADCAST) {
+            future = broadcastFutures.remove(subInvokeId(channel, invokeId));
+        }
+
+        if (future == null) {
+            return; // 正确结果在超时被处理之前返回
         }
 
         future.doReceived(response);
@@ -208,29 +244,32 @@ public class DefaultInvokeFuture<V> extends AbstractListenableFuture<V> implemen
     @SuppressWarnings("all")
     private static class TimeoutScanner implements Runnable {
 
+        private static final long TIMEOUT_SCANNER_INTERVAL_MILLIS =
+                SystemPropertyUtil.getLong("jupiter.rpc.invoke.timeout_scanner_interval_millis", 100);
+
         public void run() {
             for (;;) {
                 try {
                     // round
                     for (DefaultInvokeFuture<?> future : roundFutures.values()) {
-                        process(future);
+                        process(future, DispatchType.ROUND);
                     }
 
                     // broadcast
                     for (DefaultInvokeFuture<?> future : broadcastFutures.values()) {
-                        process(future);
+                        process(future, DispatchType.BROADCAST);
                     }
                 } catch (Throwable t) {
                     logger.error("An exception was caught while scanning the timeout futures {}.", stackTrace(t));
                 }
 
                 try {
-                    Thread.sleep(30);
+                    Thread.sleep(TIMEOUT_SCANNER_INTERVAL_MILLIS);
                 } catch (InterruptedException ignored) {}
             }
         }
 
-        private void process(DefaultInvokeFuture<?> future) {
+        private void process(DefaultInvokeFuture<?> future, DispatchType dispatchType) {
             if (future == null || future.isDone()) {
                 return;
             }
@@ -239,7 +278,7 @@ public class DefaultInvokeFuture<V> extends AbstractListenableFuture<V> implemen
                 JResponse response = new JResponse(future.invokeId);
                 response.status(future.sent ? Status.SERVER_TIMEOUT : Status.CLIENT_TIMEOUT);
 
-                DefaultInvokeFuture.received(future.channel, response);
+                DefaultInvokeFuture.fakeReceived(future.channel, response, dispatchType);
             }
         }
     }

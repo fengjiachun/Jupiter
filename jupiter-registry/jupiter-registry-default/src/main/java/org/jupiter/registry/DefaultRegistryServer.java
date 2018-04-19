@@ -22,6 +22,7 @@ import io.netty.channel.*;
 import io.netty.channel.group.ChannelGroup;
 import io.netty.channel.group.ChannelMatcher;
 import io.netty.channel.group.DefaultChannelGroup;
+import io.netty.handler.codec.DecoderException;
 import io.netty.handler.codec.MessageToByteEncoder;
 import io.netty.handler.codec.ReplayingDecoder;
 import io.netty.util.Attribute;
@@ -214,7 +215,7 @@ public final class DefaultRegistryServer extends NettyTcpAcceptor implements Reg
         try {
             start();
         } catch (InterruptedException e) {
-            ExceptionUtil.throwException(e);
+            ThrowUtil.throwException(e);
         }
     }
 
@@ -428,7 +429,7 @@ public final class DefaultRegistryServer extends NettyTcpAcceptor implements Reg
      *       2   │   1   │    1   │     8     │      4      │
      *  ├ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ┤
      *           │       │        │           │             │
-     *  │  MAGIC   Sign    Status   Invoke Id   Body Length                   Body Content              │
+     *  │  MAGIC   Sign    Status   Invoke Id    Body Size                    Body Content              │
      *           │       │        │           │             │
      *  └ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ┘
      *
@@ -443,7 +444,7 @@ public final class DefaultRegistryServer extends NettyTcpAcceptor implements Reg
     static class MessageDecoder extends ReplayingDecoder<MessageDecoder.State> {
 
         public MessageDecoder() {
-            super(State.HEADER_MAGIC);
+            super(State.MAGIC);
         }
 
         // 协议头
@@ -452,20 +453,20 @@ public final class DefaultRegistryServer extends NettyTcpAcceptor implements Reg
         @Override
         protected void decode(ChannelHandlerContext ctx, ByteBuf in, List<Object> out) throws Exception {
             switch (state()) {
-                case HEADER_MAGIC:
+                case MAGIC:
                     checkMagic(in.readShort());             // MAGIC
-                    checkpoint(State.HEADER_SIGN);
-                case HEADER_SIGN:
+                    checkpoint(State.SIGN);
+                case SIGN:
                     header.sign(in.readByte());             // 消息标志位
-                    checkpoint(State.HEADER_STATUS);
-                case HEADER_STATUS:
+                    checkpoint(State.STATUS);
+                case STATUS:
                     in.readByte();                          // no-op
-                    checkpoint(State.HEADER_ID);
-                case HEADER_ID:
+                    checkpoint(State.ID);
+                case ID:
                     header.id(in.readLong());               // 消息id
-                    checkpoint(State.HEADER_BODY_LENGTH);
-                case HEADER_BODY_LENGTH:
-                    header.bodyLength(in.readInt());        // 消息体长度
+                    checkpoint(State.BODY_SIZE);
+                case BODY_SIZE:
+                    header.bodySize(in.readInt());          // 消息体长度
                     checkpoint(State.BODY);
                 case BODY:
                     byte s_code = header.serializerCode();
@@ -477,7 +478,7 @@ public final class DefaultRegistryServer extends NettyTcpAcceptor implements Reg
                         case JProtocolHeader.PUBLISH_CANCEL_SERVICE:
                         case JProtocolHeader.SUBSCRIBE_SERVICE:
                         case JProtocolHeader.OFFLINE_NOTICE: {
-                            byte[] bytes = new byte[header.bodyLength()];
+                            byte[] bytes = new byte[header.bodySize()];
                             in.readBytes(bytes);
 
                             Serializer serializer = SerializerFactory.getSerializer(s_code);
@@ -494,7 +495,7 @@ public final class DefaultRegistryServer extends NettyTcpAcceptor implements Reg
                         default:
                             throw IoSignals.ILLEGAL_SIGN;
                     }
-                    checkpoint(State.HEADER_MAGIC);
+                    checkpoint(State.MAGIC);
             }
         }
 
@@ -505,11 +506,11 @@ public final class DefaultRegistryServer extends NettyTcpAcceptor implements Reg
         }
 
         enum State {
-            HEADER_MAGIC,
-            HEADER_SIGN,
-            HEADER_STATUS,
-            HEADER_ID,
-            HEADER_BODY_LENGTH,
+            MAGIC,
+            SIGN,
+            STATUS,
+            ID,
+            BODY_SIZE,
             BODY
         }
     }
@@ -522,7 +523,7 @@ public final class DefaultRegistryServer extends NettyTcpAcceptor implements Reg
      *       2   │   1   │    1   │     8     │      4      │
      *  ├ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ┤
      *           │       │        │           │             │
-     *  │  MAGIC   Sign    Status   Invoke Id   Body Length                   Body Content              │
+     *  │  MAGIC   Sign    Status   Invoke Id    Body Size                    Body Content              │
      *           │       │        │           │             │
      *  └ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ┘
      *
@@ -601,9 +602,7 @@ public final class DefaultRegistryServer extends NettyTcpAcceptor implements Reg
             } else if (msg instanceof Acknowledge) {
                 handleAcknowledge((Acknowledge) msg, ch);
             } else {
-                if (logger.isWarnEnabled()) {
-                    logger.warn("Unexpected message type received: {}, channel: {}.", msg.getClass(), ch);
-                }
+                logger.warn("Unexpected message type received: {}, channel: {}.", msg.getClass(), ch);
 
                 ReferenceCountUtil.release(msg);
             }
@@ -665,15 +664,19 @@ public final class DefaultRegistryServer extends NettyTcpAcceptor implements Reg
             Channel ch = ctx.channel();
 
             if (cause instanceof Signal) {
-                logger.error("An I/O signal was caught: {}, force to close channel: {}.", ((Signal) cause).name(), ch);
+                logger.error("I/O signal was caught: {}, force to close channel: {}.", ((Signal) cause).name(), ch);
 
                 ch.close();
             } else if (cause instanceof IOException) {
-                logger.error("An I/O exception was caught: {}, force to close channel: {}.", stackTrace(cause), cause);
+                logger.error("I/O exception was caught: {}, force to close channel: {}.", stackTrace(cause), cause);
+
+                ch.close();
+            } else if (cause instanceof DecoderException) {
+                logger.error("Decoder exception was caught: {}, force to close channel: {}.", stackTrace(cause), ch);
 
                 ch.close();
             } else {
-                logger.error("An unexpected exception was caught: {}, channel: {}.", stackTrace(cause), ch);
+                logger.error("Unexpected exception was caught: {}, channel: {}.", stackTrace(cause), ch);
             }
         }
     }

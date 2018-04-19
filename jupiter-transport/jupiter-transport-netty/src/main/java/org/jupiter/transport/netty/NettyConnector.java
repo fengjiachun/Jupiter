@@ -17,14 +17,10 @@
 package org.jupiter.transport.netty;
 
 import io.netty.bootstrap.Bootstrap;
-import io.netty.buffer.ByteBufAllocator;
-import io.netty.buffer.PooledByteBufAllocator;
-import io.netty.buffer.UnpooledByteBufAllocator;
 import io.netty.channel.ChannelOption;
 import io.netty.channel.EventLoopGroup;
 import io.netty.util.HashedWheelTimer;
 import io.netty.util.concurrent.DefaultThreadFactory;
-import io.netty.util.internal.PlatformDependent;
 import org.jupiter.common.concurrent.NamedThreadFactory;
 import org.jupiter.common.util.ClassUtil;
 import org.jupiter.common.util.JConstants;
@@ -58,11 +54,11 @@ public abstract class NettyConnector implements JConnector<JConnection> {
     static {
         // touch off DefaultChannelId.<clinit>
         // because getProcessId() sometimes too slow
-        ClassUtil.classInitialize("io.netty.channel.DefaultChannelId", 500);
+        ClassUtil.initializeClass("io.netty.channel.DefaultChannelId", 500);
     }
 
     protected final Protocol protocol;
-    protected final HashedWheelTimer timer = new HashedWheelTimer(new NamedThreadFactory("connector.timer"));
+    protected final HashedWheelTimer timer = new HashedWheelTimer(new NamedThreadFactory("connector.timer", true));
 
     private final ConcurrentMap<UnresolvedAddress, JChannelGroup> addressGroups = Maps.newConcurrentMap();
     private final DirectoryJChannelGroup directoryGroup = new DirectoryJChannelGroup();
@@ -72,10 +68,10 @@ public abstract class NettyConnector implements JConnector<JConnection> {
     private EventLoopGroup worker;
     private int nWorkers;
 
-    protected volatile ByteBufAllocator allocator;
+    private ConsumerProcessor processor;
 
     public NettyConnector(Protocol protocol) {
-        this(protocol, JConstants.AVAILABLE_PROCESSORS + 1);
+        this(protocol, JConstants.AVAILABLE_PROCESSORS << 1);
     }
 
     public NettyConnector(Protocol protocol, int nWorkers) {
@@ -91,8 +87,6 @@ public abstract class NettyConnector implements JConnector<JConnection> {
 
         JConfig child = config();
         child.setOption(JOption.IO_RATIO, 100);
-        child.setOption(JOption.PREFER_DIRECT, true);
-        child.setOption(JOption.USE_POOLED_ALLOCATOR, true);
 
         doInit();
     }
@@ -109,8 +103,13 @@ public abstract class NettyConnector implements JConnector<JConnection> {
     }
 
     @Override
+    public ConsumerProcessor processor() {
+        return processor;
+    }
+
+    @Override
     public void withProcessor(ConsumerProcessor processor) {
-        // the default implementation does nothing
+        setProcessor(this.processor = processor);
     }
 
     @Override
@@ -138,7 +137,9 @@ public abstract class NettyConnector implements JConnector<JConnection> {
         CopyOnWriteGroupList groups = directory(directory);
         boolean added = groups.addIfAbsent(group);
         if (added) {
-            logger.info("Added channel group: {} to {}.", group, directory.directory());
+            if (logger.isInfoEnabled()) {
+                logger.info("Added channel group: {} to {}.", group, directory.directoryString());
+            }
         }
         return added;
     }
@@ -148,7 +149,9 @@ public abstract class NettyConnector implements JConnector<JConnection> {
         CopyOnWriteGroupList groups = directory(directory);
         boolean removed = groups.remove(group);
         if (removed) {
-            logger.warn("Removed channel group: {} in directory: {}.", group, directory.directory());
+            if (logger.isWarnEnabled()) {
+                logger.warn("Removed channel group: {} in directory: {}.", group, directory.directoryString());
+            }
         }
         return removed;
     }
@@ -161,7 +164,7 @@ public abstract class NettyConnector implements JConnector<JConnection> {
     @Override
     public boolean isDirectoryAvailable(Directory directory) {
         CopyOnWriteGroupList groups = directory(directory);
-        JChannelGroup[] snapshot = groups.snapshot();
+        JChannelGroup[] snapshot = groups.getSnapshot();
         for (JChannelGroup g : snapshot) {
             if (g.isAvailable()) {
                 return true;
@@ -182,8 +185,12 @@ public abstract class NettyConnector implements JConnector<JConnection> {
 
     @Override
     public void shutdownGracefully() {
-        connectionManager.cancelAllReconnect();
-        worker.shutdownGracefully();
+        connectionManager.cancelAllAutoReconnect();
+        worker.shutdownGracefully().syncUninterruptibly();
+        timer.stop();
+        if (processor != null) {
+            processor.shutdown();
+        }
     }
 
     protected void setOptions() {
@@ -191,22 +198,7 @@ public abstract class NettyConnector implements JConnector<JConnection> {
 
         setIoRatio(child.getOption(JOption.IO_RATIO));
 
-        boolean direct = child.getOption(JOption.PREFER_DIRECT);
-        if (child.getOption(JOption.USE_POOLED_ALLOCATOR)) {
-            if (direct) {
-                allocator = new PooledByteBufAllocator(PlatformDependent.directBufferPreferred());
-            } else {
-                allocator = new PooledByteBufAllocator(false);
-            }
-        } else {
-            if (direct) {
-                allocator = new UnpooledByteBufAllocator(PlatformDependent.directBufferPreferred());
-            } else {
-                allocator = new UnpooledByteBufAllocator(false);
-            }
-        }
-        bootstrap.option(ChannelOption.ALLOCATOR, allocator)
-                .option(ChannelOption.MESSAGE_SIZE_ESTIMATOR, JMessageSizeEstimator.DEFAULT);
+        bootstrap.option(ChannelOption.MESSAGE_SIZE_ESTIMATOR, JMessageSizeEstimator.DEFAULT);
     }
 
     /**
@@ -237,6 +229,14 @@ public abstract class NettyConnector implements JConnector<JConnection> {
      */
     protected JChannelGroup channelGroup(UnresolvedAddress address) {
         return new NettyChannelGroup(address);
+    }
+
+    /**
+     * Sets consumer's processor.
+     */
+    @SuppressWarnings("unused")
+    protected void setProcessor(ConsumerProcessor processor) {
+        // the default implementation does nothing
     }
 
     /**

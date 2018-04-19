@@ -204,9 +204,7 @@ public class ZookeeperRegistryService extends AbstractRegistryService {
                         getRegisterMetaMap().put(meta, RegisterState.DONE);
                     }
 
-                    if (logger.isInfoEnabled()) {
-                        logger.info("Register: {} - {}.", meta, event);
-                    }
+                    logger.info("Register: {} - {}.", meta, event);
                 }
             }).forPath(
                     String.format("%s/%s:%s:%s:%s",
@@ -222,6 +220,7 @@ public class ZookeeperRegistryService extends AbstractRegistryService {
         }
     }
 
+    @SuppressWarnings("all")
     @Override
     protected void doUnregister(final RegisterMeta meta) {
         String directory = String.format("/jupiter/provider/%s/%s/%s",
@@ -246,9 +245,7 @@ public class ZookeeperRegistryService extends AbstractRegistryService {
 
                 @Override
                 public void processResult(CuratorFramework client, CuratorEvent event) throws Exception {
-                    if (logger.isInfoEnabled()) {
-                        logger.info("Unregister: {} - {}.", meta, event);
-                    }
+                    logger.info("Unregister: {} - {}.", meta, event);
                 }
             }).forPath(
                     String.format("%s/%s:%s:%s:%s",

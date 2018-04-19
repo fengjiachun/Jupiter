@@ -20,8 +20,8 @@ import org.jupiter.common.concurrent.disruptor.TaskDispatcher;
 import org.jupiter.common.concurrent.disruptor.WaitStrategyType;
 import org.jupiter.common.util.SpiMetadata;
 import org.jupiter.common.util.SystemPropertyUtil;
-
-import java.util.concurrent.Executor;
+import org.jupiter.common.util.internal.logging.InternalLogger;
+import org.jupiter.common.util.internal.logging.InternalLoggerFactory;
 
 /**
  * Provide a disruptor implementation of executor.
@@ -34,15 +34,31 @@ import java.util.concurrent.Executor;
 @SpiMetadata(name = "disruptor")
 public class DisruptorExecutorFactory extends AbstractExecutorFactory {
 
+    private static final InternalLogger logger = InternalLoggerFactory.getInstance(DisruptorExecutorFactory.class);
+
     @Override
-    public Executor newExecutor(Target target, String name) {
-        return new TaskDispatcher(
+    public CloseableExecutor newExecutor(Target target, String name) {
+        final TaskDispatcher executor = new TaskDispatcher(
                 coreWorkers(target),
                 threadFactory(name),
                 queueCapacity(target),
                 maxWorkers(target),
                 waitStrategyType(target, WaitStrategyType.LITE_BLOCKING_WAIT),
                 "jupiter");
+
+        return new CloseableExecutor() {
+
+            @Override
+            public void execute(Runnable r) {
+                executor.execute(r);
+            }
+
+            @Override
+            public void shutdown() {
+                logger.warn("DisruptorExecutorFactory#{} shutdown.", executor);
+                executor.shutdown();
+            }
+        };
     }
 
     private WaitStrategyType waitStrategyType(Target target, WaitStrategyType defaultType) {

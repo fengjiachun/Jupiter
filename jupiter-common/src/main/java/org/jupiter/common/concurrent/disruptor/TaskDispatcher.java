@@ -77,7 +77,7 @@ public class TaskDispatcher implements Dispatcher<Runnable>, Executor {
     };
 
     private final Disruptor<MessageEvent<Runnable>> disruptor;
-    private final Executor reserveExecutor;
+    private final ExecutorService reserveExecutor;
 
     public TaskDispatcher(int numWorkers, ThreadFactory threadFactory) {
         this(numWorkers, threadFactory, BUFFER_SIZE, 0, WaitStrategyType.BLOCKING_WAIT, null);
@@ -132,7 +132,7 @@ public class TaskDispatcher implements Dispatcher<Runnable>, Executor {
                 waitStrategy = new LiteTimeoutBlockingWaitStrategy(1000, TimeUnit.MILLISECONDS);
                 break;
             case PHASED_BACK_OFF_WAIT:
-                waitStrategy = PhasedBackoffWaitStrategy.withLiteLock(1, 1, TimeUnit.MILLISECONDS);
+                waitStrategy = PhasedBackoffWaitStrategy.withLiteLock(1000, 1000, TimeUnit.NANOSECONDS);
                 break;
             case SLEEPING_WAIT:
                 waitStrategy = new SleepingWaitStrategy();
@@ -193,7 +193,7 @@ public class TaskDispatcher implements Dispatcher<Runnable>, Executor {
             if (reserveExecutor != null) {
                 reserveExecutor.execute(message);
             } else {
-                throw new RejectedExecutionException("ring buffer is full");
+                throw new RejectedExecutionException("Ring buffer is full");
             }
         }
     }
@@ -201,5 +201,8 @@ public class TaskDispatcher implements Dispatcher<Runnable>, Executor {
     @Override
     public void shutdown() {
         disruptor.shutdown();
+        if (reserveExecutor != null) {
+            reserveExecutor.shutdownNow();
+        }
     }
 }

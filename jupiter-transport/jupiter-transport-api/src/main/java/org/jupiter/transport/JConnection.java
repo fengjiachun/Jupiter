@@ -34,9 +34,14 @@ public abstract class JConnection {
         return address;
     }
 
-    public void operationComplete(@SuppressWarnings("unused") Runnable callback) {
+    public void operationComplete(@SuppressWarnings("unused") OperationListener operationListener) {
         // the default implementation does nothing
     }
 
     public abstract void setReconnect(boolean reconnect);
+
+    public interface OperationListener {
+
+        void complete(boolean isSuccess);
+    }
 }

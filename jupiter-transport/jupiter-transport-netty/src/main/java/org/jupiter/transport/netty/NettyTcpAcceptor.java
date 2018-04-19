@@ -152,10 +152,13 @@ public abstract class NettyTcpAcceptor extends NettyAcceptor {
         }
         int bufLowWaterMark = child.getWriteBufferLowWaterMark();
         int bufHighWaterMark = child.getWriteBufferHighWaterMark();
+        WriteBufferWaterMark waterMark;
         if (bufLowWaterMark >= 0 && bufHighWaterMark > 0) {
-            WriteBufferWaterMark waterMark = new WriteBufferWaterMark(bufLowWaterMark, bufHighWaterMark);
-            boot.childOption(ChannelOption.WRITE_BUFFER_WATER_MARK, waterMark);
+            waterMark = new WriteBufferWaterMark(bufLowWaterMark, bufHighWaterMark);
+        } else {
+            waterMark = new WriteBufferWaterMark(512 * 1024, 1024 * 1024);
         }
+        boot.childOption(ChannelOption.WRITE_BUFFER_WATER_MARK, waterMark);
     }
 
     @Override
@@ -216,7 +219,7 @@ public abstract class NettyTcpAcceptor extends NettyAcceptor {
             case JAVA_NIO:
                 return new NioEventLoopGroup(nThreads, tFactory);
             default:
-                throw new IllegalStateException("invalid socket type: " + socketType);
+                throw new IllegalStateException("Invalid socket type: " + socketType);
         }
     }
 
@@ -233,7 +236,7 @@ public abstract class NettyTcpAcceptor extends NettyAcceptor {
                 bootstrap().channelFactory(TcpChannelProvider.JAVA_NIO_ACCEPTOR);
                 break;
             default:
-                throw new IllegalStateException("invalid socket type: " + socketType);
+                throw new IllegalStateException("Invalid socket type: " + socketType);
         }
     }
 

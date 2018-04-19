@@ -37,7 +37,7 @@ public class DirectoryJChannelGroup {
     private final GroupRefCounterMap groupRefCounter = new GroupRefCounterMap();
 
     public CopyOnWriteGroupList find(Directory directory) {
-        String _directory = directory.directory();
+        String _directory = directory.directoryString();
         CopyOnWriteGroupList groupList = groups.get(_directory);
         if (groupList == null) {
             CopyOnWriteGroupList newGroupList = new CopyOnWriteGroupList(this);

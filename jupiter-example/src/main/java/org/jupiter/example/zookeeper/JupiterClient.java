@@ -36,7 +36,7 @@ import org.jupiter.transport.netty.JNettyTcpConnector;
 public class JupiterClient {
 
     public static void main(String[] args) {
-        JClient client = new DefaultClient(RegistryService.RegistryType.ZOOKEEPER)
+        final JClient client = new DefaultClient(RegistryService.RegistryType.ZOOKEEPER)
                 .withConnector(new JNettyTcpConnector());
         // 连接RegistryServer
         client.connectToRegistryServer("127.0.0.1:2181,127.0.0.1:2182,127.0.0.1:2183");
@@ -46,6 +46,14 @@ public class JupiterClient {
         if (!watcher.waitForAvailable(3000)) {
             throw new ConnectFailedException();
         }
+
+        Runtime.getRuntime().addShutdownHook(new Thread() {
+
+            @Override
+            public void run() {
+                client.shutdownGracefully();
+            }
+        });
 
         ServiceTest service = ProxyFactory.factory(ServiceTest.class)
                 .version("1.0.0.daily")

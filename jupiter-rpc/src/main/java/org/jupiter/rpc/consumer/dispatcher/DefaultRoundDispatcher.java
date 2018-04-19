@@ -19,12 +19,13 @@ package org.jupiter.rpc.consumer.dispatcher;
 import org.jupiter.rpc.DispatchType;
 import org.jupiter.rpc.JClient;
 import org.jupiter.rpc.JRequest;
-import org.jupiter.rpc.consumer.future.DefaultInvokeFuture;
 import org.jupiter.rpc.consumer.future.InvokeFuture;
 import org.jupiter.rpc.load.balance.LoadBalancer;
 import org.jupiter.rpc.model.metadata.MessageWrapper;
 import org.jupiter.serialization.Serializer;
 import org.jupiter.serialization.SerializerType;
+import org.jupiter.serialization.io.OutputBuf;
+import org.jupiter.transport.CodecConfig;
 import org.jupiter.transport.channel.JChannel;
 
 /**
@@ -53,14 +54,15 @@ public class DefaultRoundDispatcher extends AbstractDispatcher {
 
         byte s_code = _serializer.code();
         // 在业务线程中序列化, 减轻IO线程负担
-        byte[] bytes = _serializer.writeObject(message);
-        request.bytes(s_code, bytes);
+        if (CodecConfig.isCodecLowCopy()) {
+            OutputBuf outputBuf =
+                    _serializer.writeObject(channel.allocOutputBuf(), message);
+            request.outputBuf(s_code, outputBuf);
+        } else {
+            byte[] bytes = _serializer.writeObject(message);
+            request.bytes(s_code, bytes);
+        }
 
-        long timeoutMillis = getMethodSpecialTimeoutMillis(message.getMethodName());
-        DefaultInvokeFuture<T> future = DefaultInvokeFuture
-                .with(request.invokeId(), channel, returnType, timeoutMillis, DispatchType.ROUND)
-                .hooks(hooks());
-
-        return write(channel, request, future, DispatchType.ROUND);
+        return write(channel, request, returnType, DispatchType.ROUND);
     }
 }

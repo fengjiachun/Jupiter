@@ -16,6 +16,8 @@
 
 package org.jupiter.transport.channel;
 
+import org.jupiter.serialization.io.OutputBuf;
+
 import java.net.SocketAddress;
 
 /**
@@ -117,4 +119,9 @@ public interface JChannel {
      * Requests to write a message on the channel.
      */
     JChannel write(Object msg, JFutureListener<JChannel> listener);
+
+    /**
+     * Allocate a {@link OutputBuf}.
+     */
+    OutputBuf allocOutputBuf();
 }

@@ -22,11 +22,13 @@ import org.jupiter.rpc.JResponse;
 import org.jupiter.rpc.consumer.future.DefaultInvokeFuture;
 import org.jupiter.rpc.exception.JupiterSerializationException;
 import org.jupiter.rpc.model.metadata.ResultWrapper;
+import org.jupiter.serialization.io.InputBuf;
 import org.jupiter.serialization.Serializer;
 import org.jupiter.serialization.SerializerFactory;
+import org.jupiter.transport.CodecConfig;
 import org.jupiter.transport.Status;
 import org.jupiter.transport.channel.JChannel;
-import org.jupiter.transport.payload.JResponseBytes;
+import org.jupiter.transport.payload.JResponsePayload;
 
 import static org.jupiter.common.util.StackTraceUtil.stackTrace;
 
@@ -52,16 +54,21 @@ public class MessageTask implements Runnable {
     public void run() {
         // stack copy
         final JResponse _response = response;
-        final JResponseBytes _responseBytes = _response.responseBytes();
+        final JResponsePayload _responsePayload = _response.payload();
 
         byte s_code = _response.serializerCode();
-        byte[] bytes = _responseBytes.bytes();
-        _responseBytes.nullBytes();
 
         Serializer serializer = SerializerFactory.getSerializer(s_code);
         ResultWrapper wrapper;
         try {
-            wrapper = serializer.readObject(bytes, ResultWrapper.class);
+            if (CodecConfig.isCodecLowCopy()) {
+                InputBuf inputBuf = _responsePayload.inputBuf();
+                wrapper = serializer.readObject(inputBuf, ResultWrapper.class);
+            } else {
+                byte[] bytes = _responsePayload.bytes();
+                wrapper = serializer.readObject(bytes, ResultWrapper.class);
+            }
+            _responsePayload.clear();
         } catch (Throwable t) {
             logger.error("Deserialize object failed: {}, {}.", channel.remoteAddress(), stackTrace(t));
 

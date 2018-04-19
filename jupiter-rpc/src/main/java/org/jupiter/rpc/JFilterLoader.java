@@ -31,7 +31,7 @@ public class JFilterLoader {
                 }
             }
         } catch (Throwable t) {
-            logger.warn("Failed to load extension filters: {}.", stackTrace(t));
+            logger.error("Failed to load extension filters: {}.", stackTrace(t));
         }
 
         return chain;

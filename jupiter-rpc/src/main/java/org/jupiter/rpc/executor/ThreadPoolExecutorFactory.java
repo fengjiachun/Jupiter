@@ -37,14 +37,14 @@ import static org.jupiter.common.util.StackTraceUtil.stackTrace;
  *
  * @author jiachun.fjc
  */
-@SpiMetadata(name = "threadPool")
+@SpiMetadata(name = "threadPool", priority = 1)
 public class ThreadPoolExecutorFactory extends AbstractExecutorFactory {
 
     private static final InternalLogger logger = InternalLoggerFactory.getInstance(ThreadPoolExecutorFactory.class);
 
     @Override
-    public Executor newExecutor(Target target, String name) {
-        return new ThreadPoolExecutor(
+    public CloseableExecutor newExecutor(Target target, String name) {
+        final ThreadPoolExecutor executor = new ThreadPoolExecutor(
                 coreWorkers(target),
                 maxWorkers(target),
                 120L,
@@ -52,6 +52,20 @@ public class ThreadPoolExecutorFactory extends AbstractExecutorFactory {
                 workQueue(target),
                 threadFactory(name),
                 createRejectedPolicy(target, name, new RejectedTaskPolicyWithReport(name, "jupiter")));
+
+        return new CloseableExecutor() {
+
+            @Override
+            public void execute(Runnable r) {
+                executor.execute(r);
+            }
+
+            @Override
+            public void shutdown() {
+                logger.warn("ThreadPoolExecutorFactory#{} shutdown.", executor);
+                executor.shutdownNow();
+            }
+        };
     }
 
     private BlockingQueue<Runnable> workQueue(Target target) {

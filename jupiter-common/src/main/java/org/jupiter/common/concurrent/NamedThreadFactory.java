@@ -69,7 +69,9 @@ public class NamedThreadFactory implements ThreadFactory {
 
         String name2 = name + id.getAndIncrement();
 
-        Thread t = new InternalThread(group, r, name2);
+        Runnable r2 = wrapRunnable(r);
+
+        Thread t = wrapThread(group, r2, name2);
 
         try {
             if (t.isDaemon() != daemon) {
@@ -81,12 +83,20 @@ public class NamedThreadFactory implements ThreadFactory {
             }
         } catch (Exception ignored) { /* doesn't matter even if failed to set. */ }
 
-        logger.debug("Creates new {}.", t);
+        logger.info("Creates new {}.", t);
 
         return t;
     }
 
     public ThreadGroup getThreadGroup() {
         return group;
+    }
+
+    protected Runnable wrapRunnable(Runnable r) {
+        return r; // InternalThreadLocalRunnable.wrap(r)
+    }
+
+    protected Thread wrapThread(ThreadGroup group, Runnable r, String name) {
+        return new InternalThread(group, r, name);
     }
 }

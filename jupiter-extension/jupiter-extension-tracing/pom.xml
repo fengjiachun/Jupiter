@@ -21,7 +21,7 @@
     <parent>
         <artifactId>jupiter-extension</artifactId>
         <groupId>org.jupiter-rpc</groupId>
-        <version>1.2.14</version>
+        <version>1.2.21</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 

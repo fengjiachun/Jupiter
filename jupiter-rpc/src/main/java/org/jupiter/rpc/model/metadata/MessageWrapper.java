@@ -108,7 +108,7 @@ public class MessageWrapper implements Serializable {
     }
 
     public String getOperationName() {
-        return metadata.directory() + "." + methodName;
+        return metadata.directoryString() + "." + methodName;
     }
 
     @Override

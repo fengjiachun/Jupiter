@@ -24,8 +24,8 @@ import org.jupiter.common.util.SystemClock;
 import org.jupiter.common.util.SystemPropertyUtil;
 import org.jupiter.transport.JProtocolHeader;
 import org.jupiter.transport.exception.IoSignals;
-import org.jupiter.transport.payload.JRequestBytes;
-import org.jupiter.transport.payload.JResponseBytes;
+import org.jupiter.transport.payload.JRequestPayload;
+import org.jupiter.transport.payload.JResponsePayload;
 
 import java.util.List;
 
@@ -37,7 +37,7 @@ import java.util.List;
  *       2   │   1   │    1   │     8     │      4      │
  *  ├ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ┤
  *           │       │        │           │             │
- *  │  MAGIC   Sign    Status   Invoke Id   Body Length                   Body Content              │
+ *  │  MAGIC   Sign    Status   Invoke Id    Body Size                    Body Content              │
  *           │       │        │           │             │
  *  └ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ┘
  *
@@ -67,7 +67,7 @@ public class ProtocolDecoder extends ReplayingDecoder<ProtocolDecoder.State> {
     private static final boolean USE_COMPOSITE_BUF = SystemPropertyUtil.getBoolean("jupiter.io.decoder.composite.buf", false);
 
     public ProtocolDecoder() {
-        super(State.HEADER_MAGIC);
+        super(State.MAGIC);
         if (USE_COMPOSITE_BUF) {
             setCumulator(COMPOSITE_CUMULATOR);
         }
@@ -79,31 +79,31 @@ public class ProtocolDecoder extends ReplayingDecoder<ProtocolDecoder.State> {
     @Override
     protected void decode(ChannelHandlerContext ctx, ByteBuf in, List<Object> out) throws Exception {
         switch (state()) {
-            case HEADER_MAGIC:
+            case MAGIC:
                 checkMagic(in.readShort());         // MAGIC
-                checkpoint(State.HEADER_SIGN);
-            case HEADER_SIGN:
+                checkpoint(State.SIGN);
+            case SIGN:
                 header.sign(in.readByte());         // 消息标志位
-                checkpoint(State.HEADER_STATUS);
-            case HEADER_STATUS:
+                checkpoint(State.STATUS);
+            case STATUS:
                 header.status(in.readByte());       // 状态位
-                checkpoint(State.HEADER_ID);
-            case HEADER_ID:
+                checkpoint(State.ID);
+            case ID:
                 header.id(in.readLong());           // 消息id
-                checkpoint(State.HEADER_BODY_LENGTH);
-            case HEADER_BODY_LENGTH:
-                header.bodyLength(in.readInt());    // 消息体长度
+                checkpoint(State.BODY_SIZE);
+            case BODY_SIZE:
+                header.bodySize(in.readInt());      // 消息体长度
                 checkpoint(State.BODY);
             case BODY:
                 switch (header.messageCode()) {
                     case JProtocolHeader.HEARTBEAT:
                         break;
                     case JProtocolHeader.REQUEST: {
-                        int length = checkBodyLength(header.bodyLength());
+                        int length = checkBodySize(header.bodySize());
                         byte[] bytes = new byte[length];
                         in.readBytes(bytes);
 
-                        JRequestBytes request = new JRequestBytes(header.id());
+                        JRequestPayload request = new JRequestPayload(header.id());
                         request.timestamp(SystemClock.millisClock().now());
                         request.bytes(header.serializerCode(), bytes);
 
@@ -112,11 +112,11 @@ public class ProtocolDecoder extends ReplayingDecoder<ProtocolDecoder.State> {
                         break;
                     }
                     case JProtocolHeader.RESPONSE: {
-                        int length = checkBodyLength(header.bodyLength());
+                        int length = checkBodySize(header.bodySize());
                         byte[] bytes = new byte[length];
                         in.readBytes(bytes);
 
-                        JResponseBytes response = new JResponseBytes(header.id());
+                        JResponsePayload response = new JResponsePayload(header.id());
                         response.status(header.status());
                         response.bytes(header.serializerCode(), bytes);
 
@@ -127,7 +127,7 @@ public class ProtocolDecoder extends ReplayingDecoder<ProtocolDecoder.State> {
                     default:
                         throw IoSignals.ILLEGAL_SIGN;
                 }
-                checkpoint(State.HEADER_MAGIC);
+                checkpoint(State.MAGIC);
         }
     }
 
@@ -137,7 +137,7 @@ public class ProtocolDecoder extends ReplayingDecoder<ProtocolDecoder.State> {
         }
     }
 
-    private static int checkBodyLength(int size) throws Signal {
+    private static int checkBodySize(int size) throws Signal {
         if (size > MAX_BODY_SIZE) {
             throw IoSignals.BODY_TOO_LARGE;
         }
@@ -145,11 +145,11 @@ public class ProtocolDecoder extends ReplayingDecoder<ProtocolDecoder.State> {
     }
 
     enum State {
-        HEADER_MAGIC,
-        HEADER_SIGN,
-        HEADER_STATUS,
-        HEADER_ID,
-        HEADER_BODY_LENGTH,
+        MAGIC,
+        SIGN,
+        STATUS,
+        ID,
+        BODY_SIZE,
         BODY
     }
 }

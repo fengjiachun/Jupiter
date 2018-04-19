@@ -16,16 +16,24 @@
 
 package org.jupiter.transport.netty.channel;
 
+import io.netty.buffer.ByteBuf;
+import io.netty.buffer.ByteBufAllocator;
+import io.netty.buffer.ByteBufOutputStream;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelFutureListener;
 import io.netty.util.Attribute;
 import io.netty.util.AttributeKey;
+import org.jupiter.serialization.io.OutputBuf;
+import org.jupiter.transport.JProtocolHeader;
 import org.jupiter.transport.channel.JChannel;
 import org.jupiter.transport.channel.JFutureListener;
+import org.jupiter.transport.netty.alloc.AdaptiveOutputBufAllocator;
 import org.jupiter.transport.netty.handler.connector.ConnectionWatchdog;
 
+import java.io.OutputStream;
 import java.net.SocketAddress;
+import java.nio.ByteBuffer;
 
 /**
  * 对Netty {@link Channel} 的包装, 通过静态方法 {@link #attachChannel(Channel)} 获取一个实例,
@@ -57,6 +65,7 @@ public class NettyChannel implements JChannel {
     }
 
     private final Channel channel;
+    private final AdaptiveOutputBufAllocator.Handle allocHandle = AdaptiveOutputBufAllocator.DEFAULT.newHandle();
 
     private NettyChannel(Channel channel) {
         this.channel = channel;
@@ -160,6 +169,11 @@ public class NettyChannel implements JChannel {
     }
 
     @Override
+    public OutputBuf allocOutputBuf() {
+        return new NettyOutputBuf(allocHandle, channel.alloc());
+    }
+
+    @Override
     public boolean equals(Object obj) {
         return this == obj || (obj instanceof NettyChannel && channel.equals(((NettyChannel) obj).channel));
     }
@@ -172,5 +186,77 @@ public class NettyChannel implements JChannel {
     @Override
     public String toString() {
         return channel.toString();
+    }
+
+    static final class NettyOutputBuf implements OutputBuf {
+
+        private final AdaptiveOutputBufAllocator.Handle allocHandle;
+        private final ByteBuf byteBuf;
+        private ByteBuffer nioByteBuffer;
+
+        public NettyOutputBuf(AdaptiveOutputBufAllocator.Handle allocHandle, ByteBufAllocator alloc) {
+            this.allocHandle = allocHandle;
+            byteBuf = allocHandle.allocate(alloc);
+
+            byteBuf.ensureWritable(JProtocolHeader.HEADER_SIZE)
+                    // reserved 16-byte protocol header location
+                    .writerIndex(byteBuf.writerIndex() + JProtocolHeader.HEADER_SIZE);
+        }
+
+        @Override
+        public OutputStream outputStream() {
+            return new ByteBufOutputStream(byteBuf); // should not be called more than once
+        }
+
+        @Override
+        public ByteBuffer nioByteBuffer(int minWritableBytes) {
+            if (minWritableBytes < 0) {
+                minWritableBytes = byteBuf.writableBytes();
+            }
+
+            if (nioByteBuffer == null) {
+                nioByteBuffer = newNioByteBuffer(byteBuf, minWritableBytes);
+            }
+
+            if (nioByteBuffer.remaining() >= minWritableBytes) {
+                return nioByteBuffer;
+            }
+
+            int position = nioByteBuffer.position();
+            nioByteBuffer = newNioByteBuffer(byteBuf, position + minWritableBytes);
+            nioByteBuffer.position(position);
+            return nioByteBuffer;
+        }
+
+        @Override
+        public int size() {
+            if (nioByteBuffer == null) {
+                return byteBuf.readableBytes();
+            }
+            return Math.max(byteBuf.readableBytes(), nioByteBuffer.position());
+        }
+
+        @Override
+        public boolean hasMemoryAddress() {
+            return byteBuf.hasMemoryAddress();
+        }
+
+        @Override
+        public Object backingObject() {
+            int actualWroteBytes = byteBuf.writerIndex();
+            if (nioByteBuffer != null) {
+                actualWroteBytes += nioByteBuffer.position();
+            }
+
+            allocHandle.record(actualWroteBytes);
+
+            return byteBuf.writerIndex(actualWroteBytes);
+        }
+
+        private static ByteBuffer newNioByteBuffer(ByteBuf byteBuf, int writableBytes) {
+            return byteBuf
+                    .ensureWritable(writableBytes)
+                    .nioBuffer(byteBuf.writerIndex(), byteBuf.writableBytes());
+        }
     }
 }

@@ -55,15 +55,15 @@ public class TaskHandler implements
 
     @Override
     public void onStart() {
-        if (logger.isDebugEnabled()) {
-            logger.debug("Task handler on start: {}.", Thread.currentThread().getName());
+        if (logger.isWarnEnabled()) {
+            logger.warn("Task handler on start: {}.", Thread.currentThread().getName());
         }
     }
 
     @Override
     public void onShutdown() {
-        if (logger.isDebugEnabled()) {
-            logger.debug("Task handler on shutdown: {}.", Thread.currentThread().getName());
+        if (logger.isWarnEnabled()) {
+            logger.warn("Task handler on shutdown: {}.", Thread.currentThread().getName());
         }
     }
 }

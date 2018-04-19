@@ -17,6 +17,7 @@
 package org.jupiter.transport.netty.handler.acceptor;
 
 import io.netty.channel.*;
+import io.netty.handler.codec.DecoderException;
 import io.netty.util.ReferenceCountUtil;
 import org.jupiter.common.util.Signal;
 import org.jupiter.common.util.internal.logging.InternalLogger;
@@ -24,7 +25,7 @@ import org.jupiter.common.util.internal.logging.InternalLoggerFactory;
 import org.jupiter.transport.Status;
 import org.jupiter.transport.channel.JChannel;
 import org.jupiter.transport.netty.channel.NettyChannel;
-import org.jupiter.transport.payload.JRequestBytes;
+import org.jupiter.transport.payload.JRequestPayload;
 import org.jupiter.transport.processor.ProviderProcessor;
 
 import java.io.IOException;
@@ -51,17 +52,15 @@ public class AcceptorHandler extends ChannelInboundHandlerAdapter {
     public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
         Channel ch = ctx.channel();
 
-        if (msg instanceof JRequestBytes) {
+        if (msg instanceof JRequestPayload) {
             JChannel jChannel = NettyChannel.attachChannel(ch);
             try {
-                processor.handleRequest(jChannel, (JRequestBytes) msg);
+                processor.handleRequest(jChannel, (JRequestPayload) msg);
             } catch (Throwable t) {
-                processor.handleException(jChannel, (JRequestBytes) msg, Status.SERVER_ERROR, t);
+                processor.handleException(jChannel, (JRequestPayload) msg, Status.SERVER_ERROR, t);
             }
         } else {
-            if (logger.isWarnEnabled()) {
-                logger.warn("Unexpected message type received: {}, channel: {}.", msg.getClass(), ch);
-            }
+            logger.warn("Unexpected message type received: {}, channel: {}.", msg.getClass(), ch);
 
             ReferenceCountUtil.release(msg);
         }
@@ -116,15 +115,19 @@ public class AcceptorHandler extends ChannelInboundHandlerAdapter {
         Channel ch = ctx.channel();
 
         if (cause instanceof Signal) {
-            logger.error("An I/O signal was caught: {}, force to close channel: {}.", ((Signal) cause).name(), ch);
+            logger.error("I/O signal was caught: {}, force to close channel: {}.", ((Signal) cause).name(), ch);
 
             ch.close();
         } else if (cause instanceof IOException) {
             logger.error("An I/O exception was caught: {}, force to close channel: {}.", stackTrace(cause), ch);
 
             ch.close();
+        } else if (cause instanceof DecoderException) {
+            logger.error("Decoder exception was caught: {}, force to close channel: {}.", stackTrace(cause), ch);
+
+            ch.close();
         } else {
-            logger.error("An unexpected exception was caught: {}, channel: {}.", stackTrace(cause), ch);
+            logger.error("Unexpected exception was caught: {}, channel: {}.", stackTrace(cause), ch);
         }
     }
 

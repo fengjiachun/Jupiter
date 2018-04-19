@@ -71,7 +71,7 @@ public class ClusterStrategyBridging {
             case FAIL_SAFE:
                 return new FailSafeClusterInvoker(dispatcher);
             default:
-                throw new UnsupportedOperationException("strategy: " + strategy);
+                throw new UnsupportedOperationException("Unsupported strategy: " + strategy);
         }
     }
 }

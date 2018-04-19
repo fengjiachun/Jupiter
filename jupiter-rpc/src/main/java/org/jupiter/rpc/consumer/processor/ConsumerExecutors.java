@@ -17,11 +17,14 @@
 package org.jupiter.rpc.consumer.processor;
 
 import org.jupiter.common.util.JServiceLoader;
-import org.jupiter.common.util.Strings;
 import org.jupiter.common.util.SystemPropertyUtil;
+import org.jupiter.common.util.internal.logging.InternalLogger;
+import org.jupiter.common.util.internal.logging.InternalLoggerFactory;
+import org.jupiter.rpc.executor.CallerRunsExecutorFactory;
+import org.jupiter.rpc.executor.CloseableExecutor;
 import org.jupiter.rpc.executor.ExecutorFactory;
 
-import java.util.concurrent.Executor;
+import static org.jupiter.common.util.StackTraceUtil.stackTrace;
 
 /**
  * jupiter
@@ -31,27 +34,31 @@ import java.util.concurrent.Executor;
  */
 public class ConsumerExecutors {
 
-    private static final Executor executor;
+    private static final InternalLogger logger = InternalLoggerFactory.getInstance(ConsumerExecutors.class);
+
+    private static final CloseableExecutor executor;
 
     static {
-        String factoryName = SystemPropertyUtil.get("jupiter.executor.factory.consumer.factory_name");
+        String factoryName = SystemPropertyUtil.get("jupiter.executor.factory.consumer.factory_name", "callerRuns");
         ExecutorFactory factory;
-        if (Strings.isNullOrEmpty(factoryName)) {
-            factory = (ExecutorFactory) JServiceLoader.load(ConsumerExecutorFactory.class)
-                    .first();
-        } else {
+        try {
             factory = (ExecutorFactory) JServiceLoader.load(ConsumerExecutorFactory.class)
                     .find(factoryName);
+        } catch (Throwable t) {
+            logger.warn("Failed to load consumer's executor factory [{}], cause: {}, " +
+                            "[CallerRunsExecutorFactory] will be used as default.", factoryName, stackTrace(t));
+
+            factory = new CallerRunsExecutorFactory();
         }
 
         executor = factory.newExecutor(ExecutorFactory.Target.CONSUMER, "jupiter-consumer-processor");
     }
 
-    public static Executor executor() {
+    public static CloseableExecutor executor() {
         return executor;
     }
 
-    public static void execute(Runnable command) {
-        executor.execute(command);
+    public static void execute(Runnable r) {
+        executor.execute(r);
     }
 }

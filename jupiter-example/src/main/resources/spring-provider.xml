@@ -23,21 +23,44 @@
        http://www.jupiter-rpc.org/jupiter
        http://www.jupiter-rpc.org/jupiter/jupiter.xsd">
 
+    <bean id="globalInterceptor1" class="org.jupiter.example.spring.interceptor.provider.MyGlobalProviderInterceptor1" />
+    <bean id="globalInterceptor2" class="org.jupiter.example.spring.interceptor.provider.MyGlobalProviderInterceptor2" />
+
+    <bean id="globalFlowController" class="org.jupiter.example.spring.flow.MyGlobalFlowController" />
+
     <jupiter:server id="jupiterServer" registryType="default">
         <jupiter:property registryServerAddresses="127.0.0.1:20001" />
+        <jupiter:property globalProviderInterceptors="globalInterceptor1,globalInterceptor2" />
+        <jupiter:property globalFlowController="globalFlowController" />
         <!-- 可选配置 -->
         <!--
             String registryServerAddresses                      // 注册中心地址 [host1:port1,host2:port2....]
-            ProviderInterceptor[] providerInterceptors          // 全局拦截器
+            ProviderInterceptor[] globalProviderInterceptors    // 全局拦截器
             FlowController<JRequest> flowController             // 全局流量控制
         -->
+
+        <!-- 网络层配置选项 -->
+        <jupiter:netOptions>
+            <jupiter:parentOption SO_REUSEADDR="true" />
+            <jupiter:parentOption SO_BACKLOG="100" />
+
+            <jupiter:childOption SO_RCVBUF="8192" />
+            <jupiter:childOption SO_SNDBUF="8192" />
+        </jupiter:netOptions>
     </jupiter:server>
+
+    <bean id="interceptor1" class="org.jupiter.example.spring.interceptor.provider.MyProviderInterceptor1" />
+    <bean id="interceptor2" class="org.jupiter.example.spring.interceptor.provider.MyProviderInterceptor2" />
+
+    <bean id="flowController" class="org.jupiter.example.spring.flow.MyFlowController" />
 
     <!-- provider -->
     <bean id="serviceTest" class="org.jupiter.example.ServiceTestImpl" />
 
     <jupiter:provider id="serviceTestProvider" server="jupiterServer" providerImpl="serviceTest">
         <jupiter:property weight="100"/>
+        <jupiter:property providerInterceptors="interceptor1,interceptor2" />
+        <jupiter:property flowController="flowController" />
         <!-- 可选配置 -->
         <!--
             ProviderInterceptor[] providerInterceptors          // 私有拦截器
@@ -45,7 +68,7 @@
             Executor executor                                   // 该服务私有的线程池
             FlowController<JRequest> flowController             // 该服务私有的流量控制器
             JServer.ProviderInitializer<?> providerInitializer  // 服务延迟初始化
-            Executor providerInitializerExecutor                // 服务私有的延迟初始化线程池, 如果未指定则使用全局线程池
+            Executor providerInitializerExecutor                // 服务私有的延迟初始化线程池
         -->
     </jupiter:provider>
 </beans>

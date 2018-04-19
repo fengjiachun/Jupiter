@@ -25,15 +25,12 @@ import java.util.concurrent.atomic.AtomicIntegerFieldUpdater;
 /**
  * 加权轮询负载均衡.
  *
- * 当前实现不会先去计算最大公约数再轮询, 通常最大权重和最小权重值不会相差过于悬殊,
- * 因此我觉得没有必要先去求最大公约数, 很可能产生没有必要的开销.
- *
  * 每个服务应有各自独立的实例(index不共享)
  *
  * <pre>
  * **********************************************************************
  *
- *  index++ % sumWeight
+ *  index++ % (sumWeight / gcd)
  *
  *                       ┌─┐
  *                       │ │
@@ -62,7 +59,7 @@ import java.util.concurrent.atomic.AtomicIntegerFieldUpdater;
  *
  * @author jiachun.fjc
  */
-public class RoundRobinLoadBalancer extends AbstractLoadBalancer {
+public class RoundRobinLoadBalancer implements LoadBalancer {
 
     private static final AtomicIntegerFieldUpdater<RoundRobinLoadBalancer> indexUpdater =
             AtomicIntegerFieldUpdater.newUpdater(RoundRobinLoadBalancer.class, "index");
@@ -71,13 +68,13 @@ public class RoundRobinLoadBalancer extends AbstractLoadBalancer {
     private volatile int index = 0;
 
     public static RoundRobinLoadBalancer instance() {
-        // round-robin是有状态(index)的, 不能是单例
+        // round-robin是有状态的, 不能是单例
         return new RoundRobinLoadBalancer();
     }
 
     @Override
     public JChannelGroup select(CopyOnWriteGroupList groups, Directory directory) {
-        JChannelGroup[] elements = groups.snapshot();
+        JChannelGroup[] elements = groups.getSnapshot();
         int length = elements.length;
 
         if (length == 0) {
@@ -88,62 +85,54 @@ public class RoundRobinLoadBalancer extends AbstractLoadBalancer {
             return elements[0];
         }
 
-        int index = indexUpdater.getAndIncrement(this) & Integer.MAX_VALUE;
-
-        if (groups.isSameWeight()) {
-            // 对于大多数场景, 在预热都完成后, 很可能权重都是相同的, 那么加权轮询算法将是没有必要的开销,
-            // 如果发现一个CopyOnWriteGroupList里面所有元素权重相同, 会设置一个sameWeight标记,
-            // 下一次直接退化到普通随机算法, 如果CopyOnWriteGroupList中元素出现变化, 标记会被自动取消.
-            return elements[index % length];
+        WeightArray weightArray = (WeightArray) groups.getWeightArray(elements, directory.directoryString());
+        if (weightArray == null || weightArray.length() != length) {
+            weightArray = WeightSupport.computeWeights(groups, elements, directory);
         }
 
-        // 遍历权重
-        boolean allWarmUpComplete = true;
-        int sumWeight = 0;
-        WeightArray weightsSnapshot = weightArray(length);
-        for (int i = 0; i < length; i++) {
-            JChannelGroup group = elements[i];
+        int rrIndex = indexUpdater.getAndIncrement(this) & Integer.MAX_VALUE;
 
-            int val = getWeight(group, directory);
-
-            weightsSnapshot.set(i, val);
-            sumWeight += val;
-            allWarmUpComplete = (allWarmUpComplete && group.isWarmUpComplete());
+        if (weightArray.isAllSameWeight()) {
+            return elements[rrIndex % length];
         }
 
-        int maxWeight = 0;
-        int minWeight = Integer.MAX_VALUE;
-        for (int i = 0; i < length; i++) {
-            int val = weightsSnapshot.get(i);
-            maxWeight = Math.max(maxWeight, val);
-            minWeight = Math.min(minWeight, val);
+        int nextIndex = getNextServerIndex(weightArray, length, rrIndex);
+
+        return elements[nextIndex];
+    }
+
+    private static int getNextServerIndex(WeightArray weightArray, int length, final int rrIndex) {
+        int[] weights = new int[length];
+        int maxWeight = weights[0] = weightArray.get(0);
+        for (int i = 1; i < length; i++) {
+            weights[i] = weightArray.get(i) - weightArray.get(i - 1);
+            if (weights[i] > maxWeight) {
+                maxWeight = weights[i];
+            }
         }
 
-        if (allWarmUpComplete && maxWeight > 0 && minWeight == maxWeight) {
-            // 预热全部完成并且权重完全相同
-            groups.setSameWeight(true);
+        // the greatest common divisor
+        int gcd = weightArray.gcd();
+        if (gcd < 1) {
+            gcd = WeightSupport.n_gcd(weights, length);
+            weightArray.gcd(gcd);
         }
 
-        // 这一段算法参考当前的类注释中的那张图
-        //
-        // 当前实现不会先去计算最大公约数再轮询, 通常最大权重和最小权重值不会相差过于悬殊,
-        // 因此我觉得没有必要先去求最大公约数, 很可能产生没有必要的开销.
-        if (maxWeight > 0 && minWeight < maxWeight) {
-            int mod = index % sumWeight;
-            for (int i = 0; i < maxWeight; i++) {
-                for (int j = 0; j < length; j++) {
-                    int val = weightsSnapshot.get(j);
-                    if (mod == 0 && val > 0) {
-                        return elements[j];
-                    }
-                    if (val > 0) {
-                        weightsSnapshot.set(j, val - 1);
-                        --mod;
-                    }
+        // get next server index
+        int sumWeight = weightArray.get(length - 1);
+        int val = rrIndex % (sumWeight / gcd);
+        for (int i = 0; i < maxWeight; i++) {
+            for (int j = 0; j < length; j++) {
+                if (val == 0 && weights[j] > 0) {
+                    return j;
+                }
+                if (weights[j] > 0) {
+                    weights[j] -= gcd;
+                    --val;
                 }
             }
         }
 
-        return elements[index % length];
+        return rrIndex % length;
     }
 }

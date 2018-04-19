@@ -48,6 +48,11 @@ public interface JAcceptor extends Transporter {
     JConfigGroup configGroup();
 
     /**
+     * Returns the rpc processor.
+     */
+    ProviderProcessor processor();
+
+    /**
      * Binds the rpc processor.
      */
     void withProcessor(ProviderProcessor processor);

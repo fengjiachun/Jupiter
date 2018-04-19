@@ -16,7 +16,6 @@
 
 package org.jupiter.rpc.consumer.dispatcher;
 
-import org.jupiter.rpc.ConsumerHook;
 import org.jupiter.rpc.DispatchType;
 import org.jupiter.rpc.JClient;
 import org.jupiter.rpc.JRequest;
@@ -26,6 +25,8 @@ import org.jupiter.rpc.consumer.future.InvokeFuture;
 import org.jupiter.rpc.model.metadata.MessageWrapper;
 import org.jupiter.serialization.Serializer;
 import org.jupiter.serialization.SerializerType;
+import org.jupiter.serialization.io.OutputBuf;
+import org.jupiter.transport.CodecConfig;
 import org.jupiter.transport.channel.JChannel;
 import org.jupiter.transport.channel.JChannelGroup;
 
@@ -58,19 +59,21 @@ public class DefaultBroadcastDispatcher extends AbstractDispatcher {
 
         byte s_code = _serializer.code();
         // 在业务线程中序列化, 减轻IO线程负担
-        byte[] bytes = _serializer.writeObject(message);
-        request.bytes(s_code, bytes);
+        boolean isLowCopy = CodecConfig.isCodecLowCopy();
+        if (!isLowCopy) {
+            byte[] bytes = _serializer.writeObject(message);
+            request.bytes(s_code, bytes);
+        }
 
-        long invokeId = request.invokeId();
-        ConsumerHook[] hooks = hooks();
         InvokeFuture<T>[] futures = new DefaultInvokeFuture[channels.length];
-        long timeoutMillis = getMethodSpecialTimeoutMillis(message.getMethodName());
         for (int i = 0; i < channels.length; i++) {
-            JChannel ch = channels[i];
-            DefaultInvokeFuture<T> future = DefaultInvokeFuture
-                    .with(invokeId, ch, returnType, timeoutMillis, DispatchType.BROADCAST)
-                    .hooks(hooks);
-            futures[i] = write(ch, request, future, DispatchType.BROADCAST);
+            JChannel channel = channels[i];
+            if (isLowCopy) {
+                OutputBuf outputBuf =
+                        _serializer.writeObject(channel.allocOutputBuf(), message);
+                request.outputBuf(s_code, outputBuf);
+            }
+            futures[i] = write(channel, request, returnType, DispatchType.BROADCAST);
         }
 
         return DefaultInvokeFutureGroup.with(futures);

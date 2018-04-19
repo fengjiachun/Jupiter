@@ -21,6 +21,7 @@ import org.jupiter.common.util.SpiMetadata;
 import org.jupiter.common.util.Strings;
 import org.jupiter.common.util.internal.logging.InternalLogger;
 import org.jupiter.common.util.internal.logging.InternalLoggerFactory;
+import org.jupiter.transport.JConnection;
 import org.jupiter.transport.UnresolvedAddress;
 
 import java.util.Collection;
@@ -69,6 +70,7 @@ public class DefaultRegistryService extends AbstractRegistryService {
         getRegisterMetaMap().put(meta, RegisterState.DONE);
     }
 
+    @SuppressWarnings("all")
     @Override
     protected void doUnregister(RegisterMeta meta) {
         Collection<DefaultRegistry> allClients = clients.values();
@@ -102,7 +104,10 @@ public class DefaultRegistryService extends AbstractRegistryService {
                 client = clients.putIfAbsent(address, newClient);
                 if (client == null) {
                     client = newClient;
-                    client.connect(address);
+                    JConnection connection = client.connect(address);
+                    client.connectionManager().manage(connection);
+                } else {
+                    newClient.shutdownGracefully();
                 }
             }
         }

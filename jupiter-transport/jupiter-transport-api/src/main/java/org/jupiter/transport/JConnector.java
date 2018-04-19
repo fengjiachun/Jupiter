@@ -39,6 +39,11 @@ public interface JConnector<C> extends Transporter {
     JConfig config();
 
     /**
+     * Returns the rpc processor.
+     */
+    ConsumerProcessor processor();
+
+    /**
      * Binds the rpc processor.
      */
     void withProcessor(ConsumerProcessor processor);

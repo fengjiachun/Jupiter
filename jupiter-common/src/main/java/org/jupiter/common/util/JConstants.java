@@ -93,4 +93,6 @@ public final class JConstants {
     /** Metrics reporter period */
     public static final int METRIC_REPORT_PERIOD =
             SystemPropertyUtil.getInt("jupiter.metric.report.period", 15);
+
+    private JConstants() {}
 }

@@ -52,7 +52,7 @@ public class JupiterSpringProviderBean implements InitializingBean, ApplicationC
     private Executor executor;                                  // 该服务私有的线程池
     private FlowController<JRequest> flowController;            // 该服务私有的流量控制器
     private JServer.ProviderInitializer<?> providerInitializer; // 服务延迟初始化
-    private Executor providerInitializerExecutor;               // 服务私有的延迟初始化线程池, 如果未指定则使用全局线程池
+    private Executor providerInitializerExecutor;               // 服务私有的延迟初始化线程池
 
     @Override
     public void afterPropertiesSet() throws Exception {

@@ -1,7 +1,62 @@
 Jupiter release notes
 ------------------------
+### 20180-4-13: version 1.2.21
 
-### 2017-12-20:
+- 个别代码重新整理
+
+### 2018-03-28: version 1.2.20
+
+- writeVarInt优化
+
+### 2018-03-18: version 1.2.19
+
+- CopyOnWriteGroupList代码重构
+- Serialization模块重构
+- Bug fix: [WeightArray#computeWeightArray](/jupiter-rpc/src/main/java/org/jupiter/rpc/load/balance/WeightArray.java)
+
+### 2018-03-13: version 1.2.18
+
+- 负载均衡代码优化
+- 优化[NettyChannelGroup](/jupiter-transport/jupiter-transport-netty/src/main/java/org/jupiter/transport/netty/channel/NettyChannelGroup.java)中的index
+- 移除对netty ByteBufAllocator 的配置依赖, 应直接使用netty的配置方式
+- 优化String encode/decode[UnsafeUtf8Util](/jupiter-common/src/main/java/org/jupiter/common/util/internal/UnsafeUtf8Util.java)
+- 优化[SystemClock](/jupiter-common/src/main/java/org/jupiter/common/util/SystemClock.java)
+- Bug fix: 修复并发建立过多连接
+- 移除[org.objenesis:objenesis]依赖
+- [优化序列化/反序列化过程中的memory-copy](https://github.com/fengjiachun/Jupiter/issues/51)
+
+### 2018-02-07: version 1.2.17
+
+- Bug fix: [jupiter-all没引入opentracing](https://github.com/fengjiachun/Jupiter/issues/52)
+- 删除没必要的ProtoStuffSerializer的外层schema缓存
+- Bug fix: [AbstractFuture isDone 的问题](https://github.com/fengjiachun/Jupiter/issues/55)
+- Enhancement: [日志信息缺少关键的错误地址信息](https://github.com/fengjiachun/Jupiter/issues/54)
+- Update [protostuff](https://github.com/protostuff/protostuff) version: 1.5.2 --> 1.6.0
+- [Spring环境中开放JOption参数配置](https://github.com/fengjiachun/Jupiter/issues/50)
+- Add [LongSequence 序号生成器](/jupiter-common/src/main/java/org/jupiter/common/util/LongSequence.java)
+- Bug fix: ProviderInterceptor 参数 {Object result, Throwable failCause} 始终为null
+- Bug fix: Spring schema 数组属性注入失败
+- Add JupiterSpringClient#ConsumerInterceptor[] consumer端全局拦截器
+- ConsumerHook --> ConsumerInterceptor
+- Update [open-tracing](https://github.com/opentracing/opentracing-java) version: 0.31.0-RC1 --> 0.31.0
+- Update [metrics-core](https://github.com/dropwizard/metrics) version: 3.1.2 --> 4.0.2
+- Update [affinity](https://github.com/OpenHFT/Java-Thread-Affinity) version: 3.0.6 --> 3.1.7
+- Update [asm](http://asm.ow2.org) version: 5.2 --> 6.0
+- Update [byte-buddy](https://github.com/raphw/byte-buddy) version: 1.6.3 --> 1.7.9
+- Update [disruptor](https://github.com/LMAX-Exchange/disruptor) version: 3.3.6 --> 3.3.7
+- Add [CallerRunsExecutorFactory](/jupiter-rpc/src/main/java/org/jupiter/rpc/executor/CallerRunsExecutorFactory.java)
+
+### 2018-01-22: version 1.2.16
+
+- Add [CloseableExecutor](/jupiter-rpc/src/main/java/org/jupiter/rpc/executor/CloseableExecutor.java)
+- Add method JClient#awaitConnections(Class<?> interfaceClass, long timeoutMillis)
+- Add method JClient#awaitConnections(Class<?> interfaceClass, String version, long timeoutMillis)
+- [感谢 @远墨 提供的图](/docs/static_files/jupiter-rpc.png)
+
+### 2018-01-17: version 1.2.15
+
+- [AbstractFuture#awaitDone 优化](https://github.com/fengjiachun/Jupiter/issues/44)
+- [关闭jupiter client/server](https://github.com/fengjiachun/Jupiter/issues/43)
 - [dump文件名在windows系统不能有 ":"](https://github.com/fengjiachun/Jupiter/pull/42)
 
 ### 2017-12-19: version 1.2.14

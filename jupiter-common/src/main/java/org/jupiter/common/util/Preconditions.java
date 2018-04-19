@@ -25,7 +25,7 @@ package org.jupiter.common.util;
  *
  * @author jiachun.fjc
  */
-public class Preconditions {
+public final class Preconditions {
 
     /**
      * Ensures that an object reference passed as a parameter to the calling

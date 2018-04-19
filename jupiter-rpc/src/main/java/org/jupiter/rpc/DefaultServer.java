@@ -16,12 +16,12 @@
 
 package org.jupiter.rpc;
 
-import org.jupiter.common.concurrent.NamedThreadFactory;
 import org.jupiter.common.util.*;
 import org.jupiter.common.util.internal.logging.InternalLogger;
 import org.jupiter.common.util.internal.logging.InternalLoggerFactory;
 import org.jupiter.registry.RegisterMeta;
 import org.jupiter.registry.RegistryService;
+import org.jupiter.rpc.flow.control.ControlResult;
 import org.jupiter.rpc.flow.control.FlowController;
 import org.jupiter.rpc.model.metadata.ServiceMetadata;
 import org.jupiter.rpc.model.metadata.ServiceWrapper;
@@ -36,7 +36,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.Executor;
-import java.util.concurrent.Executors;
 
 import static org.jupiter.common.util.Preconditions.checkArgument;
 import static org.jupiter.common.util.Preconditions.checkNotNull;
@@ -57,12 +56,8 @@ public class DefaultServer implements JServer {
     static {
         // touch off TracingUtil.<clinit>
         // because getLocalAddress() and getPid() sometimes too slow
-        ClassUtil.classInitialize("org.jupiter.rpc.tracing.TracingUtil", 500);
+        ClassUtil.initializeClass("org.jupiter.rpc.tracing.TracingUtil", 500);
     }
-
-    // 服务延迟初始化的默认线程池
-    private final Executor defaultInitializerExecutor =
-            Executors.newSingleThreadExecutor(new NamedThreadFactory("initializer"));
 
     // provider本地容器
     private final ServiceProviderContainer providerContainer = new DefaultServiceProviderContainer();
@@ -93,7 +88,24 @@ public class DefaultServer implements JServer {
 
     @Override
     public JServer withAcceptor(JAcceptor acceptor) {
-        acceptor.withProcessor(new DefaultProviderProcessor(this));
+        if (acceptor.processor() == null) {
+            acceptor.withProcessor(new DefaultProviderProcessor() {
+
+                @Override
+                public ServiceWrapper lookupService(Directory directory) {
+                    return providerContainer.lookupService(directory.directoryString());
+                }
+
+                @Override
+                public ControlResult flowControl(JRequest request) {
+                    // 全局流量控制
+                    if (globalFlowController == null) {
+                        return ControlResult.ALLOWED;
+                    }
+                    return globalFlowController.flowControl(request);
+                }
+            });
+        }
         this.acceptor = acceptor;
         return this;
     }
@@ -130,12 +142,12 @@ public class DefaultServer implements JServer {
 
     @Override
     public ServiceWrapper lookupService(Directory directory) {
-        return providerContainer.lookupService(directory.directory());
+        return providerContainer.lookupService(directory.directoryString());
     }
 
     @Override
     public ServiceWrapper removeService(Directory directory) {
-        return providerContainer.removeService(directory.directory());
+        return providerContainer.removeService(directory.directoryString());
     }
 
     @Override
@@ -166,11 +178,6 @@ public class DefaultServer implements JServer {
     }
 
     @Override
-    public <T> void publishWithInitializer(ServiceWrapper serviceWrapper, ProviderInitializer<T> initializer) {
-        publishWithInitializer(serviceWrapper, initializer, null);
-    }
-
-    @Override
     public <T> void publishWithInitializer(
             final ServiceWrapper serviceWrapper, final ProviderInitializer<T> initializer, Executor executor) {
         Runnable task = new Runnable() {
@@ -186,8 +193,9 @@ public class DefaultServer implements JServer {
                 }
             }
         };
+
         if (executor == null) {
-            defaultInitializerExecutor.execute(task);
+            task.run();
         } else {
             executor.execute(task);
         }
@@ -200,6 +208,7 @@ public class DefaultServer implements JServer {
         }
     }
 
+    @SuppressWarnings("all")
     @Override
     public void unpublish(ServiceWrapper serviceWrapper) {
         ServiceMetadata metadata = serviceWrapper.getMetadata();
@@ -215,6 +224,7 @@ public class DefaultServer implements JServer {
         registryService.unregister(meta);
     }
 
+    @SuppressWarnings("all")
     @Override
     public void unpublishAll() {
         for (ServiceWrapper wrapper : providerContainer.getAllServices()) {
@@ -272,7 +282,7 @@ public class DefaultServer implements JServer {
         wrapper.setExecutor(executor);
         wrapper.setFlowController(flowController);
 
-        providerContainer.registerService(wrapper.getMetadata().directory(), wrapper);
+        providerContainer.registerService(wrapper.getMetadata().directoryString(), wrapper);
 
         return wrapper;
     }
@@ -470,9 +480,7 @@ public class DefaultServer implements JServer {
         public void registerService(String uniqueKey, ServiceWrapper serviceWrapper) {
             serviceProviders.put(uniqueKey, serviceWrapper);
 
-            if (logger.isDebugEnabled()) {
-                logger.debug("ServiceProvider [{}, {}] is registered.", uniqueKey, serviceWrapper.getServiceProvider());
-            }
+            logger.info("ServiceProvider [{}, {}] is registered.", uniqueKey, serviceWrapper);
         }
 
         @Override
@@ -482,15 +490,13 @@ public class DefaultServer implements JServer {
 
         @Override
         public ServiceWrapper removeService(String uniqueKey) {
-            ServiceWrapper provider = serviceProviders.remove(uniqueKey);
-            if (provider == null) {
+            ServiceWrapper serviceWrapper = serviceProviders.remove(uniqueKey);
+            if (serviceWrapper == null) {
                 logger.warn("ServiceProvider [{}] not found.", uniqueKey);
             } else {
-                if (logger.isDebugEnabled()) {
-                    logger.debug("ServiceProvider [{}, {}] is removed.", uniqueKey, provider.getServiceProvider());
-                }
+                logger.info("ServiceProvider [{}, {}] is removed.", uniqueKey, serviceWrapper);
             }
-            return provider;
+            return serviceWrapper;
         }
 
         @Override

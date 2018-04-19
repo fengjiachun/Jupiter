@@ -16,17 +16,17 @@
 
 package org.jupiter.transport.payload;
 
-import java.util.concurrent.atomic.AtomicLong;
+import org.jupiter.common.util.LongSequence;
 
 /**
- * 请求的消息体bytes载体, 避免在IO线程中序列化/反序列化, jupiter-transport这一层不关注消息体的对象结构.
+ * 请求的消息体bytes/stream载体, 避免在IO线程中序列化/反序列化, jupiter-transport这一层不关注消息体的对象结构.
  *
  * jupiter
  * org.jupiter.transport.payload
  *
  * @author jiachun.fjc
  */
-public class JRequestBytes extends BytesHolder {
+public class JRequestPayload extends PayloadHolder {
 
     // 请求id自增器, 用于映射 <id, request, response> 三元组
     //
@@ -35,18 +35,18 @@ public class JRequestBytes extends BytesHolder {
     // 才有溢出的可能, 比如一个100万qps的系统把 <0 ~ Long.MAX_VALUE> 范围内的id都使用完大概需要29万年.
     //
     // 未来jupiter可能将invokeId限制在48位, 留出高地址的16位作为扩展字段.
-    private static final AtomicLong sequence = new AtomicLong();
+    private static final LongSequence sequence = new LongSequence();
 
     // 用于映射 <id, request, response> 三元组
     private final long invokeId;
     // jupiter-transport层会在协议解析完成后打上一个时间戳, 用于后续监控对该请求的处理时间
     private transient long timestamp;
 
-    public JRequestBytes() {
-        this(sequence.incrementAndGet());
+    public JRequestPayload() {
+        this(sequence.next());
     }
 
-    public JRequestBytes(long invokeId) {
+    public JRequestPayload(long invokeId) {
         this.invokeId = invokeId;
     }
 

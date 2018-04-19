@@ -33,7 +33,7 @@ import static org.jupiter.common.util.StackTraceUtil.*;
  *
  * @author jiachun.fjc
  */
-public class SystemPropertyUtil {
+public final class SystemPropertyUtil {
 
     private static final InternalLogger logger = InternalLoggerFactory.getInstance(SystemPropertyUtil.class);
 

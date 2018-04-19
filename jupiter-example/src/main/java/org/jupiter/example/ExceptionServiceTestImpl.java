@@ -30,9 +30,9 @@ public class ExceptionServiceTestImpl implements ExceptionServiceTest {
     @Override
     public String hello(int i) throws IllegalArgumentException {
         if (i > 0) {
-            throw new IllegalArgumentException("expected exception");
+            throw new IllegalArgumentException("Expected exception");
         } else {
-            throw new UnsupportedOperationException("unexpected exception");
+            throw new UnsupportedOperationException("Unexpected exception");
         }
     }
 }

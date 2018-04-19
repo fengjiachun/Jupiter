@@ -17,7 +17,7 @@
 package org.jupiter.rpc.consumer.future;
 
 import org.jupiter.common.util.Signal;
-import org.jupiter.common.util.internal.JUnsafe;
+import org.jupiter.common.util.internal.UnsafeUtil;
 
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.LockSupport;
@@ -31,7 +31,14 @@ import java.util.concurrent.locks.LockSupport;
 public abstract class AbstractFuture<V> {
 
     @SuppressWarnings("all")
-    protected static final Signal TIMEOUT = Signal.valueOf(AbstractFuture.class, "time_out");
+    protected static final Signal TIMEOUT = Signal.valueOf(AbstractFuture.class, "TIMEOUT");
+
+    /**
+     * The number of nanoseconds for which it is faster to spin
+     * rather than to use timed park. A rough estimate suffices
+     * to improve responsiveness with very short timeouts.
+     */
+    protected static final long SPIN_FOR_TIMEOUT_THRESHOLD = 1000L;
 
     /**
      * 内部状态转换过程:
@@ -55,7 +62,10 @@ public abstract class AbstractFuture<V> {
     }
 
     public boolean isDone() {
-        return state != NEW;
+        // state can not be COMPLETING, because of method AbstractFuture#outcome()
+        //
+        // see https://github.com/fengjiachun/Jupiter/issues/55
+        return state > COMPLETING;
     }
 
     protected int state() {
@@ -93,7 +103,7 @@ public abstract class AbstractFuture<V> {
             outcome = v;
             // putOrderedInt在JIT后会通过intrinsic优化掉StoreLoad屏障, 不保证可见性
             UNSAFE.putOrderedInt(this, stateOffset, NORMAL); // final state
-            completion(v);
+            finishCompletion(v);
         }
     }
 
@@ -102,7 +112,7 @@ public abstract class AbstractFuture<V> {
             outcome = t;
             // putOrderedInt在JIT后会通过intrinsic优化掉StoreLoad屏障, 不保证可见性
             UNSAFE.putOrderedInt(this, stateOffset, EXCEPTIONAL); // final state
-            completion(t);
+            finishCompletion(t);
         }
     }
 
@@ -126,7 +136,7 @@ public abstract class AbstractFuture<V> {
      * 1. 唤醒并移除Treiber Stack中所有等待线程
      * 2. 调用钩子函数done()
      */
-    private void completion(Object x) {
+    private void finishCompletion(Object x) {
         // assert state > COMPLETING;
         for (WaitNode q; (q = waiters) != null; ) {
             if (UNSAFE.compareAndSwapObject(this, waitersOffset, q, null)) {
@@ -153,8 +163,15 @@ public abstract class AbstractFuture<V> {
     /**
      * 等待任务完成或者超时
      */
-    private int awaitDone(boolean timed, long nanos) {
-        final long deadline = timed ? System.nanoTime() + nanos : 0L;
+    private int awaitDone(boolean timed, long nanos) throws InterruptedException {
+        // The code below is very delicate, to achieve these goals:
+        // - call nanoTime exactly once for each call to park
+        // - if nanos <= 0L, return promptly without allocation or nanoTime
+        // - if nanos == Long.MIN_VALUE, don't underflow
+        // - if nanos == Long.MAX_VALUE, and nanoTime is non-monotonic
+        //   and we suffer a spurious wakeup, we will do no worse than
+        //   to park-spin for a while
+        long startTime = 0L;    // special value 0L means not yet parked
         WaitNode q = null;
         boolean queued = false;
         for (;;) {
@@ -166,17 +183,38 @@ public abstract class AbstractFuture<V> {
                 return s; // 返回任务状态
             } else if (s == COMPLETING) { // 正在完成中, 让出CPU
                 Thread.yield();
+            } else if (Thread.interrupted()) {
+                removeWaiter(q);
+                throw new InterruptedException();
             } else if (q == null) { // 创建一个等待节点
+                if (timed && nanos <= 0L) {
+                    return s;
+                }
                 q = new WaitNode();
             } else if (!queued) { // 将当前等待节点入队
                 queued = UNSAFE.compareAndSwapObject(this, waitersOffset, q.next = waiters, q);
             } else if (timed) {
-                nanos = deadline - System.nanoTime();
-                if (nanos <= 0L) { // 设置超时, 阻塞当前线程(阻塞指定时间)
-                    removeWaiter(q);
-                    return state;
+                final long parkNanos;
+                if (startTime == 0L) { // first time
+                    startTime = System.nanoTime();
+                    if (startTime == 0L) {
+                        startTime = 1L;
+                    }
+                    parkNanos = nanos;
+                } else {
+                    long elapsed = System.nanoTime() - startTime;
+                    if (elapsed >= nanos) {
+                        removeWaiter(q);
+                        return state;
+                    }
+                    parkNanos = nanos - elapsed;
                 }
-                LockSupport.parkNanos(this, nanos);
+                // the number of nanoseconds for which it is faster to spin
+                // rather than to use timed park.
+                if (parkNanos > SPIN_FOR_TIMEOUT_THRESHOLD
+                        && state < COMPLETING) {
+                    LockSupport.parkNanos(this, parkNanos);
+                }
             } else { // 直接阻塞当前线程
                 LockSupport.park(this);
             }
@@ -219,8 +257,24 @@ public abstract class AbstractFuture<V> {
         }
     }
 
+    @Override
+    public String toString() {
+        final String status;
+        switch (state) {
+            case NORMAL:
+                status = "[Completed normally]";
+                break;
+            case EXCEPTIONAL:
+                status = "[Completed exceptionally: " + outcome + "]";
+                break;
+            default:
+                status = "[Not completed]";
+        }
+        return super.toString() + status;
+    }
+
     // unsafe mechanics
-    private static final sun.misc.Unsafe UNSAFE = JUnsafe.getUnsafe();
+    private static final sun.misc.Unsafe UNSAFE = UnsafeUtil.getUnsafe();
     private static final long stateOffset;
     private static final long waitersOffset;
 
