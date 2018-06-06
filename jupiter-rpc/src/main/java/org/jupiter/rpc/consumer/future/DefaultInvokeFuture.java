@@ -55,10 +55,12 @@ public class DefaultInvokeFuture<V> extends AbstractListenableFuture<V> implemen
 
     private static final InternalLogger logger = InternalLoggerFactory.getInstance(DefaultInvokeFuture.class);
 
-    private static final long DEFAULT_TIMEOUT_NANOSECONDS = TimeUnit.MILLISECONDS.toNanos(JConstants.DEFAULT_TIMEOUT);
-
     private static final int FUTURES_CONTAINER_INITIAL_CAPACITY =
             SystemPropertyUtil.getInt("jupiter.rpc.invoke.futures_container_initial_capacity", 1024);
+    private static final long TIMEOUT_SCANNER_INTERVAL_MILLIS =
+            SystemPropertyUtil.getLong("jupiter.rpc.invoke.timeout_scanner_interval_millis", 50);
+
+    private static final long DEFAULT_TIMEOUT_NANOSECONDS = TimeUnit.MILLISECONDS.toNanos(JConstants.DEFAULT_TIMEOUT);
 
     private static final ConcurrentMap<Long, DefaultInvokeFuture<?>> roundFutures =
             Maps.newConcurrentMapLong(FUTURES_CONTAINER_INITIAL_CAPACITY);
@@ -66,7 +68,10 @@ public class DefaultInvokeFuture<V> extends AbstractListenableFuture<V> implemen
             Maps.newConcurrentMap(FUTURES_CONTAINER_INITIAL_CAPACITY);
 
     private static final HashedWheelTimer futuresTimeoutScanner =
-            new HashedWheelTimer(new NamedThreadFactory("futures.timeout.scanner", true));
+            new HashedWheelTimer(
+                    new NamedThreadFactory("futures.timeout.scanner", true),
+                    TIMEOUT_SCANNER_INTERVAL_MILLIS, TimeUnit.MILLISECONDS
+            );
 
     private final long invokeId; // request.invokeId, 广播的场景可以重复
     private final JChannel channel;
