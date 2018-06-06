@@ -267,5 +267,4 @@ abstract class BaseLinkedQueue<E> extends BaseLinkedQueuePad2<E> {
     public int capacity() {
         return UNBOUNDED_CAPACITY;
     }
-
 }
