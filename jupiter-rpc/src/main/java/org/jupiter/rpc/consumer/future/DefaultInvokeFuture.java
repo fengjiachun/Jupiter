@@ -16,12 +16,16 @@
 
 package org.jupiter.rpc.consumer.future;
 
+import org.jupiter.common.concurrent.NamedThreadFactory;
 import org.jupiter.common.util.JConstants;
 import org.jupiter.common.util.Maps;
 import org.jupiter.common.util.Signal;
 import org.jupiter.common.util.SystemPropertyUtil;
 import org.jupiter.common.util.internal.logging.InternalLogger;
 import org.jupiter.common.util.internal.logging.InternalLoggerFactory;
+import org.jupiter.common.util.timer.HashedWheelTimer;
+import org.jupiter.common.util.timer.Timeout;
+import org.jupiter.common.util.timer.TimerTask;
 import org.jupiter.rpc.DispatchType;
 import org.jupiter.rpc.JListener;
 import org.jupiter.rpc.JResponse;
@@ -61,6 +65,9 @@ public class DefaultInvokeFuture<V> extends AbstractListenableFuture<V> implemen
     private static final ConcurrentMap<String, DefaultInvokeFuture<?>> broadcastFutures =
             Maps.newConcurrentMap(FUTURES_CONTAINER_INITIAL_CAPACITY);
 
+    private static final HashedWheelTimer futuresTimeoutScanner =
+            new HashedWheelTimer(new NamedThreadFactory("futures.timeout.scanner", true));
+
     private final long invokeId; // request.invokeId, 广播的场景可以重复
     private final JChannel channel;
     private final Class<V> returnType;
@@ -89,9 +96,12 @@ public class DefaultInvokeFuture<V> extends AbstractListenableFuture<V> implemen
         switch (dispatchType) {
             case ROUND:
                 roundFutures.put(invokeId, this);
+                futuresTimeoutScanner.newTimeout(new TimeoutTask(null, invokeId), timeout, TimeUnit.NANOSECONDS);
                 break;
             case BROADCAST:
-                broadcastFutures.put(subInvokeId(channel, invokeId), this);
+                String channelId = channel.id();
+                broadcastFutures.put(subInvokeId(channelId, invokeId), this);
+                futuresTimeoutScanner.newTimeout(new TimeoutTask(channelId, invokeId), timeout, TimeUnit.NANOSECONDS);
                 break;
             default:
                 throw new IllegalArgumentException("Unsupported " + dispatchType);
@@ -212,7 +222,7 @@ public class DefaultInvokeFuture<V> extends AbstractListenableFuture<V> implemen
 
         if (future == null) {
             // 广播场景下做出了一点让步, 多查询了一次roundFutures
-            future = broadcastFutures.remove(subInvokeId(channel, invokeId));
+            future = broadcastFutures.remove(subInvokeId(channel.id(), invokeId));
         }
 
         if (future == null) {
@@ -231,7 +241,7 @@ public class DefaultInvokeFuture<V> extends AbstractListenableFuture<V> implemen
         if (dispatchType == DispatchType.ROUND) {
             future = roundFutures.remove(invokeId);
         } else if (dispatchType == DispatchType.BROADCAST) {
-            future = broadcastFutures.remove(subInvokeId(channel, invokeId));
+            future = broadcastFutures.remove(subInvokeId(channel.id(), invokeId));
         }
 
         if (future == null) {
@@ -241,56 +251,43 @@ public class DefaultInvokeFuture<V> extends AbstractListenableFuture<V> implemen
         future.doReceived(response);
     }
 
-    private static String subInvokeId(JChannel channel, long invokeId) {
-        return channel.id() + invokeId;
+    private static String subInvokeId(String channelId, long invokeId) {
+        return channelId + invokeId;
     }
 
-    // timeout scanner
-    @SuppressWarnings("all")
-    private static class TimeoutScanner implements Runnable {
+    final class TimeoutTask implements TimerTask {
 
-        private static final long TIMEOUT_SCANNER_INTERVAL_MILLIS =
-                SystemPropertyUtil.getLong("jupiter.rpc.invoke.timeout_scanner_interval_millis", 100);
+        private final String channelId;
+        private final long invokeId;
 
-        public void run() {
-            for (;;) {
-                try {
-                    // round
-                    for (DefaultInvokeFuture<?> future : roundFutures.values()) {
-                        process(future, DispatchType.ROUND);
-                    }
+        public TimeoutTask(String channelId, long invokeId) {
+            this.channelId = channelId;
+            this.invokeId = invokeId;
+        }
 
-                    // broadcast
-                    for (DefaultInvokeFuture<?> future : broadcastFutures.values()) {
-                        process(future, DispatchType.BROADCAST);
-                    }
-                } catch (Throwable t) {
-                    logger.error("An exception was caught while scanning the timeout futures {}.", stackTrace(t));
-                }
+        @Override
+        public void run(Timeout timeout) throws Exception {
+            DefaultInvokeFuture<?> future;
+            if (channelId == null) {
+                // round
+                future = roundFutures.remove(invokeId);
+            } else {
+                // broadcast
+                future = broadcastFutures.remove(channelId + invokeId);
+            }
 
-                try {
-                    Thread.sleep(TIMEOUT_SCANNER_INTERVAL_MILLIS);
-                } catch (InterruptedException ignored) {}
+            if (future != null) {
+                processTimeout(future);
             }
         }
 
-        private void process(DefaultInvokeFuture<?> future, DispatchType dispatchType) {
-            if (future == null || future.isDone()) {
-                return;
-            }
-
+        private void processTimeout(DefaultInvokeFuture<?> future) {
             if (System.nanoTime() - future.startTime > future.timeout) {
                 JResponse response = new JResponse(future.invokeId);
                 response.status(future.sent ? Status.SERVER_TIMEOUT : Status.CLIENT_TIMEOUT);
 
-                DefaultInvokeFuture.fakeReceived(future.channel, response, dispatchType);
+                future.doReceived(response);
             }
         }
-    }
-
-    static {
-        Thread t = new Thread(new TimeoutScanner(), "timeout.scanner");
-        t.setDaemon(true);
-        t.start();
     }
 }

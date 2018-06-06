@@ -16,6 +16,7 @@
 
 package org.jupiter.common.util.internal;
 
+import org.jupiter.common.util.ThrowUtil;
 import org.jupiter.common.util.internal.logging.InternalLogger;
 import org.jupiter.common.util.internal.logging.InternalLoggerFactory;
 import sun.misc.Unsafe;
@@ -42,6 +43,8 @@ public final class UnsafeUtil {
 
     private static final Unsafe unsafe;
 
+    public static final boolean SUPPORTS_GET_AND_SET;
+
     static {
         Unsafe _unsafe;
         try {
@@ -57,6 +60,15 @@ public final class UnsafeUtil {
         }
 
         unsafe = _unsafe;
+
+        boolean getAndSetSupport = false;
+        if (unsafe == null) {
+            try {
+                Unsafe.class.getMethod("getAndSetObject", Object.class, Long.TYPE, Object.class);
+                getAndSetSupport = true;
+            } catch (Exception ignored) {}
+        }
+        SUPPORTS_GET_AND_SET = getAndSetSupport;
     }
 
     private static final MemoryAccessor memoryAccessor = new MemoryAccessor(unsafe);
@@ -92,6 +104,10 @@ public final class UnsafeUtil {
      */
     public static Unsafe getUnsafe() {
         return unsafe;
+    }
+
+    public static boolean isSupportsGetAndSet() {
+        return SUPPORTS_GET_AND_SET;
     }
 
     /**
@@ -335,6 +351,19 @@ public final class UnsafeUtil {
      */
     public static long objectFieldOffset(Field field) {
         return field == null || unsafe == null ? -1 : unsafe.objectFieldOffset(field);
+    }
+
+    /**
+     * Returns the offset of the provided class and fieldName, or {@code -1} if {@code sun.misc.Unsafe} is not
+     * available.
+     */
+    public static long objectFieldOffset(Class<?> clazz, String fieldName) {
+        try {
+            return objectFieldOffset(clazz.getDeclaredField(fieldName));
+        } catch (NoSuchFieldException e) {
+            ThrowUtil.throwException(e);
+        }
+        return -1; // never get here
     }
 
     /**

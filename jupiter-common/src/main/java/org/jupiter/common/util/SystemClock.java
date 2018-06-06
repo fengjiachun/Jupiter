@@ -60,15 +60,7 @@ class RhsTimePadding extends Time {
  */
 public class SystemClock extends RhsTimePadding {
 
-    private static final long NOW_VALUE_OFFSET;
-
-    static {
-        try {
-            NOW_VALUE_OFFSET = UnsafeUtil.objectFieldOffset(Time.class.getDeclaredField("now"));
-        } catch (Throwable t) {
-            throw new RuntimeException(t);
-        }
-    }
+    private static final long NOW_VALUE_OFFSET = UnsafeUtil.objectFieldOffset(Time.class, "now");
 
     private static final SystemClock millisClock = new SystemClock(1);
 
