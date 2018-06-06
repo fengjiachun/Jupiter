@@ -43,7 +43,7 @@ public final class UnsafeUtil {
 
     private static final Unsafe unsafe;
 
-    public static final boolean SUPPORTS_GET_AND_SET;
+    private static final boolean SUPPORTS_GET_AND_SET;
 
     static {
         Unsafe _unsafe;
