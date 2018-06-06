@@ -49,9 +49,8 @@ import org.jupiter.common.util.internal.UnsafeUtil;
  *
  * Forked from <a href="https://github.com/JCTools/JCTools">JCTools</a>.
  */
-public abstract class MpscLinkedQueue<E> extends BaseLinkedQueue<E> {
+public class MpscLinkedQueue<E> extends BaseLinkedQueue<E> {
 
-    private static final boolean SUPPORTS_GET_AND_SET = UnsafeUtil.isSupportsGetAndSet();
     /**
      * Construct the implementation based on availability of getAndSet intrinsic.
      *
@@ -59,11 +58,7 @@ public abstract class MpscLinkedQueue<E> extends BaseLinkedQueue<E> {
      */
     // $gen:ignore
     public static <E> MpscLinkedQueue<E> newMpscLinkedQueue() {
-        if (SUPPORTS_GET_AND_SET) {
-            return new MpscLinkedQueue8<>();
-        } else {
-            return new MpscLinkedQueue7<>();
-        }
+        return new MpscLinkedQueue<>();
     }
 
     protected MpscLinkedQueue() {
@@ -232,7 +227,14 @@ public abstract class MpscLinkedQueue<E> extends BaseLinkedQueue<E> {
     }
 
     // $gen:ignore
-    protected abstract LinkedQueueNode<E> xchgProducerNode(LinkedQueueNode<E> nextNode);
+    @SuppressWarnings("unchecked")
+    protected LinkedQueueNode<E> xchgProducerNode(LinkedQueueNode<E> nextNode) {
+        Object oldNode;
+        do {
+            oldNode = lvProducerNode();
+        } while (!UnsafeUtil.getUnsafe().compareAndSwapObject(this, P_NODE_OFFSET, oldNode, nextNode));
+        return (LinkedQueueNode<E>) oldNode;
+    }
 
     private LinkedQueueNode<E> getNextConsumerNode(LinkedQueueNode<E> currConsumerNode) {
         LinkedQueueNode<E> nextNode = currConsumerNode.lvNext();

@@ -43,8 +43,6 @@ public final class UnsafeUtil {
 
     private static final Unsafe unsafe;
 
-    private static final boolean SUPPORTS_GET_AND_SET;
-
     static {
         Unsafe _unsafe;
         try {
@@ -60,15 +58,6 @@ public final class UnsafeUtil {
         }
 
         unsafe = _unsafe;
-
-        boolean getAndSetSupport = false;
-        if (unsafe == null) {
-            try {
-                Unsafe.class.getMethod("getAndSetObject", Object.class, Long.TYPE, Object.class);
-                getAndSetSupport = true;
-            } catch (Exception ignored) {}
-        }
-        SUPPORTS_GET_AND_SET = getAndSetSupport;
     }
 
     private static final MemoryAccessor memoryAccessor = new MemoryAccessor(unsafe);
@@ -104,10 +93,6 @@ public final class UnsafeUtil {
      */
     public static Unsafe getUnsafe() {
         return unsafe;
-    }
-
-    public static boolean isSupportsGetAndSet() {
-        return SUPPORTS_GET_AND_SET;
     }
 
     /**
