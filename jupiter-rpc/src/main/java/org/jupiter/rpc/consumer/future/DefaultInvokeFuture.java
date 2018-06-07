@@ -67,7 +67,7 @@ public class DefaultInvokeFuture<V> extends AbstractListenableFuture<V> implemen
     private static final ConcurrentMap<String, DefaultInvokeFuture<?>> broadcastFutures =
             Maps.newConcurrentMap(FUTURES_CONTAINER_INITIAL_CAPACITY);
 
-    private static final HashedWheelTimer futuresTimeoutScanner =
+    private static final HashedWheelTimer timeoutScanner =
             new HashedWheelTimer(
                     new NamedThreadFactory("futures.timeout.scanner", true),
                     TIMEOUT_SCANNER_INTERVAL_MILLIS, TimeUnit.MILLISECONDS
@@ -114,7 +114,7 @@ public class DefaultInvokeFuture<V> extends AbstractListenableFuture<V> implemen
                 throw new IllegalArgumentException("Unsupported " + dispatchType);
         }
 
-        futuresTimeoutScanner.newTimeout(timeoutTask, timeout, TimeUnit.NANOSECONDS);
+        timeoutScanner.newTimeout(timeoutTask, timeout, TimeUnit.NANOSECONDS);
     }
 
     public JChannel channel() {
@@ -264,7 +264,7 @@ public class DefaultInvokeFuture<V> extends AbstractListenableFuture<V> implemen
         return channelId + invokeId;
     }
 
-    final static class TimeoutTask implements TimerTask {
+    static final class TimeoutTask implements TimerTask {
 
         private final String channelId;
         private final long invokeId;
