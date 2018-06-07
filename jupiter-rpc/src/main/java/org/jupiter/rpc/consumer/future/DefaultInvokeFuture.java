@@ -55,12 +55,12 @@ public class DefaultInvokeFuture<V> extends AbstractListenableFuture<V> implemen
 
     private static final InternalLogger logger = InternalLoggerFactory.getInstance(DefaultInvokeFuture.class);
 
+    private static final long DEFAULT_TIMEOUT_NANOSECONDS = TimeUnit.MILLISECONDS.toNanos(JConstants.DEFAULT_TIMEOUT);
+
     private static final int FUTURES_CONTAINER_INITIAL_CAPACITY =
             SystemPropertyUtil.getInt("jupiter.rpc.invoke.futures_container_initial_capacity", 1024);
     private static final long TIMEOUT_SCANNER_INTERVAL_MILLIS =
             SystemPropertyUtil.getLong("jupiter.rpc.invoke.timeout_scanner_interval_millis", 50);
-
-    private static final long DEFAULT_TIMEOUT_NANOSECONDS = TimeUnit.MILLISECONDS.toNanos(JConstants.DEFAULT_TIMEOUT);
 
     private static final ConcurrentMap<Long, DefaultInvokeFuture<?>> roundFutures =
             Maps.newConcurrentMapLong(FUTURES_CONTAINER_INITIAL_CAPACITY);
@@ -98,19 +98,23 @@ public class DefaultInvokeFuture<V> extends AbstractListenableFuture<V> implemen
         this.timeout = timeoutMillis > 0 ? TimeUnit.MILLISECONDS.toNanos(timeoutMillis) : DEFAULT_TIMEOUT_NANOSECONDS;
         this.returnType = returnType;
 
+        TimeoutTask timeoutTask;
+
         switch (dispatchType) {
             case ROUND:
                 roundFutures.put(invokeId, this);
-                futuresTimeoutScanner.newTimeout(new TimeoutTask(null, invokeId), timeout, TimeUnit.NANOSECONDS);
+                timeoutTask = new TimeoutTask(invokeId);
                 break;
             case BROADCAST:
                 String channelId = channel.id();
                 broadcastFutures.put(subInvokeId(channelId, invokeId), this);
-                futuresTimeoutScanner.newTimeout(new TimeoutTask(channelId, invokeId), timeout, TimeUnit.NANOSECONDS);
+                timeoutTask = new TimeoutTask(channelId, invokeId);
                 break;
             default:
                 throw new IllegalArgumentException("Unsupported " + dispatchType);
         }
+
+        futuresTimeoutScanner.newTimeout(timeoutTask, timeout, TimeUnit.NANOSECONDS);
     }
 
     public JChannel channel() {
@@ -260,10 +264,15 @@ public class DefaultInvokeFuture<V> extends AbstractListenableFuture<V> implemen
         return channelId + invokeId;
     }
 
-    final class TimeoutTask implements TimerTask {
+    final static class TimeoutTask implements TimerTask {
 
         private final String channelId;
         private final long invokeId;
+
+        public TimeoutTask(long invokeId) {
+            this.channelId = null;
+            this.invokeId = invokeId;
+        }
 
         public TimeoutTask(String channelId, long invokeId) {
             this.channelId = channelId;
@@ -273,12 +282,13 @@ public class DefaultInvokeFuture<V> extends AbstractListenableFuture<V> implemen
         @Override
         public void run(Timeout timeout) throws Exception {
             DefaultInvokeFuture<?> future;
+
             if (channelId == null) {
                 // round
                 future = roundFutures.remove(invokeId);
             } else {
                 // broadcast
-                future = broadcastFutures.remove(channelId + invokeId);
+                future = broadcastFutures.remove(subInvokeId(channelId, invokeId));
             }
 
             if (future != null) {
