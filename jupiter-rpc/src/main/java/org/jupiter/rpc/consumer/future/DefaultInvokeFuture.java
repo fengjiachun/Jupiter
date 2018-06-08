@@ -70,7 +70,8 @@ public class DefaultInvokeFuture<V> extends AbstractListenableFuture<V> implemen
     private static final HashedWheelTimer timeoutScanner =
             new HashedWheelTimer(
                     new NamedThreadFactory("futures.timeout.scanner", true),
-                    TIMEOUT_SCANNER_INTERVAL_MILLIS, TimeUnit.MILLISECONDS
+                    TIMEOUT_SCANNER_INTERVAL_MILLIS, TimeUnit.MILLISECONDS,
+                    4096
             );
 
     private final long invokeId; // request.invokeId, 广播的场景可以重复
