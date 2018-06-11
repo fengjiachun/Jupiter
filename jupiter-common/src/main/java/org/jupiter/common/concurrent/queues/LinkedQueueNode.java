@@ -30,13 +30,16 @@
 package org.jupiter.common.concurrent.queues;
 
 import org.jupiter.common.util.internal.UnsafeUtil;
+import sun.misc.Unsafe;
 
 /**
  * Forked from <a href="https://github.com/JCTools/JCTools">JCTools</a>.
  */
 final class LinkedQueueNode<E> {
 
-    private final static long NEXT_OFFSET = UnsafeUtil.objectFieldOffset(LinkedQueueNode.class, "next");
+    private static final long NEXT_OFFSET = UnsafeUtil.objectFieldOffset(LinkedQueueNode.class, "next");
+
+    private static final Unsafe unsafe = UnsafeUtil.getUnsafe();
 
     private E value;
     @SuppressWarnings("unused")
@@ -70,7 +73,7 @@ final class LinkedQueueNode<E> {
     }
 
     public void soNext(LinkedQueueNode<E> n) {
-        UnsafeUtil.getUnsafe().putOrderedObject(this, NEXT_OFFSET, n);
+        unsafe.putOrderedObject(this, NEXT_OFFSET, n);
     }
 
     public LinkedQueueNode<E> lvNext() {
