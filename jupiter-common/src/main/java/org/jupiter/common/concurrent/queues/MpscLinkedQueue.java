@@ -29,8 +29,6 @@
  */
 package org.jupiter.common.concurrent.queues;
 
-import sun.misc.Unsafe;
-
 /**
  * This is a direct Java port of the MPSC algorithm as presented
  * <a href="http://www.1024cores.net/home/lock-free-algorithms/queues/non-intrusive-mpsc-node-based-queue"> on
@@ -229,11 +227,10 @@ public class MpscLinkedQueue<E> extends BaseLinkedQueue<E> {
     // $gen:ignore
     @SuppressWarnings("unchecked")
     protected LinkedQueueNode<E> xchgProducerNode(LinkedQueueNode<E> nextNode) {
-        final Unsafe us = unsafe; // stack copy
         Object oldNode;
         do {
             oldNode = lvProducerNode();
-        } while (!us.compareAndSwapObject(this, P_NODE_OFFSET, oldNode, nextNode));
+        } while (!unsafe.compareAndSwapObject(this, P_NODE_OFFSET, oldNode, nextNode));
         return (LinkedQueueNode<E>) oldNode;
     }
 
