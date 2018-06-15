@@ -16,7 +16,8 @@
 
 package org.jupiter.example.round;
 
-import org.jupiter.example.ServiceTest;
+import org.jupiter.example.User;
+import org.jupiter.example.UserService;
 import org.jupiter.rpc.DefaultClient;
 import org.jupiter.rpc.InvokeType;
 import org.jupiter.rpc.JClient;
@@ -41,26 +42,26 @@ public class AsyncJupiterClient {
         // 连接RegistryServer
         client.connectToRegistryServer("127.0.0.1:20001");
         // 自动管理可用连接
-        JConnector.ConnectionWatcher watcher = client.watchConnections(ServiceTest.class, "1.0.0.daily");
+        JConnector.ConnectionWatcher watcher = client.watchConnections(UserService.class, "1.0.0.daily");
         // 等待连接可用
         if (!watcher.waitForAvailable(3000)) {
             throw new ConnectFailedException();
         }
 
-        ServiceTest service = ProxyFactory.factory(ServiceTest.class)
+        UserService userService = ProxyFactory.factory(UserService.class)
                 .version("1.0.0.daily")
                 .client(client)
                 .invokeType(InvokeType.ASYNC)
                 .newProxyInstance();
 
         try {
-            ServiceTest.ResultClass result = service.sayHello();
-            System.out.println("sync result: " + result);
-            InvokeFuture<ServiceTest.ResultClass> future = InvokeFutureContext.future(ServiceTest.ResultClass.class);
-            future.addListener(new JListener<ServiceTest.ResultClass>() {
+            User user = userService.createUser();
+            System.out.println("sync result: " + user);
+            InvokeFuture<User> future = InvokeFutureContext.future(User.class);
+            future.addListener(new JListener<User>() {
 
                 @Override
-                public void complete(ServiceTest.ResultClass result) {
+                public void complete(User result) {
                     System.out.println("callback: " + result);
                 }
 

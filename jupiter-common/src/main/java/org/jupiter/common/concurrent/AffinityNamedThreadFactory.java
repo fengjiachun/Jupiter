@@ -45,7 +45,8 @@ public class AffinityNamedThreadFactory implements ThreadFactory {
 
     static {
         // 检查是否存在slf4j, 使用Affinity必须显式引入slf4j依赖
-        ClassUtil.classCheck("org.slf4j.Logger");
+        ClassUtil.checkClass("org.slf4j.Logger",
+                "Class[" + AffinityNamedThreadFactory.class.getName() + "] must rely on SL4J");
     }
 
     private final AtomicInteger id = new AtomicInteger();

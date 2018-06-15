@@ -37,7 +37,7 @@ public enum SerializerType {
         if (0x00 < value && value < 0x10) {
             this.value = value;
         } else {
-            throw new IllegalArgumentException("out of range(0x01 ~ 0x0f): " + value);
+            throw new IllegalArgumentException("Out of range(0x01 ~ 0x0f): " + value);
         }
     }
 

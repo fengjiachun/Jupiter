@@ -17,10 +17,6 @@
 package org.jupiter.rpc.load.balance;
 
 /**
- * 通常负载均衡算法每次都要重新获取所有可用服务的权重信息(由于预热的关系权重可能一直在变化着),
- * {@link WeightArray} 存在的意义是尽量减少内存的占用(结构简单),
- * 再配合ThreadLocal使用, 有助于减少大量临时的短生命周期对象对GC的影响.
- *
  * jupiter
  * org.jupiter.rpc.load.balance
  *
@@ -28,20 +24,35 @@ package org.jupiter.rpc.load.balance;
  */
 final class WeightArray {
 
-    private int[] array = new int[64];
+    private final int[] array;
+    private final int length;
+    private int gcd;
+
+    WeightArray(int[] array, int length) {
+        this.array = array;
+        this.length = (array != null ? array.length : length);
+    }
 
     int get(int index) {
+        if (index >= array.length) {
+            throw new ArrayIndexOutOfBoundsException(index);
+        }
         return array[index];
     }
 
-    void set(int index, int value) {
-        array[index] = value;
+    int length() {
+        return length;
     }
 
-    WeightArray refresh(int capacity) {
-        if (capacity > array.length) {
-            array = new int[capacity];
-        }
-        return this;
+    int gcd() {
+        return gcd;
+    }
+
+    void gcd(int gcd) {
+        this.gcd = gcd;
+    }
+
+    boolean isAllSameWeight() {
+        return array == null;
     }
 }

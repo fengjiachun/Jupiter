@@ -16,7 +16,7 @@
 
 package org.jupiter.transport.processor;
 
-import org.jupiter.transport.payload.JRequestBytes;
+import org.jupiter.transport.payload.JRequestPayload;
 import org.jupiter.transport.Status;
 import org.jupiter.transport.channel.JChannel;
 
@@ -33,12 +33,12 @@ public interface ProviderProcessor {
     /**
      * 处理正常请求
      */
-    void handleRequest(JChannel channel, JRequestBytes request) throws Exception;
+    void handleRequest(JChannel channel, JRequestPayload request) throws Exception;
 
     /**
      * 处理异常
      */
-    void handleException(JChannel channel, JRequestBytes request, Status status, Throwable cause);
+    void handleException(JChannel channel, JRequestPayload request, Status status, Throwable cause);
 
     void shutdown();
 }

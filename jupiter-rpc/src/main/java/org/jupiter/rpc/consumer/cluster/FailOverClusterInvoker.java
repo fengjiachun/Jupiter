@@ -47,6 +47,7 @@ import static org.jupiter.common.util.StackTraceUtil.stackTrace;
  * @author jiachun.fjc
  */
 public class FailOverClusterInvoker implements ClusterInvoker {
+    // 不要在意FailOver的'O'为什么是大写, 因为要和FailFast, FailSafe等单词看着风格一样我心里才舒服
 
     private static final InternalLogger logger = InternalLoggerFactory.getInstance(FailOverClusterInvoker.class);
 
@@ -85,27 +86,25 @@ public class FailOverClusterInvoker implements ClusterInvoker {
     private <T> void invoke0(final JRequest request,
                              final Class<T> returnType,
                              final int tryCount,
-                             final FailOverInvokeFuture<T> future,
+                             final FailOverInvokeFuture<T> failOverFuture,
                              Throwable lastCause) {
 
         if (tryCount > 0) {
-            final InvokeFuture<T> f = dispatcher.dispatch(request, returnType);
+            final InvokeFuture<T> future = dispatcher.dispatch(request, returnType);
 
-            f.addListener(new JListener<T>() {
+            future.addListener(new JListener<T>() {
 
                 @Override
                 public void complete(T result) {
-                    future.setSuccess(result);
+                    failOverFuture.setSuccess(result);
                 }
 
                 @Override
                 public void failure(Throwable cause) {
                     if (logger.isWarnEnabled()) {
                         MessageWrapper message = request.message();
-                        JChannel channel = null;
-                        if (f instanceof DefaultInvokeFuture) {
-                            channel = ((DefaultInvokeFuture) f).channel();
-                        }
+                        JChannel channel =
+                                future instanceof DefaultInvokeFuture ? ((DefaultInvokeFuture) future).channel() : null;
 
                         logger.warn("[{}]: [Fail-over] retry, [{}] attempts left, [method: {}], [metadata: {}], {}.",
                                 channel,
@@ -120,11 +119,11 @@ public class FailOverClusterInvoker implements ClusterInvoker {
                     // So if the last call triggered the next call because of a timeout,
                     // and then the previous call returned successfully before the next call returns,
                     // will uses the previous call result
-                    invoke0(request, returnType, tryCount - 1, future, cause);
+                    invoke0(request, returnType, tryCount - 1, failOverFuture, cause);
                 }
             });
         } else {
-            future.setFailure(lastCause);
+            failOverFuture.setFailure(lastCause);
         }
     }
 }

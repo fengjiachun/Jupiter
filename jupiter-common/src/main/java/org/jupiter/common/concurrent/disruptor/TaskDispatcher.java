@@ -193,7 +193,7 @@ public class TaskDispatcher implements Dispatcher<Runnable>, Executor {
             if (reserveExecutor != null) {
                 reserveExecutor.execute(message);
             } else {
-                throw new RejectedExecutionException("ring buffer is full");
+                throw new RejectedExecutionException("Ring buffer is full");
             }
         }
     }

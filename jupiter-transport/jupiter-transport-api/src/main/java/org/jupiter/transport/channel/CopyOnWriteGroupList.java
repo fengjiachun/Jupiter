@@ -16,8 +16,12 @@
 
 package org.jupiter.transport.channel;
 
+import org.jupiter.common.util.internal.UnsafeUtil;
+
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.concurrent.locks.ReentrantLock;
 
 /**
@@ -33,49 +37,74 @@ import java.util.concurrent.locks.ReentrantLock;
  */
 public class CopyOnWriteGroupList {
 
-    private static final JChannelGroup[] EMPTY_ARRAY = new JChannelGroup[0];
+    private static final JChannelGroup[] EMPTY_GROUP = new JChannelGroup[0];
+    private static final Object[] EMPTY_ARRAY = new Object[] { EMPTY_GROUP, null };
 
     private transient final ReentrantLock lock = new ReentrantLock();
 
     private final DirectoryJChannelGroup parent;
-    private volatile transient JChannelGroup[] array;
-    private transient boolean sameWeight; // 无volatile修饰, 通过array保证可见性
+
+    // array[0]: JChannelGroup[]
+    // array[1]: Map<DirectoryString, WeightArray>
+    private transient volatile Object[] array;
 
     public CopyOnWriteGroupList(DirectoryJChannelGroup parent) {
         this.parent = parent;
         setArray(EMPTY_ARRAY);
     }
 
-    public final JChannelGroup[] snapshot() {
-        return getArray();
+    public final JChannelGroup[] getSnapshot() {
+        return tabAt0(array);
     }
 
-    public final boolean isSameWeight() {
-        // first read volatile
-        return getArray().length == 0 || sameWeight;
+    @SuppressWarnings("unchecked")
+    public final Object getWeightArray(JChannelGroup[] snapshot, String directory) {
+        Object[] array = this.array; // data snapshot
+        return tabAt0(array) != snapshot
+                ? null
+                : (tabAt1(array) == null ? null : tabAt1(array).get(directory));
     }
 
-    public final void setSameWeight(boolean sameWeight) {
-        JChannelGroup[] elements = getArray();
-        setArray(elements, sameWeight); // ensures volatile write semantics
+    public final boolean setWeightArray(JChannelGroup[] snapshot, String directory, Object weightArray) {
+        if (weightArray == null || snapshot != tabAt0(array)) {
+            return false;
+        }
+        final ReentrantLock lock = this.lock;
+        boolean locked = lock.tryLock();
+        if (locked) { // give up if there is competition
+            try {
+                if (snapshot != tabAt0(array)) {
+                    return false;
+                }
+                setWeightArray(directory, weightArray);
+                return true;
+            } finally {
+                lock.unlock();
+            }
+        }
+        return false;
     }
 
-    final JChannelGroup[] getArray() {
-        return array;
+    private void setArray(Object[] array) {
+        this.array = array;
     }
 
-    final void setArray(JChannelGroup[] a) {
-        sameWeight = false;
-        array = a;
+    private void setArray(JChannelGroup[] groups, Object weightArray) {
+        array = new Object[] { groups, weightArray };
     }
 
-    final void setArray(JChannelGroup[] a, boolean sameWeight) {
-        this.sameWeight = sameWeight;
-        array = a;
+    @SuppressWarnings("unchecked")
+    private void setWeightArray(String directory, Object weightArray) {
+        Map<String, Object> weightsMap = tabAt1(array);
+        if (weightsMap == null) {
+            weightsMap = new HashMap<>();
+            setTabAt(array, 1, weightsMap);
+        }
+        weightsMap.put(directory, weightArray);
     }
 
     public int size() {
-        return getArray().length;
+        return tabAt0(array).length;
     }
 
     public boolean isEmpty() {
@@ -83,22 +112,22 @@ public class CopyOnWriteGroupList {
     }
 
     public boolean contains(JChannelGroup o) {
-        JChannelGroup[] elements = getArray();
+        JChannelGroup[] elements = tabAt0(array);
         return indexOf(o, elements, 0, elements.length) >= 0;
     }
 
     public int indexOf(JChannelGroup o) {
-        JChannelGroup[] elements = getArray();
+        JChannelGroup[] elements = tabAt0(array);
         return indexOf(o, elements, 0, elements.length);
     }
 
     public int indexOf(JChannelGroup o, int index) {
-        JChannelGroup[] elements = getArray();
+        JChannelGroup[] elements = tabAt0(array);
         return indexOf(o, elements, index, elements.length);
     }
 
     public JChannelGroup[] toArray() {
-        JChannelGroup[] elements = getArray();
+        JChannelGroup[] elements = tabAt0(array);
         return Arrays.copyOf(elements, elements.length);
     }
 
@@ -107,7 +136,7 @@ public class CopyOnWriteGroupList {
     }
 
     public JChannelGroup get(int index) {
-        return get(getArray(), index);
+        return get(tabAt0(array), index);
     }
 
     /**
@@ -124,7 +153,7 @@ public class CopyOnWriteGroupList {
      * @return {@code true} if this list contained the specified element
      */
     public boolean remove(JChannelGroup o) {
-        JChannelGroup[] snapshot = getArray();
+        JChannelGroup[] snapshot = tabAt0(array);
         int index = indexOf(o, snapshot, 0, snapshot.length);
         return (index >= 0) && remove(o, snapshot, index);
     }
@@ -137,7 +166,7 @@ public class CopyOnWriteGroupList {
         final ReentrantLock lock = this.lock;
         lock.lock();
         try {
-            JChannelGroup[] current = getArray();
+            JChannelGroup[] current = tabAt0(array);
             int len = current.length;
             if (snapshot != current) findIndex: {
                 int prefix = Math.min(index, len);
@@ -161,7 +190,7 @@ public class CopyOnWriteGroupList {
             JChannelGroup[] newElements = new JChannelGroup[len - 1];
             System.arraycopy(current, 0, newElements, 0, index);
             System.arraycopy(current, index + 1, newElements, index, len - index - 1);
-            setArray(newElements);
+            setArray(newElements, null);
             parent.decrementRefCount(o); // reference count -1
             return true;
         } finally {
@@ -176,7 +205,7 @@ public class CopyOnWriteGroupList {
      * @return {@code true} if the element was added
      */
     public boolean addIfAbsent(JChannelGroup o) {
-        JChannelGroup[] snapshot = getArray();
+        JChannelGroup[] snapshot = tabAt0(array);
         return indexOf(o, snapshot, 0, snapshot.length) < 0 && addIfAbsent(o, snapshot);
     }
 
@@ -188,7 +217,7 @@ public class CopyOnWriteGroupList {
         final ReentrantLock lock = this.lock;
         lock.lock();
         try {
-            JChannelGroup[] current = getArray();
+            JChannelGroup[] current = tabAt0(array);
             int len = current.length;
             if (snapshot != current) {
                 // optimize for lost race to another addXXX operation
@@ -204,7 +233,7 @@ public class CopyOnWriteGroupList {
             }
             JChannelGroup[] newElements = Arrays.copyOf(current, len + 1);
             newElements[len] = o;
-            setArray(newElements);
+            setArray(newElements, null);
             parent.incrementRefCount(o); // reference count +1
             return true;
         } finally {
@@ -213,7 +242,7 @@ public class CopyOnWriteGroupList {
     }
 
     public boolean containsAll(Collection<? extends JChannelGroup> c) {
-        JChannelGroup[] elements = getArray();
+        JChannelGroup[] elements = tabAt0(array);
         int len = elements.length;
         for (JChannelGroup e : c) {
             if (indexOf(e, elements, 0, len) < 0) {
@@ -235,7 +264,7 @@ public class CopyOnWriteGroupList {
 
     @Override
     public String toString() {
-        return Arrays.toString(getArray());
+        return Arrays.toString(tabAt0(array));
     }
 
     @Override
@@ -249,8 +278,8 @@ public class CopyOnWriteGroupList {
 
         CopyOnWriteGroupList other = (CopyOnWriteGroupList) (o);
 
-        JChannelGroup[] elements = getArray();
-        JChannelGroup[] otherElements = other.getArray();
+        JChannelGroup[] elements = tabAt0(array);
+        JChannelGroup[] otherElements = tabAt0(other.array);
         int len = elements.length;
         int otherLen = otherElements.length;
 
@@ -270,7 +299,7 @@ public class CopyOnWriteGroupList {
     @Override
     public int hashCode() {
         int hashCode = 1;
-        JChannelGroup[] elements = getArray();
+        JChannelGroup[] elements = tabAt0(array);
         for (int i = 0, len = elements.length; i < len; i++) {
             JChannelGroup o = elements[i];
             hashCode = 31 * hashCode + (o == null ? 0 : o.hashCode());
@@ -297,5 +326,22 @@ public class CopyOnWriteGroupList {
             }
         }
         return -1;
+    }
+
+    private static JChannelGroup[] tabAt0(Object[] array) {
+        return (JChannelGroup[]) tabAt(array, 0);
+    }
+
+    @SuppressWarnings("unchecked")
+    private static Map<String, Object> tabAt1(Object[] array) {
+        return (Map<String, Object>) tabAt(array, 1);
+    }
+
+    private static Object tabAt(Object[] array, int index) {
+        return UnsafeUtil.getObjectVolatile(array, index);
+    }
+
+    private static void setTabAt(Object[] array, int index, Object value) {
+        UnsafeUtil.putObjectVolatile(array, index, value);
     }
 }

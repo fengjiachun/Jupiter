@@ -68,7 +68,7 @@ public class OpenTracingFilter implements JFilter {
         } else if (filterCtxType == Type.CONSUMER) {
             processConsumerTracing(tracer, request, filterCtx, next);
         } else {
-            throw new IllegalArgumentException("illegal filter context type: " + filterCtxType);
+            throw new IllegalArgumentException("Illegal filter context type: " + filterCtxType);
         }
     }
 

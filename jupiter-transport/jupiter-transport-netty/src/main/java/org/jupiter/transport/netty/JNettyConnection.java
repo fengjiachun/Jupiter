@@ -41,14 +41,12 @@ public abstract class JNettyConnection extends JConnection {
     }
 
     @Override
-    public void operationComplete(final Runnable callback) {
+    public void operationComplete(final OperationListener operationListener) {
         future.addListener(new ChannelFutureListener() {
 
             @Override
             public void operationComplete(ChannelFuture future) throws Exception {
-                if (future.isSuccess()) {
-                    callback.run();
-                }
+                operationListener.complete(future.isSuccess());
             }
         });
     }

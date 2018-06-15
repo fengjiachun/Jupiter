@@ -40,14 +40,17 @@ public class ServiceTestImpl extends BaseService implements ServiceTest {
         this.strValue = strValue;
     }
 
+    @SuppressWarnings("NumericOverflow")
     @Override
     public ResultClass sayHello(String... s) {
         ResultClass result = new ResultClass();
-        result.lon = 1L;
+        result.lon = Long.MIN_VALUE;
         Integer i = getIntValue();
         result.num = (i == null ? 0 : i);
-        result.str = strValue;
         result.list = Lists.newArrayList("H", "e", "l", "l", "o");
+        for (int j = 0; j < 5000; j++) {
+            result.list.add(String.valueOf(Integer.MAX_VALUE - j));
+        }
         Collections.addAll(result.list, s);
         return result;
     }

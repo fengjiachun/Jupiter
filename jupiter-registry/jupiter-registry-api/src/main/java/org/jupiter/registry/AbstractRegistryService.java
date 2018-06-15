@@ -44,11 +44,11 @@ public abstract class AbstractRegistryService implements RegistryService {
 
     private final LinkedBlockingQueue<RegisterMeta> queue = new LinkedBlockingQueue<>();
     private final ExecutorService registerExecutor =
-            Executors.newSingleThreadExecutor(new NamedThreadFactory("register.executor"));
+            Executors.newSingleThreadExecutor(new NamedThreadFactory("register.executor", true));
     private final ScheduledExecutorService registerScheduledExecutor =
-            Executors.newSingleThreadScheduledExecutor(new NamedThreadFactory("register.schedule.executor"));
+            Executors.newSingleThreadScheduledExecutor(new NamedThreadFactory("register.schedule.executor", true));
     private final ExecutorService localRegisterWatchExecutor =
-            Executors.newSingleThreadExecutor(new NamedThreadFactory("local.register.watch.executor"));
+            Executors.newSingleThreadExecutor(new NamedThreadFactory("local.register.watch.executor", true));
 
     private final AtomicBoolean shutdown = new AtomicBoolean(false);
 
@@ -122,6 +122,7 @@ public abstract class AbstractRegistryService implements RegistryService {
         queue.add(meta);
     }
 
+    @SuppressWarnings("all")
     @Override
     public void unregister(RegisterMeta meta) {
         if (!queue.remove(meta)) {
@@ -284,6 +285,7 @@ public abstract class AbstractRegistryService implements RegistryService {
 
     protected abstract void doRegister(RegisterMeta meta);
 
+    @SuppressWarnings("all")
     protected abstract void doUnregister(RegisterMeta meta);
 
     protected abstract void doCheckRegisterNodeStatus();

@@ -16,7 +16,7 @@
 
 package org.jupiter.transport.processor;
 
-import org.jupiter.transport.payload.JResponseBytes;
+import org.jupiter.transport.payload.JResponsePayload;
 import org.jupiter.transport.channel.JChannel;
 
 /**
@@ -29,7 +29,7 @@ import org.jupiter.transport.channel.JChannel;
  */
 public interface ConsumerProcessor {
 
-    void handleResponse(JChannel channel, JResponseBytes response) throws Exception;
+    void handleResponse(JChannel channel, JResponsePayload response) throws Exception;
 
     void shutdown();
 }

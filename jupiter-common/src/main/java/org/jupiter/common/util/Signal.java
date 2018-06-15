@@ -79,7 +79,7 @@ public final class Signal extends Exception implements Constant<Signal> {
      */
     public void expect(Signal signal) {
         if (this != signal) {
-            throw new IllegalStateException("unexpected signal: " + signal);
+            throw new IllegalStateException("Unexpected signal: " + signal);
         }
     }
 

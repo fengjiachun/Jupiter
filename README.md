@@ -34,6 +34,7 @@
 
 #### 性能:
 - 小数据包请求(不带业务)在四核刀片服务器上可达到17w+的tps, 详情见 [Benchmark](https://github.com/fengjiachun/Jupiter/wiki/Benchmark)
+- [参考: 多个RPC框架的Benchmark见这里](https://github.com/hank-whu/rpc-benchmark)
 
 #### 文档:
 - [Wiki](https://github.com/fengjiachun/Jupiter/wiki)
@@ -228,4 +229,3 @@ public class HelloJupiterClient {
 #### 其他
 - qq交流群: 397633380
 - 邮件交流: jiachun_fjc@163.com
-

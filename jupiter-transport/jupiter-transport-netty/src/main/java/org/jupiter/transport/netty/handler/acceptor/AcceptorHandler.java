@@ -25,7 +25,7 @@ import org.jupiter.common.util.internal.logging.InternalLoggerFactory;
 import org.jupiter.transport.Status;
 import org.jupiter.transport.channel.JChannel;
 import org.jupiter.transport.netty.channel.NettyChannel;
-import org.jupiter.transport.payload.JRequestBytes;
+import org.jupiter.transport.payload.JRequestPayload;
 import org.jupiter.transport.processor.ProviderProcessor;
 
 import java.io.IOException;
@@ -52,12 +52,12 @@ public class AcceptorHandler extends ChannelInboundHandlerAdapter {
     public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
         Channel ch = ctx.channel();
 
-        if (msg instanceof JRequestBytes) {
+        if (msg instanceof JRequestPayload) {
             JChannel jChannel = NettyChannel.attachChannel(ch);
             try {
-                processor.handleRequest(jChannel, (JRequestBytes) msg);
+                processor.handleRequest(jChannel, (JRequestPayload) msg);
             } catch (Throwable t) {
-                processor.handleException(jChannel, (JRequestBytes) msg, Status.SERVER_ERROR, t);
+                processor.handleException(jChannel, (JRequestPayload) msg, Status.SERVER_ERROR, t);
             }
         } else {
             logger.warn("Unexpected message type received: {}, channel: {}.", msg.getClass(), ch);

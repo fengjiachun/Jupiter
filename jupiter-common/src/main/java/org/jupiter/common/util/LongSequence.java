@@ -34,16 +34,16 @@ import java.util.concurrent.atomic.AtomicLongFieldUpdater;
  *      _klass  : 4 byte pointer to class
  * ---------------------------------------
  */
-class LhsPadding {
+class LongLhsPadding {
     @SuppressWarnings("unused")
     protected long p01, p02, p03, p04, p05, p06, p07;
 }
 
-class Value extends LhsPadding {
+class LongValue extends LongLhsPadding {
     protected volatile long value;
 }
 
-class RhsPadding extends Value {
+class LongRhsPadding extends LongValue {
     @SuppressWarnings("unused")
     protected long p09, p10, p11, p12, p13, p14, p15;
 }
@@ -57,11 +57,11 @@ class RhsPadding extends Value {
  *
  * @author jiachun.fjc
  */
-public class Sequence extends RhsPadding {
+public class LongSequence extends LongRhsPadding {
 
     private static final int DEFAULT_STEP = 128;
 
-    private static final AtomicLongFieldUpdater<Value> updater = AtomicLongFieldUpdater.newUpdater(Value.class, "value");
+    private static final AtomicLongFieldUpdater<LongValue> updater = AtomicLongFieldUpdater.newUpdater(LongValue.class, "value");
 
     private final InternalThreadLocal<LocalSequence> localSequence = new InternalThreadLocal<LocalSequence>() {
 
@@ -73,15 +73,15 @@ public class Sequence extends RhsPadding {
 
     private final int step;
 
-    public Sequence() {
+    public LongSequence() {
         this(DEFAULT_STEP);
     }
 
-    public Sequence(int step) {
+    public LongSequence(int step) {
         this.step = step;
     }
 
-    public Sequence(long initialValue, int step) {
+    public LongSequence(long initialValue, int step) {
         updater.set(this, initialValue);
         this.step = step;
     }

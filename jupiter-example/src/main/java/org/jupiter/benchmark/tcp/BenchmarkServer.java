@@ -20,7 +20,6 @@ import org.jupiter.common.util.SystemPropertyUtil;
 import org.jupiter.monitor.MonitorServer;
 import org.jupiter.rpc.DefaultServer;
 import org.jupiter.rpc.JServer;
-import org.jupiter.transport.JOption;
 import org.jupiter.transport.netty.JNettyTcpAcceptor;
 
 /**
@@ -34,6 +33,8 @@ import org.jupiter.transport.netty.JNettyTcpAcceptor;
 public class BenchmarkServer {
 
     public static void main(String[] args) {
+//        SystemPropertyUtil.setProperty("jupiter.transport.codec.low_copy", "true");
+
         final int processors = Runtime.getRuntime().availableProcessors();
         SystemPropertyUtil
                 .setProperty("jupiter.executor.factory.provider.core.workers", String.valueOf(processors));
@@ -59,8 +60,6 @@ public class BenchmarkServer {
 //                return new AffinityNettyThreadFactory(name, Thread.MAX_PRIORITY);
 //            }
         });
-        server.acceptor().configGroup().child().setOption(JOption.WRITE_BUFFER_HIGH_WATER_MARK, 256 * 1024);
-        server.acceptor().configGroup().child().setOption(JOption.WRITE_BUFFER_LOW_WATER_MARK, 128 * 1024);
         final MonitorServer monitor = new MonitorServer();
         try {
             monitor.start();

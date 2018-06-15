@@ -14,35 +14,21 @@
  * limitations under the License.
  */
 
-package org.jupiter.transport.payload;
+package org.jupiter.example;
+
+import org.jupiter.rpc.ServiceProviderImpl;
 
 /**
- * 响应的消息体bytes载体, 避免在IO线程中序列化/反序列化, jupiter-transport这一层不关注消息体的对象结构.
- *
  * jupiter
- * org.jupiter.transport.payload
+ * org.jupiter.example
  *
  * @author jiachun.fjc
  */
-public class JResponseBytes extends BytesHolder {
+@ServiceProviderImpl(version = "1.0.0.daily")
+public class UserServiceImpl implements UserService {
 
-    // 用于映射 <id, request, response> 三元组
-    private final long id; // request.invokeId
-    private byte status;
-
-    public JResponseBytes(long id) {
-        this.id = id;
-    }
-
-    public long id() {
-        return id;
-    }
-
-    public byte status() {
-        return status;
-    }
-
-    public void status(byte status) {
-        this.status = status;
+    @Override
+    public User createUser() {
+        return User.createUser();
     }
 }

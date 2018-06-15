@@ -16,23 +16,12 @@
 
 package org.jupiter.example.round;
 
-import org.jupiter.common.concurrent.NamedThreadFactory;
-import org.jupiter.example.ServiceTest2Impl;
-import org.jupiter.example.ServiceTestImpl;
-import org.jupiter.monitor.MonitorServer;
+import org.jupiter.common.util.SystemPropertyUtil;
+import org.jupiter.example.UserServiceImpl;
 import org.jupiter.rpc.DefaultServer;
-import org.jupiter.rpc.JRequest;
 import org.jupiter.rpc.JServer;
-import org.jupiter.rpc.flow.control.ControlResult;
-import org.jupiter.rpc.flow.control.FlowController;
 import org.jupiter.rpc.model.metadata.ServiceWrapper;
-import org.jupiter.rpc.provider.ProviderInterceptor;
-import org.jupiter.rpc.tracing.TraceId;
 import org.jupiter.transport.netty.JNettyTcpAcceptor;
-
-import java.util.Arrays;
-import java.util.concurrent.Executors;
-import java.util.concurrent.atomic.AtomicLong;
 
 /**
  * jupiter
@@ -42,92 +31,25 @@ import java.util.concurrent.atomic.AtomicLong;
  */
 public class JupiterServer {
 
+    static {
+        SystemPropertyUtil.setProperty("jupiter.rpc.suggest.connection.count", "1");
+        SystemPropertyUtil.setProperty("jupiter.transport.codec.low_copy", "true");
+        SystemPropertyUtil.setProperty("io.netty.allocator.type", "pooled");
+//        SystemPropertyUtil.setProperty("io.netty.noPreferDirect", "true");
+    }
+
     public static void main(String[] args) {
-        final JServer server = new DefaultServer().withAcceptor(new JNettyTcpAcceptor(18090));
-        final MonitorServer monitor = new MonitorServer();
-        monitor.setJupiterServer(server);
+        JServer server = new DefaultServer().withAcceptor(new JNettyTcpAcceptor(18090));
         try {
-            monitor.start();
-
-            server.withGlobalInterceptors(new GlobalInterceptor());
-
-            // provider1
-            ServiceTestImpl service = new ServiceTestImpl();
-
-            ServiceWrapper provider1 = server.serviceRegistry()
-                    .provider(service, new PrivateInterceptor())
+            ServiceWrapper provider = server.serviceRegistry()
+                    .provider(new UserServiceImpl())
                     .register();
 
-            // provider2
-            ServiceWrapper provider2 = server.serviceRegistry()
-                    .provider(new ServiceTest2Impl())
-                    .flowController(new PrivateFlowController()) // provider级别限流器, 可不设置
-                    .register();
-
-//            server.withGlobalFlowController(); // 全局限流器
             server.connectToRegistryServer("127.0.0.1:20001");
-            server.publishWithInitializer(provider1, new JServer.ProviderInitializer<ServiceTestImpl>() {
-
-                @Override
-                public void init(ServiceTestImpl provider) {
-                    // 初始化成功后再发布服务
-                    provider.setStrValue("provider1");
-                    provider.setIntValue(111);
-                }
-            }, Executors.newSingleThreadExecutor(new NamedThreadFactory("initializer")));
-            server.publish(provider2);
-
-            Runtime.getRuntime().addShutdownHook(new Thread() {
-
-                @Override
-                public void run() {
-                    monitor.shutdownGracefully();
-                    server.shutdownGracefully();
-                }
-            });
-
+            server.publish(provider);
             server.start();
         } catch (InterruptedException e) {
             e.printStackTrace();
-        }
-    }
-
-    static class PrivateFlowController implements FlowController<JRequest> {
-
-        private AtomicLong count = new AtomicLong();
-
-        @Override
-        public ControlResult flowControl(JRequest request) {
-            if (count.getAndIncrement() > 9999) {
-                return new ControlResult(false, "fuck out!!!");
-            }
-            return ControlResult.ALLOWED;
-        }
-    }
-
-    static class GlobalInterceptor implements ProviderInterceptor {
-
-        @Override
-        public void beforeInvoke(TraceId traceId, Object provider, String methodName, Object[] args) {
-            System.out.println("GlobalInterceptor before: " + provider + "#" + methodName + " args: " + Arrays.toString(args));
-        }
-
-        @Override
-        public void afterInvoke(TraceId traceId, Object provider, String methodName, Object[] args, Object result, Throwable failCause) {
-            System.out.println("GlobalInterceptor after: " + provider + "#" + methodName + " args: " + Arrays.toString(args) + " result: " + result);
-        }
-    }
-
-    static class PrivateInterceptor implements ProviderInterceptor {
-
-        @Override
-        public void beforeInvoke(TraceId traceId, Object provider, String methodName, Object[] args) {
-            System.out.println("PrivateInterceptor before: " + provider + "#" + methodName + " args: " + Arrays.toString(args));
-        }
-
-        @Override
-        public void afterInvoke(TraceId traceId, Object provider, String methodName, Object[] args, Object result, Throwable failCause) {
-            System.out.println("PrivateInterceptor after: " + provider + "#" + methodName + " args: " + Arrays.toString(args) + " result: " + result);
         }
     }
 }

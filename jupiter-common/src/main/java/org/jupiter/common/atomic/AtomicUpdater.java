@@ -16,7 +16,7 @@
 
 package org.jupiter.common.atomic;
 
-import org.jupiter.common.util.internal.JUnsafe;
+import org.jupiter.common.util.internal.UnsafeUtil;
 
 import java.util.concurrent.atomic.AtomicReferenceFieldUpdater;
 
@@ -40,7 +40,7 @@ public final class AtomicUpdater {
     public static <U, W> AtomicReferenceFieldUpdater<U, W> newAtomicReferenceFieldUpdater(
             Class<U> tClass, Class<W> vClass, String fieldName) {
         try {
-            return new UnsafeAtomicReferenceFieldUpdater<>(JUnsafe.getUnsafe(), tClass, fieldName);
+            return new UnsafeAtomicReferenceFieldUpdater<>(UnsafeUtil.getUnsafe(), tClass, fieldName);
         } catch (Throwable t) {
             return AtomicReferenceFieldUpdater.newUpdater(tClass, vClass, fieldName);
         }

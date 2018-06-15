@@ -336,7 +336,7 @@ public class JupiterBeanDefinitionParser implements BeanDefinitionParser {
 
     private static String checkAttribute(String attributeName, String attribute) {
         if (Strings.isNullOrEmpty(attribute)) {
-            throw new BeanDefinitionValidationException("attribute [" + attributeName + "] is required.");
+            throw new BeanDefinitionValidationException("Attribute [" + attributeName + "] is required.");
         }
         return attribute;
     }

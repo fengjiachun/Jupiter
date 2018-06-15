@@ -20,7 +20,7 @@
     <parent>
         <groupId>org.jupiter-rpc</groupId>
         <artifactId>jupiter</artifactId>
-        <version>1.2.17</version>
+        <version>1.2.21</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
@@ -186,10 +186,6 @@
 
         <!-- # common dependency: begin -->
         <!-- ## required dependency: begin -->
-        <dependency>
-            <groupId>org.objenesis</groupId>
-            <artifactId>objenesis</artifactId>
-        </dependency>
         <dependency>
             <groupId>org.ow2.asm</groupId>
             <artifactId>asm</artifactId>

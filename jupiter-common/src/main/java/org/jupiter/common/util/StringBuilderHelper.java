@@ -28,9 +28,11 @@ import org.jupiter.common.util.internal.*;
  *
  * @author jiachun.fjc
  */
-public class StringBuilderHelper {
+public final class StringBuilderHelper {
 
     public static StringBuilder get() {
         return InternalThreadLocalMap.get().stringBuilder();
     }
+
+    private StringBuilderHelper() {}
 }

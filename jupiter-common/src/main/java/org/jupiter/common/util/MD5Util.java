@@ -39,7 +39,7 @@ public class MD5Util {
             MessageDigest message = java.security.MessageDigest.getInstance("MD5");
             messageDigestHolder.set(message);
         } catch (NoSuchAlgorithmException e) {
-            ExceptionUtil.throwException(e);
+            ThrowUtil.throwException(e);
         }
     }
 
@@ -60,7 +60,7 @@ public class MD5Util {
 
             return digestHex.toString();
         } catch (Exception e) {
-            ExceptionUtil.throwException(e);
+            ThrowUtil.throwException(e);
         }
         return "";
     }
@@ -71,4 +71,6 @@ public class MD5Util {
         ob[1] = hexDigits[ib & 0X0F];
         return new String(ob);
     }
+
+    private MD5Util() {}
 }

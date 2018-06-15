@@ -16,6 +16,9 @@
 
 package org.jupiter.serialization;
 
+import org.jupiter.serialization.io.InputBuf;
+import org.jupiter.serialization.io.OutputBuf;
+
 /**
  * This interface provides an abstract view for one or more serializer impl.
  *
@@ -40,7 +43,11 @@ public abstract class Serializer {
 
     public abstract byte code();
 
+    public abstract <T> OutputBuf writeObject(OutputBuf outputBuf, T obj);
+
     public abstract <T> byte[] writeObject(T obj);
+
+    public abstract <T> T readObject(InputBuf inputBuf, Class<T> clazz);
 
     public abstract <T> T readObject(byte[] bytes, int offset, int length, Class<T> clazz);
 

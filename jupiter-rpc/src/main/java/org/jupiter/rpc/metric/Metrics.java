@@ -39,7 +39,8 @@ public class Metrics {
     private static final ScheduledReporter scheduledReporter;
     static {
         // 检查是否存在slf4j, 使用Metrics必须显式引入slf4j依赖
-        ClassUtil.classCheck("org.slf4j.Logger");
+        ClassUtil.checkClass("org.slf4j.Logger",
+                "Class[" + Metric.class.getName() + "] must rely on SL4J");
 
         if (JConstants.METRIC_CSV_REPORTER) {
             scheduledReporter = CsvReporter

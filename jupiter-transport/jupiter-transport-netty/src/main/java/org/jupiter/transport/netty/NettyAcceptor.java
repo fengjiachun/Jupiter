@@ -17,15 +17,11 @@
 package org.jupiter.transport.netty;
 
 import io.netty.bootstrap.ServerBootstrap;
-import io.netty.buffer.ByteBufAllocator;
-import io.netty.buffer.PooledByteBufAllocator;
-import io.netty.buffer.UnpooledByteBufAllocator;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelOption;
 import io.netty.channel.EventLoopGroup;
 import io.netty.util.HashedWheelTimer;
 import io.netty.util.concurrent.DefaultThreadFactory;
-import io.netty.util.internal.PlatformDependent;
 import org.jupiter.common.concurrent.NamedThreadFactory;
 import org.jupiter.common.util.JConstants;
 import org.jupiter.transport.JAcceptor;
@@ -49,7 +45,7 @@ public abstract class NettyAcceptor implements JAcceptor {
     protected final Protocol protocol;
     protected final SocketAddress localAddress;
 
-    protected final HashedWheelTimer timer = new HashedWheelTimer(new NamedThreadFactory("acceptor.timer"));
+    protected final HashedWheelTimer timer = new HashedWheelTimer(new NamedThreadFactory("acceptor.timer", true));
 
     private final int nBosses;
     private final int nWorkers;
@@ -59,8 +55,6 @@ public abstract class NettyAcceptor implements JAcceptor {
     private EventLoopGroup worker;
 
     private ProviderProcessor processor;
-
-    protected volatile ByteBufAllocator allocator;
 
     public NettyAcceptor(Protocol protocol, SocketAddress localAddress) {
         this(protocol, localAddress, JConstants.AVAILABLE_PROCESSORS << 1);
@@ -92,8 +86,6 @@ public abstract class NettyAcceptor implements JAcceptor {
         // child options
         JConfig child = configGroup().child();
         child.setOption(JOption.IO_RATIO, 100);
-        child.setOption(JOption.PREFER_DIRECT, true);
-        child.setOption(JOption.USE_POOLED_ALLOCATOR, true);
     }
 
     @Override
@@ -148,22 +140,7 @@ public abstract class NettyAcceptor implements JAcceptor {
 
         setIoRatio(parent.getOption(JOption.IO_RATIO), child.getOption(JOption.IO_RATIO));
 
-        boolean direct = child.getOption(JOption.PREFER_DIRECT);
-        if (child.getOption(JOption.USE_POOLED_ALLOCATOR)) {
-            if (direct) {
-                allocator = new PooledByteBufAllocator(PlatformDependent.directBufferPreferred());
-            } else {
-                allocator = new PooledByteBufAllocator(false);
-            }
-        } else {
-            if (direct) {
-                allocator = new UnpooledByteBufAllocator(PlatformDependent.directBufferPreferred());
-            } else {
-                allocator = new UnpooledByteBufAllocator(false);
-            }
-        }
-        bootstrap.childOption(ChannelOption.ALLOCATOR, allocator)
-                .childOption(ChannelOption.MESSAGE_SIZE_ESTIMATOR, JMessageSizeEstimator.DEFAULT);
+        bootstrap.childOption(ChannelOption.MESSAGE_SIZE_ESTIMATOR, JMessageSizeEstimator.DEFAULT);
     }
 
     /**

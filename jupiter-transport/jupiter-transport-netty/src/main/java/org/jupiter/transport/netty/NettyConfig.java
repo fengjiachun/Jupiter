@@ -42,10 +42,7 @@ public class NettyConfig implements JConfig {
 
     @Override
     public List<JOption<?>> getOptions() {
-        return getOptions(null,
-                JOption.IO_RATIO,
-                JOption.PREFER_DIRECT,
-                JOption.USE_POOLED_ALLOCATOR);
+        return getOptions(null, JOption.IO_RATIO);
     }
 
     protected List<JOption<?>> getOptions(List<JOption<?>> result, JOption<?>... options) {
@@ -64,12 +61,6 @@ public class NettyConfig implements JConfig {
         if (option == JOption.IO_RATIO) {
             return (T) Integer.valueOf(getIoRatio());
         }
-        if (option == JOption.PREFER_DIRECT) {
-            return (T) Boolean.valueOf(isPreferDirect());
-        }
-        if (option == JOption.USE_POOLED_ALLOCATOR) {
-            return (T) Boolean.valueOf(isUsePooledAllocator());
-        }
         return null;
     }
 
@@ -79,10 +70,6 @@ public class NettyConfig implements JConfig {
 
         if (option == JOption.IO_RATIO) {
             setIoRatio(castToInteger(value));
-        } else if (option == JOption.PREFER_DIRECT) {
-            setPreferDirect(castToBoolean(value));
-        } else if (option == JOption.USE_POOLED_ALLOCATOR) {
-            setUsePooledAllocator(castToBoolean(value));
         } else {
             return false;
         }

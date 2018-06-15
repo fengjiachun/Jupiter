@@ -20,7 +20,7 @@ import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufHolder;
 import io.netty.channel.FileRegion;
 import io.netty.channel.MessageSizeEstimator;
-import org.jupiter.transport.payload.BytesHolder;
+import org.jupiter.transport.payload.PayloadHolder;
 
 /**
  * 消息size计算, 努力反应真实的IO水位线.
@@ -44,24 +44,28 @@ public class JMessageSizeEstimator implements MessageSizeEstimator {
             if (msg instanceof ByteBuf) {
                 return ((ByteBuf) msg).readableBytes();
             }
+
             if (msg instanceof ByteBufHolder) {
                 return ((ByteBufHolder) msg).content().readableBytes();
             }
+
             if (msg instanceof FileRegion) {
                 return 0;
             }
+
             // jupiter object
-            if (msg instanceof BytesHolder) {
-                return ((BytesHolder) msg).size();
+            if (msg instanceof PayloadHolder) {
+                return ((PayloadHolder) msg).size();
             }
+
             return unknownSize;
         }
     }
 
     /**
-     * Returns the default implementation which returns {@code -1} for unknown messages.
+     * Return the default implementation which returns {@code 8} for unknown messages.
      */
-    public static final MessageSizeEstimator DEFAULT = new JMessageSizeEstimator(0);
+    public static final MessageSizeEstimator DEFAULT = new JMessageSizeEstimator(8);
 
     private final Handle handle;
 

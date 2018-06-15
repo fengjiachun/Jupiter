@@ -16,14 +16,19 @@
 
 package org.jupiter.serialization.java;
 
-import org.jupiter.common.util.ExceptionUtil;
-import org.jupiter.common.util.internal.InternalThreadLocal;
-import org.jupiter.common.util.internal.UnsafeReferenceFieldUpdater;
-import org.jupiter.common.util.internal.UnsafeUpdater;
+import org.jupiter.common.util.ThrowUtil;
+import org.jupiter.serialization.io.InputBuf;
+import org.jupiter.serialization.io.OutputBuf;
 import org.jupiter.serialization.Serializer;
 import org.jupiter.serialization.SerializerType;
+import org.jupiter.serialization.io.OutputStreams;
+import org.jupiter.serialization.java.io.Inputs;
+import org.jupiter.serialization.java.io.Outputs;
 
-import java.io.*;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 
 /**
  * Java自身的序列化/反序列化实现.
@@ -35,48 +40,69 @@ import java.io.*;
  */
 public class JavaSerializer extends Serializer {
 
-    private static final UnsafeReferenceFieldUpdater<ByteArrayOutputStream, byte[]> bufUpdater =
-            UnsafeUpdater.newReferenceFieldUpdater(ByteArrayOutputStream.class, "buf");
-
-    // 目的是复用 ByteArrayOutputStream 中的 byte[]
-    private static final InternalThreadLocal<ByteArrayOutputStream> bufThreadLocal = new InternalThreadLocal<ByteArrayOutputStream>() {
-
-        @Override
-        protected ByteArrayOutputStream initialValue() {
-            return new ByteArrayOutputStream(DEFAULT_BUF_SIZE);
-        }
-    };
-
     @Override
     public byte code() {
         return SerializerType.JAVA.value();
     }
 
     @Override
-    public <T> byte[] writeObject(T obj) {
-        ByteArrayOutputStream buf = bufThreadLocal.get();
+    public <T> OutputBuf writeObject(OutputBuf outputBuf, T obj) {
         ObjectOutputStream output = null;
         try {
-            output = new ObjectOutputStream(buf);
+            output = Outputs.getOutput(outputBuf);
             output.writeObject(obj);
             output.flush();
-            return buf.toByteArray();
+            return outputBuf;
         } catch (IOException e) {
-            ExceptionUtil.throwException(e);
+            ThrowUtil.throwException(e);
         } finally {
             if (output != null) {
                 try {
                     output.close();
                 } catch (IOException ignored) {}
             }
+        }
+        return null; // never get here
+    }
 
-            buf.reset(); // for reuse
-
-            // 防止hold过大的内存块一直不释放
-            assert bufUpdater != null;
-            if (bufUpdater.get(buf).length > MAX_CACHED_BUF_SIZE) {
-                bufUpdater.set(buf, new byte[DEFAULT_BUF_SIZE]);
+    @Override
+    public <T> byte[] writeObject(T obj) {
+        ByteArrayOutputStream buf = OutputStreams.getByteArrayOutputStream();
+        ObjectOutputStream output = null;
+        try {
+            output = Outputs.getOutput(buf);
+            output.writeObject(obj);
+            output.flush();
+            return buf.toByteArray();
+        } catch (IOException e) {
+            ThrowUtil.throwException(e);
+        } finally {
+            if (output != null) {
+                try {
+                    output.close();
+                } catch (IOException ignored) {}
             }
+            OutputStreams.resetBuf(buf);
+        }
+        return null; // never get here
+    }
+
+    @Override
+    public <T> T readObject(InputBuf inputBuf, Class<T> clazz) {
+        ObjectInputStream input = null;
+        try {
+            input = Inputs.getInput(inputBuf);
+            Object obj = input.readObject();
+            return clazz.cast(obj);
+        } catch (Exception e) {
+            ThrowUtil.throwException(e);
+        } finally {
+            if (input != null) {
+                try {
+                    input.close();
+                } catch (IOException ignored) {}
+            }
+            inputBuf.release();
         }
         return null; // never get here
     }
@@ -85,11 +111,11 @@ public class JavaSerializer extends Serializer {
     public <T> T readObject(byte[] bytes, int offset, int length, Class<T> clazz) {
         ObjectInputStream input = null;
         try {
-            input = new ObjectInputStream(new ByteArrayInputStream(bytes, offset, length));
+            input = Inputs.getInput(bytes, offset, length);
             Object obj = input.readObject();
             return clazz.cast(obj);
         } catch (Exception e) {
-            ExceptionUtil.throwException(e);
+            ThrowUtil.throwException(e);
         } finally {
             if (input != null) {
                 try {

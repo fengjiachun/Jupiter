@@ -34,22 +34,20 @@ import java.util.concurrent.atomic.AtomicLong;
 @Fork(1)
 @Warmup(iterations = 5)
 @Measurement(iterations = 3)
-@BenchmarkMode(Mode.All)
+@BenchmarkMode({Mode.Throughput, Mode.AverageTime})
 @OutputTimeUnit(TimeUnit.NANOSECONDS)
 public class SequenceTest {
 
-    static final int THREADS = Runtime.getRuntime().availableProcessors();
+    static final int THREADS = Runtime.getRuntime().availableProcessors() << 1;
 
     /*
-        Benchmark            Mode       Cnt       Score       Error   Units
-        SequenceTest.seq1   thrpt       200   36722.867 ±   819.302  ops/ms
-        SequenceTest.seq2   thrpt       200  381414.268 ±  6137.577  ops/ms
-        SequenceTest.seq1    avgt       200      ≈ 10⁻⁴               ms/op
-        SequenceTest.seq2    avgt       200      ≈ 10⁻⁵               ms/op
-        SequenceTest.seq1  sample  19925993      ≈ 10⁻³               ms/op
-        SequenceTest.seq2  sample  26306839      ≈ 10⁻⁴               ms/op
-        SequenceTest.seq1      ss         3    3143.458 ± 12058.710   ns/op
-        SequenceTest.seq2      ss         3    2543.208 ±  8317.170   ns/op
+        Benchmark           Mode  Cnt    Score     Error   Units
+        SequenceTest.seq1  thrpt    3    0.041 ±   0.012  ops/ns
+        SequenceTest.seq2  thrpt    3    0.356 ±   0.242  ops/ns
+        SequenceTest.seq3  thrpt    3    0.018 ±   0.003  ops/ns
+        SequenceTest.seq1   avgt    3  434.871 ± 435.180   ns/op
+        SequenceTest.seq2   avgt    3   59.087 ± 109.713   ns/op
+        SequenceTest.seq3   avgt    3  854.506 ± 822.850   ns/op
      */
     public static void main(String[] args) throws RunnerException {
         Options opt = new OptionsBuilder()
@@ -61,7 +59,9 @@ public class SequenceTest {
     }
 
     static AtomicLong seq1 = new AtomicLong();
-    static Sequence seq2 = new Sequence(128);
+    static LongSequence seq2 = new LongSequence(128);
+    static long seq3 = 0L;
+    static final Object LOCK = new Object();
 
     @Benchmark
     public static long seq1() {
@@ -71,5 +71,12 @@ public class SequenceTest {
     @Benchmark
     public static long seq2() {
         return seq2.next();
+    }
+
+    @Benchmark
+    public static long seq3() {
+        synchronized (LOCK) {
+            return seq3++;
+        }
     }
 }

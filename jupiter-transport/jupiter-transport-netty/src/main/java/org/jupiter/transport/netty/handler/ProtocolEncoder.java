@@ -22,9 +22,9 @@ import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.MessageToByteEncoder;
 import org.jupiter.common.util.Reflects;
 import org.jupiter.transport.JProtocolHeader;
-import org.jupiter.transport.payload.BytesHolder;
-import org.jupiter.transport.payload.JRequestBytes;
-import org.jupiter.transport.payload.JResponseBytes;
+import org.jupiter.transport.payload.JRequestPayload;
+import org.jupiter.transport.payload.JResponsePayload;
+import org.jupiter.transport.payload.PayloadHolder;
 
 /**
  * <pre>
@@ -34,7 +34,7 @@ import org.jupiter.transport.payload.JResponseBytes;
  *       2   │   1   │    1   │     8     │      4      │
  *  ├ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ┤
  *           │       │        │           │             │
- *  │  MAGIC   Sign    Status   Invoke Id   Body Length                   Body Content              │
+ *  │  MAGIC   Sign    Status   Invoke Id    Body Size                    Body Content              │
  *           │       │        │           │             │
  *  └ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ┘
  *
@@ -52,20 +52,29 @@ import org.jupiter.transport.payload.JResponseBytes;
  * @author jiachun.fjc
  */
 @ChannelHandler.Sharable
-public class ProtocolEncoder extends MessageToByteEncoder<BytesHolder> {
+public class ProtocolEncoder extends MessageToByteEncoder<PayloadHolder> {
 
     @Override
-    protected void encode(ChannelHandlerContext ctx, BytesHolder msg, ByteBuf out) throws Exception {
-        if (msg instanceof JRequestBytes) {
-            doEncodeRequest((JRequestBytes) msg, out);
-        } else if (msg instanceof JResponseBytes) {
-            doEncodeResponse((JResponseBytes) msg, out);
+    protected void encode(ChannelHandlerContext ctx, PayloadHolder msg, ByteBuf out) throws Exception {
+        if (msg instanceof JRequestPayload) {
+            doEncodeRequest((JRequestPayload) msg, out);
+        } else if (msg instanceof JResponsePayload) {
+            doEncodeResponse((JResponsePayload) msg, out);
         } else {
             throw new IllegalArgumentException(Reflects.simpleClassName(msg));
         }
     }
 
-    private void doEncodeRequest(JRequestBytes request, ByteBuf out) {
+    @Override
+    protected ByteBuf allocateBuffer(ChannelHandlerContext ctx, PayloadHolder msg, boolean preferDirect) throws Exception {
+        if (preferDirect) {
+            return ctx.alloc().ioBuffer(JProtocolHeader.HEADER_SIZE + msg.size());
+        } else {
+            return ctx.alloc().heapBuffer(JProtocolHeader.HEADER_SIZE + msg.size());
+        }
+    }
+
+    private void doEncodeRequest(JRequestPayload request, ByteBuf out) {
         byte sign = JProtocolHeader.toSign(request.serializerCode(), JProtocolHeader.REQUEST);
         long invokeId = request.invokeId();
         byte[] bytes = request.bytes();
@@ -79,7 +88,7 @@ public class ProtocolEncoder extends MessageToByteEncoder<BytesHolder> {
                 .writeBytes(bytes);
     }
 
-    private void doEncodeResponse(JResponseBytes response, ByteBuf out) {
+    private void doEncodeResponse(JResponsePayload response, ByteBuf out) {
         byte sign = JProtocolHeader.toSign(response.serializerCode(), JProtocolHeader.RESPONSE);
         byte status = response.status();
         long invokeId = response.id();

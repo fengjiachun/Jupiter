@@ -220,6 +220,7 @@ public class ZookeeperRegistryService extends AbstractRegistryService {
         }
     }
 
+    @SuppressWarnings("all")
     @Override
     protected void doUnregister(final RegisterMeta meta) {
         String directory = String.format("/jupiter/provider/%s/%s/%s",

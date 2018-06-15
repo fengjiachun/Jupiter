@@ -23,7 +23,7 @@
     <artifactId>jupiter</artifactId>
     <groupId>org.jupiter-rpc</groupId>
     <packaging>pom</packaging>
-    <version>1.2.17</version>
+    <version>1.2.21</version>
 
     <name>Jupiter</name>
     <description>Jupiter is a distributed RPC framework.</description>
@@ -51,12 +51,10 @@
 
     <properties>
         <netty.version>4.1.19.Final</netty.version>
-        <jmh.version>1.9.3</jmh.version>
-        <barchart.version>2.3.0</barchart.version>
+        <jmh.version>1.20</jmh.version>
         <hessian.version>4.0.38</hessian.version>
         <kryo.version>2.23.0</kryo.version>
         <protostuff.version>1.6.0</protostuff.version>
-        <objenesis.version>2.1</objenesis.version>
         <asm.version>6.0</asm.version>
         <bytebuddy.version>1.7.9</bytebuddy.version>
         <disruptor.version>3.3.7</disruptor.version>
@@ -234,11 +232,6 @@
 
             <!-- # common dependency: begin -->
             <!-- ## required dependency: begin -->
-            <dependency>
-                <groupId>org.objenesis</groupId>
-                <artifactId>objenesis</artifactId>
-                <version>${objenesis.version}</version>
-            </dependency>
             <dependency>
                 <groupId>org.ow2.asm</groupId>
                 <artifactId>asm</artifactId>

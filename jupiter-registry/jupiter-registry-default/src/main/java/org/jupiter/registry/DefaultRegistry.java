@@ -292,7 +292,7 @@ public final class DefaultRegistry extends NettyTcpConnector {
      *       2   │   1   │    1   │     8     │      4      │
      *  ├ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ┤
      *           │       │        │           │             │
-     *  │  MAGIC   Sign    Status   Invoke Id   Body Length                   Body Content              │
+     *  │  MAGIC   Sign    Status   Invoke Id    Body Size                    Body Content              │
      *           │       │        │           │             │
      *  └ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ┘
      *
@@ -307,7 +307,7 @@ public final class DefaultRegistry extends NettyTcpConnector {
     static class MessageDecoder extends ReplayingDecoder<MessageDecoder.State> {
 
         public MessageDecoder() {
-            super(State.HEADER_MAGIC);
+            super(State.MAGIC);
         }
 
         // 协议头
@@ -316,20 +316,20 @@ public final class DefaultRegistry extends NettyTcpConnector {
         @Override
         protected void decode(ChannelHandlerContext ctx, ByteBuf in, List<Object> out) throws Exception {
             switch (state()) {
-                case HEADER_MAGIC:
+                case MAGIC:
                     checkMagic(in.readShort());             // MAGIC
-                    checkpoint(State.HEADER_SIGN);
-                case HEADER_SIGN:
+                    checkpoint(State.SIGN);
+                case SIGN:
                     header.sign(in.readByte());             // 消息标志位
-                    checkpoint(State.HEADER_STATUS);
-                case HEADER_STATUS:
+                    checkpoint(State.STATUS);
+                case STATUS:
                     in.readByte();                          // no-op
-                    checkpoint(State.HEADER_ID);
-                case HEADER_ID:
+                    checkpoint(State.ID);
+                case ID:
                     header.id(in.readLong());               // 消息id
-                    checkpoint(State.HEADER_BODY_LENGTH);
-                case HEADER_BODY_LENGTH:
-                    header.bodyLength(in.readInt());        // 消息体长度
+                    checkpoint(State.BODY_SIZE);
+                case BODY_SIZE:
+                    header.bodySize(in.readInt());          // 消息体长度
                     checkpoint(State.BODY);
                 case BODY:
                     byte s_code = header.serializerCode();
@@ -338,7 +338,7 @@ public final class DefaultRegistry extends NettyTcpConnector {
                         case JProtocolHeader.PUBLISH_SERVICE:
                         case JProtocolHeader.PUBLISH_CANCEL_SERVICE:
                         case JProtocolHeader.OFFLINE_NOTICE: {
-                            byte[] bytes = new byte[header.bodyLength()];
+                            byte[] bytes = new byte[header.bodySize()];
                             in.readBytes(bytes);
 
                             Serializer serializer = SerializerFactory.getSerializer(s_code);
@@ -356,7 +356,7 @@ public final class DefaultRegistry extends NettyTcpConnector {
                             throw IoSignals.ILLEGAL_SIGN;
 
                     }
-                    checkpoint(State.HEADER_MAGIC);
+                    checkpoint(State.MAGIC);
             }
         }
 
@@ -367,11 +367,11 @@ public final class DefaultRegistry extends NettyTcpConnector {
         }
 
         enum State {
-            HEADER_MAGIC,
-            HEADER_SIGN,
-            HEADER_STATUS,
-            HEADER_ID,
-            HEADER_BODY_LENGTH,
+            MAGIC,
+            SIGN,
+            STATUS,
+            ID,
+            BODY_SIZE,
             BODY
         }
     }
@@ -384,7 +384,7 @@ public final class DefaultRegistry extends NettyTcpConnector {
      *       2   │   1   │    1   │     8     │      4      │
      *  ├ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ┤
      *           │       │        │           │             │
-     *  │  MAGIC   Sign    Status   Invoke Id   Body Length                   Body Content              │
+     *  │  MAGIC   Sign    Status   Invoke Id    Body Size                    Body Content              │
      *           │       │        │           │             │
      *  └ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ┘
      *
