@@ -30,6 +30,7 @@
 package org.jupiter.common.concurrent.queues;
 
 import org.jupiter.common.util.internal.UnsafeUtil;
+import sun.misc.Unsafe;
 
 import java.util.AbstractQueue;
 import java.util.Iterator;
@@ -45,7 +46,11 @@ abstract class BaseLinkedQueuePad0<E> extends AbstractQueue<E> implements Messag
 
 // $gen:ordered-fields
 abstract class BaseLinkedQueueProducerNodeRef<E> extends BaseLinkedQueuePad0<E> {
-    final static long P_NODE_OFFSET = UnsafeUtil.objectFieldOffset(BaseLinkedQueueProducerNodeRef.class, "producerNode");
+
+    static final long P_NODE_OFFSET =
+            UnsafeUtil.objectFieldOffset(BaseLinkedQueueProducerNodeRef.class, "producerNode");
+
+    static final Unsafe unsafe = UnsafeUtil.getUnsafe();
 
     private LinkedQueueNode<E> producerNode;
 
@@ -55,12 +60,12 @@ abstract class BaseLinkedQueueProducerNodeRef<E> extends BaseLinkedQueuePad0<E> 
 
     @SuppressWarnings("unchecked")
     final LinkedQueueNode<E> lvProducerNode() {
-        return (LinkedQueueNode<E>) UnsafeUtil.getUnsafe().getObjectVolatile(this, P_NODE_OFFSET);
+        return (LinkedQueueNode<E>) unsafe.getObjectVolatile(this, P_NODE_OFFSET);
     }
 
     @SuppressWarnings("unchecked")
     final boolean casProducerNode(LinkedQueueNode<E> expect, LinkedQueueNode<E> newValue) {
-        return UnsafeUtil.getUnsafe().compareAndSwapObject(this, P_NODE_OFFSET, expect, newValue);
+        return unsafe.compareAndSwapObject(this, P_NODE_OFFSET, expect, newValue);
     }
 
     final LinkedQueueNode<E> lpProducerNode() {
@@ -76,7 +81,9 @@ abstract class BaseLinkedQueuePad1<E> extends BaseLinkedQueueProducerNodeRef<E> 
 
 //$gen:ordered-fields
 abstract class BaseLinkedQueueConsumerNodeRef<E> extends BaseLinkedQueuePad1<E> {
-    private final static long C_NODE_OFFSET = UnsafeUtil.objectFieldOffset(BaseLinkedQueueConsumerNodeRef.class, "consumerNode");
+
+    private static final long C_NODE_OFFSET =
+            UnsafeUtil.objectFieldOffset(BaseLinkedQueueConsumerNodeRef.class, "consumerNode");
 
     private LinkedQueueNode<E> consumerNode;
 
@@ -86,7 +93,7 @@ abstract class BaseLinkedQueueConsumerNodeRef<E> extends BaseLinkedQueuePad1<E> 
 
     @SuppressWarnings("unchecked")
     final LinkedQueueNode<E> lvConsumerNode() {
-        return (LinkedQueueNode<E>) UnsafeUtil.getUnsafe().getObjectVolatile(this, C_NODE_OFFSET);
+        return (LinkedQueueNode<E>) unsafe.getObjectVolatile(this, C_NODE_OFFSET);
     }
 
     final LinkedQueueNode<E> lpConsumerNode() {
@@ -116,7 +123,7 @@ public abstract class BaseLinkedQueue<E> extends BaseLinkedQueuePad2<E> {
 
     @Override
     public String toString() {
-        return this.getClass().getName();
+        return getClass().getName();
     }
 
     protected final LinkedQueueNode<E> newNode() {

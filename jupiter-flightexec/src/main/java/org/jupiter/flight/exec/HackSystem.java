@@ -33,16 +33,16 @@ import java.util.Properties;
  */
 public class HackSystem {
 
-    public final static InputStream in = System.in;
+    public static final InputStream in = System.in;
 
     private static final UnsafeReferenceFieldUpdater<ByteArrayOutputStream, byte[]> bufUpdater =
             UnsafeUpdater.newReferenceFieldUpdater(ByteArrayOutputStream.class, "buf");
 
     private static ByteArrayOutputStream buf = new ByteArrayOutputStream(1024);
 
-    public final static PrintStream out = new PrintStream(buf);
+    public static final PrintStream out = new PrintStream(buf);
     @SuppressWarnings("unused")
-    public final static PrintStream err = out;
+    public static final PrintStream err = out;
 
     public static String getBufString() {
         String value = buf.toString();
