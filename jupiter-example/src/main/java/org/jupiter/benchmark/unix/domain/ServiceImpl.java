@@ -14,27 +14,21 @@
  * limitations under the License.
  */
 
-package org.jupiter.transport;
+package org.jupiter.benchmark.unix.domain;
+
+import org.jupiter.rpc.ServiceProviderImpl;
 
 /**
- *
  * jupiter
- * org.jupiter.transport
+ * org.jupiter.benchmark.tcp
  *
  * @author jiachun.fjc
  */
-public interface Transporter {
+@ServiceProviderImpl
+public class ServiceImpl implements Service {
 
-    /**
-     * Returns the transport protocol
-     */
-    Protocol protocol();
-
-    /**
-     * 传输层协议.
-     */
-    enum Protocol {
-        TCP,
-        DOMAIN  // Unix domain socket
+    @Override
+    public String hello(String arg) {
+        return arg;
     }
 }

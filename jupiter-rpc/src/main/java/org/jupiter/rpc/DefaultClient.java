@@ -136,7 +136,7 @@ public class DefaultClient implements JClient {
 
                     @Override
                     public void notify(RegisterMeta registerMeta, NotifyEvent event) {
-                        UnresolvedAddress address = new UnresolvedAddress(registerMeta.getHost(), registerMeta.getPort());
+                        UnresolvedAddress address = new UnresolvedSocketAddress(registerMeta.getHost(), registerMeta.getPort());
                         final JChannelGroup group = connector.group(address);
                         if (event == NotifyEvent.CHILD_ADDED) {
                             if (group.isAvailable()) {

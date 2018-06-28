@@ -23,6 +23,7 @@ import org.jupiter.common.util.internal.logging.InternalLogger;
 import org.jupiter.common.util.internal.logging.InternalLoggerFactory;
 import org.jupiter.transport.JConnection;
 import org.jupiter.transport.UnresolvedAddress;
+import org.jupiter.transport.UnresolvedSocketAddress;
 
 import java.util.Collection;
 import java.util.concurrent.ConcurrentMap;
@@ -97,7 +98,7 @@ public class DefaultRegistryService extends AbstractRegistryService {
             String[] addressStr = Strings.split(s, ':');
             String host = addressStr[0];
             int port = Integer.parseInt(addressStr[1]);
-            UnresolvedAddress address = new UnresolvedAddress(host, port);
+            UnresolvedAddress address = new UnresolvedSocketAddress(host, port);
             DefaultRegistry client = clients.get(address);
             if (client == null) {
                 DefaultRegistry newClient = new DefaultRegistry(this);

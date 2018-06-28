@@ -14,27 +14,15 @@
  * limitations under the License.
  */
 
-package org.jupiter.transport;
+package org.jupiter.benchmark.unix.domain;
 
 /**
- *
  * jupiter
- * org.jupiter.transport
+ * org.jupiter.benchmark.unix.domain
  *
  * @author jiachun.fjc
  */
-public interface Transporter {
+public class UnixDomainPath {
 
-    /**
-     * Returns the transport protocol
-     */
-    Protocol protocol();
-
-    /**
-     * 传输层协议.
-     */
-    enum Protocol {
-        TCP,
-        DOMAIN  // Unix domain socket
-    }
+    public static final String PATH = "domain_file";
 }

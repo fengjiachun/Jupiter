@@ -28,6 +28,7 @@ import org.jupiter.rpc.model.metadata.MethodSpecialConfig;
 import org.jupiter.serialization.SerializerType;
 import org.jupiter.transport.JConnector;
 import org.jupiter.transport.UnresolvedAddress;
+import org.jupiter.transport.UnresolvedSocketAddress;
 import org.jupiter.transport.exception.ConnectFailedException;
 import org.springframework.beans.factory.FactoryBean;
 import org.springframework.beans.factory.InitializingBean;
@@ -116,7 +117,7 @@ public class JupiterSpringConsumerBean<T> implements FactoryBean<T>, Initializin
                 String[] addressStr = Strings.split(s, ':');
                 String host = addressStr[0];
                 int port = Integer.parseInt(addressStr[1]);
-                UnresolvedAddress address = new UnresolvedAddress(host, port);
+                UnresolvedAddress address = new UnresolvedSocketAddress(host, port);
                 addresses.add(address);
             }
             factory.addProviderAddress(addresses);

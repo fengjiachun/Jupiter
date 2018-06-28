@@ -91,7 +91,7 @@ public class JupiterSpringClient implements InitializingBean {
                     String[] addressStr = Strings.split(s, ':');
                     String host = addressStr[0];
                     int port = Integer.parseInt(addressStr[1]);
-                    UnresolvedAddress address = new UnresolvedAddress(host, port);
+                    UnresolvedAddress address = new UnresolvedSocketAddress(host, port);
                     providerServerUnresolvedAddresses.add(address);
 
                     JConnector<JConnection> connector = client.connector();

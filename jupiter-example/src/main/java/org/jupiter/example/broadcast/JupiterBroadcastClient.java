@@ -23,6 +23,7 @@ import org.jupiter.rpc.consumer.future.InvokeFuture;
 import org.jupiter.rpc.consumer.future.InvokeFutureContext;
 import org.jupiter.rpc.consumer.future.InvokeFutureGroup;
 import org.jupiter.transport.UnresolvedAddress;
+import org.jupiter.transport.UnresolvedSocketAddress;
 import org.jupiter.transport.netty.JNettyTcpConnector;
 
 /**
@@ -39,13 +40,13 @@ public class JupiterBroadcastClient {
         JClient client = new DefaultClient().withConnector(new JNettyTcpConnector());
 
         UnresolvedAddress[] addresses = {
-                new UnresolvedAddress("127.0.0.1", 18090),
-                new UnresolvedAddress("127.0.0.1", 18091),
-                new UnresolvedAddress("127.0.0.1", 18092),
-                new UnresolvedAddress("127.0.0.1", 18090),
-                new UnresolvedAddress("127.0.0.1", 18091),
-                new UnresolvedAddress("127.0.0.1", 18092),
-                new UnresolvedAddress("127.0.0.1", 18090)
+                new UnresolvedSocketAddress("127.0.0.1", 18090),
+                new UnresolvedSocketAddress("127.0.0.1", 18091),
+                new UnresolvedSocketAddress("127.0.0.1", 18092),
+                new UnresolvedSocketAddress("127.0.0.1", 18090),
+                new UnresolvedSocketAddress("127.0.0.1", 18091),
+                new UnresolvedSocketAddress("127.0.0.1", 18092),
+                new UnresolvedSocketAddress("127.0.0.1", 18090)
         };
 
         for (UnresolvedAddress address : addresses) {
