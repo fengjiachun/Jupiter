@@ -2,7 +2,7 @@ Jupiter release notes
 ------------------------
 ### 2018-06-28:
 
-- []Unix域套接字支持](https://en.wikipedia.org/wiki/Unix_domain_socket)
+- [Unix域套接字支持](https://en.wikipedia.org/wiki/Unix_domain_socket)
 - DefaultInvokeFuture#roundFutures初始容量配置, 避免频繁扩容
 - [DefaultInvokeFuture#TimeoutScanner优化](https://github.com/fengjiachun/Jupiter/issues/62)
 
