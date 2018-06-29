@@ -124,29 +124,29 @@ public final class JOption<T> extends AbstractConstant<JOption<T>> {
      * 在linux内核中TCP握手过程总共会有两个队列:
      * 1) 一个俗称半连接队列, 放着那些握手一半的连接(syn queue)
      * 2) 另一个放着那些握手成功但是还没有被应用层accept的连接的队列(accept queue)
-     * <p>
+     *
      * backlog控制着accept queue的大小, 但backlog的上限是somaxconn
      * linux 2.6.20版本之前 /proc/sys/net/ipv4/tcp_max_syn_backlog决定syn queue的大小,
      * 2.6.20版本之后syn queue的大小是经过一系列复杂的计算, 那个代码我看不懂...
-     * <p>
+     *
      * 参考linux-3.10.28代码(socket.c):
-     * <p>
+     *
      * sock = sockfd_lookup_light(fd, &err, &fput_needed);
      * if (sock) {
      * somaxconn = sock_net(sock->sk)->core.sysctl_somaxconn;
      * if ((unsigned int)backlog > somaxconn)
      * backlog = somaxconn;
-     * <p>
+     *
      * err = security_socket_listen(sock, backlog);
      * if (!err)
      * err = sock->ops->listen(sock, backlog);
      * fput_light(sock->file, fput_needed);
      * }
-     * <p>
+     *
      * 以上代码可以看到backlog并不是按照应用层所设置的backlog大小, 实际上取的是backlog和somaxconn的最小值.
      * somaxconn的值定义在:
      * /proc/sys/net/core/somaxconn
-     * <p>
+     *
      * 还有一点要注意, 对于TCP连接的ESTABLISHED状态, 并不需要应用层accept,
      * 只要在accept queue里就已经变成状态ESTABLISHED, 所以在使用ss或netstat排查这方面问题不要被ESTABLISHED迷惑.
      */
