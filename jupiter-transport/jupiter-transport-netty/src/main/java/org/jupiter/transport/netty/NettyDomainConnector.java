@@ -37,7 +37,7 @@ import java.util.concurrent.ThreadFactory;
  */
 public abstract class NettyDomainConnector extends NettyConnector {
 
-    private final NettyConfig.NettyTcpConfigGroup.ChildConfig childConfig = new NettyConfig.NettyTcpConfigGroup.ChildConfig();
+    private final NettyConfig.NettyDomainConfigGroup.ChildConfig childConfig = new NettyConfig.NettyDomainConfigGroup.ChildConfig();
 
     public NettyDomainConnector() {
         super(Protocol.DOMAIN);
@@ -55,7 +55,7 @@ public abstract class NettyDomainConnector extends NettyConnector {
 
         Bootstrap boot = bootstrap();
 
-        NettyConfig.NettyTcpConfigGroup.ChildConfig child = childConfig;
+        NettyConfig.NettyDomainConfigGroup.ChildConfig child = childConfig;
 
         // child options
         if (child.getConnectTimeoutMillis() > 0) {

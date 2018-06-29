@@ -242,6 +242,7 @@ public class NettyConfig implements JConfig {
          * TCP netty child option
          */
         public static class ChildConfig extends NettyConfig {
+
             private volatile int rcvBuf = -1;
             private volatile int sndBuf = -1;
             private volatile int linger = -1;
@@ -439,6 +440,115 @@ public class NettyConfig implements JConfig {
 
             public void setAllowHalfClosure(boolean allowHalfClosure) {
                 this.allowHalfClosure = allowHalfClosure;
+            }
+        }
+    }
+
+    /**
+     * Unix domain socket option
+     */
+    public static class NettyDomainConfigGroup implements JConfigGroup {
+
+        private ParentConfig parent = new ParentConfig();
+        private ChildConfig child = new ChildConfig();
+
+        @Override
+        public ParentConfig parent() {
+            return parent;
+        }
+
+        @Override
+        public ChildConfig child() {
+            return child;
+        }
+
+        /**
+         * Unix domain socket parent option
+         */
+        public static class ParentConfig extends NettyConfig {}
+
+        /**
+         * Unix domain socket child option
+         */
+        public static class ChildConfig extends NettyConfig {
+
+            private volatile int connectTimeoutMillis = -1;
+            private volatile int writeBufferHighWaterMark = -1;
+            private volatile int writeBufferLowWaterMark = -1;
+
+            @Override
+            public List<JOption<?>> getOptions() {
+                return getOptions(super.getOptions(),
+                        JOption.CONNECT_TIMEOUT_MILLIS,
+                        JOption.WRITE_BUFFER_HIGH_WATER_MARK,
+                        JOption.WRITE_BUFFER_LOW_WATER_MARK);
+            }
+
+            protected List<JOption<?>> getOptions(List<JOption<?>> result, JOption<?>... options) {
+                if (result == null) {
+                    result = Lists.newArrayList();
+                }
+                Collections.addAll(result, options);
+                return result;
+            }
+
+            @SuppressWarnings("unchecked")
+            @Override
+            public <T> T getOption(JOption<T> option) {
+                checkNotNull(option);
+
+                if (option == JOption.CONNECT_TIMEOUT_MILLIS) {
+                    return (T) Integer.valueOf(getConnectTimeoutMillis());
+                }
+                if (option == JOption.WRITE_BUFFER_HIGH_WATER_MARK) {
+                    return (T) Integer.valueOf(getWriteBufferHighWaterMark());
+                }
+                if (option == JOption.WRITE_BUFFER_LOW_WATER_MARK) {
+                    return (T) Integer.valueOf(getWriteBufferLowWaterMark());
+                }
+
+                return super.getOption(option);
+            }
+
+            @Override
+            public <T> boolean setOption(JOption<T> option, T value) {
+                validate(option, value);
+
+                if (option == JOption.CONNECT_TIMEOUT_MILLIS) {
+                    setConnectTimeoutMillis(castToInteger(value));
+                } else if (option == JOption.WRITE_BUFFER_HIGH_WATER_MARK) {
+                    setWriteBufferHighWaterMark(castToInteger(value));
+                } else if (option == JOption.WRITE_BUFFER_LOW_WATER_MARK) {
+                    setWriteBufferLowWaterMark(castToInteger(value));
+                } else {
+                    return super.setOption(option, value);
+                }
+
+                return true;
+            }
+
+            public int getConnectTimeoutMillis() {
+                return connectTimeoutMillis;
+            }
+
+            public void setConnectTimeoutMillis(int connectTimeoutMillis) {
+                this.connectTimeoutMillis = connectTimeoutMillis;
+            }
+
+            public int getWriteBufferHighWaterMark() {
+                return writeBufferHighWaterMark;
+            }
+
+            public void setWriteBufferHighWaterMark(int writeBufferHighWaterMark) {
+                this.writeBufferHighWaterMark = writeBufferHighWaterMark;
+            }
+
+            public int getWriteBufferLowWaterMark() {
+                return writeBufferLowWaterMark;
+            }
+
+            public void setWriteBufferLowWaterMark(int writeBufferLowWaterMark) {
+                this.writeBufferLowWaterMark = writeBufferLowWaterMark;
             }
         }
     }

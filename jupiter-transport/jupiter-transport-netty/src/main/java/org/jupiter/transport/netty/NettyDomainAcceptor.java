@@ -41,7 +41,7 @@ public abstract class NettyDomainAcceptor extends NettyAcceptor {
 
     private static final InternalLogger logger = InternalLoggerFactory.getInstance(NettyDomainAcceptor.class);
 
-    private final NettyConfig.NettyTcpConfigGroup configGroup = new NettyConfig.NettyTcpConfigGroup();
+    private final NettyConfig.NettyDomainConfigGroup configGroup = new NettyConfig.NettyDomainConfigGroup();
 
     public NettyDomainAcceptor(DomainSocketAddress domainAddress) {
         super(Protocol.DOMAIN, domainAddress);
@@ -65,7 +65,7 @@ public abstract class NettyDomainAcceptor extends NettyAcceptor {
         ServerBootstrap boot = bootstrap();
 
         // child options
-        NettyConfig.NettyTcpConfigGroup.ChildConfig child = configGroup.child();
+        NettyConfig.NettyDomainConfigGroup.ChildConfig child = configGroup.child();
         int bufLowWaterMark = child.getWriteBufferLowWaterMark();
         int bufHighWaterMark = child.getWriteBufferHighWaterMark();
         WriteBufferWaterMark waterMark;
