@@ -58,22 +58,6 @@ public abstract class NettyDomainConnector extends NettyConnector {
         NettyConfig.NettyTcpConfigGroup.ChildConfig child = childConfig;
 
         // child options
-        boot.option(ChannelOption.SO_REUSEADDR, child.isReuseAddress())
-                .option(ChannelOption.SO_KEEPALIVE, child.isKeepAlive())
-                .option(ChannelOption.TCP_NODELAY, child.isTcpNoDelay())
-                .option(ChannelOption.ALLOW_HALF_CLOSURE, child.isAllowHalfClosure());
-        if (child.getRcvBuf() > 0) {
-            boot.option(ChannelOption.SO_RCVBUF, child.getRcvBuf());
-        }
-        if (child.getSndBuf() > 0) {
-            boot.option(ChannelOption.SO_SNDBUF, child.getSndBuf());
-        }
-        if (child.getLinger() > 0) {
-            boot.option(ChannelOption.SO_LINGER, child.getLinger());
-        }
-        if (child.getIpTos() > 0) {
-            boot.option(ChannelOption.IP_TOS, child.getIpTos());
-        }
         if (child.getConnectTimeoutMillis() > 0) {
             boot.option(ChannelOption.CONNECT_TIMEOUT_MILLIS, child.getConnectTimeoutMillis());
         }

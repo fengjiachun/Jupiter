@@ -115,7 +115,6 @@ public class JNettyDomainConnector extends NettyDomainConnector {
     @Override
     protected void doInit() {
         // child options
-        config().setOption(JOption.SO_REUSEADDR, true);
         config().setOption(JOption.CONNECT_TIMEOUT_MILLIS, (int) TimeUnit.SECONDS.toMillis(3));
         // channel factory
         initChannelFactory();

@@ -24,8 +24,6 @@ import io.netty.channel.ChannelOutboundHandler;
 import io.netty.channel.unix.DomainSocketAddress;
 import org.jupiter.common.util.JConstants;
 import org.jupiter.transport.CodecConfig;
-import org.jupiter.transport.JConfig;
-import org.jupiter.transport.JOption;
 import org.jupiter.transport.netty.handler.*;
 import org.jupiter.transport.netty.handler.acceptor.AcceptorHandler;
 import org.jupiter.transport.netty.handler.acceptor.AcceptorIdleStateTrigger;
@@ -96,20 +94,6 @@ public class JNettyDomainAcceptor extends NettyDomainAcceptor {
 
     public JNettyDomainAcceptor(DomainSocketAddress domainAddress, int nWorkers) {
         super(domainAddress, nWorkers);
-    }
-
-    @Override
-    protected void init() {
-        super.init();
-
-        // parent options
-        JConfig parent = configGroup().parent();
-        parent.setOption(JOption.SO_BACKLOG, 32768);
-        parent.setOption(JOption.SO_REUSEADDR, true);
-
-        // child options
-        JConfig child = configGroup().child();
-        child.setOption(JOption.SO_REUSEADDR, true);
     }
 
     @Override

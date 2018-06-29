@@ -64,32 +64,8 @@ public abstract class NettyDomainAcceptor extends NettyAcceptor {
 
         ServerBootstrap boot = bootstrap();
 
-        // parent options
-        NettyConfig.NettyTcpConfigGroup.ParentConfig parent = configGroup.parent();
-        boot.option(ChannelOption.SO_BACKLOG, parent.getBacklog());
-        boot.option(ChannelOption.SO_REUSEADDR, parent.isReuseAddress());
-        if (parent.getRcvBuf() > 0) {
-            boot.option(ChannelOption.SO_RCVBUF, parent.getRcvBuf());
-        }
-
         // child options
         NettyConfig.NettyTcpConfigGroup.ChildConfig child = configGroup.child();
-        boot.childOption(ChannelOption.SO_REUSEADDR, child.isReuseAddress())
-                .childOption(ChannelOption.SO_KEEPALIVE, child.isKeepAlive())
-                .childOption(ChannelOption.TCP_NODELAY, child.isTcpNoDelay())
-                .childOption(ChannelOption.ALLOW_HALF_CLOSURE, child.isAllowHalfClosure());
-        if (child.getRcvBuf() > 0) {
-            boot.childOption(ChannelOption.SO_RCVBUF, child.getRcvBuf());
-        }
-        if (child.getSndBuf() > 0) {
-            boot.childOption(ChannelOption.SO_SNDBUF, child.getSndBuf());
-        }
-        if (child.getLinger() > 0) {
-            boot.childOption(ChannelOption.SO_LINGER, child.getLinger());
-        }
-        if (child.getIpTos() > 0) {
-            boot.childOption(ChannelOption.IP_TOS, child.getIpTos());
-        }
         int bufLowWaterMark = child.getWriteBufferLowWaterMark();
         int bufHighWaterMark = child.getWriteBufferHighWaterMark();
         WriteBufferWaterMark waterMark;
