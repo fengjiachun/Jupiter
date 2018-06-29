@@ -305,34 +305,14 @@ public class NettyConfig implements JConfig {
                 return reusePort;
             }
 
-            /**
-             * Set the SO_REUSEPORT option on the underlying channel. This will allow to bind multiple
-             * epoll socket channels to the same port and so accept connections with multiple threads.
-             *
-             * Be aware this method needs be called before channel#bind to have any affect.
-             */
             public void setReusePort(boolean reusePort) {
                 this.reusePort = reusePort;
             }
 
-            /**
-             * Returns threshold value of number of pending for fast open connect.
-             *
-             * @see <a href="https://tools.ietf.org/html/rfc7413#appendix-A.2">RFC 7413 Passive Open</a>
-             */
             public int getPendingFastOpenRequestsThreshold() {
                 return pendingFastOpenRequestsThreshold;
             }
 
-            /**
-             * Enables tcpFastOpen on the server channel. If the underlying os doesnt support TCP_FASTOPEN setting this has no
-             * effect. This has to be set before doing listen on the socket otherwise this takes no effect.
-             *
-             * @param pendingFastOpenRequestsThreshold number of requests to be pending for fastopen at a given point in time
-             * for security. @see <a href="https://tools.ietf.org/html/rfc7413#appendix-A.2">RFC 7413 Passive Open</a>
-             *
-             * @see <a href="https://tools.ietf.org/html/rfc7413">RFC 7413 TCP FastOpen</a>
-             */
             public void setPendingFastOpenRequestsThreshold(int pendingFastOpenRequestsThreshold) {
                 this.pendingFastOpenRequestsThreshold = pendingFastOpenRequestsThreshold;
             }
@@ -341,10 +321,6 @@ public class NettyConfig implements JConfig {
                 return ipFreeBind;
             }
 
-            /**
-             * If {@code true} is used <a href="http://man7.org/linux/man-pages/man7/ip.7.html">IP_FREEBIND</a> is enabled,
-             * {@code false} for disable it. Default is disabled.
-             */
             public void setIpFreeBind(boolean ipFreeBind) {
                 this.ipFreeBind = ipFreeBind;
             }
@@ -353,10 +329,6 @@ public class NettyConfig implements JConfig {
                 return ipTransparent;
             }
 
-            /**
-             * If {@code true} is used <a href="http://man7.org/linux/man-pages/man7/ip.7.html">IP_TRANSPARENT</a> is enabled,
-             * {@code false} for disable it. Default is disabled.
-             */
             public void setIpTransparent(boolean ipTransparent) {
                 this.ipTransparent = ipTransparent;
             }
@@ -365,9 +337,6 @@ public class NettyConfig implements JConfig {
                 return tcpDeferAccept;
             }
 
-            /**
-             * Set the {@code TCP_DEFER_ACCEPT} option on the socket. See {@code man 7 tcp} for more details.
-             */
             public void setTcpDeferAccept(int tcpDeferAccept) {
                 this.tcpDeferAccept = tcpDeferAccept;
             }
