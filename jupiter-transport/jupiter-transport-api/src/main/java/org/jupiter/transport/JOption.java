@@ -176,6 +176,52 @@ public final class JOption<T> extends AbstractConstant<JOption<T>> {
 
     public static final JOption<Integer> CONNECT_TIMEOUT_MILLIS = valueOf("CONNECT_TIMEOUT_MILLIS");
 
+    /** ==== Netty native epoll options ============================================================================ */
+    /** https://linux.die.net/man/7/tcp */
+
+    public static final JOption<Boolean> SO_REUSEPORT = valueOf("SO_REUSEPORT");
+
+    public static final JOption<Boolean> TCP_CORK = valueOf("TCP_CORK");
+
+    public static final JOption<Long> TCP_NOTSENT_LOWAT = valueOf("TCP_NOTSENT_LOWAT");
+
+    public static final JOption<Integer> TCP_KEEPIDLE = valueOf("TCP_KEEPIDLE");
+
+    public static final JOption<Integer> TCP_KEEPINTVL = valueOf("TCP_KEEPINTVL");
+
+    public static final JOption<Integer> TCP_KEEPCNT = valueOf("TCP_KEEPCNT");
+
+    public static final JOption<Integer> TCP_USER_TIMEOUT = valueOf("TCP_USER_TIMEOUT");
+
+    public static final JOption<Boolean> IP_FREEBIND = valueOf("IP_FREEBIND");
+
+    public static final JOption<Boolean> IP_TRANSPARENT = valueOf("IP_TRANSPARENT");
+
+    public static final JOption<Integer> TCP_FASTOPEN = valueOf("TCP_FASTOPEN");
+
+    public static final JOption<Boolean> TCP_FASTOPEN_CONNECT = valueOf("TCP_FASTOPEN_CONNECT");
+
+    public static final JOption<Integer> TCP_DEFER_ACCEPT = valueOf("TCP_DEFER_ACCEPT");
+
+    /**
+     * Enable quickack mode if set or disable quickack mode if cleared.
+     * In quickack mode, acks are sent immediately, rather than delayed if needed in accordance to normal TCP operation.
+     * This flag is not permanent, it only enables a switch to or from quickack mode.
+     * Subsequent operation of the TCP protocol will once again enter/leave quickack mode depending on internal protocol
+     * processing and factors such as delayed ack timeouts occurring and data transfer.
+     *
+     * https://linux.die.net/man/7/tcp
+     *
+     * TODO:
+     * 上面明确描述TCP_QUICKACK不是永久的, 所以TCP_QUICKACK选项应该是需要在每次调用recv后重新设置的
+     * Netty代码的实现可能忽略了这个问题(只设置了一次)
+     */
+    public static final JOption<Boolean> TCP_QUICKACK = valueOf("TCP_QUICKACK");
+
+    public static final JOption<String> EPOLL_MODE = valueOf("EPOLL_MODE");
+
+    /** ==== Netty native epoll options ============================================================================ */
+
     public static final Set<JOption<?>> ALL_OPTIONS;
 
     static {
@@ -194,6 +240,20 @@ public final class JOption<T> extends AbstractConstant<JOption<T>> {
         options.add(WRITE_BUFFER_LOW_WATER_MARK);
         options.add(IO_RATIO);
         options.add(CONNECT_TIMEOUT_MILLIS);
+        options.add(SO_REUSEPORT);
+        options.add(TCP_CORK);
+        options.add(TCP_NOTSENT_LOWAT);
+        options.add(TCP_KEEPIDLE);
+        options.add(TCP_KEEPINTVL);
+        options.add(TCP_KEEPCNT);
+        options.add(TCP_USER_TIMEOUT);
+        options.add(IP_FREEBIND);
+        options.add(IP_TRANSPARENT);
+        options.add(TCP_FASTOPEN);
+        options.add(TCP_FASTOPEN_CONNECT);
+        options.add(TCP_DEFER_ACCEPT);
+        options.add(TCP_QUICKACK);
+        options.add(EPOLL_MODE);
 
         ALL_OPTIONS = Collections.unmodifiableSet(options);
     }

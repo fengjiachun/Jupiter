@@ -123,6 +123,18 @@ public class NettyConfig implements JConfig {
         throw new IllegalArgumentException(value.getClass().toString());
     }
 
+    private static Long castToLong(Object value) {
+        if (value instanceof Long) {
+            return (Long) value;
+        }
+
+        if (value instanceof String) {
+            return Long.valueOf((String) value);
+        }
+
+        throw new IllegalArgumentException(value.getClass().toString());
+    }
+
     private static Boolean castToBoolean(Object value) {
         if (value instanceof Boolean) {
             return (Boolean) value;
@@ -162,12 +174,26 @@ public class NettyConfig implements JConfig {
             private volatile int rcvBuf = -1;
             private volatile boolean reuseAddress = true;
 
+            // Netty native epoll options
+            private volatile String epollMode = "EDGE_TRIGGERED";
+            private volatile boolean reusePort = false;
+            private volatile int pendingFastOpenRequestsThreshold = -1;
+            private volatile boolean ipFreeBind = false;
+            private volatile boolean ipTransparent = false;
+            private volatile int tcpDeferAccept = -1;
+
             @Override
             public List<JOption<?>> getOptions() {
                 return getOptions(super.getOptions(),
                         JOption.SO_BACKLOG,
                         JOption.SO_RCVBUF,
-                        JOption.SO_REUSEADDR);
+                        JOption.SO_REUSEADDR,
+                        JOption.EPOLL_MODE,
+                        JOption.SO_REUSEPORT,
+                        JOption.TCP_FASTOPEN,
+                        JOption.IP_FREEBIND,
+                        JOption.IP_TRANSPARENT,
+                        JOption.TCP_DEFER_ACCEPT);
             }
 
             protected List<JOption<?>> getOptions(List<JOption<?>> result, JOption<?>... options) {
@@ -192,6 +218,24 @@ public class NettyConfig implements JConfig {
                 if (option == JOption.SO_REUSEADDR) {
                     return (T) Boolean.valueOf(isReuseAddress());
                 }
+                if (option == JOption.EPOLL_MODE) {
+                    return (T) getEpollMode();
+                }
+                if (option == JOption.SO_REUSEPORT) {
+                    return (T) Boolean.valueOf(isReusePort());
+                }
+                if (option == JOption.TCP_FASTOPEN) {
+                    return (T) Integer.valueOf(getPendingFastOpenRequestsThreshold());
+                }
+                if (option == JOption.IP_FREEBIND) {
+                    return (T) Boolean.valueOf(isIpFreeBind());
+                }
+                if (option == JOption.IP_TRANSPARENT) {
+                    return (T) Boolean.valueOf(isIpTransparent());
+                }
+                if (option == JOption.TCP_DEFER_ACCEPT) {
+                    return (T) Integer.valueOf(getTcpDeferAccept());
+                }
 
                 return super.getOption(option);
             }
@@ -206,6 +250,18 @@ public class NettyConfig implements JConfig {
                     setRcvBuf(castToInteger(value));
                 } else if (option == JOption.SO_REUSEADDR) {
                     setReuseAddress(castToBoolean(value));
+                } else if (option == JOption.EPOLL_MODE) {
+                    setEpollMode(String.valueOf(value));
+                } else if (option == JOption.SO_REUSEPORT) {
+                    setReusePort(castToBoolean(value));
+                } else if (option == JOption.TCP_FASTOPEN) {
+                    setPendingFastOpenRequestsThreshold(castToInteger(value));
+                } else if (option == JOption.IP_FREEBIND) {
+                    setIpFreeBind(castToBoolean(value));
+                } else if (option == JOption.IP_TRANSPARENT) {
+                    setIpTransparent(castToBoolean(value));
+                } else if (option == JOption.TCP_DEFER_ACCEPT) {
+                    setTcpDeferAccept(castToInteger(value));
                 } else {
                     return super.setOption(option, value);
                 }
@@ -236,6 +292,85 @@ public class NettyConfig implements JConfig {
             public void setReuseAddress(boolean reuseAddress) {
                 this.reuseAddress = reuseAddress;
             }
+
+            public String getEpollMode() {
+                return epollMode;
+            }
+
+            public void setEpollMode(String epollMode) {
+                this.epollMode = epollMode;
+            }
+
+            public boolean isReusePort() {
+                return reusePort;
+            }
+
+            /**
+             * Set the SO_REUSEPORT option on the underlying channel. This will allow to bind multiple
+             * epoll socket channels to the same port and so accept connections with multiple threads.
+             *
+             * Be aware this method needs be called before channel#bind to have any affect.
+             */
+            public void setReusePort(boolean reusePort) {
+                this.reusePort = reusePort;
+            }
+
+            /**
+             * Returns threshold value of number of pending for fast open connect.
+             *
+             * @see <a href="https://tools.ietf.org/html/rfc7413#appendix-A.2">RFC 7413 Passive Open</a>
+             */
+            public int getPendingFastOpenRequestsThreshold() {
+                return pendingFastOpenRequestsThreshold;
+            }
+
+            /**
+             * Enables tcpFastOpen on the server channel. If the underlying os doesnt support TCP_FASTOPEN setting this has no
+             * effect. This has to be set before doing listen on the socket otherwise this takes no effect.
+             *
+             * @param pendingFastOpenRequestsThreshold number of requests to be pending for fastopen at a given point in time
+             * for security. @see <a href="https://tools.ietf.org/html/rfc7413#appendix-A.2">RFC 7413 Passive Open</a>
+             *
+             * @see <a href="https://tools.ietf.org/html/rfc7413">RFC 7413 TCP FastOpen</a>
+             */
+            public void setPendingFastOpenRequestsThreshold(int pendingFastOpenRequestsThreshold) {
+                this.pendingFastOpenRequestsThreshold = pendingFastOpenRequestsThreshold;
+            }
+
+            public boolean isIpFreeBind() {
+                return ipFreeBind;
+            }
+
+            /**
+             * If {@code true} is used <a href="http://man7.org/linux/man-pages/man7/ip.7.html">IP_FREEBIND</a> is enabled,
+             * {@code false} for disable it. Default is disabled.
+             */
+            public void setIpFreeBind(boolean ipFreeBind) {
+                this.ipFreeBind = ipFreeBind;
+            }
+
+            public boolean isIpTransparent() {
+                return ipTransparent;
+            }
+
+            /**
+             * If {@code true} is used <a href="http://man7.org/linux/man-pages/man7/ip.7.html">IP_TRANSPARENT</a> is enabled,
+             * {@code false} for disable it. Default is disabled.
+             */
+            public void setIpTransparent(boolean ipTransparent) {
+                this.ipTransparent = ipTransparent;
+            }
+
+            public int getTcpDeferAccept() {
+                return tcpDeferAccept;
+            }
+
+            /**
+             * Set the {@code TCP_DEFER_ACCEPT} option on the socket. See {@code man 7 tcp} for more details.
+             */
+            public void setTcpDeferAccept(int tcpDeferAccept) {
+                this.tcpDeferAccept = tcpDeferAccept;
+            }
         }
 
         /**
@@ -255,6 +390,18 @@ public class NettyConfig implements JConfig {
             private volatile boolean tcpNoDelay = true;
             private volatile boolean allowHalfClosure = false;
 
+            // Netty native epoll options
+            private volatile String epollMode = "EDGE_TRIGGERED";
+            private volatile boolean tcpCork = false;
+            private volatile long tcpNotSentLowAt = -1;
+            private volatile int tcpKeepCnt = -1;
+            private volatile int tcpUserTimeout = -1;
+            private volatile int tcpKeepIdle = -1;
+            private volatile int tcpKeepIntvl = -1;
+            private volatile boolean tcpQuickAck = true;
+            private volatile boolean ipTransparent = false;
+            private volatile boolean tcpFastOpenConnect = false;
+
             @Override
             public List<JOption<?>> getOptions() {
                 return getOptions(super.getOptions(),
@@ -268,7 +415,17 @@ public class NettyConfig implements JConfig {
                         JOption.KEEP_ALIVE,
                         JOption.TCP_NODELAY,
                         JOption.IP_TOS,
-                        JOption.ALLOW_HALF_CLOSURE);
+                        JOption.ALLOW_HALF_CLOSURE,
+                        JOption.EPOLL_MODE,
+                        JOption.TCP_CORK,
+                        JOption.TCP_NOTSENT_LOWAT,
+                        JOption.TCP_KEEPCNT,
+                        JOption.TCP_USER_TIMEOUT,
+                        JOption.TCP_KEEPIDLE,
+                        JOption.TCP_KEEPINTVL,
+                        JOption.TCP_QUICKACK,
+                        JOption.IP_TRANSPARENT,
+                        JOption.TCP_FASTOPEN_CONNECT);
             }
 
             protected List<JOption<?>> getOptions(List<JOption<?>> result, JOption<?>... options) {
@@ -317,6 +474,36 @@ public class NettyConfig implements JConfig {
                 if (option == JOption.ALLOW_HALF_CLOSURE) {
                     return (T) Boolean.valueOf(isAllowHalfClosure());
                 }
+                if (option == JOption.EPOLL_MODE) {
+                    return (T) getEpollMode();
+                }
+                if (option == JOption.TCP_CORK) {
+                    return (T) Boolean.valueOf(isTcpCork());
+                }
+                if (option == JOption.TCP_NOTSENT_LOWAT) {
+                    return (T) Long.valueOf(getTcpNotSentLowAt());
+                }
+                if (option == JOption.TCP_KEEPIDLE) {
+                    return (T) Integer.valueOf(getTcpKeepIdle());
+                }
+                if (option == JOption.TCP_KEEPINTVL) {
+                    return (T) Integer.valueOf(getTcpKeepIntvl());
+                }
+                if (option == JOption.TCP_KEEPCNT) {
+                    return (T) Integer.valueOf(getTcpKeepCnt());
+                }
+                if (option == JOption.TCP_USER_TIMEOUT) {
+                    return (T) Integer.valueOf(getTcpUserTimeout());
+                }
+                if (option == JOption.TCP_QUICKACK) {
+                    return (T) Boolean.valueOf(isTcpQuickAck());
+                }
+                if (option == JOption.IP_TRANSPARENT) {
+                    return (T) Boolean.valueOf(isIpTransparent());
+                }
+                if (option == JOption.TCP_FASTOPEN_CONNECT) {
+                    return (T) Boolean.valueOf(isTcpFastOpenConnect());
+                }
 
                 return super.getOption(option);
             }
@@ -347,6 +534,26 @@ public class NettyConfig implements JConfig {
                     setTcpNoDelay(castToBoolean(value));
                 } else if (option == JOption.ALLOW_HALF_CLOSURE) {
                     setAllowHalfClosure(castToBoolean(value));
+                } else if (option == JOption.EPOLL_MODE) {
+                    setEpollMode(String.valueOf(value));
+                } else if (option == JOption.TCP_CORK) {
+                    setTcpCork(castToBoolean(value));
+                } else if (option == JOption.TCP_NOTSENT_LOWAT) {
+                    setTcpNotSentLowAt(castToLong(value));
+                } else if (option == JOption.TCP_KEEPIDLE) {
+                    setTcpKeepIdle(castToInteger(value));
+                } else if (option == JOption.TCP_KEEPCNT) {
+                    setTcpKeepCnt(castToInteger(value));
+                } else if (option == JOption.TCP_KEEPINTVL) {
+                    setTcpKeepIntvl(castToInteger(value));
+                } else if (option == JOption.TCP_USER_TIMEOUT) {
+                    setTcpUserTimeout(castToInteger(value));
+                } else if (option == JOption.IP_TRANSPARENT) {
+                    setIpTransparent(castToBoolean(value));
+                } else if (option == JOption.TCP_QUICKACK) {
+                    setTcpQuickAck(castToBoolean(value));
+                } else if (option == JOption.TCP_FASTOPEN_CONNECT) {
+                    setTcpFastOpenConnect(castToBoolean(value));
                 } else {
                     return super.setOption(option, value);
                 }
@@ -440,6 +647,86 @@ public class NettyConfig implements JConfig {
 
             public void setAllowHalfClosure(boolean allowHalfClosure) {
                 this.allowHalfClosure = allowHalfClosure;
+            }
+
+            public String getEpollMode() {
+                return epollMode;
+            }
+
+            public void setEpollMode(String epollMode) {
+                this.epollMode = epollMode;
+            }
+
+            public boolean isTcpCork() {
+                return tcpCork;
+            }
+
+            public void setTcpCork(boolean tcpCork) {
+                this.tcpCork = tcpCork;
+            }
+
+            public long getTcpNotSentLowAt() {
+                return tcpNotSentLowAt;
+            }
+
+            public void setTcpNotSentLowAt(long tcpNotSentLowAt) {
+                this.tcpNotSentLowAt = tcpNotSentLowAt;
+            }
+
+            public int getTcpKeepCnt() {
+                return tcpKeepCnt;
+            }
+
+            public void setTcpKeepCnt(int tcpKeepCnt) {
+                this.tcpKeepCnt = tcpKeepCnt;
+            }
+
+            public int getTcpUserTimeout() {
+                return tcpUserTimeout;
+            }
+
+            public void setTcpUserTimeout(int tcpUserTimeout) {
+                this.tcpUserTimeout = tcpUserTimeout;
+            }
+
+            public int getTcpKeepIdle() {
+                return tcpKeepIdle;
+            }
+
+            public void setTcpKeepIdle(int tcpKeepIdle) {
+                this.tcpKeepIdle = tcpKeepIdle;
+            }
+
+            public int getTcpKeepIntvl() {
+                return tcpKeepIntvl;
+            }
+
+            public void setTcpKeepIntvl(int tcpKeepIntvl) {
+                this.tcpKeepIntvl = tcpKeepIntvl;
+            }
+
+            public boolean isTcpQuickAck() {
+                return tcpQuickAck;
+            }
+
+            public void setTcpQuickAck(boolean tcpQuickAck) {
+                this.tcpQuickAck = tcpQuickAck;
+            }
+
+            public boolean isIpTransparent() {
+                return ipTransparent;
+            }
+
+            public void setIpTransparent(boolean ipTransparent) {
+                this.ipTransparent = ipTransparent;
+            }
+
+            public boolean isTcpFastOpenConnect() {
+                return tcpFastOpenConnect;
+            }
+
+            public void setTcpFastOpenConnect(boolean tcpFastOpenConnect) {
+                this.tcpFastOpenConnect = tcpFastOpenConnect;
             }
         }
     }

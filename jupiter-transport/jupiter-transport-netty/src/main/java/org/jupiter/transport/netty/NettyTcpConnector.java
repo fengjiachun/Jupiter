@@ -20,7 +20,9 @@ import io.netty.bootstrap.Bootstrap;
 import io.netty.channel.ChannelOption;
 import io.netty.channel.EventLoopGroup;
 import io.netty.channel.WriteBufferWaterMark;
+import io.netty.channel.epoll.EpollChannelOption;
 import io.netty.channel.epoll.EpollEventLoopGroup;
+import io.netty.channel.epoll.EpollMode;
 import io.netty.channel.kqueue.KQueueEventLoopGroup;
 import io.netty.channel.nio.NioEventLoopGroup;
 import org.jupiter.common.util.JConstants;
@@ -102,6 +104,32 @@ public abstract class NettyTcpConnector extends NettyConnector {
             waterMark = new WriteBufferWaterMark(512 * 1024, 1024 * 1024);
         }
         boot.option(ChannelOption.WRITE_BUFFER_WATER_MARK, waterMark);
+
+        // child epoll option
+        boot.option(EpollChannelOption.TCP_CORK, child.isTcpCork());
+        boot.option(EpollChannelOption.TCP_QUICKACK, child.isTcpQuickAck());
+        boot.option(EpollChannelOption.IP_TRANSPARENT, child.isIpTransparent());
+        boot.option(EpollChannelOption.TCP_FASTOPEN_CONNECT, child.isTcpFastOpenConnect());
+        if (child.getTcpNotSentLowAt() > 0) {
+            boot.option(EpollChannelOption.TCP_NOTSENT_LOWAT, child.getTcpNotSentLowAt());
+        }
+        if (child.getTcpKeepCnt() > 0) {
+            boot.option(EpollChannelOption.TCP_KEEPCNT, child.getTcpKeepCnt());
+        }
+        if (child.getTcpUserTimeout() > 0) {
+            boot.option(EpollChannelOption.TCP_USER_TIMEOUT, child.getTcpUserTimeout());
+        }
+        if (child.getTcpKeepIdle() > 0) {
+            boot.option(EpollChannelOption.TCP_KEEPIDLE, child.getTcpKeepIdle());
+        }
+        if (child.getTcpKeepIntvl() > 0) {
+            boot.option(EpollChannelOption.TCP_KEEPINTVL, child.getTcpKeepIntvl());
+        }
+        if (EpollMode.EDGE_TRIGGERED.name().equalsIgnoreCase(child.getEpollMode())) {
+            boot.option(EpollChannelOption.EPOLL_MODE, EpollMode.EDGE_TRIGGERED);
+        } else if (EpollMode.LEVEL_TRIGGERED.name().equalsIgnoreCase(child.getEpollMode())) {
+            boot.option(EpollChannelOption.EPOLL_MODE, EpollMode.LEVEL_TRIGGERED);
+        }
     }
 
     @Override
