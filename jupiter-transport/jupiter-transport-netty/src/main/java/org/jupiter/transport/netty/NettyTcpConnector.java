@@ -122,8 +122,8 @@ public abstract class NettyTcpConnector extends NettyConnector {
         if (child.getTcpKeepIdle() > 0) {
             boot.option(EpollChannelOption.TCP_KEEPIDLE, child.getTcpKeepIdle());
         }
-        if (child.getTcpKeepIntvl() > 0) {
-            boot.option(EpollChannelOption.TCP_KEEPINTVL, child.getTcpKeepIntvl());
+        if (child.getTcpKeepInterval() > 0) {
+            boot.option(EpollChannelOption.TCP_KEEPINTVL, child.getTcpKeepInterval());
         }
         if (EpollMode.EDGE_TRIGGERED.name().equalsIgnoreCase(child.getEpollMode())) {
             boot.option(EpollChannelOption.EPOLL_MODE, EpollMode.EDGE_TRIGGERED);

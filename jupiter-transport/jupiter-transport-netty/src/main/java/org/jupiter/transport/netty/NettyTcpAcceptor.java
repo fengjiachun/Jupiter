@@ -195,8 +195,8 @@ public abstract class NettyTcpAcceptor extends NettyAcceptor {
         if (child.getTcpKeepIdle() > 0) {
             boot.childOption(EpollChannelOption.TCP_KEEPIDLE, child.getTcpKeepIdle());
         }
-        if (child.getTcpKeepIntvl() > 0) {
-            boot.childOption(EpollChannelOption.TCP_KEEPINTVL, child.getTcpKeepIntvl());
+        if (child.getTcpKeepInterval() > 0) {
+            boot.childOption(EpollChannelOption.TCP_KEEPINTVL, child.getTcpKeepInterval());
         }
         if (EpollMode.EDGE_TRIGGERED.name().equalsIgnoreCase(child.getEpollMode())) {
             boot.childOption(EpollChannelOption.EPOLL_MODE, EpollMode.EDGE_TRIGGERED);

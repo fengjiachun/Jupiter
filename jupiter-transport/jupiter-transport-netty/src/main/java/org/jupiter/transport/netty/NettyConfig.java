@@ -397,7 +397,7 @@ public class NettyConfig implements JConfig {
             private volatile int tcpKeepCnt = -1;
             private volatile int tcpUserTimeout = -1;
             private volatile int tcpKeepIdle = -1;
-            private volatile int tcpKeepIntvl = -1;
+            private volatile int tcpKeepInterval = -1;
             private volatile boolean tcpQuickAck = true;
             private volatile boolean ipTransparent = false;
             private volatile boolean tcpFastOpenConnect = false;
@@ -487,7 +487,7 @@ public class NettyConfig implements JConfig {
                     return (T) Integer.valueOf(getTcpKeepIdle());
                 }
                 if (option == JOption.TCP_KEEPINTVL) {
-                    return (T) Integer.valueOf(getTcpKeepIntvl());
+                    return (T) Integer.valueOf(getTcpKeepInterval());
                 }
                 if (option == JOption.TCP_KEEPCNT) {
                     return (T) Integer.valueOf(getTcpKeepCnt());
@@ -545,7 +545,7 @@ public class NettyConfig implements JConfig {
                 } else if (option == JOption.TCP_KEEPCNT) {
                     setTcpKeepCnt(castToInteger(value));
                 } else if (option == JOption.TCP_KEEPINTVL) {
-                    setTcpKeepIntvl(castToInteger(value));
+                    setTcpKeepInterval(castToInteger(value));
                 } else if (option == JOption.TCP_USER_TIMEOUT) {
                     setTcpUserTimeout(castToInteger(value));
                 } else if (option == JOption.IP_TRANSPARENT) {
@@ -697,12 +697,12 @@ public class NettyConfig implements JConfig {
                 this.tcpKeepIdle = tcpKeepIdle;
             }
 
-            public int getTcpKeepIntvl() {
-                return tcpKeepIntvl;
+            public int getTcpKeepInterval() {
+                return tcpKeepInterval;
             }
 
-            public void setTcpKeepIntvl(int tcpKeepIntvl) {
-                this.tcpKeepIntvl = tcpKeepIntvl;
+            public void setTcpKeepInterval(int tcpKeepInterval) {
+                this.tcpKeepInterval = tcpKeepInterval;
             }
 
             public boolean isTcpQuickAck() {
