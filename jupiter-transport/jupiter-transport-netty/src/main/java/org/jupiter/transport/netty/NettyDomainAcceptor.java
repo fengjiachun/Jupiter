@@ -173,11 +173,11 @@ public abstract class NettyDomainAcceptor extends NettyAcceptor {
 
     protected SocketChannelProvider.SocketType socketType() {
         if (NativeSupport.isNativeEPollAvailable()) {
-            // netty provides the native socket transport for Linux using JNI.
+            // netty provides the unix domain  socket transport for Linux using JNI.
             return SocketChannelProvider.SocketType.NATIVE_EPOLL_DOMAIN;
         }
         if (NativeSupport.isNativeKQueueAvailable()) {
-            // netty provides the native socket transport for BSD systems such as MacOS using JNI.
+            // netty provides the unix domain  socket transport for BSD systems such as MacOS using JNI.
             return SocketChannelProvider.SocketType.NATIVE_KQUEUE_DOMAIN;
         }
         throw new UnsupportedOperationException("Unsupported unix domain socket");

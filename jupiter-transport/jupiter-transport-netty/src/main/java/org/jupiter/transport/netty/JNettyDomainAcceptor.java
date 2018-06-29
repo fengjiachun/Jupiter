@@ -36,7 +36,7 @@ import java.net.SocketAddress;
 import static org.jupiter.common.util.Preconditions.checkNotNull;
 
 /**
- * Jupiter domain acceptor based on netty.
+ * Jupiter unix domain socket acceptor based on netty.
  *
  * <pre>
  * *********************************************************************

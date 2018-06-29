@@ -38,7 +38,7 @@ import java.util.concurrent.TimeUnit;
 import static org.jupiter.common.util.Preconditions.checkNotNull;
 
 /**
- * Jupiter domain connector based on netty.
+ * Jupiter unix domain socket connector based on netty.
  *
  * <pre>
  * ************************************************************************
