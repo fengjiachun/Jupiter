@@ -84,12 +84,12 @@ public final class JOption<T> extends AbstractConstant<JOption<T>> {
      *
      * 期望的响应为以下三种之一:
      * 1. 收到期望的对端ACK响应
-     * 不通知应用程序(因为一切正常), 在另一个2小时的不活动时间过后，TCP将发送另一个探头。
+     *      不通知应用程序(因为一切正常), 在另一个2小时的不活动时间过后，TCP将发送另一个探头。
      * 2. 对端响应RST
-     * 通知本地TCP对端已崩溃并重新启动, 套接字被关闭.
+     *      通知本地TCP对端已崩溃并重新启动, 套接字被关闭.
      * 3. 对端没有响
-     * 套接字被关闭。
-     * <p>
+     *      套接字被关闭。
+     *
      * 此选项的目的是检测对端主机是否崩溃, 仅对TCP套接字有效.
      */
     public static final JOption<Boolean> KEEP_ALIVE = valueOf("KEEP_ALIVE");
@@ -100,7 +100,7 @@ public final class JOption<T> extends AbstractConstant<JOption<T>> {
      * 这样可让TCP再次发送最后的ACK以防这个ACK丢失(另一端超时并重发最后的FIN).
      * 这种2MSL等待的另一个结果是这个TCP连接在2MSL等待期间, 定义这个连接的插口对(TCP四元组)不能再被使用.
      * 这个连接只能在2MSL结束后才能再被使用.
-     * <p>
+     *
      * 许多具体的实现中允许一个进程重新使用仍处于2MSL等待的端口(通常是设置选项SO_REUSEADDR),
      * 但TCP不能允许一个新的连接建立在相同的插口对上。
      */
@@ -122,30 +122,32 @@ public final class JOption<T> extends AbstractConstant<JOption<T>> {
 
     /**
      * 在linux内核中TCP握手过程总共会有两个队列:
-     * 1) 一个俗称半连接队列, 放着那些握手一半的连接(syn queue)
-     * 2) 另一个放着那些握手成功但是还没有被应用层accept的连接的队列(accept queue)
+     *  1) 一个俗称半连接队列, 放着那些握手一半的连接(syn queue)
+     *  2) 另一个放着那些握手成功但是还没有被应用层accept的连接的队列(accept queue)
      *
      * backlog控制着accept queue的大小, 但backlog的上限是somaxconn
      * linux 2.6.20版本之前 /proc/sys/net/ipv4/tcp_max_syn_backlog决定syn queue的大小,
      * 2.6.20版本之后syn queue的大小是经过一系列复杂的计算, 那个代码我看不懂...
      *
+     * <pre>
      * 参考linux-3.10.28代码(socket.c):
      *
      * sock = sockfd_lookup_light(fd, &err, &fput_needed);
      * if (sock) {
-     * somaxconn = sock_net(sock->sk)->core.sysctl_somaxconn;
-     * if ((unsigned int)backlog > somaxconn)
-     * backlog = somaxconn;
+     *     somaxconn = sock_net(sock->sk)->core.sysctl_somaxconn;
+     *     if ((unsigned int)backlog > somaxconn)
+     *         backlog = somaxconn;
      *
-     * err = security_socket_listen(sock, backlog);
-     * if (!err)
-     * err = sock->ops->listen(sock, backlog);
-     * fput_light(sock->file, fput_needed);
+     *     err = security_socket_listen(sock, backlog);
+     *     if (!err)
+     *         err = sock->ops->listen(sock, backlog);
+     *     fput_light(sock->file, fput_needed);
      * }
      *
      * 以上代码可以看到backlog并不是按照应用层所设置的backlog大小, 实际上取的是backlog和somaxconn的最小值.
      * somaxconn的值定义在:
      * /proc/sys/net/core/somaxconn
+     * </pre>
      *
      * 还有一点要注意, 对于TCP连接的ESTABLISHED状态, 并不需要应用层accept,
      * 只要在accept queue里就已经变成状态ESTABLISHED, 所以在使用ss或netstat排查这方面问题不要被ESTABLISHED迷惑.
