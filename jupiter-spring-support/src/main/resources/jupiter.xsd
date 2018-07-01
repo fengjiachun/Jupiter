@@ -268,9 +268,9 @@
                 <xsd:documentation><![CDATA[ JOption<Integer> ]]></xsd:documentation>
             </xsd:annotation>
         </xsd:attribute>
-        <xsd:attribute name="EPOLL_MODE" type="xsd:string" use="optional">
+        <xsd:attribute name="EDGE_TRIGGERED" type="xsd:string" use="optional">
             <xsd:annotation>
-                <xsd:documentation><![CDATA[ JOption<String> EDGE_TRIGGERED/LEVEL_TRIGGERED ]]></xsd:documentation>
+                <xsd:documentation><![CDATA[ JOption<String> ]]></xsd:documentation>
             </xsd:annotation>
         </xsd:attribute>
         <xsd:attribute name="SO_REUSEPORT" type="xsd:string" use="optional">

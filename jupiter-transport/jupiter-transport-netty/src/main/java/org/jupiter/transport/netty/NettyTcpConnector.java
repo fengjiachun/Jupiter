@@ -73,13 +73,27 @@ public abstract class NettyTcpConnector extends NettyConnector {
 
         Bootstrap boot = bootstrap();
 
+        // child options
         NettyConfig.NettyTcpConfigGroup.ChildConfig child = childConfig;
 
-        // child options
-        boot.option(ChannelOption.SO_REUSEADDR, child.isReuseAddress())
+        int bufLowWaterMark = child.getWriteBufferLowWaterMark();
+        int bufHighWaterMark = child.getWriteBufferHighWaterMark();
+        WriteBufferWaterMark waterMark;
+        if (bufLowWaterMark >= 0 && bufHighWaterMark > 0) {
+            waterMark = new WriteBufferWaterMark(bufLowWaterMark, bufHighWaterMark);
+        } else {
+            waterMark = new WriteBufferWaterMark(512 * 1024, 1024 * 1024);
+        }
+
+        boot.option(ChannelOption.WRITE_BUFFER_WATER_MARK, waterMark)
+                .option(ChannelOption.SO_REUSEADDR, child.isReuseAddress())
                 .option(ChannelOption.SO_KEEPALIVE, child.isKeepAlive())
                 .option(ChannelOption.TCP_NODELAY, child.isTcpNoDelay())
-                .option(ChannelOption.ALLOW_HALF_CLOSURE, child.isAllowHalfClosure());
+                .option(ChannelOption.ALLOW_HALF_CLOSURE, child.isAllowHalfClosure())
+                .option(EpollChannelOption.TCP_CORK, child.isTcpCork())
+                .option(EpollChannelOption.TCP_QUICKACK, child.isTcpQuickAck())
+                .option(EpollChannelOption.IP_TRANSPARENT, child.isIpTransparent())
+                .option(EpollChannelOption.TCP_FASTOPEN_CONNECT, child.isTcpFastOpenConnect());
         if (child.getRcvBuf() > 0) {
             boot.option(ChannelOption.SO_RCVBUF, child.getRcvBuf());
         }
@@ -95,21 +109,6 @@ public abstract class NettyTcpConnector extends NettyConnector {
         if (child.getConnectTimeoutMillis() > 0) {
             boot.option(ChannelOption.CONNECT_TIMEOUT_MILLIS, child.getConnectTimeoutMillis());
         }
-        int bufLowWaterMark = child.getWriteBufferLowWaterMark();
-        int bufHighWaterMark = child.getWriteBufferHighWaterMark();
-        WriteBufferWaterMark waterMark;
-        if (bufLowWaterMark >= 0 && bufHighWaterMark > 0) {
-            waterMark = new WriteBufferWaterMark(bufLowWaterMark, bufHighWaterMark);
-        } else {
-            waterMark = new WriteBufferWaterMark(512 * 1024, 1024 * 1024);
-        }
-        boot.option(ChannelOption.WRITE_BUFFER_WATER_MARK, waterMark);
-
-        // child epoll option
-        boot.option(EpollChannelOption.TCP_CORK, child.isTcpCork());
-        boot.option(EpollChannelOption.TCP_QUICKACK, child.isTcpQuickAck());
-        boot.option(EpollChannelOption.IP_TRANSPARENT, child.isIpTransparent());
-        boot.option(EpollChannelOption.TCP_FASTOPEN_CONNECT, child.isTcpFastOpenConnect());
         if (child.getTcpNotSentLowAt() > 0) {
             boot.option(EpollChannelOption.TCP_NOTSENT_LOWAT, child.getTcpNotSentLowAt());
         }
@@ -125,9 +124,9 @@ public abstract class NettyTcpConnector extends NettyConnector {
         if (child.getTcpKeepInterval() > 0) {
             boot.option(EpollChannelOption.TCP_KEEPINTVL, child.getTcpKeepInterval());
         }
-        if (EpollMode.EDGE_TRIGGERED.name().equalsIgnoreCase(child.getEpollMode())) {
+        if (child.isEdgeTriggered()) {
             boot.option(EpollChannelOption.EPOLL_MODE, EpollMode.EDGE_TRIGGERED);
-        } else if (EpollMode.LEVEL_TRIGGERED.name().equalsIgnoreCase(child.getEpollMode())) {
+        } else {
             boot.option(EpollChannelOption.EPOLL_MODE, EpollMode.LEVEL_TRIGGERED);
         }
     }

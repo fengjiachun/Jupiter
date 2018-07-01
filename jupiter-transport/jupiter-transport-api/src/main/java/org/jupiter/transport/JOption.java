@@ -316,7 +316,7 @@ public final class JOption<T> extends AbstractConstant<JOption<T>> {
      *
      * Be aware this config setting can only be adjusted before the channel was registered.
      */
-    public static final JOption<String> EPOLL_MODE = valueOf("EPOLL_MODE");
+    public static final JOption<Boolean> EDGE_TRIGGERED = valueOf("EDGE_TRIGGERED");
 
     /**
      * ==== Netty native epoll options ============================================================================
@@ -353,7 +353,7 @@ public final class JOption<T> extends AbstractConstant<JOption<T>> {
         options.add(TCP_FASTOPEN_CONNECT);
         options.add(TCP_DEFER_ACCEPT);
         options.add(TCP_QUICKACK);
-        options.add(EPOLL_MODE);
+        options.add(EDGE_TRIGGERED);
 
         ALL_OPTIONS = Collections.unmodifiableSet(options);
     }
