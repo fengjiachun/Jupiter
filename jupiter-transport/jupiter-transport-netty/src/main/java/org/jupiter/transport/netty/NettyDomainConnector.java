@@ -60,6 +60,7 @@ public abstract class NettyDomainConnector extends NettyConnector {
 
         WriteBufferWaterMark waterMark =
                 createWriteBufferWaterMark(child.getWriteBufferLowWaterMark(), child.getWriteBufferHighWaterMark());
+
         boot.option(ChannelOption.WRITE_BUFFER_WATER_MARK, waterMark);
 
         if (child.getConnectTimeoutMillis() > 0) {
