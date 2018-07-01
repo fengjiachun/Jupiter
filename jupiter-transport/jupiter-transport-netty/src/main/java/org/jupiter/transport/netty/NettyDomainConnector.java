@@ -55,21 +55,16 @@ public abstract class NettyDomainConnector extends NettyConnector {
 
         Bootstrap boot = bootstrap();
 
+        // child options
         NettyConfig.NettyDomainConfigGroup.ChildConfig child = childConfig;
 
-        // child options
+        WriteBufferWaterMark waterMark =
+                createWriteBufferWaterMark(child.getWriteBufferLowWaterMark(), child.getWriteBufferHighWaterMark());
+        boot.option(ChannelOption.WRITE_BUFFER_WATER_MARK, waterMark);
+
         if (child.getConnectTimeoutMillis() > 0) {
             boot.option(ChannelOption.CONNECT_TIMEOUT_MILLIS, child.getConnectTimeoutMillis());
         }
-        int bufLowWaterMark = child.getWriteBufferLowWaterMark();
-        int bufHighWaterMark = child.getWriteBufferHighWaterMark();
-        WriteBufferWaterMark waterMark;
-        if (bufLowWaterMark >= 0 && bufHighWaterMark > 0) {
-            waterMark = new WriteBufferWaterMark(bufLowWaterMark, bufHighWaterMark);
-        } else {
-            waterMark = new WriteBufferWaterMark(512 * 1024, 1024 * 1024);
-        }
-        boot.option(ChannelOption.WRITE_BUFFER_WATER_MARK, waterMark);
     }
 
     @Override

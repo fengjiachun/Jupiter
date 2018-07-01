@@ -152,14 +152,8 @@ public abstract class NettyTcpAcceptor extends NettyAcceptor {
         // child options
         NettyConfig.NettyTcpConfigGroup.ChildConfig child = configGroup.child();
 
-        int bufLowWaterMark = child.getWriteBufferLowWaterMark();
-        int bufHighWaterMark = child.getWriteBufferHighWaterMark();
-        WriteBufferWaterMark waterMark;
-        if (bufLowWaterMark >= 0 && bufHighWaterMark > 0) {
-            waterMark = new WriteBufferWaterMark(bufLowWaterMark, bufHighWaterMark);
-        } else {
-            waterMark = new WriteBufferWaterMark(512 * 1024, 1024 * 1024);
-        }
+        WriteBufferWaterMark waterMark =
+                createWriteBufferWaterMark(child.getWriteBufferLowWaterMark(), child.getWriteBufferHighWaterMark());
 
         boot.childOption(ChannelOption.WRITE_BUFFER_WATER_MARK, waterMark)
                 .childOption(ChannelOption.SO_REUSEADDR, child.isReuseAddress())

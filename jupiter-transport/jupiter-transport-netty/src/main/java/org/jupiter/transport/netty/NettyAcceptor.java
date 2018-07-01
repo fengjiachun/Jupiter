@@ -20,6 +20,7 @@ import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelOption;
 import io.netty.channel.EventLoopGroup;
+import io.netty.channel.WriteBufferWaterMark;
 import io.netty.util.HashedWheelTimer;
 import io.netty.util.concurrent.DefaultThreadFactory;
 import org.jupiter.common.concurrent.NamedThreadFactory;
@@ -172,6 +173,19 @@ public abstract class NettyAcceptor implements JAcceptor {
     @SuppressWarnings("unused")
     protected void setProcessor(ProviderProcessor processor) {
         // the default implementation does nothing
+    }
+
+    /**
+     * Create a WriteBufferWaterMark is used to set low water mark and high water mark for the write buffer.
+     */
+    protected WriteBufferWaterMark createWriteBufferWaterMark(int bufLowWaterMark, int bufHighWaterMark) {
+        WriteBufferWaterMark waterMark;
+        if (bufLowWaterMark >= 0 && bufHighWaterMark > 0) {
+            waterMark = new WriteBufferWaterMark(bufLowWaterMark, bufHighWaterMark);
+        } else {
+            waterMark = new WriteBufferWaterMark(512 * 1024, 1024 * 1024);
+        }
+        return waterMark;
     }
 
     /**
