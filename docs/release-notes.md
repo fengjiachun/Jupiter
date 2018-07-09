@@ -1,6 +1,6 @@
 Jupiter release notes
 ------------------------
-### 2018-07-01:  version 1.2.22
+### 2018-07-01: version 1.2.22
 
 - [增加针对Linux平台的一些TCP参数](https://github.com/fengjiachun/Jupiter/issues/66)
 - [Unix域套接字支持](https://en.wikipedia.org/wiki/Unix_domain_socket)
