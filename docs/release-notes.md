@@ -1,6 +1,7 @@
 Jupiter release notes
 ------------------------
 ### 2018-07-13: version 1.2.23
+
 - Bug fix: [LowCopyProtocolEncoder throw NPE](https://github.com/fengjiachun/Jupiter/issues/67)
 
 ### 2018-07-01: version 1.2.22
