@@ -83,11 +83,7 @@ public abstract class NettyTcpConnector extends NettyConnector {
                 .option(ChannelOption.SO_REUSEADDR, child.isReuseAddress())
                 .option(ChannelOption.SO_KEEPALIVE, child.isKeepAlive())
                 .option(ChannelOption.TCP_NODELAY, child.isTcpNoDelay())
-                .option(ChannelOption.ALLOW_HALF_CLOSURE, child.isAllowHalfClosure())
-                .option(EpollChannelOption.TCP_CORK, child.isTcpCork())
-                .option(EpollChannelOption.TCP_QUICKACK, child.isTcpQuickAck())
-                .option(EpollChannelOption.IP_TRANSPARENT, child.isIpTransparent())
-                .option(EpollChannelOption.TCP_FASTOPEN_CONNECT, child.isTcpFastOpenConnect());
+                .option(ChannelOption.ALLOW_HALF_CLOSURE, child.isAllowHalfClosure());
         if (child.getRcvBuf() > 0) {
             boot.option(ChannelOption.SO_RCVBUF, child.getRcvBuf());
         }
@@ -118,10 +114,19 @@ public abstract class NettyTcpConnector extends NettyConnector {
         if (child.getTcpKeepInterval() > 0) {
             boot.option(EpollChannelOption.TCP_KEEPINTVL, child.getTcpKeepInterval());
         }
-        if (child.isEdgeTriggered()) {
-            boot.option(EpollChannelOption.EPOLL_MODE, EpollMode.EDGE_TRIGGERED);
-        } else {
-            boot.option(EpollChannelOption.EPOLL_MODE, EpollMode.LEVEL_TRIGGERED);
+        if (SocketChannelProvider.SocketType.NATIVE_EPOLL == socketType()) {
+            boot.option(EpollChannelOption.TCP_CORK, child.isTcpCork())
+                    .option(EpollChannelOption.TCP_QUICKACK, child.isTcpQuickAck())
+                    .option(EpollChannelOption.IP_TRANSPARENT, child.isIpTransparent());
+            if (child.isTcpFastOpenConnect()) {
+                // Requires Linux kernel 4.11 or later
+                boot.option(EpollChannelOption.TCP_FASTOPEN_CONNECT, child.isTcpFastOpenConnect());
+            }
+            if (child.isEdgeTriggered()) {
+                boot.option(EpollChannelOption.EPOLL_MODE, EpollMode.EDGE_TRIGGERED);
+            } else {
+                boot.option(EpollChannelOption.EPOLL_MODE, EpollMode.LEVEL_TRIGGERED);
+            }
         }
     }
 

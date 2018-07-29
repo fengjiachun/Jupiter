@@ -1,5 +1,9 @@
 Jupiter release notes
 ------------------------
+### 2018-07-28: version 1.2.24
+
+- Bug fix: [TCP_FASTOPEN_CONNECT报错](https://github.com/fengjiachun/Jupiter/issues/68)
+
 ### 2018-07-13: version 1.2.23
 
 - Bug fix: [LowCopyProtocolEncoder throw NPE](https://github.com/fengjiachun/Jupiter/issues/67)
