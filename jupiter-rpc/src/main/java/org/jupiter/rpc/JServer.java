@@ -144,7 +144,7 @@ public interface JServer extends Registry {
     ServiceWrapper removeService(Directory directory);
 
     /**
-     * 注册所有服务到本地容器.
+     * 本地容器注册的所有服务.
      */
     List<ServiceWrapper> allRegisteredServices();
 
