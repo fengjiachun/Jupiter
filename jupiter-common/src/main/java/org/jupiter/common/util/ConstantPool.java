@@ -83,7 +83,7 @@ public abstract class ConstantPool<T extends Constant<T>> {
             final T newConstant = newConstant(nextId.getAndIncrement(), name);
             constant = constants.putIfAbsent(name, newConstant);
             if (constant == null) {
-                constant =  newConstant;
+                constant = newConstant;
             }
         }
         return constant;
