@@ -14,29 +14,24 @@
  * limitations under the License.
  */
 
-package org.jupiter.rpc.load.balance;
+package org.jupiter.example.load.balancer;
+
+import org.jupiter.rpc.load.balance.LoadBalancer;
+import org.jupiter.transport.Directory;
+import org.jupiter.transport.channel.CopyOnWriteGroupList;
+import org.jupiter.transport.channel.JChannelGroup;
 
 /**
  * jupiter
- * org.jupiter.rpc.load.balance
+ * org.jupiter.example.load.balancer
  *
  * @author jiachun.fjc
  */
-public enum LoadBalancerType {
-    ROUND_ROBIN,    // 加权轮询
-    RANDOM,         // 加权随机
-    EXT_SPI;        // 用户自行扩展, SPI方式加载
+public class MyLoadBalancer implements LoadBalancer {
 
-    public static LoadBalancerType parse(String name) {
-        for (LoadBalancerType s : values()) {
-            if (s.name().equalsIgnoreCase(name)) {
-                return s;
-            }
-        }
-        return null;
-    }
-
-    public static LoadBalancerType getDefault() {
-        return RANDOM;
+    @Override
+    public JChannelGroup select(CopyOnWriteGroupList groups, Directory directory) {
+        System.out.println("my load balancer");
+        return groups.get(0);
     }
 }
