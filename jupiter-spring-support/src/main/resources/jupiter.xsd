@@ -120,6 +120,16 @@
                     <xsd:documentation><![CDATA[ Random. ]]></xsd:documentation>
                 </xsd:annotation>
             </xsd:enumeration>
+            <xsd:enumeration value="ext_spi_singleton">
+                <xsd:annotation>
+                    <xsd:documentation><![CDATA[ Ext spi singleton. ]]></xsd:documentation>
+                </xsd:annotation>
+            </xsd:enumeration>
+            <xsd:enumeration value="ext_spi_prototype">
+                <xsd:annotation>
+                    <xsd:documentation><![CDATA[ Ext spi prototype. ]]></xsd:documentation>
+                </xsd:annotation>
+            </xsd:enumeration>
         </xsd:restriction>
     </xsd:simpleType>
 

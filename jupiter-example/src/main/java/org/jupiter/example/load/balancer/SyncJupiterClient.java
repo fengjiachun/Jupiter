@@ -49,7 +49,7 @@ public class SyncJupiterClient {
         UserService userService = ProxyFactory.factory(UserService.class)
                 .version("1.0.0.daily")
                 .client(client)
-                .loadBalancerType(LoadBalancerType.EXT_SPI)
+                .loadBalancerType(LoadBalancerType.EXT_SPI_SINGLETON)
                 .newProxyInstance();
 
         try {

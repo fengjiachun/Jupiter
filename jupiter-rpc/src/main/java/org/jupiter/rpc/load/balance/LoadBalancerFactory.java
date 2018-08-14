@@ -35,7 +35,11 @@ public final class LoadBalancerFactory {
             return RoundRobinLoadBalancer.instance();
         }
 
-        if (type == LoadBalancerType.EXT_SPI) {
+        if (type == LoadBalancerType.EXT_SPI_SINGLETON) {
+            return LoadBalancerHolder.instance;
+        }
+
+        if (type == LoadBalancerType.EXT_SPI_PROTOTYPE) {
             return JServiceLoader.load(LoadBalancer.class).first();
         }
 
@@ -44,4 +48,8 @@ public final class LoadBalancerFactory {
     }
 
     private LoadBalancerFactory() {}
+
+    static class LoadBalancerHolder {
+        static final LoadBalancer instance = JServiceLoader.load(LoadBalancer.class).first();
+    }
 }
