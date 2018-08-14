@@ -1,5 +1,9 @@
 Jupiter release notes
 ------------------------
+### 2018-08-14:
+
+- [LoadBalancer扩展SPI支持](https://github.com/fengjiachun/Jupiter/issues/69)
+
 ### 2018-07-28: version 1.2.24
 
 - Bug fix: [TCP_FASTOPEN_CONNECT报错](https://github.com/fengjiachun/Jupiter/issues/68)
