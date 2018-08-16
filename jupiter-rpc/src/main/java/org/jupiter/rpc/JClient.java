@@ -57,7 +57,7 @@ public interface JClient extends Registry {
     RegistryService registryService();
 
     /**
-     * 从本地容器查找服务信息.
+     * 查找服务信息.
      */
     Collection<RegisterMeta> lookup(Directory directory);
 
