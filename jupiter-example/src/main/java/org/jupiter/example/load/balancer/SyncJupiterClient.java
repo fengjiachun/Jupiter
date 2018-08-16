@@ -49,12 +49,28 @@ public class SyncJupiterClient {
         UserService userService = ProxyFactory.factory(UserService.class)
                 .version("1.0.0.daily")
                 .client(client)
-                .loadBalancerType(LoadBalancerType.EXT_SPI_SINGLETON)
+                .loadBalancerType(LoadBalancerType.EXT_SPI)
+                .newProxyInstance();
+
+        UserService userService2 = ProxyFactory.factory(UserService.class)
+                .version("1.0.0.daily")
+                .client(client)
+                .loadBalancerType(LoadBalancerType.EXT_SPI, "MySingletonLoadBalancer")
+                .newProxyInstance();
+
+        UserService userService3 = ProxyFactory.factory(UserService.class)
+                .version("1.0.0.daily")
+                .client(client)
+                .loadBalancerType(LoadBalancerType.EXT_SPI, "MyPrototypeLoadBalancer")
                 .newProxyInstance();
 
         try {
             for (int i = 0; i < 5; i++) {
                 User user = userService.createUser();
+                System.out.println(user);
+                user = userService2.createUser();
+                System.out.println(user);
+                user = userService3.createUser();
                 System.out.println(user);
             }
         } catch (Exception e) {

@@ -26,7 +26,7 @@ import org.jupiter.common.util.JServiceLoader;
  */
 public final class LoadBalancerFactory {
 
-    public static LoadBalancer loadBalancer(LoadBalancerType type) {
+    public static LoadBalancer getInstance(LoadBalancerType type, String name) {
         if (type == LoadBalancerType.RANDOM) {
             return RandomLoadBalancer.instance();
         }
@@ -35,12 +35,8 @@ public final class LoadBalancerFactory {
             return RoundRobinLoadBalancer.instance();
         }
 
-        if (type == LoadBalancerType.EXT_SPI_SINGLETON) {
-            return LoadBalancerHolder.instance;
-        }
-
-        if (type == LoadBalancerType.EXT_SPI_PROTOTYPE) {
-            return JServiceLoader.load(LoadBalancer.class).first();
+        if (type == LoadBalancerType.EXT_SPI) {
+            return ExtSpiFactoryHolder.factory.getInstance(name);
         }
 
         // 如果不指定, 默认的负载均衡算法是加权随机
@@ -49,7 +45,8 @@ public final class LoadBalancerFactory {
 
     private LoadBalancerFactory() {}
 
-    static class LoadBalancerHolder {
-        static final LoadBalancer instance = JServiceLoader.load(LoadBalancer.class).first();
+    static class ExtSpiFactoryHolder {
+        static final ExtSpiLoadBalancerFactory factory = JServiceLoader.load(ExtSpiLoadBalancerFactory.class)
+                .first();
     }
 }
