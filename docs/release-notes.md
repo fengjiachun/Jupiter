@@ -1,5 +1,6 @@
 Jupiter release notes
 ------------------------
+
 ### 2018-08-14: version 1.2.25
 - [LoadBalancer扩展SPI支持](https://github.com/fengjiachun/Jupiter/issues/69)
 
