@@ -17,6 +17,7 @@
 package org.jupiter.rpc.model.metadata;
 
 import org.jupiter.common.util.Maps;
+import org.jupiter.common.util.SystemPropertyUtil;
 import org.jupiter.rpc.tracing.TraceId;
 
 import java.io.Serializable;
@@ -36,6 +37,9 @@ import java.util.Map;
 public class MessageWrapper implements Serializable {
 
     private static final long serialVersionUID = 1009813828866652852L;
+
+    public static final boolean ALLOW_NULL_ARRAY_ARG =
+            SystemPropertyUtil.getBoolean("jupiter.message.args.allow_null_array_arg", false);
 
     private String appName;                 // 应用名称
     private final ServiceMetadata metadata; // 目标服务元数据
@@ -81,10 +85,28 @@ public class MessageWrapper implements Serializable {
     }
 
     public Object[] getArgs() {
+        if (ALLOW_NULL_ARRAY_ARG) {
+            if (args != null) {
+                for (int i = 0; i < args.length - 1; i++) {
+                    if (args[i] == NullArg.NULL) {
+                        args[i] = null;
+                    }
+                }
+            }
+        }
         return args;
     }
 
     public void setArgs(Object[] args) {
+        if (ALLOW_NULL_ARRAY_ARG) {
+            if (args != null) {
+                for (int i = 0; i < args.length - 1; i++) {
+                    if (args[i] == null) {
+                        args[i] = NullArg.NULL;
+                    }
+                }
+            }
+        }
         this.args = args;
     }
 
@@ -121,5 +143,9 @@ public class MessageWrapper implements Serializable {
                 ", traceId=" + traceId +
                 ", attachments=" + attachments +
                 '}';
+    }
+
+    public enum NullArg {
+        NULL
     }
 }
