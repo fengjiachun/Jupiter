@@ -16,6 +16,8 @@
 
 package org.jupiter.example;
 
+import java.util.List;
+
 /**
  * jupiter
  * org.jupiter.example
@@ -25,7 +27,14 @@ package org.jupiter.example;
 public class ServiceNonAnnotationTestImpl implements ServiceNonAnnotationTest {
 
     @Override
-    public String sayHello(String name) {
-        return "Hello " + name;
+    public String sayHello(String arg1, Integer arg2, List<String> arg3) {
+        return "arg1=" +
+                arg1 +
+                ", " +
+                "arg2=" +
+                arg2 +
+                ", " +
+                "arg3=" +
+                arg3;
     }
 }
