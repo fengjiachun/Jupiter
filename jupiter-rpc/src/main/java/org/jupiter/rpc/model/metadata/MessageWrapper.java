@@ -19,6 +19,7 @@ package org.jupiter.rpc.model.metadata;
 import org.jupiter.common.util.Maps;
 import org.jupiter.common.util.SystemPropertyUtil;
 import org.jupiter.rpc.tracing.TraceId;
+import org.jupiter.serialization.ArrayElement;
 
 import java.io.Serializable;
 import java.util.Arrays;
@@ -88,7 +89,7 @@ public class MessageWrapper implements Serializable {
         if (ALLOW_NULL_ARRAY_ARG) {
             if (args != null) {
                 for (int i = 0; i < args.length - 1; i++) {
-                    if (args[i] == NullArg.NULL) {
+                    if (args[i] == ArrayElement.NULL) {
                         args[i] = null;
                     }
                 }
@@ -102,7 +103,7 @@ public class MessageWrapper implements Serializable {
             if (args != null) {
                 for (int i = 0; i < args.length - 1; i++) {
                     if (args[i] == null) {
-                        args[i] = NullArg.NULL;
+                        args[i] = ArrayElement.NULL;
                     }
                 }
             }
@@ -143,9 +144,5 @@ public class MessageWrapper implements Serializable {
                 ", traceId=" + traceId +
                 ", attachments=" + attachments +
                 '}';
-    }
-
-    public enum NullArg {
-        NULL
     }
 }
