@@ -52,7 +52,7 @@ public abstract class AbstractRejectedExecutionHandler implements RejectedExecut
         this.dumpPrefixName = dumpPrefixName;
     }
 
-    public void dumpJvmInfo() {
+    public void dumpJvmInfoIfNeeded() {
         if (dumpNeeded.getAndSet(false)) {
             String now = new SimpleDateFormat("yyyy-MM-dd_HH-mm-ss").format(new Date());
             String name = threadPoolName + "_" + now;

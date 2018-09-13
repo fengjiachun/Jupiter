@@ -83,7 +83,11 @@ public final class JServiceLoader<S> implements Iterable<S> {
     }
 
     public S first() {
-        return sort().get(0);
+        List<S> sortList = sort();
+        if (sortList.isEmpty()) {
+            throw fail(service, "could not find any implementation for class " + service.getName());
+        }
+        return sortList.get(0);
     }
 
     public S find(String implName) {

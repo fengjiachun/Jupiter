@@ -16,6 +16,8 @@
 
 package org.jupiter.example;
 
+import java.util.List;
+
 /**
  * jupiter
  * org.jupiter.example
@@ -24,5 +26,5 @@ package org.jupiter.example;
  */
 public interface ServiceNonAnnotationTest {
 
-    String sayHello(String name);
+    String sayHello(String arg1, Integer arg2, List<String> arg3);
 }

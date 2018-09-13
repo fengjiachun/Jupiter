@@ -27,6 +27,8 @@ import org.jupiter.rpc.provider.LookupService;
 import org.jupiter.rpc.provider.processor.task.MessageTask;
 import org.jupiter.serialization.Serializer;
 import org.jupiter.serialization.SerializerFactory;
+import org.jupiter.serialization.io.OutputBuf;
+import org.jupiter.transport.CodecConfig;
 import org.jupiter.transport.Status;
 import org.jupiter.transport.channel.JChannel;
 import org.jupiter.transport.channel.JFutureListener;
@@ -108,11 +110,17 @@ public abstract class DefaultProviderProcessor implements ProviderProcessor, Loo
         result.setError(cause);
 
         Serializer serializer = SerializerFactory.getSerializer(s_code);
-        byte[] bytes = serializer.writeObject(result);
 
         JResponsePayload response = new JResponsePayload(invokeId);
         response.status(status);
-        response.bytes(s_code, bytes);
+        if (CodecConfig.isCodecLowCopy()) {
+            OutputBuf outputBuf =
+                    serializer.writeObject(channel.allocOutputBuf(), result);
+            response.outputBuf(s_code, outputBuf);
+        } else {
+            byte[] bytes = serializer.writeObject(result);
+            response.bytes(s_code, bytes);
+        }
 
         if (closeChannel) {
             channel.write(response, JChannel.CLOSE);

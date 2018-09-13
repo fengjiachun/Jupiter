@@ -256,7 +256,9 @@ public final class Reflects {
         } else {
             parameterTypes = new Class[args.length];
             for (int i = 0; i < args.length; i++) {
-                parameterTypes[i] = args[i].getClass();
+                if (args[i] != null) {
+                    parameterTypes[i] = args[i].getClass();
+                }
             }
         }
 
@@ -288,7 +290,9 @@ public final class Reflects {
         } else {
             parameterTypes = new Class[args.length];
             for (int i = 0; i < args.length; i++) {
-                parameterTypes[i] = args[i].getClass();
+                if (args[i] != null) {
+                    parameterTypes[i] = args[i].getClass();
+                }
             }
         }
 

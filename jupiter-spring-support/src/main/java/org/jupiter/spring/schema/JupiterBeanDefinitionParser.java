@@ -211,6 +211,7 @@ public class JupiterBeanDefinitionParser implements BeanDefinitionParser {
                     addProperty(def, (Element) item, "version", false);
                     addProperty(def, (Element) item, "serializerType", false);
                     addProperty(def, (Element) item, "loadBalancerType", false);
+                    addProperty(def, (Element) item, "extLoadBalancerName", false);
                     addProperty(def, (Element) item, "waitForAvailableTimeoutMillis", false);
                     addProperty(def, (Element) item, "invokeType", false);
                     addProperty(def, (Element) item, "dispatchType", false);

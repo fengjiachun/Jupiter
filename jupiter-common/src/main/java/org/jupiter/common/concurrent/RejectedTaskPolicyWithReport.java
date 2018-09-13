@@ -42,7 +42,7 @@ public class RejectedTaskPolicyWithReport extends AbstractRejectedExecutionHandl
     public void rejectedExecution(Runnable r, ThreadPoolExecutor e) {
         logger.error("Thread pool [{}] is exhausted! {}.", threadPoolName, e.toString());
 
-        dumpJvmInfo();
+        dumpJvmInfoIfNeeded();
 
         if (r instanceof RejectedRunnable) {
             ((RejectedRunnable) r).rejected(); // 交给用户来处理

@@ -14,12 +14,9 @@
  * limitations under the License.
  */
 
-package org.jupiter.example.non.annotation;
+package org.jupiter.example.load.balancer;
 
-import org.jupiter.common.util.SystemPropertyUtil;
-import org.jupiter.example.ServiceNonAnnotationTest;
-import org.jupiter.example.ServiceNonAnnotationTestImpl;
-import org.jupiter.monitor.MonitorServer;
+import org.jupiter.example.UserServiceImpl;
 import org.jupiter.rpc.DefaultServer;
 import org.jupiter.rpc.JServer;
 import org.jupiter.rpc.model.metadata.ServiceWrapper;
@@ -27,42 +24,21 @@ import org.jupiter.transport.netty.JNettyTcpAcceptor;
 
 /**
  * jupiter
- * org.jupiter.example.non.annotation
+ * org.jupiter.example.load.balancer
  *
  * @author jiachun.fjc
  */
 public class JupiterServer {
 
     public static void main(String[] args) {
-        SystemPropertyUtil.setProperty("jupiter.message.args.allow_null_array_arg", "true");
-        final JServer server = new DefaultServer().withAcceptor(new JNettyTcpAcceptor(18090));
-        final MonitorServer monitor = new MonitorServer();
+        JServer server = new DefaultServer().withAcceptor(new JNettyTcpAcceptor(18090));
         try {
-            monitor.start();
-
-            // provider1
-            ServiceNonAnnotationTest service = new ServiceNonAnnotationTestImpl();
-
             ServiceWrapper provider = server.serviceRegistry()
-                    .provider(service)
-                    .interfaceClass(ServiceNonAnnotationTest.class)
-                    .group("test")
-                    .providerName("org.jupiter.example.ServiceNonAnnotationTest")
-                    .version("1.0.0")
+                    .provider(new UserServiceImpl())
                     .register();
 
             server.connectToRegistryServer("127.0.0.1:20001");
             server.publish(provider);
-
-            Runtime.getRuntime().addShutdownHook(new Thread() {
-
-                @Override
-                public void run() {
-                    monitor.shutdownGracefully();
-                    server.shutdownGracefully();
-                }
-            });
-
             server.start();
         } catch (InterruptedException e) {
             e.printStackTrace();

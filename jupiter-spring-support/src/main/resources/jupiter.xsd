@@ -120,6 +120,11 @@
                     <xsd:documentation><![CDATA[ Random. ]]></xsd:documentation>
                 </xsd:annotation>
             </xsd:enumeration>
+            <xsd:enumeration value="ext_spi">
+                <xsd:annotation>
+                    <xsd:documentation><![CDATA[ Extension by spi. ]]></xsd:documentation>
+                </xsd:annotation>
+            </xsd:enumeration>
         </xsd:restriction>
     </xsd:simpleType>
 
@@ -447,6 +452,11 @@
         <xsd:attribute name="loadBalancerType" type="loadBalancerTypeType" use="optional">
             <xsd:annotation>
                 <xsd:documentation><![CDATA[ The load balancer type. ]]></xsd:documentation>
+            </xsd:annotation>
+        </xsd:attribute>
+        <xsd:attribute name="extLoadBalancerName" type="xsd:string" use="optional">
+            <xsd:annotation>
+                <xsd:documentation><![CDATA[ The ext load balancer name. ]]></xsd:documentation>
             </xsd:annotation>
         </xsd:attribute>
         <xsd:attribute name="waitForAvailableTimeoutMillis" type="xsd:long" use="optional">

@@ -71,6 +71,8 @@ public class ProxyFactory<I> {
     private SerializerType serializerType = SerializerType.getDefault();
     // 软负载均衡类型
     private LoadBalancerType loadBalancerType = LoadBalancerType.getDefault();
+    // 基于ExtSpiLoadBalancerFactory扩展的负载均衡可以选择指定名字, 可以利用名字作为唯一标识扩展多种类型的负载均衡
+    private String extLoadBalancerName;
     // provider地址
     private List<UnresolvedAddress> addresses;
     // 调用方式 [同步, 异步]
@@ -139,6 +141,12 @@ public class ProxyFactory<I> {
 
     public ProxyFactory<I> loadBalancerType(LoadBalancerType loadBalancerType) {
         this.loadBalancerType = loadBalancerType;
+        return this;
+    }
+
+    public ProxyFactory<I> loadBalancerType(LoadBalancerType loadBalancerType, String extLoadBalancerName) {
+        this.loadBalancerType = loadBalancerType;
+        this.extLoadBalancerName = extLoadBalancerName;
         return this;
     }
 
@@ -255,7 +263,8 @@ public class ProxyFactory<I> {
         switch (dispatchType) {
             case ROUND:
                 return new DefaultRoundDispatcher(
-                        client, LoadBalancerFactory.loadBalancer(loadBalancerType), serializerType);
+                        client,
+                        LoadBalancerFactory.getInstance(loadBalancerType, extLoadBalancerName), serializerType);
             case BROADCAST:
                 return new DefaultBroadcastDispatcher(client, serializerType);
             default:

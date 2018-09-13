@@ -54,7 +54,7 @@
         <jupiter:property version="1.0.0.daily" />
         <!-- 序列化/反序列化类型: (proto_stuff, hessian, kryo, java)可选, 默认proto_stuff -->
         <jupiter:property serializerType="proto_stuff" />
-        <!-- 软负载均衡类型[random, round_robin] -->
+        <!-- 软负载均衡类型[random, round_robin, ext_spi] -->
         <jupiter:property loadBalancerType="round_robin" />
         <!-- 派发方式: (round, broadcast)可选, 默认round(单播) -->
         <jupiter:property dispatchType="round" />
@@ -74,7 +74,8 @@
         <!-- 可选配置 -->
         <!--
             SerializerType serializerType                   // 序列化/反序列化方式
-            LoadBalancerType loadBalancerType               // 软负载均衡类型[random, round_robin]
+            LoadBalancerType loadBalancerType               // 软负载均衡类型[random, round_robin, ext_spi]
+            String extLoadBalancerName;                     // 扩展软负载均衡唯一标识
             long waitForAvailableTimeoutMillis = -1         // 如果大于0, 表示阻塞等待直到连接可用并且该值为等待时间
             InvokeType invokeType                           // 调用方式 [同步, 异步]
             DispatchType dispatchType                       // 派发方式 [单播, 广播]

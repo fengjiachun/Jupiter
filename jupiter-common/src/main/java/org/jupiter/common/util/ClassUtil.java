@@ -32,7 +32,7 @@ public final class ClassUtil {
     private static final InternalLogger logger = InternalLoggerFactory.getInstance(ClassUtil.class);
 
     /**
-     * 提前加载并初始化指定的类, 某些平台下某些类的静态块里面的代码执行实在是太慢了:(
+     * 提前加载并初始化指定的类, 某些平台下某些类的静态块里面的代码执行执行的贼鸡儿慢
      *
      * @param className         类的全限定名称
      * @param tolerableMillis   超过这个时间打印警告日志

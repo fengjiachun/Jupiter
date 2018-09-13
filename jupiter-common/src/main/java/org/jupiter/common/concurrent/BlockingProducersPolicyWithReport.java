@@ -40,7 +40,7 @@ public class BlockingProducersPolicyWithReport extends AbstractRejectedExecution
     public void rejectedExecution(Runnable r, ThreadPoolExecutor e) {
         logger.error("Thread pool [{}] is exhausted! {}.", threadPoolName, e.toString());
 
-        dumpJvmInfo();
+        dumpJvmInfoIfNeeded();
 
         if (!e.isShutdown()) {
             try {

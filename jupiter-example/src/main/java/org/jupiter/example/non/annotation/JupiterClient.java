@@ -16,6 +16,8 @@
 
 package org.jupiter.example.non.annotation;
 
+import org.jupiter.common.util.Preconditions;
+import org.jupiter.common.util.SystemPropertyUtil;
 import org.jupiter.example.ServiceNonAnnotationTest;
 import org.jupiter.rpc.DefaultClient;
 import org.jupiter.rpc.JClient;
@@ -26,6 +28,8 @@ import org.jupiter.transport.JConnector;
 import org.jupiter.transport.exception.ConnectFailedException;
 import org.jupiter.transport.netty.JNettyTcpConnector;
 
+import java.util.ArrayList;
+
 /**
  * jupiter
  * org.jupiter.example.round
@@ -35,6 +39,7 @@ import org.jupiter.transport.netty.JNettyTcpConnector;
 public class JupiterClient {
 
     public static void main(String[] args) {
+        SystemPropertyUtil.setProperty("jupiter.message.args.allow_null_array_arg", "true");
         final JClient client = new DefaultClient().withConnector(new JNettyTcpConnector());
         // 连接RegistryServer
         client.connectToRegistryServer("127.0.0.1:20001");
@@ -64,7 +69,26 @@ public class JupiterClient {
                 .newProxyInstance();
 
         try {
-            String result = service.sayHello("jupiter");
+            String result = service.sayHello(null, null, null);
+            Preconditions.checkArgument("arg1=null, arg2=null, arg3=null".equals(result));
+            System.out.println(result);
+            result = service.sayHello(null, 1, null);
+            Preconditions.checkArgument("arg1=null, arg2=1, arg3=null".equals(result));
+            System.out.println(result);
+            result = service.sayHello(null, null, new ArrayList<String>());
+            Preconditions.checkArgument("arg1=null, arg2=null, arg3=[]".equals(result));
+            System.out.println(result);
+            result = service.sayHello("test", 2, null);
+            Preconditions.checkArgument("arg1=test, arg2=2, arg3=null".equals(result));
+            System.out.println(result);
+            result = service.sayHello("test", null, new ArrayList<String>());
+            Preconditions.checkArgument("arg1=test, arg2=null, arg3=[]".equals(result));
+            System.out.println(result);
+            result = service.sayHello(null, 3, new ArrayList<String>());
+            Preconditions.checkArgument("arg1=null, arg2=3, arg3=[]".equals(result));
+            System.out.println(result);
+            result = service.sayHello("test2", 4, new ArrayList<String>());
+            Preconditions.checkArgument("arg1=test2, arg2=4, arg3=[]".equals(result));
             System.out.println(result);
         } catch (Exception e) {
             e.printStackTrace();

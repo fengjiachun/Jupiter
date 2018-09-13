@@ -89,7 +89,7 @@ public abstract class NettyDomainAcceptor extends NettyAcceptor {
         ChannelFuture future = bind(localAddress).sync();
 
         if (logger.isInfoEnabled()) {
-            logger.info("Jupiter TCP server start" + (sync ? ", and waits until the server socket closed." : ".")
+            logger.info("Jupiter unix domain server start" + (sync ? ", and waits until the server socket closed." : ".")
                     + JConstants.NEWLINE + " {}.", toString());
         }
 

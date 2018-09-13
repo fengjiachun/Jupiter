@@ -20,7 +20,6 @@ import org.jupiter.common.util.JServiceLoader;
 import org.jupiter.common.util.SystemPropertyUtil;
 import org.jupiter.common.util.internal.logging.InternalLogger;
 import org.jupiter.common.util.internal.logging.InternalLoggerFactory;
-import org.jupiter.rpc.consumer.processor.ConsumerExecutors;
 import org.jupiter.rpc.executor.CloseableExecutor;
 import org.jupiter.rpc.executor.ExecutorFactory;
 import org.jupiter.rpc.executor.ThreadPoolExecutorFactory;
@@ -35,7 +34,7 @@ import static org.jupiter.common.util.StackTraceUtil.stackTrace;
  */
 public class ProviderExecutors {
 
-    private static final InternalLogger logger = InternalLoggerFactory.getInstance(ConsumerExecutors.class);
+    private static final InternalLogger logger = InternalLoggerFactory.getInstance(ProviderExecutors.class);
 
     private static final CloseableExecutor executor;
 
