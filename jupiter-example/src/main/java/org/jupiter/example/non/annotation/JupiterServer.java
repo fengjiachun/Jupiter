@@ -35,6 +35,7 @@ public class JupiterServer {
 
     public static void main(String[] args) {
         SystemPropertyUtil.setProperty("jupiter.message.args.allow_null_array_arg", "true");
+        SystemPropertyUtil.setProperty("jupiter.serializer.protostuff.allow_null_array_element", "true");
         final JServer server = new DefaultServer().withAcceptor(new JNettyTcpAcceptor(18090));
         final MonitorServer monitor = new MonitorServer();
         try {

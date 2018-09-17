@@ -40,6 +40,7 @@ public class JupiterClient {
 
     public static void main(String[] args) {
         SystemPropertyUtil.setProperty("jupiter.message.args.allow_null_array_arg", "true");
+        SystemPropertyUtil.setProperty("jupiter.serializer.protostuff.allow_null_array_element", "true");
         final JClient client = new DefaultClient().withConnector(new JNettyTcpConnector());
         // 连接RegistryServer
         client.connectToRegistryServer("127.0.0.1:20001");
@@ -89,6 +90,15 @@ public class JupiterClient {
             System.out.println(result);
             result = service.sayHello("test2", 4, new ArrayList<String>());
             Preconditions.checkArgument("arg1=test2, arg2=4, arg3=[]".equals(result));
+            System.out.println(result);
+            result = service.sayHello2(new String[] { "a", null, "b" });
+            Preconditions.checkArgument("[a, null, b]".equals(result));
+            System.out.println(result);
+            result = service.sayHello2(new String[] { null, "a", "b" });
+            Preconditions.checkArgument("[null, a, b]".equals(result));
+            System.out.println(result);
+            result = service.sayHello2(new String[] { "a", "b", null });
+            Preconditions.checkArgument("[a, b, null]".equals(result));
             System.out.println(result);
         } catch (Exception e) {
             e.printStackTrace();
