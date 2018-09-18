@@ -77,27 +77,7 @@ public abstract class IdStrategy {
 
     // polymorphic requirements
 
-    final DerivativeSchema POLYMORPHIC_POJO_ELEMENT_SCHEMA = new DerivativeSchema(
-            this) {
-        @Override
-        @SuppressWarnings("unchecked")
-        protected void doMergeFrom(Input input, Schema<Object> derivedSchema,
-                                   Object owner) throws IOException {
-            final Object value = derivedSchema.newMessage();
-
-            if (MapWrapper.class == owner.getClass())
-                ((MapWrapper<Object, Object>) owner).setValue(value);
-            else
-                ((Collection<Object>) owner).add(value);
-
-            if (input instanceof GraphInput) {
-                // update the actual reference.
-                ((GraphInput) input).updateLast(value, owner);
-            }
-
-            derivedSchema.mergeFrom(input, value);
-        }
-    };
+    final DerivativeSchema POLYMORPHIC_POJO_ELEMENT_SCHEMA;
 
     // object polymorphic schema requirements
 
@@ -208,6 +188,27 @@ public abstract class IdStrategy {
         this.primaryGroup = primaryGroup;
         this.groupId = groupId;
 
+        POLYMORPHIC_POJO_ELEMENT_SCHEMA = new DerivativeSchema(this) {
+            @Override
+            @SuppressWarnings("unchecked")
+            protected void doMergeFrom(Input input, Schema<Object> derivedSchema,
+                                       Object owner) throws IOException {
+                final Object value = derivedSchema.newMessage();
+
+                if (MapWrapper.class == owner.getClass())
+                    ((MapWrapper<Object, Object>) owner).setValue(value);
+                else
+                    ((Collection<Object>) owner).add(value);
+
+                if (input instanceof GraphInput) {
+                    // update the actual reference.
+                    ((GraphInput) input).updateLast(value, owner);
+                }
+
+                derivedSchema.mergeFrom(input, value);
+            }
+        };
+
         ARRAY_ELEMENT_SCHEMA = new ArraySchema(this) {
             @Override
             @SuppressWarnings("unchecked")
@@ -241,8 +242,7 @@ public abstract class IdStrategy {
             }
         };
 
-        POLYMORPHIC_ENUM_ELEMENT_SCHEMA = new PolymorphicEnumSchema(
-                this) {
+        POLYMORPHIC_ENUM_ELEMENT_SCHEMA = new PolymorphicEnumSchema(this) {
             @Override
             @SuppressWarnings("unchecked")
             protected void setValue(Object value, Object owner) {
@@ -253,8 +253,7 @@ public abstract class IdStrategy {
             }
         };
 
-        POLYMORPHIC_THROWABLE_ELEMENT_SCHEMA = new PolymorphicThrowableSchema(
-                this) {
+        POLYMORPHIC_THROWABLE_ELEMENT_SCHEMA = new PolymorphicThrowableSchema(this) {
             @Override
             @SuppressWarnings("unchecked")
             protected void setValue(Object value, Object owner) {
@@ -333,8 +332,7 @@ public abstract class IdStrategy {
             }
         };
 
-        DYNAMIC_VALUE_PIPE_SCHEMA = new Pipe.Schema<Object>(
-                DYNAMIC_VALUE_SCHEMA) {
+        DYNAMIC_VALUE_PIPE_SCHEMA = new Pipe.Schema<Object>(DYNAMIC_VALUE_SCHEMA) {
             @Override
             protected void transfer(Pipe pipe, Input input, Output output)
                     throws IOException {
@@ -412,8 +410,7 @@ public abstract class IdStrategy {
             }
         };
 
-        COLLECTION_PIPE_SCHEMA = new Pipe.Schema<Collection<Object>>(
-                COLLECTION_SCHEMA) {
+        COLLECTION_PIPE_SCHEMA = new Pipe.Schema<Collection<Object>>(COLLECTION_SCHEMA) {
             @Override
             protected void transfer(Pipe pipe, Input input, Output output)
                     throws IOException {
@@ -487,8 +484,7 @@ public abstract class IdStrategy {
             }
         };
 
-        ARRAY_PIPE_SCHEMA = new Pipe.Schema<Object>(
-                ARRAY_SCHEMA) {
+        ARRAY_PIPE_SCHEMA = new Pipe.Schema<Object>(ARRAY_SCHEMA) {
             @Override
             protected void transfer(Pipe pipe, Input input, Output output)
                     throws IOException {
@@ -586,8 +582,7 @@ public abstract class IdStrategy {
             }
         };
 
-        MAP_PIPE_SCHEMA = new Pipe.Schema<Map<Object, Object>>(
-                MAP_SCHEMA) {
+        MAP_PIPE_SCHEMA = new Pipe.Schema<Map<Object, Object>>(MAP_SCHEMA) {
             @Override
             protected void transfer(Pipe pipe, Input input, Output output)
                     throws IOException {
@@ -723,8 +718,7 @@ public abstract class IdStrategy {
             }
         };
 
-        ENTRY_PIPE_SCHEMA = new Pipe.Schema<Entry<Object, Object>>(
-                ENTRY_SCHEMA) {
+        ENTRY_PIPE_SCHEMA = new Pipe.Schema<Entry<Object, Object>>(ENTRY_SCHEMA) {
             @Override
             protected void transfer(Pipe pipe, Input input, Output output)
                     throws IOException {
@@ -798,8 +792,7 @@ public abstract class IdStrategy {
             }
         };
 
-        OBJECT_PIPE_SCHEMA = new Pipe.Schema<Object>(
-                OBJECT_SCHEMA) {
+        OBJECT_PIPE_SCHEMA = new Pipe.Schema<Object>(OBJECT_SCHEMA) {
             @Override
             protected void transfer(Pipe pipe, Input input, Output output)
                     throws IOException {
@@ -857,8 +850,7 @@ public abstract class IdStrategy {
             }
         };
 
-        CLASS_PIPE_SCHEMA = new Pipe.Schema<Object>(
-                CLASS_SCHEMA) {
+        CLASS_PIPE_SCHEMA = new Pipe.Schema<Object>(CLASS_SCHEMA) {
             @Override
             protected void transfer(Pipe pipe, Input input, Output output)
                     throws IOException {
@@ -917,8 +909,7 @@ public abstract class IdStrategy {
             }
         };
 
-        POLYMORPHIC_COLLECTION_PIPE_SCHEMA = new Pipe.Schema<Object>(
-                POLYMORPHIC_COLLECTION_SCHEMA) {
+        POLYMORPHIC_COLLECTION_PIPE_SCHEMA = new Pipe.Schema<Object>(POLYMORPHIC_COLLECTION_SCHEMA) {
             @Override
             protected void transfer(Pipe pipe, Input input, Output output)
                     throws IOException {
@@ -977,8 +968,7 @@ public abstract class IdStrategy {
             }
         };
 
-        POLYMORPHIC_MAP_PIPE_SCHEMA = new Pipe.Schema<Object>(
-                POLYMORPHIC_MAP_SCHEMA) {
+        POLYMORPHIC_MAP_PIPE_SCHEMA = new Pipe.Schema<Object>(POLYMORPHIC_MAP_SCHEMA) {
             @Override
             protected void transfer(Pipe pipe, Input input, Output output)
                     throws IOException {
@@ -1594,7 +1584,6 @@ public abstract class IdStrategy {
             this.value = value;
             return last;
         }
-
     }
 
     static final class Wrapper {
@@ -1616,5 +1605,4 @@ public abstract class IdStrategy {
             throw new RuntimeException(e);
         }
     }
-
 }
