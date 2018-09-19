@@ -16,6 +16,7 @@
 
 package org.jupiter.example;
 
+import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -36,5 +37,10 @@ public class ServiceNonAnnotationTestImpl implements ServiceNonAnnotationTest {
                 ", " +
                 "arg3=" +
                 arg3;
+    }
+
+    @Override
+    public String sayHello2(String[] args) {
+        return Arrays.toString(args);
     }
 }

@@ -61,5 +61,7 @@ public final class ClassUtil {
         }
     }
 
+    public static <T> void forClass(@SuppressWarnings("unused") Class<T> clazz) {}
+
     private ClassUtil() {}
 }

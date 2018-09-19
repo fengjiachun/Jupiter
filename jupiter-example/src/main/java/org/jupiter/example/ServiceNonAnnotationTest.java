@@ -27,4 +27,6 @@ import java.util.List;
 public interface ServiceNonAnnotationTest {
 
     String sayHello(String arg1, Integer arg2, List<String> arg3);
+
+    String sayHello2(String[] args);
 }

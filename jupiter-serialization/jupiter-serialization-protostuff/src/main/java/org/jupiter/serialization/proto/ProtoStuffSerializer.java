@@ -20,7 +20,9 @@ import io.protostuff.Input;
 import io.protostuff.LinkedBuffer;
 import io.protostuff.Output;
 import io.protostuff.Schema;
+import io.protostuff.runtime.IdStrategy;
 import io.protostuff.runtime.RuntimeSchema;
+import org.jupiter.common.util.ClassUtil;
 import org.jupiter.common.util.SystemPropertyUtil;
 import org.jupiter.common.util.ThrowUtil;
 import org.jupiter.serialization.Serializer;
@@ -44,6 +46,8 @@ import java.io.IOException;
 public class ProtoStuffSerializer extends Serializer {
 
     static {
+        ClassUtil.forClass(IdStrategy.class);
+
         // 详见 io.protostuff.runtime.RuntimeEnv
 
         // If true, the constructor will always be obtained from {@code ReflectionFactory.newConstructorFromSerialization}.
