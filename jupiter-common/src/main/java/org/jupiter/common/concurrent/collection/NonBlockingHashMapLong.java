@@ -118,7 +118,7 @@ public class NonBlockingHashMapLong<TypeV>
 
     private static long rawIndex(final Object[] ary, final int idx) {
         assert idx >= 0 && idx < ary.length;
-        return _Obase + idx * _Oscale;
+        return _Obase + ((long) idx * _Oscale);
     }
 
     private static final int _Lbase = unsafe.arrayBaseOffset(long[].class);
@@ -126,7 +126,7 @@ public class NonBlockingHashMapLong<TypeV>
 
     private static long rawIndex(final long[] ary, final int idx) {
         assert idx >= 0 && idx < ary.length;
-        return _Lbase + idx * _Lscale;
+        return _Lbase + ((long) idx * _Lscale);
     }
 
     // --- Bits to allow Unsafe CAS'ing of the CHM field

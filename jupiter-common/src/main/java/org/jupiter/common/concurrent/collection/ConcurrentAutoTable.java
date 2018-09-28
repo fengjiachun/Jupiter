@@ -180,7 +180,7 @@ public class ConcurrentAutoTable implements Serializable {
 
         private static long rawIndex(long[] ary, int i) {
             assert i >= 0 && i < ary.length;
-            return _Lbase + i * (long) _Lscale; // avoids overflow
+            return _Lbase + ((long) i * _Lscale);
         }
 
         private static boolean CAS(long[] A, int idx, long old, long nnn) {

@@ -95,7 +95,6 @@ import java.util.concurrent.atomic.AtomicReferenceFieldUpdater;
  *
  * Forked from <a href="https://github.com/JCTools/JCTools">JCTools</a>.
  */
-@SuppressWarnings("all")
 public class NonBlockingHashMap<TypeK, TypeV>
         extends AbstractMap<TypeK, TypeV>
         implements ConcurrentMap<TypeK, TypeV>, Cloneable, Serializable {
