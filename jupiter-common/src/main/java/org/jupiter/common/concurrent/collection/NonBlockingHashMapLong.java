@@ -910,7 +910,7 @@ public class NonBlockingHashMapLong<TypeV>
                 // For now, sleep a tad and see if the 2 guys already trying to make
                 // the table actually get around to making it happen.
                 try {
-                    Thread.sleep(8 * megs);
+                    Thread.sleep(8L * megs);
                 } catch (Exception e) { /*empty*/}
             }
             // Last check, since the 'new' below is expensive and there is a chance
