@@ -86,10 +86,11 @@ public class ConcurrentAutoTable implements Serializable {
      * Atomically set the sum of the striped counters to specified value.
      * Rather more expensive than a simple store, in order to remain atomic.
      */
+    @SuppressWarnings("StatementWithEmptyBody")
     public void set(long x) {
         CAT newcat = new CAT(null, 4, x);
         // Spin until CAS works
-        while (!CAS_cat(_cat, newcat)) {/*empty*/}
+        while (!CAS_cat(_cat, newcat)) { /* empty */ }
     }
 
     /**
@@ -155,9 +156,10 @@ public class ConcurrentAutoTable implements Serializable {
 
     // The underlying array of concurrently updated long counters
     private volatile CAT _cat = new CAT(null, 16/*Start Small, Think Big!*/, 0L);
-    private static AtomicReferenceFieldUpdater<ConcurrentAutoTable, CAT> _catUpdater =
+    private static final AtomicReferenceFieldUpdater<ConcurrentAutoTable, CAT> _catUpdater =
             AtomicReferenceFieldUpdater.newUpdater(ConcurrentAutoTable.class, CAT.class, "_cat");
 
+    @SuppressWarnings("BooleanMethodIsAlwaysInverted")
     private boolean CAS_cat(CAT oldcat, CAT newcat) {
         return _catUpdater.compareAndSet(this, oldcat, newcat);
     }
@@ -204,6 +206,7 @@ public class ConcurrentAutoTable implements Serializable {
         // Only add 'x' to some slot in table, hinted at by 'hash'.  The sum can
         // overflow.  Value is CAS'd so no counts are lost.  The CAS is attempted
         // ONCE.
+        @SuppressWarnings("StatementWithEmptyBody")
         public long add_if(long x, int hash, ConcurrentAutoTable master) {
             final long[] t = _t;
             final int idx = hash & (t.length - 1);
@@ -241,13 +244,14 @@ public class ConcurrentAutoTable implements Serializable {
             // Take 1 stab at updating the CAT with the new larger size.  If this
             // fails, we assume some other thread already expanded the CAT - so we
             // do not need to retry until it succeeds.
-            while (master._cat == this && !master.CAS_cat(this, newcat)) {/*empty*/}
+            while (master._cat == this && !master.CAS_cat(this, newcat)) { /* empty */ }
             return old;
         }
 
 
         // Return the current sum of all things in the table.  Writers can be
         // updating the table furiously, so the sum is only locally accurate.
+        @SuppressWarnings("UnnecessaryLocalVariable")
         public long sum() {
             long sum = _next == null ? 0 : _next.sum(); // Recursively get cached sum
             final long[] t = _t;
