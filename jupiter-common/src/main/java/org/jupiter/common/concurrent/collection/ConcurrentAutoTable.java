@@ -49,7 +49,6 @@ import java.util.concurrent.atomic.AtomicReferenceFieldUpdater;
  *
  * Forked from <a href="https://github.com/JCTools/JCTools">JCTools</a>.
  */
-@SuppressWarnings("all")
 public class ConcurrentAutoTable implements Serializable {
 
     private static final long serialVersionUID = -754466836461919739L;
@@ -179,7 +178,7 @@ public class ConcurrentAutoTable implements Serializable {
 
         private static long rawIndex(long[] ary, int i) {
             assert i >= 0 && i < ary.length;
-            return _Lbase + i * _Lscale;
+            return _Lbase + i * (long) _Lscale; // avoids overflow
         }
 
         private static boolean CAS(long[] A, int idx, long old, long nnn) {
