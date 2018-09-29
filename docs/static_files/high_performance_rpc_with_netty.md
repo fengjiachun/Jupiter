@@ -141,11 +141,11 @@ __协议体__
         * 异步调用怎么处理?
         * Bad :disappointed_relieved:
 
-        <img src="img/bad_fo.png"/>
+            <img src="img/bad_fo.png"/>
 
         * Better :grinning:
 
-        <img src="img/better_fo.png"/>
+            <img src="img/better_fo.png"/>
 
     * __Fail-safe__
     * __Fail-back__
