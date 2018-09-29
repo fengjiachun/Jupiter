@@ -181,7 +181,7 @@ __协议体__
 * __同步阻塞调用的客户端和容易成为瓶颈, 客户端协程?__
     * Java层面可选的并不多, 暂时也都不完美 :disappointed_relieved:
 
-        | 类型 | 特点 |
+        | 类型 | 编译期间字节码增强 |
         | --- | --- |
         | kilim | 编译期间字节码增强 |
         | quasar | agent动态字节码增强 |
@@ -356,7 +356,7 @@ __协议体__
     * io.netty.maxDirectMemory
         * < 0:  不使用cleaner, netty方面直接继承jdk设置的最大direct memory size, (jdk的direct memory size是独立的, 这将导致总的direct memory size将是jdk配置的2倍)
         * == 0: 使用cleaner, netty方面不设置最大direct memory size
-        * '> 0:  不使用cleaner, 并且这个参数将直接限制netty的最大direct memory size, (jdk的direct memory size是独立的, 不受此参数限制)
+        * \> 0:  不使用cleaner, 并且这个参数将直接限制netty的最大direct memory size, (jdk的direct memory size是独立的, 不受此参数限制)
 * 最佳连接数
     * 一条连接有瓶颈, 无法有效利用cpu, 连接太多也白扯, 最佳实践是根据自己场景测试
 * 使用PooledBytebuf时要善于利用 -Dio.netty.leakDetection.level 参数
