@@ -149,7 +149,7 @@ __协议体__
     * __Fail-safe__
     * __Fail-back__
     * __Forking__
-    * 其他
+    * __其他__
 
 ## 如何__压榨性能(Don’t trust it, Test it)__
 * __ASM写个FastMethodAccessor来代替服务端那个反射调用__
