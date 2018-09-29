@@ -24,14 +24,15 @@
     * 服务端收到收到并反序列化请求信息, 根据<group, providerName, version>从本地服务字典里查找到对应providerObject, 再根据<methodName, args[]>通过反射调用指定方法, 并将方法返回值序列化为字节数组返回给客户端
     * 客户端收到响应信息再反序列化为Java对象后由Proxy返回给方法调用者
     
-    以上流程对方法调用者是透明的, 一切看起来就像本地调用一样
-    重要概念: RPC三元组 <ID, Request, Response>
+        以上流程对方法调用者是透明的, 一切看起来就像本地调用一样,
+
+        重要概念: RPC三元组 <ID, Request, Response>
 
 * ### <a name="26u3hn"></a>__远程调用客户端图解__
 
 <img src="img/client.png"/>
 
-   若是netty4.x的线程模型, IO Thread(worker) —> Map<InvokeId, Future>代替全局Map能更好的避免线程竞争
+    若是netty4.x的线程模型, IO Thread(worker) —> Map<InvokeId, Future>代替全局Map能更好的避免线程竞争
 
 * ### <a name="gembty"></a>__远程调用服务端图解__
 
