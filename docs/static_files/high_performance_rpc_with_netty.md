@@ -75,7 +75,7 @@ __协议体__
         * 注意拦截toString, equals, hashCode等方法避免远程调用
     * 推荐的(<span data-type="color" style="color:#F5222D">bytebuddy</span>):
 
-<img src="img/bytebuddy.png"/>
+    <img src="img/bytebuddy.png"/>
 
         
 * ### <a name="nb42cv"></a>__优雅的同步/异步调用__
@@ -116,7 +116,7 @@ __协议体__
     
 * ### <a name="tgv4uy"></a>__Provider线程池满了怎么办?__
 
-<img src="img/rejected.png"/>
+    <img src="img/rejected.png"/>
 
     
 * ### <a name="r8ydtu"></a>__软负载均衡__
@@ -196,7 +196,7 @@ __协议体__
 ## Why Netty?
 * ### <a name="0cphxq"></a>__BIO vs NIO__
 
-<img src="img/io_model.png"/>
+    <img src="img/io_model.png"/>
 
     
     
@@ -250,12 +250,12 @@ __协议体__
     * Channel分两大类ServerChannel和Channel, ServerChannel对应着监听套接字(ServerSocketChannel), Channel对应着一个网络连接
 ### Netty4 Thread Model
 
-<img src="img/thread_model.png"/>
+    <img src="img/thread_model.png"/>
 
 
 ### ChannelPipeline
 
-<img src="img/pipeline.png"/>
+    <img src="img/pipeline.png"/>
 
 ### 
 ### Pooling & reuse
