@@ -250,12 +250,12 @@ __协议体__
     * Channel分两大类ServerChannel和Channel, ServerChannel对应着监听套接字(ServerSocketChannel), Channel对应着一个网络连接
 ### Netty4 Thread Model
 
-    <img src="img/thread_model.png"/>
+   <img src="img/thread_model.png"/>
 
 
 ### ChannelPipeline
 
-    <img src="img/pipeline.png"/>
+   <img src="img/pipeline.png"/>
 
 ### 
 ### Pooling & reuse
