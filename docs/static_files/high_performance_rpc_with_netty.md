@@ -23,26 +23,27 @@
     * 调用者发起调用, Proxy从服务地址列表中选择一个地址并将请求信息<group, providerName, version>, methodName, args[]等信息序列化为字节数组并通过网络发送到该地址上
     * 服务端收到收到并反序列化请求信息, 根据<group, providerName, version>从本地服务字典里查找到对应providerObject, 再根据<methodName, args[]>通过反射调用指定方法, 并将方法返回值序列化为字节数组返回给客户端
     * 客户端收到响应信息再反序列化为Java对象后由Proxy返回给方法调用者
-    <span data-type="color" style="color:#F5222D">以上流程对方法调用者是透明的, 一切看起来就像本地调用一样</span>
-    <span data-type="color" style="color:#F5222D">重要概念: RPC三元组 &lt;ID, Request, Response&gt;</span>
+    
+    以上流程对方法调用者是透明的, 一切看起来就像本地调用一样
+    重要概念: RPC三元组 <ID, Request, Response>
 
 * ### <a name="26u3hn"></a>__远程调用客户端图解__
 
 <img src="img/client.png"/>
 
-    <span data-type="color" style="color:#F5222D">若是netty4.x的线程模型, IO Thread(worker) —&gt; Map&lt;InvokeId, Future&gt;代替全局Map能更好的避免线程竞争</span>
+   若是netty4.x的线程模型, IO Thread(worker) —> Map<InvokeId, Future>代替全局Map能更好的避免线程竞争
 
 * ### <a name="gembty"></a>__远程调用服务端图解__
 
 <img src="img/server.png"/>
 
-    <span data-type="color" style="color:#F5222D">重要概念: RPC三元组 &lt;ID, Request, Response&gt;</span>
+    重要概念: RPC三元组 <ID, Request, Response>
 
 * ### <a name="othccm"></a>__远程调用传输层图解__
 
 <img src="img/transport.png"/>
 
-    <span data-type="color" style="color:#F5222D">左图为客户端, 右图为服务端</span>
+    左图为客户端, 右图为服务端
 
 * ### <a name="millbg"></a>__设计传输层协议栈__
     __协议头__
@@ -53,7 +54,7 @@
 __协议体__
 * metadata: <group, providerName, version>
 * methodName
-* ~~<span data-type="color" style="color:#F5222D">parameterTypes[]</span>~~__ __真的需要? 
+* ~~<span data-type="color" style="color:#F5222D">parameterTypes[]</span>~~ 真的需要? 
     * 有什么问题?
         1. 反序列化时ClassLoader.loadClass()潜在锁竞争
         2. 协议体码流大小
@@ -120,16 +121,17 @@ __协议体__
 * ### <a name="r8ydtu"></a>__软负载均衡__
     * __加权随机__
 
-<img src="img/random_lb.png"/>
+        <img src="img/random_lb.png"/>
 
     * __加权轮训(最大公约数)__
 
-<img src="img/rr_lb.png"/>
+        <img src="img/rr_lb.png"/>
 
     * __最小负载__
     * __一致性hash(有状态服务场景)__
     * __其他__
-    <span data-type="color" style="color:#F5222D">要有预热逻辑</span>
+    要有预热逻辑
+
 
 * ### <a name="fevefd"></a>__集群容错__
     * __Fail-fast__
@@ -137,11 +139,11 @@ __协议体__
         * 异步调用怎么处理?
         * Bad :disappointed_relieved:
 
-<img src="img/bad_fo.png"/>
+        <img src="img/bad_fo.png"/>
 
         * Better :grinning:
 
-<img src="img/better_fo.png"/>
+        <img src="img/better_fo.png"/>
 
     * __Fail-safe__
     * __Fail-back__
@@ -151,7 +153,7 @@ __协议体__
 ## 如何__压榨性能(Don’t trust it, Test it)__
 * __ASM写个FastMethodAccessor来代替服务端那个反射调用__
 
-<img src="img/fast_accessor.png"/>
+    <img src="img/fast_accessor.png"/>
 
     
 * __序列化/反序列化__
@@ -297,38 +299,38 @@ __协议体__
         * buffer中有空间可写的时候fd的events中对应的可写状态就被置为1, 否则为0
     * 图解
 
-<img src="img/et_lt.png"/>
+        <img src="img/et_lt.png"/>
 
         
-    * __epoll三个方法简介__
-        * 主要代码: linux-2.6.11.12/fs/eventpoll.c
-        * __int epoll\_create(int size)__
-            * 创建rb-tree(红黑树)和ready-list(就绪链表)
-                * 红黑树O(logN), 平衡效率和内存占用, 在容量需求不能确定并可能量很大的情况下红黑树是最佳选择
-                * size参数已经没什么意义, 早期epoll实现是hash表, 所以需要size参数
-        * __int epoll\_ctl(int epfd, int op, int fd, struct epoll\_event \*event)__
-            * 把epitem放入rb-tree并向内核中断处理程序注册ep\_poll\_callback, callback触发时把该epitem放进ready-list
-        * __int epoll\_wait(int epfd, struct epoll\_event \* events, int maxevents, int timeout)__
-            * ready-list —> events[]
-    
-    * __epoll的数据结构__
+* __epoll三个方法简介__
+    * 主要代码: linux-2.6.11.12/fs/eventpoll.c
+    * __int epoll\_create(int size)__
+        * 创建rb-tree(红黑树)和ready-list(就绪链表)
+            * 红黑树O(logN), 平衡效率和内存占用, 在容量需求不能确定并可能量很大的情况下红黑树是最佳选择
+            * size参数已经没什么意义, 早期epoll实现是hash表, 所以需要size参数
+    * __int epoll\_ctl(int epfd, int op, int fd, struct epoll\_event \*event)__
+        * 把epitem放入rb-tree并向内核中断处理程序注册ep\_poll\_callback, callback触发时把该epitem放进ready-list
+    * __int epoll\_wait(int epfd, struct epoll\_event \* events, int maxevents, int timeout)__
+        * ready-list —> events[]
 
-<img src="img/epoll.png"/>
+* __epoll的数据结构__
+
+    <img src="img/epoll.png"/>
 
         
-    * __epoll\_wait工作流程概述__
-        * epoll\_wait调用ep\_poll
-            * 当rdlist(ready-list)为空(无就绪fd)时挂起当前线程, 直到rdlist不为空时线程才被唤醒
-        * 文件描述符fd的events状态改变
-            * buffer由不可读变为可读或由不可写变为可写, 导致相应fd上的回调函数ep\_poll\_callback被触发
-        * ep\_poll\_callback被触发
-            * 将相应fd对应epitem加入rdlist, 导致rdlist不空, 线程被唤醒, epoll\_wait得以继续执行
-        * 执行ep\_events\_transfer函数
-            * 将rdlist中的epitem拷贝到txlist中, 并将rdlist清空
-            * <span data-type="color" style="color:#F5222D">如果是epoll LT, 并且fd.events状态没有改变(比如buffer中数据没读完并不会改变状态), 会再重新将epitem放回rdlist</span>
-        * 执行ep\_send\_events函数
-            * 扫描txlist中的每个epitem, 调用其关联fd对应的poll方法取得较新的events
-            * 将取得的events和相应的fd发送到用户空间
+* __epoll\_wait工作流程概述__
+    * epoll\_wait调用ep\_poll
+        * 当rdlist(ready-list)为空(无就绪fd)时挂起当前线程, 直到rdlist不为空时线程才被唤醒
+    * 文件描述符fd的events状态改变
+        * buffer由不可读变为可读或由不可写变为可写, 导致相应fd上的回调函数ep\_poll\_callback被触发
+    * ep\_poll\_callback被触发
+        * 将相应fd对应epitem加入rdlist, 导致rdlist不空, 线程被唤醒, epoll\_wait得以继续执行
+    * 执行ep\_events\_transfer函数
+        * 将rdlist中的epitem拷贝到txlist中, 并将rdlist清空
+        * <span data-type="color" style="color:#F5222D">如果是epoll LT, 并且fd.events状态没有改变(比如buffer中数据没读完并不会改变状态), 会再重新将epitem放回rdlist</span>
+    * 执行ep\_send\_events函数
+        * 扫描txlist中的每个epitem, 调用其关联fd对应的poll方法取得较新的events
+        * 将取得的events和相应的fd发送到用户空间
 
 ### Netty的最佳实践
 * 业务线程池必要性
