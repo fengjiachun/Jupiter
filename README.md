@@ -39,6 +39,7 @@
 - [参考: 多个RPC框架的Benchmark见这里](https://github.com/hank-whu/rpc-benchmark)
 
 #### 文档:
+- [High Performance RPC With Netty](/docs/static_files/high_performance_rpc_with_netty.md)
 - [Wiki](https://github.com/fengjiachun/Jupiter/wiki)
 - [其他文档](https://github.com/fengjiachun/doc/tree/master/jupiter)
 - [发展路线](https://github.com/fengjiachun/Jupiter/wiki/RoadMap)
