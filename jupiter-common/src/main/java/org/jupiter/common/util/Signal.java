@@ -84,12 +84,12 @@ public final class Signal extends Exception implements Constant<Signal> {
     }
 
     @Override
-    public Throwable initCause(Throwable cause) {
+    public Throwable initCause(Throwable cause) { // lgtm [java/non-sync-override]
         return this;
     }
 
     @Override
-    public Throwable fillInStackTrace() {
+    public Throwable fillInStackTrace() { // lgtm [java/non-sync-override]
         return this;
     }
 
