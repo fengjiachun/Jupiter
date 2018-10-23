@@ -14,6 +14,17 @@
  * limitations under the License.
  */
 
+/*
+ *
+ *
+ *
+ *
+ *
+ * Written by Doug Lea with assistance from members of JCP JSR-166
+ * Expert Group and released to the public domain, as explained at
+ * http://creativecommons.org/publicdomain/zero/1.0/
+ */
+
 package org.jupiter.rpc.consumer.future;
 
 import org.jupiter.common.util.Signal;
@@ -25,6 +36,8 @@ import java.util.concurrent.locks.LockSupport;
 /**
  * jupiter
  * org.jupiter.rpc.consumer.future
+ *
+ * Forked from java.util.concurrent.FutureTask
  *
  * @author jiachun.fjc
  */
