@@ -1,6 +1,8 @@
 Jupiter release notes
 ------------------------
 
+### 
+
 ### 2018-09-11: version 1.2.26
 - Bug fix: [Object[] 包含 null 时序列化/反序列化错误] (https://github.com/fengjiachun/Jupiter/issues/73#issuecomment-420119074)
 
