@@ -93,14 +93,14 @@ public class AffinityNamedThreadFactory implements ThreadFactory {
                 AffinityLock al = null;
                 try {
                     al = acquireLockBasedOnLast();
-                } catch (Throwable ignored) { /* Defensive: ignored error on acquiring lock */ }
+                } catch (Throwable ignored) { /* defensive: ignored error on acquiring lock */ }
                 try {
                     r2.run();
                 } finally {
                     if (al != null) {
                         try {
                             al.release();
-                        } catch (Throwable ignored) { /* Defensive: ignored error on releasing lock */ }
+                        } catch (Throwable ignored) { /* defensive: ignored error on releasing lock */ }
                     }
                 }
             }
