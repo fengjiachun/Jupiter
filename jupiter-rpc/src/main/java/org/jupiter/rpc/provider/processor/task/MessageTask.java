@@ -19,13 +19,24 @@ package org.jupiter.rpc.provider.processor.task;
 import com.codahale.metrics.Meter;
 import com.codahale.metrics.Timer;
 import org.jupiter.common.concurrent.RejectedRunnable;
-import org.jupiter.common.util.*;
-import org.jupiter.common.util.internal.UnsafeIntegerFieldUpdater;
-import org.jupiter.common.util.internal.UnsafeUpdater;
+import org.jupiter.common.util.Pair;
+import org.jupiter.common.util.Reflects;
+import org.jupiter.common.util.Signal;
+import org.jupiter.common.util.SystemClock;
+import org.jupiter.common.util.SystemPropertyUtil;
 import org.jupiter.common.util.internal.logging.InternalLogger;
 import org.jupiter.common.util.internal.logging.InternalLoggerFactory;
-import org.jupiter.rpc.*;
-import org.jupiter.rpc.exception.*;
+import org.jupiter.rpc.DefaultFilterChain;
+import org.jupiter.rpc.JFilter;
+import org.jupiter.rpc.JFilterChain;
+import org.jupiter.rpc.JFilterContext;
+import org.jupiter.rpc.JFilterLoader;
+import org.jupiter.rpc.JRequest;
+import org.jupiter.rpc.exception.JupiterBadRequestException;
+import org.jupiter.rpc.exception.JupiterFlowControlException;
+import org.jupiter.rpc.exception.JupiterRemoteException;
+import org.jupiter.rpc.exception.JupiterServerBusyException;
+import org.jupiter.rpc.exception.JupiterServiceNotFoundException;
 import org.jupiter.rpc.flow.control.ControlResult;
 import org.jupiter.rpc.flow.control.FlowController;
 import org.jupiter.rpc.metric.Metrics;
@@ -34,8 +45,6 @@ import org.jupiter.rpc.model.metadata.ResultWrapper;
 import org.jupiter.rpc.model.metadata.ServiceWrapper;
 import org.jupiter.rpc.provider.ProviderInterceptor;
 import org.jupiter.rpc.provider.processor.DefaultProviderProcessor;
-import org.jupiter.rpc.tracing.TraceId;
-import org.jupiter.rpc.tracing.TracingUtil;
 import org.jupiter.serialization.Serializer;
 import org.jupiter.serialization.SerializerFactory;
 import org.jupiter.serialization.io.InputBuf;
@@ -68,9 +77,6 @@ public class MessageTask implements RejectedRunnable {
     private static final boolean METRIC_NEEDED = SystemPropertyUtil.getBoolean("jupiter.metric.needed", false);
 
     private static final Signal INVOKE_ERROR = Signal.valueOf(MessageTask.class, "INVOKE_ERROR");
-
-    private static final UnsafeIntegerFieldUpdater<TraceId> traceNodeUpdater =
-            UnsafeUpdater.newIntegerFieldUpdater(TraceId.class, "node");
 
     private final DefaultProviderProcessor processor;
     private final JChannel channel;
@@ -172,11 +178,6 @@ public class MessageTask implements RejectedRunnable {
         final JRequest _request = request;
 
         Context invokeCtx = new Context(service);
-
-        if (TracingUtil.isTracingNeeded()) {
-            setCurrentTraceId(_request.message().getTraceId());
-        }
-
         try {
             Object invokeResult = Chains.invoke(_request, invokeCtx)
                     .getResult();
@@ -207,10 +208,6 @@ public class MessageTask implements RejectedRunnable {
             } else {
                 processor.handleException(channel, _request, Status.SERVER_ERROR, t);
             }
-        } finally {
-            if (TracingUtil.isTracingNeeded()) {
-                TracingUtil.clearCurrent();
-            }
         }
     }
 
@@ -228,8 +225,8 @@ public class MessageTask implements RejectedRunnable {
             @Override
             public void operationFailure(JChannel channel, Throwable cause) throws Exception {
                 long duration = SystemClock.millisClock().now() - request.timestamp();
-                logger.error("Response sent failed, trace: {}, duration: {} millis, channel: {}, cause: {}.",
-                        request.getTraceId(), duration, channel, cause);
+                logger.error("Response sent failed, duration: {} millis, channel: {}, cause: {}.",
+                        duration, channel, cause);
             }
         });
     }
@@ -287,14 +284,13 @@ public class MessageTask implements RejectedRunnable {
 
     @SuppressWarnings("all")
     private static void handleBeforeInvoke(ProviderInterceptor[] interceptors,
-                                           TraceId traceId,
                                            Object provider,
                                            String methodName,
                                            Object[] args) {
 
         for (int i = 0; i < interceptors.length; i++) {
             try {
-                interceptors[i].beforeInvoke(traceId, provider, methodName, args);
+                interceptors[i].beforeInvoke(provider, methodName, args);
             } catch (Throwable t) {
                 logger.error("Interceptor[{}#beforeInvoke]: {}.", Reflects.simpleClassName(interceptors[i]), stackTrace(t));
             }
@@ -303,7 +299,6 @@ public class MessageTask implements RejectedRunnable {
 
     @SuppressWarnings("all")
     private static void handleAfterInvoke(ProviderInterceptor[] interceptors,
-                                          TraceId traceId,
                                           Object provider,
                                           String methodName,
                                           Object[] args,
@@ -312,19 +307,11 @@ public class MessageTask implements RejectedRunnable {
 
         for (int i = interceptors.length - 1; i >= 0; i--) {
             try {
-                interceptors[i].afterInvoke(traceId, provider, methodName, args, invokeResult, failCause);
+                interceptors[i].afterInvoke(provider, methodName, args, invokeResult, failCause);
             } catch (Throwable t) {
                 logger.error("Interceptor[{}#afterInvoke]: {}.", Reflects.simpleClassName(interceptors[i]), stackTrace(t));
             }
         }
-    }
-
-    private static void setCurrentTraceId(TraceId traceId) {
-        if (traceId != null && traceId != TraceId.NULL_TRACE_ID) {
-            assert traceNodeUpdater != null;
-            traceNodeUpdater.set(traceId, traceId.getNode() + 1);
-        }
-        TracingUtil.setCurrent(traceId);
     }
 
     public static class Context implements JFilterContext {
@@ -387,19 +374,18 @@ public class MessageTask implements RejectedRunnable {
             if (interceptors == null || interceptors.length == 0) {
                 next.doFilter(request, filterCtx);
             } else {
-                TraceId traceId = TracingUtil.getCurrent();
                 Object provider = service.getServiceProvider();
 
                 MessageWrapper msg = request.message();
                 String methodName = msg.getMethodName();
                 Object[] args = msg.getArgs();
 
-                handleBeforeInvoke(interceptors, traceId, provider, methodName, args);
+                handleBeforeInvoke(interceptors, provider, methodName, args);
                 try {
                     next.doFilter(request, filterCtx);
                 } finally {
                     handleAfterInvoke(
-                            interceptors, traceId, provider, methodName, args, invokeCtx.getResult(), invokeCtx.getCause());
+                            interceptors, provider, methodName, args, invokeCtx.getResult(), invokeCtx.getCause());
                 }
             }
         }

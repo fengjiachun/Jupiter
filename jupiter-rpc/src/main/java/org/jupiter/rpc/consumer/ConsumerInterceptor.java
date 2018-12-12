@@ -18,7 +18,6 @@ package org.jupiter.rpc.consumer;
 
 import org.jupiter.rpc.JRequest;
 import org.jupiter.rpc.JResponse;
-import org.jupiter.rpc.tracing.TraceId;
 import org.jupiter.transport.channel.JChannel;
 
 /**
@@ -33,10 +32,10 @@ public interface ConsumerInterceptor {
     /**
      * This code is executed before the request data sent.
      */
-    void beforeInvoke(TraceId traceId, JRequest request, JChannel channel);
+    void beforeInvoke(JRequest request, JChannel channel);
 
     /**
      * This code is executed after the server returns the result.
      */
-    void afterInvoke(TraceId traceId, JResponse response, JChannel channel);
+    void afterInvoke(JResponse response, JChannel channel);
 }

@@ -17,7 +17,6 @@
 package org.jupiter.example.spring.interceptor.provider;
 
 import org.jupiter.rpc.provider.ProviderInterceptor;
-import org.jupiter.rpc.tracing.TraceId;
 
 /**
  * jupiter
@@ -28,12 +27,12 @@ import org.jupiter.rpc.tracing.TraceId;
 public class MyProviderInterceptor2 implements ProviderInterceptor {
 
     @Override
-    public void beforeInvoke(TraceId traceId, Object provider, String methodName, Object[] args) {
-        System.err.println("2 beforeInvoke#" + traceId + " " + methodName);
+    public void beforeInvoke(Object provider, String methodName, Object[] args) {
+        System.err.println("2 beforeInvoke#" + methodName);
     }
 
     @Override
-    public void afterInvoke(TraceId traceId, Object provider, String methodName, Object[] args, Object result, Throwable failCause) {
-        System.err.println("2 afterInvoke#" + traceId + " " + methodName + " result=" + result);
+    public void afterInvoke(Object provider, String methodName, Object[] args, Object result, Throwable failCause) {
+        System.err.println("2 afterInvoke#" + methodName + " result=" + result);
     }
 }

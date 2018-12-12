@@ -33,7 +33,6 @@ import org.jupiter.rpc.model.metadata.MessageWrapper;
 import org.jupiter.rpc.model.metadata.MethodSpecialConfig;
 import org.jupiter.rpc.model.metadata.ResultWrapper;
 import org.jupiter.rpc.model.metadata.ServiceMetadata;
-import org.jupiter.rpc.tracing.TraceId;
 import org.jupiter.serialization.Serializer;
 import org.jupiter.serialization.SerializerFactory;
 import org.jupiter.serialization.SerializerType;
@@ -173,15 +172,13 @@ abstract class AbstractDispatcher implements Dispatcher {
         final MessageWrapper message = request.message();
         final long timeoutMillis = getMethodSpecialTimeoutMillis(message.getMethodName());
         final ConsumerInterceptor[] interceptors = interceptors();
-        final TraceId traceId = message.getTraceId();
         final DefaultInvokeFuture<T> future = DefaultInvokeFuture
                 .with(request.invokeId(), channel, timeoutMillis, returnType, dispatchType)
-                .interceptors(interceptors)
-                .traceId(traceId);
+                .interceptors(interceptors);
 
         if (interceptors != null) {
             for (int i = 0; i < interceptors.length; i++) {
-                interceptors[i].beforeInvoke(traceId, request, channel);
+                interceptors[i].beforeInvoke(request, channel);
             }
         }
 
