@@ -27,7 +27,6 @@
 | jupiter.metric.csv.reporter                                       | 是否启用Metrics csv reporter, 默认不启用而是打印在日志里面
 | jupiter.metric.csv.reporter.directory                             | 如果启用Metrics csv, csv的文件路径
 | jupiter.metric.report.period                                      | Metrics 执行周期, 默认15分钟
-| jupiter.tracing.needed                                            | Tracing是否开启(链路跟踪), 默认开启
 | jupiter.registry.zookeeper.sessionTimeoutMs                       | ZK session timeout, 默认60 * 1000毫秒
 | jupiter.registry.zookeeper.connectionTimeoutMs                    | ZK连接超时设置, 默认15 * 1000毫秒
 | jupiter.use.non_blocking_hash                                     | 是否使用Cliff Click的NonBlockingHashMap代替ConsurrentHashMap, 默认不使用

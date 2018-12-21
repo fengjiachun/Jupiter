@@ -42,12 +42,6 @@ import static org.jupiter.common.util.Preconditions.checkNotNull;
  */
 public class DefaultClient implements JClient {
 
-    static {
-        // touch off TracingUtil.<clinit>
-        // because getLocalAddress() and getPid() sometimes too slow
-        ClassUtil.initializeClass("org.jupiter.rpc.tracing.TracingUtil", 500);
-    }
-
     // 服务订阅(SPI)
     private final RegistryService registryService;
     private final String appName;

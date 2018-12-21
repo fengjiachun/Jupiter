@@ -102,7 +102,6 @@ import java.util.concurrent.atomic.AtomicReferenceFieldUpdater;
  *
  * Forked from <a href="https://github.com/JCTools/JCTools">JCTools</a>.
  */
-@SuppressWarnings("all")
 public class NonBlockingHashMapLong<TypeV>
         extends AbstractMap<Long, TypeV>
         implements ConcurrentMap<Long, TypeV>, Serializable {
@@ -119,7 +118,7 @@ public class NonBlockingHashMapLong<TypeV>
 
     private static long rawIndex(final Object[] ary, final int idx) {
         assert idx >= 0 && idx < ary.length;
-        return _Obase + idx * _Oscale;
+        return _Obase + ((long) idx * _Oscale);
     }
 
     private static final int _Lbase = unsafe.arrayBaseOffset(long[].class);
@@ -127,7 +126,7 @@ public class NonBlockingHashMapLong<TypeV>
 
     private static long rawIndex(final long[] ary, final int idx) {
         assert idx >= 0 && idx < ary.length;
-        return _Lbase + idx * _Lscale;
+        return _Lbase + ((long) idx * _Lscale);
     }
 
     // --- Bits to allow Unsafe CAS'ing of the CHM field
@@ -151,7 +150,7 @@ public class NonBlockingHashMapLong<TypeV>
         _val_1_offset = unsafe.objectFieldOffset(f);
     }
 
-    private final boolean CAS(final long offset, final Object old, final Object nnn) {
+    private boolean CAS(final long offset, final Object old, final Object nnn) {
         return unsafe.compareAndSwapObject(this, offset, old, nnn);
     }
 
@@ -226,6 +225,7 @@ public class NonBlockingHashMapLong<TypeV>
         System.out.println("[" + i + "]=(" + K + "," + p + VS + ")");
     }
 
+    @SuppressWarnings("unused")
     private void print2() {
         System.out.println("=========");
         print2_impl(-99, NO_KEY, _val_1);
@@ -290,10 +290,11 @@ public class NonBlockingHashMapLong<TypeV>
         initialize(initial_sz);
     }
 
+    @SuppressWarnings("StatementWithEmptyBody")
     private void initialize(final int initial_sz) {
         if (initial_sz < 0) throw new IllegalArgumentException();
         int i;                      // Convert to next largest power-of-2
-        for (i = MIN_SIZE_LOG; (1 << i) < initial_sz; i++) {/*empty*/}
+        for (i = MIN_SIZE_LOG; (1 << i) < initial_sz; i++) { /* empty */ }
         _chm = new CHM(this, new ConcurrentAutoTable(), i);
         _val_1 = TOMBSTONE;         // Always as-if deleted
         _last_resize_milli = System.currentTimeMillis();
@@ -403,6 +404,7 @@ public class NonBlockingHashMapLong<TypeV>
         return putIfMatch(key, newValue, oldValue) == oldValue;
     }
 
+    @SuppressWarnings("unchecked")
     private TypeV putIfMatch(long key, Object newVal, Object oldVal) {
         if (oldVal == null || newVal == null) throw new NullPointerException();
         if (key == NO_KEY) {
@@ -425,9 +427,10 @@ public class NonBlockingHashMapLong<TypeV>
     /**
      * Removes all of the mappings from this map.
      */
+    @SuppressWarnings("StatementWithEmptyBody")
     public void clear() {         // Smack a new empty table down
         CHM newchm = new CHM(this, new ConcurrentAutoTable(), MIN_SIZE_LOG);
-        while (!CAS(_chm_offset, _chm, newchm)) { /*Spin until the clear works*/}
+        while (!CAS(_chm_offset, _chm, newchm)) { /*Spin until the clear works*/ }
         CAS(_val_1_offset, _val_1, TOMBSTONE);
     }
 
@@ -462,6 +465,7 @@ public class NonBlockingHashMapLong<TypeV>
      * @throws NullPointerException if the specified key is null
      */
     // Never returns a Prime nor a Tombstone.
+    @SuppressWarnings("unchecked")
     public final TypeV get(long key) {
         if (key == NO_KEY) {
             final Object V = _val_1;
@@ -569,6 +573,7 @@ public class NonBlockingHashMapLong<TypeV>
         // Count of used slots, to tell when table is full of dead unusable slots
         private final ConcurrentAutoTable _slots;
 
+        @SuppressWarnings("unused")
         public int slots() {
             return (int) _slots.get();
         }
@@ -642,6 +647,7 @@ public class NonBlockingHashMapLong<TypeV>
         }
 
         // --- print only the live objects
+        @SuppressWarnings("unused")
         private void print2() {
             for (int i = 0; i < _keys.length; i++) {
                 long K = _keys[i];
@@ -841,6 +847,7 @@ public class NonBlockingHashMapLong<TypeV>
         // Since this routine has a fast cutout for copy-already-started, callers
         // MUST 'help_copy' lest we have a path which forever runs through
         // 'resize' only to discover a copy-in-progress which never progresses.
+        @SuppressWarnings("StatementWithEmptyBody")
         private CHM resize() {
             // Check for resize already in progress, probably triggered by another thread
             CHM newchm = _newchm;     // VOLATILE READ
@@ -903,7 +910,7 @@ public class NonBlockingHashMapLong<TypeV>
                 // For now, sleep a tad and see if the 2 guys already trying to make
                 // the table actually get around to making it happen.
                 try {
-                    Thread.sleep(8 * megs);
+                    Thread.sleep(8L * megs);
                 } catch (Exception e) { /*empty*/}
             }
             // Last check, since the 'new' below is expensive and there is a chance
@@ -1474,6 +1481,7 @@ public class NonBlockingHashMapLong<TypeV>
 
     // --- readObject --------------------------------------------------------
     // Read a CHM from a stream
+    @SuppressWarnings("unchecked")
     private void readObject(java.io.ObjectInputStream s) throws IOException, ClassNotFoundException {
         s.defaultReadObject();      // Read nothing
         initialize(MIN_SIZE);

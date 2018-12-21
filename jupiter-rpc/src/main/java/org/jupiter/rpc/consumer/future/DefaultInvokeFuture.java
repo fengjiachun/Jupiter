@@ -35,7 +35,6 @@ import org.jupiter.rpc.exception.JupiterRemoteException;
 import org.jupiter.rpc.exception.JupiterSerializationException;
 import org.jupiter.rpc.exception.JupiterTimeoutException;
 import org.jupiter.rpc.model.metadata.ResultWrapper;
-import org.jupiter.rpc.tracing.TraceId;
 import org.jupiter.transport.Status;
 import org.jupiter.transport.channel.JChannel;
 
@@ -83,7 +82,6 @@ public class DefaultInvokeFuture<V> extends AbstractListenableFuture<V> implemen
     private volatile boolean sent = false;
 
     private ConsumerInterceptor[] interceptors;
-    private TraceId traceId;
 
     public static <T> DefaultInvokeFuture<T> with(
             long invokeId, JChannel channel, long timeoutMillis, Class<T> returnType, DispatchType dispatchType) {
@@ -169,15 +167,6 @@ public class DefaultInvokeFuture<V> extends AbstractListenableFuture<V> implemen
         return this;
     }
 
-    public TraceId traceId() {
-        return traceId;
-    }
-
-    public DefaultInvokeFuture<V> traceId(TraceId traceId) {
-        this.traceId = traceId;
-        return this;
-    }
-
     @SuppressWarnings("all")
     private void doReceived(JResponse response) {
         byte status = response.status();
@@ -192,7 +181,7 @@ public class DefaultInvokeFuture<V> extends AbstractListenableFuture<V> implemen
         ConsumerInterceptor[] interceptors = this.interceptors; // snapshot
         if (interceptors != null) {
             for (int i = interceptors.length - 1; i >= 0; i--) {
-                interceptors[i].afterInvoke(traceId, response, channel);
+                interceptors[i].afterInvoke(response, channel);
             }
         }
     }

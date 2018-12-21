@@ -53,12 +53,6 @@ public class DefaultServer implements JServer {
 
     private static final InternalLogger logger = InternalLoggerFactory.getInstance(DefaultServer.class);
 
-    static {
-        // touch off TracingUtil.<clinit>
-        // because getLocalAddress() and getPid() sometimes too slow
-        ClassUtil.initializeClass("org.jupiter.rpc.tracing.TracingUtil", 500);
-    }
-
     // provider本地容器
     private final ServiceProviderContainer providerContainer = new DefaultServiceProviderContainer();
     // 服务发布(SPI)

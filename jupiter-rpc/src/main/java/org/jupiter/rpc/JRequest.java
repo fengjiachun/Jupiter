@@ -17,7 +17,6 @@
 package org.jupiter.rpc;
 
 import org.jupiter.rpc.model.metadata.MessageWrapper;
-import org.jupiter.rpc.tracing.TracingUtil;
 import org.jupiter.serialization.io.OutputBuf;
 import org.jupiter.transport.payload.JRequestPayload;
 
@@ -77,13 +76,6 @@ public class JRequest {
 
     public void message(MessageWrapper message) {
         this.message = message;
-    }
-
-    public String getTraceId() {
-        if (message == null) {
-            return null;
-        }
-        return TracingUtil.safeGetTraceId(message.getTraceId()).asText();
     }
 
     public Map<String, String> getAttachments() {

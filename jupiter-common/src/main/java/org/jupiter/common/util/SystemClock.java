@@ -57,6 +57,12 @@ class RhsTimePadding extends Time {
  * Every instance would start a thread to update the time, so it's supposed to be singleton in application context.
  * <p>
  * Forked from <A>https://github.com/zhongl/jtoolkit/blob/master/common/src/main/java/com/github/zhongl/jtoolkit/SystemClock.java</A>
+ *
+ * System.currentTimeMillis() relies on the gettimeofday(2) system call.
+ * This system call is called both directly by user-space applications
+ * as well as indirectly by the C library.  So there were no context-switch
+ * overhead and this optimization is actually unnecessary.
+ * See <A></>http://man7.org/linux/man-pages/man7/vdso.7.html</A>
  */
 public class SystemClock extends RhsTimePadding {
 

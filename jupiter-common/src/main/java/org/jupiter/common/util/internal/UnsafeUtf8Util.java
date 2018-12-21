@@ -25,6 +25,8 @@ import static java.lang.Character.*;
  * jupiter
  * org.jupiter.common.util.internal
  *
+ * Forked from protobuf <A>https://github.com/protocolbuffers/protobuf<A/>.
+ *
  * @author jiachun.fjc
  */
 public final class UnsafeUtf8Util {

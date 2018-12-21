@@ -19,7 +19,6 @@ package org.jupiter.example.spring.interceptor.consumer;
 import org.jupiter.rpc.JRequest;
 import org.jupiter.rpc.JResponse;
 import org.jupiter.rpc.consumer.ConsumerInterceptor;
-import org.jupiter.rpc.tracing.TraceId;
 import org.jupiter.transport.channel.JChannel;
 
 /**
@@ -31,12 +30,12 @@ import org.jupiter.transport.channel.JChannel;
 public class MyGlobalConsumerInterceptor2 implements ConsumerInterceptor {
 
     @Override
-    public void beforeInvoke(TraceId traceId, JRequest request, JChannel channel) {
-        System.err.println("global 2 beforeInvoke#" + traceId + " " + request + " channel=" + channel);
+    public void beforeInvoke(JRequest request, JChannel channel) {
+        System.err.println("global 2 beforeInvoke#" + request + " channel=" + channel);
     }
 
     @Override
-    public void afterInvoke(TraceId traceId, JResponse response, JChannel channel) {
-        System.err.println("global 2 afterInvoke#" + traceId + " " + response + " channel=" + channel);
+    public void afterInvoke(JResponse response, JChannel channel) {
+        System.err.println("global 2 afterInvoke#" + response + " channel=" + channel);
     }
 }

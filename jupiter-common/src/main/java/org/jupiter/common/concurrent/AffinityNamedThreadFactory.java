@@ -90,11 +90,18 @@ public class AffinityNamedThreadFactory implements ThreadFactory {
 
             @Override
             public void run() {
-                AffinityLock al = acquireLockBasedOnLast();
+                AffinityLock al = null;
+                try {
+                    al = acquireLockBasedOnLast();
+                } catch (Throwable ignored) { /* defensive: ignored error on acquiring lock */ }
                 try {
                     r2.run();
                 } finally {
-                    al.release();
+                    if (al != null) {
+                        try {
+                            al.release();
+                        } catch (Throwable ignored) { /* defensive: ignored error on releasing lock */ }
+                    }
                 }
             }
         };

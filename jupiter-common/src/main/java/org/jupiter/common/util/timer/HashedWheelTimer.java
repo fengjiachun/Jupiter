@@ -379,7 +379,7 @@ public class HashedWheelTimer implements Timer {
 
     private static void reportTooManyInstances() {
         String resourceType = Reflects.simpleClassName(HashedWheelTimer.class);
-        logger.error("You are creating too many {} instances.  {} is a shared resource that must be" +
+        logger.error("You are creating too many {} instances.  {} is a shared resource that must be " +
                 "reused across the JVM, so that only a few instances are created.", resourceType, resourceType);
     }
 

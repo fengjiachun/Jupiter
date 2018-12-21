@@ -8,8 +8,6 @@ import org.jupiter.rpc.model.metadata.ClusterStrategyConfig;
 import org.jupiter.rpc.model.metadata.MessageWrapper;
 import org.jupiter.rpc.model.metadata.MethodSpecialConfig;
 import org.jupiter.rpc.model.metadata.ServiceMetadata;
-import org.jupiter.rpc.tracing.TraceId;
-import org.jupiter.rpc.tracing.TracingUtil;
 
 import java.util.List;
 
@@ -52,22 +50,10 @@ public abstract class AbstractInvoker {
         // 不需要方法参数类型, 服务端会根据args具体类型按照JLS规则动态dispatch
         message.setArgs(args);
 
-        setTraceId(message);
-
         JRequest request = new JRequest();
         request.message(message);
 
         return request;
-    }
-
-    private void setTraceId(MessageWrapper message) {
-        if (TracingUtil.isTracingNeeded()) {
-            TraceId traceId = TracingUtil.getCurrent();
-            if (traceId == TraceId.NULL_TRACE_ID) {
-                traceId = TraceId.newInstance(TracingUtil.generateTraceId());
-            }
-            message.setTraceId(traceId);
-        }
     }
 
     static class Context implements JFilterContext {

@@ -45,7 +45,7 @@ public class AdaptiveOutputBufAllocator {
             sizeTable.add(i);
         }
 
-        for (int i = 512; i > 0; i <<= 1) {
+        for (int i = 512; i > 0; i <<= 1) { // lgtm [java/constant-comparison]
             sizeTable.add(i);
         }
 
