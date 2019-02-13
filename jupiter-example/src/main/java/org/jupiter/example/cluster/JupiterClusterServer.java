@@ -16,14 +16,14 @@
 
 package org.jupiter.example.cluster;
 
+import java.util.concurrent.CountDownLatch;
+
 import org.jupiter.example.cluster.service.ClusterFailServiceImpl;
 import org.jupiter.example.cluster.service.ClusterSuccessServiceImpl;
 import org.jupiter.rpc.DefaultServer;
 import org.jupiter.rpc.JServer;
 import org.jupiter.rpc.model.metadata.ServiceWrapper;
 import org.jupiter.transport.netty.JNettyTcpAcceptor;
-
-import java.util.concurrent.CountDownLatch;
 
 /**
  * jupiter

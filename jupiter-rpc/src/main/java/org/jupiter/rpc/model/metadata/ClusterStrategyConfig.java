@@ -16,9 +16,9 @@
 
 package org.jupiter.rpc.model.metadata;
 
-import org.jupiter.rpc.consumer.cluster.ClusterInvoker;
-
 import java.io.Serializable;
+
+import org.jupiter.rpc.consumer.cluster.ClusterInvoker;
 
 /**
  * Jupiter

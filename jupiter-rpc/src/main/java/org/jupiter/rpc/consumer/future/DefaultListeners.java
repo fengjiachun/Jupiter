@@ -16,9 +16,9 @@
 
 package org.jupiter.rpc.consumer.future;
 
-import org.jupiter.rpc.JListener;
-
 import java.util.Arrays;
+
+import org.jupiter.rpc.JListener;
 
 /**
  * jupiter

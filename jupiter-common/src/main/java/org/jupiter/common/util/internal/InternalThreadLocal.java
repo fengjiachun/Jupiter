@@ -16,11 +16,11 @@
 
 package org.jupiter.common.util.internal;
 
-import org.jupiter.common.util.ThrowUtil;
-
 import java.util.Collections;
 import java.util.IdentityHashMap;
 import java.util.Set;
+
+import org.jupiter.common.util.ThrowUtil;
 
 /**
  * jupiter

@@ -16,10 +16,15 @@
 
 package org.jupiter.transport.netty.handler;
 
+import java.io.InputStream;
+import java.nio.ByteBuffer;
+import java.util.List;
+
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufInputStream;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.ReplayingDecoder;
+
 import org.jupiter.common.util.Signal;
 import org.jupiter.common.util.SystemClock;
 import org.jupiter.common.util.SystemPropertyUtil;
@@ -28,10 +33,6 @@ import org.jupiter.transport.JProtocolHeader;
 import org.jupiter.transport.exception.IoSignals;
 import org.jupiter.transport.payload.JRequestPayload;
 import org.jupiter.transport.payload.JResponsePayload;
-
-import java.io.InputStream;
-import java.nio.ByteBuffer;
-import java.util.List;
 
 /**
  * <pre>

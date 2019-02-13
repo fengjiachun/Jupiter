@@ -32,12 +32,12 @@
 
 package org.jupiter.common.util.internal.logging;
 
-import org.slf4j.LoggerFactory;
-import org.slf4j.helpers.NOPLoggerFactory;
-
 import java.io.OutputStream;
 import java.io.PrintStream;
 import java.io.UnsupportedEncodingException;
+
+import org.slf4j.LoggerFactory;
+import org.slf4j.helpers.NOPLoggerFactory;
 
 /**
  * Logger factory which creates a <a href="http://www.slf4j.org/">SLF4J</a>

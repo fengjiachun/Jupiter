@@ -16,15 +16,16 @@
 
 package org.jupiter.monitor.metric;
 
-import com.codahale.metrics.ConsoleReporter;
+import java.io.ByteArrayOutputStream;
+import java.io.PrintStream;
+import java.io.UnsupportedEncodingException;
+
 import org.jupiter.common.util.JConstants;
 import org.jupiter.common.util.internal.UnsafeReferenceFieldUpdater;
 import org.jupiter.common.util.internal.UnsafeUpdater;
 import org.jupiter.rpc.metric.Metrics;
 
-import java.io.ByteArrayOutputStream;
-import java.io.PrintStream;
-import java.io.UnsupportedEncodingException;
+import com.codahale.metrics.ConsoleReporter;
 
 import static org.jupiter.common.util.StackTraceUtil.stackTrace;
 

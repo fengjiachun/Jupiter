@@ -17,6 +17,7 @@
 package org.jupiter.serialization.proto.io;
 
 import io.protostuff.LinkedBuffer;
+
 import org.jupiter.common.util.internal.InternalThreadLocal;
 
 import static org.jupiter.serialization.Serializer.DEFAULT_BUF_SIZE;

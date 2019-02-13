@@ -16,9 +16,9 @@
 
 package org.jupiter.rpc.model.metadata;
 
-import org.jupiter.transport.Directory;
-
 import java.io.Serializable;
+
+import org.jupiter.transport.Directory;
 
 import static org.jupiter.common.util.Preconditions.checkNotNull;
 

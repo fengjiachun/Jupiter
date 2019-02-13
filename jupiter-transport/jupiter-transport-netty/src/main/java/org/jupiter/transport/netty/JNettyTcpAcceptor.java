@@ -16,21 +16,26 @@
 
 package org.jupiter.transport.netty;
 
+import java.net.SocketAddress;
+
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelInitializer;
 import io.netty.channel.ChannelOutboundHandler;
+
 import org.jupiter.common.util.JConstants;
+import org.jupiter.transport.CodecConfig;
 import org.jupiter.transport.JConfig;
 import org.jupiter.transport.JOption;
-import org.jupiter.transport.CodecConfig;
-import org.jupiter.transport.netty.handler.*;
+import org.jupiter.transport.netty.handler.IdleStateChecker;
+import org.jupiter.transport.netty.handler.LowCopyProtocolDecoder;
+import org.jupiter.transport.netty.handler.LowCopyProtocolEncoder;
+import org.jupiter.transport.netty.handler.ProtocolDecoder;
+import org.jupiter.transport.netty.handler.ProtocolEncoder;
 import org.jupiter.transport.netty.handler.acceptor.AcceptorHandler;
 import org.jupiter.transport.netty.handler.acceptor.AcceptorIdleStateTrigger;
 import org.jupiter.transport.processor.ProviderProcessor;
-
-import java.net.SocketAddress;
 
 import static org.jupiter.common.util.Preconditions.checkNotNull;
 

@@ -16,13 +16,13 @@
 
 package org.jupiter.common.util;
 
+import java.lang.reflect.InvocationHandler;
+import java.lang.reflect.Proxy;
+
 import net.bytebuddy.ByteBuddy;
 import net.bytebuddy.dynamic.loading.ClassLoadingStrategy;
 import net.bytebuddy.implementation.MethodDelegation;
 import net.bytebuddy.matcher.ElementMatchers;
-
-import java.lang.reflect.InvocationHandler;
-import java.lang.reflect.Proxy;
 
 import static org.jupiter.common.util.Preconditions.checkArgument;
 

@@ -16,9 +16,9 @@
 
 package org.jupiter.rpc.exception;
 
-import org.jupiter.transport.Status;
-
 import java.net.SocketAddress;
+
+import org.jupiter.transport.Status;
 
 /**
  * Call timeout, usually thrown by client.

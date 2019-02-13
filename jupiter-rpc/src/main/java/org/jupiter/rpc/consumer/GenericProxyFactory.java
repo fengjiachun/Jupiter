@@ -16,6 +16,9 @@
 
 package org.jupiter.rpc.consumer;
 
+import java.util.Collections;
+import java.util.List;
+
 import org.jupiter.common.util.JConstants;
 import org.jupiter.common.util.Lists;
 import org.jupiter.common.util.Strings;
@@ -39,9 +42,6 @@ import org.jupiter.transport.Directory;
 import org.jupiter.transport.JConnection;
 import org.jupiter.transport.JConnector;
 import org.jupiter.transport.UnresolvedAddress;
-
-import java.util.Collections;
-import java.util.List;
 
 import static org.jupiter.common.util.Preconditions.checkArgument;
 import static org.jupiter.common.util.Preconditions.checkNotNull;

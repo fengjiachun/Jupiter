@@ -16,13 +16,13 @@
 
 package org.jupiter.rpc.model.metadata;
 
-import org.jupiter.common.util.Maps;
-import org.jupiter.common.util.SystemPropertyUtil;
-import org.jupiter.serialization.ArrayElement;
-
 import java.io.Serializable;
 import java.util.Arrays;
 import java.util.Map;
+
+import org.jupiter.common.util.Maps;
+import org.jupiter.common.util.SystemPropertyUtil;
+import org.jupiter.serialization.ArrayElement;
 
 /**
  * Request data wrapper.

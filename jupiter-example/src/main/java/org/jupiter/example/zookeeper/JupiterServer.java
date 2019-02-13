@@ -16,6 +16,8 @@
 
 package org.jupiter.example.zookeeper;
 
+import java.util.concurrent.atomic.AtomicLong;
+
 import org.jupiter.common.util.SystemPropertyUtil;
 import org.jupiter.example.ServiceTestImpl;
 import org.jupiter.monitor.MonitorServer;
@@ -27,8 +29,6 @@ import org.jupiter.rpc.flow.control.ControlResult;
 import org.jupiter.rpc.flow.control.FlowController;
 import org.jupiter.rpc.model.metadata.ServiceWrapper;
 import org.jupiter.transport.netty.JNettyTcpAcceptor;
-
-import java.util.concurrent.atomic.AtomicLong;
 
 /**
  * RegistryServer是基于SPI的, 使用zookeeper的话maven引入jupiter-registry-zookeeper即可

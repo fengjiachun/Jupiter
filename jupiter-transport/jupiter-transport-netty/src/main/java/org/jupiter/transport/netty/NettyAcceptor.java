@@ -16,6 +16,10 @@
 
 package org.jupiter.transport.netty;
 
+import java.net.InetSocketAddress;
+import java.net.SocketAddress;
+import java.util.concurrent.ThreadFactory;
+
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelOption;
@@ -23,6 +27,7 @@ import io.netty.channel.EventLoopGroup;
 import io.netty.channel.WriteBufferWaterMark;
 import io.netty.util.HashedWheelTimer;
 import io.netty.util.concurrent.DefaultThreadFactory;
+
 import org.jupiter.common.concurrent.NamedThreadFactory;
 import org.jupiter.common.util.JConstants;
 import org.jupiter.transport.JAcceptor;
@@ -30,10 +35,6 @@ import org.jupiter.transport.JConfig;
 import org.jupiter.transport.JOption;
 import org.jupiter.transport.netty.estimator.JMessageSizeEstimator;
 import org.jupiter.transport.processor.ProviderProcessor;
-
-import java.net.InetSocketAddress;
-import java.net.SocketAddress;
-import java.util.concurrent.ThreadFactory;
 
 /**
  * jupiter

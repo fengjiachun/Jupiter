@@ -16,13 +16,14 @@
 
 package org.jupiter.tracing;
 
+import java.util.Iterator;
+
 import io.opentracing.Tracer;
 import io.opentracing.noop.NoopTracerFactory;
+
 import org.jupiter.common.util.JServiceLoader;
 import org.jupiter.common.util.internal.logging.InternalLogger;
 import org.jupiter.common.util.internal.logging.InternalLoggerFactory;
-
-import java.util.Iterator;
 
 import static org.jupiter.common.util.StackTraceUtil.stackTrace;
 

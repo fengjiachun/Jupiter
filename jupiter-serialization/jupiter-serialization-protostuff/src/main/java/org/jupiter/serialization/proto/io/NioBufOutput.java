@@ -16,21 +16,28 @@
 
 package org.jupiter.serialization.proto.io;
 
+import java.io.IOException;
+import java.nio.ByteBuffer;
+
 import io.protostuff.ByteString;
 import io.protostuff.IntSerializer;
 import io.protostuff.Output;
 import io.protostuff.Schema;
+
 import org.jupiter.common.util.internal.UnsafeReferenceFieldUpdater;
 import org.jupiter.common.util.internal.UnsafeUpdater;
 import org.jupiter.common.util.internal.UnsafeUtf8Util;
 import org.jupiter.serialization.io.OutputBuf;
 
-import java.io.IOException;
-import java.nio.ByteBuffer;
-
 import static io.protostuff.ProtobufOutput.encodeZigZag32;
 import static io.protostuff.ProtobufOutput.encodeZigZag64;
-import static io.protostuff.WireFormat.*;
+import static io.protostuff.WireFormat.WIRETYPE_END_GROUP;
+import static io.protostuff.WireFormat.WIRETYPE_FIXED32;
+import static io.protostuff.WireFormat.WIRETYPE_FIXED64;
+import static io.protostuff.WireFormat.WIRETYPE_LENGTH_DELIMITED;
+import static io.protostuff.WireFormat.WIRETYPE_START_GROUP;
+import static io.protostuff.WireFormat.WIRETYPE_VARINT;
+import static io.protostuff.WireFormat.makeTag;
 
 /**
  * jupiter

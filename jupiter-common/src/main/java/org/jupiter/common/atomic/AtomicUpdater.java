@@ -16,9 +16,9 @@
 
 package org.jupiter.common.atomic;
 
-import org.jupiter.common.util.internal.UnsafeUtil;
-
 import java.util.concurrent.atomic.AtomicReferenceFieldUpdater;
+
+import org.jupiter.common.util.internal.UnsafeUtil;
 
 /**
  * A tool utility that enables atomic updates to designated {@code volatile} fields of designated classes.

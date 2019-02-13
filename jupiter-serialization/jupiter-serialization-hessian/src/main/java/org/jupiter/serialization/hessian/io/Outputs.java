@@ -16,10 +16,11 @@
 
 package org.jupiter.serialization.hessian.io;
 
-import com.caucho.hessian.io.Hessian2Output;
+import java.io.OutputStream;
+
 import org.jupiter.serialization.io.OutputBuf;
 
-import java.io.OutputStream;
+import com.caucho.hessian.io.Hessian2Output;
 
 /**
  * jupiter

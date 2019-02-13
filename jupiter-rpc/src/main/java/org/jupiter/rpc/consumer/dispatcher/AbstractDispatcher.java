@@ -16,6 +16,9 @@
 
 package org.jupiter.rpc.consumer.dispatcher;
 
+import java.util.List;
+import java.util.Map;
+
 import org.jupiter.common.util.JConstants;
 import org.jupiter.common.util.Maps;
 import org.jupiter.common.util.SystemClock;
@@ -42,9 +45,6 @@ import org.jupiter.transport.channel.JChannel;
 import org.jupiter.transport.channel.JChannelGroup;
 import org.jupiter.transport.channel.JFutureListener;
 import org.jupiter.transport.payload.JRequestPayload;
-
-import java.util.List;
-import java.util.Map;
 
 import static org.jupiter.common.util.StackTraceUtil.stackTrace;
 

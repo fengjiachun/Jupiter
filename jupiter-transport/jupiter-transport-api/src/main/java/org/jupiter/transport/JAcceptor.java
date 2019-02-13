@@ -16,9 +16,9 @@
 
 package org.jupiter.transport;
 
-import org.jupiter.transport.processor.ProviderProcessor;
-
 import java.net.SocketAddress;
+
+import org.jupiter.transport.processor.ProviderProcessor;
 
 /**
  * Server acceptor.

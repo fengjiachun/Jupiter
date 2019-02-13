@@ -16,6 +16,8 @@
 
 package org.jupiter.spring.schema;
 
+import java.util.List;
+
 import org.jupiter.common.util.Lists;
 import org.jupiter.common.util.Pair;
 import org.jupiter.common.util.Strings;
@@ -40,8 +42,6 @@ import org.springframework.beans.factory.xml.ParserContext;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
-
-import java.util.List;
 
 /**
  * Jupiter

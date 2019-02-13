@@ -16,6 +16,8 @@
 
 package org.jupiter.spring.support;
 
+import java.util.List;
+
 import org.jupiter.common.util.Lists;
 import org.jupiter.common.util.Strings;
 import org.jupiter.rpc.DispatchType;
@@ -32,8 +34,6 @@ import org.jupiter.transport.UnresolvedSocketAddress;
 import org.jupiter.transport.exception.ConnectFailedException;
 import org.springframework.beans.factory.FactoryBean;
 import org.springframework.beans.factory.InitializingBean;
-
-import java.util.List;
 
 /**
  * Consumer bean, 负责构造并初始化 consumer 代理对象.

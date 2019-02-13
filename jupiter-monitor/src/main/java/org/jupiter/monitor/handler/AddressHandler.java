@@ -16,12 +16,13 @@
 
 package org.jupiter.monitor.handler;
 
+import java.util.List;
+
 import io.netty.channel.Channel;
+
 import org.jupiter.common.util.JConstants;
 import org.jupiter.monitor.Command;
 import org.jupiter.registry.RegistryMonitor;
-
-import java.util.List;
 
 /**
  * jupiter

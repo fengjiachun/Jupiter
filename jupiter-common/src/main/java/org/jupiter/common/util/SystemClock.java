@@ -16,12 +16,12 @@
 
 package org.jupiter.common.util;
 
-import org.jupiter.common.util.internal.UnsafeUtil;
-
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.TimeUnit;
+
+import org.jupiter.common.util.internal.UnsafeUtil;
 
 /**
  * 利用对象继承的内存布局规则来padding避免false sharing, 注意其中对象头会至少占用8个字节

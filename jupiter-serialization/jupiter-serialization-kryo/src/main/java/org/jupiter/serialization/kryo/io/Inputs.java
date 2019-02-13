@@ -16,12 +16,13 @@
 
 package org.jupiter.serialization.kryo.io;
 
+import java.nio.ByteBuffer;
+
+import org.jupiter.serialization.io.InputBuf;
+
 import com.esotericsoftware.kryo.io.ByteBufferInput;
 import com.esotericsoftware.kryo.io.FastInput;
 import com.esotericsoftware.kryo.io.Input;
-import org.jupiter.serialization.io.InputBuf;
-
-import java.nio.ByteBuffer;
 
 /**
  * jupiter

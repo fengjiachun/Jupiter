@@ -16,10 +16,10 @@
 
 package org.jupiter.transport.channel;
 
+import java.util.List;
+
 import org.jupiter.transport.Directory;
 import org.jupiter.transport.UnresolvedAddress;
-
-import java.util.List;
 
 /**
  * Based on the same address of the channel group.

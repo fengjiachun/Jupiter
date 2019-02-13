@@ -16,11 +16,11 @@
 
 package org.jupiter.common.util.internal;
 
-import org.jupiter.common.util.internal.logging.InternalLogger;
-import org.jupiter.common.util.internal.logging.InternalLoggerFactory;
-
 import java.lang.reflect.Method;
 import java.nio.ByteOrder;
+
+import org.jupiter.common.util.internal.logging.InternalLogger;
+import org.jupiter.common.util.internal.logging.InternalLoggerFactory;
 
 import static org.jupiter.common.util.StackTraceUtil.stackTrace;
 

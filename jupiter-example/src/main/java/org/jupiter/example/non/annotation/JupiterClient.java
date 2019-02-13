@@ -16,6 +16,8 @@
 
 package org.jupiter.example.non.annotation;
 
+import java.util.ArrayList;
+
 import org.jupiter.common.util.Preconditions;
 import org.jupiter.common.util.SystemPropertyUtil;
 import org.jupiter.example.ServiceNonAnnotationTest;
@@ -27,8 +29,6 @@ import org.jupiter.serialization.SerializerType;
 import org.jupiter.transport.JConnector;
 import org.jupiter.transport.exception.ConnectFailedException;
 import org.jupiter.transport.netty.JNettyTcpConnector;
-
-import java.util.ArrayList;
 
 /**
  * jupiter

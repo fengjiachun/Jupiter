@@ -16,6 +16,9 @@
 
 package org.jupiter.rpc.consumer.invoker;
 
+import java.util.List;
+import java.util.Map;
+
 import org.jupiter.common.util.Maps;
 import org.jupiter.rpc.consumer.cluster.ClusterInvoker;
 import org.jupiter.rpc.consumer.cluster.FailFastClusterInvoker;
@@ -24,9 +27,6 @@ import org.jupiter.rpc.consumer.cluster.FailSafeClusterInvoker;
 import org.jupiter.rpc.consumer.dispatcher.Dispatcher;
 import org.jupiter.rpc.model.metadata.ClusterStrategyConfig;
 import org.jupiter.rpc.model.metadata.MethodSpecialConfig;
-
-import java.util.List;
-import java.util.Map;
 
 /**
  * Jupiter

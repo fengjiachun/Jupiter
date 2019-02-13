@@ -16,14 +16,14 @@
 
 package org.jupiter.common.util;
 
-import org.jupiter.common.util.internal.logging.InternalLogger;
-import org.jupiter.common.util.internal.logging.InternalLoggerFactory;
-
 import java.security.AccessController;
 import java.security.PrivilegedAction;
 import java.util.regex.Pattern;
 
-import static org.jupiter.common.util.StackTraceUtil.*;
+import org.jupiter.common.util.internal.logging.InternalLogger;
+import org.jupiter.common.util.internal.logging.InternalLoggerFactory;
+
+import static org.jupiter.common.util.StackTraceUtil.stackTrace;
 
 /**
  * A collection of utility methods to retrieve and parse the values of the Java system properties.
