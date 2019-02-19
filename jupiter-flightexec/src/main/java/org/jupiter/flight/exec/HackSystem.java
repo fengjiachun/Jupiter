@@ -152,11 +152,6 @@ public class HackSystem {
         System.runFinalization();
     }
 
-    @SuppressWarnings("deprecation")
-    public static void runFinalizersOnExit(boolean value) {
-        System.runFinalizersOnExit(value);
-    }
-
     public static void load(String filename) {
         System.load(filename);
     }
