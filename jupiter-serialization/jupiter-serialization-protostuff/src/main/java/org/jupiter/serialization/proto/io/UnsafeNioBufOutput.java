@@ -16,12 +16,12 @@
 
 package org.jupiter.serialization.proto.io;
 
+import java.io.IOException;
+
 import org.jupiter.common.util.internal.UnsafeDirectBufferUtil;
 import org.jupiter.common.util.internal.UnsafeUtf8Util;
 import org.jupiter.common.util.internal.UnsafeUtil;
 import org.jupiter.serialization.io.OutputBuf;
-
-import java.io.IOException;
 
 import static io.protostuff.WireFormat.WIRETYPE_LENGTH_DELIMITED;
 import static io.protostuff.WireFormat.makeTag;

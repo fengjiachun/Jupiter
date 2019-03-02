@@ -16,12 +16,12 @@
 
 package org.jupiter.transport;
 
+import java.util.Collection;
+
 import org.jupiter.transport.channel.CopyOnWriteGroupList;
 import org.jupiter.transport.channel.DirectoryJChannelGroup;
 import org.jupiter.transport.channel.JChannelGroup;
 import org.jupiter.transport.processor.ConsumerProcessor;
-
-import java.util.Collection;
 
 /**
  * 注意 JConnector 单例即可, 不要创建多个实例.

@@ -22,6 +22,7 @@ import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelOutboundHandlerAdapter;
 import io.netty.channel.ChannelPromise;
 import io.netty.handler.codec.EncoderException;
+
 import org.jupiter.common.util.Reflects;
 import org.jupiter.transport.JProtocolHeader;
 import org.jupiter.transport.payload.JRequestPayload;

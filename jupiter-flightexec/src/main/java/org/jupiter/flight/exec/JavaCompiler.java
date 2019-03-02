@@ -16,16 +16,22 @@
 
 package org.jupiter.flight.exec;
 
-import org.jupiter.common.util.ThrowUtil;
-import org.jupiter.common.util.Function;
-import org.jupiter.common.util.Lists;
-
-import javax.tools.*;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.net.URI;
 import java.util.List;
+
+import javax.tools.FileObject;
+import javax.tools.ForwardingJavaFileManager;
+import javax.tools.JavaFileObject;
+import javax.tools.SimpleJavaFileObject;
+import javax.tools.StandardJavaFileManager;
+import javax.tools.ToolProvider;
+
+import org.jupiter.common.util.Function;
+import org.jupiter.common.util.Lists;
+import org.jupiter.common.util.ThrowUtil;
 
 /**
  * Java compiler, base on javac.

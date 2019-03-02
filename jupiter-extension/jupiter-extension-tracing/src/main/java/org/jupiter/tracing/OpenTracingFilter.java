@@ -16,6 +16,9 @@
 
 package org.jupiter.tracing;
 
+import java.util.Iterator;
+import java.util.Map;
+
 import io.opentracing.Span;
 import io.opentracing.SpanContext;
 import io.opentracing.Tracer;
@@ -23,15 +26,13 @@ import io.opentracing.noop.NoopTracer;
 import io.opentracing.propagation.Format;
 import io.opentracing.propagation.TextMap;
 import io.opentracing.propagation.TextMapExtractAdapter;
+
 import org.jupiter.common.util.SpiMetadata;
 import org.jupiter.rpc.JFilter;
 import org.jupiter.rpc.JFilterChain;
 import org.jupiter.rpc.JFilterContext;
 import org.jupiter.rpc.JRequest;
 import org.jupiter.rpc.model.metadata.MessageWrapper;
-
-import java.util.Iterator;
-import java.util.Map;
 
 /**
  * This filter enables distributed tracing in Jupiter clients and servers via

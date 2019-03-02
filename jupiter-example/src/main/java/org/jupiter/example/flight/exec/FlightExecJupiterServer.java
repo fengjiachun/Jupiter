@@ -16,13 +16,13 @@
 
 package org.jupiter.example.flight.exec;
 
+import java.util.concurrent.CountDownLatch;
+
 import org.jupiter.flight.exec.JavaClassExecProvider;
 import org.jupiter.rpc.DefaultServer;
 import org.jupiter.rpc.JServer;
 import org.jupiter.rpc.model.metadata.ServiceWrapper;
 import org.jupiter.transport.netty.JNettyTcpAcceptor;
-
-import java.util.concurrent.CountDownLatch;
 
 /**
  * 客户端编译, 服务端执行, 以java的方式, 留一个方便线上调试的口子.

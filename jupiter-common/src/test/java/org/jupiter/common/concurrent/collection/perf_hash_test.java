@@ -1,10 +1,10 @@
 package org.jupiter.common.concurrent.collection;
 
-import org.jupiter.common.util.SimpleRandom;
-
 import java.util.Random;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
+
+import org.jupiter.common.util.SimpleRandom;
 
 /*
  * Written by Cliff Click and released to the public domain, as explained at

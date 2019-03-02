@@ -19,6 +19,7 @@ package org.jupiter.transport.netty;
 import io.netty.util.concurrent.FastThreadLocal;
 import io.netty.util.concurrent.FastThreadLocalThread;
 import net.openhft.affinity.AffinityStrategy;
+
 import org.jupiter.common.concurrent.AffinityNamedThreadFactory;
 
 /**

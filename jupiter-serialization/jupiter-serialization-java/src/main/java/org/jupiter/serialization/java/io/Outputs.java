@@ -16,11 +16,11 @@
 
 package org.jupiter.serialization.java.io;
 
-import org.jupiter.serialization.io.OutputBuf;
-
 import java.io.IOException;
 import java.io.ObjectOutputStream;
 import java.io.OutputStream;
+
+import org.jupiter.serialization.io.OutputBuf;
 
 /**
  * jupiter

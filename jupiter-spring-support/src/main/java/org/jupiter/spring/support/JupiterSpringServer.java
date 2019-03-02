@@ -16,10 +16,12 @@
 
 package org.jupiter.spring.support;
 
-import org.jupiter.common.util.ThrowUtil;
+import java.util.List;
+
 import org.jupiter.common.util.Pair;
 import org.jupiter.common.util.Strings;
 import org.jupiter.common.util.SystemPropertyUtil;
+import org.jupiter.common.util.ThrowUtil;
 import org.jupiter.common.util.internal.logging.InternalLogger;
 import org.jupiter.common.util.internal.logging.InternalLoggerFactory;
 import org.jupiter.registry.RegistryService;
@@ -33,8 +35,6 @@ import org.jupiter.transport.JConfig;
 import org.jupiter.transport.JConfigGroup;
 import org.jupiter.transport.JOption;
 import org.springframework.beans.factory.InitializingBean;
-
-import java.util.List;
 
 import static org.jupiter.common.util.Preconditions.checkNotNull;
 

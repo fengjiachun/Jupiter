@@ -16,6 +16,10 @@
 
 package org.jupiter.transport.netty.channel;
 
+import java.io.OutputStream;
+import java.net.SocketAddress;
+import java.nio.ByteBuffer;
+
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufAllocator;
 import io.netty.buffer.ByteBufOutputStream;
@@ -24,16 +28,13 @@ import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelFutureListener;
 import io.netty.util.Attribute;
 import io.netty.util.AttributeKey;
+
 import org.jupiter.serialization.io.OutputBuf;
 import org.jupiter.transport.JProtocolHeader;
 import org.jupiter.transport.channel.JChannel;
 import org.jupiter.transport.channel.JFutureListener;
 import org.jupiter.transport.netty.alloc.AdaptiveOutputBufAllocator;
 import org.jupiter.transport.netty.handler.connector.ConnectionWatchdog;
-
-import java.io.OutputStream;
-import java.net.SocketAddress;
-import java.nio.ByteBuffer;
 
 /**
  * 对Netty {@link Channel} 的包装, 通过静态方法 {@link #attachChannel(Channel)} 获取一个实例,

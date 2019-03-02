@@ -16,9 +16,9 @@
 
 package org.jupiter.common.util.internal;
 
-import sun.misc.Unsafe;
-
 import java.lang.reflect.Field;
+
+import sun.misc.Unsafe;
 
 /**
  * jupiter

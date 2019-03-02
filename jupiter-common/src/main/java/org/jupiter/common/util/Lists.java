@@ -17,7 +17,15 @@
 package org.jupiter.common.util;
 
 import java.io.Serializable;
-import java.util.*;
+import java.util.AbstractList;
+import java.util.AbstractSequentialList;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Iterator;
+import java.util.List;
+import java.util.ListIterator;
+import java.util.RandomAccess;
 
 import static org.jupiter.common.util.Preconditions.checkArgument;
 import static org.jupiter.common.util.Preconditions.checkNotNull;

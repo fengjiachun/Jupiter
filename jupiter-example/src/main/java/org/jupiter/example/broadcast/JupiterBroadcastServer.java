@@ -16,12 +16,12 @@
 
 package org.jupiter.example.broadcast;
 
+import java.util.concurrent.CountDownLatch;
+
 import org.jupiter.example.ServiceTestImpl;
 import org.jupiter.rpc.DefaultServer;
 import org.jupiter.rpc.JServer;
 import org.jupiter.transport.netty.JNettyTcpAcceptor;
-
-import java.util.concurrent.CountDownLatch;
 
 /**
  * 广播调用服务端

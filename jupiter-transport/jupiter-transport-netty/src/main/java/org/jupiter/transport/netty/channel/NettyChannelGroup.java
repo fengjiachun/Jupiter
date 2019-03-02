@@ -16,15 +16,6 @@
 
 package org.jupiter.transport.netty.channel;
 
-import io.netty.channel.ChannelFuture;
-import io.netty.channel.ChannelFutureListener;
-import org.jupiter.common.atomic.AtomicUpdater;
-import org.jupiter.common.util.*;
-import org.jupiter.transport.Directory;
-import org.jupiter.transport.UnresolvedAddress;
-import org.jupiter.transport.channel.JChannel;
-import org.jupiter.transport.channel.JChannelGroup;
-
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
@@ -36,6 +27,22 @@ import java.util.concurrent.atomic.AtomicIntegerFieldUpdater;
 import java.util.concurrent.atomic.AtomicReferenceFieldUpdater;
 import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.ReentrantLock;
+
+import io.netty.channel.ChannelFuture;
+import io.netty.channel.ChannelFutureListener;
+
+import org.jupiter.common.atomic.AtomicUpdater;
+import org.jupiter.common.util.IntSequence;
+import org.jupiter.common.util.JConstants;
+import org.jupiter.common.util.Lists;
+import org.jupiter.common.util.Maps;
+import org.jupiter.common.util.SystemClock;
+import org.jupiter.common.util.SystemPropertyUtil;
+import org.jupiter.common.util.ThrowUtil;
+import org.jupiter.transport.Directory;
+import org.jupiter.transport.UnresolvedAddress;
+import org.jupiter.transport.channel.JChannel;
+import org.jupiter.transport.channel.JChannelGroup;
 
 import static org.jupiter.common.util.Preconditions.checkNotNull;
 

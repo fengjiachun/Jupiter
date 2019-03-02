@@ -16,10 +16,11 @@
 
 package org.jupiter.common.util;
 
-import org.jupiter.common.util.internal.UnsafeUtil;
+import sun.misc.Unsafe;
+
 import org.jupiter.common.util.internal.UnsafeReferenceFieldUpdater;
 import org.jupiter.common.util.internal.UnsafeUpdater;
-import sun.misc.Unsafe;
+import org.jupiter.common.util.internal.UnsafeUtil;
 
 /**
  * jupiter

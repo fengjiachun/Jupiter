@@ -16,6 +16,8 @@
 
 package org.jupiter.example.generic;
 
+import java.util.concurrent.atomic.AtomicLong;
+
 import org.jupiter.example.GenericServiceTestImpl;
 import org.jupiter.monitor.MonitorServer;
 import org.jupiter.rpc.DefaultServer;
@@ -25,8 +27,6 @@ import org.jupiter.rpc.flow.control.ControlResult;
 import org.jupiter.rpc.flow.control.FlowController;
 import org.jupiter.rpc.model.metadata.ServiceWrapper;
 import org.jupiter.transport.netty.JNettyTcpAcceptor;
-
-import java.util.concurrent.atomic.AtomicLong;
 
 /**
  * jupiter

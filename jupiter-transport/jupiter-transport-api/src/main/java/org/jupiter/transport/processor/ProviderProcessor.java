@@ -16,9 +16,9 @@
 
 package org.jupiter.transport.processor;
 
-import org.jupiter.transport.payload.JRequestPayload;
 import org.jupiter.transport.Status;
 import org.jupiter.transport.channel.JChannel;
+import org.jupiter.transport.payload.JRequestPayload;
 
 /**
  * Provider's processor.

@@ -16,13 +16,13 @@
 
 package org.jupiter.transport.channel;
 
-import org.jupiter.common.util.internal.UnsafeUtil;
-
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.locks.ReentrantLock;
+
+import org.jupiter.common.util.internal.UnsafeUtil;
 
 /**
  * 相同服务, 不同服务节点的channel group容器,

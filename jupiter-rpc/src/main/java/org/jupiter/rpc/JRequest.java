@@ -16,12 +16,12 @@
 
 package org.jupiter.rpc;
 
+import java.util.Collections;
+import java.util.Map;
+
 import org.jupiter.rpc.model.metadata.MessageWrapper;
 import org.jupiter.serialization.io.OutputBuf;
 import org.jupiter.transport.payload.JRequestPayload;
-
-import java.util.Collections;
-import java.util.Map;
 
 /**
  * Consumer's request data.

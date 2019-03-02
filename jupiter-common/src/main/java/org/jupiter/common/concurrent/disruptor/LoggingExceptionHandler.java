@@ -16,9 +16,10 @@
 
 package org.jupiter.common.concurrent.disruptor;
 
-import com.lmax.disruptor.ExceptionHandler;
 import org.jupiter.common.util.internal.logging.InternalLogger;
 import org.jupiter.common.util.internal.logging.InternalLoggerFactory;
+
+import com.lmax.disruptor.ExceptionHandler;
 
 import static org.jupiter.common.util.StackTraceUtil.stackTrace;
 

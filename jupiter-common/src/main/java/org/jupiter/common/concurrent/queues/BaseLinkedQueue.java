@@ -29,11 +29,12 @@
  */
 package org.jupiter.common.concurrent.queues;
 
-import org.jupiter.common.util.internal.UnsafeUtil;
-import sun.misc.Unsafe;
-
 import java.util.AbstractQueue;
 import java.util.Iterator;
+
+import sun.misc.Unsafe;
+
+import org.jupiter.common.util.internal.UnsafeUtil;
 
 /**
  * Forked from <a href="https://github.com/JCTools/JCTools">JCTools</a>.

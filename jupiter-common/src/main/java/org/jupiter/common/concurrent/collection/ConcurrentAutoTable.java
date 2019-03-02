@@ -29,11 +29,12 @@
  */
 package org.jupiter.common.concurrent.collection;
 
-import org.jupiter.common.util.internal.UnsafeUtil;
-import sun.misc.Unsafe;
-
 import java.io.Serializable;
 import java.util.concurrent.atomic.AtomicReferenceFieldUpdater;
+
+import sun.misc.Unsafe;
+
+import org.jupiter.common.util.internal.UnsafeUtil;
 
 
 /**

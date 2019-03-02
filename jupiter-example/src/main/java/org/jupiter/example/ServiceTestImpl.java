@@ -16,10 +16,10 @@
 
 package org.jupiter.example;
 
+import java.util.Collections;
+
 import org.jupiter.common.util.Lists;
 import org.jupiter.rpc.ServiceProviderImpl;
-
-import java.util.Collections;
 
 /**
  * jupiter

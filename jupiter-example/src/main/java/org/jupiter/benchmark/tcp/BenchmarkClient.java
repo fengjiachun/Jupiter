@@ -16,6 +16,10 @@
 
 package org.jupiter.benchmark.tcp;
 
+import java.util.List;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.atomic.AtomicLong;
+
 import org.jupiter.common.util.Lists;
 import org.jupiter.common.util.SystemPropertyUtil;
 import org.jupiter.common.util.internal.logging.InternalLogger;
@@ -31,10 +35,6 @@ import org.jupiter.serialization.SerializerType;
 import org.jupiter.transport.UnresolvedAddress;
 import org.jupiter.transport.UnresolvedSocketAddress;
 import org.jupiter.transport.netty.JNettyTcpConnector;
-
-import java.util.List;
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.atomic.AtomicLong;
 
 /**
  * 2016-1-9的最新一次测试结果(小数据包1亿+次同步调用):

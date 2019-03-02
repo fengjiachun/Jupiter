@@ -16,12 +16,12 @@
 
 package org.jupiter.registry;
 
+import java.util.List;
+import java.util.concurrent.ConcurrentMap;
+
 import org.jupiter.common.concurrent.collection.ConcurrentSet;
 import org.jupiter.common.util.Lists;
 import org.jupiter.common.util.Maps;
-
-import java.util.List;
-import java.util.concurrent.ConcurrentMap;
 
 import static org.jupiter.common.util.Preconditions.checkNotNull;
 

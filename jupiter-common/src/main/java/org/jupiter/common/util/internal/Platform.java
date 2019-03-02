@@ -16,11 +16,11 @@
 
 package org.jupiter.common.util.internal;
 
+import java.util.Locale;
+
 import org.jupiter.common.util.SystemPropertyUtil;
 import org.jupiter.common.util.internal.logging.InternalLogger;
 import org.jupiter.common.util.internal.logging.InternalLoggerFactory;
-
-import java.util.Locale;
 
 /**
  * jupiter

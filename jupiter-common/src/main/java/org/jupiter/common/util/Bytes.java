@@ -16,7 +16,7 @@
 
 package org.jupiter.common.util;
 
-import static org.jupiter.common.util.Preconditions.*;
+import static org.jupiter.common.util.Preconditions.checkArgument;
 
 /**
  * Static utility methods pertaining to {@code byte} primitives.

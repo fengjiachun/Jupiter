@@ -1,8 +1,5 @@
 package io.protostuff.runtime;
 
-import io.protostuff.*;
-import io.protostuff.MapSchema.MapWrapper;
-
 import java.io.IOException;
 import java.lang.reflect.Array;
 import java.lang.reflect.Constructor;
@@ -10,6 +7,17 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Map;
 import java.util.Map.Entry;
+
+import io.protostuff.CollectionSchema;
+import io.protostuff.GraphInput;
+import io.protostuff.Input;
+import io.protostuff.MapSchema;
+import io.protostuff.MapSchema.MapWrapper;
+import io.protostuff.Message;
+import io.protostuff.Output;
+import io.protostuff.Pipe;
+import io.protostuff.ProtostuffException;
+import io.protostuff.Schema;
 
 /**
  * This base class handles all the IO for reading and writing polymorphic fields. When a field's type is

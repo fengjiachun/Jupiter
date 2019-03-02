@@ -18,6 +18,7 @@ package org.jupiter.transport.netty;
 
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelFutureListener;
+
 import org.jupiter.transport.JConnection;
 import org.jupiter.transport.UnresolvedAddress;
 

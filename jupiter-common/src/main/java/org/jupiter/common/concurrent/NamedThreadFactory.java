@@ -16,12 +16,12 @@
 
 package org.jupiter.common.concurrent;
 
+import java.util.concurrent.ThreadFactory;
+import java.util.concurrent.atomic.AtomicInteger;
+
 import org.jupiter.common.util.internal.InternalThread;
 import org.jupiter.common.util.internal.logging.InternalLogger;
 import org.jupiter.common.util.internal.logging.InternalLoggerFactory;
-
-import java.util.concurrent.ThreadFactory;
-import java.util.concurrent.atomic.AtomicInteger;
 
 import static org.jupiter.common.util.Preconditions.checkNotNull;
 

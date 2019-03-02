@@ -16,17 +16,33 @@
 
 package org.jupiter.serialization.proto.io;
 
-import io.protostuff.*;
+import java.io.IOException;
+import java.lang.reflect.Method;
+import java.nio.ByteBuffer;
+
+import io.protostuff.ByteBufferInput;
+import io.protostuff.ByteString;
+import io.protostuff.Input;
+import io.protostuff.Output;
+import io.protostuff.ProtobufException;
+import io.protostuff.Schema;
+import io.protostuff.UninitializedMessageException;
+
 import org.jupiter.common.util.ThrowUtil;
 import org.jupiter.common.util.internal.UnsafeDirectBufferUtil;
 import org.jupiter.common.util.internal.UnsafeUtf8Util;
 import org.jupiter.common.util.internal.UnsafeUtil;
 
-import java.io.IOException;
-import java.lang.reflect.Method;
-import java.nio.ByteBuffer;
-
-import static io.protostuff.WireFormat.*;
+import static io.protostuff.WireFormat.WIRETYPE_END_GROUP;
+import static io.protostuff.WireFormat.WIRETYPE_FIXED32;
+import static io.protostuff.WireFormat.WIRETYPE_FIXED64;
+import static io.protostuff.WireFormat.WIRETYPE_LENGTH_DELIMITED;
+import static io.protostuff.WireFormat.WIRETYPE_START_GROUP;
+import static io.protostuff.WireFormat.WIRETYPE_TAIL_DELIMITER;
+import static io.protostuff.WireFormat.WIRETYPE_VARINT;
+import static io.protostuff.WireFormat.getTagFieldNumber;
+import static io.protostuff.WireFormat.getTagWireType;
+import static io.protostuff.WireFormat.makeTag;
 
 /**
  * jupiter

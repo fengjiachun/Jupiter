@@ -16,12 +16,12 @@
 
 package org.jupiter.rpc.executor;
 
+import java.util.concurrent.ThreadFactory;
+
 import org.jupiter.common.concurrent.AffinityNamedThreadFactory;
 import org.jupiter.common.concurrent.NamedThreadFactory;
 import org.jupiter.common.util.JConstants;
 import org.jupiter.common.util.SystemPropertyUtil;
-
-import java.util.concurrent.ThreadFactory;
 
 /**
  * jupiter

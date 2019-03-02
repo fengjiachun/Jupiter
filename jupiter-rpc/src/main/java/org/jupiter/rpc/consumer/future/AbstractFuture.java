@@ -27,11 +27,11 @@
 
 package org.jupiter.rpc.consumer.future;
 
-import org.jupiter.common.util.Signal;
-import org.jupiter.common.util.internal.UnsafeUtil;
-
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.LockSupport;
+
+import org.jupiter.common.util.Signal;
+import org.jupiter.common.util.internal.UnsafeUtil;
 
 /**
  * jupiter

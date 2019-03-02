@@ -16,6 +16,9 @@
 
 package org.jupiter.registry;
 
+import java.util.Collection;
+import java.util.concurrent.ConcurrentMap;
+
 import org.jupiter.common.util.Maps;
 import org.jupiter.common.util.SpiMetadata;
 import org.jupiter.common.util.Strings;
@@ -24,9 +27,6 @@ import org.jupiter.common.util.internal.logging.InternalLoggerFactory;
 import org.jupiter.transport.JConnection;
 import org.jupiter.transport.UnresolvedAddress;
 import org.jupiter.transport.UnresolvedSocketAddress;
-
-import java.util.Collection;
-import java.util.concurrent.ConcurrentMap;
 
 import static org.jupiter.common.util.Preconditions.checkArgument;
 import static org.jupiter.common.util.Preconditions.checkNotNull;

@@ -16,12 +16,16 @@
 
 package org.jupiter.flight.exec;
 
-import org.jupiter.common.util.internal.UnsafeReferenceFieldUpdater;
-import org.jupiter.common.util.internal.UnsafeUpdater;
-
-import java.io.*;
+import java.io.ByteArrayOutputStream;
+import java.io.Console;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.PrintStream;
 import java.nio.channels.Channel;
 import java.util.Properties;
+
+import org.jupiter.common.util.internal.UnsafeReferenceFieldUpdater;
+import org.jupiter.common.util.internal.UnsafeUpdater;
 
 /**
  * Hack {@link java.lang.System}.
