@@ -46,12 +46,7 @@ public class IntObjectHashMap<V> implements IntObjectMap<V> {
 
     private final Set<Integer> keySet = new KeySet();
     private final Set<Entry<Integer, V>> entrySet = new EntrySet();
-    private final Iterable<PrimitiveEntry<V>> entries = new Iterable<PrimitiveEntry<V>>() {
-        @Override
-        public Iterator<PrimitiveEntry<V>> iterator() {
-            return new PrimitiveIterator();
-        }
-    };
+    private final Iterable<PrimitiveEntry<V>> entries = PrimitiveIterator::new;
 
     public IntObjectHashMap() {
         this(DEFAULT_CAPACITY, DEFAULT_LOAD_FACTOR);

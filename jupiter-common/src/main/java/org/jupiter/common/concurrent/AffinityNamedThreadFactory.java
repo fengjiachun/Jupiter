@@ -87,22 +87,18 @@ public class AffinityNamedThreadFactory implements ThreadFactory {
 
         final Runnable r2 = wrapRunnable(r);
 
-        Runnable r3 = new Runnable() {
-
-            @Override
-            public void run() {
-                AffinityLock al = null;
-                try {
-                    al = acquireLockBasedOnLast();
-                } catch (Throwable ignored) { /* defensive: ignored error on acquiring lock */ }
-                try {
-                    r2.run();
-                } finally {
-                    if (al != null) {
-                        try {
-                            al.release();
-                        } catch (Throwable ignored) { /* defensive: ignored error on releasing lock */ }
-                    }
+        Runnable r3 = () -> {
+            AffinityLock al = null;
+            try {
+                al = acquireLockBasedOnLast();
+            } catch (Throwable ignored) { /* defensive: ignored error on acquiring lock */ }
+            try {
+                r2.run();
+            } finally {
+                if (al != null) {
+                    try {
+                        al.release();
+                    } catch (Throwable ignored) { /* defensive: ignored error on releasing lock */ }
                 }
             }
         };

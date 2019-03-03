@@ -18,7 +18,6 @@ package org.jupiter.common.util;
 
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.TimeUnit;
 
 import org.jupiter.common.util.internal.UnsafeUtil;
@@ -83,23 +82,15 @@ public class SystemClock extends RhsTimePadding {
     }
 
     private void scheduleClockUpdating() {
-        ScheduledExecutorService scheduler = Executors.newSingleThreadScheduledExecutor(new ThreadFactory() {
-
-            @Override
-            public Thread newThread(Runnable runnable) {
-                Thread t = new Thread(runnable, "system.clock");
-                t.setDaemon(true);
-                return t;
-            }
+        ScheduledExecutorService scheduler = Executors.newSingleThreadScheduledExecutor(runnable -> {
+            Thread t = new Thread(runnable, "system.clock");
+            t.setDaemon(true);
+            return t;
         });
 
-        scheduler.scheduleAtFixedRate(new Runnable() {
-
-            @Override
-            public void run() {
-                // Update the timestamp with ordered semantics.
-                UnsafeUtil.getUnsafe().putOrderedLong(SystemClock.this, NOW_VALUE_OFFSET, System.currentTimeMillis());
-            }
+        scheduler.scheduleAtFixedRate(() -> {
+            // Update the timestamp with ordered semantics.
+            UnsafeUtil.getUnsafe().putOrderedLong(SystemClock.this, NOW_VALUE_OFFSET, System.currentTimeMillis());
         }, precision, precision, TimeUnit.MILLISECONDS);
     }
 

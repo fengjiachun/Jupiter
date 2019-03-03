@@ -87,13 +87,7 @@ import static org.jupiter.common.util.Preconditions.checkArgument;
  */
 public class TaskDispatcher implements Dispatcher<Runnable>, Executor {
 
-    private static final EventFactory<MessageEvent<Runnable>> eventFactory = new EventFactory<MessageEvent<Runnable>>() {
-
-        @Override
-        public MessageEvent<Runnable> newInstance() {
-            return new MessageEvent<>();
-        }
-    };
+    private static final EventFactory<MessageEvent<Runnable>> eventFactory = MessageEvent::new;
 
     private final Disruptor<MessageEvent<Runnable>> disruptor;
     private final ExecutorService reserveExecutor;
@@ -129,7 +123,7 @@ public class TaskDispatcher implements Dispatcher<Runnable>, Executor {
                     numReserveWorkers,
                     60L,
                     TimeUnit.SECONDS,
-                    new SynchronousQueue<Runnable>(),
+                    new SynchronousQueue<>(),
                     new NamedThreadFactory(name),
                     handler);
         } else {

@@ -235,6 +235,7 @@ public class NonBlockingHashMap<TypeK, TypeV>
         return kvs[(idx << 1) + 3];
     }
 
+    @SuppressWarnings("SameParameterValue")
     private static boolean CAS_key(Object[] kvs, int idx, Object old, Object key) {
         return unsafe.compareAndSwapObject(kvs, rawIndex(kvs, (idx << 1) + 2), old, key);
     }

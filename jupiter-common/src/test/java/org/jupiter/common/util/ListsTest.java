@@ -39,13 +39,7 @@ public class ListsTest {
         fromList.add("3");
         fromList.add("4");
 
-        List<Integer> toList = Lists.transform(fromList, new Function<String, Integer>() {
-
-            @Override
-            public Integer apply(String input) {
-                return Integer.parseInt(input);
-            }
-        });
+        List<Integer> toList = Lists.transform(fromList, Integer::parseInt);
 
         assertTrue(toList.size() == fromList.size());
         System.out.println(toList);

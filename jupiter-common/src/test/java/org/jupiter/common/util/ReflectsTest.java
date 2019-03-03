@@ -47,11 +47,7 @@ public class ReflectsTest {
         Map<String, List<Class<?>[]>> methodsParameterTypes = Maps.newHashMap();
         for (Method method : Service.class.getMethods()) {
             String methodName = method.getName();
-            List<Class<?>[]> list = methodsParameterTypes.get(methodName);
-            if (list == null) {
-                list = Lists.newArrayList();
-                methodsParameterTypes.put(methodName, list);
-            }
+            List<Class<?>[]> list = methodsParameterTypes.computeIfAbsent(methodName, k -> Lists.newArrayList());
             list.add(method.getParameterTypes());
         }
 
