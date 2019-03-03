@@ -176,20 +176,16 @@ public class DefaultServer implements JServer {
         }
     }
 
+    @SuppressWarnings("unchecked")
     @Override
     public <T> void publishWithInitializer(
             final ServiceWrapper serviceWrapper, final ProviderInitializer<T> initializer, Executor executor) {
-        Runnable task = new Runnable() {
-
-            @SuppressWarnings("unchecked")
-            @Override
-            public void run() {
-                try {
-                    initializer.init((T) serviceWrapper.getServiceProvider());
-                    publish(serviceWrapper);
-                } catch (Exception e) {
-                    logger.error("Error on {} #publishWithInitializer: {}.", serviceWrapper.getMetadata(), stackTrace(e));
-                }
+        Runnable task = () -> {
+            try {
+                initializer.init((T) serviceWrapper.getServiceProvider());
+                publish(serviceWrapper);
+            } catch (Exception e) {
+                logger.error("Error on {} #publishWithInitializer: {}.", serviceWrapper.getMetadata(), stackTrace(e));
             }
         };
 
@@ -420,11 +416,7 @@ public class DefaultServer implements JServer {
             Map<String, List<Pair<Class<?>[], Class<?>[]>>> extensions = Maps.newHashMap();
             for (Method method : interfaceClass.getMethods()) {
                 String methodName = method.getName();
-                List<Pair<Class<?>[], Class<?>[]>> list = extensions.get(methodName);
-                if (list == null) {
-                    list = Lists.newArrayList();
-                    extensions.put(methodName, list);
-                }
+                List<Pair<Class<?>[], Class<?>[]>> list = extensions.computeIfAbsent(methodName, k -> Lists.newArrayList());
                 list.add(Pair.of(method.getParameterTypes(), method.getExceptionTypes()));
             }
 

@@ -28,7 +28,6 @@ import java.util.concurrent.atomic.AtomicReferenceFieldUpdater;
 import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.ReentrantLock;
 
-import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelFutureListener;
 
 import org.jupiter.common.atomic.AtomicUpdater;
@@ -71,13 +70,7 @@ public class NettyChannelGroup implements JChannelGroup {
     private final CopyOnWriteArrayList<NettyChannel> channels = new CopyOnWriteArrayList<>();
 
     // 连接断开时自动被移除
-    private final ChannelFutureListener remover = new ChannelFutureListener() {
-
-        @Override
-        public void operationComplete(ChannelFuture future) throws Exception {
-            remove(NettyChannel.attachChannel(future.channel()));
-        }
-    };
+    private final ChannelFutureListener remover = future -> remove(NettyChannel.attachChannel(future.channel()));
 
     private final IntSequence sequence = new IntSequence(DEFAULT_SEQUENCE_STEP);
 

@@ -148,13 +148,7 @@ public class MessageTask implements RejectedRunnable {
             process(service);
         } else {
             // provider私有线程池执行
-            childExecutor.execute(new Runnable() {
-
-                @Override
-                public void run() {
-                    process(service);
-                }
-            });
+            childExecutor.execute(() -> process(service));
         }
     }
 

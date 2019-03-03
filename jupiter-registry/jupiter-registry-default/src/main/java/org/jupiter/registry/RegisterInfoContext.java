@@ -50,7 +50,7 @@ public class RegisterInfoContext {
         if (config == null) {
             ConfigWithVersion<ConcurrentMap<RegisterMeta.Address, RegisterMeta>> newConfig =
                     ConfigWithVersion.newInstance();
-            newConfig.setConfig(Maps.<RegisterMeta.Address, RegisterMeta>newConcurrentMap());
+            newConfig.setConfig(Maps.newConcurrentMap());
             config = globalRegisterInfoMap.putIfAbsent(serviceMeta, newConfig);
             if (config == null) {
                 config = newConfig;

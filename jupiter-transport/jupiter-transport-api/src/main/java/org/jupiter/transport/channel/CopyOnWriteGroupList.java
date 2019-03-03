@@ -89,6 +89,7 @@ public class CopyOnWriteGroupList {
         this.array = array;
     }
 
+    @SuppressWarnings("SameParameterValue")
     private void setArray(JChannelGroup[] groups, Object weightArray) {
         array = new Object[] { groups, weightArray };
     }
@@ -341,6 +342,7 @@ public class CopyOnWriteGroupList {
         return UnsafeUtil.getObjectVolatile(array, index);
     }
 
+    @SuppressWarnings("SameParameterValue")
     private static void setTabAt(Object[] array, int index, Object value) {
         UnsafeUtil.putObjectVolatile(array, index, value);
     }

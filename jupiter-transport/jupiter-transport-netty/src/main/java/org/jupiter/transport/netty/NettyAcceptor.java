@@ -128,10 +128,12 @@ public abstract class NettyAcceptor implements JAcceptor {
         }
     }
 
+    @SuppressWarnings("SameParameterValue")
     protected ThreadFactory bossThreadFactory(String name) {
         return new DefaultThreadFactory(name, Thread.MAX_PRIORITY);
     }
 
+    @SuppressWarnings("SameParameterValue")
     protected ThreadFactory workerThreadFactory(String name) {
         return new DefaultThreadFactory(name, Thread.MAX_PRIORITY);
     }

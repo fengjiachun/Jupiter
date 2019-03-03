@@ -24,7 +24,6 @@ import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufAllocator;
 import io.netty.buffer.ByteBufOutputStream;
 import io.netty.channel.Channel;
-import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelFutureListener;
 import io.netty.util.Attribute;
 import io.netty.util.AttributeKey;
@@ -131,15 +130,11 @@ public class NettyChannel implements JChannel {
     @Override
     public JChannel close(final JFutureListener<JChannel> listener) {
         final JChannel jChannel = this;
-        channel.close().addListener(new ChannelFutureListener() {
-
-            @Override
-            public void operationComplete(ChannelFuture future) throws Exception {
-                if (future.isSuccess()) {
-                    listener.operationSuccess(jChannel);
-                } else {
-                    listener.operationFailure(jChannel, future.cause());
-                }
+        channel.close().addListener((ChannelFutureListener) future -> {
+            if (future.isSuccess()) {
+                listener.operationSuccess(jChannel);
+            } else {
+                listener.operationFailure(jChannel, future.cause());
             }
         });
         return jChannel;
@@ -155,15 +150,11 @@ public class NettyChannel implements JChannel {
     public JChannel write(Object msg, final JFutureListener<JChannel> listener) {
         final JChannel jChannel = this;
         channel.writeAndFlush(msg)
-                .addListener(new ChannelFutureListener() {
-
-                    @Override
-                    public void operationComplete(ChannelFuture future) throws Exception {
-                        if (future.isSuccess()) {
-                            listener.operationSuccess(jChannel);
-                        } else {
-                            listener.operationFailure(jChannel, future.cause());
-                        }
+                .addListener((ChannelFutureListener) future -> {
+                    if (future.isSuccess()) {
+                        listener.operationSuccess(jChannel);
+                    } else {
+                        listener.operationFailure(jChannel, future.cause());
                     }
                 });
         return jChannel;

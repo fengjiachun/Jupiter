@@ -130,17 +130,13 @@ public abstract class ConnectionWatchdog extends ChannelInboundHandlerAdapter im
             future = bootstrap.connect(remoteAddress);
         }
 
-        future.addListener(new ChannelFutureListener() {
+        future.addListener((ChannelFutureListener) f -> {
+            boolean succeed = f.isSuccess();
 
-            @Override
-            public void operationComplete(ChannelFuture f) throws Exception {
-                boolean succeed = f.isSuccess();
+            logger.warn("Reconnects with {}, {}.", remoteAddress, succeed ? "succeed" : "failed");
 
-                logger.warn("Reconnects with {}, {}.", remoteAddress, succeed ? "succeed" : "failed");
-
-                if (!succeed) {
-                    f.channel().pipeline().fireChannelInactive();
-                }
+            if (!succeed) {
+                f.channel().pipeline().fireChannelInactive();
             }
         });
     }
