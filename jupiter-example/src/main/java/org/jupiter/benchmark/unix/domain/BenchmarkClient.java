@@ -106,23 +106,19 @@ public class BenchmarkClient {
         final CountDownLatch latch = new CountDownLatch(processors << step);
         final AtomicLong count = new AtomicLong();
         for (int i = 0; i < (processors << step); i++) {
-            new Thread(new Runnable() {
+            new Thread(() -> {
+                for (int i1 = 0; i1 < t; i1++) {
+                    try {
+                        service.hello("jupiter");
 
-                @Override
-                public void run() {
-                    for (int i = 0; i < t; i++) {
-                        try {
-                            service.hello("jupiter");
-
-                            if (count.getAndIncrement() % 10000 == 0) {
-                                logger.warn("count=" + count.get());
-                            }
-                        } catch (Exception e) {
-                            e.printStackTrace();
+                        if (count.getAndIncrement() % 10000 == 0) {
+                            logger.warn("count=" + count.get());
                         }
+                    } catch (Exception e) {
+                        e.printStackTrace();
                     }
-                    latch.countDown();
                 }
+                latch.countDown();
             }).start();
         }
         try {

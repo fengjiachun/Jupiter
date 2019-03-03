@@ -44,13 +44,7 @@ public class JupiterClient {
             throw new ConnectFailedException();
         }
 
-        Runtime.getRuntime().addShutdownHook(new Thread() {
-
-            @Override
-            public void run() {
-                client.shutdownGracefully();
-            }
-        });
+        Runtime.getRuntime().addShutdownHook(new Thread(client::shutdownGracefully));
 
         ExceptionServiceTest service = ProxyFactory.factory(ExceptionServiceTest.class)
                 .version("1.0.0.daily")
