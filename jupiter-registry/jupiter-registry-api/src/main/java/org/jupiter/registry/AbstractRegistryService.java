@@ -30,8 +30,7 @@ import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.concurrent.locks.Lock;
-import java.util.concurrent.locks.ReentrantReadWriteLock;
+import java.util.concurrent.locks.StampedLock;
 
 import org.jupiter.common.concurrent.NamedThreadFactory;
 import org.jupiter.common.concurrent.collection.ConcurrentSet;
@@ -77,51 +76,39 @@ public abstract class AbstractRegistryService implements RegistryService {
     private final ConcurrentMap<RegisterMeta, RegisterState> registerMetaMap = Maps.newConcurrentMap();
 
     public AbstractRegistryService() {
-        registerExecutor.execute(new Runnable() {
+        registerExecutor.execute(() -> {
+            while (!shutdown.get()) {
+                RegisterMeta meta = null;
+                try {
+                    meta = queue.take();
+                    registerMetaMap.put(meta, RegisterState.PREPARE);
+                    doRegister(meta);
+                } catch (InterruptedException e) {
+                    logger.warn("[register.executor] interrupted.");
+                } catch (Throwable t) {
+                    if (meta != null) {
+                        logger.error("Register [{}] fail: {}, will try again...", meta.getServiceMeta(), stackTrace(t));
 
-            @Override
-            public void run() {
-                while (!shutdown.get()) {
-                    RegisterMeta meta = null;
-                    try {
-                        meta = queue.take();
-                        registerMetaMap.put(meta, RegisterState.PREPARE);
-                        doRegister(meta);
-                    } catch (InterruptedException e) {
-                        logger.warn("[register.executor] interrupted.");
-                    } catch (Throwable t) {
-                        if (meta != null) {
-                            logger.error("Register [{}] fail: {}, will try again...", meta.getServiceMeta(), stackTrace(t));
-
-                            // 间隔一段时间再重新入队, 让出cpu
-                            final RegisterMeta finalMeta = meta;
-                            registerScheduledExecutor.schedule(new Runnable() {
-
-                                @Override
-                                public void run() {
-                                    queue.add(finalMeta);
-                                }
-                            }, 1, TimeUnit.SECONDS);
-                        }
+                        // 间隔一段时间再重新入队, 让出cpu
+                        final RegisterMeta finalMeta = meta;
+                        registerScheduledExecutor.schedule(() -> {
+                            queue.add(finalMeta);
+                        }, 1, TimeUnit.SECONDS);
                     }
                 }
             }
         });
 
-        localRegisterWatchExecutor.execute(new Runnable() {
-
-            @Override
-            public void run() {
-                while (!shutdown.get()) {
-                    try {
-                        Thread.sleep(3000);
-                        doCheckRegisterNodeStatus();
-                    } catch (InterruptedException e) {
-                        logger.warn("[local.register.watch.executor] interrupted.");
-                    } catch (Throwable t) {
-                        if (logger.isWarnEnabled()) {
-                            logger.warn("Check register node status fail: {}, will try again...", stackTrace(t));
-                        }
+        localRegisterWatchExecutor.execute(() -> {
+            while (!shutdown.get()) {
+                try {
+                    Thread.sleep(3000);
+                    doCheckRegisterNodeStatus();
+                } catch (InterruptedException e) {
+                    logger.warn("[local.register.watch.executor] interrupted.");
+                } catch (Throwable t) {
+                    if (logger.isWarnEnabled()) {
+                        logger.warn("Check register node status fail: {}, will try again...", stackTrace(t));
                     }
                 }
             }
@@ -166,12 +153,13 @@ public abstract class AbstractRegistryService implements RegistryService {
             return Collections.emptyList();
         }
 
-        final Lock readLock = value.lock.readLock();
-        readLock.lock();
+        // can not try optimistic read
+        final StampedLock stampedLock = value.lock;
+        final long stamp = stampedLock.readLock();
         try {
             return Lists.newArrayList(value.metaSet);
         } finally {
-            readLock.unlock();
+            stampedLock.unlockRead(stamp);
         }
     }
 
@@ -180,12 +168,18 @@ public abstract class AbstractRegistryService implements RegistryService {
         Map<ServiceMeta, Integer> result = Maps.newHashMap();
         for (Map.Entry<RegisterMeta.ServiceMeta, RegisterValue> entry : registries.entrySet()) {
             RegisterValue value = entry.getValue();
-            final Lock readLock = value.lock.readLock();
-            readLock.lock();
+            final StampedLock stampedLock = value.lock;
+            long stamp = stampedLock.tryOptimisticRead();
+            int optimisticResult = value.metaSet.size();
+            if (stampedLock.validate(stamp)) {
+                result.put(entry.getKey(), optimisticResult);
+                continue;
+            }
+            stamp = stampedLock.readLock();
             try {
                 result.put(entry.getKey(), value.metaSet.size());
             } finally {
-                readLock.unlock();
+                stampedLock.unlockRead(stamp);
             }
         }
         return result;
@@ -260,8 +254,8 @@ public abstract class AbstractRegistryService implements RegistryService {
         boolean notifyNeeded = false;
 
         // segment-lock
-        final Lock writeLock = value.lock.writeLock();
-        writeLock.lock();
+        final StampedLock stampedLock = value.lock;
+        final long stamp = stampedLock.writeLock();
         try {
             long lastVersion = value.version;
             if (version > lastVersion
@@ -277,7 +271,7 @@ public abstract class AbstractRegistryService implements RegistryService {
                 notifyNeeded = true;
             }
         } finally {
-            writeLock.unlock();
+            stampedLock.unlockWrite(stamp);
         }
 
         if (notifyNeeded) {
@@ -312,6 +306,6 @@ public abstract class AbstractRegistryService implements RegistryService {
     protected static class RegisterValue {
         private long version = Long.MIN_VALUE;
         private final Set<RegisterMeta> metaSet = new HashSet<>();
-        private final ReentrantReadWriteLock lock = new ReentrantReadWriteLock(); // segment-lock
+        private final StampedLock lock = new StampedLock(); // segment-lock
     }
 }
