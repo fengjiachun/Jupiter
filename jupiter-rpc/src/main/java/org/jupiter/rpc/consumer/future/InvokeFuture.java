@@ -16,13 +16,15 @@
 
 package org.jupiter.rpc.consumer.future;
 
+import java.util.concurrent.CompletionStage;
+
 /**
  * jupiter
  * org.jupiter.rpc.consumer.future
  *
  * @author jiachun.fjc
  */
-public interface InvokeFuture<V> extends ListenableFuture<V> {
+public interface InvokeFuture<V> extends CompletionStage<V> {
 
     Class<V> returnType();
 

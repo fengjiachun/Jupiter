@@ -16,12 +16,13 @@
 
 package org.jupiter.example.broadcast;
 
+import java.util.concurrent.CompletableFuture;
+
 import org.jupiter.example.ServiceTest;
 import org.jupiter.rpc.DefaultClient;
 import org.jupiter.rpc.DispatchType;
 import org.jupiter.rpc.InvokeType;
 import org.jupiter.rpc.JClient;
-import org.jupiter.rpc.JListener;
 import org.jupiter.rpc.consumer.ProxyFactory;
 import org.jupiter.rpc.consumer.future.InvokeFuture;
 import org.jupiter.rpc.consumer.future.InvokeFutureContext;
@@ -73,17 +74,13 @@ public class JupiterBroadcastClient {
 
             InvokeFutureGroup<ServiceTest.ResultClass> futureGroup =
                     InvokeFutureContext.futureBroadcast(ServiceTest.ResultClass.class);
-            futureGroup.addListener(new JListener<ServiceTest.ResultClass>() {
-
-                @Override
-                public void complete(ServiceTest.ResultClass result) {
-                    System.out.print("Callback result: ");
-                    System.out.println(result);
-                }
-
-                @Override
-                public void failure(Throwable cause) {
-                    cause.printStackTrace();
+            final CompletableFuture<ServiceTest.ResultClass>[] cfs = futureGroup.toCompletableFutures();
+            CompletableFuture.allOf(cfs).whenComplete((aVoid, throwable) -> {
+                if (throwable == null) {
+                    for (CompletableFuture<ServiceTest.ResultClass> f : cfs) {
+                        System.out.print("Callback result: ");
+                        System.out.println(f.join());
+                    }
                 }
             });
 

@@ -18,7 +18,7 @@ package org.jupiter.rpc.consumer.cluster;
 
 import org.jupiter.rpc.JRequest;
 import org.jupiter.rpc.consumer.dispatcher.Dispatcher;
-import org.jupiter.rpc.consumer.future.FailSafeInvokeFuture;
+import org.jupiter.rpc.consumer.future.FailsafeInvokeFuture;
 import org.jupiter.rpc.consumer.future.InvokeFuture;
 
 /**
@@ -33,11 +33,11 @@ import org.jupiter.rpc.consumer.future.InvokeFuture;
  *
  * @author jiachun.fjc
  */
-public class FailSafeClusterInvoker implements ClusterInvoker {
+public class FailsafeClusterInvoker implements ClusterInvoker {
 
     private final Dispatcher dispatcher;
 
-    public FailSafeClusterInvoker(Dispatcher dispatcher) {
+    public FailsafeClusterInvoker(Dispatcher dispatcher) {
         this.dispatcher = dispatcher;
     }
 
@@ -49,6 +49,6 @@ public class FailSafeClusterInvoker implements ClusterInvoker {
     @Override
     public <T> InvokeFuture<T> invoke(JRequest request, Class<T> returnType) throws Exception {
         InvokeFuture<T> future = dispatcher.dispatch(request, returnType);
-        return FailSafeInvokeFuture.with(future);
+        return FailsafeInvokeFuture.with(future);
     }
 }

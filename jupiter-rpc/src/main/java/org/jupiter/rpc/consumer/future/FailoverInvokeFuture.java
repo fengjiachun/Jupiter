@@ -18,21 +18,37 @@ package org.jupiter.rpc.consumer.future;
 
 import java.util.concurrent.CompletableFuture;
 
+import org.jupiter.rpc.consumer.cluster.FailsafeClusterInvoker;
+
 /**
- * For broadcast future.
- *
- * 用于支持广播调用的 {@link InvokeFuture}, 不建议也不支持同步获取批量结果.
+ * 用于实现failover集群容错方案的 {@link InvokeFuture}.
  *
  * jupiter
  * org.jupiter.rpc.consumer.future
  *
- * @see org.jupiter.rpc.consumer.dispatcher.DefaultBroadcastDispatcher
+ * @see FailsafeClusterInvoker
  *
  * @author jiachun.fjc
  */
-public interface InvokeFutureGroup<V> extends InvokeFuture<V> {
+public class FailoverInvokeFuture<V> extends CompletableFuture<V> implements InvokeFuture<V> {
 
-    InvokeFuture<V>[] futures();
+    private final Class<V> returnType;
 
-    CompletableFuture<V>[] toCompletableFutures();
+    public static <T> FailoverInvokeFuture<T> with(Class<T> returnType) {
+        return new FailoverInvokeFuture<>(returnType);
+    }
+
+    private FailoverInvokeFuture(Class<V> returnType) {
+        this.returnType = returnType;
+    }
+
+    @Override
+    public Class<V> returnType() {
+        return returnType;
+    }
+
+    @Override
+    public V getResult() throws Throwable {
+        return get();
+    }
 }

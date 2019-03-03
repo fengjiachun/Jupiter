@@ -20,7 +20,6 @@ import org.jupiter.example.cluster.service.ClusterService;
 import org.jupiter.rpc.DefaultClient;
 import org.jupiter.rpc.InvokeType;
 import org.jupiter.rpc.JClient;
-import org.jupiter.rpc.JListener;
 import org.jupiter.rpc.consumer.ProxyFactory;
 import org.jupiter.rpc.consumer.cluster.ClusterInvoker;
 import org.jupiter.rpc.consumer.future.InvokeFuture;
@@ -35,7 +34,7 @@ import org.jupiter.transport.netty.JNettyTcpConnector;
  *
  * @author jiachun.fjc
  */
-public class FailFastJupiterClient {
+public class FailfastJupiterClient {
 
     public static void main(String[] args) {
         JClient client = new DefaultClient().withConnector(new JNettyTcpConnector());
@@ -75,16 +74,11 @@ public class FailFastJupiterClient {
         try {
             System.out.println(asyncService.helloString());
             InvokeFuture<String> future = InvokeFutureContext.future(String.class);
-            future.addListener(new JListener<String>() {
-
-                @Override
-                public void complete(String result) {
+            future.whenComplete((result, throwable) -> {
+                if (throwable == null) {
                     System.err.println("Async result=" + result);
-                }
-
-                @Override
-                public void failure(Throwable cause) {
-                    cause.printStackTrace();
+                } else {
+                    throwable.printStackTrace();
                 }
             });
         } catch (Exception e) {

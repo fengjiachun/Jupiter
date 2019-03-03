@@ -21,7 +21,6 @@ import org.jupiter.example.UserService;
 import org.jupiter.rpc.DefaultClient;
 import org.jupiter.rpc.InvokeType;
 import org.jupiter.rpc.JClient;
-import org.jupiter.rpc.JListener;
 import org.jupiter.rpc.consumer.ProxyFactory;
 import org.jupiter.rpc.consumer.future.InvokeFuture;
 import org.jupiter.rpc.consumer.future.InvokeFutureContext;
@@ -58,16 +57,11 @@ public class AsyncJupiterClient {
             User user = userService.createUser();
             System.out.println("sync result: " + user);
             InvokeFuture<User> future = InvokeFutureContext.future(User.class);
-            future.addListener(new JListener<User>() {
-
-                @Override
-                public void complete(User result) {
+            future.whenComplete((result, throwable) -> {
+                if (throwable == null) {
                     System.out.println("callback: " + result);
-                }
-
-                @Override
-                public void failure(Throwable cause) {
-                    cause.printStackTrace();
+                } else {
+                    throwable.printStackTrace();
                 }
             });
             System.out.println("future.get: " + future.getResult());

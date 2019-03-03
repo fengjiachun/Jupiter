@@ -59,8 +59,8 @@ public class InvokeFutureContext {
 
         if (f instanceof InvokeFutureGroup) {
             return (InvokeFutureGroup<V>) f;
-        } else if (f instanceof FailSafeInvokeFuture) {
-            InvokeFuture real_f = ((FailSafeInvokeFuture) f).future();
+        } else if (f instanceof FailsafeInvokeFuture) {
+            InvokeFuture real_f = ((FailsafeInvokeFuture) f).future();
             if (real_f instanceof InvokeFutureGroup) {
                 return (InvokeFutureGroup<V>) real_f;
             }

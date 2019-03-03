@@ -16,7 +16,13 @@
 
 package org.jupiter.rpc.consumer.future;
 
-import org.jupiter.rpc.JListener;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CompletionStage;
+import java.util.concurrent.Executor;
+import java.util.function.BiConsumer;
+import java.util.function.BiFunction;
+import java.util.function.Consumer;
+import java.util.function.Function;
 
 import static org.jupiter.common.util.Preconditions.checkArgument;
 
@@ -28,16 +34,16 @@ import static org.jupiter.common.util.Preconditions.checkArgument;
  *
  * @author jiachun.fjc
  */
-@SuppressWarnings("unchecked")
 public class DefaultInvokeFutureGroup<V> implements InvokeFutureGroup<V> {
 
-    private final InvokeFuture<V>[] futures;
+    private final DefaultInvokeFuture<V>[] futures;
+    private volatile CompletableFuture<V>[] cfs;
 
-    public static <T> DefaultInvokeFutureGroup<T> with(InvokeFuture<T>[] futures) {
+    public static <T> DefaultInvokeFutureGroup<T> with(DefaultInvokeFuture<T>[] futures) {
         return new DefaultInvokeFutureGroup<>(futures);
     }
 
-    private DefaultInvokeFutureGroup(InvokeFuture<V>[] futures) {
+    private DefaultInvokeFutureGroup(DefaultInvokeFuture<V>[] futures) {
         checkArgument(futures != null && futures.length > 0, "empty futures");
         this.futures = futures;
     }
@@ -57,35 +63,208 @@ public class DefaultInvokeFutureGroup<V> implements InvokeFutureGroup<V> {
         return futures;
     }
 
+    @SuppressWarnings("unchecked")
     @Override
-    public InvokeFutureGroup<V> addListener(JListener<V> listener) {
-        for (InvokeFuture<V> f : futures) {
-            f.addListener(listener);
+    public CompletableFuture<V>[] toCompletableFutures() {
+        if (this.cfs == null) {
+            CompletableFuture<V>[] cfs = new CompletableFuture[futures.length];
+            System.arraycopy(futures, 0, cfs, 0, futures.length);
+            this.cfs = cfs;
         }
-        return this;
+        return this.cfs;
     }
 
     @Override
-    public InvokeFutureGroup<V> addListeners(JListener<V>... listeners) {
-        for (InvokeFuture<V> f : futures) {
-            f.addListeners(listeners);
-        }
-        return this;
+    public <U> CompletionStage<U> thenApply(Function<? super V, ? extends U> fn) {
+        throw reject();
     }
 
     @Override
-    public InvokeFutureGroup<V> removeListener(JListener<V> listener) {
-        for (InvokeFuture<V> f : futures) {
-            f.removeListener(listener);
-        }
-        return this;
+    public <U> CompletionStage<U> thenApplyAsync(Function<? super V, ? extends U> fn) {
+        throw reject();
     }
 
     @Override
-    public InvokeFutureGroup<V> removeListeners(JListener<V>... listeners) {
-        for (InvokeFuture<V> f : futures) {
-            f.removeListeners(listeners);
-        }
-        return this;
+    public <U> CompletionStage<U> thenApplyAsync(Function<? super V, ? extends U> fn, Executor executor) {
+        throw reject();
+    }
+
+    @Override
+    public CompletionStage<Void> thenAccept(Consumer<? super V> action) {
+        throw reject();
+    }
+
+    @Override
+    public CompletionStage<Void> thenAcceptAsync(Consumer<? super V> action) {
+        throw reject();
+    }
+
+    @Override
+    public CompletionStage<Void> thenAcceptAsync(Consumer<? super V> action, Executor executor) {
+        throw reject();
+    }
+
+    @Override
+    public CompletionStage<Void> thenRun(Runnable action) {
+        throw reject();
+    }
+
+    @Override
+    public CompletionStage<Void> thenRunAsync(Runnable action) {
+        throw reject();
+    }
+
+    @Override
+    public CompletionStage<Void> thenRunAsync(Runnable action, Executor executor) {
+        throw reject();
+    }
+
+    @Override
+    public <U, V1> CompletionStage<V1> thenCombine(CompletionStage<? extends U> other, BiFunction<? super V, ? super U, ? extends V1> fn) {
+        throw reject();
+    }
+
+    @Override
+    public <U, V1> CompletionStage<V1> thenCombineAsync(CompletionStage<? extends U> other, BiFunction<? super V, ? super U, ? extends V1> fn) {
+        throw reject();
+    }
+
+    @Override
+    public <U, V1> CompletionStage<V1> thenCombineAsync(CompletionStage<? extends U> other, BiFunction<? super V, ? super U, ? extends V1> fn, Executor executor) {
+        throw reject();
+    }
+
+    @Override
+    public <U> CompletionStage<Void> thenAcceptBoth(CompletionStage<? extends U> other, BiConsumer<? super V, ? super U> action) {
+        throw reject();
+    }
+
+    @Override
+    public <U> CompletionStage<Void> thenAcceptBothAsync(CompletionStage<? extends U> other, BiConsumer<? super V, ? super U> action) {
+        throw reject();
+    }
+
+    @Override
+    public <U> CompletionStage<Void> thenAcceptBothAsync(CompletionStage<? extends U> other, BiConsumer<? super V, ? super U> action, Executor executor) {
+        throw reject();
+    }
+
+    @Override
+    public CompletionStage<Void> runAfterBoth(CompletionStage<?> other, Runnable action) {
+        throw reject();
+    }
+
+    @Override
+    public CompletionStage<Void> runAfterBothAsync(CompletionStage<?> other, Runnable action) {
+        throw reject();
+    }
+
+    @Override
+    public CompletionStage<Void> runAfterBothAsync(CompletionStage<?> other, Runnable action, Executor executor) {
+        throw reject();
+    }
+
+    @Override
+    public <U> CompletionStage<U> applyToEither(CompletionStage<? extends V> other, Function<? super V, U> fn) {
+        throw reject();
+    }
+
+    @Override
+    public <U> CompletionStage<U> applyToEitherAsync(CompletionStage<? extends V> other, Function<? super V, U> fn) {
+        throw reject();
+    }
+
+    @Override
+    public <U> CompletionStage<U> applyToEitherAsync(CompletionStage<? extends V> other, Function<? super V, U> fn, Executor executor) {
+        throw reject();
+    }
+
+    @Override
+    public CompletionStage<Void> acceptEither(CompletionStage<? extends V> other, Consumer<? super V> action) {
+        throw reject();
+    }
+
+    @Override
+    public CompletionStage<Void> acceptEitherAsync(CompletionStage<? extends V> other, Consumer<? super V> action) {
+        throw reject();
+    }
+
+    @Override
+    public CompletionStage<Void> acceptEitherAsync(CompletionStage<? extends V> other, Consumer<? super V> action, Executor executor) {
+        throw reject();
+    }
+
+    @Override
+    public CompletionStage<Void> runAfterEither(CompletionStage<?> other, Runnable action) {
+        throw reject();
+    }
+
+    @Override
+    public CompletionStage<Void> runAfterEitherAsync(CompletionStage<?> other, Runnable action) {
+        throw reject();
+    }
+
+    @Override
+    public CompletionStage<Void> runAfterEitherAsync(CompletionStage<?> other, Runnable action, Executor executor) {
+        throw reject();
+    }
+
+    @Override
+    public <U> CompletionStage<U> thenCompose(Function<? super V, ? extends CompletionStage<U>> fn) {
+        throw reject();
+    }
+
+    @Override
+    public <U> CompletionStage<U> thenComposeAsync(Function<? super V, ? extends CompletionStage<U>> fn) {
+        throw reject();
+    }
+
+    @Override
+    public <U> CompletionStage<U> thenComposeAsync(Function<? super V, ? extends CompletionStage<U>> fn, Executor executor) {
+        return null;
+    }
+
+    @Override
+    public CompletionStage<V> exceptionally(Function<Throwable, ? extends V> fn) {
+        throw reject();
+    }
+
+    @Override
+    public CompletionStage<V> whenComplete(BiConsumer<? super V, ? super Throwable> action) {
+        throw reject();
+    }
+
+    @Override
+    public CompletionStage<V> whenCompleteAsync(BiConsumer<? super V, ? super Throwable> action) {
+        throw reject();
+    }
+
+    @Override
+    public CompletionStage<V> whenCompleteAsync(BiConsumer<? super V, ? super Throwable> action, Executor executor) {
+        throw reject();
+    }
+
+    @Override
+    public <U> CompletionStage<U> handle(BiFunction<? super V, Throwable, ? extends U> fn) {
+        throw reject();
+    }
+
+    @Override
+    public <U> CompletionStage<U> handleAsync(BiFunction<? super V, Throwable, ? extends U> fn) {
+        throw reject();
+    }
+
+    @Override
+    public <U> CompletionStage<U> handleAsync(BiFunction<? super V, Throwable, ? extends U> fn, Executor executor) {
+        throw reject();
+    }
+
+    @Override
+    public CompletableFuture<V> toCompletableFuture() {
+        throw reject();
+    }
+
+    private static UnsupportedOperationException reject() {
+        return new UnsupportedOperationException("not a supported operation");
     }
 }
