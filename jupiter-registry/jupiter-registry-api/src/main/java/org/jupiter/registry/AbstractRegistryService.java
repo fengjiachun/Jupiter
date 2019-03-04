@@ -153,7 +153,7 @@ public abstract class AbstractRegistryService implements RegistryService {
             return Collections.emptyList();
         }
 
-        // can not try optimistic read
+        // do not try optimistic read
         final StampedLock stampedLock = value.lock;
         final long stamp = stampedLock.readLock();
         try {
@@ -170,9 +170,9 @@ public abstract class AbstractRegistryService implements RegistryService {
             RegisterValue value = entry.getValue();
             final StampedLock stampedLock = value.lock;
             long stamp = stampedLock.tryOptimisticRead();
-            int optimisticResult = value.metaSet.size();
+            int optimisticVal = value.metaSet.size();
             if (stampedLock.validate(stamp)) {
-                result.put(entry.getKey(), optimisticResult);
+                result.put(entry.getKey(), optimisticVal);
                 continue;
             }
             stamp = stampedLock.readLock();
