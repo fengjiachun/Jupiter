@@ -5,18 +5,6 @@ jdk:
   - openjdk8
   - openjdk11
 
-env:
-  - TESTFOLDER=jupiter-common
-  - TESTFOLDER=jupiter-example
-  - TESTFOLDER=jupiter-extension
-  - TESTFOLDER=jupiter-flightexec
-  - TESTFOLDER=jupiter-monitor
-  - TESTFOLDER=jupiter-registry
-  - TESTFOLDER=jupiter-rpc
-  - TESTFOLDER=jupiter-serialization
-  - TESTFOLDER=jupiter-spring-support
-  - TESTFOLDER=jupiter-transport
-
 cache:
   directories:
     - $HOME/.m2
@@ -25,4 +13,4 @@ install:
   - mvn clean install -DskipTests=true -Dmaven.javadoc.skip=true -B -V
 
 after_success:
-  - travis_retry mvn --projects $TESTFOLDER clean test
+  - travis_retry mvn clean test
