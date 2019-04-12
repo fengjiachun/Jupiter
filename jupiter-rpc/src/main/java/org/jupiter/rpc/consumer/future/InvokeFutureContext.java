@@ -16,6 +16,8 @@
 
 package org.jupiter.rpc.consumer.future;
 
+import java.util.concurrent.CompletableFuture;
+
 import static org.jupiter.common.util.Preconditions.checkNotNull;
 
 /**
@@ -48,6 +50,14 @@ public class InvokeFutureContext {
         checkReturnType(f.returnType(), expectReturnType);
 
         return (InvokeFuture<V>) f;
+    }
+
+    public static CompletableFuture<?> completableFuture() {
+        return (CompletableFuture<?>) future();
+    }
+
+    public static <V> CompletableFuture<V>completableFuture(Class<V> expectReturnType) {
+        return (CompletableFuture<V>) future(expectReturnType);
     }
 
     /**
