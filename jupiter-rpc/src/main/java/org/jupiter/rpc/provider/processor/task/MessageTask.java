@@ -17,6 +17,7 @@
 package org.jupiter.rpc.provider.processor.task;
 
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executor;
 import java.util.concurrent.TimeUnit;
 
@@ -168,41 +169,63 @@ public class MessageTask implements RejectedRunnable {
         processor.handleRejected(channel, request, status, cause);
     }
 
+    @SuppressWarnings("unchecked")
     private void process(ServiceWrapper service) {
-        // stack copy
-        final JRequest _request = request;
-
         Context invokeCtx = new Context(service);
         try {
-            Object invokeResult = Chains.invoke(_request, invokeCtx)
+            final Object invokeResult = Chains.invoke(request, invokeCtx)
                     .getResult();
 
-            ResultWrapper result = new ResultWrapper();
-            result.setResult(invokeResult);
-            byte s_code = _request.serializerCode();
-            Serializer serializer = SerializerFactory.getSerializer(s_code);
-
-            JResponsePayload responsePayload = new JResponsePayload(_request.invokeId());
-
-            if (CodecConfig.isCodecLowCopy()) {
-                OutputBuf outputBuf =
-                        serializer.writeObject(channel.allocOutputBuf(), result);
-                responsePayload.outputBuf(s_code, outputBuf);
-            } else {
-                byte[] bytes = serializer.writeObject(result);
-                responsePayload.bytes(s_code, bytes);
+            if (invokeResult instanceof CompletableFuture) {
+                CompletableFuture<Object> cf = (CompletableFuture<Object>) invokeResult;
+                cf.whenComplete((result, throwable) -> {
+                    if (throwable == null) {
+                        try {
+                            doProcess(invokeResult);
+                        } catch (Throwable t) {
+                            handleFail(invokeCtx, t);
+                        }
+                    } else {
+                        handleFail(invokeCtx, throwable);
+                    }
+                });
+                return;
             }
 
-            responsePayload.status(Status.OK.value());
-
-            handleWriteResponse(responsePayload);
+            doProcess(invokeResult);
         } catch (Throwable t) {
-            if (INVOKE_ERROR == t) {
-                // handle biz exception
-                handleException(invokeCtx.getExpectCauseTypes(), invokeCtx.getCause());
-            } else {
-                processor.handleException(channel, _request, Status.SERVER_ERROR, t);
-            }
+            handleFail(invokeCtx, t);
+        }
+    }
+
+    private void doProcess(Object realResult) {
+        ResultWrapper result = new ResultWrapper();
+        result.setResult(realResult);
+        byte s_code = request.serializerCode();
+        Serializer serializer = SerializerFactory.getSerializer(s_code);
+
+        JResponsePayload responsePayload = new JResponsePayload(request.invokeId());
+
+        if (CodecConfig.isCodecLowCopy()) {
+            OutputBuf outputBuf =
+                    serializer.writeObject(channel.allocOutputBuf(), result);
+            responsePayload.outputBuf(s_code, outputBuf);
+        } else {
+            byte[] bytes = serializer.writeObject(result);
+            responsePayload.bytes(s_code, bytes);
+        }
+
+        responsePayload.status(Status.OK.value());
+
+        handleWriteResponse(responsePayload);
+    }
+
+    private void handleFail(Context invokeCtx, Throwable t) {
+        if (INVOKE_ERROR == t) {
+            // handle biz exception
+            handleException(invokeCtx.getExpectCauseTypes(), invokeCtx.getCause());
+        } else {
+            processor.handleException(channel, request, Status.SERVER_ERROR, t);
         }
     }
 
@@ -292,7 +315,6 @@ public class MessageTask implements RejectedRunnable {
         }
     }
 
-    @SuppressWarnings("all")
     private static void handleAfterInvoke(ProviderInterceptor[] interceptors,
                                           Object provider,
                                           String methodName,

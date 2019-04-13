@@ -14,31 +14,25 @@
  * limitations under the License.
  */
 
-package org.jupiter.rpc;
+package org.jupiter.example;
+
+import java.util.concurrent.CompletableFuture;
+
+import org.jupiter.rpc.ServiceProvider;
 
 /**
- * 远程调用方式, 支持同步调用和异步调用, 异步方式支持 Future 以及 Listener.
- *
  * jupiter
- * org.jupiter.rpc
+ * org.jupiter.example
  *
  * @author jiachun.fjc
  */
-public enum InvokeType {
-    SYNC,   // 同步调用
-    ASYNC,  // 异步调用
-    AUTO;   // 当你的接口返回值是一个 CompletableFuture, 自动转成异步调用, 否则为同步调用
+@ServiceProvider(group = "test")
+public interface AsyncUserService {
 
-    public static InvokeType parse(String name) {
-        for (InvokeType s : values()) {
-            if (s.name().equalsIgnoreCase(name)) {
-                return s;
-            }
-        }
-        return null;
-    }
+    CompletableFuture<User> createUser();
 
-    public static InvokeType getDefault() {
-        return SYNC;
+    MyCompletableFuture<User> createUser2();
+
+    class MyCompletableFuture<T> extends CompletableFuture<T> {
     }
 }
