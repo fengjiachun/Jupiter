@@ -5,7 +5,7 @@
 [![Total Alerts](https://img.shields.io/lgtm/alerts/g/fengjiachun/Jupiter.svg?logo=lgtm&logoWidth=18)](https://lgtm.com/projects/g/fengjiachun/Jupiter/alerts)
 
 #### Jupiter:
-- Jupiter是一款性能非常不错的, 轻量级的分布式服务框架
+- Jupiter 是一款性能非常不错的, 轻量级的分布式服务框架
 
 #### Jupiter Architecture:
 
@@ -36,7 +36,7 @@
 
 #### 性能:
 - 小数据包请求(不带业务)在四核刀片服务器上可达到17w+的tps, 详情见 [Benchmark](https://github.com/fengjiachun/Jupiter/wiki/Benchmark)
-- [参考: 多个RPC框架的 Benchmark 见这里](https://github.com/hank-whu/rpc-benchmark)
+- [参考: 多个 RPC 框架的 Benchmark 见这里](https://github.com/hank-whu/rpc-benchmark)
 
 #### 文档:
 - [High performance RPC with netty](/docs/static_files/high_performance_rpc_with_netty.md)
@@ -45,7 +45,7 @@
 - [其他文档](https://github.com/fengjiachun/doc/tree/master/jupiter)
 - [发展路线](https://github.com/fengjiachun/Jupiter/wiki/RoadMap)
 
-#### 一次RPC调用:
+#### 一次 RPC 调用:
 
 <img src="docs/static_files/jupiter-rpc.png" width="1600"/>
 
