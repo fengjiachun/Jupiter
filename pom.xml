@@ -68,6 +68,7 @@
         <opentracing.version>0.31.0</opentracing.version>
         <spring-framework.version>4.3.0.RELEASE</spring-framework.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <main.user.dir>${user.dir}</main.user.dir>
     </properties>
 
     <dependencyManagement>
@@ -388,6 +389,43 @@
                 <configuration>
                     <source>1.8</source>
                     <target>1.8</target>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>com.mycila</groupId>
+                <artifactId>license-maven-plugin</artifactId>
+                <version>3.0</version>
+                <executions>
+                    <execution>
+                        <phase>generate-sources</phase>
+                        <goals>
+                            <goal>remove</goal>
+                            <goal>format</goal>
+                        </goals>
+                    </execution>
+                </executions>
+                <configuration>
+                    <quiet>true</quiet>
+                    <header>${main.user.dir}/HEADER</header>
+                    <includes>
+                        <include>**/src/main/java/**</include>
+                        <include>**/src/test/java/**</include>
+                    </includes>
+                    <excludes>
+                        <exclude>**/AbstractEntry.java</exclude>
+                        <exclude>**/ConcurrentAutoTable.java</exclude>
+                        <exclude>**/NonBlockingHashMap.java</exclude>
+                        <exclude>**/NonBlockingHashMapLong.java</exclude>
+                        <exclude>**/ByteObjectHashMap.java</exclude>
+                        <exclude>**/Recycler.java</exclude>
+                        <exclude>**/HashedWheelTimer.java</exclude>
+                        <exclude>**/Timeout.java</exclude>
+                        <exclude>**/TimerTask.java</exclude>
+                    </excludes>
+                    <strictCheck>true</strictCheck>
+                    <mapping>
+                        <java>SLASHSTAR_STYLE</java>
+                    </mapping>
                 </configuration>
             </plugin>
         </plugins>
