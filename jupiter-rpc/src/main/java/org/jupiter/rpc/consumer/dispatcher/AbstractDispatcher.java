@@ -87,7 +87,7 @@ abstract class AbstractDispatcher implements Dispatcher {
     @Override
     public Dispatcher interceptors(List<ConsumerInterceptor> interceptors) {
         if (interceptors != null && !interceptors.isEmpty()) {
-            this.interceptors = interceptors.toArray(new ConsumerInterceptor[interceptors.size()]);
+            this.interceptors = interceptors.toArray(new ConsumerInterceptor[0]);
         }
         return this;
     }

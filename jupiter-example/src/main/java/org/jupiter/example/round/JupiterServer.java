@@ -17,6 +17,7 @@
 package org.jupiter.example.round;
 
 import org.jupiter.common.util.SystemPropertyUtil;
+import org.jupiter.example.AsyncUserServiceImpl;
 import org.jupiter.example.UserServiceImpl;
 import org.jupiter.rpc.DefaultServer;
 import org.jupiter.rpc.JServer;
@@ -41,12 +42,16 @@ public class JupiterServer {
     public static void main(String[] args) {
         JServer server = new DefaultServer().withAcceptor(new JNettyTcpAcceptor(18090));
         try {
-            ServiceWrapper provider = server.serviceRegistry()
+            ServiceWrapper provider1 = server.serviceRegistry()
                     .provider(new UserServiceImpl())
                     .register();
 
+            ServiceWrapper provider2 = server.serviceRegistry()
+                    .provider(new AsyncUserServiceImpl())
+                    .register();
+
             server.connectToRegistryServer("127.0.0.1:20001");
-            server.publish(provider);
+            server.publish(provider1, provider2);
             server.start();
         } catch (InterruptedException e) {
             e.printStackTrace();

@@ -225,7 +225,7 @@ public class MpscLinkedQueue<E> extends BaseLinkedQueue<E> {
     }
 
     // $gen:ignore
-    @SuppressWarnings("unchecked")
+    @SuppressWarnings({"unchecked", "CastCanBeRemovedNarrowingVariableType"})
     protected LinkedQueueNode<E> xchgProducerNode(LinkedQueueNode<E> nextNode) {
         Object oldNode;
         do {

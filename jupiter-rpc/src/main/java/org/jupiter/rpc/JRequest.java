@@ -81,7 +81,7 @@ public class JRequest {
     public Map<String, String> getAttachments() {
         Map<String, String> attachments =
                 message != null ? message.getAttachments() : null;
-        return attachments != null ? attachments : Collections.<String, String>emptyMap();
+        return attachments != null ? attachments : Collections.emptyMap();
     }
 
     public void putAttachment(String key, String value) {

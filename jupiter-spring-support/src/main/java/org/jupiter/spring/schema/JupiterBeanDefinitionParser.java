@@ -314,6 +314,7 @@ public class JupiterBeanDefinitionParser implements BeanDefinitionParser {
         }
     }
 
+    @SuppressWarnings("SameParameterValue")
     private static void addPropertyReferenceArray(
             RootBeanDefinition definition, Element element, String elementTypeName, String propertyName, boolean required) {
         String[] refArray = Strings.split(element.getAttribute(propertyName), ',');

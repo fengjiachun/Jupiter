@@ -18,7 +18,6 @@ package org.jupiter.example.round;
 
 import java.util.concurrent.CompletableFuture;
 
-import org.jupiter.common.util.SystemPropertyUtil;
 import org.jupiter.example.AsyncUserService;
 import org.jupiter.example.User;
 import org.jupiter.example.UserService;
@@ -26,7 +25,6 @@ import org.jupiter.rpc.DefaultClient;
 import org.jupiter.rpc.InvokeType;
 import org.jupiter.rpc.JClient;
 import org.jupiter.rpc.consumer.ProxyFactory;
-import org.jupiter.serialization.SerializerType;
 import org.jupiter.transport.JConnector;
 import org.jupiter.transport.exception.ConnectFailedException;
 import org.jupiter.transport.netty.JNettyTcpConnector;
@@ -37,17 +35,10 @@ import org.jupiter.transport.netty.JNettyTcpConnector;
  *
  * @author jiachun.fjc
  */
-public class SyncJupiterClient {
-
-    static {
-        SystemPropertyUtil.setProperty("jupiter.transport.codec.low_copy", "true");
-        SystemPropertyUtil.setProperty("io.netty.allocator.type", "pooled");
-//        SystemPropertyUtil.setProperty("io.netty.noPreferDirect", "true");
-    }
+public class AutoJupiterClient {
 
     public static void main(String[] args) {
         JClient client = new DefaultClient().withConnector(new JNettyTcpConnector());
-
         // 连接RegistryServer
         client.connectToRegistryServer("127.0.0.1:20001");
         // 自动管理可用连接
@@ -57,30 +48,28 @@ public class SyncJupiterClient {
             throw new ConnectFailedException();
         }
 
-        UserService userService = ProxyFactory.factory(UserService.class)
+        AsyncUserService userService = ProxyFactory.factory(AsyncUserService.class)
                 .version("1.0.0.daily")
                 .client(client)
-                .serializerType(SerializerType.PROTO_STUFF)
-                .failoverRetries(5)
-                .newProxyInstance();
-
-        AsyncUserService asyncUserService = ProxyFactory.factory(AsyncUserService.class)
-                .version("1.0.0.daily")
-                .client(client)
-                .invokeType(InvokeType.SYNC)
+                .invokeType(InvokeType.AUTO)
                 .newProxyInstance();
 
         try {
-            for (int i = 0; i < 5; i++) {
-                User user = userService.createUser();
-                System.out.println(user);
-            }
+            CompletableFuture<User> f = userService.createUser();
+            System.out.println("CompletableFuture.isDone: " + f.isDone());
+            f.whenComplete((user, throwable) -> System.out.println("when complete: " + user));
+            System.out.println("CompletableFuture.get: " + f.get());
+            System.out.println("CompletableFuture.isDone: " + f.isDone());
 
-            for (int i = 0; i < 5; i++) {
-                CompletableFuture<User> user = asyncUserService.createUser();
-                System.out.println(user.get());
-            }
-        } catch (Exception e) {
+            AsyncUserService.MyCompletableFuture<User> mf = userService.createUser2();
+
+            System.out.println("MyCompletableFuture.isDone: " + mf.isDone());
+            mf.whenComplete((user2, throwable) -> System.out.println("when complete: " + user2));
+            System.out.println("MyCompletableFuture.get: " + mf.get());
+            System.out.println("MyCompletableFuture.isDone: " + mf.isDone());
+
+            System.out.println("sync invoke: " + userService.syncCreateUser());
+        } catch (Throwable e) {
             e.printStackTrace();
         }
     }

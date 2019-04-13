@@ -1,7 +1,11 @@
 Jupiter release notes
 ------------------------
 
-### 
+### 2019-04-13: version 1.3.0
+- 不再支持 java7，仅支持 java8 及以上版本
+- 移除 AbstractFuture，直接使用 java8 的CompletableFuture
+- AbstractRegistryService 中的 ReadWriteLock 替换为 StampedLock 以支持乐观锁
+- InvokeType.AUTO, 当你的接口返回值是一个 CompletableFuture, 自动转成异步调用, 否则为同步调用
 
 ### 2018-09-11: version 1.2.26
 - Bug fix: [Object[] 包含 null 时序列化/反序列化错误] (https://github.com/fengjiachun/Jupiter/issues/73#issuecomment-420119074)

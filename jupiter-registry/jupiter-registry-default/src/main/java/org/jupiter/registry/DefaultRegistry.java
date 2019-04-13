@@ -232,19 +232,15 @@ public final class DefaultRegistry extends NettyTcpConnector {
         msg.data(meta);
 
         channel.writeAndFlush(msg)
-                .addListener(new ChannelFutureListener() {
-
-                    @Override
-                    public void operationComplete(ChannelFuture future) throws Exception {
-                        if (!future.isSuccess()) {
-                            Channel ch = future.channel();
-                            if (ch.isActive()) {
-                                ch.pipeline().fireExceptionCaught(future.cause());
-                            } else {
-                                if (logger.isWarnEnabled()) {
-                                    logger.warn("Unregister {} fail because of channel is inactive: {}.",
-                                            meta, stackTrace(future.cause()));
-                                }
+                .addListener((ChannelFutureListener) future -> {
+                    if (!future.isSuccess()) {
+                        Channel ch = future.channel();
+                        if (ch.isActive()) {
+                            ch.pipeline().fireExceptionCaught(future.cause());
+                        } else {
+                            if (logger.isWarnEnabled()) {
+                                logger.warn("Unregister {} fail because of channel is inactive: {}.",
+                                        meta, stackTrace(future.cause()));
                             }
                         }
                     }

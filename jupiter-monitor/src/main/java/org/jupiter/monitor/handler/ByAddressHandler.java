@@ -47,7 +47,7 @@ public class ByAddressHandler extends ChildCommandHandler<RegistryHandler> {
         }
 
         for (String a : monitor.listServicesByAddress(args[2], Integer.parseInt(args[3]))) {
-            if (childGrep != null && childGrep == Command.ChildCommand.GREP) {
+            if (childGrep == Command.ChildCommand.GREP) {
                 if (a.contains(args[5])) {
                     channel.writeAndFlush(a + JConstants.NEWLINE);
                 }

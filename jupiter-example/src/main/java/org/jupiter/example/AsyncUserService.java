@@ -14,29 +14,27 @@
  * limitations under the License.
  */
 
-package org.jupiter.rpc;
+package org.jupiter.example;
 
-import java.util.EventListener;
+import java.util.concurrent.CompletableFuture;
+
+import org.jupiter.rpc.ServiceProvider;
 
 /**
- * Callback is often triggered by the core thread (may be an IO thread).
- * Be careful, do not to have time-consuming operations within
- * {@link #complete(Object)} and {@link #failure(Throwable)}.
- *
  * jupiter
- * org.jupiter.rpc
+ * org.jupiter.example
  *
  * @author jiachun.fjc
  */
-public interface JListener<V> extends EventListener {
+@ServiceProvider(group = "test")
+public interface AsyncUserService {
 
-    /**
-     * Returns result when the call succeeds.
-     */
-    void complete(V result);
+    User syncCreateUser();
 
-    /**
-     * Returns an exception message when call fails.
-     */
-    void failure(Throwable cause);
+    CompletableFuture<User> createUser();
+
+    MyCompletableFuture<User> createUser2();
+
+    class MyCompletableFuture<T> extends CompletableFuture<T> {
+    }
 }

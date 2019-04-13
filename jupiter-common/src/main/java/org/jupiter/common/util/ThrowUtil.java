@@ -41,7 +41,7 @@ public final class ThrowUtil {
         if (unsafe != null) {
             unsafe.throwException(t);
         } else {
-            ThrowUtil.<RuntimeException>throwException0(t);
+            ThrowUtil.throwException0(t);
         }
     }
 

@@ -101,6 +101,7 @@ public abstract class NettyConnector implements JConnector<JConnection> {
 
     protected abstract void doInit();
 
+    @SuppressWarnings("SameParameterValue")
     protected ThreadFactory workerThreadFactory(String name) {
         return new DefaultThreadFactory(name, Thread.MAX_PRIORITY);
     }

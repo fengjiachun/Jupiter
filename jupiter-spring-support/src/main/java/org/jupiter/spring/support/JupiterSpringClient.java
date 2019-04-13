@@ -110,13 +110,7 @@ public class JupiterSpringClient implements InitializingBean {
             }
         }
 
-        Runtime.getRuntime().addShutdownHook(new Thread() {
-
-            @Override
-            public void run() {
-                client.shutdownGracefully();
-            }
-        });
+        Runtime.getRuntime().addShutdownHook(new Thread(() -> client.shutdownGracefully()));
     }
 
     public JClient getClient() {
@@ -178,7 +172,7 @@ public class JupiterSpringClient implements InitializingBean {
     public List<UnresolvedAddress> getProviderServerUnresolvedAddresses() {
         return providerServerUnresolvedAddresses == null
                 ?
-                Collections.<UnresolvedAddress>emptyList()
+                Collections.emptyList()
                 :
                 providerServerUnresolvedAddresses;
     }

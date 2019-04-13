@@ -32,11 +32,11 @@ import org.jupiter.rpc.consumer.future.InvokeFuture;
  *
  * @author jiachun.fjc
  */
-public class FailFastClusterInvoker implements ClusterInvoker {
+public class FailfastClusterInvoker implements ClusterInvoker {
 
     private final Dispatcher dispatcher;
 
-    public FailFastClusterInvoker(Dispatcher dispatcher) {
+    public FailfastClusterInvoker(Dispatcher dispatcher) {
         this.dispatcher = dispatcher;
     }
 

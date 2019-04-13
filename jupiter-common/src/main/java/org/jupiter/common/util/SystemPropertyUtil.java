@@ -77,13 +77,7 @@ public final class SystemPropertyUtil {
             if (System.getSecurityManager() == null) {
                 value = System.getProperty(key);
             } else {
-                value = AccessController.doPrivileged(new PrivilegedAction<String>() {
-
-                    @Override
-                    public String run() {
-                        return System.getProperty(key);
-                    }
-                });
+                value = AccessController.doPrivileged((PrivilegedAction<String>) () -> System.getProperty(key));
             }
         } catch (Exception e) {
             if (logger.isWarnEnabled()) {

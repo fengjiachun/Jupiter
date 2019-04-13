@@ -16,6 +16,8 @@
 
 package org.jupiter.rpc.consumer.future;
 
+import java.util.concurrent.CompletableFuture;
+
 import static org.jupiter.common.util.Preconditions.checkNotNull;
 
 /**
@@ -50,6 +52,14 @@ public class InvokeFutureContext {
         return (InvokeFuture<V>) f;
     }
 
+    public static CompletableFuture<?> completableFuture() {
+        return (CompletableFuture<?>) future();
+    }
+
+    public static <V> CompletableFuture<V>completableFuture(Class<V> expectReturnType) {
+        return (CompletableFuture<V>) future(expectReturnType);
+    }
+
     /**
      * 获取广播调用的 {@link InvokeFutureGroup} 并协助类型转换, {@code expectReturnType} 为期望定的返回值类型.
      */
@@ -59,8 +69,8 @@ public class InvokeFutureContext {
 
         if (f instanceof InvokeFutureGroup) {
             return (InvokeFutureGroup<V>) f;
-        } else if (f instanceof FailSafeInvokeFuture) {
-            InvokeFuture real_f = ((FailSafeInvokeFuture) f).future();
+        } else if (f instanceof FailsafeInvokeFuture) {
+            InvokeFuture real_f = ((FailsafeInvokeFuture) f).future();
             if (real_f instanceof InvokeFutureGroup) {
                 return (InvokeFutureGroup<V>) real_f;
             }

@@ -31,13 +31,8 @@ public class FlightExecClassLoader extends ClassLoader {
     private static ProtectionDomain PROTECTION_DOMAIN;
 
     static {
-        PROTECTION_DOMAIN = AccessController.doPrivileged(new PrivilegedAction<ProtectionDomain>() {
-
-            @Override
-            public ProtectionDomain run() {
-                return FlightExecClassLoader.class.getProtectionDomain();
-            }
-        });
+        PROTECTION_DOMAIN = AccessController.doPrivileged(
+                (PrivilegedAction<ProtectionDomain>) FlightExecClassLoader.class::getProtectionDomain);
     }
 
     public FlightExecClassLoader() {

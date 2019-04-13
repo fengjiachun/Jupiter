@@ -55,14 +55,10 @@ public class JupiterServer {
             server.connectToRegistryServer("127.0.0.1:20001");
             server.publish(provider);
 
-            Runtime.getRuntime().addShutdownHook(new Thread() {
-
-                @Override
-                public void run() {
-                    monitor.shutdownGracefully();
-                    server.shutdownGracefully();
-                }
-            });
+            Runtime.getRuntime().addShutdownHook(new Thread(() -> {
+                monitor.shutdownGracefully();
+                server.shutdownGracefully();
+            }));
 
             server.start();
         } catch (InterruptedException e) {

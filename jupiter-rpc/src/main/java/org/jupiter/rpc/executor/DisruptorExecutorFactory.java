@@ -61,6 +61,7 @@ public class DisruptorExecutorFactory extends AbstractExecutorFactory {
         };
     }
 
+    @SuppressWarnings("SameParameterValue")
     private WaitStrategyType waitStrategyType(Target target, WaitStrategyType defaultType) {
         WaitStrategyType strategyType = null;
         switch (target) {

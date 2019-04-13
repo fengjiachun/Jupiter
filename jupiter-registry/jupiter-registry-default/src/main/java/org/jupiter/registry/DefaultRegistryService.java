@@ -71,7 +71,6 @@ public class DefaultRegistryService extends AbstractRegistryService {
         getRegisterMetaMap().put(meta, RegisterState.DONE);
     }
 
-    @SuppressWarnings("all")
     @Override
     protected void doUnregister(RegisterMeta meta) {
         Collection<DefaultRegistry> allClients = clients.values();

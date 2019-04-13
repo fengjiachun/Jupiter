@@ -64,7 +64,6 @@ abstract class BaseLinkedQueueProducerNodeRef<E> extends BaseLinkedQueuePad0<E> 
         return (LinkedQueueNode<E>) unsafe.getObjectVolatile(this, P_NODE_OFFSET);
     }
 
-    @SuppressWarnings("unchecked")
     final boolean casProducerNode(LinkedQueueNode<E> expect, LinkedQueueNode<E> newValue) {
         return unsafe.compareAndSwapObject(this, P_NODE_OFFSET, expect, newValue);
     }

@@ -149,28 +149,18 @@ public class DefaultClient implements JClient {
                                 onSucceed(group, signalNeeded.getAndSet(false));
                             } else {
                                 if (group.isConnecting()) {
-                                    group.onAvailable(new Runnable() {
-
-                                        @Override
-                                        public void run() {
-                                            onSucceed(group, signalNeeded.getAndSet(false));
-                                        }
-                                    });
+                                    group.onAvailable(() -> onSucceed(group, signalNeeded.getAndSet(false)));
                                 } else {
                                     group.setConnecting(true);
                                     JConnection[] connections = connectTo(address, group, registerMeta, true);
                                     final AtomicInteger countdown = new AtomicInteger(connections.length);
                                     for (JConnection c : connections) {
-                                        c.operationComplete(new JConnection.OperationListener() {
-
-                                            @Override
-                                            public void complete(boolean isSuccess) {
-                                                if (isSuccess) {
-                                                    onSucceed(group, signalNeeded.getAndSet(false));
-                                                }
-                                                if (countdown.decrementAndGet() <= 0) {
-                                                    group.setConnecting(false);
-                                                }
+                                        c.operationComplete(isSuccess -> {
+                                            if (isSuccess) {
+                                                onSucceed(group, signalNeeded.getAndSet(false));
+                                            }
+                                            if (countdown.decrementAndGet() <= 0) {
+                                                group.setConnecting(false);
                                             }
                                         });
                                     }
@@ -186,6 +176,7 @@ public class DefaultClient implements JClient {
                         }
                     }
 
+                    @SuppressWarnings("SameParameterValue")
                     private JConnection[] connectTo(final UnresolvedAddress address, final JChannelGroup group, RegisterMeta registerMeta, boolean async) {
                         int connCount = registerMeta.getConnCount(); // global value from single client
                         connCount = connCount < 1 ? 1 : connCount;
@@ -198,14 +189,10 @@ public class DefaultClient implements JClient {
                             connectionManager.manage(connection);
                         }
 
-                        offlineListening(address, new OfflineListener() {
-
-                            @Override
-                            public void offline() {
-                                connectionManager.cancelAutoReconnect(address);
-                                if (!group.isAvailable()) {
-                                    connector.removeChannelGroup(directory, group);
-                                }
+                        offlineListening(address, () -> {
+                            connectionManager.cancelAutoReconnect(address);
+                            if (!group.isAvailable()) {
+                                connector.removeChannelGroup(directory, group);
                             }
                         });
 

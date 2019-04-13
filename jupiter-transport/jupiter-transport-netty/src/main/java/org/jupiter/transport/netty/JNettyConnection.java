@@ -43,12 +43,6 @@ public abstract class JNettyConnection extends JConnection {
 
     @Override
     public void operationComplete(final OperationListener operationListener) {
-        future.addListener(new ChannelFutureListener() {
-
-            @Override
-            public void operationComplete(ChannelFuture future) throws Exception {
-                operationListener.complete(future.isSuccess());
-            }
-        });
+        future.addListener((ChannelFutureListener) future -> operationListener.complete(future.isSuccess()));
     }
 }

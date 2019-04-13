@@ -41,7 +41,6 @@ public class ControlResult {
         this.message = message;
     }
 
-    @SuppressWarnings("all")
     public boolean isAllowed() {
         return allowed;
     }

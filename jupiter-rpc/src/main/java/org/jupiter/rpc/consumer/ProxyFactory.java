@@ -32,6 +32,7 @@ import org.jupiter.rpc.consumer.dispatcher.DefaultBroadcastDispatcher;
 import org.jupiter.rpc.consumer.dispatcher.DefaultRoundDispatcher;
 import org.jupiter.rpc.consumer.dispatcher.Dispatcher;
 import org.jupiter.rpc.consumer.invoker.AsyncInvoker;
+import org.jupiter.rpc.consumer.invoker.AutoInvoker;
 import org.jupiter.rpc.consumer.invoker.SyncInvoker;
 import org.jupiter.rpc.load.balance.LoadBalancerFactory;
 import org.jupiter.rpc.load.balance.LoadBalancerType;
@@ -254,6 +255,9 @@ public class ProxyFactory<I> {
                 break;
             case ASYNC:
                 handler = new AsyncInvoker(client.appName(), metadata, dispatcher, strategyConfig, methodSpecialConfigs);
+                break;
+            case AUTO:
+                handler = new AutoInvoker(client.appName(), metadata, dispatcher, strategyConfig, methodSpecialConfigs);
                 break;
             default:
                 throw reject("invokeType: " + invokeType);

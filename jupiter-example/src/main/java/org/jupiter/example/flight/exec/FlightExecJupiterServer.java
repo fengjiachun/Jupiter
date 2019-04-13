@@ -42,23 +42,19 @@ public class FlightExecJupiterServer {
     public static void main(String[] args) {
         final CountDownLatch latch = new CountDownLatch(servers.length);
         for (final JServer server : servers) {
-            new Thread(new Runnable() {
+            new Thread(() -> {
+                try {
+                    ServiceWrapper service = server.serviceRegistry()
+                            .provider(new JavaClassExecProvider())
+                            .register();
 
-                @Override
-                public void run() {
-                    try {
-                        ServiceWrapper service = server.serviceRegistry()
-                                .provider(new JavaClassExecProvider())
-                                .register();
-
-                        server.connectToRegistryServer("127.0.0.1:20001");
-                        server.publish(service);
-                        server.start();
-                    } catch (InterruptedException e) {
-                        e.printStackTrace();
-                    } finally {
-                        latch.countDown();
-                    }
+                    server.connectToRegistryServer("127.0.0.1:20001");
+                    server.publish(service);
+                    server.start();
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                } finally {
+                    latch.countDown();
                 }
             }).start();
         }

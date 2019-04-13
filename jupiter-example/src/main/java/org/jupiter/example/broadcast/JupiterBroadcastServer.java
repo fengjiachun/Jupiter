@@ -43,22 +43,18 @@ public class JupiterBroadcastServer {
 
         final CountDownLatch latch = new CountDownLatch(servers.length);
         for (final JServer server : servers) {
-            new Thread(new Runnable() {
+            new Thread(() -> {
+                try {
+                    server.serviceRegistry() // 获得本地registry
+                            .provider(new ServiceTestImpl())
+                            .register(); // 注册provider到本地
 
-                @Override
-                public void run() {
-                    try {
-                        server.serviceRegistry() // 获得本地registry
-                                .provider(new ServiceTestImpl())
-                                .register(); // 注册provider到本地
-
-                        // server start后默认是block当前线程的
-                        server.start();
-                    } catch (InterruptedException e) {
-                        e.printStackTrace();
-                    } finally {
-                        latch.countDown();
-                    }
+                    // server start后默认是block当前线程的
+                    server.start();
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                } finally {
+                    latch.countDown();
                 }
             }).start();
         }

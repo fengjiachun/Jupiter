@@ -28,14 +28,10 @@ import org.apache.curator.framework.CuratorFrameworkFactory;
 import org.apache.curator.framework.api.BackgroundCallback;
 import org.apache.curator.framework.api.CuratorEvent;
 import org.apache.curator.framework.recipes.cache.PathChildrenCache;
-import org.apache.curator.framework.recipes.cache.PathChildrenCacheEvent;
-import org.apache.curator.framework.recipes.cache.PathChildrenCacheListener;
 import org.apache.curator.framework.state.ConnectionState;
-import org.apache.curator.framework.state.ConnectionStateListener;
 import org.apache.curator.retry.ExponentialBackoffRetry;
 import org.apache.zookeeper.CreateMode;
 import org.jupiter.common.concurrent.collection.ConcurrentSet;
-import org.jupiter.common.util.Function;
 import org.jupiter.common.util.Lists;
 import org.jupiter.common.util.Maps;
 import org.jupiter.common.util.NetUtil;
@@ -115,49 +111,45 @@ public class ZookeeperRegistryService extends AbstractRegistryService {
             if (childrenCache == null) {
                 childrenCache = newChildrenCache;
 
-                childrenCache.getListenable().addListener(new PathChildrenCacheListener() {
+                childrenCache.getListenable().addListener((client, event) -> {
 
-                    @Override
-                    public void childEvent(CuratorFramework client, PathChildrenCacheEvent event) throws Exception {
+                    logger.info("Child event: {}", event);
 
-                        logger.info("Child event: {}", event);
+                    switch (event.getType()) {
+                        case CHILD_ADDED: {
+                            RegisterMeta registerMeta = parseRegisterMeta(event.getData().getPath());
+                            Address address = registerMeta.getAddress();
+                            RegisterMeta.ServiceMeta serviceMeta1 = registerMeta.getServiceMeta();
+                            ConcurrentSet<RegisterMeta.ServiceMeta> serviceMetaSet = getServiceMeta(address);
 
-                        switch (event.getType()) {
-                            case CHILD_ADDED: {
-                                RegisterMeta registerMeta = parseRegisterMeta(event.getData().getPath());
-                                Address address = registerMeta.getAddress();
-                                RegisterMeta.ServiceMeta serviceMeta = registerMeta.getServiceMeta();
-                                ConcurrentSet<RegisterMeta.ServiceMeta> serviceMetaSet = getServiceMeta(address);
+                            serviceMetaSet.add(serviceMeta1);
+                            ZookeeperRegistryService.super.notify(
+                                    serviceMeta1,
+                                    NotifyListener.NotifyEvent.CHILD_ADDED,
+                                    sequence.incrementAndGet(),
+                                    registerMeta);
 
-                                serviceMetaSet.add(serviceMeta);
-                                ZookeeperRegistryService.super.notify(
-                                        serviceMeta,
-                                        NotifyListener.NotifyEvent.CHILD_ADDED,
-                                        sequence.incrementAndGet(),
-                                        registerMeta);
+                            break;
+                        }
+                        case CHILD_REMOVED: {
+                            RegisterMeta registerMeta = parseRegisterMeta(event.getData().getPath());
+                            Address address = registerMeta.getAddress();
+                            RegisterMeta.ServiceMeta serviceMeta1 = registerMeta.getServiceMeta();
+                            ConcurrentSet<RegisterMeta.ServiceMeta> serviceMetaSet = getServiceMeta(address);
 
-                                break;
+                            serviceMetaSet.remove(serviceMeta1);
+                            ZookeeperRegistryService.super.notify(
+                                    serviceMeta1,
+                                    NotifyListener.NotifyEvent.CHILD_REMOVED,
+                                    sequence.incrementAndGet(),
+                                    registerMeta);
+
+                            if (serviceMetaSet.isEmpty()) {
+                                logger.info("Offline notify: {}.", address);
+
+                                ZookeeperRegistryService.super.offline(address);
                             }
-                            case CHILD_REMOVED: {
-                                RegisterMeta registerMeta = parseRegisterMeta(event.getData().getPath());
-                                Address address = registerMeta.getAddress();
-                                RegisterMeta.ServiceMeta serviceMeta = registerMeta.getServiceMeta();
-                                ConcurrentSet<RegisterMeta.ServiceMeta> serviceMetaSet = getServiceMeta(address);
-
-                                serviceMetaSet.remove(serviceMeta);
-                                ZookeeperRegistryService.super.notify(
-                                        serviceMeta,
-                                        NotifyListener.NotifyEvent.CHILD_REMOVED,
-                                        sequence.incrementAndGet(),
-                                        registerMeta);
-
-                                if (serviceMetaSet.isEmpty()) {
-                                    logger.info("Offline notify: {}.", address);
-
-                                    ZookeeperRegistryService.super.offline(address);
-                                }
-                                break;
-                            }
+                            break;
                         }
                     }
                 });
@@ -202,16 +194,12 @@ public class ZookeeperRegistryService extends AbstractRegistryService {
             meta.setHost(address);
 
             // The znode will be deleted upon the client's disconnect.
-            configClient.create().withMode(CreateMode.EPHEMERAL).inBackground(new BackgroundCallback() {
-
-                @Override
-                public void processResult(CuratorFramework client, CuratorEvent event) throws Exception {
-                    if (event.getResultCode() == Code.OK.intValue()) {
-                        getRegisterMetaMap().put(meta, RegisterState.DONE);
-                    }
-
-                    logger.info("Register: {} - {}.", meta, event);
+            configClient.create().withMode(CreateMode.EPHEMERAL).inBackground((client, event) -> {
+                if (event.getResultCode() == Code.OK.intValue()) {
+                    getRegisterMetaMap().put(meta, RegisterState.DONE);
                 }
+
+                logger.info("Register: {} - {}.", meta, event);
             }).forPath(
                     String.format("%s/%s:%s:%s:%s",
                             directory,
@@ -306,26 +294,22 @@ public class ZookeeperRegistryService extends AbstractRegistryService {
         configClient = CuratorFrameworkFactory.newClient(
                 connectString, sessionTimeoutMs, connectionTimeoutMs, new ExponentialBackoffRetry(500, 20));
 
-        configClient.getConnectionStateListenable().addListener(new ConnectionStateListener() {
+        configClient.getConnectionStateListenable().addListener((client, newState) -> {
 
-            @Override
-            public void stateChanged(CuratorFramework client, ConnectionState newState) {
+            logger.info("Zookeeper connection state changed {}.", newState);
 
-                logger.info("Zookeeper connection state changed {}.", newState);
+            if (newState == ConnectionState.RECONNECTED) {
 
-                if (newState == ConnectionState.RECONNECTED) {
+                logger.info("Zookeeper connection has been re-established, will re-subscribe and re-register.");
 
-                    logger.info("Zookeeper connection has been re-established, will re-subscribe and re-register.");
+                // 重新订阅
+                for (RegisterMeta.ServiceMeta serviceMeta : getSubscribeSet()) {
+                    doSubscribe(serviceMeta);
+                }
 
-                    // 重新订阅
-                    for (RegisterMeta.ServiceMeta serviceMeta : getSubscribeSet()) {
-                        doSubscribe(serviceMeta);
-                    }
-
-                    // 重新发布服务
-                    for (RegisterMeta meta : getRegisterMetaMap().keySet()) {
-                        ZookeeperRegistryService.super.register(meta);
-                    }
+                // 重新发布服务
+                for (RegisterMeta meta : getRegisterMetaMap().keySet()) {
+                    ZookeeperRegistryService.super.register(meta);
                 }
             }
         });
@@ -347,16 +331,12 @@ public class ZookeeperRegistryService extends AbstractRegistryService {
     public List<RegisterMeta.ServiceMeta> findServiceMetaByAddress(Address address) {
         return Lists.transform(
                 Lists.newArrayList(getServiceMeta(address)),
-                new Function<RegisterMeta.ServiceMeta, RegisterMeta.ServiceMeta>() {
-
-                    @Override
-                    public RegisterMeta.ServiceMeta apply(RegisterMeta.ServiceMeta input) {
-                        RegisterMeta.ServiceMeta copy = new RegisterMeta.ServiceMeta();
-                        copy.setGroup(input.getGroup());
-                        copy.setServiceProviderName(input.getServiceProviderName());
-                        copy.setVersion(input.getVersion());
-                        return copy;
-                    }
+                input -> {
+                    RegisterMeta.ServiceMeta copy = new RegisterMeta.ServiceMeta();
+                    copy.setGroup(input.getGroup());
+                    copy.setServiceProviderName(input.getServiceProviderName());
+                    copy.setVersion(input.getVersion());
+                    return copy;
                 });
     }
 

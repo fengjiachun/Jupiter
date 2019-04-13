@@ -14,13 +14,12 @@
  * limitations under the License.
  */
 
-package org.jupiter.example.cluster.failover;
+package org.jupiter.example.cluster.failsafe;
 
 import org.jupiter.example.cluster.service.ClusterService;
 import org.jupiter.rpc.DefaultClient;
 import org.jupiter.rpc.InvokeType;
 import org.jupiter.rpc.JClient;
-import org.jupiter.rpc.JListener;
 import org.jupiter.rpc.consumer.ProxyFactory;
 import org.jupiter.rpc.consumer.cluster.ClusterInvoker;
 import org.jupiter.rpc.consumer.future.InvokeFuture;
@@ -35,7 +34,7 @@ import org.jupiter.transport.netty.JNettyTcpConnector;
  *
  * @author jiachun.fjc
  */
-public class FailOverJupiterClient {
+public class FailsafeJupiterClient {
 
     public static void main(String[] args) {
         JClient client = new DefaultClient().withConnector(new JNettyTcpConnector());
@@ -49,44 +48,51 @@ public class FailOverJupiterClient {
         }
 
         // 同步调用
-        System.err.println("同步调用failover测试...........");
+        System.err.println("同步调用fail-safe测试...........");
         ClusterService syncService = ProxyFactory.factory(ClusterService.class)
                 .version("1.0.0")
                 .client(client)
                 .invokeType(InvokeType.SYNC)
-                .clusterStrategy(ClusterInvoker.Strategy.FAIL_OVER)
-                .failoverRetries(5)
+                .clusterStrategy(ClusterInvoker.Strategy.FAIL_SAFE)
                 .newProxyInstance();
 
         try {
-            System.err.println("Sync result=" + syncService.helloString());
+            System.err.println("Sync result=" + syncService.helloInt());
         } catch (Exception e) {
             e.printStackTrace();
         }
 
         // 异步调用
-        System.err.println("异步调用failover测试...........");
+        System.err.println("异步调用fail-safe测试...........");
         ClusterService asyncService = ProxyFactory.factory(ClusterService.class)
                 .version("1.0.0")
                 .client(client)
                 .invokeType(InvokeType.ASYNC)
-                .clusterStrategy(ClusterInvoker.Strategy.FAIL_OVER)
-                .failoverRetries(5)
+                .clusterStrategy(ClusterInvoker.Strategy.FAIL_SAFE)
                 .newProxyInstance();
 
         try {
-            System.out.println(asyncService.helloInt());
-            InvokeFuture<Integer> future = InvokeFutureContext.future(int.class);
-            future.addListener(new JListener<Integer>() {
-
-                @Override
-                public void complete(Integer result) {
-                    System.err.println("Async result=" + result);
+            asyncService.helloInt();
+            // 两种方式都可以
+            InvokeFuture<Integer> future_int = InvokeFutureContext.future(int.class);
+//            InvokeFuture<Integer> future_int = InvokeFutureContext.future(Integer.TYPE);
+            future_int.whenComplete((result, throwable) -> {
+                if (throwable == null) {
+                    System.err.println("Async int result=" + result);
+                } else {
+                    throwable.printStackTrace();
                 }
+            });
 
-                @Override
-                public void failure(Throwable cause) {
-                    cause.printStackTrace();
+            asyncService.helloVoid();
+            // 两种方式都可以
+//            InvokeFuture<Void> future_void = InvokeFutureContext.future(void.class);
+            InvokeFuture<Void> future_void = InvokeFutureContext.future(Void.TYPE);
+            future_void.whenComplete((result, throwable) -> {
+                if (throwable == null) {
+                    System.err.println("Async void result=" + result);
+                } else {
+                    throwable.printStackTrace();
                 }
             });
         } catch (Exception e) {

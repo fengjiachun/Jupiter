@@ -1,5 +1,16 @@
 language: java
+sudo: false
 
 jdk:
-  - oraclejdk8
-  - openjdk7
+  - openjdk8
+  - openjdk11
+
+cache:
+  directories:
+    - $HOME/.m2
+
+install:
+  - mvn clean install -DskipTests=true -Dmaven.javadoc.skip=true -B -V
+
+after_success:
+  - travis_retry mvn clean test

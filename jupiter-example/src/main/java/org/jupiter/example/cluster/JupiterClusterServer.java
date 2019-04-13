@@ -48,32 +48,28 @@ public class JupiterClusterServer {
             final JServer server = servers[i];
 
             final int index = i;
-            new Thread(new Runnable() {
-
-                @Override
-                public void run() {
-                    try {
-                        JServer.ServiceRegistry registry = server.serviceRegistry(); // 获得本地registry
-                        ServiceWrapper provider;
-                        if (index > 3) {
-                            provider = registry.provider(new ClusterSuccessServiceImpl())
-                                    .register(); // 注册provider到本地
-                        } else {
-                            // 模拟调用超时
-                            provider = registry.provider(new ClusterFailServiceImpl())
-                                    .register(); // 注册provider到本地
-                        }
-
-                        server.connectToRegistryServer("127.0.0.1:20001");
-                        server.publish(provider);
-
-                        // server start后默认是block当前线程的
-                        server.start();
-                    } catch (InterruptedException e) {
-                        e.printStackTrace();
-                    } finally {
-                        latch.countDown();
+            new Thread(() -> {
+                try {
+                    JServer.ServiceRegistry registry = server.serviceRegistry(); // 获得本地registry
+                    ServiceWrapper provider;
+                    if (index > 3) {
+                        provider = registry.provider(new ClusterSuccessServiceImpl())
+                                .register(); // 注册provider到本地
+                    } else {
+                        // 模拟调用超时
+                        provider = registry.provider(new ClusterFailServiceImpl())
+                                .register(); // 注册provider到本地
                     }
+
+                    server.connectToRegistryServer("127.0.0.1:20001");
+                    server.publish(provider);
+
+                    // server start后默认是block当前线程的
+                    server.start();
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                } finally {
+                    latch.countDown();
                 }
             }).start();
         }

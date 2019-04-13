@@ -53,13 +53,7 @@ public class JupiterClient {
             throw new ConnectFailedException();
         }
 
-        Runtime.getRuntime().addShutdownHook(new Thread() {
-
-            @Override
-            public void run() {
-                client.shutdownGracefully();
-            }
-        });
+        Runtime.getRuntime().addShutdownHook(new Thread(client::shutdownGracefully));
 
         ServiceNonAnnotationTest service = ProxyFactory.factory(ServiceNonAnnotationTest.class)
                 .group("test")
@@ -76,19 +70,19 @@ public class JupiterClient {
             result = service.sayHello(null, 1, null);
             Preconditions.checkArgument("arg1=null, arg2=1, arg3=null".equals(result));
             System.out.println(result);
-            result = service.sayHello(null, null, new ArrayList<String>());
+            result = service.sayHello(null, null, new ArrayList<>());
             Preconditions.checkArgument("arg1=null, arg2=null, arg3=[]".equals(result));
             System.out.println(result);
             result = service.sayHello("test", 2, null);
             Preconditions.checkArgument("arg1=test, arg2=2, arg3=null".equals(result));
             System.out.println(result);
-            result = service.sayHello("test", null, new ArrayList<String>());
+            result = service.sayHello("test", null, new ArrayList<>());
             Preconditions.checkArgument("arg1=test, arg2=null, arg3=[]".equals(result));
             System.out.println(result);
-            result = service.sayHello(null, 3, new ArrayList<String>());
+            result = service.sayHello(null, 3, new ArrayList<>());
             Preconditions.checkArgument("arg1=null, arg2=3, arg3=[]".equals(result));
             System.out.println(result);
-            result = service.sayHello("test2", 4, new ArrayList<String>());
+            result = service.sayHello("test2", 4, new ArrayList<>());
             Preconditions.checkArgument("arg1=test2, arg2=4, arg3=[]".equals(result));
             System.out.println(result);
             result = service.sayHello2(new String[] { "a", null, "b" });

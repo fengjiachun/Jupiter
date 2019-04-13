@@ -18,7 +18,6 @@ package org.jupiter.common.concurrent;
 
 import java.io.File;
 import java.io.FileOutputStream;
-import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
@@ -56,9 +55,7 @@ public abstract class AbstractRejectedExecutionHandler implements RejectedExecut
         if (dumpNeeded.getAndSet(false)) {
             String now = new SimpleDateFormat("yyyy-MM-dd_HH-mm-ss").format(new Date());
             String name = threadPoolName + "_" + now;
-            FileOutputStream fileOutput = null;
-            try {
-                fileOutput = new FileOutputStream(new File(dumpPrefixName + "_dump_" + name + ".log"));
+            try (FileOutputStream fileOutput = new FileOutputStream(new File(dumpPrefixName + "_dump_" + name + ".log"))) {
 
                 List<String> stacks = JvmTools.jStack();
                 for (String s : stacks) {
@@ -75,12 +72,6 @@ public abstract class AbstractRejectedExecutionHandler implements RejectedExecut
                 }
             } catch (Throwable t) {
                 logger.error("Dump jvm info error: {}.", stackTrace(t));
-            } finally {
-                if (fileOutput != null) {
-                    try {
-                        fileOutput.close();
-                    } catch (IOException ignored) {}
-                }
             }
         }
     }

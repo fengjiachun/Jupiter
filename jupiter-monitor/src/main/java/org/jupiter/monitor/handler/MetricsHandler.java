@@ -40,11 +40,8 @@ public class MetricsHandler implements CommandHandler {
 
             Command.ChildCommand child = command.parseChild(args[1]);
             if (child != null) {
-                switch (child) {
-                    case REPORT:
-                        channel.writeAndFlush(MetricsReporter.report());
-
-                        break;
+                if (child == Command.ChildCommand.REPORT) {
+                    channel.writeAndFlush(MetricsReporter.report());
                 }
             } else {
                 channel.writeAndFlush("Wrong args denied!" + JConstants.NEWLINE);
