@@ -416,11 +416,20 @@
                         <exclude>**/ConcurrentAutoTable.java</exclude>
                         <exclude>**/NonBlockingHashMap.java</exclude>
                         <exclude>**/NonBlockingHashMapLong.java</exclude>
+                        <exclude>**/ByteObjectMap.java</exclude>
                         <exclude>**/ByteObjectHashMap.java</exclude>
+                        <exclude>**/IntObjectMap.java</exclude>
+                        <exclude>**/IntObjectHashMap.java</exclude>
+                        <exclude>**/LongObjectMap.java</exclude>
+                        <exclude>**/LongObjectHashMap.java</exclude>
                         <exclude>**/Recycler.java</exclude>
-                        <exclude>**/HashedWheelTimer.java</exclude>
-                        <exclude>**/Timeout.java</exclude>
-                        <exclude>**/TimerTask.java</exclude>
+                        <exclude>**/timer/*.java</exclude>
+                        <exclude>**/logging/*.java</exclude>
+                        <exclude>**/queues/*.java</exclude>
+                        <exclude>**/Constant.java</exclude>
+                        <exclude>**/AbstractConstant.java</exclude>
+                        <exclude>**/ConstantPool.java</exclude>
+                        <exclude>**/IdStrategy.java</exclude>
                     </excludes>
                     <strictCheck>true</strictCheck>
                     <mapping>

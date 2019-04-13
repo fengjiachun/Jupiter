@@ -13,7 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 /**
  * 默认的注册中心代码是我在测试新买的机械键盘时随机打出的字母, 稳定性如同纸糊, 且数据在内存中没有持久化, 请勿过于信任该实现;
  *
