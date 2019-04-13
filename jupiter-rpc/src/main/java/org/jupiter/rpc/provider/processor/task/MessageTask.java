@@ -171,7 +171,7 @@ public class MessageTask implements RejectedRunnable {
 
     @SuppressWarnings("unchecked")
     private void process(ServiceWrapper service) {
-        Context invokeCtx = new Context(service);
+        final Context invokeCtx = new Context(service);
         try {
             final Object invokeResult = Chains.invoke(request, invokeCtx)
                     .getResult();
