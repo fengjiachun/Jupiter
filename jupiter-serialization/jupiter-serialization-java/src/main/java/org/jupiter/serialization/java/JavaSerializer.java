@@ -47,20 +47,12 @@ public class JavaSerializer extends Serializer {
 
     @Override
     public <T> OutputBuf writeObject(OutputBuf outputBuf, T obj) {
-        ObjectOutputStream output = null;
-        try {
-            output = Outputs.getOutput(outputBuf);
+        try (ObjectOutputStream output = Outputs.getOutput(outputBuf)) {
             output.writeObject(obj);
             output.flush();
             return outputBuf;
         } catch (IOException e) {
             ThrowUtil.throwException(e);
-        } finally {
-            if (output != null) {
-                try {
-                    output.close();
-                } catch (IOException ignored) {}
-            }
         }
         return null; // never get here
     }
@@ -68,20 +60,13 @@ public class JavaSerializer extends Serializer {
     @Override
     public <T> byte[] writeObject(T obj) {
         ByteArrayOutputStream buf = OutputStreams.getByteArrayOutputStream();
-        ObjectOutputStream output = null;
-        try {
-            output = Outputs.getOutput(buf);
+        try (ObjectOutputStream output = Outputs.getOutput(buf)) {
             output.writeObject(obj);
             output.flush();
             return buf.toByteArray();
         } catch (IOException e) {
             ThrowUtil.throwException(e);
         } finally {
-            if (output != null) {
-                try {
-                    output.close();
-                } catch (IOException ignored) {}
-            }
             OutputStreams.resetBuf(buf);
         }
         return null; // never get here
@@ -89,19 +74,12 @@ public class JavaSerializer extends Serializer {
 
     @Override
     public <T> T readObject(InputBuf inputBuf, Class<T> clazz) {
-        ObjectInputStream input = null;
-        try {
-            input = Inputs.getInput(inputBuf);
+        try (ObjectInputStream input = Inputs.getInput(inputBuf)) {
             Object obj = input.readObject();
             return clazz.cast(obj);
         } catch (Exception e) {
             ThrowUtil.throwException(e);
         } finally {
-            if (input != null) {
-                try {
-                    input.close();
-                } catch (IOException ignored) {}
-            }
             inputBuf.release();
         }
         return null; // never get here
@@ -109,19 +87,11 @@ public class JavaSerializer extends Serializer {
 
     @Override
     public <T> T readObject(byte[] bytes, int offset, int length, Class<T> clazz) {
-        ObjectInputStream input = null;
-        try {
-            input = Inputs.getInput(bytes, offset, length);
+        try (ObjectInputStream input = Inputs.getInput(bytes, offset, length)) {
             Object obj = input.readObject();
             return clazz.cast(obj);
         } catch (Exception e) {
             ThrowUtil.throwException(e);
-        } finally {
-            if (input != null) {
-                try {
-                    input.close();
-                } catch (IOException ignored) {}
-            }
         }
         return null; // never get here
     }

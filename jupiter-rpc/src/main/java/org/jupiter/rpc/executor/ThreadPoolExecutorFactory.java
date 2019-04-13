@@ -89,6 +89,7 @@ public class ThreadPoolExecutorFactory extends AbstractExecutorFactory {
         return workQueue;
     }
 
+    @SuppressWarnings("SameParameterValue")
     private WorkQueueType queueType(Target target, WorkQueueType defaultType) {
         WorkQueueType queueType = null;
         switch (target) {

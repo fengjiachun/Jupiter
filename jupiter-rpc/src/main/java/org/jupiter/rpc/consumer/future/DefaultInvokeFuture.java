@@ -183,7 +183,7 @@ public class DefaultInvokeFuture<V> extends CompletableFuture<V> implements Invo
         } else {
             ResultWrapper wrapper = response.result();
             Object result = wrapper.getResult();
-            if (result != null && result instanceof JupiterRemoteException) {
+            if (result instanceof JupiterRemoteException) {
                 cause = (JupiterRemoteException) result;
             } else {
                 cause = new JupiterRemoteException(response.toString(), channel.remoteAddress());

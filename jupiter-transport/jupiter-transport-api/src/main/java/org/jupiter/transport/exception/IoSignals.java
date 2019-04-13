@@ -28,7 +28,6 @@ import org.jupiter.common.util.Signal;
  *
  * @author jiachun.fjc
  */
-@SuppressWarnings("all")
 public class IoSignals {
 
     /** 错误的MAGIC */

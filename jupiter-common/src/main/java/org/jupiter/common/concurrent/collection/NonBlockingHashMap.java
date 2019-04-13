@@ -1608,8 +1608,8 @@ public class NonBlockingHashMap<TypeK, TypeV>
      * requires the creation of {@link java.util.Map.Entry} objects with each
      * iteration.  The {@link NonBlockingHashMap} does not normally create or
      * using {@link java.util.Map.Entry} objects so they will be created soley
-     * to support this iteration.  Iterating using {@link #keySet} or {@link
-     * #values} will be more efficient.
+     * to support this iteration.  Iterating using keySet or values will be
+     * more efficient.
      */
     @Override
     public Set<Map.Entry<TypeK, TypeV>> entrySet() {

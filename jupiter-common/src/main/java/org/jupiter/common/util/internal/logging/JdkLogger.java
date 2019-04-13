@@ -542,6 +542,7 @@ class JdkLogger extends AbstractInternalLogger {
      * <p/>
      * See bug report #13 for more details.
      */
+    @SuppressWarnings("SameParameterValue")
     private void log(String callerFQCN, Level level, String msg, Throwable t) {
         // millis and thread are filled by the constructor
         LogRecord record = new LogRecord(level, msg);

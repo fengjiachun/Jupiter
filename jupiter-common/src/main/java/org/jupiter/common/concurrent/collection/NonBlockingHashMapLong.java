@@ -624,6 +624,7 @@ public class NonBlockingHashMapLong<TypeV>
 
         // --- key,val -------------------------------------------------------------
         // Access K,V for a given idx
+        @SuppressWarnings("SameParameterValue")
         private boolean CAS_key(int idx, long old, long key) {
             return unsafe.compareAndSwapLong(_keys, rawIndex(_keys, idx), old, key);
         }

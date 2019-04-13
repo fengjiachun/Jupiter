@@ -267,7 +267,7 @@ public class DefaultServer implements JServer {
             Collections.addAll(tempList, interceptors);
         }
         if (!tempList.isEmpty()) {
-            allInterceptors = tempList.toArray(new ProviderInterceptor[tempList.size()]);
+            allInterceptors = tempList.toArray(new ProviderInterceptor[0]);
         }
 
         ServiceWrapper wrapper =

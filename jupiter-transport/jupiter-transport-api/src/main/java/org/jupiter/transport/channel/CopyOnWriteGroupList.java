@@ -57,7 +57,6 @@ public class CopyOnWriteGroupList {
         return tabAt0(array);
     }
 
-    @SuppressWarnings("unchecked")
     public final Object getWeightArray(JChannelGroup[] snapshot, String directory) {
         Object[] array = this.array; // data snapshot
         return tabAt0(array) != snapshot
@@ -85,6 +84,7 @@ public class CopyOnWriteGroupList {
         return false;
     }
 
+    @SuppressWarnings("SameParameterValue")
     private void setArray(Object[] array) {
         this.array = array;
     }
@@ -94,7 +94,6 @@ public class CopyOnWriteGroupList {
         array = new Object[] { groups, weightArray };
     }
 
-    @SuppressWarnings("unchecked")
     private void setWeightArray(String directory, Object weightArray) {
         Map<String, Object> weightsMap = tabAt1(array);
         if (weightsMap == null) {

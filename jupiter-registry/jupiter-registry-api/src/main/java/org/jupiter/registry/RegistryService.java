@@ -39,7 +39,6 @@ public interface RegistryService extends Registry {
     /**
      * Unregister service to registry server.
      */
-    @SuppressWarnings("all")
     void unregister(RegisterMeta meta);
 
     /**

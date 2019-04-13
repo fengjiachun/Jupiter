@@ -106,8 +106,7 @@ public abstract class DefaultProviderProcessor implements ProviderProcessor, Loo
 
         ResultWrapper result = new ResultWrapper();
         // 截断cause, 避免客户端无法找到cause类型而无法序列化
-        cause = ThrowUtil.cutCause(cause);
-        result.setError(cause);
+        result.setError(ThrowUtil.cutCause(cause));
 
         Serializer serializer = SerializerFactory.getSerializer(s_code);
 

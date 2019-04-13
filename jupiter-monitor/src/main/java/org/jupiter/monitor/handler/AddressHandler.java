@@ -63,7 +63,7 @@ public class AddressHandler extends ChildCommandHandler<RegistryHandler> {
             childGrep = command.parseChild(args[3]);
         }
         for (String a : addresses) {
-            if (childGrep != null && childGrep == Command.ChildCommand.GREP) {
+            if (childGrep == Command.ChildCommand.GREP) {
                 if (a.contains(args[4])) {
                     channel.writeAndFlush(a + JConstants.NEWLINE);
                 }
