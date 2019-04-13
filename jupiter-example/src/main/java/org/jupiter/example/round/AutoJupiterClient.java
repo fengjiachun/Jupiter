@@ -58,15 +58,17 @@ public class AutoJupiterClient {
             CompletableFuture<User> f = userService.createUser();
             System.out.println("CompletableFuture.isDone: " + f.isDone());
             f.whenComplete((user, throwable) -> System.out.println("when complete: " + user));
-            User user = f.get();
-            System.out.println("CompletableFuture.get: " + user);
+            System.out.println("CompletableFuture.get: " + f.get());
+            System.out.println("CompletableFuture.isDone: " + f.isDone());
 
             AsyncUserService.MyCompletableFuture<User> mf = userService.createUser2();
 
             System.out.println("MyCompletableFuture.isDone: " + mf.isDone());
-            mf.whenComplete((user2, throwable) -> System.out.println("when complete: " + user));
-            User user2 = f.get();
-            System.out.println("MyCompletableFuture.get: " + user2);
+            mf.whenComplete((user2, throwable) -> System.out.println("when complete: " + user2));
+            System.out.println("MyCompletableFuture.get: " + mf.get());
+            System.out.println("MyCompletableFuture.isDone: " + mf.isDone());
+
+            System.out.println("sync invoke: " + userService.syncCreateUser());
         } catch (Throwable e) {
             e.printStackTrace();
         }

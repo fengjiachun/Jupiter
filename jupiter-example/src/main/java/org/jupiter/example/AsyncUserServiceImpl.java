@@ -30,6 +30,11 @@ import org.jupiter.rpc.ServiceProviderImpl;
 public class AsyncUserServiceImpl implements AsyncUserService {
 
     @Override
+    public User syncCreateUser() {
+        return User.createUser();
+    }
+
+    @Override
     public CompletableFuture<User> createUser() {
         CompletableFuture<User> f = new CompletableFuture<>();
         new Thread(() -> {

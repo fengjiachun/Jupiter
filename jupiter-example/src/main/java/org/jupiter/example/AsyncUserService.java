@@ -29,6 +29,8 @@ import org.jupiter.rpc.ServiceProvider;
 @ServiceProvider(group = "test")
 public interface AsyncUserService {
 
+    User syncCreateUser();
+
     CompletableFuture<User> createUser();
 
     MyCompletableFuture<User> createUser2();

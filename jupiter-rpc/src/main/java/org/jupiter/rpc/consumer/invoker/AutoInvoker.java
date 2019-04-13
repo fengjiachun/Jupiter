@@ -25,10 +25,8 @@ import net.bytebuddy.implementation.bind.annotation.AllArguments;
 import net.bytebuddy.implementation.bind.annotation.Origin;
 import net.bytebuddy.implementation.bind.annotation.RuntimeType;
 
-import org.jupiter.common.util.Reflects;
 import org.jupiter.rpc.consumer.dispatcher.Dispatcher;
 import org.jupiter.rpc.consumer.future.InvokeFuture;
-import org.jupiter.rpc.consumer.future.InvokeFutureContext;
 import org.jupiter.rpc.model.metadata.ClusterStrategyConfig;
 import org.jupiter.rpc.model.metadata.MethodSpecialConfig;
 import org.jupiter.rpc.model.metadata.ServiceMetadata;
@@ -55,10 +53,10 @@ public class AutoInvoker extends AbstractInvoker {
     public Object invoke(@Origin Method method, @AllArguments @RuntimeType Object[] args) throws Throwable {
         Class<?> returnType = method.getReturnType();
 
-        InvokeFuture<?> future = (InvokeFuture<?>) doInvoke(method.getName(), args, returnType, false);
-
         if (CompletableFuture.class.isAssignableFrom(returnType)) {
             final CompletableFuture<Object> cf = createCompletableFuture((Class<CompletableFuture>) returnType);
+
+            InvokeFuture<?> future = (InvokeFuture<?>) doInvoke(method.getName(), args, returnType, false);
 
             future.whenComplete((BiConsumer<Object, Throwable>) (result, throwable) -> {
                 if (throwable == null) {
@@ -75,9 +73,7 @@ public class AutoInvoker extends AbstractInvoker {
             return cf;
         }
 
-        InvokeFutureContext.set(future);
-
-        return Reflects.getTypeDefaultValue(returnType);
+        return doInvoke(method.getName(), args, returnType, true);
     }
 
     @SuppressWarnings("unchecked")
@@ -88,7 +84,7 @@ public class AutoInvoker extends AbstractInvoker {
         try {
             return cls.newInstance();
         } catch (Throwable t) {
-            throw new UnsupportedOperationException("can't create instance with default constructor", t);
+            throw new UnsupportedOperationException("fail to create instance with default constructor", t);
         }
     }
 }
