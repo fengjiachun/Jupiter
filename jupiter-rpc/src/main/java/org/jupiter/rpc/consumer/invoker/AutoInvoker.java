@@ -19,7 +19,6 @@ package org.jupiter.rpc.consumer.invoker;
 import java.lang.reflect.Method;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
-import java.util.function.BiConsumer;
 
 import net.bytebuddy.implementation.bind.annotation.AllArguments;
 import net.bytebuddy.implementation.bind.annotation.Origin;
@@ -56,12 +55,15 @@ public class AutoInvoker extends AbstractInvoker {
         if (CompletableFuture.class.isAssignableFrom(returnType)) {
             final CompletableFuture<Object> cf = createCompletableFuture((Class<CompletableFuture>) returnType);
 
-            InvokeFuture<?> future = (InvokeFuture<?>) doInvoke(method.getName(), args, returnType, false);
+            // Using nested future is for compatibility with InvokeType.SYNC,
+            // I don't think this leads to significant serialization performance loss.
+            InvokeFuture<CompletableFuture<Object>> ivf =
+                    (InvokeFuture<CompletableFuture<Object>>) doInvoke(method.getName(), args, returnType, false);
 
-            future.whenComplete((BiConsumer<Object, Throwable>) (result, throwable) -> {
+            ivf.whenComplete((result, throwable) -> {
                 if (throwable == null) {
                     try {
-                        cf.complete(((CompletableFuture<Object>) result).get());
+                        cf.complete(result.get());
                     } catch (Throwable t) {
                         cf.completeExceptionally(t);
                     }
