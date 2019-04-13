@@ -188,6 +188,9 @@ public class HelloJupiterClient {
 
 [Server/Client代码示例](https://github.com/fengjiachun/Jupiter/tree/master/jupiter-example/src/main/java/org/jupiter/example/round)
 
+v1.3 新增 InvokeType.AUTO, 当你的接口返回值是一个 CompletableFuture 或者它的子类将自动适配为异步调用, 否则为同步调用
+[具体 demo 请参考这里](/jupiter-example/src/main/org/jupiter/example/round/AutoJupiterClient.java)
+
 ##### 结合Spring使用示例:
 ###### 1. [Server端配置](/jupiter-example/src/main/resources/spring-provider.xml):
 
