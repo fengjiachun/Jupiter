@@ -27,7 +27,7 @@ import org.jupiter.rpc.JRequest;
 import org.jupiter.rpc.flow.control.FlowController;
 import org.jupiter.rpc.provider.ProviderInterceptor;
 
-import static org.jupiter.common.util.Preconditions.checkNotNull;
+import static org.jupiter.common.util.Requires.requireNotNull;
 
 /**
  * Wrapper provider object and service metadata.
@@ -71,8 +71,8 @@ public class ServiceWrapper implements Serializable {
         metadata = new ServiceMetadata(group, providerName, version);
 
         this.interceptors = interceptors;
-        this.extensions = checkNotNull(extensions, "extensions");
-        this.serviceProvider = checkNotNull(serviceProvider, "serviceProvider");
+        this.extensions = requireNotNull(extensions, "extensions");
+        this.serviceProvider = requireNotNull(serviceProvider, "serviceProvider");
     }
 
     public ServiceMetadata getMetadata() {

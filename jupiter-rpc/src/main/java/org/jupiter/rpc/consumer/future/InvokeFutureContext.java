@@ -17,7 +17,7 @@ package org.jupiter.rpc.consumer.future;
 
 import java.util.concurrent.CompletableFuture;
 
-import static org.jupiter.common.util.Preconditions.checkNotNull;
+import org.jupiter.common.util.Requires;
 
 /**
  * 异步调用上下文, 用于获取当前上下文中的 {@link InvokeFuture}, 基于 {@link ThreadLocal}.
@@ -36,7 +36,7 @@ public class InvokeFutureContext {
      * 获取单播/广播调用的 {@link InvokeFuture}, 不协助类型转换.
      */
     public static InvokeFuture<?> future() {
-        InvokeFuture<?> future = checkNotNull(futureThreadLocal.get(), "future");
+        InvokeFuture<?> future = Requires.requireNotNull(futureThreadLocal.get(), "future");
         futureThreadLocal.remove();
         return future;
     }

@@ -21,9 +21,8 @@ import io.netty.channel.Channel;
 
 import org.jupiter.common.util.JConstants;
 import org.jupiter.common.util.JvmTools;
+import org.jupiter.common.util.StackTraceUtil;
 import org.jupiter.monitor.Command;
-
-import static org.jupiter.common.util.StackTraceUtil.stackTrace;
 
 /**
  * Jupiter
@@ -42,7 +41,7 @@ public class JStackHandler implements CommandHandler {
             }
             channel.writeAndFlush(JConstants.NEWLINE);
         } catch (Exception e) {
-            channel.writeAndFlush(stackTrace(e));
+            channel.writeAndFlush(StackTraceUtil.stackTrace(e));
         }
     }
 }

@@ -20,6 +20,7 @@ import java.util.List;
 
 import org.jupiter.common.util.Lists;
 import org.jupiter.common.util.Pair;
+import org.jupiter.common.util.Requires;
 import org.jupiter.common.util.Strings;
 import org.jupiter.common.util.SystemPropertyUtil;
 import org.jupiter.common.util.ThrowUtil;
@@ -36,8 +37,6 @@ import org.jupiter.transport.JOption;
 import org.jupiter.transport.UnresolvedAddress;
 import org.jupiter.transport.UnresolvedSocketAddress;
 import org.springframework.beans.factory.InitializingBean;
-
-import static org.jupiter.common.util.Preconditions.checkNotNull;
 
 /**
  * jupiter client wrapper, 负责初始化并启动客户端.
@@ -199,6 +198,6 @@ public class JupiterSpringClient implements InitializingBean {
         } catch (Exception e) {
             ThrowUtil.throwException(e);
         }
-        return checkNotNull(defaultConnector, "default connector");
+        return Requires.requireNotNull(defaultConnector, "default connector");
     }
 }

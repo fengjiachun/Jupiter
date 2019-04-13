@@ -30,6 +30,7 @@ import org.jupiter.common.concurrent.NamedThreadFactory;
 import org.jupiter.common.util.ClassUtil;
 import org.jupiter.common.util.JConstants;
 import org.jupiter.common.util.Maps;
+import org.jupiter.common.util.Requires;
 import org.jupiter.common.util.internal.logging.InternalLogger;
 import org.jupiter.common.util.internal.logging.InternalLoggerFactory;
 import org.jupiter.transport.Directory;
@@ -45,8 +46,6 @@ import org.jupiter.transport.channel.JChannelGroup;
 import org.jupiter.transport.netty.channel.NettyChannelGroup;
 import org.jupiter.transport.netty.estimator.JMessageSizeEstimator;
 import org.jupiter.transport.processor.ConsumerProcessor;
-
-import static org.jupiter.common.util.Preconditions.checkNotNull;
 
 /**
  * jupiter
@@ -122,7 +121,7 @@ public abstract class NettyConnector implements JConnector<JConnection> {
 
     @Override
     public JChannelGroup group(UnresolvedAddress address) {
-        checkNotNull(address, "address");
+        Requires.requireNotNull(address, "address");
 
         JChannelGroup group = addressGroups.get(address);
         if (group == null) {

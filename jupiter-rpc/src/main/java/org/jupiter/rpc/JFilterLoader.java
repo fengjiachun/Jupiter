@@ -18,10 +18,9 @@ package org.jupiter.rpc;
 import java.util.List;
 
 import org.jupiter.common.util.JServiceLoader;
+import org.jupiter.common.util.StackTraceUtil;
 import org.jupiter.common.util.internal.logging.InternalLogger;
 import org.jupiter.common.util.internal.logging.InternalLoggerFactory;
-
-import static org.jupiter.common.util.StackTraceUtil.stackTrace;
 
 /**
  * jupiter
@@ -46,7 +45,7 @@ public class JFilterLoader {
                 }
             }
         } catch (Throwable t) {
-            logger.error("Failed to load extension filters: {}.", stackTrace(t));
+            logger.error("Failed to load extension filters: {}.", StackTraceUtil.stackTrace(t));
         }
 
         return chain;

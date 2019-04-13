@@ -23,8 +23,6 @@ import net.bytebuddy.dynamic.loading.ClassLoadingStrategy;
 import net.bytebuddy.implementation.MethodDelegation;
 import net.bytebuddy.matcher.ElementMatchers;
 
-import static org.jupiter.common.util.Preconditions.checkArgument;
-
 /**
  * jupiter
  * org.jupiter.common.util
@@ -36,7 +34,7 @@ public enum Proxies {
 
         @Override
         public <T> T newProxy(Class<T> interfaceType, Object handler) {
-            checkArgument(handler instanceof InvocationHandler, "handler must be a InvocationHandler");
+            Requires.requireTrue(handler instanceof InvocationHandler, "handler must be a InvocationHandler");
 
             Object object = Proxy.newProxyInstance(
                     interfaceType.getClassLoader(), new Class<?>[] { interfaceType }, (InvocationHandler) handler);

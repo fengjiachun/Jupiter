@@ -18,8 +18,6 @@ package org.jupiter.common.util;
 import org.jupiter.common.util.internal.logging.InternalLogger;
 import org.jupiter.common.util.internal.logging.InternalLoggerFactory;
 
-import static org.jupiter.common.util.StackTraceUtil.stackTrace;
-
 /**
  * jupiter
  * org.jupiter.common.util
@@ -42,7 +40,7 @@ public final class ClassUtil {
             Class.forName(className);
         } catch (Throwable t) {
             if (logger.isWarnEnabled()) {
-                logger.warn("Failed to load class [{}] {}.", className, stackTrace(t));
+                logger.warn("Failed to load class [{}] {}.", className, StackTraceUtil.stackTrace(t));
             }
         }
 

@@ -20,6 +20,7 @@ import java.util.Map;
 
 import org.jupiter.common.util.JConstants;
 import org.jupiter.common.util.Maps;
+import org.jupiter.common.util.StackTraceUtil;
 import org.jupiter.common.util.SystemClock;
 import org.jupiter.common.util.internal.logging.InternalLogger;
 import org.jupiter.common.util.internal.logging.InternalLoggerFactory;
@@ -44,8 +45,6 @@ import org.jupiter.transport.channel.JChannel;
 import org.jupiter.transport.channel.JChannelGroup;
 import org.jupiter.transport.channel.JFutureListener;
 import org.jupiter.transport.payload.JRequestPayload;
-
-import static org.jupiter.common.util.StackTraceUtil.stackTrace;
 
 /**
  * jupiter
@@ -202,7 +201,7 @@ abstract class AbstractDispatcher implements Dispatcher {
                 }
 
                 if (logger.isWarnEnabled()) {
-                    logger.warn("Writes {} fail on {}, {}.", request, channel, stackTrace(cause));
+                    logger.warn("Writes {} fail on {}, {}.", request, channel, StackTraceUtil.stackTrace(cause));
                 }
 
                 ResultWrapper result = new ResultWrapper();

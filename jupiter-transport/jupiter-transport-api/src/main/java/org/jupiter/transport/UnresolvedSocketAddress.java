@@ -15,8 +15,7 @@
  */
 package org.jupiter.transport;
 
-import static org.jupiter.common.util.Preconditions.checkArgument;
-import static org.jupiter.common.util.Preconditions.checkNotNull;
+import org.jupiter.common.util.Requires;
 
 /**
  * Unresolved address.
@@ -32,8 +31,8 @@ public class UnresolvedSocketAddress implements UnresolvedAddress {
     private final int port;
 
     public UnresolvedSocketAddress(String host, int port) {
-        checkNotNull(host, "host can't be null");
-        checkArgument(port > 0 && port < 0xFFFF, "port out of range:" + port);
+        Requires.requireNotNull(host, "host can't be null");
+        Requires.requireTrue(port > 0 && port < 0xFFFF, "port out of range:" + port);
 
         this.host = host;
         this.port = port;

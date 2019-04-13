@@ -19,6 +19,7 @@ import java.util.Collection;
 import java.util.concurrent.ConcurrentMap;
 
 import org.jupiter.common.util.Maps;
+import org.jupiter.common.util.Requires;
 import org.jupiter.common.util.SpiMetadata;
 import org.jupiter.common.util.Strings;
 import org.jupiter.common.util.internal.logging.InternalLogger;
@@ -26,9 +27,6 @@ import org.jupiter.common.util.internal.logging.InternalLoggerFactory;
 import org.jupiter.transport.JConnection;
 import org.jupiter.transport.UnresolvedAddress;
 import org.jupiter.transport.UnresolvedSocketAddress;
-
-import static org.jupiter.common.util.Preconditions.checkArgument;
-import static org.jupiter.common.util.Preconditions.checkNotNull;
 
 /**
  * Default registry service.
@@ -48,7 +46,7 @@ public class DefaultRegistryService extends AbstractRegistryService {
     @Override
     protected void doSubscribe(RegisterMeta.ServiceMeta serviceMeta) {
         Collection<DefaultRegistry> allClients = clients.values();
-        checkArgument(!allClients.isEmpty(), "init needed");
+        Requires.requireTrue(!allClients.isEmpty(), "init needed");
 
         logger.info("Subscribe: {}.", serviceMeta);
 
@@ -60,7 +58,7 @@ public class DefaultRegistryService extends AbstractRegistryService {
     @Override
     protected void doRegister(RegisterMeta meta) {
         Collection<DefaultRegistry> allClients = clients.values();
-        checkArgument(!allClients.isEmpty(), "init needed");
+        Requires.requireTrue(!allClients.isEmpty(), "init needed");
 
         logger.info("Register: {}.", meta);
 
@@ -73,7 +71,7 @@ public class DefaultRegistryService extends AbstractRegistryService {
     @Override
     protected void doUnregister(RegisterMeta meta) {
         Collection<DefaultRegistry> allClients = clients.values();
-        checkArgument(!allClients.isEmpty(), "init needed");
+        Requires.requireTrue(!allClients.isEmpty(), "init needed");
 
         logger.info("Unregister: {}.", meta);
 
@@ -89,7 +87,7 @@ public class DefaultRegistryService extends AbstractRegistryService {
 
     @Override
     public void connectToRegistryServer(String connectString) {
-        checkNotNull(connectString, "connectString");
+        Requires.requireNotNull(connectString, "connectString");
 
         String[] array = Strings.split(connectString, ',');
         for (String s : array) {

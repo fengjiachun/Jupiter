@@ -27,7 +27,7 @@ import org.jupiter.common.util.internal.InternalThread;
 import org.jupiter.common.util.internal.logging.InternalLogger;
 import org.jupiter.common.util.internal.logging.InternalLoggerFactory;
 
-import static org.jupiter.common.util.Preconditions.checkNotNull;
+import static org.jupiter.common.util.Requires.requireNotNull;
 
 /**
  * This is a ThreadFactory which assigns threads based the strategies provided.
@@ -80,7 +80,7 @@ public class AffinityNamedThreadFactory implements ThreadFactory {
 
     @Override
     public Thread newThread(Runnable r) {
-        checkNotNull(r, "runnable");
+        requireNotNull(r, "runnable");
 
         String name2 = name + id.getAndIncrement();
 

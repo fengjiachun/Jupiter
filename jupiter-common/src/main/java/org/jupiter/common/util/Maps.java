@@ -26,8 +26,6 @@ import java.util.concurrent.ConcurrentMap;
 import org.jupiter.common.concurrent.collection.NonBlockingHashMap;
 import org.jupiter.common.concurrent.collection.NonBlockingHashMapLong;
 
-import static org.jupiter.common.util.Preconditions.checkArgument;
-
 /**
  * Static utility methods pertaining to {@link Map} instances.
  *
@@ -127,7 +125,7 @@ public final class Maps {
      */
     private static int capacity(int expectedSize) {
         if (expectedSize < 3) {
-            checkArgument(expectedSize >= 0, "expectedSize cannot be negative but was: " + expectedSize);
+            Requires.requireTrue(expectedSize >= 0, "expectedSize cannot be negative but was: " + expectedSize);
             return expectedSize + 1;
         }
         if (expectedSize < Ints.MAX_POWER_OF_TWO) {

@@ -18,9 +18,6 @@ package org.jupiter.common.util;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import static org.jupiter.common.util.Preconditions.checkArgument;
-import static org.jupiter.common.util.Preconditions.checkNotNull;
-
 /**
  * A pool of {@link Constant}s.
  *
@@ -36,8 +33,8 @@ public abstract class ConstantPool<T extends Constant<T>> {
      * Shortcut of {@link #valueOf(String) valueOf(firstNameComponent.getName() + "#" + secondNameComponent)}.
      */
     public T valueOf(Class<?> firstNameComponent, String secondNameComponent) {
-        checkNotNull(firstNameComponent, "firstNameComponent");
-        checkNotNull(secondNameComponent, "secondNameComponent");
+        Requires.requireNotNull(firstNameComponent, "firstNameComponent");
+        Requires.requireNotNull(secondNameComponent, "secondNameComponent");
 
         return valueOf(firstNameComponent.getName() + '#' + secondNameComponent);
     }
@@ -51,7 +48,7 @@ public abstract class ConstantPool<T extends Constant<T>> {
      * @param name the name of the {@link Constant}
      */
     public T valueOf(String name) {
-        checkArgument(!Strings.isNullOrEmpty(name), "empty name");
+        Requires.requireTrue(!Strings.isNullOrEmpty(name), "empty name");
         return getOrCreate(name);
     }
 
@@ -76,7 +73,7 @@ public abstract class ConstantPool<T extends Constant<T>> {
      * Returns {@code true} if exists for the given {@code name}.
      */
     public boolean exists(String name) {
-        checkArgument(!Strings.isNullOrEmpty(name), "empty name");
+        Requires.requireTrue(!Strings.isNullOrEmpty(name), "empty name");
         return constants.containsKey(name);
     }
 
@@ -85,7 +82,7 @@ public abstract class ConstantPool<T extends Constant<T>> {
      * {@link IllegalArgumentException} if a {@link Constant} for the given {@code name} exists.
      */
     public T newInstance(String name) {
-        checkArgument(!Strings.isNullOrEmpty(name), "empty name");
+        Requires.requireTrue(!Strings.isNullOrEmpty(name), "empty name");
         return createOrThrow(name);
     }
 

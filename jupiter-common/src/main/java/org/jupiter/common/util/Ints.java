@@ -15,8 +15,6 @@
  */
 package org.jupiter.common.util;
 
-import static org.jupiter.common.util.Preconditions.checkArgument;
-
 /**
  * Static utility methods pertaining to {@code int} primitives.
  *
@@ -38,7 +36,7 @@ public final class Ints {
      */
     public static int checkedCast(long value) {
         int result = (int) value;
-        checkArgument(result == value, "out of range: " + value);
+        Requires.requireTrue(result == value, "out of range: " + value);
         return result;
     }
 

@@ -19,11 +19,10 @@ import java.util.Collections;
 import java.util.List;
 
 import org.jupiter.common.util.Lists;
+import org.jupiter.common.util.Requires;
 import org.jupiter.transport.JConfig;
 import org.jupiter.transport.JConfigGroup;
 import org.jupiter.transport.JOption;
-
-import static org.jupiter.common.util.Preconditions.checkNotNull;
 
 /**
  * Config for netty.
@@ -55,7 +54,7 @@ public class NettyConfig implements JConfig {
     @SuppressWarnings("unchecked")
     @Override
     public <T> T getOption(JOption<T> option) {
-        checkNotNull(option);
+        Requires.requireNotNull(option);
 
         if (option == JOption.IO_RATIO) {
             return (T) Integer.valueOf(getIoRatio());
@@ -106,8 +105,8 @@ public class NettyConfig implements JConfig {
     }
 
     protected <T> void validate(JOption<T> option, T value) {
-        checkNotNull(option, "option");
-        checkNotNull(value, "value");
+        Requires.requireNotNull(option, "option");
+        Requires.requireNotNull(value, "value");
     }
 
     private static Integer castToInteger(Object value) {
@@ -206,7 +205,7 @@ public class NettyConfig implements JConfig {
             @SuppressWarnings("unchecked")
             @Override
             public <T> T getOption(JOption<T> option) {
-                checkNotNull(option);
+                Requires.requireNotNull(option);
 
                 if (option == JOption.SO_BACKLOG) {
                     return (T) Integer.valueOf(getBacklog());
@@ -407,7 +406,7 @@ public class NettyConfig implements JConfig {
             @SuppressWarnings("unchecked")
             @Override
             public <T> T getOption(JOption<T> option) {
-                checkNotNull(option);
+                Requires.requireNotNull(option);
 
                 if (option == JOption.SO_RCVBUF) {
                     return (T) Integer.valueOf(getRcvBuf());
@@ -750,7 +749,7 @@ public class NettyConfig implements JConfig {
             @SuppressWarnings("unchecked")
             @Override
             public <T> T getOption(JOption<T> option) {
-                checkNotNull(option);
+                Requires.requireNotNull(option);
 
                 if (option == JOption.CONNECT_TIMEOUT_MILLIS) {
                     return (T) Integer.valueOf(getConnectTimeoutMillis());

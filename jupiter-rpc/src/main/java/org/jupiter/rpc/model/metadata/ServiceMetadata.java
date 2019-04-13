@@ -19,7 +19,7 @@ import java.io.Serializable;
 
 import org.jupiter.transport.Directory;
 
-import static org.jupiter.common.util.Preconditions.checkNotNull;
+import static org.jupiter.common.util.Requires.requireNotNull;
 
 /**
  * Service provider's metadata.
@@ -42,9 +42,9 @@ public class ServiceMetadata extends Directory implements Serializable {
     public ServiceMetadata() {}
 
     public ServiceMetadata(String group, String serviceProviderName, String version) {
-        this.group = checkNotNull(group, "group");
-        this.serviceProviderName = checkNotNull(serviceProviderName, "serviceProviderName");
-        this.version = checkNotNull(version, "version");
+        this.group = requireNotNull(group, "group");
+        this.serviceProviderName = requireNotNull(serviceProviderName, "serviceProviderName");
+        this.version = requireNotNull(version, "version");
     }
 
     @Override

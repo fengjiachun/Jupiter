@@ -20,6 +20,7 @@ import java.util.List;
 
 import org.jupiter.common.util.JConstants;
 import org.jupiter.common.util.Lists;
+import org.jupiter.common.util.Requires;
 import org.jupiter.common.util.Strings;
 import org.jupiter.rpc.DispatchType;
 import org.jupiter.rpc.InvokeType;
@@ -41,9 +42,6 @@ import org.jupiter.transport.Directory;
 import org.jupiter.transport.JConnection;
 import org.jupiter.transport.JConnector;
 import org.jupiter.transport.UnresolvedAddress;
-
-import static org.jupiter.common.util.Preconditions.checkArgument;
-import static org.jupiter.common.util.Preconditions.checkNotNull;
 
 /**
  * 泛化ProxyFactory
@@ -154,12 +152,12 @@ public class GenericProxyFactory {
     }
 
     public GenericProxyFactory invokeType(InvokeType invokeType) {
-        this.invokeType = checkNotNull(invokeType);
+        this.invokeType = Requires.requireNotNull(invokeType);
         return this;
     }
 
     public GenericProxyFactory dispatchType(DispatchType dispatchType) {
-        this.dispatchType = checkNotNull(dispatchType);
+        this.dispatchType = Requires.requireNotNull(dispatchType);
         return this;
     }
 
@@ -190,10 +188,10 @@ public class GenericProxyFactory {
 
     public GenericInvoker newProxyInstance() {
         // check arguments
-        checkArgument(Strings.isNotBlank(group), "group");
-        checkArgument(Strings.isNotBlank(providerName), "providerName");
-        checkNotNull(client, "client");
-        checkNotNull(serializerType, "serializerType");
+        Requires.requireTrue(Strings.isNotBlank(group), "group");
+        Requires.requireTrue(Strings.isNotBlank(providerName), "providerName");
+        Requires.requireNotNull(client, "client");
+        Requires.requireNotNull(serializerType, "serializerType");
 
         if (dispatchType == DispatchType.BROADCAST && invokeType == InvokeType.SYNC) {
             throw reject("broadcast & sync unsupported");

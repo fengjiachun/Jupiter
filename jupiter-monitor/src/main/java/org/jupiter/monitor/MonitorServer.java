@@ -31,6 +31,7 @@ import io.netty.handler.codec.string.StringEncoder;
 import io.netty.util.ReferenceCountUtil;
 
 import org.jupiter.common.util.JConstants;
+import org.jupiter.common.util.StackTraceUtil;
 import org.jupiter.common.util.Strings;
 import org.jupiter.common.util.internal.logging.InternalLogger;
 import org.jupiter.common.util.internal.logging.InternalLoggerFactory;
@@ -42,8 +43,6 @@ import org.jupiter.registry.RegistryService;
 import org.jupiter.rpc.JClient;
 import org.jupiter.rpc.JServer;
 import org.jupiter.transport.netty.NettyTcpAcceptor;
-
-import static org.jupiter.common.util.StackTraceUtil.stackTrace;
 
 /**
  * 监控服务, RegistryServer与ProviderServer都应该启用
@@ -195,7 +194,7 @@ public class MonitorServer extends NettyTcpAcceptor {
 
         @Override
         public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
-            logger.error("An exception was caught: {}, channel {}.", stackTrace(cause), ctx.channel());
+            logger.error("An exception was caught: {}, channel {}.", StackTraceUtil.stackTrace(cause), ctx.channel());
 
             ctx.close();
         }

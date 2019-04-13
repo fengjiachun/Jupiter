@@ -24,6 +24,7 @@ import java.util.concurrent.locks.ReentrantLock;
 
 import org.jupiter.common.util.JConstants;
 import org.jupiter.common.util.JServiceLoader;
+import org.jupiter.common.util.Requires;
 import org.jupiter.common.util.Strings;
 import org.jupiter.common.util.ThrowUtil;
 import org.jupiter.registry.AbstractRegistryService;
@@ -40,8 +41,6 @@ import org.jupiter.transport.JConnector;
 import org.jupiter.transport.UnresolvedAddress;
 import org.jupiter.transport.UnresolvedSocketAddress;
 import org.jupiter.transport.channel.JChannelGroup;
-
-import static org.jupiter.common.util.Preconditions.checkNotNull;
 
 /**
  * Jupiter默认客户端实现.
@@ -114,9 +113,9 @@ public class DefaultClient implements JClient {
 
     @Override
     public JConnector.ConnectionWatcher watchConnections(Class<?> interfaceClass, String version) {
-        checkNotNull(interfaceClass, "interfaceClass");
+        Requires.requireNotNull(interfaceClass, "interfaceClass");
         ServiceProvider annotation = interfaceClass.getAnnotation(ServiceProvider.class);
-        checkNotNull(annotation, interfaceClass + " is not a ServiceProvider interface");
+        Requires.requireNotNull(annotation, interfaceClass + " is not a ServiceProvider interface");
         String providerName = annotation.name();
         providerName = Strings.isNotBlank(providerName) ? providerName : interfaceClass.getName();
         version = Strings.isNotBlank(version) ? version : JConstants.DEFAULT_VERSION;
@@ -297,9 +296,9 @@ public class DefaultClient implements JClient {
 
     private static RegisterMeta.ServiceMeta toServiceMeta(Directory directory) {
         RegisterMeta.ServiceMeta serviceMeta = new RegisterMeta.ServiceMeta();
-        serviceMeta.setGroup(checkNotNull(directory.getGroup(), "group"));
-        serviceMeta.setServiceProviderName(checkNotNull(directory.getServiceProviderName(), "serviceProviderName"));
-        serviceMeta.setVersion(checkNotNull(directory.getVersion(), "version"));
+        serviceMeta.setGroup(Requires.requireNotNull(directory.getGroup(), "group"));
+        serviceMeta.setServiceProviderName(Requires.requireNotNull(directory.getServiceProviderName(), "serviceProviderName"));
+        serviceMeta.setVersion(Requires.requireNotNull(directory.getVersion(), "version"));
         return serviceMeta;
     }
 
