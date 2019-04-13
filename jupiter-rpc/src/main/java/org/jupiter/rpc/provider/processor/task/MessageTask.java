@@ -13,7 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.jupiter.rpc.provider.processor.task;
 
 import java.util.List;
@@ -24,7 +23,9 @@ import java.util.concurrent.TimeUnit;
 import org.jupiter.common.concurrent.RejectedRunnable;
 import org.jupiter.common.util.Pair;
 import org.jupiter.common.util.Reflects;
+import org.jupiter.common.util.Requires;
 import org.jupiter.common.util.Signal;
+import org.jupiter.common.util.StackTraceUtil;
 import org.jupiter.common.util.SystemClock;
 import org.jupiter.common.util.SystemPropertyUtil;
 import org.jupiter.common.util.internal.logging.InternalLogger;
@@ -61,9 +62,6 @@ import org.jupiter.transport.payload.JResponsePayload;
 
 import com.codahale.metrics.Meter;
 import com.codahale.metrics.Timer;
-
-import static org.jupiter.common.util.Preconditions.checkNotNull;
-import static org.jupiter.common.util.StackTraceUtil.stackTrace;
 
 /**
  *
@@ -310,7 +308,8 @@ public class MessageTask implements RejectedRunnable {
             try {
                 interceptors[i].beforeInvoke(provider, methodName, args);
             } catch (Throwable t) {
-                logger.error("Interceptor[{}#beforeInvoke]: {}.", Reflects.simpleClassName(interceptors[i]), stackTrace(t));
+                logger.error("Interceptor[{}#beforeInvoke]: {}.", Reflects.simpleClassName(interceptors[i]),
+                        StackTraceUtil.stackTrace(t));
             }
         }
     }
@@ -326,7 +325,8 @@ public class MessageTask implements RejectedRunnable {
             try {
                 interceptors[i].afterInvoke(provider, methodName, args, invokeResult, failCause);
             } catch (Throwable t) {
-                logger.error("Interceptor[{}#afterInvoke]: {}.", Reflects.simpleClassName(interceptors[i]), stackTrace(t));
+                logger.error("Interceptor[{}#afterInvoke]: {}.", Reflects.simpleClassName(interceptors[i]),
+                        StackTraceUtil.stackTrace(t));
             }
         }
     }
@@ -340,7 +340,7 @@ public class MessageTask implements RejectedRunnable {
         private Class<?>[] expectCauseTypes;    // 预期内的异常类型
 
         public Context(ServiceWrapper service) {
-            this.service = checkNotNull(service, "service");
+            this.service = Requires.requireNotNull(service, "service");
         }
 
         public ServiceWrapper getService() {

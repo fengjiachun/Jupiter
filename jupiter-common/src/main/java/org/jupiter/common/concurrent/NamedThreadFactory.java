@@ -13,17 +13,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.jupiter.common.concurrent;
 
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import org.jupiter.common.util.Requires;
 import org.jupiter.common.util.internal.InternalThread;
 import org.jupiter.common.util.internal.logging.InternalLogger;
 import org.jupiter.common.util.internal.logging.InternalLoggerFactory;
-
-import static org.jupiter.common.util.Preconditions.checkNotNull;
 
 /**
  * Named thread factory.
@@ -65,7 +63,7 @@ public class NamedThreadFactory implements ThreadFactory {
 
     @Override
     public Thread newThread(Runnable r) {
-        checkNotNull(r, "runnable");
+        Requires.requireNotNull(r, "runnable");
 
         String name2 = name + id.getAndIncrement();
 

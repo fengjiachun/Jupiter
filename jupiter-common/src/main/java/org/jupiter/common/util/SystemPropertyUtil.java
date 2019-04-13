@@ -13,7 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.jupiter.common.util;
 
 import java.security.AccessController;
@@ -22,8 +21,6 @@ import java.util.regex.Pattern;
 
 import org.jupiter.common.util.internal.logging.InternalLogger;
 import org.jupiter.common.util.internal.logging.InternalLoggerFactory;
-
-import static org.jupiter.common.util.StackTraceUtil.stackTrace;
 
 /**
  * A collection of utility methods to retrieve and parse the values of the Java system properties.
@@ -81,7 +78,8 @@ public final class SystemPropertyUtil {
             }
         } catch (Exception e) {
             if (logger.isWarnEnabled()) {
-                logger.warn("Unable to retrieve a system property '{}'; default values will be used, {}.", key, stackTrace(e));
+                logger.warn("Unable to retrieve a system property '{}'; default values will be used, {}.",
+                        key, StackTraceUtil.stackTrace(e));
             }
         }
 

@@ -13,12 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.jupiter.example.non.annotation;
 
 import java.util.ArrayList;
 
-import org.jupiter.common.util.Preconditions;
+import org.jupiter.common.util.Requires;
 import org.jupiter.common.util.SystemPropertyUtil;
 import org.jupiter.example.ServiceNonAnnotationTest;
 import org.jupiter.rpc.DefaultClient;
@@ -65,34 +64,34 @@ public class JupiterClient {
 
         try {
             String result = service.sayHello(null, null, null);
-            Preconditions.checkArgument("arg1=null, arg2=null, arg3=null".equals(result));
+            Requires.requireTrue("arg1=null, arg2=null, arg3=null".equals(result));
             System.out.println(result);
             result = service.sayHello(null, 1, null);
-            Preconditions.checkArgument("arg1=null, arg2=1, arg3=null".equals(result));
+            Requires.requireTrue("arg1=null, arg2=1, arg3=null".equals(result));
             System.out.println(result);
             result = service.sayHello(null, null, new ArrayList<>());
-            Preconditions.checkArgument("arg1=null, arg2=null, arg3=[]".equals(result));
+            Requires.requireTrue("arg1=null, arg2=null, arg3=[]".equals(result));
             System.out.println(result);
             result = service.sayHello("test", 2, null);
-            Preconditions.checkArgument("arg1=test, arg2=2, arg3=null".equals(result));
+            Requires.requireTrue("arg1=test, arg2=2, arg3=null".equals(result));
             System.out.println(result);
             result = service.sayHello("test", null, new ArrayList<>());
-            Preconditions.checkArgument("arg1=test, arg2=null, arg3=[]".equals(result));
+            Requires.requireTrue("arg1=test, arg2=null, arg3=[]".equals(result));
             System.out.println(result);
             result = service.sayHello(null, 3, new ArrayList<>());
-            Preconditions.checkArgument("arg1=null, arg2=3, arg3=[]".equals(result));
+            Requires.requireTrue("arg1=null, arg2=3, arg3=[]".equals(result));
             System.out.println(result);
             result = service.sayHello("test2", 4, new ArrayList<>());
-            Preconditions.checkArgument("arg1=test2, arg2=4, arg3=[]".equals(result));
+            Requires.requireTrue("arg1=test2, arg2=4, arg3=[]".equals(result));
             System.out.println(result);
             result = service.sayHello2(new String[] { "a", null, "b" });
-            Preconditions.checkArgument("[a, null, b]".equals(result));
+            Requires.requireTrue("[a, null, b]".equals(result));
             System.out.println(result);
             result = service.sayHello2(new String[] { null, "a", "b" });
-            Preconditions.checkArgument("[null, a, b]".equals(result));
+            Requires.requireTrue("[null, a, b]".equals(result));
             System.out.println(result);
             result = service.sayHello2(new String[] { "a", "b", null });
-            Preconditions.checkArgument("[a, b, null]".equals(result));
+            Requires.requireTrue("[a, b, null]".equals(result));
             System.out.println(result);
         } catch (Exception e) {
             e.printStackTrace();

@@ -13,7 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.jupiter.transport.netty;
 
 import java.net.InetSocketAddress;
@@ -28,6 +27,7 @@ import io.netty.channel.ChannelInitializer;
 import io.netty.channel.ChannelOutboundHandler;
 
 import org.jupiter.common.util.JConstants;
+import org.jupiter.common.util.Requires;
 import org.jupiter.transport.CodecConfig;
 import org.jupiter.transport.JConnection;
 import org.jupiter.transport.JOption;
@@ -43,8 +43,6 @@ import org.jupiter.transport.netty.handler.connector.ConnectionWatchdog;
 import org.jupiter.transport.netty.handler.connector.ConnectorHandler;
 import org.jupiter.transport.netty.handler.connector.ConnectorIdleStateTrigger;
 import org.jupiter.transport.processor.ConsumerProcessor;
-
-import static org.jupiter.common.util.Preconditions.checkNotNull;
 
 /**
  * Jupiter tcp connector based on netty.
@@ -140,7 +138,7 @@ public class JNettyTcpConnector extends NettyTcpConnector {
 
     @Override
     protected void setProcessor(ConsumerProcessor processor) {
-        handler.processor(checkNotNull(processor, "processor"));
+        handler.processor(Requires.requireNotNull(processor, "processor"));
     }
 
     @Override

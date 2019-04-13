@@ -13,17 +13,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.jupiter.rpc.consumer.future;
 
 import java.util.concurrent.CompletableFuture;
 
 import org.jupiter.common.util.Reflects;
+import org.jupiter.common.util.StackTraceUtil;
 import org.jupiter.common.util.internal.logging.InternalLogger;
 import org.jupiter.common.util.internal.logging.InternalLoggerFactory;
 import org.jupiter.rpc.consumer.cluster.FailsafeClusterInvoker;
-
-import static org.jupiter.common.util.StackTraceUtil.stackTrace;
 
 /**
  * 用于实现fail-safe集群容错方案的 {@link InvokeFuture}.
@@ -63,7 +61,7 @@ public class FailsafeInvokeFuture<V> extends CompletableFuture<V> implements Inv
             return future.getResult();
         } catch (Throwable t) {
             if (logger.isWarnEnabled()) {
-                logger.warn("Ignored exception on [Fail-safe]: {}.", stackTrace(t));
+                logger.warn("Ignored exception on [Fail-safe]: {}.", StackTraceUtil.stackTrace(t));
             }
         }
         return (V) Reflects.getTypeDefaultValue(returnType());

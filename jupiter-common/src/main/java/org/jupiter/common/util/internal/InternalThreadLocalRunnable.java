@@ -13,10 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.jupiter.common.util.internal;
 
-import static org.jupiter.common.util.Preconditions.checkNotNull;
+import org.jupiter.common.util.Requires;
 
 /**
  * jupiter
@@ -29,7 +28,7 @@ public class InternalThreadLocalRunnable implements Runnable {
     private final Runnable runnable;
 
     private InternalThreadLocalRunnable(Runnable runnable) {
-        this.runnable = checkNotNull(runnable, "runnable");
+        this.runnable = Requires.requireNotNull(runnable, "runnable");
     }
 
     @Override

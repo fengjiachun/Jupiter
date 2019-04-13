@@ -13,7 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.jupiter.rpc.executor;
 
 import java.util.concurrent.ForkJoinPool;
@@ -21,11 +20,10 @@ import java.util.concurrent.ForkJoinWorkerThread;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.jupiter.common.util.SpiMetadata;
+import org.jupiter.common.util.StackTraceUtil;
 import org.jupiter.common.util.internal.InternalForkJoinWorkerThread;
 import org.jupiter.common.util.internal.logging.InternalLogger;
 import org.jupiter.common.util.internal.logging.InternalLoggerFactory;
-
-import static org.jupiter.common.util.StackTraceUtil.stackTrace;
 
 /**
  * Provide a {@link ForkJoinPool} implementation of executor.
@@ -84,7 +82,7 @@ public class ForkJoinPoolExecutorFactory extends AbstractExecutorFactory {
 
         @Override
         public void uncaughtException(Thread t, Throwable e) {
-            logger.error("Uncaught exception in thread[{}], {}.", t.getName(), stackTrace(e));
+            logger.error("Uncaught exception in thread[{}], {}.", t.getName(), StackTraceUtil.stackTrace(e));
         }
     }
 }

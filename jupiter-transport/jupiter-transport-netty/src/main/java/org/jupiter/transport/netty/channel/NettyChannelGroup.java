@@ -13,7 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.jupiter.transport.netty.channel;
 
 import java.text.SimpleDateFormat;
@@ -35,6 +34,7 @@ import org.jupiter.common.util.IntSequence;
 import org.jupiter.common.util.JConstants;
 import org.jupiter.common.util.Lists;
 import org.jupiter.common.util.Maps;
+import org.jupiter.common.util.Requires;
 import org.jupiter.common.util.SystemClock;
 import org.jupiter.common.util.SystemPropertyUtil;
 import org.jupiter.common.util.ThrowUtil;
@@ -42,8 +42,6 @@ import org.jupiter.transport.Directory;
 import org.jupiter.transport.UnresolvedAddress;
 import org.jupiter.transport.channel.JChannel;
 import org.jupiter.transport.channel.JChannelGroup;
-
-import static org.jupiter.common.util.Preconditions.checkNotNull;
 
 /**
  * jupiter
@@ -130,6 +128,7 @@ public class NettyChannelGroup implements JChannelGroup {
         return channels.isEmpty();
     }
 
+    @SuppressWarnings("ConstantConditions")
     @Override
     public boolean add(JChannel channel) {
         boolean added = channel instanceof NettyChannel && channels.add((NettyChannel) channel);
@@ -234,7 +233,7 @@ public class NettyChannelGroup implements JChannelGroup {
 
     @Override
     public int getWeight(Directory directory) {
-        checkNotNull(directory, "directory");
+        Requires.requireNotNull(directory, "directory");
 
         Integer weight = weights.get(directory.directoryString());
         return weight == null ? JConstants.DEFAULT_WEIGHT : weight;
@@ -242,7 +241,7 @@ public class NettyChannelGroup implements JChannelGroup {
 
     @Override
     public void putWeight(Directory directory, int weight) {
-        checkNotNull(directory, "directory");
+        Requires.requireNotNull(directory, "directory");
 
         if (weight == JConstants.DEFAULT_WEIGHT) {
             // the default value does not need to be stored
@@ -253,7 +252,7 @@ public class NettyChannelGroup implements JChannelGroup {
 
     @Override
     public void removeWeight(Directory directory) {
-        checkNotNull(directory, "directory");
+        Requires.requireNotNull(directory, "directory");
 
         weights.remove(directory.directoryString());
     }

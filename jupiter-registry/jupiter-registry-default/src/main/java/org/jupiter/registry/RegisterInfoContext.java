@@ -13,7 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.jupiter.registry;
 
 import java.util.List;
@@ -22,8 +21,7 @@ import java.util.concurrent.ConcurrentMap;
 import org.jupiter.common.concurrent.collection.ConcurrentSet;
 import org.jupiter.common.util.Lists;
 import org.jupiter.common.util.Maps;
-
-import static org.jupiter.common.util.Preconditions.checkNotNull;
+import org.jupiter.common.util.Requires;
 
 /**
  * 注册服务的全局信息, 同时也供monitor程序使用.
@@ -72,7 +70,7 @@ public class RegisterInfoContext {
     }
 
     public Object publishLock(ConfigWithVersion<ConcurrentMap<RegisterMeta.Address, RegisterMeta>> config) {
-        return checkNotNull(config, "publish lock");
+        return Requires.requireNotNull(config, "publish lock");
     }
 
     // - Monitor -------------------------------------------------------------------------------------------------------

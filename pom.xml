@@ -68,6 +68,7 @@
         <opentracing.version>0.31.0</opentracing.version>
         <spring-framework.version>4.3.0.RELEASE</spring-framework.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <main.user.dir>${user.dir}</main.user.dir>
     </properties>
 
     <dependencyManagement>
@@ -388,6 +389,52 @@
                 <configuration>
                     <source>1.8</source>
                     <target>1.8</target>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>com.mycila</groupId>
+                <artifactId>license-maven-plugin</artifactId>
+                <version>3.0</version>
+                <executions>
+                    <execution>
+                        <phase>generate-sources</phase>
+                        <goals>
+                            <goal>remove</goal>
+                            <goal>format</goal>
+                        </goals>
+                    </execution>
+                </executions>
+                <configuration>
+                    <quiet>true</quiet>
+                    <header>${main.user.dir}/HEADER</header>
+                    <includes>
+                        <include>**/src/main/java/**</include>
+                        <include>**/src/test/java/**</include>
+                    </includes>
+                    <excludes>
+                        <exclude>**/AbstractEntry.java</exclude>
+                        <exclude>**/ConcurrentAutoTable.java</exclude>
+                        <exclude>**/NonBlockingHashMap.java</exclude>
+                        <exclude>**/NonBlockingHashMapLong.java</exclude>
+                        <exclude>**/ByteObjectMap.java</exclude>
+                        <exclude>**/ByteObjectHashMap.java</exclude>
+                        <exclude>**/IntObjectMap.java</exclude>
+                        <exclude>**/IntObjectHashMap.java</exclude>
+                        <exclude>**/LongObjectMap.java</exclude>
+                        <exclude>**/LongObjectHashMap.java</exclude>
+                        <exclude>**/Recycler.java</exclude>
+                        <exclude>**/timer/*.java</exclude>
+                        <exclude>**/logging/*.java</exclude>
+                        <exclude>**/queues/*.java</exclude>
+                        <exclude>**/Constant.java</exclude>
+                        <exclude>**/AbstractConstant.java</exclude>
+                        <exclude>**/ConstantPool.java</exclude>
+                        <exclude>**/IdStrategy.java</exclude>
+                    </excludes>
+                    <strictCheck>true</strictCheck>
+                    <mapping>
+                        <java>SLASHSTAR_STYLE</java>
+                    </mapping>
                 </configuration>
             </plugin>
         </plugins>

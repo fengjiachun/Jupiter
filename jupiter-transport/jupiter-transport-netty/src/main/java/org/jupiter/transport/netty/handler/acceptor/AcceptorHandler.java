@@ -13,7 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.jupiter.transport.netty.handler.acceptor;
 
 import java.io.IOException;
@@ -28,6 +27,7 @@ import io.netty.handler.codec.DecoderException;
 import io.netty.util.ReferenceCountUtil;
 
 import org.jupiter.common.util.Signal;
+import org.jupiter.common.util.StackTraceUtil;
 import org.jupiter.common.util.internal.logging.InternalLogger;
 import org.jupiter.common.util.internal.logging.InternalLoggerFactory;
 import org.jupiter.transport.Status;
@@ -35,8 +35,6 @@ import org.jupiter.transport.channel.JChannel;
 import org.jupiter.transport.netty.channel.NettyChannel;
 import org.jupiter.transport.payload.JRequestPayload;
 import org.jupiter.transport.processor.ProviderProcessor;
-
-import static org.jupiter.common.util.StackTraceUtil.stackTrace;
 
 /**
  * jupiter
@@ -124,15 +122,15 @@ public class AcceptorHandler extends ChannelInboundHandlerAdapter {
 
             ch.close();
         } else if (cause instanceof IOException) {
-            logger.error("An I/O exception was caught: {}, force to close channel: {}.", stackTrace(cause), ch);
+            logger.error("An I/O exception was caught: {}, force to close channel: {}.", StackTraceUtil.stackTrace(cause), ch);
 
             ch.close();
         } else if (cause instanceof DecoderException) {
-            logger.error("Decoder exception was caught: {}, force to close channel: {}.", stackTrace(cause), ch);
+            logger.error("Decoder exception was caught: {}, force to close channel: {}.", StackTraceUtil.stackTrace(cause), ch);
 
             ch.close();
         } else {
-            logger.error("Unexpected exception was caught: {}, channel: {}.", stackTrace(cause), ch);
+            logger.error("Unexpected exception was caught: {}, channel: {}.", StackTraceUtil.stackTrace(cause), ch);
         }
     }
 

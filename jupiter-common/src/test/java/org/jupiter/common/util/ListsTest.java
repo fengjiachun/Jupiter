@@ -13,7 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.jupiter.common.util;
 
 import java.util.LinkedList;
@@ -21,7 +20,7 @@ import java.util.List;
 
 import org.junit.Test;
 
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.assertEquals;
 
 /**
  * jupiter
@@ -41,7 +40,7 @@ public class ListsTest {
 
         List<Integer> toList = Lists.transform(fromList, Integer::parseInt);
 
-        assertTrue(toList.size() == fromList.size());
+        assertEquals(toList.size(), fromList.size());
         System.out.println(toList);
     }
 }

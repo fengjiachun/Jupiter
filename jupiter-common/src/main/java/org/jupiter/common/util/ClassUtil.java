@@ -13,13 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.jupiter.common.util;
 
 import org.jupiter.common.util.internal.logging.InternalLogger;
 import org.jupiter.common.util.internal.logging.InternalLoggerFactory;
-
-import static org.jupiter.common.util.StackTraceUtil.stackTrace;
 
 /**
  * jupiter
@@ -43,7 +40,7 @@ public final class ClassUtil {
             Class.forName(className);
         } catch (Throwable t) {
             if (logger.isWarnEnabled()) {
-                logger.warn("Failed to load class [{}] {}.", className, stackTrace(t));
+                logger.warn("Failed to load class [{}] {}.", className, StackTraceUtil.stackTrace(t));
             }
         }
 

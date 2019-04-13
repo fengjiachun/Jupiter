@@ -13,7 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.jupiter.common.concurrent.disruptor;
 
 import java.util.concurrent.Executor;
@@ -28,6 +27,7 @@ import java.util.concurrent.TimeUnit;
 import org.jupiter.common.concurrent.NamedThreadFactory;
 import org.jupiter.common.concurrent.RejectedTaskPolicyWithReport;
 import org.jupiter.common.util.Pow2;
+import org.jupiter.common.util.Requires;
 
 import com.lmax.disruptor.BlockingWaitStrategy;
 import com.lmax.disruptor.BusySpinWaitStrategy;
@@ -43,8 +43,6 @@ import com.lmax.disruptor.WaitStrategy;
 import com.lmax.disruptor.YieldingWaitStrategy;
 import com.lmax.disruptor.dsl.Disruptor;
 import com.lmax.disruptor.dsl.ProducerType;
-
-import static org.jupiter.common.util.Preconditions.checkArgument;
 
 /**
  * 可选择的等待策略, 越往下越极端:
@@ -103,7 +101,7 @@ public class TaskDispatcher implements Dispatcher<Runnable>, Executor {
                           WaitStrategyType waitStrategyType,
                           String dumpPrefixName) {
 
-        checkArgument(bufSize > 0, "bufSize must be larger than 0");
+        Requires.requireTrue(bufSize > 0, "bufSize must be larger than 0");
         if (!Pow2.isPowerOfTwo(bufSize)) {
             bufSize = Pow2.roundToPowerOfTwo(bufSize);
         }

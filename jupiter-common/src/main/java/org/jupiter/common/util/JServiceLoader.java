@@ -13,7 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.jupiter.common.util;
 
 import java.io.BufferedReader;
@@ -29,8 +28,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.ServiceConfigurationError;
-
-import static org.jupiter.common.util.Preconditions.checkNotNull;
 
 /**
  * A simple service-provider loading facility (SPI).
@@ -124,7 +121,7 @@ public final class JServiceLoader<S> implements Iterable<S> {
     }
 
     private JServiceLoader(Class<S> service, ClassLoader loader) {
-        this.service = checkNotNull(service, "service interface cannot be null");
+        this.service = Requires.requireNotNull(service, "service interface cannot be null");
         this.loader = (loader == null) ? ClassLoader.getSystemClassLoader() : loader;
         reload();
     }

@@ -13,18 +13,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.jupiter.rpc.consumer.processor;
 
 import org.jupiter.common.util.JServiceLoader;
+import org.jupiter.common.util.StackTraceUtil;
 import org.jupiter.common.util.SystemPropertyUtil;
 import org.jupiter.common.util.internal.logging.InternalLogger;
 import org.jupiter.common.util.internal.logging.InternalLoggerFactory;
 import org.jupiter.rpc.executor.CallerRunsExecutorFactory;
 import org.jupiter.rpc.executor.CloseableExecutor;
 import org.jupiter.rpc.executor.ExecutorFactory;
-
-import static org.jupiter.common.util.StackTraceUtil.stackTrace;
 
 /**
  * jupiter
@@ -46,7 +44,7 @@ public class ConsumerExecutors {
                     .find(factoryName);
         } catch (Throwable t) {
             logger.warn("Failed to load consumer's executor factory [{}], cause: {}, " +
-                            "[CallerRunsExecutorFactory] will be used as default.", factoryName, stackTrace(t));
+                            "[CallerRunsExecutorFactory] will be used as default.", factoryName, StackTraceUtil.stackTrace(t));
 
             factory = new CallerRunsExecutorFactory();
         }

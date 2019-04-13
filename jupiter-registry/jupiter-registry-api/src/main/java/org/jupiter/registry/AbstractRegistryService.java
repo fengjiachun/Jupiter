@@ -13,7 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.jupiter.registry;
 
 import java.util.Collection;
@@ -36,11 +35,10 @@ import org.jupiter.common.concurrent.NamedThreadFactory;
 import org.jupiter.common.concurrent.collection.ConcurrentSet;
 import org.jupiter.common.util.Lists;
 import org.jupiter.common.util.Maps;
+import org.jupiter.common.util.StackTraceUtil;
 import org.jupiter.common.util.internal.logging.InternalLogger;
 import org.jupiter.common.util.internal.logging.InternalLoggerFactory;
 import org.jupiter.registry.RegisterMeta.ServiceMeta;
-
-import static org.jupiter.common.util.StackTraceUtil.stackTrace;
 
 /**
  * jupiter
@@ -87,7 +85,7 @@ public abstract class AbstractRegistryService implements RegistryService {
                     logger.warn("[register.executor] interrupted.");
                 } catch (Throwable t) {
                     if (meta != null) {
-                        logger.error("Register [{}] fail: {}, will try again...", meta.getServiceMeta(), stackTrace(t));
+                        logger.error("Register [{}] fail: {}, will try again...", meta.getServiceMeta(), StackTraceUtil.stackTrace(t));
 
                         // 间隔一段时间再重新入队, 让出cpu
                         final RegisterMeta finalMeta = meta;
@@ -108,7 +106,7 @@ public abstract class AbstractRegistryService implements RegistryService {
                     logger.warn("[local.register.watch.executor] interrupted.");
                 } catch (Throwable t) {
                     if (logger.isWarnEnabled()) {
-                        logger.warn("Check register node status fail: {}, will try again...", stackTrace(t));
+                        logger.warn("Check register node status fail: {}, will try again...", StackTraceUtil.stackTrace(t));
                     }
                 }
             }
@@ -202,7 +200,7 @@ public abstract class AbstractRegistryService implements RegistryService {
                 registerScheduledExecutor.shutdownNow();
                 localRegisterWatchExecutor.shutdownNow();
             } catch (Exception e) {
-                logger.error("failed to shutdown: {}.", stackTrace(e));
+                logger.error("Failed to shutdown: {}.", StackTraceUtil.stackTrace(e));
             } finally {
                 destroy();
             }

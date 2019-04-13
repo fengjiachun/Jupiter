@@ -13,7 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.jupiter.registry;
 
 import java.io.IOException;
@@ -34,7 +33,6 @@ import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
 import io.netty.channel.ChannelInitializer;
 import io.netty.channel.group.ChannelGroup;
-import io.netty.channel.group.ChannelMatcher;
 import io.netty.channel.group.DefaultChannelGroup;
 import io.netty.handler.codec.DecoderException;
 import io.netty.handler.codec.MessageToByteEncoder;
@@ -45,12 +43,12 @@ import io.netty.util.ReferenceCountUtil;
 import io.netty.util.concurrent.GlobalEventExecutor;
 
 import org.jupiter.common.concurrent.collection.ConcurrentSet;
-import org.jupiter.common.util.Function;
 import org.jupiter.common.util.JConstants;
 import org.jupiter.common.util.Lists;
 import org.jupiter.common.util.Maps;
 import org.jupiter.common.util.Pair;
 import org.jupiter.common.util.Signal;
+import org.jupiter.common.util.StackTraceUtil;
 import org.jupiter.common.util.Strings;
 import org.jupiter.common.util.SystemClock;
 import org.jupiter.common.util.SystemPropertyUtil;
@@ -69,8 +67,6 @@ import org.jupiter.transport.netty.NettyTcpAcceptor;
 import org.jupiter.transport.netty.handler.AcknowledgeEncoder;
 import org.jupiter.transport.netty.handler.IdleStateChecker;
 import org.jupiter.transport.netty.handler.acceptor.AcceptorIdleStateTrigger;
-
-import static org.jupiter.common.util.StackTraceUtil.stackTrace;
 
 /**
  * The server of registration center.
@@ -176,13 +172,7 @@ public final class DefaultRegistryServer extends NettyTcpAcceptor implements Reg
     public List<String> listPublisherHosts() {
         List<RegisterMeta.Address> fromList = registerInfoContext.listPublisherHosts();
 
-        return Lists.transform(fromList, new Function<RegisterMeta.Address, String>() {
-
-            @Override
-            public String apply(RegisterMeta.Address input) {
-                return input.getHost();
-            }
-        });
+        return Lists.transform(fromList, RegisterMeta.Address::getHost);
     }
 
     @Override
@@ -204,13 +194,7 @@ public final class DefaultRegistryServer extends NettyTcpAcceptor implements Reg
         RegisterMeta.ServiceMeta serviceMeta = new RegisterMeta.ServiceMeta(group, serviceProviderName, version);
         List<RegisterMeta.Address> fromList = registerInfoContext.listAddressesByService(serviceMeta);
 
-        return Lists.transform(fromList, new Function<RegisterMeta.Address, String>() {
-
-            @Override
-            public String apply(RegisterMeta.Address input) {
-                return input.toString();
-            }
-        });
+        return Lists.transform(fromList, RegisterMeta.Address::toString);
     }
 
     @Override
@@ -218,13 +202,7 @@ public final class DefaultRegistryServer extends NettyTcpAcceptor implements Reg
         RegisterMeta.Address address = new RegisterMeta.Address(host, port);
         List<RegisterMeta.ServiceMeta> fromList = registerInfoContext.listServicesByAddress(address);
 
-        return Lists.transform(fromList, new Function<RegisterMeta.ServiceMeta, String>() {
-
-            @Override
-            public String apply(RegisterMeta.ServiceMeta input) {
-                return input.toString();
-            }
-        });
+        return Lists.transform(fromList, RegisterMeta.ServiceMeta::toString);
     }
 
     @Override
@@ -257,18 +235,14 @@ public final class DefaultRegistryServer extends NettyTcpAcceptor implements Reg
                 msg.version(config.newVersion()); // 版本号+1
                 msg.data(Pair.of(serviceMeta, meta));
 
-                subscriberChannels.writeAndFlush(msg, new ChannelMatcher() {
-
-                    @Override
-                    public boolean matches(Channel channel) {
-                        boolean doSend = isChannelSubscribeOnServiceMeta(serviceMeta, channel);
-                        if (doSend) {
-                            MessageNonAck msgNonAck = new MessageNonAck(serviceMeta, msg, channel);
-                            // 收到ack后会移除当前key(参见handleAcknowledge), 否则超时超时重发
-                            messagesNonAck.put(msgNonAck.id, msgNonAck);
-                        }
-                        return doSend;
+                subscriberChannels.writeAndFlush(msg, ch -> {
+                    boolean doSend = isChannelSubscribeOnServiceMeta(serviceMeta, ch);
+                    if (doSend) {
+                        MessageNonAck msgNonAck = new MessageNonAck(serviceMeta, msg, ch);
+                        // 收到ack后会移除当前key(参见handleAcknowledge), 否则超时超时重发
+                        messagesNonAck.put(msgNonAck.id, msgNonAck);
                     }
+                    return doSend;
                 });
             }
         }
@@ -300,18 +274,14 @@ public final class DefaultRegistryServer extends NettyTcpAcceptor implements Reg
                 msg.version(config.newVersion()); // 版本号+1
                 msg.data(Pair.of(serviceMeta, data));
 
-                subscriberChannels.writeAndFlush(msg, new ChannelMatcher() {
-
-                    @Override
-                    public boolean matches(Channel channel) {
-                        boolean doSend = isChannelSubscribeOnServiceMeta(serviceMeta, channel);
-                        if (doSend) {
-                            MessageNonAck msgNonAck = new MessageNonAck(serviceMeta, msg, channel);
-                            // 收到ack后会移除当前key(参见handleAcknowledge), 否则超时超时重发
-                            messagesNonAck.put(msgNonAck.id, msgNonAck);
-                        }
-                        return doSend;
+                subscriberChannels.writeAndFlush(msg, ch -> {
+                    boolean doSend = isChannelSubscribeOnServiceMeta(serviceMeta, ch);
+                    if (doSend) {
+                        MessageNonAck msgNonAck = new MessageNonAck(serviceMeta, msg, ch);
+                        // 收到ack后会移除当前key(参见handleAcknowledge), 否则超时超时重发
+                        messagesNonAck.put(msgNonAck.id, msgNonAck);
                     }
+                    return doSend;
                 });
             }
         }
@@ -685,15 +655,17 @@ public final class DefaultRegistryServer extends NettyTcpAcceptor implements Reg
 
                 ch.close();
             } else if (cause instanceof IOException) {
-                logger.error("I/O exception was caught: {}, force to close channel: {}.", stackTrace(cause), ch);
+                logger.error("I/O exception was caught: {}, force to close channel: {}.",
+                        StackTraceUtil.stackTrace(cause), ch);
 
                 ch.close();
             } else if (cause instanceof DecoderException) {
-                logger.error("Decoder exception was caught: {}, force to close channel: {}.", stackTrace(cause), ch);
+                logger.error("Decoder exception was caught: {}, force to close channel: {}.",
+                        StackTraceUtil.stackTrace(cause), ch);
 
                 ch.close();
             } else {
-                logger.error("Unexpected exception was caught: {}, channel: {}.", stackTrace(cause), ch);
+                logger.error("Unexpected exception was caught: {}, channel: {}.", StackTraceUtil.stackTrace(cause), ch);
             }
         }
     }
@@ -727,7 +699,8 @@ public final class DefaultRegistryServer extends NettyTcpAcceptor implements Reg
                         }
                     }
                 } catch (Throwable t) {
-                    logger.error("An exception was caught while scanning the timeout acknowledges {}.", stackTrace(t));
+                    logger.error("An exception was caught while scanning the timeout acknowledges {}.",
+                            StackTraceUtil.stackTrace(t));
                 }
 
                 try {

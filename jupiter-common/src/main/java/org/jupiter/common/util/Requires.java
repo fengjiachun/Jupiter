@@ -13,7 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.jupiter.common.util;
 
 /**
@@ -25,7 +24,7 @@ package org.jupiter.common.util;
  *
  * @author jiachun.fjc
  */
-public final class Preconditions {
+public final class Requires {
 
     /**
      * Ensures that an object reference passed as a parameter to the calling
@@ -35,7 +34,7 @@ public final class Preconditions {
      * @return the non-null reference that was validated
      * @throws NullPointerException if {@code reference} is null
      */
-    public static <T> T checkNotNull(T reference) {
+    public static <T> T requireNotNull(T reference) {
         if (reference == null) {
             throw new NullPointerException();
         }
@@ -52,7 +51,7 @@ public final class Preconditions {
      * @return the non-null reference that was validated
      * @throws NullPointerException if {@code reference} is null
      */
-    public static <T> T checkNotNull(T reference, Object errorMessage) {
+    public static <T> T requireNotNull(T reference, Object errorMessage) {
         if (reference == null) {
             throw new NullPointerException(String.valueOf(errorMessage));
         }
@@ -66,7 +65,7 @@ public final class Preconditions {
      * @param expression a boolean expression
      * @throws IllegalArgumentException if {@code expression} is false
      */
-    public static void checkArgument(boolean expression) {
+    public static void requireTrue(boolean expression) {
         if (!expression) {
             throw new IllegalArgumentException();
         }
@@ -81,11 +80,11 @@ public final class Preconditions {
      *                     be converted to a string using {@link String#valueOf(Object)}
      * @throws IllegalArgumentException if {@code expression} is false
      */
-    public static void checkArgument(boolean expression, Object errorMessage) {
+    public static void requireTrue(boolean expression, Object errorMessage) {
         if (!expression) {
             throw new IllegalArgumentException(String.valueOf(errorMessage));
         }
     }
 
-    private Preconditions() {}
+    private Requires() {}
 }

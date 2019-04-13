@@ -13,7 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.jupiter.common.util;
 
 import java.lang.reflect.Field;
@@ -21,8 +20,6 @@ import java.lang.reflect.Modifier;
 import java.lang.reflect.Type;
 import java.util.List;
 import java.util.Map;
-
-import static org.jupiter.common.util.Preconditions.checkNotNull;
 
 /**
  * Static utility methods pertaining to reflection.
@@ -105,7 +102,7 @@ public final class Reflects {
      * @throws NoSuchFieldException if a field with the specified name is not found.
      */
     public static Field getField(Class<?> clazz, String name) throws NoSuchFieldException {
-        for (Class<?> cls = checkNotNull(clazz, "class"); cls != null; cls = cls.getSuperclass()) {
+        for (Class<?> cls = Requires.requireNotNull(clazz, "class"); cls != null; cls = cls.getSuperclass()) {
             try {
                 return cls.getDeclaredField(name);
             } catch (Throwable ignored) {}
@@ -190,7 +187,7 @@ public final class Reflects {
      * Returns the default value for the specified class.
      */
     public static Object getTypeDefaultValue(Class<?> clazz) {
-        checkNotNull(clazz, "clazz");
+        Requires.requireNotNull(clazz, "clazz");
 
         if (clazz.isPrimitive()) {
             if (clazz == byte.class) {

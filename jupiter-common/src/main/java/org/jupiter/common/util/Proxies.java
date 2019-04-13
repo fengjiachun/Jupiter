@@ -13,7 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.jupiter.common.util;
 
 import java.lang.reflect.InvocationHandler;
@@ -23,8 +22,6 @@ import net.bytebuddy.ByteBuddy;
 import net.bytebuddy.dynamic.loading.ClassLoadingStrategy;
 import net.bytebuddy.implementation.MethodDelegation;
 import net.bytebuddy.matcher.ElementMatchers;
-
-import static org.jupiter.common.util.Preconditions.checkArgument;
 
 /**
  * jupiter
@@ -37,7 +34,7 @@ public enum Proxies {
 
         @Override
         public <T> T newProxy(Class<T> interfaceType, Object handler) {
-            checkArgument(handler instanceof InvocationHandler, "handler must be a InvocationHandler");
+            Requires.requireTrue(handler instanceof InvocationHandler, "handler must be a InvocationHandler");
 
             Object object = Proxy.newProxyInstance(
                     interfaceType.getClassLoader(), new Class<?>[] { interfaceType }, (InvocationHandler) handler);

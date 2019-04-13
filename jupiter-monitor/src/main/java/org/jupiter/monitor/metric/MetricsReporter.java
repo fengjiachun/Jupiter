@@ -13,7 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.jupiter.monitor.metric;
 
 import java.io.ByteArrayOutputStream;
@@ -21,13 +20,12 @@ import java.io.PrintStream;
 import java.io.UnsupportedEncodingException;
 
 import org.jupiter.common.util.JConstants;
+import org.jupiter.common.util.StackTraceUtil;
 import org.jupiter.common.util.internal.UnsafeReferenceFieldUpdater;
 import org.jupiter.common.util.internal.UnsafeUpdater;
 import org.jupiter.rpc.metric.Metrics;
 
 import com.codahale.metrics.ConsoleReporter;
-
-import static org.jupiter.common.util.StackTraceUtil.stackTrace;
 
 /**
  * Indicators measure used to provide data for the monitor.
@@ -62,7 +60,7 @@ public class MetricsReporter {
                 bufUpdater.set(buf, new byte[1024 * 32]);
             }
         } catch (UnsupportedEncodingException e) {
-            output = stackTrace(e);
+            output = StackTraceUtil.stackTrace(e);
         }
         return output;
     }

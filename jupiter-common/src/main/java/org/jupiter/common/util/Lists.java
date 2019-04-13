@@ -13,7 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.jupiter.common.util;
 
 import java.io.Serializable;
@@ -26,9 +25,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.ListIterator;
 import java.util.RandomAccess;
-
-import static org.jupiter.common.util.Preconditions.checkArgument;
-import static org.jupiter.common.util.Preconditions.checkNotNull;
 
 /**
  * Static utility methods pertaining to {@link List} instances.
@@ -52,7 +48,7 @@ public final class Lists {
      */
     @SuppressWarnings("unchecked")
     public static <E> ArrayList<E> newArrayList(E... elements) {
-        checkNotNull(elements);
+        Requires.requireNotNull(elements);
         // Avoid integer overflow when a large array is passed in
         int capacity = computeArrayListCapacity(elements.length);
         ArrayList<E> list = new ArrayList<>(capacity);
@@ -65,7 +61,7 @@ public final class Lists {
      */
     @SuppressWarnings("unchecked")
     public static <E> ArrayList<E> newArrayList(Iterable<? extends E> elements) {
-        checkNotNull(elements);
+        Requires.requireNotNull(elements);
         return elements instanceof Collection
                 ? new ArrayList((Collection<E>) elements)
                 : newArrayList(elements.iterator());
@@ -87,7 +83,7 @@ public final class Lists {
      * equivalent to {@link ArrayList#ArrayList(int)}.
      */
     public static <E> ArrayList<E> newArrayListWithCapacity(int initialArraySize) {
-        checkArgument(initialArraySize >= 0);
+        Requires.requireTrue(initialArraySize >= 0);
         return new ArrayList<>(initialArraySize);
     }
 
@@ -109,8 +105,8 @@ public final class Lists {
         final Function<? super F, ? extends T> function;
 
         TransformingRandomAccessList(List<F> fromList, Function<? super F, ? extends T> function) {
-            this.fromList = checkNotNull(fromList);
-            this.function = checkNotNull(function);
+            this.fromList = Requires.requireNotNull(fromList);
+            this.function = Requires.requireNotNull(function);
         }
 
         @Override
@@ -147,8 +143,8 @@ public final class Lists {
 
         TransformingSequentialList(
                 List<F> fromList, Function<? super F, ? extends T> function) {
-            this.fromList = checkNotNull(fromList);
-            this.function = checkNotNull(function);
+            this.fromList = Requires.requireNotNull(fromList);
+            this.function = Requires.requireNotNull(function);
         }
 
         @Override
@@ -177,7 +173,7 @@ public final class Lists {
         final Iterator<? extends F> backingIterator;
 
         TransformedIterator(Iterator<? extends F> backingIterator) {
-            this.backingIterator = checkNotNull(backingIterator);
+            this.backingIterator = Requires.requireNotNull(backingIterator);
         }
 
         abstract T transform(F from);
@@ -241,7 +237,7 @@ public final class Lists {
     }
 
     static int computeArrayListCapacity(int arraySize) {
-        checkArgument(arraySize >= 0);
+        Requires.requireTrue(arraySize >= 0);
         return Ints.saturatedCast(5L + arraySize + (arraySize / 10));
     }
 

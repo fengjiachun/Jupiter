@@ -13,10 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.jupiter.rpc;
 
-import static org.jupiter.common.util.Preconditions.checkNotNull;
+import org.jupiter.common.util.Requires;
 
 /**
  *
@@ -31,7 +30,7 @@ public class DefaultFilterChain implements JFilterChain {
     private final JFilterChain next;
 
     public DefaultFilterChain(JFilter filter, JFilterChain next) {
-        this.filter = checkNotNull(filter, "filter");
+        this.filter = Requires.requireNotNull(filter, "filter");
         this.next = next;
     }
 

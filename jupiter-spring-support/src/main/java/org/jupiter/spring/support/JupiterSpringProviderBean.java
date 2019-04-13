@@ -13,11 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.jupiter.spring.support;
 
 import java.util.concurrent.Executor;
 
+import org.jupiter.common.util.Requires;
 import org.jupiter.common.util.internal.logging.InternalLogger;
 import org.jupiter.common.util.internal.logging.InternalLoggerFactory;
 import org.jupiter.rpc.JRequest;
@@ -33,8 +33,6 @@ import org.springframework.context.ApplicationEvent;
 import org.springframework.context.ApplicationListener;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.event.ContextRefreshedEvent;
-
-import static org.jupiter.common.util.Preconditions.checkNotNull;
 
 /**
  * jupiter
@@ -71,7 +69,7 @@ public class JupiterSpringProviderBean implements InitializingBean, ApplicationC
     }
 
     private void init() throws Exception {
-        checkNotNull(server, "server");
+        Requires.requireNotNull(server, "server");
 
         JServer.ServiceRegistry registry = server.getServer().serviceRegistry();
 

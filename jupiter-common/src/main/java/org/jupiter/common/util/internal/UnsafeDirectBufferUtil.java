@@ -13,16 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.jupiter.common.util.internal;
 
 import java.lang.reflect.Method;
 import java.nio.ByteOrder;
 
+import org.jupiter.common.util.StackTraceUtil;
 import org.jupiter.common.util.internal.logging.InternalLogger;
 import org.jupiter.common.util.internal.logging.InternalLoggerFactory;
-
-import static org.jupiter.common.util.StackTraceUtil.stackTrace;
 
 /**
  * jupiter
@@ -61,7 +59,7 @@ public final class UnsafeDirectBufferUtil {
             _unaligned = (boolean) unalignedMethod.invoke(null);
         } catch (Throwable t) {
             if (logger.isWarnEnabled()) {
-                logger.warn("java.nio.Bits: unavailable, {}.", stackTrace(t));
+                logger.warn("java.nio.Bits: unavailable, {}.", StackTraceUtil.stackTrace(t));
             }
 
             _unaligned = false;

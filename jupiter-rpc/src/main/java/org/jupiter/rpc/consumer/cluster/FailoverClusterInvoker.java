@@ -13,10 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.jupiter.rpc.consumer.cluster;
 
 import org.jupiter.common.util.Reflects;
+import org.jupiter.common.util.Requires;
+import org.jupiter.common.util.StackTraceUtil;
 import org.jupiter.common.util.internal.logging.InternalLogger;
 import org.jupiter.common.util.internal.logging.InternalLoggerFactory;
 import org.jupiter.rpc.JRequest;
@@ -27,9 +28,6 @@ import org.jupiter.rpc.consumer.future.FailoverInvokeFuture;
 import org.jupiter.rpc.consumer.future.InvokeFuture;
 import org.jupiter.rpc.model.metadata.MessageWrapper;
 import org.jupiter.transport.channel.JChannel;
-
-import static org.jupiter.common.util.Preconditions.checkArgument;
-import static org.jupiter.common.util.StackTraceUtil.stackTrace;
 
 /**
  * 失败自动切换, 当出现失败, 重试其它服务器, 要注意的是重试会带来更长的延时.
@@ -53,7 +51,7 @@ public class FailoverClusterInvoker implements ClusterInvoker {
     private final int retries; // 重试次数, 不包含第一次
 
     public FailoverClusterInvoker(Dispatcher dispatcher, int retries) {
-        checkArgument(
+        Requires.requireTrue(
                 dispatcher instanceof DefaultRoundDispatcher,
                 Reflects.simpleClassName(dispatcher) + " is unsupported [FailoverClusterInvoker]"
         );
@@ -103,7 +101,7 @@ public class FailoverClusterInvoker implements ClusterInvoker {
                                 tryCount - 1,
                                 message.getMethodName(),
                                 message.getMetadata(),
-                                stackTrace(throwable));
+                                StackTraceUtil.stackTrace(throwable));
                     }
 
                     // Note: Failover uses the same invokeId for each call.

@@ -13,7 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.jupiter.rpc;
 
 import java.lang.reflect.Method;
@@ -28,6 +27,8 @@ import org.jupiter.common.util.JServiceLoader;
 import org.jupiter.common.util.Lists;
 import org.jupiter.common.util.Maps;
 import org.jupiter.common.util.Pair;
+import org.jupiter.common.util.Requires;
+import org.jupiter.common.util.StackTraceUtil;
 import org.jupiter.common.util.Strings;
 import org.jupiter.common.util.internal.logging.InternalLogger;
 import org.jupiter.common.util.internal.logging.InternalLoggerFactory;
@@ -41,10 +42,6 @@ import org.jupiter.rpc.provider.ProviderInterceptor;
 import org.jupiter.rpc.provider.processor.DefaultProviderProcessor;
 import org.jupiter.transport.Directory;
 import org.jupiter.transport.JAcceptor;
-
-import static org.jupiter.common.util.Preconditions.checkArgument;
-import static org.jupiter.common.util.Preconditions.checkNotNull;
-import static org.jupiter.common.util.StackTraceUtil.stackTrace;
 
 /**
  * Jupiter默认服务端实现.
@@ -185,7 +182,8 @@ public class DefaultServer implements JServer {
                 initializer.init((T) serviceWrapper.getServiceProvider());
                 publish(serviceWrapper);
             } catch (Exception e) {
-                logger.error("Error on {} #publishWithInitializer: {}.", serviceWrapper.getMetadata(), stackTrace(e));
+                logger.error("Error on {} #publishWithInitializer: {}.", serviceWrapper.getMetadata(),
+                        StackTraceUtil.stackTrace(e));
             }
         };
 
@@ -345,7 +343,7 @@ public class DefaultServer implements JServer {
 
         @Override
         public ServiceWrapper register() {
-            checkNotNull(serviceProvider, "serviceProvider");
+            Requires.requireNotNull(serviceProvider, "serviceProvider");
 
             Class<?> providerClass = serviceProvider.getClass();
 
@@ -364,7 +362,7 @@ public class DefaultServer implements JServer {
                             continue;
                         }
 
-                        checkArgument(
+                        Requires.requireTrue(
                                 interfaceClass == null,
                                 i.getName() + " has a @ServiceProvider annotation, can't set [interfaceClass] again"
                         );
@@ -380,11 +378,11 @@ public class DefaultServer implements JServer {
             }
 
             if (ifAnnotation != null) {
-                checkArgument(
+                Requires.requireTrue(
                         group == null,
                         interfaceClass.getName() + " has a @ServiceProvider annotation, can't set [group] again"
                 );
-                checkArgument(
+                Requires.requireTrue(
                         providerName == null,
                         interfaceClass.getName() + " has a @ServiceProvider annotation, can't set [providerName] again"
                 );
@@ -395,7 +393,7 @@ public class DefaultServer implements JServer {
             }
 
             if (implAnnotation != null) {
-                checkArgument(
+                Requires.requireTrue(
                         version == null,
                         providerClass.getName() + " has a @ServiceProviderImpl annotation, can't set [version] again"
                 );
@@ -403,10 +401,10 @@ public class DefaultServer implements JServer {
                 version = implAnnotation.version();
             }
 
-            checkNotNull(interfaceClass, "interfaceClass");
-            checkArgument(Strings.isNotBlank(group), "group");
-            checkArgument(Strings.isNotBlank(providerName), "providerName");
-            checkArgument(Strings.isNotBlank(version), "version");
+            Requires.requireNotNull(interfaceClass, "interfaceClass");
+            Requires.requireTrue(Strings.isNotBlank(group), "group");
+            Requires.requireTrue(Strings.isNotBlank(providerName), "providerName");
+            Requires.requireTrue(Strings.isNotBlank(version), "version");
 
             // method's extensions
             //

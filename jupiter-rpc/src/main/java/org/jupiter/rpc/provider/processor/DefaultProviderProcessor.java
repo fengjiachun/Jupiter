@@ -13,9 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.jupiter.rpc.provider.processor;
 
+import org.jupiter.common.util.StackTraceUtil;
 import org.jupiter.common.util.ThrowUtil;
 import org.jupiter.common.util.internal.logging.InternalLogger;
 import org.jupiter.common.util.internal.logging.InternalLoggerFactory;
@@ -35,8 +35,6 @@ import org.jupiter.transport.channel.JFutureListener;
 import org.jupiter.transport.payload.JRequestPayload;
 import org.jupiter.transport.payload.JResponsePayload;
 import org.jupiter.transport.processor.ProviderProcessor;
-
-import static org.jupiter.common.util.StackTraceUtil.stackTrace;
 
 /**
  * jupiter
@@ -71,7 +69,7 @@ public abstract class DefaultProviderProcessor implements ProviderProcessor, Loo
     @Override
     public void handleException(JChannel channel, JRequestPayload request, Status status, Throwable cause) {
         logger.error("An exception was caught while processing request: {}, {}.",
-                channel.remoteAddress(), stackTrace(cause));
+                channel.remoteAddress(), StackTraceUtil.stackTrace(cause));
 
         doHandleException(
                 channel, request.invokeId(), request.serializerCode(), status.value(), cause, false);
@@ -86,7 +84,7 @@ public abstract class DefaultProviderProcessor implements ProviderProcessor, Loo
 
     public void handleException(JChannel channel, JRequest request, Status status, Throwable cause) {
         logger.error("An exception was caught while processing request: {}, {}.",
-                channel.remoteAddress(), stackTrace(cause));
+                channel.remoteAddress(), StackTraceUtil.stackTrace(cause));
 
         doHandleException(
                 channel, request.invokeId(), request.serializerCode(), status.value(), cause, false);
@@ -94,7 +92,7 @@ public abstract class DefaultProviderProcessor implements ProviderProcessor, Loo
 
     public void handleRejected(JChannel channel, JRequest request, Status status, Throwable cause) {
         if (logger.isWarnEnabled()) {
-            logger.warn("Service rejected: {}, {}.", channel.remoteAddress(), stackTrace(cause));
+            logger.warn("Service rejected: {}, {}.", channel.remoteAddress(), StackTraceUtil.stackTrace(cause));
         }
 
         doHandleException(
@@ -134,7 +132,8 @@ public abstract class DefaultProviderProcessor implements ProviderProcessor, Loo
                 @Override
                 public void operationFailure(JChannel channel, Throwable cause) throws Exception {
                     if (logger.isWarnEnabled()) {
-                        logger.warn("Service error message sent failed: {}, {}.", channel, stackTrace(cause));
+                        logger.warn("Service error message sent failed: {}, {}.", channel,
+                                StackTraceUtil.stackTrace(cause));
                     }
                 }
             });

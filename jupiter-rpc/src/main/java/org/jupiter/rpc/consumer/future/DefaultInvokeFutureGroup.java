@@ -13,7 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.jupiter.rpc.consumer.future;
 
 import java.util.concurrent.CompletableFuture;
@@ -24,7 +23,7 @@ import java.util.function.BiFunction;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
-import static org.jupiter.common.util.Preconditions.checkArgument;
+import org.jupiter.common.util.Requires;
 
 /**
  * jupiter
@@ -44,7 +43,7 @@ public class DefaultInvokeFutureGroup<V> implements InvokeFutureGroup<V> {
     }
 
     private DefaultInvokeFutureGroup(DefaultInvokeFuture<V>[] futures) {
-        checkArgument(futures != null && futures.length > 0, "empty futures");
+        Requires.requireTrue(futures != null && futures.length > 0, "empty futures");
         this.futures = futures;
     }
 

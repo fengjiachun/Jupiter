@@ -13,9 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.jupiter.rpc.consumer.processor.task;
 
+import org.jupiter.common.util.StackTraceUtil;
 import org.jupiter.common.util.internal.logging.InternalLogger;
 import org.jupiter.common.util.internal.logging.InternalLoggerFactory;
 import org.jupiter.rpc.JResponse;
@@ -29,8 +29,6 @@ import org.jupiter.transport.CodecConfig;
 import org.jupiter.transport.Status;
 import org.jupiter.transport.channel.JChannel;
 import org.jupiter.transport.payload.JResponsePayload;
-
-import static org.jupiter.common.util.StackTraceUtil.stackTrace;
 
 /**
  * jupiter
@@ -70,7 +68,7 @@ public class MessageTask implements Runnable {
             }
             _responsePayload.clear();
         } catch (Throwable t) {
-            logger.error("Deserialize object failed: {}, {}.", channel.remoteAddress(), stackTrace(t));
+            logger.error("Deserialize object failed: {}, {}.", channel.remoteAddress(), StackTraceUtil.stackTrace(t));
 
             _response.status(Status.DESERIALIZATION_FAIL);
             wrapper = new ResultWrapper();

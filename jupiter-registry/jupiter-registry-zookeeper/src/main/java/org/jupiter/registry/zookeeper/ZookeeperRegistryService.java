@@ -13,7 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.jupiter.registry.zookeeper;
 
 import java.io.IOException;
@@ -46,7 +45,7 @@ import org.jupiter.registry.RegisterMeta;
 import org.jupiter.registry.RegisterMeta.Address;
 
 import static org.apache.zookeeper.KeeperException.Code;
-import static org.jupiter.common.util.Preconditions.checkNotNull;
+import static org.jupiter.common.util.Requires.requireNotNull;
 import static org.jupiter.common.util.StackTraceUtil.stackTrace;
 
 /**
@@ -289,7 +288,7 @@ public class ZookeeperRegistryService extends AbstractRegistryService {
 
     @Override
     public void connectToRegistryServer(String connectString) {
-        checkNotNull(connectString, "connectString");
+        requireNotNull(connectString, "connectString");
 
         configClient = CuratorFrameworkFactory.newClient(
                 connectString, sessionTimeoutMs, connectionTimeoutMs, new ExponentialBackoffRetry(500, 20));
