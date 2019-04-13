@@ -5,7 +5,7 @@
 [![Total Alerts](https://img.shields.io/lgtm/alerts/g/fengjiachun/Jupiter.svg?logo=lgtm&logoWidth=18)](https://lgtm.com/projects/g/fengjiachun/Jupiter/alerts)
 
 #### Jupiter:
-- Jupiter是一款性能非常不错的, 轻量级的分布式服务框架
+- Jupiter 是一款性能非常不错的, 轻量级的分布式服务框架
 
 #### Jupiter Architecture:
 
@@ -36,7 +36,7 @@
 
 #### 性能:
 - 小数据包请求(不带业务)在四核刀片服务器上可达到17w+的tps, 详情见 [Benchmark](https://github.com/fengjiachun/Jupiter/wiki/Benchmark)
-- [参考: 多个RPC框架的Benchmark见这里](https://github.com/hank-whu/rpc-benchmark)
+- [参考: 多个 RPC 框架的 Benchmark 见这里](https://github.com/hank-whu/rpc-benchmark)
 
 #### 文档:
 - [High performance RPC with netty](/docs/static_files/high_performance_rpc_with_netty.md)
@@ -45,7 +45,7 @@
 - [其他文档](https://github.com/fengjiachun/doc/tree/master/jupiter)
 - [发展路线](https://github.com/fengjiachun/Jupiter/wiki/RoadMap)
 
-#### 一次RPC调用:
+#### 一次 RPC 调用:
 
 <img src="docs/static_files/jupiter-rpc.png" width="1600"/>
 
@@ -54,8 +54,8 @@
 #### 快速开始:
 
 ##### 工程依赖:
-+ JDK1.7或更高版本
-+ 依赖管理工具: Maven3.x版本
++ JDK1.8 或更高版本
++ 依赖管理工具: Maven3.x 版本
 
 ##### [最新版本OSS下载](https://oss.sonatype.org/#nexus-search;quick~org.jupiter-rpc)
 ##### [最新版本Maven中心仓库下载](http://search.maven.org/#search%7Cga%7C1%7Cg%3A%22org.jupiter-rpc%22%20AND%20jupiter)
@@ -102,7 +102,7 @@ public class ServiceTestImpl implements ServiceTest {
 
 ###### 3. 启动注册中心:
 
-###### - 选择1: 使用jupiter默认的注册中心:
+###### - 选择1: 使用 jupiter 默认的注册中心:
 
 ```java
 public class HelloJupiterRegistryServer {
@@ -119,16 +119,16 @@ public class HelloJupiterRegistryServer {
 }
 ```
 
-###### - 选择2: 使用[zookeeper](https://zookeeper.apache.org/doc/trunk/zookeeperStarted.html)作为注册中心:
+###### - 选择2: 使用 [zookeeper](https://zookeeper.apache.org/doc/trunk/zookeeperStarted.html) 作为注册中心:
 
 ```xml
-默认注册中心只建议在测试环境使用, 线上建议使用zookeeper实现
+默认注册中心只建议在测试环境使用, 线上建议使用 zookeeper 实现
 
-// 设置使用zookeeper作为注册中心
+// 设置使用 zookeeper 作为注册中心
 JServer server = new DefaultServer(RegistryService.RegistryType.ZOOKEEPER)
 JClient client = new DefaultClient(RegistryService.RegistryType.ZOOKEEPER)
 
-在server和client中配置jupiter-registry-zookeeper依赖(jupiter-all包含jupiter-registry-zookeeper)
+在 server 和 client 中配置 jupiter-registry-zookeeper 依赖(jupiter-all 包含 jupiter-registry-zookeeper)
 
 <dependency>
     <groupId>org.jupiter-rpc</groupId>
@@ -186,7 +186,7 @@ public class HelloJupiterClient {
 }
 ```
 
-[Server/Client代码示例](https://github.com/fengjiachun/Jupiter/tree/master/jupiter-example/src/main/java/org/jupiter/example/round)
+[Server/Client 代码示例](/jupiter-example/src/main/java/org/jupiter/example/round)
 
 ###### 新特性
 
@@ -209,7 +209,7 @@ v1.3 新增 `InvokeType.AUTO`, 当你的接口返回值是一个 `CompletableFut
 </jupiter:provider>
 ```
 
-###### 2. [Client端配置](/jupiter-example/src/main/resources/spring-consumer.xml):
+###### 2. [Client 端配置](/jupiter-example/src/main/resources/spring-consumer.xml):
 
 ```xml
 <jupiter:client id="jupiterClient" registryType="default"> <!-- registryType="zookeeper" 代表使用zk作为注册中心 -->
@@ -231,9 +231,9 @@ v1.3 新增 `InvokeType.AUTO`, 当你的接口返回值是一个 `CompletableFut
 </jupiter:consumer>
 ```
 
-[SpringServer/SpringClient代码示例](https://github.com/fengjiachun/Jupiter/tree/master/jupiter-example/src/main/java/org/jupiter/example/spring)
+[SpringServer/SpringClient 代码示例](/jupiter-example/src/main/java/org/jupiter/example/spring)
 
-##### [更多示例代码](https://github.com/fengjiachun/Jupiter/tree/master/jupiter-example/src/main/java/org/jupiter/example)
+##### [更多示例代码](/jupiter-example/src/main/java/org/jupiter/example)
 
 
 #### 其他
