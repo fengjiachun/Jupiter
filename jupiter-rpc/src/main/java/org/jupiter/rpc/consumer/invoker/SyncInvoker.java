@@ -37,6 +37,7 @@ import org.jupiter.rpc.model.metadata.ServiceMetadata;
  *
  * @author jiachun.fjc
  */
+@Deprecated
 public class SyncInvoker extends AbstractInvoker {
 
     public SyncInvoker(String appName,

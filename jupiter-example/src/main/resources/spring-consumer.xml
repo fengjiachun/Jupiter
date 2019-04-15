@@ -52,17 +52,17 @@
         <!-- 以下都选项可不填 -->
         <!-- 服务版本号, 通常在接口不兼容时版本号才需要升级 -->
         <jupiter:property version="1.0.0.daily" />
-        <!-- 序列化/反序列化类型: (proto_stuff, hessian, kryo, java)可选, 默认proto_stuff -->
+        <!-- 序列化/反序列化类型: (proto_stuff, hessian, kryo, java)可选, 默认 proto_stuff -->
         <jupiter:property serializerType="proto_stuff" />
         <!-- 软负载均衡类型[random, round_robin, ext_spi] -->
         <jupiter:property loadBalancerType="round_robin" />
-        <!-- 派发方式: (round, broadcast)可选, 默认round(单播) -->
+        <!-- 派发方式: (round, broadcast)可选, 默认 round (单播) -->
         <jupiter:property dispatchType="round" />
-        <!-- 调用方式: (sync, async)可选, 默认sync(同步调用) -->
+        <!-- 调用方式: (auto, async)可选, 默认 auto -->
         <jupiter:property invokeType="sync" />
-        <!-- 集群容错策略: (fail_fast, fail_over, fail_safe)可选, 默认fail_fast(快速失败) -->
+        <!-- 集群容错策略: (fail_fast, fail_over, fail_safe)可选, 默认 fail_fast (快速失败) -->
         <jupiter:property clusterStrategy="fail_over" />
-        <!-- 在fail_over策略下的失败重试次数 -->
+        <!-- 在 fail_over 策略下的失败重试次数 -->
         <jupiter:property failoverRetries="2" />
         <!-- 超时时间设置 -->
         <jupiter:property timeoutMillis="3000" />
@@ -76,15 +76,15 @@
             SerializerType serializerType                   // 序列化/反序列化方式
             LoadBalancerType loadBalancerType               // 软负载均衡类型[random, round_robin, ext_spi]
             String extLoadBalancerName;                     // 扩展软负载均衡唯一标识
-            long waitForAvailableTimeoutMillis = -1         // 如果大于0, 表示阻塞等待直到连接可用并且该值为等待时间
+            long waitForAvailableTimeoutMillis = -1         // 如果大于 0, 表示阻塞等待直到连接可用并且该值为等待时间
             InvokeType invokeType                           // 调用方式 [同步, 异步]
             DispatchType dispatchType                       // 派发方式 [单播, 广播]
             long timeoutMillis                              // 调用超时时间设置
             List<MethodSpecialConfig> methodSpecialConfigs; // 指定方法的单独配置, 方法参数类型不做区别对待
             ConsumerInterceptor[] consumerInterceptors      // 消费者端拦截器
-            String providerAddresses                        // provider地址列表, 逗号分隔(IP直连)
+            String providerAddresses                        // provider 地址列表, 逗号分隔(IP直连)
             ClusterInvoker.Strategy clusterStrategy;        // 集群容错策略
-            int failoverRetries                             // fail_over的重试次数
+            int failoverRetries                             // fail_over 的重试次数
         -->
     </jupiter:consumer>
 </beans>

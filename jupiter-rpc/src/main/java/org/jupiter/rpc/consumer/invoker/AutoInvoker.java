@@ -51,30 +51,26 @@ public class AutoInvoker extends AbstractInvoker {
     public Object invoke(@Origin Method method, @AllArguments @RuntimeType Object[] args) throws Throwable {
         Class<?> returnType = method.getReturnType();
 
-        if (CompletableFuture.class.isAssignableFrom(returnType)) {
-            final CompletableFuture<Object> cf = createCompletableFuture((Class<CompletableFuture>) returnType);
-
-            // Using nested future is for compatibility with InvokeType.SYNC,
-            // I don't think this leads to significant serialization performance loss.
-            InvokeFuture<CompletableFuture<Object>> ivf =
-                    (InvokeFuture<CompletableFuture<Object>>) doInvoke(method.getName(), args, returnType, false);
-
-            ivf.whenComplete((result, throwable) -> {
-                if (throwable == null) {
-                    try {
-                        cf.complete(result.get());
-                    } catch (Throwable t) {
-                        cf.completeExceptionally(t);
-                    }
-                } else {
-                    cf.completeExceptionally(throwable);
-                }
-            });
-
-            return cf;
+        if (!CompletableFuture.class.isAssignableFrom(returnType)) {
+            return doInvoke(method.getName(), args, returnType, true);
         }
 
-        return doInvoke(method.getName(), args, returnType, true);
+        final CompletableFuture<Object> cf = createCompletableFuture((Class<CompletableFuture>) returnType);
+
+        InvokeFuture<Object> inf = (InvokeFuture<Object>) doInvoke(method.getName(), args, returnType, false);
+        inf.whenComplete((result, throwable) -> {
+            if (throwable == null) {
+                try {
+                    cf.complete(result);
+                } catch (Throwable t) {
+                    cf.completeExceptionally(t);
+                }
+            } else {
+                cf.completeExceptionally(throwable);
+            }
+        });
+
+        return cf;
     }
 
     @SuppressWarnings("unchecked")

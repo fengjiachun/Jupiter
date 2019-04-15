@@ -26,7 +26,7 @@ package org.jupiter.rpc;
 public enum InvokeType {
     SYNC,   // 同步调用
     ASYNC,  // 异步调用
-    AUTO;   // 当你的接口返回值是一个 CompletableFuture 或者它的子类将自动适配为异步调用, 否则为同步调用
+    AUTO;   // 当接口返回值是一个 CompletableFuture 或者它的子类将自动适配为异步调用, 否则为同步调用
 
     public static InvokeType parse(String name) {
         for (InvokeType s : values()) {
@@ -38,6 +38,6 @@ public enum InvokeType {
     }
 
     public static InvokeType getDefault() {
-        return SYNC;
+        return AUTO;
     }
 }
