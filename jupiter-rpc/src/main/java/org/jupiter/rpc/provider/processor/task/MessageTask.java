@@ -174,23 +174,23 @@ public class MessageTask implements RejectedRunnable {
             final Object invokeResult = Chains.invoke(request, invokeCtx)
                     .getResult();
 
-            if (invokeResult instanceof CompletableFuture) {
-                CompletableFuture<Object> cf = (CompletableFuture<Object>) invokeResult;
-                cf.whenComplete((result, throwable) -> {
-                    if (throwable == null) {
-                        try {
-                            doProcess(invokeResult);
-                        } catch (Throwable t) {
-                            handleFail(invokeCtx, t);
-                        }
-                    } else {
-                        handleFail(invokeCtx, throwable);
-                    }
-                });
+            if (!(invokeResult instanceof CompletableFuture)) {
+                doProcess(invokeResult);
                 return;
             }
 
-            doProcess(invokeResult);
+            CompletableFuture<Object> cf = (CompletableFuture<Object>) invokeResult;
+            cf.whenComplete((result, throwable) -> {
+                if (throwable == null) {
+                    try {
+                        doProcess(result);
+                    } catch (Throwable t) {
+                        handleFail(invokeCtx, t);
+                    }
+                } else {
+                    handleFail(invokeCtx, throwable);
+                }
+            });
         } catch (Throwable t) {
             handleFail(invokeCtx, t);
         }
