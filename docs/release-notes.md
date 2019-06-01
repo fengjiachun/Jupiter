@@ -1,6 +1,10 @@
 Jupiter release notes
 ------------------------
 
+### 2019-06-01: version 1.3.1-SNAPSHOT
+- InvokeType.SYNC 合并进 InvokeType.AUTO, 同时支持同步调用以及 CompletableFuture 返回值的异步调用
+- 减少 send system call 调用，性能有一定提升，验证阶段
+
 ### 2019-04-13: version 1.3.0
 - 不再支持 java7，仅支持 java8 及以上版本
 - 移除 AbstractFuture，直接使用 java8 的CompletableFuture
