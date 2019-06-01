@@ -156,12 +156,12 @@ public class JNettyTcpConnector extends NettyTcpConnector {
             @Override
             public ChannelHandler[] handlers() {
                 return new ChannelHandler[] {
+                        new FlushConsolidationHandler(512, true),
                         this,
                         new IdleStateChecker(timer, 0, JConstants.WRITER_IDLE_TIME_SECONDS, 0),
                         idleStateTrigger,
                         CodecConfig.isCodecLowCopy() ? new LowCopyProtocolDecoder() : new ProtocolDecoder(),
                         encoder,
-                        new FlushConsolidationHandler(512, true),
                         handler
                 };
             }

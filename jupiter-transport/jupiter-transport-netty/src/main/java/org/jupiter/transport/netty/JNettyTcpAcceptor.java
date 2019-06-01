@@ -156,11 +156,11 @@ public class JNettyTcpAcceptor extends NettyTcpAcceptor {
             @Override
             protected void initChannel(Channel ch) throws Exception {
                 ch.pipeline().addLast(
+                        new FlushConsolidationHandler(512, true),
                         new IdleStateChecker(timer, JConstants.READER_IDLE_TIME_SECONDS, 0, 0),
                         idleStateTrigger,
                         CodecConfig.isCodecLowCopy() ? new LowCopyProtocolDecoder() : new ProtocolDecoder(),
                         encoder,
-                        new FlushConsolidationHandler(512, true),
                         handler);
             }
         });
