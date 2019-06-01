@@ -23,6 +23,7 @@ import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelInitializer;
 import io.netty.channel.ChannelOutboundHandler;
 import io.netty.channel.unix.DomainSocketAddress;
+import io.netty.handler.flush.FlushConsolidationHandler;
 
 import org.jupiter.common.util.JConstants;
 import org.jupiter.common.util.Requires;
@@ -114,6 +115,7 @@ public class JNettyDomainAcceptor extends NettyDomainAcceptor {
                         idleStateTrigger,
                         CodecConfig.isCodecLowCopy() ? new LowCopyProtocolDecoder() : new ProtocolDecoder(),
                         encoder,
+                        new FlushConsolidationHandler(512, true),
                         handler);
             }
         });
