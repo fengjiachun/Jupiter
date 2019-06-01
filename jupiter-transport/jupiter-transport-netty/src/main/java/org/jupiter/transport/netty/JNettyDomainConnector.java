@@ -147,7 +147,7 @@ public class JNettyDomainConnector extends NettyDomainConnector {
             @Override
             public ChannelHandler[] handlers() {
                 return new ChannelHandler[] {
-                        new FlushConsolidationHandler(512, true),
+                        new FlushConsolidationHandler(JConstants.EXPLICIT_FLUSH_AFTER_FLUSHES, true),
                         this,
                         new IdleStateChecker(timer, 0, JConstants.WRITER_IDLE_TIME_SECONDS, 0),
                         idleStateTrigger,

@@ -68,6 +68,9 @@ public final class JConstants {
     /** Client链路write空闲检测, 默认30秒, 30秒没有向链路中写入任何数据时Client会主动向Server发送心跳数据包 */
     public static final int WRITER_IDLE_TIME_SECONDS =
             SystemPropertyUtil.getInt("jupiter.io.writer.idle.time.seconds", 30);
+    /** The number of flushes after which an explicit flush will be done */
+    public static final int EXPLICIT_FLUSH_AFTER_FLUSHES =
+            SystemPropertyUtil.getInt("jupiter.io.explicit.flush.after.flushes", 1024);
 
     /** Load balancer 默认预热时间 **/
     public static final int DEFAULT_WARM_UP =
