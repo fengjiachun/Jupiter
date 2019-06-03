@@ -18,14 +18,17 @@ package org.jupiter.transport.netty.channel;
 import java.io.OutputStream;
 import java.net.SocketAddress;
 import java.nio.ByteBuffer;
+import java.util.Queue;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufAllocator;
 import io.netty.buffer.ByteBufOutputStream;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelFutureListener;
+import io.netty.channel.EventLoop;
 import io.netty.util.Attribute;
 import io.netty.util.AttributeKey;
+import io.netty.util.internal.PlatformDependent;
 
 import org.jupiter.serialization.io.OutputBuf;
 import org.jupiter.transport.JProtocolHeader;
@@ -65,6 +68,9 @@ public class NettyChannel implements JChannel {
 
     private final Channel channel;
     private final AdaptiveOutputBufAllocator.Handle allocHandle = AdaptiveOutputBufAllocator.DEFAULT.newHandle();
+
+    private final Queue<Runnable> taskQueue = PlatformDependent.newMpscQueue(1024);
+    private final Runnable runAllTasks = this::runAllTasks;
 
     private NettyChannel(Channel channel) {
         this.channel = channel;
@@ -157,6 +163,33 @@ public class NettyChannel implements JChannel {
                     }
                 });
         return jChannel;
+    }
+
+    @Override
+    public void addTask(Runnable task) {
+        EventLoop eventLoop = channel.eventLoop();
+
+        while (!taskQueue.offer(task)) {
+            if (eventLoop.inEventLoop()) {
+                runAllTasks.run();
+            } else {
+                eventLoop.execute(runAllTasks);
+            }
+        }
+
+        if (!taskQueue.isEmpty()) {
+            eventLoop.execute(runAllTasks);
+        }
+    }
+
+    private void runAllTasks() {
+        for (;;) {
+            Runnable task = taskQueue.poll();
+            if (task == null) {
+                return;
+            }
+            task.run();
+        }
     }
 
     @Override

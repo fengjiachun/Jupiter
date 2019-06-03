@@ -59,8 +59,8 @@ public class ThreadPoolExecutorFactory extends AbstractExecutorFactory {
         return new CloseableExecutor() {
 
             @Override
-            public void execute(Runnable r) {
-                executor.execute(r);
+            public void execute(Runnable task) {
+                executor.execute(task);
             }
 
             @Override

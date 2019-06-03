@@ -60,7 +60,7 @@ public abstract class DefaultProviderProcessor implements ProviderProcessor, Loo
     public void handleRequest(JChannel channel, JRequestPayload requestPayload) throws Exception {
         MessageTask task = new MessageTask(this, channel, new JRequest(requestPayload));
         if (executor == null) {
-            task.run();
+            channel.addTask(task);
         } else {
             executor.execute(task);
         }
