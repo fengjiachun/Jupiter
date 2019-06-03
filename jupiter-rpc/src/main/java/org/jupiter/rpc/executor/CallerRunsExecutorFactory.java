@@ -28,17 +28,6 @@ public class CallerRunsExecutorFactory extends AbstractExecutorFactory {
 
     @Override
     public CloseableExecutor newExecutor(Target target, String name) {
-        return new CloseableExecutor() {
-
-            @Override
-            public void execute(Runnable r) {
-                r.run();
-            }
-
-            @Override
-            public void shutdown() {
-                // do nothing
-            }
-        };
+        return null;
     }
 }

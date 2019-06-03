@@ -46,7 +46,7 @@ public class DefaultConsumerProcessor implements ConsumerProcessor {
     public void handleResponse(JChannel channel, JResponsePayload responsePayload) throws Exception {
         MessageTask task = new MessageTask(channel, new JResponse(responsePayload));
         if (executor == null) {
-            task.run();
+            channel.addTask(task);
         } else {
             executor.execute(task);
         }

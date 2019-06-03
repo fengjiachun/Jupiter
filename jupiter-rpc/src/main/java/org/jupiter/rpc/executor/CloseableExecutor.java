@@ -23,7 +23,7 @@ package org.jupiter.rpc.executor;
  */
 public interface CloseableExecutor {
 
-    void execute(Runnable r);
+    void execute(Runnable task);
 
     void shutdown();
 }

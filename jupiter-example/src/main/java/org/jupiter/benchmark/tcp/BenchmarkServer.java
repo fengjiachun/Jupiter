@@ -50,7 +50,7 @@ public class BenchmarkServer {
 
         // 设置全局provider executor
         SystemPropertyUtil
-                .setProperty("jupiter.executor.factory.provider.factory_name", "threadPool");
+                .setProperty("jupiter.executor.factory.provider.factory_name", "callerRuns");
 
         final JServer server = new DefaultServer().withAcceptor(new JNettyTcpAcceptor(18099, processors, true) {
 

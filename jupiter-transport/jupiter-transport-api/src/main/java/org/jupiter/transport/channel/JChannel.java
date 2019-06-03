@@ -120,6 +120,11 @@ public interface JChannel {
     JChannel write(Object msg, JFutureListener<JChannel> listener);
 
     /**
+     * Add a task will execute in the io thread later.
+     */
+    void addTask(Runnable task);
+
+    /**
      * Allocate a {@link OutputBuf}.
      */
     OutputBuf allocOutputBuf();

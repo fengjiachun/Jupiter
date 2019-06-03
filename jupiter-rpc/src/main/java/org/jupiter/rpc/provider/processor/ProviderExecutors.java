@@ -55,8 +55,4 @@ public class ProviderExecutors {
     public static CloseableExecutor executor() {
         return executor;
     }
-
-    public static void execute(Runnable r) {
-        executor.execute(r);
-    }
 }
