@@ -180,6 +180,12 @@ public class MessageTask implements RejectedRunnable {
             }
 
             CompletableFuture<Object> cf = (CompletableFuture<Object>) invokeResult;
+
+            if (cf.isDone()) {
+                doProcess(cf.join());
+                return;
+            }
+
             cf.whenComplete((result, throwable) -> {
                 if (throwable == null) {
                     try {
