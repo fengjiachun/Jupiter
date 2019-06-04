@@ -228,23 +228,25 @@ public class MessageTask implements RejectedRunnable {
     }
 
     private void handleWriteResponse(JResponsePayload response) {
-        channel.write(response, new JFutureListener<JChannel>() {
+        if (!METRIC_NEEDED) {
+            channel.write(response);
+        } else {
+            channel.write(response, new JFutureListener<JChannel>() {
 
-            @Override
-            public void operationSuccess(JChannel channel) throws Exception {
-                if (METRIC_NEEDED) {
+                @Override
+                public void operationSuccess(JChannel channel) throws Exception {
                     long duration = SystemClock.millisClock().now() - request.timestamp();
                     MetricsHolder.processingTimer.update(duration, TimeUnit.MILLISECONDS);
                 }
-            }
 
-            @Override
-            public void operationFailure(JChannel channel, Throwable cause) throws Exception {
-                long duration = SystemClock.millisClock().now() - request.timestamp();
-                logger.error("Response sent failed, duration: {} millis, channel: {}, cause: {}.",
-                        duration, channel, cause);
-            }
-        });
+                @Override
+                public void operationFailure(JChannel channel, Throwable cause) throws Exception {
+                    long duration = SystemClock.millisClock().now() - request.timestamp();
+                    logger.error("Response sent failed, duration: {} millis, channel: {}, cause: {}.",
+                            duration, channel, cause);
+                }
+            });
+        }
     }
 
     private void handleException(Class<?>[] exceptionTypes, Throwable failCause) {
@@ -444,7 +446,6 @@ public class MessageTask implements RejectedRunnable {
 
     // - Metrics -------------------------------------------------------------------------------------------------------
     static class MetricsHolder {
-        // 请求处理耗时统计(从request被解码开始, 到response数据被刷到OS内核缓冲区为止)
         static final Timer processingTimer              = Metrics.timer("processing");
         // 请求被拒绝次数统计
         static final Meter rejectionMeter               = Metrics.meter("rejection");
