@@ -51,20 +51,20 @@ public class AutoInvoker extends AbstractInvoker {
     public Object invoke(@Origin Method method, @AllArguments @RuntimeType Object[] args) throws Throwable {
         Class<?> returnType = method.getReturnType();
 
-        if (!CompletableFuture.class.isAssignableFrom(returnType)) {
+        if (isSyncInvoke(returnType)) {
             return doInvoke(method.getName(), args, returnType, true);
         }
 
-        final CompletableFuture<Object> cf = createCompletableFuture((Class<CompletableFuture>) returnType);
-
         InvokeFuture<Object> inf = (InvokeFuture<Object>) doInvoke(method.getName(), args, returnType, false);
+
+        if (returnType.isAssignableFrom(inf.getClass())) {
+            return inf;
+        }
+
+        final CompletableFuture<Object> cf = newFuture((Class<CompletableFuture>) returnType);
         inf.whenComplete((result, throwable) -> {
             if (throwable == null) {
-                try {
-                    cf.complete(result);
-                } catch (Throwable t) {
-                    cf.completeExceptionally(t);
-                }
+                cf.complete(result);
             } else {
                 cf.completeExceptionally(throwable);
             }
@@ -73,11 +73,12 @@ public class AutoInvoker extends AbstractInvoker {
         return cf;
     }
 
+    private boolean isSyncInvoke(Class<?> returnType) {
+        return !CompletableFuture.class.isAssignableFrom(returnType);
+    }
+
     @SuppressWarnings("unchecked")
-    private static CompletableFuture<Object> createCompletableFuture(Class<CompletableFuture> cls) {
-        if (cls == CompletableFuture.class) {
-            return new CompletableFuture<>();
-        }
+    private static CompletableFuture<Object> newFuture(Class<CompletableFuture> cls) {
         try {
             return cls.newInstance();
         } catch (Throwable t) {
