@@ -1,7 +1,7 @@
 Jupiter release notes
 ------------------------
 
-### 2019-06-01: version 1.3.1-beta-1
+### 2019-06-01: version 1.3.1-beta-2
 - Netty 升级到 v4.1.27.Final
 - Zookeeper 升级到 v3.4.14
 - InvokeType.SYNC 合并进 InvokeType.AUTO, 同时支持同步调用以及 CompletableFuture 返回值的异步调用

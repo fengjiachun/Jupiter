@@ -69,7 +69,7 @@ public class NettyChannel implements JChannel {
     private final Channel channel;
     private final AdaptiveOutputBufAllocator.Handle allocHandle = AdaptiveOutputBufAllocator.DEFAULT.newHandle();
 
-    private final Queue<Runnable> taskQueue = PlatformDependent.newMpscQueue(1024);
+    private final Queue<Runnable> taskQueue = PlatformDependent.newFixedMpscQueue(1024);
     private final Runnable runAllTasks = this::runAllTasks;
 
     private NettyChannel(Channel channel) {
@@ -183,6 +183,10 @@ public class NettyChannel implements JChannel {
     }
 
     private void runAllTasks() {
+        if (taskQueue.isEmpty()) {
+            return;
+        }
+
         for (;;) {
             Runnable task = taskQueue.poll();
             if (task == null) {
