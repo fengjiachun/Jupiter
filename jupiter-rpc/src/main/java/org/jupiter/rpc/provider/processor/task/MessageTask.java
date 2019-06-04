@@ -228,25 +228,23 @@ public class MessageTask implements RejectedRunnable {
     }
 
     private void handleWriteResponse(JResponsePayload response) {
-        if (!METRIC_NEEDED) {
-            channel.write(response);
-        } else {
-            channel.write(response, new JFutureListener<JChannel>() {
+        channel.write(response, new JFutureListener<JChannel>() {
 
-                @Override
-                public void operationSuccess(JChannel channel) throws Exception {
+            @Override
+            public void operationSuccess(JChannel channel) throws Exception {
+                if (METRIC_NEEDED) {
                     long duration = SystemClock.millisClock().now() - request.timestamp();
                     MetricsHolder.processingTimer.update(duration, TimeUnit.MILLISECONDS);
                 }
+            }
 
-                @Override
-                public void operationFailure(JChannel channel, Throwable cause) throws Exception {
-                    long duration = SystemClock.millisClock().now() - request.timestamp();
-                    logger.error("Response sent failed, duration: {} millis, channel: {}, cause: {}.",
-                            duration, channel, cause);
-                }
-            });
-        }
+            @Override
+            public void operationFailure(JChannel channel, Throwable cause) throws Exception {
+                long duration = SystemClock.millisClock().now() - request.timestamp();
+                logger.error("Response sent failed, duration: {} millis, channel: {}, cause: {}.",
+                        duration, channel, cause);
+            }
+        });
     }
 
     private void handleException(Class<?>[] exceptionTypes, Throwable failCause) {
