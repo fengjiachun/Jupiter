@@ -34,7 +34,7 @@ import org.jupiter.transport.JOption;
  */
 public class NettyConfig implements JConfig {
 
-    private volatile int ioRatio = 100;
+    private volatile int ioRatio = 99;
     private volatile boolean preferDirect = true;
     private volatile boolean usePooledAllocator = true;
 
