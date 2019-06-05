@@ -27,7 +27,7 @@ import org.jupiter.common.util.StringBuilderHelper;
  */
 public abstract class Directory {
 
-    private String directoryCache;
+    private transient String directoryCache;
 
     /** 服务所属组别 */
     public abstract String getGroup();
