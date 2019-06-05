@@ -22,9 +22,8 @@ import io.protostuff.ByteString;
 import io.protostuff.IntSerializer;
 import io.protostuff.Output;
 import io.protostuff.Schema;
+import io.protostuff.ZeroByteStringHelper;
 
-import org.jupiter.common.util.internal.UnsafeReferenceFieldUpdater;
-import org.jupiter.common.util.internal.UnsafeUpdater;
 import org.jupiter.common.util.internal.UnsafeUtf8Util;
 import org.jupiter.serialization.io.OutputBuf;
 
@@ -45,9 +44,6 @@ import static io.protostuff.WireFormat.makeTag;
  * @author jiachun.fjc
  */
 class NioBufOutput implements Output {
-
-    private static final UnsafeReferenceFieldUpdater<ByteString, byte[]> byteStringBytesGetter =
-            UnsafeUpdater.newReferenceFieldUpdater(ByteString.class, "bytes");
 
     protected final OutputBuf outputBuf;
     protected final int maxCapacity;
@@ -204,7 +200,7 @@ class NioBufOutput implements Output {
 
     @Override
     public void writeBytes(int fieldNumber, ByteString value, boolean repeated) throws IOException {
-        writeByteArray(fieldNumber, byteStringBytesGetter.get(value), repeated);
+        writeByteArray(fieldNumber, ZeroByteStringHelper.getBytes(value), repeated);
     }
 
     @Override
