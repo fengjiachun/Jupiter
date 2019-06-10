@@ -33,7 +33,7 @@ public class JupiterServer {
 
     static {
         SystemPropertyUtil.setProperty("jupiter.rpc.suggest.connection.count", "1");
-        SystemPropertyUtil.setProperty("jupiter.transport.codec.low_copy", "true");
+        SystemPropertyUtil.setProperty("jupiter.io.codec.low_copy", "true");
         SystemPropertyUtil.setProperty("io.netty.allocator.type", "pooled");
 //        SystemPropertyUtil.setProperty("io.netty.noPreferDirect", "true");
     }

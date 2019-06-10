@@ -15,7 +15,7 @@
  */
 package org.jupiter.transport;
 
-import org.jupiter.common.util.SystemPropertyUtil;
+import org.jupiter.common.util.JConstants;
 
 /**
  * jupiter
@@ -23,14 +23,10 @@ import org.jupiter.common.util.SystemPropertyUtil;
  *
  * @author jiachun.fjc
  */
-@SuppressWarnings("all")
 public final class CodecConfig {
 
-    private static final boolean CODEC_LOW_COPY =
-            SystemPropertyUtil.getBoolean("jupiter.transport.codec.low_copy", true);
-
     public static boolean isCodecLowCopy() {
-        return CODEC_LOW_COPY;
+        return JConstants.CODEC_LOW_COPY;
     }
 
     private CodecConfig() {}

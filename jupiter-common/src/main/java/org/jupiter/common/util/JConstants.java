@@ -71,6 +71,9 @@ public final class JConstants {
     /** The number of flushes after which an explicit flush will be done */
     public static final int EXPLICIT_FLUSH_AFTER_FLUSHES =
             SystemPropertyUtil.getInt("jupiter.io.explicit.flush.after.flushes", 1024);
+    /** Whether use low copy strategy for serialization */
+    public static final boolean CODEC_LOW_COPY =
+            SystemPropertyUtil.getBoolean("jupiter.io.codec.low_copy", true);
 
     /** Load balancer 默认预热时间 **/
     public static final int DEFAULT_WARM_UP =

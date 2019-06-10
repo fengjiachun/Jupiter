@@ -39,7 +39,7 @@ import org.jupiter.transport.netty.JNettyTcpConnector;
 public class SyncJupiterClient {
 
     static {
-        SystemPropertyUtil.setProperty("jupiter.transport.codec.low_copy", "true");
+        SystemPropertyUtil.setProperty("jupiter.io.codec.low_copy", "true");
         SystemPropertyUtil.setProperty("io.netty.allocator.type", "pooled");
 //        SystemPropertyUtil.setProperty("io.netty.noPreferDirect", "true");
     }

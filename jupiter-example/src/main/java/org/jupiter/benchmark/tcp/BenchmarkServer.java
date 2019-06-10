@@ -32,7 +32,7 @@ import org.jupiter.transport.netty.JNettyTcpAcceptor;
 public class BenchmarkServer {
 
     public static void main(String[] args) {
-//        SystemPropertyUtil.setProperty("jupiter.transport.codec.low_copy", "true");
+//        SystemPropertyUtil.setProperty("jupiter.io.codec.low_copy", "true");
 
         final int processors = Runtime.getRuntime().availableProcessors();
         SystemPropertyUtil

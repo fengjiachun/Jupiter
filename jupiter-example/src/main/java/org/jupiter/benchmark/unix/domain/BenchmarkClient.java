@@ -49,7 +49,7 @@ public class BenchmarkClient {
     private static final InternalLogger logger = InternalLoggerFactory.getInstance(BenchmarkClient.class);
 
     public static void main(String[] args) {
-//        SystemPropertyUtil.setProperty("jupiter.transport.codec.low_copy", "true");
+//        SystemPropertyUtil.setProperty("jupiter.io.codec.low_copy", "true");
 
         int processors = Runtime.getRuntime().availableProcessors();
         SystemPropertyUtil
