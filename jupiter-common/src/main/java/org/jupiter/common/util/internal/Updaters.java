@@ -15,15 +15,13 @@
  */
 package org.jupiter.common.util.internal;
 
-import org.jupiter.common.util.ThrowUtil;
-
 /**
  * jupiter
  * org.jupiter.common.util.internal
  *
  * @author jiachun.fjc
  */
-public class UnsafeUpdater {
+public class Updaters {
 
     /**
      * Creates and returns an updater for objects with the given field.
@@ -31,13 +29,16 @@ public class UnsafeUpdater {
      * @param tClass    the class of the objects holding the field.
      * @param fieldName the name of the field to be updated.
      */
-    public static <U> UnsafeIntegerFieldUpdater<U> newIntegerFieldUpdater(Class<? super U> tClass, String fieldName) {
+    public static <U> IntegerFieldUpdater<U> newIntegerFieldUpdater(Class<? super U> tClass, String fieldName) {
         try {
-            return new UnsafeIntegerFieldUpdater<>(UnsafeUtil.getUnsafe(), tClass, fieldName);
+            if (UnsafeUtil.hasUnsafe()) {
+                return new UnsafeIntegerFieldUpdater<>(UnsafeUtil.getUnsafeAccessor().getUnsafe(), tClass, fieldName);
+            } else {
+                return new ReflectionIntegerFieldUpdater<>(tClass, fieldName);
+            }
         } catch (Throwable t) {
-            ThrowUtil.throwException(t);
+            throw new RuntimeException(t);
         }
-        return null;
     }
 
     /**
@@ -46,13 +47,16 @@ public class UnsafeUpdater {
      * @param tClass    the class of the objects holding the field.
      * @param fieldName the name of the field to be updated.
      */
-    public static <U> UnsafeLongFieldUpdater<U> newLongFieldUpdater(Class<? super U> tClass, String fieldName) {
+    public static <U> LongFieldUpdater<U> newLongFieldUpdater(Class<? super U> tClass, String fieldName) {
         try {
-            return new UnsafeLongFieldUpdater<>(UnsafeUtil.getUnsafe(), tClass, fieldName);
+            if (UnsafeUtil.hasUnsafe()) {
+                return new UnsafeLongFieldUpdater<>(UnsafeUtil.getUnsafeAccessor().getUnsafe(), tClass, fieldName);
+            } else {
+                return new ReflectionLongFieldUpdater<>(tClass, fieldName);
+            }
         } catch (Throwable t) {
-            ThrowUtil.throwException(t);
+            throw new RuntimeException(t);
         }
-        return null;
     }
 
     /**
@@ -61,12 +65,15 @@ public class UnsafeUpdater {
      * @param tClass    the class of the objects holding the field.
      * @param fieldName the name of the field to be updated.
      */
-    public static <U, W> UnsafeReferenceFieldUpdater<U, W> newReferenceFieldUpdater(Class<? super U> tClass, String fieldName) {
+    public static <U, W> ReferenceFieldUpdater<U, W> newReferenceFieldUpdater(Class<? super U> tClass, String fieldName) {
         try {
-            return new UnsafeReferenceFieldUpdater<>(UnsafeUtil.getUnsafe(), tClass, fieldName);
+            if (UnsafeUtil.hasUnsafe()) {
+                return new UnsafeReferenceFieldUpdater<>(UnsafeUtil.getUnsafeAccessor().getUnsafe(), tClass, fieldName);
+            } else {
+                return new ReflectionReferenceFieldUpdater<>(tClass, fieldName);
+            }
         } catch (Throwable t) {
-            ThrowUtil.throwException(t);
+            throw new RuntimeException(t);
         }
-        return null;
     }
 }

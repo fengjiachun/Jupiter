@@ -147,6 +147,7 @@ class UnsafeNioBufOutput extends NioBufOutput {
         nioBuffer.position(position);
     }
 
+    @SuppressWarnings("DuplicateExpressions")
     @Override
     protected void writeVarInt64(long value) throws IOException {
 //        ensureCapacity(10);

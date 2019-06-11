@@ -13,21 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.protostuff;
+package org.jupiter.common.util.internal;
 
 /**
- *
  * @author jiachun.fjc
  */
-public final class ZeroByteStringHelper {
+public interface ReferenceFieldUpdater<U, W> {
 
-    public static byte[] getBytes(ByteString byteString) {
-        return byteString.getBytes();
-    }
+    void set(U obj, W newValue);
 
-    public static ByteString wrap(byte[] bytes) {
-        return ByteString.wrap(bytes);
-    }
-
-    public ZeroByteStringHelper() {}
+    W get(U obj);
 }

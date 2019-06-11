@@ -25,6 +25,7 @@ import java.util.concurrent.ConcurrentMap;
 
 import org.jupiter.common.concurrent.collection.NonBlockingHashMap;
 import org.jupiter.common.concurrent.collection.NonBlockingHashMapLong;
+import org.jupiter.common.util.internal.UnsafeUtil;
 
 /**
  * Static utility methods pertaining to {@link Map} instances.
@@ -86,7 +87,7 @@ public final class Maps {
      * Creates a mutable, empty {@code ConcurrentMap} instance.
      */
     public static <K, V> ConcurrentMap<K, V> newConcurrentMap() {
-        if (USE_NON_BLOCKING_HASH) {
+        if (USE_NON_BLOCKING_HASH && UnsafeUtil.hasUnsafe()) {
             return new NonBlockingHashMap<>();
         }
         return new ConcurrentHashMap<>();
@@ -97,7 +98,7 @@ public final class Maps {
      * that it should hold {@code expectedSize} elements without growth.
      */
     public static <K, V> ConcurrentMap<K, V> newConcurrentMap(int initialCapacity) {
-        if (USE_NON_BLOCKING_HASH) {
+        if (USE_NON_BLOCKING_HASH && UnsafeUtil.hasUnsafe()) {
             return new NonBlockingHashMap<>(initialCapacity);
         }
         return new ConcurrentHashMap<>(initialCapacity);

@@ -17,35 +17,34 @@ package org.jupiter.common.util.internal;
 
 import java.lang.reflect.Field;
 
-import sun.misc.Unsafe;
-
 /**
- * jupiter
- * org.jupiter.common.util.internal
  *
  * @author jiachun.fjc
  */
-final class UnsafeLongFieldUpdater<U> implements LongFieldUpdater<U> {
+final class ReflectionLongFieldUpdater<U> implements LongFieldUpdater<U> {
 
-    private final long offset;
-    private final Unsafe unsafe;
+    private final Field field;
 
-    UnsafeLongFieldUpdater(Unsafe unsafe, Class<? super U> tClass, String fieldName) throws NoSuchFieldException {
-        final Field field = tClass.getDeclaredField(fieldName);
-        if (unsafe == null) {
-            throw new NullPointerException("unsafe");
-        }
-        this.unsafe = unsafe;
-        this.offset = unsafe.objectFieldOffset(field);
+    ReflectionLongFieldUpdater(Class<? super U> tClass, String fieldName) throws NoSuchFieldException {
+        field = tClass.getDeclaredField(fieldName);
+        field.setAccessible(true);
     }
 
     @Override
     public void set(U obj, long newValue) {
-        unsafe.putLong(obj, offset, newValue);
+        try {
+            field.set(obj, newValue);
+        } catch (IllegalAccessException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     @Override
     public long get(U obj) {
-        return unsafe.getLong(obj, offset);
+        try {
+            return (Long) this.field.get(obj);
+        } catch (IllegalAccessException e) {
+            throw new RuntimeException(e);
+        }
     }
 }

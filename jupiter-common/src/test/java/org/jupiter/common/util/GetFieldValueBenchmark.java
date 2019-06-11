@@ -64,7 +64,7 @@ public class GetFieldValueBenchmark {
     @Benchmark
     public void unsafeGet() {
         // RandomLoadBalancer中有类似代码
-        Object[] array = (Object[]) UnsafeUtil.getUnsafe().getObjectVolatile(FIELD_TEST, FieldTest.OFFSET);
+        Object[] array = (Object[]) UnsafeUtil.getUnsafeAccessor().getUnsafe().getObjectVolatile(FIELD_TEST, FieldTest.OFFSET);
         if ((int) array[0] != 1) {
             System.out.println(1);
         }
@@ -83,13 +83,12 @@ class FieldTest {
     static {
         long offsetTmp;
         try {
-            offsetTmp = UnsafeUtil.getUnsafe().objectFieldOffset(Reflects.getField(FieldTest.class, "array"));
+            offsetTmp = UnsafeUtil.getUnsafeAccessor().getUnsafe().objectFieldOffset(Reflects.getField(FieldTest.class, "array"));
         } catch (NoSuchFieldException e) {
             offsetTmp = 0;
         }
         OFFSET = offsetTmp;
     }
 
-    @SuppressWarnings("MismatchedReadAndWriteOfArray")
     volatile Object[] array = new Object[] { 1, 2 };
 }

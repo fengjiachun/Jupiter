@@ -21,6 +21,7 @@ import io.protostuff.ProtostuffOutput;
 import io.protostuff.WriteSession;
 
 import org.jupiter.common.util.Reflects;
+import org.jupiter.common.util.internal.UnsafeUtil;
 import org.jupiter.serialization.io.OutputBuf;
 
 /**
@@ -32,10 +33,11 @@ import org.jupiter.serialization.io.OutputBuf;
 public final class Outputs {
 
     public static Output getOutput(OutputBuf outputBuf) {
-        if (outputBuf.hasMemoryAddress()) {
+        if (outputBuf.hasMemoryAddress() && UnsafeUtil.hasUnsafe()) {
             return new UnsafeNioBufOutput(outputBuf, -1, Integer.MAX_VALUE);
+        } else {
+            return new NioBufOutput(outputBuf, -1, Integer.MAX_VALUE);
         }
-        return new NioBufOutput(outputBuf, -1, Integer.MAX_VALUE);
     }
 
     public static Output getOutput(LinkedBuffer buf) {

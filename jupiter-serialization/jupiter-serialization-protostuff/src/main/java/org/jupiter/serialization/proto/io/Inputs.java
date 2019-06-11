@@ -19,6 +19,7 @@ import io.protostuff.ByteArrayInput;
 import io.protostuff.Input;
 import io.protostuff.ProtobufException;
 
+import org.jupiter.common.util.internal.UnsafeUtil;
 import org.jupiter.serialization.io.InputBuf;
 
 /**
@@ -30,10 +31,11 @@ import org.jupiter.serialization.io.InputBuf;
 public final class Inputs {
 
     public static Input getInput(InputBuf inputBuf) {
-        if (inputBuf.hasMemoryAddress()) {
+        if (inputBuf.hasMemoryAddress() && UnsafeUtil.hasUnsafe()) {
             return new UnsafeNioBufInput(inputBuf.nioByteBuffer(), true);
+        } else {
+            return new NioBufInput(inputBuf.nioByteBuffer(), true);
         }
-        return new NioBufInput(inputBuf.nioByteBuffer(), true);
     }
 
     public static Input getInput(byte[] bytes, int offset, int length) {

@@ -104,7 +104,7 @@ public class NonBlockingHashMapLong<TypeV>
 
     private static final long serialVersionUID = 1234123412341234124L;
 
-    private static Unsafe unsafe = UnsafeUtil.getUnsafe();
+    private static Unsafe unsafe = UnsafeUtil.getUnsafeAccessor().getUnsafe();
 
     private static final int REPROBE_LIMIT = 10; // Too many reprobes then force a table-resize
 

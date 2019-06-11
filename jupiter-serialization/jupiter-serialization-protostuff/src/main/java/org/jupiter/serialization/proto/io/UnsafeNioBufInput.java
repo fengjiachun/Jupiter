@@ -16,7 +16,6 @@
 package org.jupiter.serialization.proto.io;
 
 import java.io.IOException;
-import java.lang.reflect.Method;
 import java.nio.ByteBuffer;
 
 import io.protostuff.ByteBufferInput;
@@ -26,8 +25,8 @@ import io.protostuff.Output;
 import io.protostuff.ProtobufException;
 import io.protostuff.Schema;
 import io.protostuff.UninitializedMessageException;
+import io.protostuff.ZeroByteStringHelper;
 
-import org.jupiter.common.util.ThrowUtil;
 import org.jupiter.common.util.internal.UnsafeDirectBufferUtil;
 import org.jupiter.common.util.internal.UnsafeUtf8Util;
 import org.jupiter.common.util.internal.UnsafeUtil;
@@ -53,8 +52,6 @@ class UnsafeNioBufInput implements Input {
 
     static final int TAG_TYPE_BITS = 3;
     static final int TAG_TYPE_MASK = (1 << TAG_TYPE_BITS) - 1;
-
-    static final Method byteStringWrapMethod;
 
     private final ByteBuffer nioBuffer;
     private int lastTag = 0;
@@ -405,15 +402,9 @@ class UnsafeNioBufInput implements Input {
         return result;
     }
 
-    @SuppressWarnings("all")
     @Override
     public ByteString readBytes() throws IOException {
-        try {
-            return (ByteString) byteStringWrapMethod.invoke(null, readByteArray());
-        } catch (Exception e) {
-            ThrowUtil.throwException(e);
-        }
-        return null; // never get here
+        return ZeroByteStringHelper.wrap(readByteArray());
     }
 
     @Override
@@ -624,14 +615,5 @@ class UnsafeNioBufInput implements Input {
 
     private void updateBufferAddress() {
         memoryAddress = UnsafeUtil.addressOffset(nioBuffer);
-    }
-
-    static {
-        try {
-            byteStringWrapMethod = ByteString.class.getDeclaredMethod("wrap", byte[].class);
-            byteStringWrapMethod.setAccessible(true);
-        } catch (NoSuchMethodException e) {
-            throw new Error(e);
-        }
     }
 }

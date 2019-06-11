@@ -61,8 +61,8 @@ class RhsPadding extends Fields {
  */
 public final class InternalThreadLocalMap extends RhsPadding {
 
-    private static final UnsafeReferenceFieldUpdater<StringBuilder, char[]> stringBuilderValueUpdater =
-            UnsafeUpdater.newReferenceFieldUpdater(StringBuilder.class.getSuperclass(), "value");
+    private static final ReferenceFieldUpdater<StringBuilder, char[]> stringBuilderValueUpdater =
+            Updaters.newReferenceFieldUpdater(StringBuilder.class.getSuperclass(), "value");
 
     private static final int DEFAULT_STRING_BUILDER_MAX_CAPACITY =
             SystemPropertyUtil.getInt("jupiter.internal.thread.local.string_builder_max_capacity", 1024 << 6);

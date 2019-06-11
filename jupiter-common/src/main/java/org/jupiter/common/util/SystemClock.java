@@ -88,8 +88,14 @@ public class SystemClock extends RhsTimePadding {
         });
 
         scheduler.scheduleAtFixedRate(() -> {
-            // Update the timestamp with ordered semantics.
-            UnsafeUtil.getUnsafe().putOrderedLong(SystemClock.this, NOW_VALUE_OFFSET, System.currentTimeMillis());
+            if (NOW_VALUE_OFFSET > 0) {
+                // Update the timestamp with ordered semantics.
+                UnsafeUtil.getUnsafeAccessor()
+                        .getUnsafe()
+                        .putOrderedLong(SystemClock.this, NOW_VALUE_OFFSET, System.currentTimeMillis());
+            } else {
+                now = System.currentTimeMillis();
+            }
         }, precision, precision, TimeUnit.MILLISECONDS);
     }
 

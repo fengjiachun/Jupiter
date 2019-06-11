@@ -22,9 +22,11 @@ import io.protostuff.ByteString;
 import io.protostuff.IntSerializer;
 import io.protostuff.Output;
 import io.protostuff.Schema;
+import io.protostuff.StringSerializer;
 import io.protostuff.ZeroByteStringHelper;
 
 import org.jupiter.common.util.internal.UnsafeUtf8Util;
+import org.jupiter.common.util.internal.UnsafeUtil;
 import org.jupiter.serialization.io.OutputBuf;
 
 import static io.protostuff.ProtobufOutput.encodeZigZag32;
@@ -147,6 +149,11 @@ class NioBufOutput implements Output {
 
     @Override
     public void writeString(int fieldNumber, CharSequence value, boolean repeated) throws IOException {
+        if (!UnsafeUtil.hasUnsafe()) {
+            writeByteArray(fieldNumber, StringSerializer.STRING.ser(value.toString()), repeated);
+            return;
+        }
+
         writeVarInt32(makeTag(fieldNumber, WIRETYPE_LENGTH_DELIMITED));
 
         // UTF-8 byte length of the string is at least its UTF-16 code unit length (value.length()),
@@ -191,8 +198,7 @@ class NioBufOutput implements Output {
                 UnsafeUtf8Util.encodeUtf8Direct(value, nioBuffer);
             } else {
                 int pos = nioBuffer.position();
-                UnsafeUtf8Util.encodeUtf8(value, nioBuffer.array(),
-                        nioBuffer.arrayOffset() + pos, nioBuffer.remaining());
+                UnsafeUtf8Util.encodeUtf8(value, nioBuffer.array(), nioBuffer.arrayOffset() + pos, nioBuffer.remaining());
                 nioBuffer.position(pos + length);
             }
         }

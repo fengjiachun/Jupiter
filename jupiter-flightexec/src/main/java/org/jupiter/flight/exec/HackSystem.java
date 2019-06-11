@@ -23,8 +23,8 @@ import java.io.PrintStream;
 import java.nio.channels.Channel;
 import java.util.Properties;
 
-import org.jupiter.common.util.internal.UnsafeReferenceFieldUpdater;
-import org.jupiter.common.util.internal.UnsafeUpdater;
+import org.jupiter.common.util.internal.ReferenceFieldUpdater;
+import org.jupiter.common.util.internal.Updaters;
 
 /**
  * Hack {@link java.lang.System}.
@@ -38,8 +38,8 @@ public class HackSystem {
 
     public static final InputStream in = System.in;
 
-    private static final UnsafeReferenceFieldUpdater<ByteArrayOutputStream, byte[]> bufUpdater =
-            UnsafeUpdater.newReferenceFieldUpdater(ByteArrayOutputStream.class, "buf");
+    private static final ReferenceFieldUpdater<ByteArrayOutputStream, byte[]> bufUpdater =
+            Updaters.newReferenceFieldUpdater(ByteArrayOutputStream.class, "buf");
 
     private static ByteArrayOutputStream buf = new ByteArrayOutputStream(1024);
 
@@ -50,7 +50,6 @@ public class HackSystem {
     public static String getBufString() {
         String value = buf.toString();
         synchronized (HackSystem.class) {
-            assert bufUpdater != null;
             if (bufUpdater.get(buf).length > (1024 << 3)) {
                 bufUpdater.set(buf, new byte[1024]);
             }
