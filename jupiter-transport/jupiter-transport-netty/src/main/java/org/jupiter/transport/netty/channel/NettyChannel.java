@@ -173,6 +173,7 @@ public class NettyChannel implements JChannel {
             if (eventLoop.inEventLoop()) {
                 runAllTasks.run();
             } else {
+                // TODO await?
                 eventLoop.execute(runAllTasks);
             }
         }
