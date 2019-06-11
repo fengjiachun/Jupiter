@@ -1,7 +1,8 @@
 Jupiter release notes
 ------------------------
 
-### 2019-06-01: version 1.3.1
+### 2019-06-11: version 1.3.1
+- 不再强依赖 `sun.misc.Unsafe`
 - Options: `jupiter.transport.codec.low_copy` -> `jupiter.io.codec.low_copy`
 - Netty 升级到 v4.1.27.Final
 - Zookeeper 升级到 v3.4.14
