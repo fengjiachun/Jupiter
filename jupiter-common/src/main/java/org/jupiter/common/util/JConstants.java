@@ -51,7 +51,7 @@ public final class JConstants {
     }
 
     /**
-     * 配置的 available processors. 默认值是 {@link Runtime#availableProcessors()}.
+     * 可配置的 available processors. 默认值是 {@link Runtime#availableProcessors()}.
      * 可以通过设置 system property "jupiter.available_processors" 来覆盖默认值.
      */
     public static final int AVAILABLE_PROCESSORS =
