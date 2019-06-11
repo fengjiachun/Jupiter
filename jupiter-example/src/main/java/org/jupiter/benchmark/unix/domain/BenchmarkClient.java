@@ -19,6 +19,7 @@ import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.atomic.AtomicLong;
 
+import org.jupiter.common.util.JConstants;
 import org.jupiter.common.util.Lists;
 import org.jupiter.common.util.SystemPropertyUtil;
 import org.jupiter.common.util.internal.logging.InternalLogger;
@@ -51,7 +52,7 @@ public class BenchmarkClient {
     public static void main(String[] args) {
 //        SystemPropertyUtil.setProperty("jupiter.io.codec.low_copy", "true");
 
-        int processors = Runtime.getRuntime().availableProcessors();
+        int processors = JConstants.AVAILABLE_PROCESSORS;
         SystemPropertyUtil
                 .setProperty("jupiter.executor.factory.consumer.core.workers", String.valueOf(processors << 1));
         SystemPropertyUtil.setProperty("jupiter.tracing.needed", "false");

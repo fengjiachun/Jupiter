@@ -17,6 +17,7 @@ package org.jupiter.benchmark.unix.domain;
 
 import io.netty.channel.unix.DomainSocketAddress;
 
+import org.jupiter.common.util.JConstants;
 import org.jupiter.common.util.SystemPropertyUtil;
 import org.jupiter.monitor.MonitorServer;
 import org.jupiter.rpc.DefaultServer;
@@ -36,7 +37,7 @@ public class BenchmarkServer {
     public static void main(String[] args) {
 //        SystemPropertyUtil.setProperty("jupiter.io.codec.low_copy", "true");
 
-        final int processors = Runtime.getRuntime().availableProcessors();
+        final int processors = JConstants.AVAILABLE_PROCESSORS;
         SystemPropertyUtil
                 .setProperty("jupiter.executor.factory.provider.core.workers", String.valueOf(processors));
         SystemPropertyUtil

@@ -54,7 +54,7 @@ public class SystemClockTest {
     public static void main(String[] args) throws RunnerException {
         Options opt = new OptionsBuilder()
                 .include(SystemClockTest.class.getSimpleName())
-                .threads(Runtime.getRuntime().availableProcessors())
+                .threads(JConstants.AVAILABLE_PROCESSORS)
                 .build();
 
         new Runner(opt).run();

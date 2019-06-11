@@ -50,8 +50,12 @@ public final class JConstants {
         UTF8 = charset;
     }
 
-    /** Cpu核心数 */
-    public static final int AVAILABLE_PROCESSORS = Runtime.getRuntime().availableProcessors();
+    /**
+     * 配置的 available processors. 默认值是 {@link Runtime#availableProcessors()}.
+     * 可以通过设置 system property "jupiter.available_processors" 来覆盖默认值.
+     */
+    public static final int AVAILABLE_PROCESSORS =
+            SystemPropertyUtil.getInt("jupiter.available_processors", Runtime.getRuntime().availableProcessors());
 
     /** 未知应用名称 */
     public static final String UNKNOWN_APP_NAME = "UNKNOWN";

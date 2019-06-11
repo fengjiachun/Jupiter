@@ -43,7 +43,7 @@ import org.openjdk.jmh.runner.options.OptionsBuilder;
 @OutputTimeUnit(TimeUnit.NANOSECONDS)
 public class SequenceTest {
 
-    static final int THREADS = Runtime.getRuntime().availableProcessors() << 1;
+    static final int THREADS = JConstants.AVAILABLE_PROCESSORS << 1;
 
     /*
         Benchmark           Mode  Cnt    Score     Error   Units
