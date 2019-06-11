@@ -15,6 +15,7 @@
  */
 package org.jupiter.common.util;
 
+import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
@@ -50,7 +51,7 @@ public class MD5Util {
                 message = java.security.MessageDigest.getInstance("MD5");
                 messageDigestHolder.set(message);
             }
-            message.update(data.getBytes(JConstants.UTF8));
+            message.update(data.getBytes(StandardCharsets.UTF_8));
             byte[] b = message.digest();
 
             StringBuilder digestHex = new StringBuilder(32);

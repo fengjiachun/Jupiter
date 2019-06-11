@@ -17,7 +17,7 @@ package org.jupiter.common.util;
 
 import java.io.File;
 import java.io.FileOutputStream;
-import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 
 /**
@@ -29,23 +29,15 @@ import java.util.List;
 public class JvmToolsTest {
 
     public static void main(String[] args) {
-        FileOutputStream stackOutput = null;
-        try {
-            stackOutput = new FileOutputStream(new File("jupiter.dump.log"));
+        try (FileOutputStream stackOutput = new FileOutputStream(new File("jupiter.dump.log"))) {
             List<String> stacks = JvmTools.jStack();
             for (String s : stacks) {
-                stackOutput.write(s.getBytes(JConstants.UTF8));
+                stackOutput.write(s.getBytes(StandardCharsets.UTF_8));
             }
 
-            JvmTools.jMap("jupiter.dump.bin", false);
+            JvmTools.jMap("jupiter.dump.hprof", false);
         } catch (Throwable t) {
             t.printStackTrace();
-        } finally {
-            if (stackOutput != null) {
-                try {
-                    stackOutput.close();
-                } catch (IOException ignored) {}
-            }
         }
     }
 }

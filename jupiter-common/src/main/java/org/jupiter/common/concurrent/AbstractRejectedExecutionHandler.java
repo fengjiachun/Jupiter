@@ -17,13 +17,13 @@ package org.jupiter.common.concurrent;
 
 import java.io.File;
 import java.io.FileOutputStream;
+import java.nio.charset.StandardCharsets;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
 import java.util.concurrent.RejectedExecutionHandler;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-import org.jupiter.common.util.JConstants;
 import org.jupiter.common.util.JvmTools;
 import org.jupiter.common.util.internal.logging.InternalLogger;
 import org.jupiter.common.util.internal.logging.InternalLoggerFactory;
@@ -58,16 +58,16 @@ public abstract class AbstractRejectedExecutionHandler implements RejectedExecut
 
                 List<String> stacks = JvmTools.jStack();
                 for (String s : stacks) {
-                    fileOutput.write(s.getBytes(JConstants.UTF8));
+                    fileOutput.write(s.getBytes(StandardCharsets.UTF_8));
                 }
 
                 List<String> memoryUsages = JvmTools.memoryUsage();
                 for (String m : memoryUsages) {
-                    fileOutput.write(m.getBytes(JConstants.UTF8));
+                    fileOutput.write(m.getBytes(StandardCharsets.UTF_8));
                 }
 
                 if (JvmTools.memoryUsed() > 0.9) {
-                    JvmTools.jMap(dumpPrefixName + "_dump_" + name + ".bin", false);
+                    JvmTools.jMap(dumpPrefixName + "_dump_" + name + ".hprof", false);
                 }
             } catch (Throwable t) {
                 logger.error("Dump jvm info error: {}.", stackTrace(t));

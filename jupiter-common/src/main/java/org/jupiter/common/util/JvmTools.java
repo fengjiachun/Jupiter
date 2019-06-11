@@ -89,8 +89,8 @@ public final class JvmTools {
 
     /**
      * Dumps the heap to the outputFile file in the same format as the hprof heap dump.
-     * @param outputFile    the system-dependent filename
-     * @param live          if true dump only live objects i.e. objects that are reachable from others
+     * @param outputFile the system-dependent filename
+     * @param live       if true dump only live objects i.e. objects that are reachable from others
      */
     @SuppressWarnings("all")
     public static void jMap(String outputFile, boolean live) throws Exception {
