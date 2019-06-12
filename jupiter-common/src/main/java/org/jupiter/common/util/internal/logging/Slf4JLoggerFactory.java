@@ -19,8 +19,10 @@ import java.io.OutputStream;
 import java.io.PrintStream;
 import java.io.UnsupportedEncodingException;
 
+import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.helpers.NOPLoggerFactory;
+import org.slf4j.spi.LocationAwareLogger;
 
 /**
  * Logger factory which creates a <a href="http://www.slf4j.org/">SLF4J</a>
@@ -65,6 +67,12 @@ public class Slf4JLoggerFactory extends InternalLoggerFactory {
 
     @Override
     public InternalLogger newInstance(String name) {
-        return new Slf4JLogger(LoggerFactory.getLogger(name));
+        return wrapLogger(LoggerFactory.getLogger(name));
+    }
+
+    // package-private for testing.
+    static InternalLogger wrapLogger(Logger logger) {
+        return logger instanceof LocationAwareLogger ?
+                new LocationAwareSlf4JLogger((LocationAwareLogger) logger) : new Slf4JLogger(logger);
     }
 }
