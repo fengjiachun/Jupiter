@@ -16,6 +16,7 @@
 package org.jupiter.monitor;
 
 import java.net.SocketAddress;
+import java.nio.charset.StandardCharsets;
 
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.Channel;
@@ -82,7 +83,7 @@ public class MonitorServer extends NettyTcpAcceptor {
 
     // handlers
     private final TelnetHandler handler = new TelnetHandler();
-    private final StringEncoder encoder = new StringEncoder(JConstants.UTF8);
+    private final StringEncoder encoder = new StringEncoder(StandardCharsets.UTF_8);
 
     private volatile RegistryMonitor registryMonitor;
     private volatile JServer jupiterServer;
@@ -108,7 +109,7 @@ public class MonitorServer extends NettyTcpAcceptor {
             protected void initChannel(Channel ch) throws Exception {
                 ch.pipeline().addLast(
                         new DelimiterBasedFrameDecoder(8192, Delimiters.lineDelimiter()),
-                        new StringDecoder(JConstants.UTF8),
+                        new StringDecoder(StandardCharsets.UTF_8),
                         encoder,
                         handler);
             }

@@ -19,7 +19,6 @@ import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
 import java.io.UnsupportedEncodingException;
 
-import org.jupiter.common.util.JConstants;
 import org.jupiter.common.util.StackTraceUtil;
 import org.jupiter.common.util.internal.ReferenceFieldUpdater;
 import org.jupiter.common.util.internal.Updaters;
@@ -54,7 +53,7 @@ public class MetricsReporter {
     private static String consoleOutput() {
         String output;
         try {
-            output = buf.toString(JConstants.UTF8_CHARSET);
+            output = buf.toString("UTF-8");
             if (bufUpdater.get(buf).length > 1024 * 64) {
                 bufUpdater.set(buf, new byte[1024 * 32]);
             }
