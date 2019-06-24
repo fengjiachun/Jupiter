@@ -98,17 +98,15 @@ public final class JServiceLoader<S> implements Iterable<S> {
             }
         }
         while (lookupIterator.hasNext()) {
-            Pair<String, Class<S>> e = lookupIterator.next();
-            String name = e.getFirst();
-            Class<S> cls = e.getSecond();
+            Class<S> cls = lookupIterator.next();
             SpiMetadata spi = cls.getAnnotation(SpiMetadata.class);
             if (spi != null && spi.name().equalsIgnoreCase(implName)) {
                 try {
                     S provider = service.cast(cls.newInstance());
-                    providers.put(name, provider);
+                    providers.put(cls.getName(), provider);
                     return provider;
                 } catch (Throwable x) {
-                    throw fail(service, "provider " + name + " could not be instantiated", x);
+                    throw fail(service, "provider " + cls.getName() + " could not be instantiated", x);
                 }
             }
         }
@@ -217,15 +215,13 @@ public final class JServiceLoader<S> implements Iterable<S> {
                 if (knownProviders.hasNext()) {
                     return knownProviders.next().getValue();
                 }
-                Pair<String, Class<S>> pair = lookupIterator.next();
-                String name = pair.getFirst();
-                Class<S> cls = pair.getSecond();
+                Class<S> cls = lookupIterator.next();
                 try {
                     S provider = service.cast(cls.newInstance());
-                    providers.put(name, provider);
+                    providers.put(cls.getName(), provider);
                     return provider;
                 } catch (Throwable x) {
-                    throw fail(service, "provider " + name + " could not be instantiated", x);
+                    throw fail(service, "provider " + cls.getName() + " could not be instantiated", x);
                 }
             }
 
@@ -236,7 +232,7 @@ public final class JServiceLoader<S> implements Iterable<S> {
         };
     }
 
-    private class LazyIterator implements Iterator<Pair<String, Class<S>>> {
+    private class LazyIterator implements Iterator<Class<S>> {
         Class<S> service;
         ClassLoader loader;
         Enumeration<URL> configs = null;
@@ -277,7 +273,7 @@ public final class JServiceLoader<S> implements Iterable<S> {
 
         @SuppressWarnings("unchecked")
         @Override
-        public Pair<String, Class<S>> next() {
+        public Class<S> next() {
             if (!hasNext()) {
                 throw new NoSuchElementException();
             }
@@ -292,7 +288,7 @@ public final class JServiceLoader<S> implements Iterable<S> {
             if (!service.isAssignableFrom(cls)) {
                 throw fail(service, "provider " + name + " not a subtype");
             }
-            return Pair.of(name, (Class<S>) cls);
+            return (Class<S>) cls;
         }
 
         @Override
