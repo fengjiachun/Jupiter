@@ -85,7 +85,7 @@ public final class JServiceLoader<S> implements Iterable<S> {
     public S first() {
         List<S> sortList = sort();
         if (sortList.isEmpty()) {
-            throw fail(service, "could not find any implementation for class " + service.getName());
+            throw fail(service, "could not find any implementation for class.");
         }
         return sortList.get(0);
     }
