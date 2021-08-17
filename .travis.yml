@@ -13,4 +13,4 @@ install:
   - mvn clean install -DskipTests=true -Dmaven.javadoc.skip=true -B -V
 
 after_success:
-  - travis_retry mvn clean test
+  - mvn clean test
