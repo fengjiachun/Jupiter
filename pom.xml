@@ -50,7 +50,7 @@
     </modules>
 
     <properties>
-        <netty.version>4.1.50.Final</netty.version>
+        <netty.version>4.1.68.Final</netty.version>
         <jmh.version>1.20</jmh.version>
         <hessian.version>4.0.38</hessian.version>
         <kryo.version>2.23.0</kryo.version>
